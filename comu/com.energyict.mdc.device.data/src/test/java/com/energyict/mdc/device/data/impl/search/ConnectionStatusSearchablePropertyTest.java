@@ -11,18 +11,19 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -49,9 +50,8 @@ public class ConnectionStatusSearchablePropertyTest {
     private DataModel dataModel;
     @Mock
     private OrmService ormService;
-    @Mock
-    private ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
 
+    private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
 
     @Before
@@ -62,8 +62,7 @@ public class ConnectionStatusSearchablePropertyTest {
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.CONNECTION_STATUS.getDefaultFormat());
         when(this.thesaurus.getFormat(PropertyTranslationKeys.CONNECTION_STATUS)).thenReturn(messageFormat);
 
-        this.propertySpecService = new com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl(new PropertySpecServiceImpl(timeService), dataVaultService, timeService, ormService);
-        propertySpecService.addFactoryProvider(this.referencePropertySpecFinderProvider);
+        this.propertySpecService = new com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl(new PropertySpecServiceImpl(timeService, this.ormService, this.beanService), dataVaultService, ormService);
         this.parentGroup = new ConnectionSearchablePropertyGroup(this.thesaurus);
     }
 

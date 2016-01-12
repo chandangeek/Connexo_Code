@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
@@ -13,35 +14,37 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.device.data.impl.finders.ServiceCategoryFinder;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceCategorySearchablePropertyTest {
 
+    public static final String TRANSLATION_FOR_GAS_SERVICE_KIND = "Translation for gas service kind";
     @Mock
     private DataVaultService dataVaultService;
-    @Mock
-    private com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     @Mock
     private DataModel dataModel;
     @Mock
@@ -55,29 +58,32 @@ public class ServiceCategorySearchablePropertyTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
-    private ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
-    @Mock
-    private ServiceCategoryFinder serviceCategoryFinder;
+    private NlsMessageFormat messageFormat;
     @Mock
     private MeteringService meteringService;
 
+    private BeanService beanService = new DefaultBeanService();
+    private com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private PropertySpecService propertySpecService;
 
     @Before
+    public void initializeThesaurus() {
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(this.messageFormat);
+        when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(this.messageFormat);
+        when(this.messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        NlsMessageFormat gas = mock(NlsMessageFormat.class);
+        when(gas.format(anyVararg())).thenReturn(TRANSLATION_FOR_GAS_SERVICE_KIND);
+        when(this.thesaurus.getFormat(ServiceKind.GAS)).thenReturn(gas);
+    }
+
+    @Before
     public void initializeMocks() {
-        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.SERVICE_CATEGORY.getDefaultFormat());
-        when(thesaurus.getFormat(PropertyTranslationKeys.SERVICE_CATEGORY)).thenReturn(messageFormat);
-        when(thesaurus.getStringBeyondComponent(anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, timeService, ormService);
-        when(serviceCategoryFinder.factoryId()).thenReturn(FactoryIds.SERVICE_CATEGORY);
-        when(serviceCategoryFinder.valueDomain()).thenReturn(ServiceCategory.class);
-        when(referencePropertySpecFinderProvider.finders()).thenReturn(Arrays.asList(serviceCategoryFinder));
+        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
+        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
         ServiceCategory gasCategory = mock(ServiceCategory.class);
         when(meteringService.getServiceCategory(any())).thenReturn(Optional.empty());
         when(meteringService.getServiceCategory(ServiceKind.GAS)).thenReturn(Optional.of(gasCategory));
-        this.propertySpecService.addFactoryProvider(this.referencePropertySpecFinderProvider);
     }
 
     @Test
@@ -186,13 +192,17 @@ public class ServiceCategorySearchablePropertyTest {
     public void testDisplayValue() {
         ServiceCategorySearchableProperty property = this.getTestInstance();
         ServiceCategory serviceCategory = mock(ServiceCategory.class);
+        when(serviceCategory.getTranslationKey()).thenReturn(ServiceKind.GAS.getKey());
         when(serviceCategory.getKind()).thenReturn(ServiceKind.GAS);
 
         // Business method
-        String displayValue = property.toDisplay(serviceCategory);
+        property.toDisplay(serviceCategory);
 
         // Asserts
-        assertThat(displayValue).isEqualToIgnoringCase("gas");
+        ArgumentCaptor<TranslationKey> translationKeyCaptor = ArgumentCaptor.forClass(TranslationKey.class);
+        verify(this.thesaurus).getFormat(translationKeyCaptor.capture());
+        TranslationKey translationKey = translationKeyCaptor.getValue();
+        assertThat(translationKey.getKey()).isEqualTo(ServiceKind.GAS.getKey());
     }
 
     private ServiceCategorySearchableProperty getTestInstance() {

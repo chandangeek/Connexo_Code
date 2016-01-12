@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.CanFindByStringKey;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
@@ -12,6 +12,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.energyict.mdc.device.data.impl.SearchHelperValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import javax.inject.Inject;
@@ -25,7 +26,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ComTaskScheduleTypeSearchableProperty extends AbstractSearchableDeviceProperty {
-    static final ScheduleTypeFinder SCHEDULE_TYPE_FINDER = new ScheduleTypeFinder();
     static final String PROPERTY_NAME = "device.comtask.schedule.type";
 
     private final PropertySpecService propertySpecService;
@@ -36,6 +36,7 @@ public class ComTaskScheduleTypeSearchableProperty extends AbstractSearchableDev
 
     @Inject
     public ComTaskScheduleTypeSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -103,15 +104,16 @@ public class ComTaskScheduleTypeSearchableProperty extends AbstractSearchableDev
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.stringReferencePropertySpec(
-                PROPERTY_NAME,
-                false,
-                SCHEDULE_TYPE_FINDER,
-                Arrays.stream(ScheduleTypeKey.values())
+        return this.propertySpecService
+                .specForValuesOf(new ScheduleTypeValueFactory())
+                .named(PROPERTY_NAME, this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .addValues(
+                    Arrays.stream(ScheduleTypeKey.values())
                         .map(ScheduleType::new)
-                        .collect(Collectors.toList())
-                        .toArray(new ScheduleType[ScheduleTypeKey.values().length])
-        );
+                        .toArray(ScheduleType[]::new))
+                .markExhaustive()
+                .finish();
     }
 
     @Override
@@ -125,8 +127,8 @@ public class ComTaskScheduleTypeSearchableProperty extends AbstractSearchableDev
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.COMTASK_SCHEDULE_TYPE).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.COMTASK_SCHEDULE_TYPE;
     }
 
     @Override
@@ -172,21 +174,24 @@ public class ComTaskScheduleTypeSearchableProperty extends AbstractSearchableDev
         public abstract String getSQLStatement();
     }
 
-    static class ScheduleTypeFinder implements CanFindByStringKey<ScheduleType> {
-        @Override
-        public Optional<ScheduleType> find(String key) {
-            return Arrays.stream(ScheduleTypeKey.values())
-                    .filter(stk -> stk.name().equals(key))
-                    .map(ScheduleType::new)
-                    .findFirst();
+    private class ScheduleTypeValueFactory extends SearchHelperValueFactory<ScheduleType> {
+        private ScheduleTypeValueFactory() {
+            super(ScheduleType.class);
         }
 
         @Override
-        public Class<ScheduleType> valueDomain() {
-            return ScheduleType.class;
+        public ScheduleType fromStringValue(String stringValue) {
+            return Arrays.stream(ScheduleTypeKey.values())
+                    .filter(stk -> stk.name().equals(stringValue))
+                    .map(ScheduleType::new).findAny()
+                    .orElse(null);
+        }
+
+        @Override
+        public String toStringValue(ScheduleType object) {
+            return object.getId();
         }
     }
-
     static class ScheduleType extends HasIdAndName {
         private final ScheduleTypeKey scheduleTypeKey;
 

@@ -2,15 +2,14 @@ package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.search.SearchableProperty;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import org.junit.*;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ConnectionDynamicSearchablePropertyTest extends AbstractDynamicSearchablePropertyTest {
+
 
     private ConnectionTypePluggableClass pluggableClass;
 
@@ -22,7 +21,8 @@ public class ConnectionDynamicSearchablePropertyTest extends AbstractDynamicSear
     }
 
     protected SearchableProperty getTestInstance() {
-        return new ConnectionDynamicSearchableProperty()
+        return new ConnectionDynamicSearchableProperty(this.getThesaurus())
                 .init(this.domain, this.group, this.propertySpec, this.pluggableClass);
     }
+
 }

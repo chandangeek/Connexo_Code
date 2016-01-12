@@ -7,8 +7,6 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -16,14 +14,11 @@ import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Functions;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -41,11 +36,6 @@ import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActio
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
-import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
-import com.energyict.mdc.device.data.impl.finders.DeviceGroupFinder;
-import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
-import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
-import com.energyict.mdc.device.data.impl.finders.ServiceCategoryFinder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
@@ -57,7 +47,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import org.osgi.service.event.EventConstants;
@@ -67,7 +56,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -86,36 +74,19 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class DeviceServiceImpl implements ServerDeviceService {
 
     private final DeviceDataModelService deviceDataModelService;
-    private final ProtocolPluggableService protocolPluggableService;
-    private final MeteringGroupsService meteringGroupsService;
-    private final MeteringService meteringService;
     private final QueryService queryService;
     private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, ProtocolPluggableService protocolPluggableService, QueryService queryService, NlsService nlsService, MeteringGroupsService meteringGroupsService, MeteringService meteringService) {
-        this(deviceDataModelService, protocolPluggableService, queryService, nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN), meteringGroupsService, meteringService);
+    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, QueryService queryService, NlsService nlsService) {
+        this(deviceDataModelService, queryService, nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN));
     }
 
-    DeviceServiceImpl(DeviceDataModelService deviceDataModelService, ProtocolPluggableService protocolPluggableService, QueryService queryService, Thesaurus thesaurus, MeteringGroupsService meteringGroupsService, MeteringService meteringService) {
+    DeviceServiceImpl(DeviceDataModelService deviceDataModelService, QueryService queryService, Thesaurus thesaurus) {
         super();
         this.deviceDataModelService = deviceDataModelService;
-        this.protocolPluggableService = protocolPluggableService;
         this.queryService = queryService;
         this.thesaurus = thesaurus;
-        this.meteringGroupsService = meteringGroupsService;
-        this.meteringService = meteringService;
-    }
-
-    @Override
-    public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
-        List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-        finders.add(new DeviceFinder(this.deviceDataModelService.dataModel()));
-        finders.add(new ProtocolDialectPropertiesFinder(this.deviceDataModelService.dataModel()));
-        finders.add(new SecuritySetFinder(this.deviceDataModelService.deviceConfigurationService()));
-        finders.add(new DeviceGroupFinder(this.meteringGroupsService));
-        finders.add(new ServiceCategoryFinder(this.meteringService));
-        return finders;
     }
 
     @Override
@@ -330,7 +301,7 @@ public class DeviceServiceImpl implements ServerDeviceService {
     public boolean hasActiveDeviceConfigChangesFor(DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration) {
         return this.deviceDataModelService.dataModel()
                 .stream(DeviceConfigChangeRequest.class)
-                .filter(Where.where(DeviceConfigChangeRequestImpl.Fields.DEVICE_CONFIG_REFERENCE.fieldName()).in(Arrays.asList(originDeviceConfiguration, destinationDeviceConfiguration)))
+                .filter(where(DeviceConfigChangeRequestImpl.Fields.DEVICE_CONFIG_REFERENCE.fieldName()).in(Arrays.asList(originDeviceConfiguration, destinationDeviceConfiguration)))
                 .findAny().isPresent();
     }
 
@@ -343,4 +314,5 @@ public class DeviceServiceImpl implements ServerDeviceService {
     public Optional<DeviceConfigChangeInAction> findDeviceConfigChangeInActionById(long id) {
         return deviceDataModelService.dataModel().mapper(DeviceConfigChangeInAction.class).getUnique("id", id);
     }
+
 }

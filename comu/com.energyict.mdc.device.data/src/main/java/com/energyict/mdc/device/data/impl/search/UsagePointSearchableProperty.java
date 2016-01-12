@@ -2,8 +2,8 @@ package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
@@ -27,12 +27,11 @@ public class UsagePointSearchableProperty extends AbstractSearchableDeviceProper
 
     private DeviceSearchDomain domain;
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
 
     @Inject
     public UsagePointSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
     }
 
     UsagePointSearchableProperty init(DeviceSearchDomain domain) {
@@ -88,11 +87,17 @@ public class UsagePointSearchableProperty extends AbstractSearchableDeviceProper
     }
 
     @Override
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.USAGE_POINT;
+    }
+
+    @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.basicPropertySpec(
-                PROPERTY_NAME,
-                false,
-                new StringFactory());
+        return this.propertySpecService
+                .stringSpec()
+                .named(getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .finish();
     }
 
     @Override
@@ -106,11 +111,6 @@ public class UsagePointSearchableProperty extends AbstractSearchableDeviceProper
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.USAGE_POINT).format();
-    }
-
-    @Override
     public List<SearchableProperty> getConstraints() {
         return Collections.emptyList();
     }
@@ -119,4 +119,5 @@ public class UsagePointSearchableProperty extends AbstractSearchableDeviceProper
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
         //nothing to refresh
     }
+
 }

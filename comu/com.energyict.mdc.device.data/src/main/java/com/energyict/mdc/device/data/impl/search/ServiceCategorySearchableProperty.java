@@ -3,7 +3,9 @@ package com.energyict.mdc.device.data.impl.search;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -13,7 +15,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.energyict.mdc.common.FactoryIds;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import javax.inject.Inject;
@@ -22,7 +24,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ServiceCategorySearchableProperty extends AbstractSearchableDeviceProperty {
@@ -32,14 +33,12 @@ public class ServiceCategorySearchableProperty extends AbstractSearchableDeviceP
     private DeviceSearchDomain domain;
     private final MeteringService meteringService;
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
-
 
     @Inject
     public ServiceCategorySearchableProperty(MeteringService meteringService, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.meteringService = meteringService;
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
     }
 
     ServiceCategorySearchableProperty init(DeviceSearchDomain domain) {
@@ -55,7 +54,8 @@ public class ServiceCategorySearchableProperty extends AbstractSearchableDeviceP
     @Override
     protected String toDisplayAfterValidation(Object value) {
         ServiceCategory serviceCategory = (ServiceCategory) value;
-        return this.thesaurus.getStringBeyondComponent(serviceCategory.getTranslationKey(), serviceCategory.getKind().getDefaultFormat());
+        TranslationKey translationKey = new SimpleTranslationKey(serviceCategory.getTranslationKey(), serviceCategory.getKind().getDefaultFormat());
+        return this.getThesaurus().getFormat(translationKey).format();
     }
 
     @Override
@@ -96,13 +96,23 @@ public class ServiceCategorySearchableProperty extends AbstractSearchableDeviceP
     }
 
     @Override
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.SERVICE_CATEGORY;
+    }
+
+    @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.referencePropertySpec(
-                PROPERTY_NAME,
-                false,
-                FactoryIds.SERVICE_CATEGORY,
-                Stream.of(ServiceKind.values()).map(meteringService::getServiceCategory).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList())
-        );
+        return this.propertySpecService
+                .referenceSpec(ServiceCategory.class)
+                .named(getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .addValues(Stream
+                            .of(ServiceKind.values())
+                            .map(meteringService::getServiceCategory)
+                            .flatMap(Functions.asStream())
+                            .toArray(ServiceCategory[]::new))
+                .markExhaustive()
+                .finish();
     }
 
     @Override
@@ -116,11 +126,6 @@ public class ServiceCategorySearchableProperty extends AbstractSearchableDeviceP
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.SERVICE_CATEGORY).format();
-    }
-
-    @Override
     public List<SearchableProperty> getConstraints() {
         return Collections.emptyList();
     }
@@ -129,4 +134,5 @@ public class ServiceCategorySearchableProperty extends AbstractSearchableDeviceP
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
         //nothing to refresh
     }
+
 }

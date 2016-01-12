@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -9,7 +10,6 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -27,13 +27,12 @@ public class SharedScheduleSearchableProperty extends AbstractSearchableDevicePr
     private DeviceSearchDomain domain;
     private final SchedulingService schedulingService;
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
 
     @Inject
     public SharedScheduleSearchableProperty(SchedulingService schedulingService, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.schedulingService = schedulingService;
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
     }
 
     SharedScheduleSearchableProperty init(DeviceSearchDomain domain) {
@@ -84,11 +83,14 @@ public class SharedScheduleSearchableProperty extends AbstractSearchableDevicePr
 
     @Override
     public PropertySpec getSpecification() {
-        return propertySpecService.referencePropertySpec(
-                PROPERTY_NAME,
-                false,
-                FactoryIds.COMSCHEDULE,
-                this.schedulingService.findAllSchedules().find());
+        List<ComSchedule> comSchedules = this.schedulingService.findAllSchedules().find();
+        return propertySpecService
+                .referenceSpec(ComSchedule.class)
+                .named(PROPERTY_NAME, this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .addValues(comSchedules.toArray(new ComSchedule[comSchedules.size()]))
+                .markExhaustive()
+                .finish();
     }
 
     @Override
@@ -102,8 +104,8 @@ public class SharedScheduleSearchableProperty extends AbstractSearchableDevicePr
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.SHARED_SCHEDULE).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.SHARED_SCHEDULE;
     }
 
     @Override

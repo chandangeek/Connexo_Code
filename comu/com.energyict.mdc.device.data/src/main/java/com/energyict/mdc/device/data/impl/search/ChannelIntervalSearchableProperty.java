@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.CanFindByStringKey;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -16,6 +16,7 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.DecoratedStream;
+import com.energyict.mdc.device.data.impl.SearchHelperValueFactory;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -26,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceProperty {
 
@@ -34,16 +36,15 @@ public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceP
 
     private final PropertySpecService propertySpecService;
     private final MasterDataService masterDataService;
-    private final Thesaurus thesaurus;
 
     private DeviceSearchDomain domain;
     private SearchablePropertyGroup group;
 
     @Inject
     public ChannelIntervalSearchableProperty(PropertySpecService propertySpecService, MasterDataService masterDataService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.propertySpecService = propertySpecService;
         this.masterDataService = masterDataService;
-        this.thesaurus = thesaurus;
     }
 
     ChannelIntervalSearchableProperty init(DeviceSearchDomain domain, SearchablePropertyGroup group) {
@@ -81,14 +82,7 @@ public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceP
         sqlBuilder.openBracket();
         sqlBuilder.append(contains.getCollection().stream()
                 .map(TimeDurationWrapper.class::cast)
-                .map(interval -> {
-                    StringBuilder builder = new StringBuilder();
-                    builder.append("interval = ");
-                    builder.append(interval.getCount());
-                    builder.append(" AND intervalcode = ");
-                    builder.append(interval.getUnitCode());
-                    return builder.toString();
-                })
+                .map(interval -> "interval = " + interval.getCount() + " AND intervalcode = " + interval.getUnitCode())
                 .collect(Collectors.joining(" OR ")));
         sqlBuilder.closeBracket();
         sqlBuilder.closeBracket();
@@ -112,16 +106,17 @@ public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceP
 
     @Override
     public PropertySpec getSpecification() {
-        List<TimeDurationWrapper> defaultValues = DecoratedStream.decorate(this.masterDataService.findAllLoadProfileTypes().stream())
+        Stream<TimeDurationWrapper> defaultValues = DecoratedStream.decorate(this.masterDataService.findAllLoadProfileTypes().stream())
                 .map(LoadProfileType::getInterval)
                 .map(TimeDurationWrapper::new)
-                .distinct(TimeDurationWrapper::getId)
-                .collect(Collectors.toList());
-        return this.propertySpecService.stringReferencePropertySpec(
-                PROPERTY_NAME,
-                false,
-                new TimeDurationFinder(),
-                defaultValues.toArray(new TimeDurationWrapper[defaultValues.size()]));
+                .distinct(TimeDurationWrapper::getId);
+        return this.propertySpecService
+                .specForValuesOf(new TimeDurationWrapperValueFactory())
+                .named(PROPERTY_NAME, this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .addValues(defaultValues.toArray(TimeDurationWrapper[]::new))
+                .markExhaustive()
+                .finish();
     }
 
     @Override
@@ -135,8 +130,8 @@ public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceP
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.CHANNEL_INTERVAL).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.CHANNEL_INTERVAL;
     }
 
     @Override
@@ -149,10 +144,26 @@ public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceP
         //nothing to refresh
     }
 
+    class TimeDurationWrapperValueFactory extends SearchHelperValueFactory<TimeDurationWrapper> {
+        private TimeDurationWrapperValueFactory() {
+            super(TimeDurationWrapper.class);
+        }
+
+        @Override
+        public TimeDurationWrapper fromStringValue(String stringValue) {
+            return new TimeDurationWrapper(TIME_DURATION_VALUE_FACTORY.fromStringValue(stringValue));
+        }
+
+        @Override
+        public String toStringValue(TimeDurationWrapper object) {
+            return object.getId();
+        }
+    }
+
     static class TimeDurationWrapper extends HasIdAndName {
         private TimeDuration timeDuration;
 
-        public TimeDurationWrapper(TimeDuration timeDuration) {
+        TimeDurationWrapper(TimeDuration timeDuration) {
             this.timeDuration = timeDuration;
         }
 
@@ -180,16 +191,4 @@ public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceP
         }
     }
 
-    static class TimeDurationFinder implements CanFindByStringKey<TimeDurationWrapper> {
-
-        @Override
-        public Optional<TimeDurationWrapper> find(String key) {
-            return Optional.of(new TimeDurationWrapper(TIME_DURATION_VALUE_FACTORY.fromStringValue(key)));
-        }
-
-        @Override
-        public Class<TimeDurationWrapper> valueDomain() {
-            return TimeDurationWrapper.class;
-        }
-    }
 }

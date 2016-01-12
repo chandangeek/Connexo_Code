@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -19,6 +20,11 @@ public class LoadProfileLastReadingSearchableProperty extends AbstractDateSearch
     }
 
     @Override
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.LOADPROFILE_LAST_READING;
+    }
+
+    @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
     }
 
@@ -30,11 +36,6 @@ public class LoadProfileLastReadingSearchableProperty extends AbstractDateSearch
         builder.add(toSqlFragment("LASTREADING", condition, now));
         builder.closeBracket();
         return builder;
-    }
-
-    @Override
-    public String getDisplayName() {
-        return getThesaurus().getFormat(PropertyTranslationKeys.LOADPROFILE_LAST_READING).format();
     }
 
     @Override

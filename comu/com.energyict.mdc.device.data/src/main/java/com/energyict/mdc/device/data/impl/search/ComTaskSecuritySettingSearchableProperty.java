@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -10,34 +11,30 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.Predicates;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class ComTaskSecuritySettingSearchableProperty extends AbstractSearchableDeviceProperty {
     static final String PROPERTY_NAME = "device.comtask.security";
 
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
 
     private SearchDomain searchDomain;
     private SearchablePropertyGroup group;
     private SearchableProperty parent;
-    private List<SecurityPropertySet> possibleValues = Collections.emptyList();
+    private SecurityPropertySet[] possibleValues = new SecurityPropertySet[0];
 
     @Inject
     public ComTaskSecuritySettingSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
     }
 
     ComTaskSecuritySettingSearchableProperty init(SearchDomain searchDomain, SearchablePropertyGroup parentGroup, SearchableProperty parent) {
@@ -92,12 +89,13 @@ public class ComTaskSecuritySettingSearchableProperty extends AbstractSearchable
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.referencePropertySpec(
-                PROPERTY_NAME,
-                false,
-                FactoryIds.SECURITY_SET,
-                this.possibleValues
-        );
+        return this.propertySpecService
+                .referenceSpec(SecurityPropertySet.class)
+                .named(PROPERTY_NAME, this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .addValues(this.possibleValues)
+                .markExhaustive()
+                .finish();
     }
 
     @Override
@@ -111,13 +109,13 @@ public class ComTaskSecuritySettingSearchableProperty extends AbstractSearchable
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.COMTASK_SECURITY_SETTING).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.COMTASK_SECURITY_SETTING;
     }
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Arrays.asList(this.parent);
+        return Collections.singletonList(this.parent);
     }
 
     @Override
@@ -143,7 +141,7 @@ public class ComTaskSecuritySettingSearchableProperty extends AbstractSearchable
                 .flatMap(deviceType -> deviceType.getConfigurations().stream())
                 .flatMap(deviceConfiguration ->deviceConfiguration.getSecurityPropertySets().stream())
                 .sorted((sps1, pd2) -> sps1.getName().compareToIgnoreCase(pd2.getName()))
-                .collect(Collectors.toList());
+                .toArray(SecurityPropertySet[]::new);
     }
 
     private void validateObjectsType(List<Object> objectsForValidation) {

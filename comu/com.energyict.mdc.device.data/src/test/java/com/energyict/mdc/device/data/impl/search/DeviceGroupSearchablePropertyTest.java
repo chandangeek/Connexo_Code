@@ -13,16 +13,15 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.util.Collections;
+import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -52,8 +51,6 @@ public class DeviceGroupSearchablePropertyTest {
     private DeviceService deviceService;
     @Mock
     private EndDeviceGroup endDeviceGroup;
-    @Mock
-    private ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
     private PropertySpecService propertySpecService;
 
     @Before
@@ -62,9 +59,8 @@ public class DeviceGroupSearchablePropertyTest {
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.DEVICE_GROUP.getDefaultFormat());
         when(this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_GROUP)).thenReturn(messageFormat);
-        when(meteringGroupsService.findEndDeviceGroups()).thenReturn(Arrays.asList(endDeviceGroup));
-        this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.timeService, this.ormService);
-        this.propertySpecService.addFactoryProvider(this.referencePropertySpecFinderProvider);
+        when(meteringGroupsService.findEndDeviceGroups()).thenReturn(Collections.singletonList(endDeviceGroup));
+        this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.ormService);
     }
 
     @Test
@@ -112,7 +108,7 @@ public class DeviceGroupSearchablePropertyTest {
     }
 
     private DeviceGroupSearchableProperty getTestInstance() {
-        return new DeviceGroupSearchableProperty(this.meteringGroupsService, this.propertySpecService, this.thesaurus, this.deviceService).init(this.domain);
+        return new DeviceGroupSearchableProperty(this.meteringGroupsService, this.propertySpecService, this.thesaurus).init(this.domain);
     }
 
 }
