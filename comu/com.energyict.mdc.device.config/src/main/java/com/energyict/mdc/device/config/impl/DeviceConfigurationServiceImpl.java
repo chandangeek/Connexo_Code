@@ -16,6 +16,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -514,13 +515,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.schedulingService = schedulingService;
     }
 
-    Optional<Privilege> findPrivilege(String userActionPrivilege) {
-        return this.privileges
-                .stream()
-                .filter(privilege -> privilege.getName().equals(userActionPrivilege))
-                .findAny();
-    }
-
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -624,6 +618,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setPluggableService(PluggableService pluggableService) {
         // Not actively used but required for foreign keys in TableSpecs
     }
