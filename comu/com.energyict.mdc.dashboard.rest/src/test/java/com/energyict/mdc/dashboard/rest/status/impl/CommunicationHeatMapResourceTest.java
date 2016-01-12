@@ -24,7 +24,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class CommunicationTaskHeatMapResourceTest extends DashboardApplicationJerseyTest {
+public class CommunicationHeatMapResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testCommunicationHeatMapJsonBinding() throws Exception {

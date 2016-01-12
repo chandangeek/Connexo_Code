@@ -2,7 +2,6 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.Transactional;
@@ -20,17 +19,17 @@ import javax.ws.rs.core.MediaType;
 @Path("/communicationheatmap")
 public class CommunicationHeatMapResource {
 
-    private final Thesaurus thesaurus;
     private final DashboardService dashboardService;
     private final MeteringGroupsService meteringGroupService;
     private final ExceptionFactory exceptionFactory;
+    private final CommunicationHeatMapInfoFactory communicationHeatMapInfoFactory;
 
     @Inject
-    public CommunicationHeatMapResource(Thesaurus thesaurus, DashboardService dashboardService, MeteringGroupsService meteringGroupService, ExceptionFactory exceptionFactory) {
-        this.thesaurus = thesaurus;
+    public CommunicationHeatMapResource(DashboardService dashboardService, MeteringGroupsService meteringGroupService, ExceptionFactory exceptionFactory, CommunicationHeatMapInfoFactory communicationHeatMapInfoFactory) {
         this.dashboardService = dashboardService;
         this.meteringGroupService = meteringGroupService;
         this.exceptionFactory = exceptionFactory;
+        this.communicationHeatMapInfoFactory = communicationHeatMapInfoFactory;
     }
 
     /**
@@ -46,10 +45,11 @@ public class CommunicationHeatMapResource {
         if (jsonQueryFilter.hasProperty(Constants.DEVICE_GROUP)) {
             Optional<EndDeviceGroup> deviceGroupOptional = meteringGroupService.findEndDeviceGroup(jsonQueryFilter.getLong(Constants.DEVICE_GROUP));
             return deviceGroupOptional
-                    .map(g -> new CommunicationHeatMapInfo(dashboardService.getCommunicationTasksHeatMap(g), thesaurus))
+                    .map(dashboardService::getCommunicationTasksHeatMap)
+                    .map(communicationHeatMapInfoFactory::from)
                     .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP));
         }
-        return new CommunicationHeatMapInfo(dashboardService.getCommunicationTasksHeatMap(), thesaurus);
+        return communicationHeatMapInfoFactory.from(dashboardService.getCommunicationTasksHeatMap());
     }
 
 }

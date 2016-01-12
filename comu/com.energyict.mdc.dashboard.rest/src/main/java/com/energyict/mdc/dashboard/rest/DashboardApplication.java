@@ -9,11 +9,13 @@ import com.energyict.mdc.dashboard.rest.status.impl.BreakdownFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ComSessionSuccessIndicatorTranslationKeys;
 import com.energyict.mdc.dashboard.rest.status.impl.ComTaskExecutionInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ComTaskExecutionSessionInfoFactory;
+import com.energyict.mdc.dashboard.rest.status.impl.CommunicationHeatMapInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationHeatMapResource;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationOverviewInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationResource;
 import com.energyict.mdc.dashboard.rest.status.impl.CompletionCodeTranslationKeys;
+import com.energyict.mdc.dashboard.rest.status.impl.ConnectionHeatMapInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionHeatMapResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewResource;
@@ -33,11 +35,12 @@ import com.energyict.mdc.dashboard.rest.status.impl.SummaryInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.TaskStatusTranslationKeys;
 import com.energyict.mdc.dashboard.rest.status.impl.TranslationKeys;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.FilterFactory;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.favorites.FavoritesService;
@@ -96,6 +99,7 @@ public class DashboardApplication extends Application implements MessageSeedProv
     private volatile Thesaurus thesaurus;
     private volatile ConnectionTaskService connectionTaskService;
     private volatile CommunicationTaskService communicationTaskService;
+    private volatile CommunicationTaskReportService communicationTaskReportService;
     private volatile DeviceService deviceService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -171,6 +175,11 @@ public class DashboardApplication extends Application implements MessageSeedProv
     @Reference
     public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setCommunicationTaskReportService(CommunicationTaskReportService communicationTaskReportService) {
+        this.communicationTaskReportService = communicationTaskReportService;
     }
 
     @Reference
@@ -267,13 +276,13 @@ public class DashboardApplication extends Application implements MessageSeedProv
                 ConnectionOverviewResource.class,
                 DashboardFieldResource.class,
                 ConnectionResource.class,
-                ConnectionHeatMapResource.class,
                 CommunicationResource.class,
                 CommunicationOverviewResource.class,
-                CommunicationHeatMapResource.class,
                 IssuesResource.class,
                 LabeledDeviceResource.class,
-                FavoriteDeviceGroupResource.class
+                FavoriteDeviceGroupResource.class,
+                CommunicationHeatMapResource.class,
+                ConnectionHeatMapResource.class
         );
     }
 
@@ -294,6 +303,7 @@ public class DashboardApplication extends Application implements MessageSeedProv
             bind(dashboardService).to(DashboardService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(communicationTaskService).to(CommunicationTaskService.class);
+            bind(communicationTaskReportService).to(CommunicationTaskReportService.class);
             bind(connectionTaskService).to(ConnectionTaskService.class);
             bind(deviceService).to(DeviceService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
@@ -326,6 +336,8 @@ public class DashboardApplication extends Application implements MessageSeedProv
             bind(firmwareService).to(FirmwareService.class);
             bind(FilterFactory.class).to(FilterFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
+            bind(CommunicationHeatMapInfoFactory.class).to(CommunicationHeatMapInfoFactory.class);
+            bind(ConnectionHeatMapInfoFactory.class).to(ConnectionHeatMapInfoFactory.class);
         }
     }
 

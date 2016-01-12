@@ -1,11 +1,9 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.devtools.ExtjsFilter;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
 import com.energyict.mdc.dashboard.ComScheduleBreakdown;
 import com.energyict.mdc.dashboard.ComTaskBreakdown;
+import com.energyict.mdc.dashboard.CommunicationTaskOverview;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
@@ -18,7 +16,12 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.time.TimeDuration;
 import com.jayway.jsonpath.JsonModel;
+
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
@@ -27,7 +30,8 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Test;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
@@ -42,15 +46,17 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
     @Test
     public void testGetCommunicationOverviewWithoutDeviceGroup() throws Exception {
         TaskStatusOverview statusOverview = createCommunicationStatusOverview();
-        when(dashboardService.getCommunicationTaskStatusOverview()).thenReturn(statusOverview);
         ComCommandCompletionCodeOverview comCommandCompletionCodeOverview = createComCommandCompletionCodeOverview();
-        when(dashboardService.getCommunicationTaskCompletionResultOverview()).thenReturn(comCommandCompletionCodeOverview);
         ComScheduleBreakdown comScheduleBreakdown = createComScheduleBreakdown();
-        when(dashboardService.getCommunicationTasksComScheduleBreakdown()).thenReturn(comScheduleBreakdown);
         ComTaskBreakdown comTaskBreakdown = createComTaskBreakdown();
-        when(dashboardService.getCommunicationTasksBreakdown()).thenReturn(comTaskBreakdown);
         DeviceTypeBreakdown deviceTypeBreakdown = createDeviceTypeBreakdown();
-        when(dashboardService.getCommunicationTasksDeviceTypeBreakdown()).thenReturn(deviceTypeBreakdown);
+        CommunicationTaskOverview overview = mock(CommunicationTaskOverview.class);
+        when(overview.getStatusOverview()).thenReturn(statusOverview);
+        when(overview.getCommunicationTaskCompletionResultOverview()).thenReturn(comCommandCompletionCodeOverview);
+        when(overview.getComScheduleBreakdown()).thenReturn(comScheduleBreakdown);
+        when(overview.getComTaskBreakdown()).thenReturn(comTaskBreakdown);
+        when(overview.getDeviceTypeBreakdown()).thenReturn(deviceTypeBreakdown);
+        when(dashboardService.getCommunicationTaskOverview()).thenReturn(overview);
 
         String response = target("/communicationoverview").request().get(String.class);
 
@@ -79,15 +85,17 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
         when(meteringGroupsService.findEndDeviceGroup(deviceGroupId)).thenReturn(Optional.of(endDeviceGroup));
 
         TaskStatusOverview statusOverview = createCommunicationStatusOverview();
-        when(dashboardService.getCommunicationTaskStatusOverview(endDeviceGroup)).thenReturn(statusOverview);
         ComCommandCompletionCodeOverview comCommandCompletionCodeOverview = createComCommandCompletionCodeOverview();
-        when(dashboardService.getCommunicationTaskCompletionResultOverview(endDeviceGroup)).thenReturn(comCommandCompletionCodeOverview);
         ComScheduleBreakdown comScheduleBreakdown = createComScheduleBreakdown();
-        when(dashboardService.getCommunicationTasksComScheduleBreakdown(endDeviceGroup)).thenReturn(comScheduleBreakdown);
         ComTaskBreakdown comTaskBreakdown = createComTaskBreakdown();
-        when(dashboardService.getCommunicationTasksBreakdown(endDeviceGroup)).thenReturn(comTaskBreakdown);
         DeviceTypeBreakdown deviceTypeBreakdown = createDeviceTypeBreakdown();
-        when(dashboardService.getCommunicationTasksDeviceTypeBreakdown(endDeviceGroup)).thenReturn(deviceTypeBreakdown);
+        CommunicationTaskOverview overview = mock(CommunicationTaskOverview.class);
+        when(overview.getStatusOverview()).thenReturn(statusOverview);
+        when(overview.getCommunicationTaskCompletionResultOverview()).thenReturn(comCommandCompletionCodeOverview);
+        when(overview.getComScheduleBreakdown()).thenReturn(comScheduleBreakdown);
+        when(overview.getComTaskBreakdown()).thenReturn(comTaskBreakdown);
+        when(overview.getDeviceTypeBreakdown()).thenReturn(deviceTypeBreakdown);
+        when(dashboardService.getCommunicationTaskOverview(endDeviceGroup)).thenReturn(overview);
 
         DataCollectionKpi dataCollectionKpi = mockDataCommunicationKpi();
         when(dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup)).thenReturn(Optional.of(dataCollectionKpi));

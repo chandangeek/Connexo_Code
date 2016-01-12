@@ -6,6 +6,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.dashboard.ComPortPoolHeatMap;
+import com.energyict.mdc.dashboard.ConnectionTaskDeviceTypeHeatMap;
+import com.energyict.mdc.dashboard.ConnectionTaskHeatMap;
+import com.energyict.mdc.dashboard.ConnectionTypeHeatMap;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.device.data.security.Privileges;
 import java.util.Optional;
@@ -27,13 +31,17 @@ public class ConnectionHeatMapResource {
     private final DashboardService dashboardService;
     private final MeteringGroupsService meteringGroupService;
     private final ExceptionFactory exceptionFactory;
+    private final ConnectionHeatMapInfoFactory connectionHeatMapInfoFactory;
 
     @Inject
-    public ConnectionHeatMapResource(Thesaurus thesaurus, DashboardService dashboardService, MeteringGroupsService meteringGroupService, ExceptionFactory exceptionFactory) {
+    public ConnectionHeatMapResource(Thesaurus thesaurus, DashboardService dashboardService,
+                                     MeteringGroupsService meteringGroupService, ExceptionFactory exceptionFactory,
+                                     ConnectionHeatMapInfoFactory connectionHeatMapInfoFactory) {
         this.thesaurus = thesaurus;
         this.dashboardService = dashboardService;
         this.meteringGroupService = meteringGroupService;
         this.exceptionFactory = exceptionFactory;
+        this.connectionHeatMapInfoFactory = connectionHeatMapInfoFactory;
     }
 
     /**
@@ -43,7 +51,8 @@ public class ConnectionHeatMapResource {
      * @return HeatMap data
      * @throws Exception
      */
-    @GET @Transactional
+    @GET
+    @Transactional
     @Consumes("application/json")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -53,35 +62,40 @@ public class ConnectionHeatMapResource {
         }
         HeatMapBreakdownOption breakdown = jsonQueryFilter.getProperty("breakdown", new BreakdownOptionAdapter());
 
+        ConnectionTaskHeatMap heatMap = null;
         if (jsonQueryFilter.hasProperty(Constants.DEVICE_GROUP)) {
-            Optional<EndDeviceGroup> deviceGroupOptional = meteringGroupService.findEndDeviceGroup(jsonQueryFilter.getLong(Constants.DEVICE_GROUP));
-            return deviceGroupOptional
-                    .map(g -> {
-                        switch (breakdown) {
-                            case connectionTypes:
-                                return new ConnectionHeatMapInfo(dashboardService.getConnectionTypeHeatMap(g), breakdown, thesaurus);
-                            case deviceTypes:
-                                return new ConnectionHeatMapInfo(dashboardService.getConnectionsDeviceTypeHeatMap(g), breakdown, thesaurus);
-                            case comPortPools:
-                                return new ConnectionHeatMapInfo(dashboardService.getConnectionsComPortPoolHeatMap(g), breakdown, thesaurus);
-                            default:
-                                throw new WebApplicationException("Invalid breakdown: " + breakdown, Response.Status.BAD_REQUEST);
-                        }
-                    })
+            EndDeviceGroup deviceGroup = meteringGroupService.findEndDeviceGroup(jsonQueryFilter.getLong(Constants.DEVICE_GROUP))
                     .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP));
-        }
 
-        switch (breakdown) {
-            case connectionTypes:
-                return new ConnectionHeatMapInfo(dashboardService.getConnectionTypeHeatMap(), breakdown, thesaurus);
-            case deviceTypes:
-                return new ConnectionHeatMapInfo(dashboardService.getConnectionsDeviceTypeHeatMap(), breakdown, thesaurus);
-            case comPortPools:
-                return new ConnectionHeatMapInfo(dashboardService.getConnectionsComPortPoolHeatMap(), breakdown, thesaurus);
-            default:
-                throw new WebApplicationException("Invalid breakdown: " + breakdown, Response.Status.BAD_REQUEST);
-
+            switch (breakdown) {
+                case connectionTypes:
+                    heatMap = dashboardService.getConnectionTypeHeatMap(deviceGroup);
+                    break;
+                case deviceTypes:
+                    heatMap = dashboardService.getConnectionsDeviceTypeHeatMap(deviceGroup);
+                    break;
+                case comPortPools:
+                    heatMap = dashboardService.getConnectionsComPortPoolHeatMap(deviceGroup);
+                    break;
+                default:
+                    throw new WebApplicationException("Invalid breakdown: " + breakdown, Response.Status.BAD_REQUEST);
+            }
+        } else {
+            switch (breakdown) {
+                case connectionTypes:
+                    heatMap = dashboardService.getConnectionTypeHeatMap();
+                    break;
+                case deviceTypes:
+                    heatMap = dashboardService.getConnectionsDeviceTypeHeatMap();
+                    break;
+                case comPortPools:
+                    heatMap = dashboardService.getConnectionsComPortPoolHeatMap();
+                    break;
+                default:
+                    throw new WebApplicationException("Invalid breakdown: " + breakdown, Response.Status.BAD_REQUEST);
+            }
         }
+        return connectionHeatMapInfoFactory.asInfo(heatMap, breakdown);
 
     }
 

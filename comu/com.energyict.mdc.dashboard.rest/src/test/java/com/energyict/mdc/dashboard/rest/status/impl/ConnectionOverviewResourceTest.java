@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
+import com.energyict.mdc.dashboard.ConnectionTaskOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
@@ -59,7 +60,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         return overview;
     }
 
-    private TaskStatusOverview createConnectionStatusOverview() {
+    private TaskStatusOverview createConnectionTaskStatusOverview() {
         TaskStatusOverview overview = mock(TaskStatusOverview.class);
         when(overview.getTotalCount()).thenReturn(100L);
         List<Counter<TaskStatus>> counters = new ArrayList<>();
@@ -74,6 +75,23 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         return overview;
     }
 
+    private ConnectionTaskOverview createConnectionTaskOverview() {
+        ConnectionTaskOverview connectionTaskOverview = mock(ConnectionTaskOverview.class);
+        TaskStatusOverview connectionTaskStatusOverview = createConnectionTaskStatusOverview();
+        when(connectionTaskOverview.getTaskStatusOverview()).thenReturn(connectionTaskStatusOverview);
+        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = createComTaskCompletionOverview();
+        when(connectionTaskOverview.getComSessionSuccessIndicatorOverview()).thenReturn(comSessionSuccessIndicatorOverview);
+        ComPortPoolBreakdown comPortPoolBreakdown = createComPortPoolBreakdown();
+        when(connectionTaskOverview.getComPortPoolBreakdown()).thenReturn(comPortPoolBreakdown);
+        ConnectionTypeBreakdown connectionStatusBreakdown = createConnectionTypeBreakdown();
+        when(connectionTaskOverview.getConnectionTypeBreakdown()).thenReturn(connectionStatusBreakdown);
+        DeviceTypeBreakdown deviceTypeBreakdown=createDeviceTypeBreakdown();
+        when(connectionTaskOverview.getDeviceTypeBreakdown()).thenReturn(deviceTypeBreakdown);
+
+        return connectionTaskOverview;
+    }
+
+
     private <C> Counter<C> createCounter(C status, Long count) {
         Counter<C> counter = mock(Counter.class);
         when(counter.getCount()).thenReturn(count);
@@ -83,16 +101,8 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
 
     @Test
     public void testGetOverviewWithoutDeviceGroup() throws UnsupportedEncodingException {
-        TaskStatusOverview taskStatusOverview = createConnectionStatusOverview();
-        when(dashboardService.getConnectionTaskStatusOverview()).thenReturn(taskStatusOverview);
-        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = createComTaskCompletionOverview();
-        when(dashboardService.getComSessionSuccessIndicatorOverview()).thenReturn(comSessionSuccessIndicatorOverview);
-        ComPortPoolBreakdown comPortPoolBreakdown = createComPortPoolBreakdown();
-        when(dashboardService.getComPortPoolBreakdown()).thenReturn(comPortPoolBreakdown);
-        ConnectionTypeBreakdown connectionStatusBreakdown = createConnectionTypeBreakdown();
-        when(dashboardService.getConnectionTypeBreakdown()).thenReturn(connectionStatusBreakdown);
-        DeviceTypeBreakdown deviceTypeBreakdown=createDeviceTypeBreakdown();
-        when(dashboardService.getConnectionTasksDeviceTypeBreakdown()).thenReturn(deviceTypeBreakdown);
+        ConnectionTaskOverview connectionTaskOverview = createConnectionTaskOverview();
+        when(dashboardService.getConnectionTaskOverview()).thenReturn(connectionTaskOverview);
 
         ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").request().get(ConnectionOverviewInfo.class);
 
@@ -115,17 +125,10 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
     public void testGetOverviewWithDeviceGroup() throws UnsupportedEncodingException {
         int deviceGroupId = 123;
 
-        TaskStatusOverview taskStatusOverview = createConnectionStatusOverview();
+        ConnectionTaskOverview connectionTaskOverview = createConnectionTaskOverview();
         QueryEndDeviceGroup endDeviceGroup = mock(QueryEndDeviceGroup.class);
-        when(dashboardService.getConnectionTaskStatusOverview(endDeviceGroup)).thenReturn(taskStatusOverview);
-        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = createComTaskCompletionOverview();
-        when(dashboardService.getComSessionSuccessIndicatorOverview(endDeviceGroup)).thenReturn(comSessionSuccessIndicatorOverview);
-        ComPortPoolBreakdown comPortPoolBreakdown = createComPortPoolBreakdown();
-        when(dashboardService.getComPortPoolBreakdown(endDeviceGroup)).thenReturn(comPortPoolBreakdown);
-        ConnectionTypeBreakdown connectionStatusBreakdown = createConnectionTypeBreakdown();
-        when(dashboardService.getConnectionTypeBreakdown(endDeviceGroup)).thenReturn(connectionStatusBreakdown);
-        DeviceTypeBreakdown deviceTypeBreakdown=createDeviceTypeBreakdown();
-        when(dashboardService.getConnectionTasksDeviceTypeBreakdown(endDeviceGroup)).thenReturn(deviceTypeBreakdown);
+        when(dashboardService.getConnectionTaskOverview(endDeviceGroup)).thenReturn(connectionTaskOverview);
+
         DataCollectionKpi dataCollectionKpi = mockDataCollectionKpi(Duration.ofMinutes(15), TimeDuration.days(1));
         when(dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup)).thenReturn(Optional.of(dataCollectionKpi));
         when(meteringGroupsService.findEndDeviceGroup(deviceGroupId)).thenReturn(Optional.of(endDeviceGroup));
@@ -151,17 +154,10 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
     public void testGetOverviewWithKpisWithDeviceGroup() throws UnsupportedEncodingException {
         int deviceGroupId = 123;
 
-        TaskStatusOverview taskStatusOverview = createConnectionStatusOverview();
+        ConnectionTaskOverview connectionTaskOverview = createConnectionTaskOverview();
         QueryEndDeviceGroup endDeviceGroup = mock(QueryEndDeviceGroup.class);
-        when(dashboardService.getConnectionTaskStatusOverview(endDeviceGroup)).thenReturn(taskStatusOverview);
-        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = createComTaskCompletionOverview();
-        when(dashboardService.getComSessionSuccessIndicatorOverview(endDeviceGroup)).thenReturn(comSessionSuccessIndicatorOverview);
-        ComPortPoolBreakdown comPortPoolBreakdown = createComPortPoolBreakdown();
-        when(dashboardService.getComPortPoolBreakdown(endDeviceGroup)).thenReturn(comPortPoolBreakdown);
-        ConnectionTypeBreakdown connectionStatusBreakdown = createConnectionTypeBreakdown();
-        when(dashboardService.getConnectionTypeBreakdown(endDeviceGroup)).thenReturn(connectionStatusBreakdown);
-        DeviceTypeBreakdown deviceTypeBreakdown=createDeviceTypeBreakdown();
-        when(dashboardService.getConnectionTasksDeviceTypeBreakdown(endDeviceGroup)).thenReturn(deviceTypeBreakdown);
+        when(dashboardService.getConnectionTaskOverview(endDeviceGroup)).thenReturn(connectionTaskOverview);
+
         DataCollectionKpi dataCollectionKpi = mockDataCollectionKpi(Duration.ofMinutes(15), TimeDuration.days(1));
         when(dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup)).thenReturn(Optional.of(dataCollectionKpi));
         when(meteringGroupsService.findEndDeviceGroup(deviceGroupId)).thenReturn(Optional.of(endDeviceGroup));
@@ -199,7 +195,7 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         //COMU-1217
         int deviceGroupId = 123;
 
-        TaskStatusOverview taskStatusOverview = createConnectionStatusOverview();
+        TaskStatusOverview taskStatusOverview = createConnectionTaskStatusOverview();
         QueryEndDeviceGroup endDeviceGroup = mock(QueryEndDeviceGroup.class);
         when(dashboardService.getConnectionTaskStatusOverview(endDeviceGroup)).thenReturn(taskStatusOverview);
         ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = createComTaskCompletionOverview();
@@ -240,17 +236,10 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
     public void testGetOverviewWithKpisWithDeviceGroupAndFrequencyOneMonth() throws UnsupportedEncodingException {
         int deviceGroupId = 123;
 
-        TaskStatusOverview taskStatusOverview = createConnectionStatusOverview();
+        ConnectionTaskOverview connectionTaskOverview = createConnectionTaskOverview();
         QueryEndDeviceGroup endDeviceGroup = mock(QueryEndDeviceGroup.class);
-        when(dashboardService.getConnectionTaskStatusOverview(endDeviceGroup)).thenReturn(taskStatusOverview);
-        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = createComTaskCompletionOverview();
-        when(dashboardService.getComSessionSuccessIndicatorOverview(endDeviceGroup)).thenReturn(comSessionSuccessIndicatorOverview);
-        ComPortPoolBreakdown comPortPoolBreakdown = createComPortPoolBreakdown();
-        when(dashboardService.getComPortPoolBreakdown(endDeviceGroup)).thenReturn(comPortPoolBreakdown);
-        ConnectionTypeBreakdown connectionStatusBreakdown = createConnectionTypeBreakdown();
-        when(dashboardService.getConnectionTypeBreakdown(endDeviceGroup)).thenReturn(connectionStatusBreakdown);
-        DeviceTypeBreakdown deviceTypeBreakdown=createDeviceTypeBreakdown();
-        when(dashboardService.getConnectionTasksDeviceTypeBreakdown(endDeviceGroup)).thenReturn(deviceTypeBreakdown);
+        when(dashboardService.getConnectionTaskOverview(endDeviceGroup)).thenReturn(connectionTaskOverview);
+
         DataCollectionKpi dataCollectionKpi = mockDataCollectionKpi(Period.ofMonths(1), new TimeDuration("1 years"));
         when(dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup)).thenReturn(Optional.of(dataCollectionKpi));
         when(meteringGroupsService.findEndDeviceGroup(deviceGroupId)).thenReturn(Optional.of(endDeviceGroup));

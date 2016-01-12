@@ -1,17 +1,13 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
-import com.energyict.mdc.dashboard.ComScheduleBreakdown;
-import com.energyict.mdc.dashboard.ComTaskBreakdown;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.dashboard.CommunicationTaskOverview;
 import com.energyict.mdc.dashboard.DashboardService;
-import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.nls.Thesaurus;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -23,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * This JSON representation holds the entire communication overview
+ * This JSON representation holds the entire communication overview, including heat map
  * @link http://confluence.eict.vpdc/display/JUP/Communications
  */
 public class CommunicationOverviewInfoFactory {
@@ -37,7 +33,10 @@ public class CommunicationOverviewInfoFactory {
     private final KpiScoreFactory kpiScoreFactory;
 
     @Inject
-    public CommunicationOverviewInfoFactory(BreakdownFactory breakdownFactory, OverviewFactory overviewFactory, SummaryInfoFactory summaryInfoFactory, Thesaurus thesaurus, DashboardService dashboardService, DataCollectionKpiService dataCollectionKpiService, KpiScoreFactory kpiScoreFactory) {
+    public CommunicationOverviewInfoFactory(BreakdownFactory breakdownFactory, OverviewFactory overviewFactory,
+                                            SummaryInfoFactory summaryInfoFactory, Thesaurus thesaurus,
+                                            DashboardService dashboardService, DataCollectionKpiService dataCollectionKpiService,
+                                            KpiScoreFactory kpiScoreFactory) {
         this.breakdownFactory = breakdownFactory;
         this.overviewFactory = overviewFactory;
         this.summaryInfoFactory = summaryInfoFactory;
@@ -48,14 +47,16 @@ public class CommunicationOverviewInfoFactory {
     }
 
     public CommunicationOverviewInfo asInfo() {
-        TaskStatusOverview taskStatusOverview = dashboardService.getCommunicationTaskStatusOverview();
-        SummaryData summaryData = new SummaryData(taskStatusOverview);
-        ComCommandCompletionCodeOverview comSessionSuccessIndicatorOverview = dashboardService.getCommunicationTaskCompletionResultOverview();
-        ComScheduleBreakdown comScheduleBreakdown = dashboardService.getCommunicationTasksComScheduleBreakdown();
-        ComTaskBreakdown comTaskBreakdown = dashboardService.getCommunicationTasksBreakdown();
-        DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getCommunicationTasksDeviceTypeBreakdown();
+        CommunicationTaskOverview overview = dashboardService.getCommunicationTaskOverview();
 
-        CommunicationOverviewInfo info = getCommunicationOverviewInfo(taskStatusOverview, summaryData, comSessionSuccessIndicatorOverview, comScheduleBreakdown, comTaskBreakdown, deviceTypeBreakdown);
+        return getCommunicationOverviewInfo(overview);
+    }
+
+    public CommunicationOverviewInfo asInfo(EndDeviceGroup queryEndDeviceGroup) {
+        CommunicationTaskOverview overview = dashboardService.getCommunicationTaskOverview(queryEndDeviceGroup);
+        CommunicationOverviewInfo info = getCommunicationOverviewInfo(overview);
+        addKpiInfo(queryEndDeviceGroup, info);
+        info.deviceGroup = new DeviceGroupFilterInfo(queryEndDeviceGroup.getId(), queryEndDeviceGroup.getName());
         return info;
     }
 
@@ -67,21 +68,20 @@ public class CommunicationOverviewInfoFactory {
         return info;
     }
 
-    private CommunicationOverviewInfo getCommunicationOverviewInfo(TaskStatusOverview taskStatusOverview, SummaryData summaryData, ComCommandCompletionCodeOverview comSessionSuccessIndicatorOverview, ComScheduleBreakdown comScheduleBreakdown, ComTaskBreakdown comTaskBreakdown, DeviceTypeBreakdown deviceTypeBreakdown) {
+    private CommunicationOverviewInfo getCommunicationOverviewInfo(CommunicationTaskOverview overview) {
         CommunicationOverviewInfo info = new CommunicationOverviewInfo();
-
-        info.communicationSummary= summaryInfoFactory.from(summaryData);
+        info.communicationSummary= summaryInfoFactory.from(new SummaryData(overview.getStatusOverview()));
         info.overviews=new ArrayList<>(2);
         info.overviews.add(
                 overviewFactory.createOverview(
                         thesaurus.getFormat(TranslationKeys.PER_CURRENT_STATE).format(),
-                        taskStatusOverview,
+                        overview.getStatusOverview(),
                         FilterOption.currentStates,
                         TaskStatusTranslationKeys::translationFor));
         info.overviews.add(
                 overviewFactory.createOverview(
                         thesaurus.getFormat(TranslationKeys.PER_LATEST_RESULT).format(),
-                        comSessionSuccessIndicatorOverview,
+                        overview.getCommunicationTaskCompletionResultOverview(),
                         FilterOption.latestResults,
                         CompletionCodeTranslationKeys::translationFor));
         overviewFactory.sortAllOverviews(info.overviews);
@@ -90,35 +90,21 @@ public class CommunicationOverviewInfoFactory {
         info.breakdowns.add(
                 breakdownFactory.createBreakdown(
                         thesaurus, TranslationKeys.PER_COMMUNICATION_SCHEDULE,
-                        comScheduleBreakdown,
+                        overview.getComScheduleBreakdown(),
                         FilterOption.comSchedules));
         info.breakdowns.add(
                 breakdownFactory.createBreakdown(
                         thesaurus, TranslationKeys.PER_COMMUNICATION_TASK,
-                        comTaskBreakdown, FilterOption.comTasks));
+                        overview.getComTaskBreakdown(), FilterOption.comTasks));
         info.breakdowns.add(
                 breakdownFactory.createBreakdown(
                         thesaurus, TranslationKeys.PER_DEVICE_TYPE,
-                        deviceTypeBreakdown, FilterOption.deviceTypes));
+                        overview.getDeviceTypeBreakdown(), FilterOption.deviceTypes));
         breakdownFactory.sortAllBreakdowns(info.breakdowns);
+
         return info;
     }
 
-
-    public CommunicationOverviewInfo asInfo(EndDeviceGroup queryEndDeviceGroup) {
-        TaskStatusOverview taskStatusOverview = dashboardService.getCommunicationTaskStatusOverview(queryEndDeviceGroup);
-        SummaryData summaryData = new SummaryData(taskStatusOverview);
-        ComCommandCompletionCodeOverview comSessionSuccessIndicatorOverview = dashboardService.getCommunicationTaskCompletionResultOverview(queryEndDeviceGroup);
-        ComScheduleBreakdown comScheduleBreakdown = dashboardService.getCommunicationTasksComScheduleBreakdown(queryEndDeviceGroup);
-        ComTaskBreakdown comTaskBreakdown = dashboardService.getCommunicationTasksBreakdown(queryEndDeviceGroup);
-        DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getCommunicationTasksDeviceTypeBreakdown(queryEndDeviceGroup);
-
-        CommunicationOverviewInfo info = getCommunicationOverviewInfo(taskStatusOverview, summaryData, comSessionSuccessIndicatorOverview, comScheduleBreakdown, comTaskBreakdown, deviceTypeBreakdown);
-
-        addKpiInfo(queryEndDeviceGroup, info);
-        info.deviceGroup = new DeviceGroupFilterInfo(queryEndDeviceGroup.getId(), queryEndDeviceGroup.getName());
-        return info;
-    }
 
     private void addKpiInfo(EndDeviceGroup queryEndDeviceGroup, CommunicationOverviewInfo info) {
         Optional<DataCollectionKpi> dataCollectionKpiOptional = dataCollectionKpiService.findDataCollectionKpi(queryEndDeviceGroup);
