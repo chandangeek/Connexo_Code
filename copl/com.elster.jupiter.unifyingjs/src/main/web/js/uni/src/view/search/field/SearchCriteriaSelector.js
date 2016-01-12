@@ -10,7 +10,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
 
     text: Uni.I18n.translate('search.overview.addCriteria.emptyText', 'UNI', 'Add criteria'),
     arrowAlign: 'right',
-    menuAlign: 'tr-br',
+    menuAlign: 'tr-br?',
     store: 'Uni.store.search.Properties',
     config: {
         service: null,
