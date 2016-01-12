@@ -73,7 +73,7 @@ public class CreateG3SlaveCommand {
                         .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
                         .setProperty("HLSsecretASCII", "1234567890123456")
                         .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"))
-                        .setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
+                        .setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
             }
         },
         AS220 {
@@ -91,7 +91,7 @@ public class CreateG3SlaveCommand {
                         .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
                         .setProperty("HLSsecretASCII", "1234567890123456")
                         .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"))
-                        .setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
+                        .setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
             }
         };
 
@@ -189,8 +189,8 @@ public class CreateG3SlaveCommand {
 
         TypedProperties getSecuritySetProperties(){
             TypedProperties securitySetProperties = TypedProperties.empty();
-            securitySetProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), props.getProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString()));
-            securitySetProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password((String) props.getProperty("HLSsecretASCII")));
+            securitySetProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), props.getProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey()));
+            securitySetProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password((String) props.getProperty("HLSsecretASCII")));
             return securitySetProperties;
         }
 
@@ -243,7 +243,7 @@ public class CreateG3SlaveCommand {
 
         @Override
         public void accept(Device device) {
-            device.setProtocolProperty("MAC_address", meterConfig.getProperty("MAC_address"));
+            device.setProtocolProperty("DlmsProperties.MAC_address", meterConfig.getProperty("MAC_address"));
             device.setProtocolProperty("TimeZone", meterConfig.getProperty("TimeZone"));
             device.save();
         }

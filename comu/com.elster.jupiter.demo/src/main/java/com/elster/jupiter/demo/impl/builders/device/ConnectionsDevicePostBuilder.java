@@ -50,9 +50,9 @@ public class ConnectionsDevicePostBuilder implements Consumer<Device> {
                     .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                     .setNextExecutionSpecsFrom(null)
                     .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                    .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.toString(), this.host)
-                    .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.toString(), new BigDecimal(portNumber))
-                    .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT.toString(), TimeDuration.minutes(1))
+                    .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), this.host)
+                    .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName(), new BigDecimal(portNumber))
+                    .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT.propertySpecName(), TimeDuration.minutes(1))
                     .setSimultaneousConnectionsAllowed(false)
                     .add();
             connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);

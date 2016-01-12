@@ -231,9 +231,9 @@ public class CreateA3DeviceCommand {
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .setNextExecutionSpecsFrom(null)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.toString(), "166.150.217.174")
-                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.toString(), new BigDecimal(1153))
-                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT.toString(), TimeDuration.minutes(1))
+                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), "166.150.217.174")
+                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName(), new BigDecimal(1153))
+                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT.propertySpecName(), TimeDuration.minutes(1))
                 .setSimultaneousConnectionsAllowed(false)
                 .add();
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
@@ -255,12 +255,12 @@ public class CreateA3DeviceCommand {
         DeviceConfiguration configuration = device.getDeviceConfiguration();
         SecurityPropertySet securityPropertySet = configuration.getSecurityPropertySets().stream().filter(sps -> SECURITY_PROPERTY_NAME.equals(sps.getName())).findFirst().orElseThrow(() -> new UnableToCreate(""));
         TypedProperties typedProperties = TypedProperties.empty();
-        typedProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER_ID.toString(), "0");
-        typedProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER.toString(), "          ");
-        securityPropertySet.getPropertySpecs().stream().filter(ps -> SecurityPropertySpecName.ENCRYPTION_KEY.toString().equals(ps.getName())).findFirst().ifPresent(
+        typedProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER_ID.getKey(), "0");
+        typedProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER.getKey(), "          ");
+        securityPropertySet.getPropertySpecs().stream().filter(ps -> SecurityPropertySpecName.ENCRYPTION_KEY.getKey().equals(ps.getName())).findFirst().ifPresent(
                 ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("F2FE78E33DF19786BBD2E56F9E93BE88")));
-        typedProperties.setProperty(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString(), "1.3.6.1.4.1.33507.1919.42327");
-        typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password("00000000000000000000"));
+        typedProperties.setProperty(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.getKey(), "1.3.6.1.4.1.33507.1919.42327");
+        typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password("00000000000000000000"));
         device.setSecurityProperties(securityPropertySet, typedProperties);
     }
 

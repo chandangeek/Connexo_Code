@@ -44,6 +44,7 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -95,9 +96,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
-import com.energyict.mdc.device.data.impl.DeviceServiceImpl;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.device.data.importers.impl.attributes.connection.ConnectionAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.attributes.security.SecurityAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.activation.DeviceActivationDeactivationImportFactory;
@@ -364,7 +363,7 @@ public class DemoTest {
         demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
         DeviceService deviceService = injector.getInstance(DeviceService.class);
         Optional<Device> spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
-        assertThat(spe010000010156.get().getDeviceProtocolProperties().getProperty("NTASimulationTool")).isEqualTo(true);
+        assertThat(spe010000010156.get().getDeviceProtocolProperties().getProperty("DlmsProperties.NTASimulationTool")).isEqualTo(true);
     }
 
     @Test
@@ -468,21 +467,21 @@ public class DemoTest {
         assertThat(scheduledConnectionTask.isSimultaneousConnectionsAllowed()).isFalse();
         assertThat(scheduledConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            assertThat(scheduledConnectionTask.getProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.toString()).getValue()).isEqualTo("10.0.0.135");
-            assertThat(scheduledConnectionTask.getProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.toString()).getValue()).isEqualTo(new BigDecimal(4059));
+            assertThat(scheduledConnectionTask.getProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName()).getValue()).isEqualTo("10.0.0.135");
+            assertThat(scheduledConnectionTask.getProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName()).getValue()).isEqualTo(new BigDecimal(4059));
             assertThat(gateway.getSecurityProperties(securityPropertySet)).hasSize(3);
             for (SecurityProperty securityProperty : gateway.getSecurityProperties(securityPropertySet)) {
-                if (SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString().equals(securityProperty.getName())) {
+                if (SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey().equals(securityProperty.getName())) {
                     assertThat(securityProperty.getValue()).isEqualTo(BigDecimal.ONE);
-                } else if (SecurityPropertySpecName.AUTHENTICATION_KEY.toString().equals(securityProperty.getName())) {
+                } else if (SecurityPropertySpecName.AUTHENTICATION_KEY.getKey().equals(securityProperty.getName())) {
                     assertThat(securityProperty.getValue().toString()).isEqualTo("00112233445566778899AABBCCDDEEFF");
-                } else if (SecurityPropertySpecName.ENCRYPTION_KEY.toString().equals(securityProperty.getName())) {
+                } else if (SecurityPropertySpecName.ENCRYPTION_KEY.getKey().equals(securityProperty.getName())) {
                     assertThat(securityProperty.getValue().toString()).isEqualTo("11223344556677889900AABBCCDDEEFF");
                 }
             }
             ctx.commit();
         }
-        assertThat(gateway.getDeviceProtocolProperties().getProperty("Short_MAC_address")).isEqualTo(BigDecimal.ZERO);
+        assertThat(gateway.getDeviceProtocolProperties().getProperty("DlmsProperties.Short_MAC_address")).isEqualTo(BigDecimal.ZERO);
         assertThat(gateway.getComTaskExecutions()).hasSize(1);
     }
 
@@ -607,7 +606,7 @@ public class DemoTest {
             }
             ctx.commit();
         }
-        assertThat(device.getDeviceProtocolProperties().getProperty("MAC_address")).isEqualTo(MAC_ADDRESS);
+        assertThat(device.getDeviceProtocolProperties().getProperty("DlmsProperties.MAC_address")).isEqualTo(MAC_ADDRESS);
     }
 
     @Test
@@ -783,9 +782,6 @@ public class DemoTest {
         protocolPluggableService.addLicensedProtocolService(injector.getInstance(LicensedProtocolService.class));
 
         PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
-        propertySpecService.addFactoryProvider((DeviceServiceImpl) injector.getInstance(DeviceService.class));
-        propertySpecService.addFactoryProvider((ConnectionTaskServiceImpl) injector.getInstance(ConnectionTaskService.class));
-
 
         DefaultValidatorFactory defaultValidatorFactory = new DefaultValidatorFactory();
         defaultValidatorFactory.setPropertySpecService(propertySpecService);
@@ -823,9 +819,13 @@ public class DemoTest {
 
     private void fixEstimators(PropertySpecService propertySpecService, TimeService timeService){
         EstimationServiceImpl estimationService = (EstimationServiceImpl) injector.getInstance(EstimationService.class);
-        DefaultEstimatorFactory estimatorFactory = new DefaultEstimatorFactory();
-        estimatorFactory.setPropertySpecService(propertySpecService);
-        estimatorFactory.setTimeService(timeService);
+        DefaultEstimatorFactory estimatorFactory =
+                new DefaultEstimatorFactory(
+                        injector.getInstance(NlsService.class),
+                        propertySpecService,
+                        injector.getInstance(ValidationService.class),
+                        injector.getInstance(MeteringService.class),
+                        timeService);
         estimationService.addEstimatorFactory(estimatorFactory);
 
     }

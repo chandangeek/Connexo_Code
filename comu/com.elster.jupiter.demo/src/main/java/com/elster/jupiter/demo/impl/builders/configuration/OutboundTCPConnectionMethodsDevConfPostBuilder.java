@@ -24,9 +24,11 @@ import java.util.function.Consumer;
 
 public class OutboundTCPConnectionMethodsDevConfPostBuilder implements Consumer<DeviceConfiguration> {
 
-    private final ProtocolPluggableService protocolPluggableService;
+    public static final BigDecimal DEFAULT_PORT_NUMBER = new BigDecimal(4059);
+    public static final int DEFAULT_RETRY_DELAY_MINUTUES = 60;
 
-    private int retryDelayInMinutes = 60;
+    private final ProtocolPluggableService protocolPluggableService;
+    private int retryDelayInMinutes = DEFAULT_RETRY_DELAY_MINUTUES;
     private Map<String, Object> properties = new HashMap<>();
 
     @Inject
@@ -35,7 +37,7 @@ public class OutboundTCPConnectionMethodsDevConfPostBuilder implements Consumer<
     }
 
     public OutboundTCPConnectionMethodsDevConfPostBuilder withHost(String host){
-        properties.put(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.toString(), host);
+        properties.put(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), host);
         return this;
     }
 
@@ -45,8 +47,8 @@ public class OutboundTCPConnectionMethodsDevConfPostBuilder implements Consumer<
     }
 
     public OutboundTCPConnectionMethodsDevConfPostBuilder withDefaultOutboundTcpProperties(){
-        this.properties.put(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.toString(), new BigDecimal(4059));
-        this.properties.put(ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT.toString(), TimeDuration.minutes(1));
+        this.properties.put(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName(), DEFAULT_PORT_NUMBER);
+        this.properties.put(ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT.propertySpecName(), TimeDuration.minutes(1));
         return this;
     }
 

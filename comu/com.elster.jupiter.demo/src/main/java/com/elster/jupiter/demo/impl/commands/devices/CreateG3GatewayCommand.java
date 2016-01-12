@@ -122,22 +122,6 @@ public class CreateG3GatewayCommand {
         return comTasks.put(comTaskTpl, Builders.from(comTaskTpl).get());
     }
 
-//    private void addComTasksToDeviceConfiguration(DeviceConfiguration configuration, ComTaskTpl... names) {
-//        if (names == null) {
-//            return;
-//        }
-//        for (ComTaskTpl comTaskTpl : names) {
-//            configuration.enableComTask(
-//                comTasks.get(comTaskTpl),
-//                configuration.getSecurityPropertySets().get(0),
-//                configuration.getProtocolDialectConfigurationPropertiesList().get(0))
-//                    .setIgnoreNextExecutionSpecsForInbound(true)
-//                    .setPriority(100)
-//                    .add()
-//                    .save();
-//        }
-//    }
-
     private Device createG3GatewayDevice(DeviceConfiguration configuration) {
         Device device = deviceBuilderProvider.get()
             .withMrid(mRID)
@@ -148,7 +132,7 @@ public class CreateG3GatewayCommand {
         addConnectionTasksToDevice(device);
         addSecurityPropertiesToDevice(device);
         addComTaskToDevice(device, ComTaskTpl.TOPOLOGY_UPDATE);
-        device.setProtocolProperty("Short_MAC_address", new BigDecimal(0));
+        device.setProtocolProperty("DlmsProperties.Short_MAC_address", BigDecimal.ZERO);
         device.save();
         return device;
     }
@@ -162,8 +146,8 @@ public class CreateG3GatewayCommand {
             .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
             .setNextExecutionSpecsFrom(null)
             .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-            .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.toString(), "10.0.0.135")
-            .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.toString(), new BigDecimal(4059))
+            .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), "10.0.0.135")
+            .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName(), new BigDecimal(4059))
             .setSimultaneousConnectionsAllowed(false)
             .add();
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
@@ -185,17 +169,17 @@ public class CreateG3GatewayCommand {
                         .findFirst()
                         .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name" + SECURITY_PROPERTY_SET_NAME + "."));
         TypedProperties typedProperties = TypedProperties.empty();
-        typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
+        typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
         securityPropertySet
                 .getPropertySpecs()
                 .stream()
-                .filter(ps -> SecurityPropertySpecName.AUTHENTICATION_KEY.toString().equals(ps.getName()))
+                .filter(ps -> SecurityPropertySpecName.AUTHENTICATION_KEY.getKey().equals(ps.getName()))
                 .findFirst()
                 .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("00112233445566778899AABBCCDDEEFF")));
         securityPropertySet
                 .getPropertySpecs()
                 .stream()
-                .filter(ps -> SecurityPropertySpecName.ENCRYPTION_KEY.toString().equals(ps.getName()))
+                .filter(ps -> SecurityPropertySpecName.ENCRYPTION_KEY.getKey().equals(ps.getName()))
                 .findFirst()
                 .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("11223344556677889900AABBCCDDEEFF")));
         device.setSecurityProperties(securityPropertySet, typedProperties);
