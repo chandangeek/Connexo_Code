@@ -15,7 +15,7 @@ use Sys::Hostname;
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
 my $INSTALL_VERSION="v20160106";
 my $OS="$^O";
-my $JAVA_HOME=$ENV{"JAVA_HOME"};
+my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
 my $SCRIPT_DIR=dirname(abs_path($0));
 my $CONNEXO_DIR="$SCRIPT_DIR/..";
@@ -61,6 +61,16 @@ sub check_root {
 }
 
 sub check_java8 {
+	if ("$JAVA_HOME" eq "") {
+	        $JAVA_HOME=$ENV{"JAVA_HOME"};
+        }
+	if (-d "$JAVA_HOME") {
+		$ENV{"JAVA_HOME"}=$JAVA_HOME;
+	} else {
+		print "The path defined in JAVA_HOME does not exist (path=$JAVA_HOME)\n";
+		exit (0);
+	}
+
 	if ( !defined $JAVA_HOME || "$JAVA_HOME" eq "" ) {
 		print "Please define JAVA_HOME on your system\n";
 		exit (0);
@@ -79,7 +89,6 @@ sub check_create_users {
 	if ("$OS" eq "linux") {
 		if ("$INSTALL_CONNEXO" eq "yes") {
 			if (`cat /etc/passwd|grep connexo:` eq "") {
-				system("groupadd connexo") == 0 or die "system groupadd connexo failed: $?";
 				system("useradd -U -r connexo") == 0 or die "system useradd -U -r connexo failed: $?";
 			}
 		}
@@ -117,6 +126,7 @@ sub read_config {
 			chomp($row);
 			if ( "$row" ne "") {
 				my @val=split('=',$row);
+				if ( "$val[0]" eq "JAVA_HOME" )         {$JAVA_HOME=$val[1];}
 				if ( "$val[0]" eq "CONNEXO_HTTP_PORT" ) {$CONNEXO_HTTP_PORT=$val[1];}
 				if ( "$val[0]" eq "TOMCAT_HTTP_PORT" )  {$TOMCAT_HTTP_PORT=$val[1];}
 				if ( "$val[0]" eq "SERVICE_VERSION" )	{$SERVICE_VERSION=$val[1];}
@@ -144,82 +154,87 @@ sub read_config {
 			}
 		}
 		close($FH);
-	} else {
+		check_java8();
+    } else {
 		print "Parameters input\n";
 		print "------------------\n";
+		print "Please enter the path to your JAVA_HOME (leave empty to use the system variable): ";
+		chomp($JAVA_HOME=<STDIN>);
+		check_java8();
+						    
 		print "Do you want to install Connexo: (yes/no)";
 		chomp($INSTALL_CONNEXO=<STDIN>);
-        if ("$INSTALL_CONNEXO" eq "yes") {
-            print "Please enter the database url (format: jdbc:oracle:thin:\@dbHost:dbPort:dbSID): ";
-            chomp($jdbcUrl=<STDIN>);
-            print "Please enter the database user: ";
-            chomp($dbUserName=<STDIN>);
-            print "Please enter the database password: ";
-            chomp($dbPassword=<STDIN>);
-            print "Please enter the Connexo http port: ";
-            chomp($CONNEXO_HTTP_PORT=<STDIN>);
-            print "Do you want to install Connexo as a daemon: (yes/no)";
-            chomp($CONNEXO_SERVICE=<STDIN>);
-        }
+        	if ("$INSTALL_CONNEXO" eq "yes") {
+	            print "Please enter the database url (format: jdbc:oracle:thin:\@dbHost:dbPort:dbSID): ";
+	            chomp($jdbcUrl=<STDIN>);
+	            print "Please enter the database user: ";
+	            chomp($dbUserName=<STDIN>);
+	            print "Please enter the database password: ";
+	            chomp($dbPassword=<STDIN>);
+	            print "Please enter the Connexo http port: ";
+	            chomp($CONNEXO_HTTP_PORT=<STDIN>);
+	            print "Do you want to install Connexo as a daemon: (yes/no)";
+	            chomp($CONNEXO_SERVICE=<STDIN>);
+        	}
         
-        print "\n";
+        	print "\n";
 		print "Do you want to install Facts: (yes/no)";
 		chomp($INSTALL_FACTS=<STDIN>);
-        if ("$INSTALL_FACTS" eq "yes") {
-            print "Please enter the oracle database host name for Facts: ";
-            chomp($FACTS_DB_HOST=<STDIN>);
-            print "Please enter the oracle database port for Facts: ";
-            chomp($FACTS_DB_PORT=<STDIN>);
-            print "Please enter the oracle database name for Facts: ";
-            chomp($FACTS_DB_NAME=<STDIN>);
-            print "Please enter the database user for Facts: ";
-            chomp($FACTS_DBUSER=<STDIN>);
-            print "Please enter the database password for Facts database user: ";
-            chomp($FACTS_DBPASSWORD=<STDIN>);
-        }
+        	if ("$INSTALL_FACTS" eq "yes") {
+	            print "Please enter the oracle database host name for Facts: ";
+	            chomp($FACTS_DB_HOST=<STDIN>);
+	            print "Please enter the oracle database port for Facts: ";
+	            chomp($FACTS_DB_PORT=<STDIN>);
+	            print "Please enter the oracle database name for Facts: ";
+	            chomp($FACTS_DB_NAME=<STDIN>);
+	            print "Please enter the database user for Facts: ";
+	            chomp($FACTS_DBUSER=<STDIN>);
+	            print "Please enter the database password for Facts database user: ";
+	            chomp($FACTS_DBPASSWORD=<STDIN>);
+        	}
 
-        print "\n";
+        	print "\n";
 		print "Do you want to install Flow: (yes/no)";
 		chomp($INSTALL_FLOW=<STDIN>);
-        if ("$INSTALL_FLOW" eq "yes") {
-            print "Please enter the database url for Connexo Flow (format: jdbc:oracle:thin:\@dbHost:dbPort:dbSID): ";
-            chomp($FLOW_JDBC_URL=<STDIN>);
-            print "Please enter the database user for Connexo Flow: ";
-            chomp($FLOW_DB_USER=<STDIN>);
-            print "Please enter the database password for Connexo Flow: ";
-            chomp($FLOW_DB_PASSWORD=<STDIN>);
-            print "Please enter the mail server host name: ";
-            chomp($SMTP_HOST=<STDIN>);
-            print "Please enter the mail server port: ";
-            chomp($SMTP_PORT=<STDIN>);
-            print "Please enter the mail server user: ";
-            chomp($SMTP_USER=<STDIN>);
-            print "Please enter the mail server user password: ";
-            chomp($SMTP_PASSWORD=<STDIN>);
-        }
+	        if ("$INSTALL_FLOW" eq "yes") {
+	            print "Please enter the database url for Connexo Flow (format: jdbc:oracle:thin:\@dbHost:dbPort:dbSID): ";
+	            chomp($FLOW_JDBC_URL=<STDIN>);
+        	    print "Please enter the database user for Connexo Flow: ";
+	            chomp($FLOW_DB_USER=<STDIN>);
+        	    print "Please enter the database password for Connexo Flow: ";
+	            chomp($FLOW_DB_PASSWORD=<STDIN>);
+        	    print "Please enter the mail server host name: ";
+	            chomp($SMTP_HOST=<STDIN>);
+        	    print "Please enter the mail server port: ";
+	            chomp($SMTP_PORT=<STDIN>);
+        	    print "Please enter the mail server user: ";
+	            chomp($SMTP_USER=<STDIN>);
+        	    print "Please enter the mail server user password: ";
+	            chomp($SMTP_PASSWORD=<STDIN>);
+        	}
         
-        print "\n";
-        if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
-            if ("$INSTALL_CONNEXO" ne "yes") {
-                print "Please enter the Connexo http port: ";
-                chomp($CONNEXO_HTTP_PORT=<STDIN>);
-            }
-            print "Please enter the Tomcat http port: ";
-            chomp($TOMCAT_HTTP_PORT=<STDIN>);
-            $TOMCAT_SHUTDOWN_PORT=$TOMCAT_HTTP_PORT+10;
-            $TOMCAT_AJP_PORT=$TOMCAT_HTTP_PORT+11;
-            $TOMCAT_SSH_PORT=$TOMCAT_HTTP_PORT+12;
-            $TOMCAT_DAEMON_PORT=$TOMCAT_HTTP_PORT+13;
-        }
+        	print "\n";
+        	if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
+	            if ("$INSTALL_CONNEXO" ne "yes") {
+	                print "Please enter the Connexo http port: ";
+	                chomp($CONNEXO_HTTP_PORT=<STDIN>);
+	            }
+	            print "Please enter the Tomcat http port: ";
+	            chomp($TOMCAT_HTTP_PORT=<STDIN>);
+	            $TOMCAT_SHUTDOWN_PORT=$TOMCAT_HTTP_PORT+10;
+	            $TOMCAT_AJP_PORT=$TOMCAT_HTTP_PORT+11;
+	            $TOMCAT_SSH_PORT=$TOMCAT_HTTP_PORT+12;
+	            $TOMCAT_DAEMON_PORT=$TOMCAT_HTTP_PORT+13;
+        	}
 
-        print "\n";
+        	print "\n";
 		print "Do you want to install WSO2IS: (yes/no)";
 		chomp($INSTALL_WSO2IS=<STDIN>);
 		print "Please enter the version of your services (e.g. 10.1) or leave empty: ";
 		chomp($SERVICE_VERSION=<STDIN>);        
     }
     $HOST_NAME=hostname;
-	$CONNEXO_URL="http://$HOST_NAME:$CONNEXO_HTTP_PORT";
+    $CONNEXO_URL="http://$HOST_NAME:$CONNEXO_HTTP_PORT";
 }
 
 sub read_uninstall_config {
@@ -637,6 +652,10 @@ sub start_tomcat {
 }
 
 sub uninstall_all {
+        print "Please enter the path to your JAVA_HOME (leave empty to use the system variable): ";
+        chomp($JAVA_HOME=<STDIN>);
+        check_java8();
+
 	my $WSO2_DIR="$CONNEXO_DIR/partners";
 	$ENV{CARBON_HOME}="$WSO2_DIR/wso2is-4.5.0";
 	if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
@@ -685,7 +704,6 @@ print ",---------------------------------------------------------,\n";
 print "| Installation script started at ".localtime(time)." |\n";
 print "'---------------------------------------------------------'\n";
 check_root();
-check_java8();
 check_create_users();
 read_args();
 if ($install) {
