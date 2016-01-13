@@ -214,6 +214,10 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
 
+    /**
+     * Note that this setter does not yet persist the given security properties.
+     * This is done in the save method of this device.
+     */
     void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties properties);
 
     List<ProtocolDialectProperties> getProtocolDialectPropertiesList();
