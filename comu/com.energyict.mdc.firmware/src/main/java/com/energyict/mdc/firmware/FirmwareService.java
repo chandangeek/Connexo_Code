@@ -17,6 +17,7 @@ import java.util.Set;
 public interface FirmwareService {
     String COMPONENTNAME = "FWC";
     int MAX_FIRMWARE_FILE_SIZE = 50 * 1024 * 1024;
+    int MIN_FIRMWARE_FILE_SIZE = 1;
 
     // Firmware versions on a device type
     Finder<FirmwareVersion> findAllFirmwareVersions(FirmwareVersionFilter filter);
