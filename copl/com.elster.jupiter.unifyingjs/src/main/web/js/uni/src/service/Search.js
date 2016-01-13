@@ -83,9 +83,10 @@ Ext.define('Uni.service.Search', {
     columnMap: {
         'Long': 'numbercolumn',
         'Date': 'datecolumn',
-        'Boolean': 'booleancolumn',
+        'Boolean': 'uni-grid-column-search-boolean',
         'DeviceType': 'uni-grid-column-search-devicetype',
-        'DeviceConfiguration': 'uni-grid-column-search-deviceconfiguration'
+        'DeviceConfiguration': 'uni-grid-column-search-deviceconfiguration',
+        'Quantity': 'uni-grid-column-search-quantity'
     },
 
     defaultColumns: {
@@ -351,26 +352,17 @@ Ext.define('Uni.service.Search', {
         var propertyName = field.get('propertyName'),
             type = this.columnMap[field.get('type')],
             displayValue = field.get('displayValue'),
-            defaultColumns = this.defaultColumns[this.getDomain().get('id')],
-            renderer = undefined;
+            defaultColumns = this.defaultColumns[this.getDomain().get('id')]
 
         if (!type) {
             type = 'gridcolumn';
-        }
-
-        if (type == 'booleancolumn'){
-            renderer  = function (value) {
-                return value ? Uni.I18n.translate('general.yes', 'UNI', 'Yes'):
-                    Uni.I18n.translate('general.no', 'UNI', 'No');
-            }
         }
 
         return {
             isDefault: defaultColumns && defaultColumns.indexOf(field.get('propertyName')) >= 0,
             dataIndex: propertyName,
             header: displayValue,
-            xtype: type,
-            renderer: renderer
+            xtype: type
         };
     },
 
