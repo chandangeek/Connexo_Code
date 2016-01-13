@@ -705,7 +705,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public List<DeviceConfiguration> findDeviceConfigurationsForValidationRuleSet(long validationRuleSetId) {
         return this.getDataModel().
                 query(DeviceConfiguration.class, DeviceConfValidationRuleSetUsage.class, DeviceType.class).
-                select(where("deviceConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(validationRuleSetId), Order.ascending("name"));
+                select(where("deviceConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(validationRuleSetId), new Order[]{Order.ascending("deviceType"), Order.ascending("name")});
     }
 
     @Override
