@@ -74,6 +74,7 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import com.google.common.collect.HashMultiset;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multiset;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -92,6 +93,7 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -717,23 +719,21 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public List<ReadingType> getReadingTypesRelatedToConfiguration(DeviceConfiguration configuration) {
-        List<ReadingType> readingTypes = new ArrayList<>();
-        for (LoadProfileSpec spec : configuration.getLoadProfileSpecs()) {
-            for (ChannelType channelType : spec.getLoadProfileType().getChannelTypes()) {
-                ReadingType readingType = channelType.getReadingType();
-                readingTypes.add(readingType);
-                if (readingType.isCumulative()) {
-                    Optional<ReadingType> delta = readingType.getCalculatedReadingType();
-                    if (delta.isPresent()) {
-                        readingTypes.add(delta.get());
-                    }
-                }
-            }
-        }
-        for (RegisterSpec spec : configuration.getRegisterSpecs()) {
-            readingTypes.add(spec.getRegisterType().getReadingType());
-        }
-        return readingTypes;
+        Stream<ReadingType> loadProfileReadingTypes = configuration.getLoadProfileSpecs()
+                .stream()
+                .map(LoadProfileSpec::getChannelSpecs)
+                .flatMap(List::stream)
+                .map(channelSpec -> channelSpec.getCalculatedReadingType()
+                        .map(calculated -> (List<ReadingType>) ImmutableList.of(channelSpec.getReadingType(), calculated))
+                        .orElseGet(() -> Collections.singletonList(channelSpec.getReadingType())))
+                .flatMap(List::stream);
+        Stream<ReadingType> registerReadingTypes = configuration.getRegisterSpecs()
+                .stream()
+                .map(RegisterSpec::getReadingType);
+        return Stream.of(loadProfileReadingTypes, registerReadingTypes)
+                .flatMap(Function.identity())
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Override

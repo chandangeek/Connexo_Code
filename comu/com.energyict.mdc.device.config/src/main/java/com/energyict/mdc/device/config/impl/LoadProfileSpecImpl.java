@@ -203,12 +203,15 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
         LoadProfileSpec loadProfileSpec = builder.setOverruledObisCode(getObisCode().equals(getDeviceObisCode()) ? null : getDeviceObisCode()).add();
         getChannelSpecs().forEach(channelSpec -> {
             ChannelSpec.ChannelSpecBuilder channelSpecBuilder = deviceConfiguration.createChannelSpec(channelSpec.getChannelType(), loadProfileSpec);
-            channelSpecBuilder.setOverruledObisCode(channelSpec.getObisCode().equals(channelSpec.getDeviceObisCode()) ? null : channelSpec.getDeviceObisCode());
-            channelSpecBuilder.setInterval(channelSpec.getInterval());
-            channelSpecBuilder.setNbrOfFractionDigits(channelSpec.getNbrOfFractionDigits());
-            channelSpecBuilder.setOverflow(channelSpec.getOverflow());
-            channelSpecBuilder.setReadingMethod(channelSpec.getReadingMethod());
-            channelSpecBuilder.setValueCalculationMethod(channelSpec.getValueCalculationMethod());
+            channelSpecBuilder.overruledObisCode(channelSpec.getObisCode().equals(channelSpec.getDeviceObisCode()) ? null : channelSpec.getDeviceObisCode());
+            channelSpecBuilder.interval(channelSpec.getInterval());
+            channelSpecBuilder.nbrOfFractionDigits(channelSpec.getNbrOfFractionDigits());
+            channelSpecBuilder.overflow(channelSpec.getOverflow());
+            if(channelSpec.isUseMultiplier()){
+                channelSpecBuilder.useMultiplierWithCalculatedReadingType(channelSpec.getCalculatedReadingType().get());
+            } else {
+                channelSpecBuilder.noMultiplier();
+            }
             channelSpecBuilder.add();
         });
         return loadProfileSpec;

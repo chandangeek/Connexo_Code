@@ -8,10 +8,11 @@ package com.energyict.mdc.device.config.impl;
 */
 enum RegisterSpecFields {
     REGISTER_TYPE("registerType"),
-    NUMBER_OF_DIGITS("numberOfDigits"),
     NUMBER_OF_FRACTION_DIGITS("numberOfFractionDigits"),
     OVERFLOW_VALUE("overflow"),
-    TEXTUAL("textual");
+    TEXTUAL("textual"),
+    USEMULTIPLIER("useMultiplier"),
+    CALCULATED_READINGTYPE("calculatedReadingType");
 
     private final String javaFieldName;
 

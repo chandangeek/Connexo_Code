@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Range;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -13,8 +14,6 @@ import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredExc
 import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.protocol.api.device.ReadingMethod;
-import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -29,6 +28,7 @@ import com.elster.jupiter.validation.ValidationRule;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -47,19 +47,44 @@ import static com.elster.jupiter.util.Checks.is;
  * Date: 7/11/12
  * Time: 13:22
  */
+@ValidChannelSpecMultiplierConfiguration(groups = {Save.Create.class, Save.Update.class})
+@ValidateUpdatableChannelSpecFields(groups = {Save.Update.class})
 public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ChannelSpec {
+
+    enum ChannelSpecFields {
+        DEVICE_CONFIG("deviceConfiguration"),
+        CHANNEL_TYPE("channelType"),
+        LOADPROFILE_SPEC("loadProfileSpec"),
+        INTERVAL_CODE("interval.timeUnitCode"),
+        INTERVAL_COUNT("interval.count"),
+        NUMBER_OF_FRACTION_DIGITS("nbrOfFractionDigits"),
+        OVERFLOW_VALUE("overflow"),
+        OVERRULED_OBISCODE("overruledObisCodeString"),
+        USEMULTIPLIER("useMultiplier"),
+        CALCULATED_READINGTYPE("calculatedReadingType");
+
+        private final String javaFieldName;
+
+        ChannelSpecFields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED + "}")
     private final Reference<ChannelType> channelType = ValueReference.absent();
     private final Reference<LoadProfileSpecImpl> loadProfileSpec = ValueReference.absent();
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_READING_METHOD_IS_REQUIRED + "}")
-    private ReadingMethod readingMethod = ReadingMethod.ENGINEERING_UNIT;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED + "}")
-    private ValueCalculationMethod valueCalculationMethod = ValueCalculationMethod.AUTOMATIC;
-    private int nbrOfFractionDigits = 0;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
+    @Range(min = 0, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
+    private Integer nbrOfFractionDigits = 0;
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
+    @Range(min = 1, max = Integer.MAX_VALUE, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_INVALID_OVERFLOW_VALUE + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_OVERFLOW_IS_REQUIRED + "}")
     private BigDecimal overflow;
     private TimeDuration interval;
     @SuppressWarnings("unused")
@@ -70,6 +95,9 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
+
+    private boolean useMultiplier;
+    private Reference<ReadingType> calculatedReadingType = ValueReference.absent();
 
     @Inject
     public ChannelSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
@@ -118,16 +146,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     }
 
     @Override
-    public ReadingMethod getReadingMethod() {
-        return readingMethod;
-    }
-
-    @Override
-    public ValueCalculationMethod getValueCalculationMethod() {
-        return valueCalculationMethod;
-    }
-
-    @Override
     public LoadProfileSpec getLoadProfileSpec() {
         return this.loadProfileSpec.get();
     }
@@ -142,11 +160,27 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         return (this.loadProfileSpec.isPresent() ? getLoadProfileSpec().getInterval() : interval);
     }
 
+    public boolean isUseMultiplier() {
+        return useMultiplier;
+    }
+
+    public void setUseMultiplier(boolean useMultiplier) {
+        this.useMultiplier = useMultiplier;
+    }
+
+    public Optional<ReadingType> getCalculatedReadingType() {
+        return calculatedReadingType.getOptional();
+    }
+
+    public void setCalculatedReadingType(ReadingType calculatedReadingType) {
+        this.calculatedReadingType.set(calculatedReadingType);
+    }
+
     @Override
     public void save() {
         validate();
         super.save();
-        if (this.loadProfileSpec.isPresent()){
+        if (this.loadProfileSpec.isPresent()) {
             getDataModel().touch(this.loadProfileSpec.get());
         }
     }
@@ -280,7 +314,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         return getDeviceConfiguration().getDeviceType().getName() + "/" + getDeviceConfiguration().getName() + "/" + getReadingType().getAliasName();
     }
 
-    @Override
     public void setChannelType(ChannelType channelType) {
         if (this.channelType.isPresent()) {
             validateChannelTypeForUpdate(channelType);
@@ -297,7 +330,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     }
 
 
-    @Override
     public void setOverruledObisCode(ObisCode overruledObisCode) {
         if (overruledObisCode != null) {
             this.overruledObisCodeString = overruledObisCode.toString();
@@ -305,24 +337,12 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         this.overruledObisCode = overruledObisCode;
     }
 
-    @Override
     public void setNbrOfFractionDigits(int nbrOfFractionDigits) {
         this.nbrOfFractionDigits = nbrOfFractionDigits;
     }
 
-    @Override
     public void setOverflow(BigDecimal overflow) {
         this.overflow = overflow;
-    }
-
-    @Override
-    public void setReadingMethod(ReadingMethod readingMethod) {
-        this.readingMethod = readingMethod;
-    }
-
-    @Override
-    public void setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod) {
-        this.valueCalculationMethod = valueCalculationMethod;
     }
 
     public void setLoadProfileSpec(LoadProfileSpecImpl loadProfileSpec) {
@@ -337,7 +357,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         }
     }
 
-    @Override
     public void setInterval(TimeDuration interval) {
         this.interval = interval;
     }
@@ -364,38 +383,40 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         }
 
         @Override
-        public ChannelSpec.ChannelSpecBuilder setOverruledObisCode(ObisCode overruledObisCode) {
+        public ChannelSpec.ChannelSpecBuilder overruledObisCode(ObisCode overruledObisCode) {
             this.channelSpec.setOverruledObisCode(overruledObisCode);
             return this;
         }
 
         @Override
-        public ChannelSpec.ChannelSpecBuilder setNbrOfFractionDigits(int nbrOfFractionDigits) {
+        public ChannelSpec.ChannelSpecBuilder nbrOfFractionDigits(int nbrOfFractionDigits) {
             this.channelSpec.setNbrOfFractionDigits(nbrOfFractionDigits);
             return this;
         }
 
         @Override
-        public ChannelSpec.ChannelSpecBuilder setOverflow(BigDecimal overflow) {
+        public ChannelSpec.ChannelSpecBuilder overflow(BigDecimal overflow) {
             this.channelSpec.setOverflow(overflow);
             return this;
         }
 
         @Override
-        public ChannelSpec.ChannelSpecBuilder setReadingMethod(ReadingMethod readingMethod) {
-            this.channelSpec.setReadingMethod(readingMethod);
-            return this;
-        }
-
-        @Override
-        public ChannelSpec.ChannelSpecBuilder setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod) {
-            this.channelSpec.setValueCalculationMethod(valueCalculationMethod);
-            return this;
-        }
-
-        @Override
-        public ChannelSpec.ChannelSpecBuilder setInterval(TimeDuration interval) {
+        public ChannelSpec.ChannelSpecBuilder interval(TimeDuration interval) {
             this.channelSpec.setInterval(interval);
+            return this;
+        }
+
+        @Override
+        public ChannelSpec.ChannelSpecBuilder noMultiplier() {
+            this.channelSpec.setUseMultiplier(false);
+            this.channelSpec.setCalculatedReadingType(null);
+            return this;
+        }
+
+        @Override
+        public ChannelSpec.ChannelSpecBuilder useMultiplierWithCalculatedReadingType(ReadingType calculatedReadingType) {
+            this.channelSpec.setUseMultiplier(true);
+            this.channelSpec.setCalculatedReadingType(calculatedReadingType);
             return this;
         }
 
@@ -417,32 +438,35 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         }
 
         @Override
-        public ChannelSpec.ChannelSpecUpdater setOverruledObisCode(ObisCode overruledObisCode) {
+        public ChannelSpec.ChannelSpecUpdater overruledObisCode(ObisCode overruledObisCode) {
             this.channelSpec.setOverruledObisCode(overruledObisCode);
             return this;
         }
 
         @Override
-        public ChannelSpec.ChannelSpecUpdater setNbrOfFractionDigits(int nbrOfFractionDigits) {
+        public ChannelSpec.ChannelSpecUpdater nbrOfFractionDigits(int nbrOfFractionDigits) {
             this.channelSpec.setNbrOfFractionDigits(nbrOfFractionDigits);
             return this;
         }
 
         @Override
-        public ChannelSpec.ChannelSpecUpdater setOverflow(BigDecimal overflow) {
+        public ChannelSpec.ChannelSpecUpdater overflow(BigDecimal overflow) {
             this.channelSpec.setOverflow(overflow);
             return this;
         }
 
+
         @Override
-        public ChannelSpec.ChannelSpecUpdater setReadingMethod(ReadingMethod readingMethod) {
-            this.channelSpec.setReadingMethod(readingMethod);
+        public ChannelSpec.ChannelSpecUpdater noMultiplier() {
+            this.channelSpec.setUseMultiplier(false);
+            this.channelSpec.setCalculatedReadingType(null);
             return this;
         }
 
         @Override
-        public ChannelSpec.ChannelSpecUpdater setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod) {
-            this.channelSpec.setValueCalculationMethod(valueCalculationMethod);
+        public ChannelSpec.ChannelSpecUpdater useMultiplierWithCalculatedReadingType(ReadingType calculatedReadingType) {
+            this.channelSpec.setUseMultiplier(true);
+            this.channelSpec.setCalculatedReadingType(calculatedReadingType);
             return this;
         }
 

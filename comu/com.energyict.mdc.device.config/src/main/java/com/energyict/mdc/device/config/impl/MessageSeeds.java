@@ -24,7 +24,6 @@ public enum MessageSeeds implements MessageSeed {
     REGISTER_GROUP_NAME_IS_REQUIRED(1501, "registerGroup.name.required", "The name of a register group is required"),
     READING_TYPE_ALREADY_EXISTS(2002, Keys.READING_TYPE_ALREADY_EXISTS, "Reading type {0} already exists"),
     DEFAULT_PRODUCT_SPEC_CANNOT_BE_DELETED(2003, "productSpec.cannotDeleteDefault", "The default product spec cannot be removed"),
-    PRODUCT_SPEC_STILL_IN_USE(2004, "productSpec.XstillInUseByY", "The product spec with reading type {0} cannot be removed because it is still in use by the following measurement types: {1}"),
     MEASUREMENT_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(3006, "measurementType.cannotUpdateObisCode", "The obis code of the measurement type \"{0}\" cannot be updated because it is in use"),
     REGISTER_TYPE_STILL_USED_BY_REGISTER_SPEC(3008, "measurementType.usedBy.registerSpec", "The register type {0} cannot be removed because it is still in use by the following register configuration(s): {1}"),
     CHANNEL_TYPE_STILL_USED_BY_CHANNEL_SPEC(3009, "measurementType.usedBy.channelSpec", "The register type {0} cannot be removed because it is still in use by the following channel configuration(s): {1}"),
@@ -33,13 +32,11 @@ public enum MessageSeeds implements MessageSeed {
     LOAD_PROFILE_TYPE_INTERVAL_CANNOT_BE_UPDATED(4010, "loadProfileType.cannotUpdateInterval", "The interval of the load profile type \"{0}\" cannot be updated because it is in use"),
     LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS(4011, "loadProfileType.XstillInUseByLoadProfileSpecsY", "The load profile type with reading type {0} cannot be removed because it is still in use by the following load profile spec(s): {1}"),
     LOAD_PROFILE_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(4012, "loadProfileType.XstillInUseByDeviceTypesY", "The load profile type with reading type {0} cannot be removed because it is still in use by the following device type(s): {1}"),
-    LOG_BOOK_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(5000, "logBookType.cannotUpdateObisCode", "The obis code of the logbook type \"{0}\" cannot be updated because it is in use"),
-    LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(5001, "logBookType.XstillInUseByLogBookSpecsY", "The logbook type {0} cannot be removed because it is still in use by the following log book spec(s): {1}"),
-    REGISTER_SPEC_NUMBER_OF_DIGITS_INVALID(6001, Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS, "Invalid number of digits. At least {min} digit is required, maximum is {max}"),
-    REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED(6002, Keys.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED, "The number of digits can not be decreased"),
+    LOG_BOOK_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(5000, "logBookType.cannotUpdateObisCode", "The obis code of the log book type \"{0}\" cannot be updated because it is in use"),
+    LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(5001, "logBookType.XstillInUseByLogBookSpecsY", "The log book type {0} cannot be removed because it is still in use by the following log book spec(s): {1}"),
+    REGISTER_SPEC_OVERFLOW_DECREASED(6002, Keys.REGISTER_SPEC_OVERFLOW_DECREASED, "The overflow value can not be decreased"),
     REGISTER_SPEC_REGISTER_TYPE_IS_REQUIRED(6003, Keys.REGISTER_SPEC_REGISTER_TYPE_IS_REQUIRED,"The register type of a register configuration is required"),
     REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED(6004, Keys.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED, "The number of fraction digits can not be decreased"),
-    REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS(6005, Keys.REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS,"The provided overflow value \"{0}\" may not exceed \"{1}\" (according to the provided number of digits \"{2}\")"),
     REGISTER_SPEC_OVERFLOW_LARGER_THAN_ZERO(6006, "registerSpec.overflow.invalidValue","The provided overflow value must be larger then zero (0))"),
     REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS(6007, Keys.REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS, "The provided overflow value \"{0}\" more fraction digits \"{1}\" than provided \"{2}\""),
     REGISTER_SPEC_CANNOT_DELETE_FOR_ACTIVE_CONFIG(6009, "registerSpec.delete.active.config","It is not allowed to remove a register configuration from an active device configuration"),
@@ -47,7 +44,7 @@ public enum MessageSeeds implements MessageSeed {
     REGISTER_SPEC_REGISTER_TYPE_IS_NOT_ON_DEVICE_TYPE(6011, "registerSpec.not.deviceType","The register configuration contains a register type {0} which is not configured on the device type"),
     REGISTER_SPEC_REGISTER_TYPE_CAN_NOT_CHANGE_FOR_ACTIVE_CONFIG(6012, Keys.REGISTER_SPEC_REGISTER_TYPE_ACTIVE_DEVICE_CONFIG,"The register type can not be modified if the device configuration is active"),
     REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_ONE(6014, Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS, "Invalid number of fraction digits."),
-    REGISTER_SPEC_OVERFLOW_LARGER_THAN_ONE(6015, Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE, "Invalid overflow value, must be above 0"),
+    REGISTER_SPEC_OVERFLOW_INVALID(6015, Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE, "Invalid overflow value, must be above larger than 0 and smaller than " + Integer.MAX_VALUE),
     REGISTER_SPEC_OVERFLOW_REQUIRED(6017, Keys.REGISTER_SPEC_OVERFLOW_IS_REQUIRED, "Overflow value is required"),
     DEVICE_TYPE_NAME_IS_REQUIRED(7001, "deviceType.name.required", "The name of a device type is required"),
     DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS(7003, Keys.DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS, "The device type {0} cannot be removed because it still has active configurations"),
@@ -78,8 +75,6 @@ public enum MessageSeeds implements MessageSeed {
     CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED(11006, Keys.CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED, "The register type of a channel configuration is required"),
     CHANNEL_SPEC_CHANNEL_TYPE_IS_NOT_IN_LOAD_PROFILE_SPEC(11007, "channelSpec.measurementType.not.configured.loadProfileSpec","The channel configuration \"{0}\" is linked to a register \"{1}\" which is not configured for the linked load profile configuration \"{2}\""),
     CHANNEL_SPEC_CHANNEL_TYPE_IS_NOT_ON_DEVICE_TYPE(11008, "channelSpec.measurementType.not.configured.deviceType","The channel configuration \"{0}\" is linked to a register \"{1}\" which is not configured for the device type \"{2}\""),
-    CHANNEL_SPEC_READING_METHOD_IS_REQUIRED(11011, Keys.CHANNEL_SPEC_READING_METHOD_IS_REQUIRED, "The reading method of a channel configuration is required"),
-    CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED(11013, Keys.CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED, "The value calculation method of a channel configuration is required"),
     CHANNEL_SPEC_DUPLICATE_CHANNEL_TYPE_IN_LOAD_PROFILE_SPEC(11015, "channelSpec.duplicate.measurementType.loadProfileSpec","The load profile configuration \"{0}\" already contains a channel configuration \"{1}\" with the given register type \"{2}\""),
     CHANNEL_SPEC_WITHOUT_LOAD_PROFILE_SPEC_INTERVAL_IS_REQUIRED(11016, "channelSpec.interval.required.loadProfileSpec","The interval of a channel configuration is required when no load profile configuration is defined"),
     CHANNEL_SPEC_INVALID_INTERVAL_COUNT(11017, "channelSpec.interval.invalid.count","The amount in the interval of a channel configuration should be larger than zero, but was \"{0}\""),
@@ -88,6 +83,9 @@ public enum MessageSeeds implements MessageSeed {
     CHANNEL_SPEC_CANNOT_CHANGE_DEVICE_CONFIG(11020, "channelSpec.change.configuration", "You can not change the device configuration of an existing channel configuration"),
     CHANNEL_SPEC_CANNOT_CHANGE_CHANNEL_TYPE(11023, "channelSpec.change.measurementType", "You can not change the register type of an existing channel configuration"),
     CHANNEL_SPEC_CANNOT_CHANGE_LOAD_PROFILE_SPEC(11024, "channelSpec.change.loadProfileSpec", "You can not change the load profile configuration of an existing channel configuration"),
+    CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_ONE(11025, Keys.CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS, "Invalid number of fraction digits."),
+    CHANNEL_SPEC_OVERFLOW_VALUE_INVALID(11026, Keys.CHANNEL_SPEC_INVALID_OVERFLOW_VALUE, "Invalid overflow value, must be larger than 0 and smaller than " + Integer.MAX_VALUE),
+    CHANNEL_SPEC_OVERFLOW_REQUIRED(11027, Keys.CHANNEL_SPEC_OVERFLOW_IS_REQUIRED, "Overflow value is required"),
     DEVICE_CONFIGURATION_NAME_IS_REQUIRED(12001, "deviceConfig.name.required", "The name of the device configuration is required"),
     DEVICE_CONFIGURATION_DEVICE_TYPE_IS_REQUIRED(12002, "deviceConfig.deviceType.required", "The device type of the device configuration is required"),
     DEVICE_CONFIGURATION_IS_ACTIVE_CAN_NOT_DELETE(12003, "deviceConfig.active", "You can not remove an active device configuration"),
@@ -102,6 +100,11 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_CONFIGURATION_CAN_NOT_BE_DIRECTLY_ADDRESSED(12013, Keys.DEVICE_CONFIG_DIRECT_ADDRESS_NOT_ALLOWED, "The device configuration can not be directly addressable as the device protocol does not allow it"),
     DEVICE_CONFIGURATION_IS_ACTIVE_CAN_NOT_CHANGE_FIELD(12014, Keys.DEVICE_CONFIG_ACTIVE_FIELD_IMMUTABLE, "You can not change this field for an active configuration"),
     DEVICE_CONFIGURATION_IS_NOT_DIRECTLY_ADDRESSABLE(12015, Keys.DEVICE_CONFIGURATION_IS_NOT_DIRECTLY_ADDRESSABLE, "It is not allowed to create connection methods because the device configuration is not directly addressable"),
+    DEVICE_CONFIGURATION_CALCULATED_READINGTYPE_CANNOT_BE_EMPTY(12016, Keys.CALCULATED_READINGTYPE_CANNOT_BE_EMPTY, "The calculated readingtype can not be empty when you define to use a multiplier"),
+    DEVICE_CONFIGURATION_CALCULATED_READINGTYPE_DOES_NOT_MATCH_CRITERIA(12017, Keys.CALCULATED_READINGTYPE_DOES_NOT_MATCH_CRITERIA, "The calculated readingtype does not match the criteria according to the selected value"),
+    READINGTYPE_CAN_NOT_BE_MULTIPLIED(12018, Keys.READINGTYPE_CAN_NOT_BE_MULTIPLIED, "Readingtype can not be multiplied"),
+    CANNOT_CHANGE_THE_USAGE_OF_THE_MULTIPLIER_OF_ACTIVE_CONFIG(12019, Keys.CANNOT_CHANGE_THE_USAGE_OF_THE_MULTIPLIER_OF_ACTIVE_CONFIG, "You can not change the usage of the multiplier of an active configuration"),
+    CANNOT_CHANGE_MULTIPLIER_OF_ACTIVE_CONFIG(12020, Keys.CANNOT_CHANGE_MULTIPLIER_OF_ACTIVE_CONFIG, "You can not change the multiplier readingtype of an active configuration"),
     NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED(13000, Keys.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED, "The temporal expression of a NextExecutionSpec is required"),
     TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED(13001, Keys.TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED, "The frequency of a temporal expression is required"),
     TEMPORAL_EXPRESSION_UNKNOWN_UNIT(13002, Keys.TEMPORAL_EXPRESSION_UNKNOWN_UNIT, "The unit {0} is unknown or unsupported for temporal expressions"),
@@ -199,8 +202,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED = "logBookSpec.logbookType.required";
         public static final String LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED = "loadProfileSpec.loadProfileType.required";
         public static final String CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED = "channelSpec.channelType.required";
-        public static final String CHANNEL_SPEC_READING_METHOD_IS_REQUIRED = "channelSpec.readingMethod.required";
-        public static final String CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED = "channelSpec.valueCalculationMethod.required";
         public static final String REGISTER_SPEC_REGISTER_TYPE_IS_REQUIRED = "registerSpec.registerType.required";
         public static final String READING_TYPE_ALREADY_EXISTS = "productSpec.duplicateReadingTypeX";
         public static final String NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED = "nextExecutionSpecs.temporalExpression.required";
@@ -211,9 +212,10 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_CONFIG_GATEWAY_NOT_ALLOWED = "deviceConfig.gateway.notAllowed";
         public static final String DEVICE_CONFIG_DIRECT_ADDRESS_NOT_ALLOWED = "deviceConfig.directAddress.notAllowed";
         public static final String DEVICE_CONFIGURATION_IS_NOT_DIRECTLY_ADDRESSABLE = "deviceConfig.isnot.directAddressable";
-        public static final String REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS = "registerSpec.invalidNumberOfDigits";
-        public static final String REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED = "registerSpec.numberOfDigits.decreased";
+        public static final String REGISTER_SPEC_OVERFLOW_DECREASED = "registerSpec.overFlow.decreased";
+        public static final String CHANNEL_SPEC_OVERFLOW_DECREASED = "channel.overFlow.decreased";
         public static final String REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED = "registerSpec.numberOfFractionDigits.decreased";
+        public static final String CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED = "channelSpec.numberOfFractionDigits.decreased";
         public static final String REGISTER_SPEC_REGISTER_TYPE_ACTIVE_DEVICE_CONFIG = "registerSpec.measurementType.activeDeviceConfig";
         public static final String PROTOCOLDIALECT_REQUIRED = "protocolDialectConfigurationProperties.dialectName.required";
         public static final String PROTOCOLDIALECT_CONF_PROPS_DUPLICATE = "protocolDialectConfigurationProperties.duplicate";
@@ -229,6 +231,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS = "registerSpec.invalidNumberOfFractionDigits";
         public static final String REGISTER_SPEC_INVALID_OVERFLOW_VALUE = "registerSpec.invalidOverflow";
         public static final String REGISTER_SPEC_OVERFLOW_IS_REQUIRED = "registerSpec.required";
+        public static final String CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS = "channelSpec.invalidNumberOfFractionDigits";
+        public static final String CHANNEL_SPEC_INVALID_OVERFLOW_VALUE = "channelSpec.invalidOverflow";
+        public static final String CHANNEL_SPEC_OVERFLOW_IS_REQUIRED = "channelSpec.required";
         public static final String UNSUPPORTED_SECURITY_LEVEL = "securityPropertySet.unsupportedSecurityLevel";
         public static final String SECURITY_PROPERTY_SET_IN_USE = "securityPropertySet.inUse";
         public static final String COM_TASK_ENABLEMENT_COM_TASK_REQUIRED = "comTaskEnablement.comTask.required";
@@ -244,10 +249,14 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD = "incorrect.direction.connection.method";
         public static final String INCORRECT_GATEWAY_TYPE = "incorrect.gateway.type";
         public static final String DEVICE_LIFE_CYCLE_REQUIRED = "deviceType.device.life.cycle.required";
-        public static final String REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS = "registerSpec.overflow.exceed";
         public static final String REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS = "registerSpec.overflow.fractionDigits";
         public static final String DESTINATION_DATA_SOURCE_IS_EMPTY = "destinationDataSourceIsEmpty";
         public static final String MULTIPLE_SOLUTIONS_FOR_SAME_CONFLICT = "multipleSolutionsDefinedForSameConfig";
+        public static final String CALCULATED_READINGTYPE_CANNOT_BE_EMPTY = "calculatedReadingType.notEmpty.whenMultiplier";
+        public static final String CALCULATED_READINGTYPE_DOES_NOT_MATCH_CRITERIA = "calculatedReadingType.does.not.match.criteria";
+        public static final String READINGTYPE_CAN_NOT_BE_MULTIPLIED = "readingtype.can.not.be.multiplied";
+        public static final String CANNOT_CHANGE_THE_USAGE_OF_THE_MULTIPLIER_OF_ACTIVE_CONFIG = "cannot.change.the.usage.of.multiplier.of.active.config";
+        public static final String CANNOT_CHANGE_MULTIPLIER_OF_ACTIVE_CONFIG = "cannot.change.multiplier.of.active.config";
     }
 
 }
