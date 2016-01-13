@@ -42,6 +42,7 @@ public class SecurityAttributesImportProcessor implements FileImportProcessor<Se
         TypedProperties typedProperties = getUpdatedProperties(device, deviceConfigSecurityPropertySet, data);
         try {
             device.setSecurityProperties(deviceConfigSecurityPropertySet, typedProperties);
+            device.save();
         } catch (Exception e) {
             throw new ProcessorException(MessageSeeds.SECURITY_ATTRIBUTES_NOT_SET, data.getLineNumber(), data.getDeviceMRID());
         }
