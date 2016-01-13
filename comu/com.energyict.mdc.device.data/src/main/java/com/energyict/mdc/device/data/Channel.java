@@ -71,14 +71,6 @@ public interface Channel extends BaseChannel {
     Optional<ReadingType> getCalculatedReadingType(Instant timeStamp);
 
     /**
-     * Provides the value of the multiplier of this channel. The value will only be present if
-     * the multiplier is larger than one (1)
-     *
-     * @return the optional multiplier
-     */
-    Optional<BigDecimal> getMultiplier();
-
-    /**
      * Provides the value of the multiplier at the given timeStamp of this channel. The value will only be present if
      * the multiplier is larger than one (1)
      *

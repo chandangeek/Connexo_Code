@@ -301,17 +301,6 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
         }
 
         @Override
-        public Optional<BigDecimal> getMultiplier() {
-            if (getChannelSpec().isUseMultiplier()) {
-                BigDecimal multiplier = getDevice().getMultiplier();
-                if (multiplier.compareTo(BigDecimal.ONE) == 1) {
-                    return Optional.of(multiplier);
-                }
-            }
-            return Optional.empty();
-        }
-
-        @Override
         public List<LoadProfileReading> getChannelData(Range<Instant> interval) {
             return LoadProfileImpl.this.device.get().getChannelData(this, interval);
         }

@@ -92,14 +92,6 @@ public interface Register<R extends Reading, RS extends RegisterSpec> extends Ba
     Optional<ReadingType> getCalculatedReadingType(Instant timeStamp);
 
     /**
-     * Provides the value of the multiplier of this register. The value will only be present if
-     * the multiplier is larger than one (1)
-     *
-     * @return the optional multiplier
-     */
-    Optional<BigDecimal> getMultiplier();
-
-    /**
      * Provides the value of the multiplier of this register at the given timestamp. The value will only be present if
      * the multiplier is larger than one (1)
      *

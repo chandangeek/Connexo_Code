@@ -36,28 +36,23 @@ public class BillingRegisterImpl extends RegisterImpl<BillingReading, NumericalR
 
     @Override
     public Optional<ReadingType> getCalculatedReadingType(Instant timeStamp) {
-        return getMultiplier(timeStamp).isPresent()? getRegisterSpec().getCalculatedReadingType() : Optional.empty();
+        Optional<BigDecimal> multiplierAt = getDevice().getMultiplierAt(timeStamp);
+        if (multiplierAt.isPresent() && multiplierAt.get().compareTo(BigDecimal.ONE) == 1) {
+            return device.getCalculatedReadingTypeFromMeterConfiguration(getRegisterSpec().getReadingType(), timeStamp);
+        }
+        return Optional.empty();
     }
 
     @Override
-    public  Optional<BigDecimal> getMultiplier(Instant timeStamp) {
-        if (getRegisterSpec().isUseMultiplier()) {
-            Optional<BigDecimal> multiplierAt = getDevice().getMultiplierAt(timeStamp);
-            if(multiplierAt.isPresent() && multiplierAt.get().compareTo(BigDecimal.ONE) == 1){
+    public Optional<BigDecimal> getMultiplier(Instant timeStamp) {
+        Optional<BigDecimal> multiplierAt = getDevice().getMultiplierAt(timeStamp);
+        if (multiplierAt.isPresent() && multiplierAt.get().compareTo(BigDecimal.ONE) == 1) {
+            Optional<ReadingType> koreMeterConfigBulkReadingType = device.getCalculatedReadingTypeFromMeterConfiguration(getRegisterSpec().getReadingType(), timeStamp);
+            if (koreMeterConfigBulkReadingType.isPresent()) { // if it is present, then it means we configured a ReadingType to calculate
                 return multiplierAt;
             }
         }
         return Optional.empty();
     }
 
-    @Override
-    public Optional<BigDecimal> getMultiplier() {
-        if (getRegisterSpec().isUseMultiplier()) {
-            BigDecimal multiplier = getDevice().getMultiplier();
-            if(multiplier.compareTo(BigDecimal.ONE) == 1){
-                return Optional.of(multiplier);
-            }
-        }
-        return Optional.empty();
-    }
 }

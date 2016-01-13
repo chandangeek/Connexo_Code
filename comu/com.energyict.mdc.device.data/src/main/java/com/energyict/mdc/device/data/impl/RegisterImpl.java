@@ -46,7 +46,7 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
     /**
      * The Device which <i>owns</i> this Register.
      */
-    private final DeviceImpl device;
+    protected final DeviceImpl device;
 
     public RegisterImpl(DeviceImpl device, RS registerSpec) {
         this.registerSpec = registerSpec;
@@ -61,11 +61,6 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
     @Override
     public RS getRegisterSpec() {
         return registerSpec;
-    }
-
-    @Override
-    public Optional<BigDecimal> getMultiplier() {
-        return Optional.empty();
     }
 
     @Override

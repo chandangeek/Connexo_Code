@@ -370,7 +370,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         assertThat(reloadedLoadProfile.getChannels()).haveExactly(2, new Condition<Channel>(){
             @Override
             public boolean matches(Channel channel) {
-                return !channel.getMultiplier().isPresent();
+                return !channel.getMultiplier(januaryFirst).isPresent();
             }
         });
     }
@@ -389,13 +389,13 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         assertThat(reloadedLoadProfile.getChannels()).haveExactly(1, new Condition<Channel>(){
             @Override
             public boolean matches(Channel channel) {
-                return channel.getMultiplier().isPresent() && channel.getMultiplier().get().compareTo(multiplier) == 0;
+                return channel.getMultiplier(januaryTenth).isPresent() && channel.getMultiplier(januaryTenth).get().compareTo(multiplier) == 0;
             }
         });
         assertThat(reloadedLoadProfile.getChannels()).haveExactly(1, new Condition<Channel>(){
             @Override
             public boolean matches(Channel channel) {
-                return !channel.getMultiplier().isPresent();
+                return !channel.getMultiplier(januaryTenth).isPresent();
             }
         });
     }
