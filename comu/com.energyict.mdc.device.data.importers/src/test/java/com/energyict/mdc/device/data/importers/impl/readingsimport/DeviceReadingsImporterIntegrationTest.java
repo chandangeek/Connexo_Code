@@ -92,6 +92,8 @@ public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegratio
         verify(logger, never()).severe(Matchers.anyString());
         verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN).format(4, 1, 2));
 
+        device = reloadDevice(device);
+
         List<NumericalReading> readings = device.getRegisters().get(0).getReadings(Interval.forever());
         assertThat(readings).hasSize(2);
         assertThat(readings.get(0).getTimeStamp()).isEqualTo(ZonedDateTime.of(2015, 8, 1, 1, 0, 0, 0, ZoneOffset.UTC).toInstant());
@@ -155,6 +157,11 @@ public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegratio
         Device device = deviceService.newDevice(deviceConfiguration, "TestDevice", "TestDevice");
         device.save();
         return device;
+    }
+
+    private Device reloadDevice(Device device) {
+        DeviceService deviceService = inMemoryPersistence.getService(DeviceService.class);
+        return deviceService.findDeviceById(device.getId()).get();
     }
 
     private FileImportOccurrence mockFileImportOccurrence(String csv) {
