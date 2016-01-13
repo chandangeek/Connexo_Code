@@ -19,7 +19,6 @@ import com.energyict.mdc.firmware.FirmwareVersionBuilder;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
@@ -61,7 +60,6 @@ public final class FirmwareVersionImpl implements FirmwareVersion, PersistenceAw
     private byte[] firmwareFileArray;
 
     @Max(value = FirmwareService.MAX_FIRMWARE_FILE_SIZE, message = "{" + MessageSeeds.Keys.MAX_FILE_SIZE_EXCEEDED + "}")
-    @Min(value = FirmwareService.MIN_FIRMWARE_FILE_SIZE, message = "{" + MessageSeeds.Keys.FILE_IS_EMPTY + "}", groups = {Save.Create.class, Save.Update.class})
     private long firmwareFile; // set this name for validation reason
 
 
@@ -182,7 +180,11 @@ public final class FirmwareVersionImpl implements FirmwareVersion, PersistenceAw
     }
 
     public boolean hasFirmwareFile() {
-        return this.firmwareFile > 0;
+        return this.firmwareFileArray != null;
+    }
+
+    public boolean isFirmwareFileEmpty() {
+        return this.firmwareFile == 0;
     }
 
     @Override
