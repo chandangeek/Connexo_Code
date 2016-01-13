@@ -6,13 +6,11 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.DeviceService;
+
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -29,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component(name = "com.energyict.mdc.device.config.cps.RegisterTypeOneVersionedCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+@SuppressWarnings("unused")
 public class RegisterTypeOneVersionedCustomPropertySet implements CustomPropertySet<RegisterSpec, RegisterTypeOneVersionedDomainExtension> {
 
     public static final String TABLE_NAME = "RVK_CPS_REGISTER_VER";
@@ -37,13 +36,11 @@ public class RegisterTypeOneVersionedCustomPropertySet implements CustomProperty
     public volatile PropertySpecService propertySpecService;
     public volatile DeviceService deviceService;
 
-    @SuppressWarnings("unused")
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
 
-    @SuppressWarnings("unused")
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -54,14 +51,15 @@ public class RegisterTypeOneVersionedCustomPropertySet implements CustomProperty
     }
 
     @Inject
-    public RegisterTypeOneVersionedCustomPropertySet(PropertySpecService propertySpecService) {
-        super();
-        this.propertySpecService = propertySpecService;
+    public RegisterTypeOneVersionedCustomPropertySet(PropertySpecService propertySpecService, DeviceService deviceService) {
+        this();
+        this.setPropertySpecService(propertySpecService);
+        this.setDeviceService(deviceService);
     }
 
     @Activate
     public void activate() {
-        System.err.println(TABLE_NAME);
+        System.out.println(TABLE_NAME);
     }
 
     @Override
@@ -101,40 +99,40 @@ public class RegisterTypeOneVersionedCustomPropertySet implements CustomProperty
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        PropertySpec testNumberPropertySpec = this.propertySpecService
-                .bigDecimalSpec()
-                .named(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName(), RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
-                .describedAs("kw")
-                .setDefaultValue(BigDecimal.ZERO)
-                .markRequired()
-                .finish();
-        PropertySpec testStringPropertySpec = this.propertySpecService
-                .stringSpec()
-                .named(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName(), RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName())
-                .describedAs("infoString")
-                .setDefaultValue("description")
-                .finish();
-        PropertySpec testNumberEnumPropertySpec = this.propertySpecService
-                .bigDecimalSpec()
-                .named(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName(), RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName())
-                .describedAs("A")
-                .addValues(BigDecimal.valueOf(7), BigDecimal.valueOf(77), BigDecimal.valueOf(777))
-                .setDefaultValue(BigDecimal.valueOf(77))
-                .finish();
-        PropertySpec testStringEnumPropertySpec = this.propertySpecService
-                .stringSpec()
-                .named(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName(), RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName())
-                .describedAs("infoEnumString")
-                .addValues("alfa", "beta", "gamma")
-                .setDefaultValue("gamma")
-                .finish();
-        PropertySpec testBooleanPropertySpec = this.propertySpecService
-                .booleanSpec()
-                .named(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName(), RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
-                .describedAs("flag")
-                .setDefaultValue(false)
-                .finish();
-        return Arrays.asList(testNumberPropertySpec, testStringPropertySpec, testNumberEnumPropertySpec, testStringEnumPropertySpec, testBooleanPropertySpec);
+        return Arrays.asList(
+                this.propertySpecService
+                        .bigDecimalSpec()
+                        .named(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName(), RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
+                        .describedAs("kw")
+                        .setDefaultValue(BigDecimal.ZERO)
+                        .markRequired()
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName(), RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName())
+                        .describedAs("infoString")
+                        .setDefaultValue("description")
+                        .finish(),
+                this.propertySpecService
+                        .bigDecimalSpec()
+                        .named(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName(), RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName())
+                        .describedAs("A")
+                        .addValues(BigDecimal.valueOf(7L), BigDecimal.valueOf(77L), BigDecimal.valueOf(777L))
+                        .setDefaultValue(BigDecimal.valueOf(77L))
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName(), RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName())
+                        .describedAs("infoEnumString")
+                        .addValues("alfa", "beta", "gamma")
+                        .setDefaultValue("gamma")
+                        .finish(),
+                this.propertySpecService
+                        .booleanSpec()
+                        .named(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName(), RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
+                        .describedAs("flag")
+                        .setDefaultValue(false)
+                        .finish());
     }
 
     private static class RegisterTypeOneVersionedPeristenceSupport implements PersistenceSupport<RegisterSpec, RegisterTypeOneVersionedDomainExtension> {
@@ -172,42 +170,42 @@ public class RegisterTypeOneVersionedCustomPropertySet implements CustomProperty
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
             return Collections.singletonList(
                     table
-                            .column(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.databaseName())
-                            .number()
-                            .map(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.javaName())
-                            .notNull()
-                            .add());
+                        .column(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.databaseName())
+                        .number()
+                        .map(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.javaName())
+                        .notNull()
+                        .add());
         }
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table
-                    .column(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.databaseName())
-                    .number()
-                    .map(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
-                    .notNull()
-                    .add();
+                .column(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.databaseName())
+                .number()
+                .map(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
+                .notNull()
+                .add();
             table
-                    .column(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.databaseName())
-                    .varChar()
-                    .map(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName())
-                    .notNull()
-                    .add();
+                .column(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.databaseName())
+                .varChar()
+                .map(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName())
+                .notNull()
+                .add();
             table
-                    .column(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.databaseName())
-                    .number()
-                    .map(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName())
-                    .add();
+                .column(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.databaseName())
+                .number()
+                .map(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName())
+                .add();
             table
-                    .column(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.databaseName())
-                    .varChar()
-                    .map(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName())
-                    .add();
+                .column(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.databaseName())
+                .varChar()
+                .map(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName())
+                .add();
             table
-                    .column(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.databaseName())
-                    .bool()
-                    .map(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
-                    .add();
+                .column(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.databaseName())
+                .bool()
+                .map(RegisterTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
+                .add();
         }
     }
 }

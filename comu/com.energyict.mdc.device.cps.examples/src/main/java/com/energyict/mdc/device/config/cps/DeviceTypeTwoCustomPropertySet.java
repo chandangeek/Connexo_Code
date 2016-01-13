@@ -6,12 +6,11 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -28,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component(name = "com.energyict.mdc.device.config.cps.DeviceTypeTwoCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+@SuppressWarnings("unused")
 public class DeviceTypeTwoCustomPropertySet implements CustomPropertySet<Device, DeviceTypeTwoDomainExtension> {
 
     public static final String TABLE_NAME = "RVK_CPS_DEVICE_TWO";
@@ -42,7 +42,6 @@ public class DeviceTypeTwoCustomPropertySet implements CustomPropertySet<Device,
         this.deviceService = deviceService;
     }
 
-    @SuppressWarnings("unused")
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -53,14 +52,15 @@ public class DeviceTypeTwoCustomPropertySet implements CustomPropertySet<Device,
     }
 
     @Inject
-    public DeviceTypeTwoCustomPropertySet(PropertySpecService propertySpecService) {
-        super();
-        this.propertySpecService = propertySpecService;
+    public DeviceTypeTwoCustomPropertySet(PropertySpecService propertySpecService, DeviceService deviceService) {
+        this();
+        this.setPropertySpecService(propertySpecService);
+        this.setDeviceService(deviceService);
     }
 
     @Activate
     public void activate() {
-        System.err.println(TABLE_NAME);
+        System.out.println(TABLE_NAME);
     }
 
     @Override
@@ -111,8 +111,8 @@ public class DeviceTypeTwoCustomPropertySet implements CustomPropertySet<Device,
                 .bigDecimalSpec()
                 .named(DeviceTypeTwoDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName(), DeviceTypeTwoDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName())
                 .describedAs("bbbbbbbb")
-                .addValues(BigDecimal.valueOf(8), BigDecimal.valueOf(88), BigDecimal.valueOf(888))
-                .setDefaultValue(BigDecimal.valueOf(88))
+                .addValues(BigDecimal.valueOf(8L), BigDecimal.valueOf(88L), BigDecimal.valueOf(888L))
+                .setDefaultValue(BigDecimal.valueOf(88L))
                 .finish();
         PropertySpec testBooleanPropertySpec = this.propertySpecService
                 .booleanSpec()

@@ -6,12 +6,11 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.data.DeviceService;
+
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -20,9 +19,15 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Component(name = "com.energyict.mdc.device.config.cps.LoadProfileOneVersionedCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+@SuppressWarnings("unused")
 public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertySet<ChannelSpec, LoadProfileOneVersionedDomainExtension> {
 
     public static final String TABLE_NAME = "RVK_CPS_CHANNEL_VER";
@@ -31,13 +36,11 @@ public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertyS
     public volatile PropertySpecService propertySpecService;
     public volatile DeviceService deviceService;
 
-    @SuppressWarnings("unused")
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
 
-    @SuppressWarnings("unused")
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -48,14 +51,15 @@ public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertyS
     }
 
     @Inject
-    public LoadProfileOneVersionedCustomPropertySet(PropertySpecService propertySpecService) {
-        super();
-        this.propertySpecService = propertySpecService;
+    public LoadProfileOneVersionedCustomPropertySet(PropertySpecService propertySpecService, DeviceService deviceService) {
+        this();
+        this.setPropertySpecService(propertySpecService);
+        this.setDeviceService(deviceService);
     }
 
     @Activate
     public void activate() {
-        System.err.println(TABLE_NAME);
+        System.out.println(TABLE_NAME);
     }
 
     @Override
@@ -95,27 +99,27 @@ public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertyS
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        PropertySpec testNumberEnumPropertySpec = this.propertySpecService
-                .bigDecimalSpec()
-                .named(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName(), LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName())
-                .describedAs("A")
-                .addValues(BigDecimal.valueOf(7), BigDecimal.valueOf(77), BigDecimal.valueOf(777))
-                .setDefaultValue(BigDecimal.valueOf(77))
-                .finish();
-        PropertySpec testStringEnumPropertySpec = this.propertySpecService
-                .stringSpec()
-                .named(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName(), LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName())
-                .describedAs("infoEnumString")
-                .addValues("alfa", "beta", "gamma")
-                .setDefaultValue("gamma")
-                .finish();
-        PropertySpec testBooleanPropertySpec = this.propertySpecService
-                .booleanSpec()
-                .named(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName(), LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
-                .describedAs("flag")
-                .setDefaultValue(false)
-                .finish();
-        return Arrays.asList(testNumberEnumPropertySpec, testStringEnumPropertySpec, testBooleanPropertySpec);
+        return Arrays.asList(
+                this.propertySpecService
+                        .bigDecimalSpec()
+                        .named(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName(), LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName())
+                        .describedAs("A")
+                        .addValues(BigDecimal.valueOf(7L), BigDecimal.valueOf(77L), BigDecimal.valueOf(777L))
+                        .setDefaultValue(BigDecimal.valueOf(77L))
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName(), LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName())
+                        .describedAs("infoEnumString")
+                        .addValues("alfa", "beta", "gamma")
+                        .setDefaultValue("gamma")
+                        .finish(),
+                this.propertySpecService
+                        .booleanSpec()
+                        .named(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName(), LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
+                        .describedAs("flag")
+                        .setDefaultValue(false)
+                        .finish());
     }
 
     private static class LoadProfileOneVersionedPeristenceSupport implements PersistenceSupport<ChannelSpec, LoadProfileOneVersionedDomainExtension> {
@@ -153,30 +157,30 @@ public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertyS
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
             return Collections.singletonList(
                     table
-                            .column(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.databaseName())
-                            .number()
-                            .map(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.javaName())
-                            .notNull()
-                            .add());
+                        .column(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.databaseName())
+                        .number()
+                        .map(LoadProfileTypeOneDomainExtension.FieldNames.DEVICE.javaName())
+                        .notNull()
+                        .add());
         }
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table
-                    .column(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.databaseName())
-                    .number()
-                    .map(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName())
-                    .add();
+                .column(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.databaseName())
+                .number()
+                .map(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName())
+                .add();
             table
-                    .column(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.databaseName())
-                    .varChar()
-                    .map(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName())
-                    .add();
+                .column(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.databaseName())
+                .varChar()
+                .map(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName())
+                .add();
             table
-                    .column(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.databaseName())
-                    .bool()
-                    .map(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
-                    .add();
+                .column(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.databaseName())
+                .bool()
+                .map(LoadProfileOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
+                .add();
         }
     }
 }

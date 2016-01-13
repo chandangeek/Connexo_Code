@@ -6,12 +6,11 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -28,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component(name = "com.energyict.mdc.device.config.cps.DeviceTypeTwoVersionedCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+@SuppressWarnings("unused")
 public class DeviceTypeTwoVersionedCustomPropertySet implements CustomPropertySet<Device, DeviceTypeTwoVersionedDomainExtension> {
 
     public static final String TABLE_NAME = "RVK_CPS_DEVICE_VER_TWO";
@@ -36,13 +36,11 @@ public class DeviceTypeTwoVersionedCustomPropertySet implements CustomPropertySe
     public volatile PropertySpecService propertySpecService;
     public volatile DeviceService deviceService;
 
-    @SuppressWarnings("unused")
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
 
-    @SuppressWarnings("unused")
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -53,14 +51,15 @@ public class DeviceTypeTwoVersionedCustomPropertySet implements CustomPropertySe
     }
 
     @Inject
-    public DeviceTypeTwoVersionedCustomPropertySet(PropertySpecService propertySpecService) {
-        super();
-        this.propertySpecService = propertySpecService;
+    public DeviceTypeTwoVersionedCustomPropertySet(PropertySpecService propertySpecService, DeviceService deviceService) {
+        this();
+        this.setPropertySpecService(propertySpecService);
+        this.setDeviceService(deviceService);
     }
 
     @Activate
     public void activate() {
-        System.err.println(TABLE_NAME);
+        System.out.println(TABLE_NAME);
     }
 
     @Override
@@ -100,27 +99,27 @@ public class DeviceTypeTwoVersionedCustomPropertySet implements CustomPropertySe
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        PropertySpec testNumberPropertySpec = this.propertySpecService
-                .bigDecimalSpec()
-                .named(DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName(), DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
-                .describedAs("aaaaaa")
-                .setDefaultValue(BigDecimal.ZERO)
-                .markRequired()
-                .finish();
-        PropertySpec testNumberEnumPropertySpec = this.propertySpecService
-                .bigDecimalSpec()
-                .named(DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName(), DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName())
-                .describedAs("bbbbbbbb")
-                .addValues(BigDecimal.valueOf(8), BigDecimal.valueOf(88), BigDecimal.valueOf(888))
-                .setDefaultValue(BigDecimal.valueOf(88))
-                .finish();
-        PropertySpec testBooleanPropertySpec = this.propertySpecService
-                .booleanSpec()
-                .named(DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName(), DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
-                .describedAs("cccccccccc")
-                .setDefaultValue(false)
-                .finish();
-        return Arrays.asList(testBooleanPropertySpec, testNumberPropertySpec, testNumberEnumPropertySpec);
+        return Arrays.asList(
+                this.propertySpecService
+                        .booleanSpec()
+                        .named(DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName(), DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
+                        .describedAs("cccccccccc")
+                        .setDefaultValue(false)
+                        .finish(),
+                this.propertySpecService
+                        .bigDecimalSpec()
+                        .named(DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName(), DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
+                        .describedAs("aaaaaa")
+                        .setDefaultValue(BigDecimal.ZERO)
+                        .markRequired()
+                        .finish(),
+                this.propertySpecService
+                        .bigDecimalSpec()
+                        .named(DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName(), DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName())
+                        .describedAs("bbbbbbbb")
+                        .addValues(BigDecimal.valueOf(8L), BigDecimal.valueOf(88L), BigDecimal.valueOf(888L))
+                        .setDefaultValue(BigDecimal.valueOf(88L))
+                        .finish());
     }
 
     private static class DeviceTypeTwoVersionedPeristenceSupport implements PersistenceSupport<Device, DeviceTypeTwoVersionedDomainExtension> {
@@ -156,27 +155,27 @@ public class DeviceTypeTwoVersionedCustomPropertySet implements CustomPropertySe
 
         @Override
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table
-                    .column(DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.databaseName())
-                    .number()
-                    .map(DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
-                    .notNull()
-                    .add();
+                .column(DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.databaseName())
+                .number()
+                .map(DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
+                .notNull()
+                .add();
             table
-                    .column(DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.databaseName())
-                    .number()
-                    .map(DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName())
-                    .add();
+                .column(DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.databaseName())
+                .number()
+                .map(DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName())
+                .add();
             table
-                    .column(DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.databaseName())
-                    .bool()
-                    .map(DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
-                    .add();
+                .column(DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.databaseName())
+                .bool()
+                .map(DeviceTypeTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
+                .add();
         }
     }
 }
