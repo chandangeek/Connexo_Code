@@ -63,10 +63,20 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
     loadGridItemDetail: function (rowmodel, record) {
         var me = this,
             previewPanel = me.getDeviceregisterreportpreview(),
-            form = previewPanel.down('form');
-        previewPanel.setTitle(Ext.util.Format.date(new Date(record.get('timeStamp')), 'M j, Y \\a\\t G:i'));
-        if (previewPanel.down('displayfield[name=deltaValue]')) {
-            previewPanel.down('displayfield[name=deltaValue]').setVisible(!Ext.isEmpty(record.get('deltaValue')));
+            form = previewPanel.down('form'),
+            deltaValueField = previewPanel.down('displayfield[name=deltaValue]'),
+            multiplierField = previewPanel.down('#mdc-register-preview-'+record.get('type')+'-multiplier'),
+            measurementDate = new Date(record.get('timeStamp'));
+        previewPanel.setTitle(
+            Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+                [Uni.DateTime.formatDateLong(measurementDate), Uni.DateTime.formatTimeLong(measurementDate)]
+            )
+        );
+        if (deltaValueField) {
+            deltaValueField.setVisible(!Ext.isEmpty(record.get('deltaValue')));
+        }
+        if (multiplierField) {
+            multiplierField.setVisible( !Ext.isEmpty(record.get('calculatedValue')) );
         }
         form.loadRecord(record);
     },
