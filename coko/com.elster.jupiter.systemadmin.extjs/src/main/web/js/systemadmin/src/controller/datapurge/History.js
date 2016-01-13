@@ -39,9 +39,14 @@ Ext.define('Sam.controller.datapurge.History', {
     },
 
     showDetails: function (selectionModel, record) {
-        var categoriesStore = this.getStore('Sam.store.DataPurgeHistoryCategories');
+        var categoriesStore = this.getStore('Sam.store.DataPurgeHistoryCategories'),
+            date = record.get('startDate');
 
-        this.getDetailsView().setTitle(Uni.I18n.formatDate('datapurge.history.startedon.dateFormat', record.get('startDate'), 'SAM', 'D, d M Y \\a\\t h:i:s'));
+        this.getDetailsView().setTitle(
+            Uni.I18n.translate('general.dateAtTime', 'SAM', '{0} at {1}',
+                [Uni.DateTime.formatDateLong(date), Uni.DateTime.formatTimeLong(date)]
+            )
+        );
         categoriesStore.getProxy().setUrl(record.getId());
         categoriesStore.load();
     }
