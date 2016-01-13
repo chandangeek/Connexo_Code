@@ -285,8 +285,8 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
     public void endExport() {
     }
 
-    private void defineSeparator(TranslatablePropertyValueInfo translatablePropertyValueInfo) {
-        if (translatablePropertyValueInfo.getId().equals(FormatterProperties.SEPARATOR_SEMICOLON.getKey())) {
+    private void defineSeparator(TranslatablePropertyValueInfo separator) {
+        if (separator.getId().equals(FormatterProperties.SEPARATOR_SEMICOLON.getKey())) {
             this.fieldSeparator = SEMICOLON_SEPARATOR;
         } else {
             this.fieldSeparator = COMMA_SEPARATOR;

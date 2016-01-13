@@ -35,6 +35,14 @@ public enum FormatterProperties implements TranslationKey {
         return Arrays.asList(SEPARATOR_COMMA, SEPARATOR_SEMICOLON);
     }
 
+    public static FormatterProperties separatorValueFrom(String key) {
+        return separatorValues()
+                .stream()
+                .filter(p -> p.getKey().equals(key))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown or unsupport formatter separator:" + key));
+    }
+
     @Override
     public String getKey() {
         return name;

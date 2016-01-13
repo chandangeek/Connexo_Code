@@ -97,22 +97,26 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
                         .fromThesaurus(this.thesaurus)
                         .markRequired()
                         .finish());
-        Stream<String> separatorValues =
+        Stream<TranslatablePropertyValueInfo> separatorValues =
                 FormatterProperties
                         .separatorValues()
                         .stream()
-                        .map(p -> this.thesaurus.getFormat(p).format());
+                        .map(this::asInfo);
         propertySpecs.add(
                 propertySpecService
-                        .stringSpec()
+                        .specForValuesOf(new TranslatablePropertyValueInfoFactory(thesaurus))
                         .named(FormatterProperties.SEPARATOR)
                         .fromThesaurus(this.thesaurus)
                         .markRequired()
-                        .addValues(separatorValues.toArray(String[]::new))
+                        .addValues(separatorValues.toArray(TranslatablePropertyValueInfo[]::new))
                         .markExhaustive(PropertySelectionMode.COMBOBOX)
-                        .setDefaultValue(this.thesaurus.getFormat(FormatterProperties.defaultSeparator()).format())
+                        .setDefaultValue(this.asInfo(FormatterProperties.defaultSeparator()))
                         .finish());
         return propertySpecs;
+    }
+
+    private TranslatablePropertyValueInfo asInfo(FormatterProperties property) {
+        return new TranslatablePropertyValueInfo(property.getKey(), thesaurus.getFormat(property).format());
     }
 
     @Override
@@ -156,4 +160,5 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
     public String getDisplayName() {
         return DISPLAY_NAME;
     }
+
 }

@@ -13,7 +13,7 @@ public class TranslatablePropertyValueInfo extends HasIdAndName {
     }
 
     @Override
-    public Object getId() {
+    public String getId() {
         return id;
     }
 
@@ -21,4 +21,5 @@ public class TranslatablePropertyValueInfo extends HasIdAndName {
     public String getName() {
         return name;
     }
+
 }
