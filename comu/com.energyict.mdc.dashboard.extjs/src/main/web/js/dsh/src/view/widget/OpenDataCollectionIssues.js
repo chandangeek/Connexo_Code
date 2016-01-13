@@ -18,14 +18,15 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
                 assigned = record.getAssignedToMeIssues(),
                 unassigned = record.getUnassignedIssues(),
                 store = assigned.topMyIssues(),
-                issuesCount = store.getCount();
+                issuesCount = store.getCount(),
+                title = '<h3>' + Uni.I18n.translate(
+                    'overview.widget.openDataCollectionIssues.header',
+                    'DSH',
+                    'Open data collection issues ({0})',
+                    assigned.get('total')
+                ) + '</h3>';
 
-            var title = '<h3>' + Ext.String.format(
-                    Uni.I18n.translate('overview.widget.openDataCollectionIssues.header', 'DSH', 'Open data collection issues ({0})'),
-                    assigned.get('total'))
-                + '</h3>';
             me.setTitle(title);
-
             store.each(function (item) {
                 var dueDate = item.get('dueDate');
                 item.set('href', me.router.getRoute('workspace/datacollectionissues/view').buildUrl({issueId: item.get('id')}));

@@ -113,6 +113,7 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
             elm = me.down('#devices-dataview'),
             store = elm.getStore();
 
+        me.setTitle('');
         store.load(function () {
             var title = '<h3>'
                 + Ext.String.format(Uni.I18n.translate('overview.widget.flaggedDevices.header', 'DSH',  'My flagged devices ({0})'), store.count())

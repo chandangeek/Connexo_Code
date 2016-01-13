@@ -184,6 +184,7 @@ Ext.define('Dsh.controller.OperatorDashboard', {
 
             if (Isu.privileges.Issue.canViewAdminDevice()) {
                 issuesWidget.setLoading();
+                issuesWidget.setTitle('');
                 myOpenIssuesModel.load(null, {
                     success: function (issues) {
                         issuesWidget.setRecord(issues);
