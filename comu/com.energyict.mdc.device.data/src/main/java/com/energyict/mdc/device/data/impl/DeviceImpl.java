@@ -648,7 +648,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Instant now = clock.instant();
             Optional<Instant> startDateMultiplier = Optional.ofNullable(from);
             validateStartDateOfNewMultiplier(now, startDateMultiplier);
-            MeterActivation newMeterActivation = activate(startDateMultiplier.orElse(now));
+            MeterActivation newMeterActivation = activate(startDateMultiplier.orElse(now), multiplier.compareTo(BigDecimal.ONE) == 1);
             if(multiplier.compareTo(BigDecimal.ONE) == 1){
                 newMeterActivation.setMultiplier(getDefaultMultiplierType(), multiplier);
             }
@@ -1458,18 +1458,30 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public MeterActivation activate(Instant start) {
+        return activate(start, true);
+    }
+
+    /**
+     * Activate the meter. Either end the current MeterActivation and create a new one, or just create a new one.
+     * Depending on 'copyMultiplier' also copy the multiplierValue
+     *
+     * @param start start of the meterActivation
+     * @param copyMultiplier indication to copy the multiplier
+     * @return the new meterActivation
+     */
+    private MeterActivation activate(Instant start, boolean copyMultiplier){
         Optional<MeterActivation> currentMeterActivation = getCurrentMeterActivation();
         AmrSystem amrSystem = getMdcAmrSystem();
         Meter meter = this.findOrCreateKoreMeter(amrSystem);
         if (currentMeterActivation.isPresent()) {
-            this.currentMeterActivation = Optional.of(endMeterActivationAndCreateNewWithCurrentAsTemplate(start, meter, currentMeterActivation.get()));
+            this.currentMeterActivation = Optional.of(endMeterActivationAndCreateNewWithCurrentAsTemplate(start, meter, currentMeterActivation.get(), copyMultiplier));
         } else {
             this.currentMeterActivation = Optional.of(meter.activate(start)) ;
         }
         return this.currentMeterActivation.get();
     }
 
-    private MeterActivation endMeterActivationAndCreateNewWithCurrentAsTemplate(Instant start, Meter meter, MeterActivation meterActivation) {
+    private MeterActivation endMeterActivationAndCreateNewWithCurrentAsTemplate(Instant start, Meter meter, MeterActivation meterActivation, boolean copyMultiplier) {
         meterActivation.endAt(start);
         Optional<UsagePoint> usagePoint = meter.getUsagePoint(start);
         MeterActivation newMeterActivation;
@@ -1478,7 +1490,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         } else {
             newMeterActivation = meter.activate(start);
         }
-        meterActivation.getMultiplier(getDefaultMultiplierType()).ifPresent(multiplier -> newMeterActivation.setMultiplier(getDefaultMultiplierType(), multiplier));
+        if(copyMultiplier){
+            meterActivation.getMultiplier(getDefaultMultiplierType()).ifPresent(multiplier -> newMeterActivation.setMultiplier(getDefaultMultiplierType(), multiplier));
+        }
         return newMeterActivation;
     }
 
