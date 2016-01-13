@@ -20,6 +20,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -101,22 +102,22 @@ public class RegisterTypeFiveCustomPropertySet implements CustomPropertySet<Regi
     @Override
     public List<PropertySpec> getPropertySpecs() {
         PropertySpec testNumberPropertySpec = this.propertySpecService
-                .newPropertySpecBuilder(new BigDecimalFactory())
-                .name(RegisterTypeFiveDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName(), RegisterTypeFiveDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
-                .description("kw")
-                .setDefaultValue(0)
+                .bigDecimalSpec()
+                .named(RegisterTypeFiveDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName(), RegisterTypeFiveDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
+                .describedAs("kw")
+                .setDefaultValue(BigDecimal.ZERO)
                 .markRequired()
                 .finish();
         PropertySpec testStringPropertySpec = this.propertySpecService
-                .newPropertySpecBuilder(new StringFactory())
-                .name(RegisterTypeFiveDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName(), RegisterTypeFiveDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName())
-                .description("infoString")
+                .stringSpec()
+                .named(RegisterTypeFiveDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName(), RegisterTypeFiveDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName())
+                .describedAs("infoString")
                 .setDefaultValue("description")
                 .finish();
         PropertySpec testBooleanPropertySpec = this.propertySpecService
-                .newPropertySpecBuilder(new BooleanFactory())
-                .name(RegisterTypeFiveDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName(), RegisterTypeFiveDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
-                .description("flag")
+                .booleanSpec()
+                .named(RegisterTypeFiveDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName(), RegisterTypeFiveDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
+                .describedAs("flag")
                 .setDefaultValue(false)
                 .finish();
         return Arrays.asList(testNumberPropertySpec, testStringPropertySpec, testBooleanPropertySpec);

@@ -19,6 +19,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -100,23 +101,23 @@ public class DeviceTypeOneVersionedCustomPropertySet implements CustomPropertySe
     @Override
     public List<PropertySpec> getPropertySpecs() {
         PropertySpec testNumberPropertySpec = this.propertySpecService
-                .newPropertySpecBuilder(new BigDecimalFactory())
-                .name(DeviceTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName(), DeviceTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
-                .description("aaaaaa")
-                .setDefaultValue(0)
+                .bigDecimalSpec()
+                .named(DeviceTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName(), DeviceTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
+                .describedAs("aaaaaa")
+                .setDefaultValue(BigDecimal.ZERO)
                 .markRequired()
                 .finish();
         PropertySpec testNumberEnumPropertySpec = this.propertySpecService
-                .newPropertySpecBuilder(new BigDecimalFactory())
-                .name(DeviceTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName(), DeviceTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName())
-                .description("bbbbbbbb")
-                .addValues(8, 88, 888)
-                .setDefaultValue(88)
+                .bigDecimalSpec()
+                .named(DeviceTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName(), DeviceTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName())
+                .describedAs("bbbbbbbb")
+                .addValues(BigDecimal.valueOf(8), BigDecimal.valueOf(88), BigDecimal.valueOf(888))
+                .setDefaultValue(BigDecimal.valueOf(88))
                 .finish();
         PropertySpec testBooleanPropertySpec = this.propertySpecService
-                .newPropertySpecBuilder(new BooleanFactory())
-                .name(DeviceTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName(), DeviceTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
-                .description("cccccccccc")
+                .booleanSpec()
+                .named(DeviceTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName(), DeviceTypeOneVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
+                .describedAs("cccccccccc")
                 .setDefaultValue(false)
                 .finish();
         return Arrays.asList(testBooleanPropertySpec, testNumberPropertySpec, testNumberEnumPropertySpec);

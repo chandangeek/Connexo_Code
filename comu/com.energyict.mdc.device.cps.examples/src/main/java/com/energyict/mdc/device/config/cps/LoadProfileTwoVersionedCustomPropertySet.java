@@ -19,6 +19,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -100,23 +101,23 @@ public class LoadProfileTwoVersionedCustomPropertySet implements CustomPropertyS
     @Override
     public List<PropertySpec> getPropertySpecs() {
         PropertySpec testNumberEnumPropertySpec = this.propertySpecService
-                .newPropertySpecBuilder(new BigDecimalFactory())
-                .name(LoadProfileTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName(), LoadProfileTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName())
-                .description("A")
-                .addValues(7, 77, 777)
-                .setDefaultValue(77)
+                .bigDecimalSpec()
+                .named(LoadProfileTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName(), LoadProfileTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName())
+                .describedAs("A")
+                .addValues(BigDecimal.valueOf(7), BigDecimal.valueOf(77), BigDecimal.valueOf(777))
+                .setDefaultValue(BigDecimal.valueOf(77))
                 .finish();
         PropertySpec testStringEnumPropertySpec = this.propertySpecService
-                .newPropertySpecBuilder(new BigDecimalFactory())
-                .name(LoadProfileTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName(), LoadProfileTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName())
-                .description("infoEnumString")
+                .stringSpec()
+                .named(LoadProfileTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName(), LoadProfileTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName())
+                .describedAs("infoEnumString")
                 .addValues("alfa", "beta", "gamma")
                 .setDefaultValue("gamma")
                 .finish();
         PropertySpec testBooleanPropertySpec = this.propertySpecService
-                .newPropertySpecBuilder(new BooleanFactory())
-                .name(LoadProfileTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName(), LoadProfileTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
-                .description("flag")
+                .booleanSpec()
+                .named(LoadProfileTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName(), LoadProfileTwoVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
+                .describedAs("flag")
                 .setDefaultValue(false)
                 .finish();
         return Arrays.asList(testNumberEnumPropertySpec, testStringEnumPropertySpec, testBooleanPropertySpec);

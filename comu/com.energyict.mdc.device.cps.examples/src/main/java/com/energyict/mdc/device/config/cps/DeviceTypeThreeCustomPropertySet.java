@@ -19,6 +19,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -100,16 +101,16 @@ public class DeviceTypeThreeCustomPropertySet implements CustomPropertySet<Devic
     @Override
     public List<PropertySpec> getPropertySpecs() {
         PropertySpec testNumberPropertySpec = this.propertySpecService
-                .newPropertySpecBuilder(new BigDecimalFactory())
-                .name(DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName(), DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
-                .description("kw")
-                .setDefaultValue(0)
+                .bigDecimalSpec()
+                .named(DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName(), DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_NUMBER.javaName())
+                .describedAs("kw")
+                .setDefaultValue(BigDecimal.ZERO)
                 .markRequired()
                 .finish();
         PropertySpec testStringPropertySpec = this.propertySpecService
-                .newPropertySpecBuilder(new StringFactory())
-                .name(DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName(), DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName())
-                .description("infoString")
+                .stringSpec()
+                .named(DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName(), DeviceTypeThreeDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName())
+                .describedAs("infoString")
                 .setDefaultValue("description")
                 .finish();
         return Arrays.asList(testNumberPropertySpec, testStringPropertySpec);
