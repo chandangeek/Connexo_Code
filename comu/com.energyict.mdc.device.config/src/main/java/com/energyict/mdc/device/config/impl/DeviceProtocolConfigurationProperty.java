@@ -1,12 +1,15 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 
+import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.Size;
+import java.text.MessageFormat;
 import java.time.Instant;
 
 /**
@@ -16,6 +19,7 @@ import java.time.Instant;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-11-24 (09:32)
  */
+@IsValidProperty
 class DeviceProtocolConfigurationProperty {
 
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
@@ -50,4 +54,31 @@ class DeviceProtocolConfigurationProperty {
         return this;
     }
 
+    boolean validate(ConstraintValidatorContext context) {
+        PropertySpec propertySpec = getPropertySpec();
+        try {
+            Object actualValue = value;
+            try {
+                actualValue = propertySpec.getValueFactory().fromStringValue(value);
+            } catch (Exception e) {
+                // if conversion fails, validation will fail
+            }
+            return propertySpec.validateValue(actualValue);
+        } catch (InvalidValueException e) {
+            context.buildConstraintViolationWithTemplate(MessageFormat.format(e.getDefaultPattern(), e.getArguments()))
+                    .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation()
+                    .disableDefaultConstraintViolation();
+            return false;
+        }
+    }
+
+    private PropertySpec getPropertySpec() {
+        return deviceConfiguration.get()
+                .getDeviceProtocolProperties()
+                .getPropertySpecs()
+                .stream()
+                .filter(spec -> spec.getName().equals(name))
+                .findAny()
+                .orElseThrow(IllegalArgumentException::new);
+    }
 }
