@@ -84,7 +84,7 @@ public class ComTaskResource {
     public Response addComTask(ComTaskInfo comTaskInfo) {
         ComTask newComTask = taskService.newComTask(comTaskInfo.name);
         for (ProtocolTaskInfo protocolTaskInfo : comTaskInfo.commands) {
-            Categories category = Categories.valueOf(protocolTaskInfo.category.toUpperCase());
+            Categories category = Categories.valueOf(protocolTaskInfo.categoryId.toUpperCase());
             category.createProtocolTask(masterDataService, newComTask, protocolTaskInfo);
         }
         addMessageCategoriesToComTask(comTaskInfo, newComTask);
