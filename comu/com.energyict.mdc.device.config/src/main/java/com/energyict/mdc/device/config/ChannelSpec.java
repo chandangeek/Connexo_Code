@@ -3,15 +3,14 @@ package com.energyict.mdc.device.config;
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.protocol.api.device.ReadingMethod;
-import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -31,29 +30,15 @@ public interface ChannelSpec extends HasId {
 
     BigDecimal getOverflow();
 
-    ReadingMethod getReadingMethod();
-
-    ValueCalculationMethod getValueCalculationMethod();
-
     LoadProfileSpec getLoadProfileSpec();
 
     TimeDuration getInterval();
 
     DeviceConfiguration getDeviceConfiguration();
 
-    void setChannelType(ChannelType channelType);
+    boolean isUseMultiplier();
 
-    void setOverruledObisCode(ObisCode overruledObisCode);
-
-    void setNbrOfFractionDigits(int nbrOfFractionDigits);
-
-    void setOverflow(BigDecimal overflow);
-
-    void setReadingMethod(ReadingMethod readingMethod);
-
-    void setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
-
-    void setInterval(TimeDuration interval);
+    Optional<ReadingType> getCalculatedReadingType();
 
     ReadingType getReadingType();
 
@@ -69,18 +54,17 @@ public interface ChannelSpec extends HasId {
      */
     interface ChannelSpecBuilder {
 
-        ChannelSpecBuilder setOverruledObisCode(ObisCode overruledObisCode);
+        ChannelSpecBuilder overruledObisCode(ObisCode overruledObisCode);
 
-        ChannelSpecBuilder setNbrOfFractionDigits(int nbrOfFractionDigits);
+        ChannelSpecBuilder nbrOfFractionDigits(int nbrOfFractionDigits);
 
-        ChannelSpecBuilder setOverflow(BigDecimal overflow);
+        ChannelSpecBuilder overflow(BigDecimal overflow);
 
-        ChannelSpecBuilder setReadingMethod(ReadingMethod readingMethod);
+        ChannelSpecBuilder interval(TimeDuration interval);
 
-        ChannelSpecBuilder setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
+        ChannelSpecBuilder useMultiplierWithCalculatedReadingType(ReadingType calculatedReadingType);
 
-        ChannelSpecBuilder setInterval(TimeDuration interval);
-
+        ChannelSpecBuilder noMultiplier();
         /**
          * Does final validation and <i>creates</i> the {@link ChannelSpec}.
          * @return the ChannelSpec
@@ -90,15 +74,15 @@ public interface ChannelSpec extends HasId {
 
     interface ChannelSpecUpdater {
 
-        ChannelSpecUpdater setOverruledObisCode(ObisCode overruledObisCode);
+        ChannelSpecUpdater overruledObisCode(ObisCode overruledObisCode);
 
-        ChannelSpecUpdater setNbrOfFractionDigits(int nbrOfFractionDigits);
+        ChannelSpecUpdater nbrOfFractionDigits(int nbrOfFractionDigits);
 
-        ChannelSpecUpdater setOverflow(BigDecimal overflow);
+        ChannelSpecUpdater overflow(BigDecimal overflow);
 
-        ChannelSpecUpdater setReadingMethod(ReadingMethod readingMethod);
+        ChannelSpecUpdater useMultiplierWithCalculatedReadingType(ReadingType calculatedReadingType);
 
-        ChannelSpecUpdater setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
+        ChannelSpecUpdater noMultiplier();
 
         /**
          * Updates the ChannelSpec.

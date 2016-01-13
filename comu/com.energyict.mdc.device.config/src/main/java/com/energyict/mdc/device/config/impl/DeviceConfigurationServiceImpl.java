@@ -1,47 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.ChannelSpecLinkType;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.DeviceTypeFields;
-import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeException;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.events.EventType;
-import com.energyict.mdc.device.config.security.Privileges;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.pluggable.PluggableService;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.TaskService;
-
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
@@ -69,14 +27,54 @@ import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.ChannelSpecLinkType;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.DeviceTypeFields;
+import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeException;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.device.config.security.Privileges;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.masterdata.ChannelType;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
+
 import com.google.common.collect.HashMultiset;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multiset;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -95,18 +93,19 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
-import static com.elster.jupiter.util.conditions.Where.where;
-import static java.util.stream.Collectors.toList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.conditions.Where.where;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Provides an implementation for the {@link DeviceConfigurationService} interface.
@@ -114,8 +113,8 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:38)
  */
+@Component(name = "com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
 @LiteralSql
-@Component(name = "com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class, ReferencePropertySpecFinderProvider.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
 public class DeviceConfigurationServiceImpl implements ServerDeviceConfigurationService, InstallService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
 
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -518,13 +517,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.schedulingService = schedulingService;
     }
 
-    Optional<Privilege> findPrivilege(String userActionPrivilege) {
-        return this.privileges
-                .stream()
-                .filter(privilege -> privilege.getName().equals(userActionPrivilege))
-                .findAny();
-    }
-
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -628,6 +620,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setPluggableService(PluggableService pluggableService) {
         // Not actively used but required for foreign keys in TableSpecs
     }
@@ -714,7 +707,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public List<DeviceConfiguration> findDeviceConfigurationsForValidationRuleSet(long validationRuleSetId) {
         return this.getDataModel().
                 query(DeviceConfiguration.class, DeviceConfValidationRuleSetUsage.class, DeviceType.class).
-                select(where("deviceConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(validationRuleSetId), Order.ascending("name"));
+                select(where("deviceConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(validationRuleSetId), new Order[]{Order.ascending("deviceType"), Order.ascending("name")});
     }
 
     @Override
@@ -726,23 +719,21 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public List<ReadingType> getReadingTypesRelatedToConfiguration(DeviceConfiguration configuration) {
-        List<ReadingType> readingTypes = new ArrayList<>();
-        for (LoadProfileSpec spec : configuration.getLoadProfileSpecs()) {
-            for (ChannelType channelType : spec.getLoadProfileType().getChannelTypes()) {
-                ReadingType readingType = channelType.getReadingType();
-                readingTypes.add(readingType);
-                if (readingType.isCumulative()) {
-                    Optional<ReadingType> delta = readingType.getCalculatedReadingType();
-                    if (delta.isPresent()) {
-                        readingTypes.add(delta.get());
-                    }
-                }
-            }
-        }
-        for (RegisterSpec spec : configuration.getRegisterSpecs()) {
-            readingTypes.add(spec.getRegisterType().getReadingType());
-        }
-        return readingTypes;
+        Stream<ReadingType> loadProfileReadingTypes = configuration.getLoadProfileSpecs()
+                .stream()
+                .map(LoadProfileSpec::getChannelSpecs)
+                .flatMap(List::stream)
+                .map(channelSpec -> channelSpec.getCalculatedReadingType()
+                        .map(calculated -> (List<ReadingType>) ImmutableList.of(channelSpec.getReadingType(), calculated))
+                        .orElseGet(() -> Collections.singletonList(channelSpec.getReadingType())))
+                .flatMap(List::stream);
+        Stream<ReadingType> registerReadingTypes = configuration.getRegisterSpecs()
+                .stream()
+                .map(RegisterSpec::getReadingType);
+        return Stream.of(loadProfileReadingTypes, registerReadingTypes)
+                .flatMap(Function.identity())
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -820,15 +811,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public Optional<DeviceConfigConflictMapping> findDeviceConfigConflictMapping(long id) {
         return this.getDataModel().mapper(DeviceConfigConflictMapping.class).getUnique("id", id);
-    }
-
-    @Override
-    public List<CanFindByLongPrimaryKey<? extends HasId>> finders () {
-        List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-        finders.add(new DeviceTypeFinder(this));
-        finders.add(new DeviceConfigurationFinder(this));
-        finders.add(new FiniteStateFinder(this.finiteStateMachineService));
-        return finders;
     }
 
 }

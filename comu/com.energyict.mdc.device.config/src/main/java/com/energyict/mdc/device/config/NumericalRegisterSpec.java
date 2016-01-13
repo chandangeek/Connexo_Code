@@ -1,11 +1,12 @@
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.masterdata.RegisterType;
 
 import aQute.bnd.annotation.ProviderType;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 /**
  * Models the specification of a register that contains numerical data.
@@ -23,22 +24,11 @@ public interface NumericalRegisterSpec extends RegisterSpec {
     public boolean isCumulative();
 
     /**
-     * Returns the number of digits for this spec
-     *
-     * @return the number of digits
-     */
-    public int getNumberOfDigits();
-
-    void setNumberOfDigits(int numberOfDigits);
-
-    /**
      * Returns the number of fraction digits for this spec
      *
      * @return the number of fraction digits
      */
     public int getNumberOfFractionDigits();
-
-    void setNumberOfFractionDigits(int numberOfFractionDigits);
 
     /**
      * Returns the overflow value
@@ -47,22 +37,24 @@ public interface NumericalRegisterSpec extends RegisterSpec {
      */
     public BigDecimal getOverflowValue();
 
-    void setOverflowValue(BigDecimal overflowValue);
+    boolean isUseMultiplier();
+
+    Optional<ReadingType> getCalculatedReadingType();
 
     /**
      * Defines a Builder interface to construct a {@link NumericalRegisterSpec}.
      */
     interface Builder {
 
-        Builder setRegisterType(RegisterType registerType);
+        Builder overruledObisCode(ObisCode overruledObisCode);
 
-        Builder setOverruledObisCode(ObisCode overruledObisCode);
+        Builder numberOfFractionDigits(int numberOfFractionDigits);
 
-        Builder setNumberOfDigits(int numberOfDigits);
+        Builder overflowValue(BigDecimal overflowValue);
 
-        Builder setNumberOfFractionDigits(int numberOfFractionDigits);
+        Builder useMultiplierWithCalculatedReadingType(ReadingType calculatedReadingType);
 
-        Builder setOverflowValue(BigDecimal overflowValue);
+        Builder noMultiplier();
 
         /**
          * Does final validation and <i>creates</i> the {@link NumericalRegisterSpec}
@@ -81,13 +73,15 @@ public interface NumericalRegisterSpec extends RegisterSpec {
         /**
          * Defines a updater component to update a {@link RegisterSpec}.
          */
-        Updater setOverruledObisCode(ObisCode overruledObisCode);
+        Updater overruledObisCode(ObisCode overruledObisCode);
 
-        Updater setNumberOfDigits(int numberOfDigits);
+        Updater numberOfFractionDigits(int numberOfFractionDigits);
 
-        Updater setNumberOfFractionDigits(int numberOfFractionDigits);
+        Updater overflowValue(BigDecimal overflowValue);
 
-        Updater setOverflowValue(BigDecimal overflowValue);
+        Updater useMultiplierWithCalculatedReadingType(ReadingType calculatedReadingType);
+
+        Updater noMultiplier();
 
         /**
          * Completes the update procoess for the RegisterSpec.

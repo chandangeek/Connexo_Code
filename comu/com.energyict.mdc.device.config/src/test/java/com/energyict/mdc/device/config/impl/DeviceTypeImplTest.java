@@ -27,6 +27,17 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.validation.ValidationRuleSet;
+
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,6 +74,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     private static final TimeDuration INTERVAL_15_MINUTES = new TimeDuration(15, TimeDuration.TimeUnit.MINUTES);
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID_2 = 149;
+    private final BigDecimal overflowValue = BigDecimal.valueOf(10000);
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
@@ -653,8 +665,8 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         // Add DeviceConfiguration with a RegisterSpec that uses the RegisterType
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Conf 1 for " + deviceTypeName);
         NumericalRegisterSpec.Builder registerSpecBuilder = deviceConfigurationBuilder.newNumericalRegisterSpec(this.registerType1);
-        registerSpecBuilder.setNumberOfDigits(5);
-        registerSpecBuilder.setNumberOfFractionDigits(2);
+        registerSpecBuilder.overflowValue(overflowValue);
+        registerSpecBuilder.numberOfFractionDigits(2);
         deviceConfigurationBuilder.add();
 
         try {
