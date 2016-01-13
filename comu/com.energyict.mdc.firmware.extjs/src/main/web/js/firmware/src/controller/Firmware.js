@@ -244,6 +244,7 @@ Ext.define('Fwc.controller.Firmware', {
 
             reader.readAsArrayBuffer(file);
         } else {
+            record.set('fileSize', null);
             record.doValidate(precallback);
         }
     },
