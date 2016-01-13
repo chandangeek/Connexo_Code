@@ -28,15 +28,22 @@ Ext.define('Uni.grid.column.Icon', {
         var me = metaData.column;
         var res = {};
         if (Ext.isDefined(value.editedTime)) {
-            var time = Ext.isDate(value.editedTime) ? value.editedTime : new Date(value.editedTime);
-            res.value = time;
+            var editedDate = Ext.isDate(value.editedTime) ? value.editedTime : new Date(value.editedTime),
+                formattedEditedDate = Uni.I18n.translate('general.dateAtTime', 'UNI', '{0} at {1}',
+                    [Uni.DateTime.formatDateShort(editedDate), Uni.DateTime.formatTimeShort(editedDate)]
+                );
+            res.value = editedDate;
             res.iconCls = 'uni-icon-edit';
-            res.tipString = Uni.I18n.formatDate('editedDate.format', time, 'UNI', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
+            res.tipString = Uni.I18n.translate('general.editedOnX', 'UNI', 'Edited on {0}', formattedEditedDate);
         }
         if (Ext.isDefined(value.deletedTime)) {
-            res.value = value.deletedTime;
+            var deletedDate = Ext.isDate(value.deletedTime) ? value.deletedTime : new Date(value.deletedTime),
+                formattedDeletedDate = Uni.I18n.translate('general.dateAtTime', 'UNI', '{0} at {1}',
+                    [Uni.DateTime.formatDateShort(deletedDate), Uni.DateTime.formatTimeShort(deletedDate)]
+                );
+            res.value = deletedDate;
             res.iconCls = 'uni-icon-deleted';
-            res.tipString = Uni.I18n.formatDate('deletedDate.format', value.deletedTime, 'UNI', '\\D\\e\\l\\e\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
+            res.tipString = Uni.I18n.translate('general.deletedOnX', 'UNI', 'Deleted on {0}', formattedDeletedDate);
         }
         Ext.defer(me.deferredRenderer, 1, me, [res, record, view]);
     }
