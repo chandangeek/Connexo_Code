@@ -99,6 +99,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         //supportedMessages.add(NetworkConnectivityMessage.PreferGPRSUpstreamCommunication);
         supportedMessages.add(NetworkConnectivityMessage.EnableModemWatchdog);
         supportedMessages.add(NetworkConnectivityMessage.SetModemWatchdogParameters2);
+        supportedMessages.add(NetworkConnectivityMessage.SetPrimaryDNSAddress);
+        supportedMessages.add(NetworkConnectivityMessage.SetSecondaryDNSAddress);
         //supportedMessages.add(ConfigurationChangeDeviceMessage.EnableSSL);
         supportedMessages.add(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION);
         supportedMessages.add(AlarmConfigurationMessage.ENABLE_EVENT_NOTIFICATIONS);
@@ -374,6 +376,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         enableModemWatchdog(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetModemWatchdogParameters2)) {
                         setModemWatchdogParameters(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetPrimaryDNSAddress)) {
+                        writePrimaryDNSAddress(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetSecondaryDNSAddress)) {
+                        writeSecondaryDNSAddress(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.ENABLE_EVENT_NOTIFICATIONS)) {
                         enableEventNotifications(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION)) {
@@ -850,6 +856,16 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private int getSingleIntegerAttribute(OfflineDeviceMessage pendingMessage) {
         return Integer.parseInt(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+    }
+
+    private void writePrimaryDNSAddress(OfflineDeviceMessage pendingMessage) throws IOException {
+        String address = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        getCosemObjectFactory().getIPv4Setup().setPrimaryDNSAddress(address);
+    }
+
+    private void writeSecondaryDNSAddress(OfflineDeviceMessage pendingMessage) throws IOException {
+        String address = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        getCosemObjectFactory().getIPv4Setup().setSecondaryDNSAddress(address);
     }
 
     /**

@@ -76,8 +76,6 @@ public class BeaconPushEventNotificationAttributesMapping extends RegisterMappin
                     return new RegisterValue(obisCode,
                             "Transport type: " + transportType + ", Destination address: " + destinationAddress + ", Message type: " + messageType);
                 }
-
-            case 3:
             case 4:
                 final Boolean isEnabled = abstractDataType.getBooleanObject().getState();
                 return new RegisterValue(obisCode,
