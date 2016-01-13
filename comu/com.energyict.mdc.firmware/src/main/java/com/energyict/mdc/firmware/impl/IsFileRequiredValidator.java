@@ -21,13 +21,20 @@ public class IsFileRequiredValidator implements ConstraintValidator<IsFileRequir
          - A ghost firmware version never has a firmware file (when we edit the ghost version we MUST specify the 'Final' (or 'Test') status)
          */
         if (!FirmwareStatus.GHOST.equals(firmwareVersion.getFirmwareStatus())
-                && !FirmwareStatus.DEPRECATED.equals(firmwareVersion.getFirmwareStatus())
-                && !firmwareVersion.hasFirmwareFile()){
-            context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
-                    .addPropertyNode("firmwareFile")
-                    .addConstraintViolation();
-            return false;
+                && !FirmwareStatus.DEPRECATED.equals(firmwareVersion.getFirmwareStatus())) {
+            if (!firmwareVersion.hasFirmwareFile()) {
+                context.disableDefaultConstraintViolation();
+                context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
+                        .addPropertyNode("firmwareFile")
+                        .addConstraintViolation();
+                return false;
+            } else if (firmwareVersion.isEmptyFile()) {
+                context.disableDefaultConstraintViolation();
+                context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.FILE_IS_EMPTY + "}")
+                        .addPropertyNode("firmwareFile")
+                        .addConstraintViolation();
+                return false;
+            }
         }
 
         return true;

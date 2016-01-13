@@ -17,6 +17,7 @@ public enum MessageSeeds implements MessageSeed {
     STATE_TRANSFER_NOT_ALLOWED(5, Keys.STATE_TRANSFER_NOT_ALLOWED, "Transfer to requested state is not allowed", Level.SEVERE),
     DEVICE_TYPE_SHOULD_SUPPORT_FIRMWARE_UPGRADE(6, Keys.DEVICE_TYPE_SHOULD_SUPPORT_FIRMWARE_UPGRADE, "Device type should support firmware upgrade", Level.SEVERE),
     MESSAGE_SUBSCRIBER_NAME(7, FirmwareCampaignHandlerFactory.FIRMWARE_CAMPAIGNS_SUBSCRIBER, "Process firmware campaigns", Level.INFO),
+    FILE_IS_EMPTY(8, Keys.FILE_IS_EMPTY, "Firmware file is empty", Level.SEVERE)
     ;
     private final int number;
     private final String key;
@@ -68,6 +69,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH = "FieldSizeBetween1and80";
         public static final String NAME_MUST_BE_UNIQUE = "NameMustBeUnique";
         public static final String MAX_FILE_SIZE_EXCEEDED = "MaxFileSizeExceeded";
+        public static final String FILE_IS_EMPTY = "FileIsEmpty";
         public static final String STATE_TRANSFER_NOT_ALLOWED = "StateTransferNotAllowed";
         public static final String DEVICE_TYPE_SHOULD_SUPPORT_FIRMWARE_UPGRADE = "DeviceTypeShouldSupportFirmwareUpgrade";
     }

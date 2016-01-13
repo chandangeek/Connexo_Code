@@ -61,6 +61,7 @@ public final class FirmwareVersionImpl implements FirmwareVersion, PersistenceAw
 
     @Max(value = FirmwareService.MAX_FIRMWARE_FILE_SIZE, message = "{" + MessageSeeds.Keys.MAX_FILE_SIZE_EXCEEDED + "}")
     private long firmwareFile; // set this name for validation reason
+    private boolean hasFirmwareFile = false;
 
 
     @SuppressWarnings("unused")
@@ -180,10 +181,10 @@ public final class FirmwareVersionImpl implements FirmwareVersion, PersistenceAw
     }
 
     public boolean hasFirmwareFile() {
-        return this.firmwareFileArray != null;
+        return this.hasFirmwareFile;
     }
 
-    public boolean isFirmwareFileEmpty() {
+    public boolean isEmptyFile() {
         return this.firmwareFile == 0;
     }
 
@@ -192,6 +193,7 @@ public final class FirmwareVersionImpl implements FirmwareVersion, PersistenceAw
         this.firmwareFileArray = firmwareFile;
         if (this.firmwareFileArray != null) {
             this.firmwareFile = firmwareFileArray.length;
+            this.hasFirmwareFile = true;
         } else {
             this.firmwareFile = 0;
         }
@@ -200,6 +202,7 @@ public final class FirmwareVersionImpl implements FirmwareVersion, PersistenceAw
     @Override
     public void setExpectedFirmwareSize(long fileSize) {
         this.firmwareFile = fileSize;
+        this.hasFirmwareFile = true;
     }
 
     @Override
