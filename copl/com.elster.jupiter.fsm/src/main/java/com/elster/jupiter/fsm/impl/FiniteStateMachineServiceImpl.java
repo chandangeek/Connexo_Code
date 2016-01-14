@@ -134,7 +134,9 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     @Activate
     public void activate() {
         dataModel.register(this.getModule());
-        createStandardEventTypeNoTransaction(new ArrayList<>(standardEventPredicates));
+        if (!standardEventPredicates.isEmpty()) {
+            createStandardEventType(new ArrayList<>(standardEventPredicates));
+        }
         registered = true;
     }
 
@@ -249,11 +251,15 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         return EventType.CHANGE_EVENT.topic();
     }
 
-    private void createStandardEventType(StandardEventPredicate predicate) {
+    private void createStandardEventType(List<StandardEventPredicate> predicateList) {
         transactionService
                 .builder()
                 .principal(() -> "Fsm Install")
-                .run(() -> createStandardEventTypeNoTransaction(Collections.singletonList(predicate)));
+                .run(() -> createStandardEventTypeNoTransaction(predicateList));
+    }
+
+    private void createStandardEventType(StandardEventPredicate predicate) {
+        createStandardEventType(Collections.singletonList(predicate));
     }
 
     private void createStandardEventTypeNoTransaction(List<StandardEventPredicate> predicates) {
