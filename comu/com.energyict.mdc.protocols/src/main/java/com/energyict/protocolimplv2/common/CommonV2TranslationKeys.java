@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.common;
 import com.elster.jupiter.nls.TranslationKey;
 
 /**
- * Insert your comments here.
+ * Common protocol V2 translations
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-12-10 (10:08)
@@ -15,7 +15,9 @@ public enum CommonV2TranslationKeys implements TranslationKey {
     TIMEOUT("common.timeout", "Timeout"),
     FORCED_DELAY("common.forcedDelay", "Forced delay"),
     DELAY_AFTER_ERROR("common.delayAfterError", "Delay after error"),
-    ;
+    ROUNDTRIP_CORRECTION("common.roundTripCorrection", "Roundtrip correction"),
+    INFORMATION_FIELD_SIZE("common.informationFieldSize", "Information field size"),
+    ADDRESSING_MODE("common.addressingMode", "Addressing mode");
 
     private final String key;
     private final String defaultFormat;

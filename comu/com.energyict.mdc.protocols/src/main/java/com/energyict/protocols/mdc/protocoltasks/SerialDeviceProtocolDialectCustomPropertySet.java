@@ -8,7 +8,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
-
 import com.energyict.protocolimplv2.DeviceProtocolDialectName;
 
 import java.util.EnumSet;
@@ -18,17 +17,17 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Provides an implementation for the {@link CustomPropertySet} interface for {@link TcpDeviceProtocolDialect}.
+ * Provides an implementation for the {@link CustomPropertySet} interface for {@link SerialDeviceProtocolDialect}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-26 (14:44)
  */
-public class TcpDeviceProtocolDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, TcpDeviceProtocolDialectProperties> {
+public class SerialDeviceProtocolDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, SerialDeviceProtocolDialectProperties> {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
 
-    public TcpDeviceProtocolDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public SerialDeviceProtocolDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super();
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
@@ -36,12 +35,12 @@ public class TcpDeviceProtocolDialectCustomPropertySet implements CustomProperty
 
     @Override
     public String getId() {
-        return TcpDeviceProtocolDialect.class.getName();
+        return SerialDeviceProtocolDialectCustomPropertySet.class.getSimpleName();
     }
 
     @Override
     public String getName() {
-        return this.thesaurus.getFormat(DeviceProtocolDialectName.TCP).format();
+        return this.thesaurus.getFormat(DeviceProtocolDialectName.SERIAL).format();
     }
 
     @Override
@@ -50,8 +49,8 @@ public class TcpDeviceProtocolDialectCustomPropertySet implements CustomProperty
     }
 
     @Override
-    public PersistenceSupport<DeviceProtocolDialectPropertyProvider, TcpDeviceProtocolDialectProperties> getPersistenceSupport() {
-        return new TcpDeviceProtocolDialectPropertyPersistenceSupport();
+    public PersistenceSupport<DeviceProtocolDialectPropertyProvider, SerialDeviceProtocolDialectProperties> getPersistenceSupport() {
+        return new SerialDeviceProtocolDialectPropertyPersistenceSupport();
     }
 
     @Override
@@ -77,7 +76,7 @@ public class TcpDeviceProtocolDialectCustomPropertySet implements CustomProperty
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Stream
-                .of(TcpDeviceProtocolDialectProperties.ActualFields.values())
+                .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
                 .map(field -> field.propertySpec(this.propertySpecService, this.thesaurus))
                 .collect(Collectors.toList());
     }

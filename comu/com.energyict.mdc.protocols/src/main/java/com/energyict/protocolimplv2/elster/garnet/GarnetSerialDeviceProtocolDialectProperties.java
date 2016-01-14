@@ -1,9 +1,8 @@
-package com.energyict.protocols.mdc.protocoltasks;
+package com.energyict.protocolimplv2.elster.garnet;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
@@ -12,20 +11,19 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
-import com.energyict.protocolimplv2.common.CommonV2TranslationKeys;
 
 import java.math.BigDecimal;
 
 /**
- * Provides an implementation for the {@link PersistentDomainExtension} interface for {@link TcpDeviceProtocolDialect}.
+ * Provides an implementation for the {@link PersistentDomainExtension} interface for {@link GarnetSerialDeviceProtocolDialect}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-26 (14:35)
  */
-class TcpDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProperties {
+public class GarnetSerialDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProperties {
 
-    enum ActualFields {
-        RETRIES("retries", DlmsProtocolProperties.RETRIES, CommonV2TranslationKeys.RETRIES, "RETRIES") {
+    public enum ActualFields {
+        RETRIES("retries", DlmsProtocolProperties.RETRIES, GarnetTranslationKeys.RETRIES, "RETRIES") {
             @Override
             public void addTo(Table table) {
                 this.addAsBigDecimalColumnTo(table);
@@ -33,10 +31,10 @@ class TcpDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
 
             @Override
             public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-                return this.propertySpec(propertySpecService, thesaurus, TcpDeviceProtocolDialect.DEFAULT_RETRIES);
+                return this.propertySpec(propertySpecService, thesaurus, GarnetSerialDeviceProtocolDialect.DEFAULT_RETRIES);
             }
         },
-        TIMEOUT_PROPERTY("timeoutMillis", DlmsProtocolProperties.TIMEOUT, CommonV2TranslationKeys.TIMEOUT, "TIMEOUTMILLIS") {
+        TIMEOUT_PROPERTY("timeoutMillis", DlmsProtocolProperties.TIMEOUT, GarnetTranslationKeys.TIMEOUT, "TIMEOUTMILLIS") {
             @Override
             public void addTo(Table table) {
                 this.addAsTimeDurationColumnTo(table);
@@ -44,10 +42,10 @@ class TcpDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
 
             @Override
             public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-                return this.propertySpec(propertySpecService, thesaurus, TcpDeviceProtocolDialect.DEFAULT_TIMEOUT);
+                return this.propertySpec(propertySpecService, thesaurus, GarnetSerialDeviceProtocolDialect.DEFAULT_TIMEOUT);
             }
         },
-        DELAY_AFTER_ERROR("delayAfterError", DlmsProtocolProperties.DELAY_AFTER_ERROR, CommonV2TranslationKeys.DELAY_AFTER_ERROR, "DELAY_AFTER_ERROR") {
+        FORCED_DELAY("forcedDelay", DlmsProtocolProperties.FORCED_DELAY, GarnetTranslationKeys.FORCED_DELAY, "FORCED_DELAY") {
             @Override
             public void addTo(Table table) {
                 this.addAsTimeDurationColumnTo(table);
@@ -55,16 +53,27 @@ class TcpDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
 
             @Override
             public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-                return this.propertySpec(propertySpecService, thesaurus, TcpDeviceProtocolDialect.DEFAULT_DELAY_AFTER_ERROR);
+                return this.propertySpec(propertySpecService, thesaurus, GarnetSerialDeviceProtocolDialect.DEFAULT_FORCED_DELAY);
+            }
+        },
+        DELAY_AFTER_ERROR("delayAfterError", DlmsProtocolProperties.DELAY_AFTER_ERROR, GarnetTranslationKeys.DELAY_AFTER_ERROR, "DELAY_AFTER_ERROR") {
+            @Override
+            public void addTo(Table table) {
+                this.addAsTimeDurationColumnTo(table);
+            }
+
+            @Override
+            public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+                return this.propertySpec(propertySpecService, thesaurus, GarnetSerialDeviceProtocolDialect.DEFAULT_DELAY_AFTER_ERROR);
             }
         };
 
         private final String javaName;
         private final String propertySpecName;
-        private final TranslationKey translationKey;
+        private final GarnetTranslationKeys translationKey;
         private final String databaseName;
 
-        ActualFields(String javaName, String propertySpecName, TranslationKey translationKey, String databaseName) {
+        ActualFields(String javaName, String propertySpecName, GarnetTranslationKeys translationKey, String databaseName) {
             this.javaName = javaName;
             this.propertySpecName = propertySpecName;
             this.translationKey = translationKey;
@@ -131,12 +140,14 @@ class TcpDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
 
     private BigDecimal retries;
     private TimeDuration timeoutMillis;
+    private TimeDuration forcedDelay;
     private TimeDuration delayAfterError;
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
         this.retries = (BigDecimal) propertyValues.getProperty(ActualFields.RETRIES.propertySpecName());
         this.timeoutMillis = (TimeDuration) propertyValues.getProperty(ActualFields.TIMEOUT_PROPERTY.propertySpecName());
+        this.forcedDelay = (TimeDuration) propertyValues.getProperty(ActualFields.FORCED_DELAY.propertySpecName());
         this.delayAfterError = (TimeDuration) propertyValues.getProperty(ActualFields.DELAY_AFTER_ERROR.propertySpecName());
     }
 
@@ -144,6 +155,7 @@ class TcpDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
     protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
         this.setPropertyIfNotNull(propertySetValues, ActualFields.RETRIES.propertySpecName(), this.retries);
         this.setPropertyIfNotNull(propertySetValues, ActualFields.TIMEOUT_PROPERTY.propertySpecName(), this.timeoutMillis);
+        this.setPropertyIfNotNull(propertySetValues, ActualFields.FORCED_DELAY.propertySpecName(), this.forcedDelay);
         this.setPropertyIfNotNull(propertySetValues, ActualFields.DELAY_AFTER_ERROR.propertySpecName(), this.delayAfterError);
     }
 

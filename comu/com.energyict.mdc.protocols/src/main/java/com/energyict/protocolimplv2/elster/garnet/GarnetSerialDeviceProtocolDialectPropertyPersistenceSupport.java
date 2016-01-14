@@ -16,12 +16,12 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Provides an implementation for the {@link PersistenceSupport} interface for {@link SerialDeviceProtocolDialect}.
+ * Provides an implementation for the {@link PersistenceSupport} interface for {@link GarnetSerialDeviceProtocolDialect}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-26 (11:47)
  */
-public class SerialDeviceProtocolDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, SerialDeviceProtocolDialectProperties> {
+public class GarnetSerialDeviceProtocolDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, GarnetSerialDeviceProtocolDialectProperties> {
 
     @Override
     public String domainFieldName() {
@@ -54,8 +54,8 @@ public class SerialDeviceProtocolDialectPropertyPersistenceSupport implements Pe
     }
 
     @Override
-    public Class<SerialDeviceProtocolDialectProperties> persistenceClass() {
-        return SerialDeviceProtocolDialectProperties.class;
+    public Class<GarnetSerialDeviceProtocolDialectProperties> persistenceClass() {
+        return GarnetSerialDeviceProtocolDialectProperties.class;
     }
 
     @Override
@@ -67,7 +67,7 @@ public class SerialDeviceProtocolDialectPropertyPersistenceSupport implements Pe
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
         Stream
-            .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
+            .of(GarnetSerialDeviceProtocolDialectProperties.ActualFields.values())
             .forEach(field -> field.addTo(table));
     }
 

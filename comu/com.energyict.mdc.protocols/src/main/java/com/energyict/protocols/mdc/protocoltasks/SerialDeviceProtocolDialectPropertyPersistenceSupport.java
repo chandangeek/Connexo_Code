@@ -7,7 +7,6 @@ import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.protocols.naming.CustomPropertySetComponentName;
-
 import com.google.inject.Module;
 
 import java.util.Collections;
@@ -16,12 +15,12 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Provides an implementation for the {@link PersistenceSupport} interface for {@link TcpDeviceProtocolDialect}.
+ * Provides an implementation for the {@link PersistenceSupport} interface for {@link SerialDeviceProtocolDialect}.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-11-26 (16:50)
+ * @since 2015-11-26 (11:47)
  */
-public class TcpDeviceProtocolDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, TcpDeviceProtocolDialectProperties> {
+public class SerialDeviceProtocolDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, SerialDeviceProtocolDialectProperties> {
 
     @Override
     public String domainFieldName() {
@@ -35,17 +34,17 @@ public class TcpDeviceProtocolDialectPropertyPersistenceSupport implements Persi
 
     @Override
     public String tableName() {
-        return DeviceProtocolService.COMPONENT_NAME + "_TCP_DIALECT";
+        return DeviceProtocolService.COMPONENT_NAME + "SERIAL_DIALECT";
     }
 
     @Override
     public String domainForeignKeyName() {
-        return "FK_TCP_DIALECT_PROPS";
+        return "FK_SERIAL_DIALECT_PROPS";
     }
 
     @Override
     public String componentName() {
-        return CustomPropertySetComponentName.P03.name();
+        return CustomPropertySetComponentName.P19.name();
     }
 
     @Override
@@ -54,8 +53,8 @@ public class TcpDeviceProtocolDialectPropertyPersistenceSupport implements Persi
     }
 
     @Override
-    public Class<TcpDeviceProtocolDialectProperties> persistenceClass() {
-        return TcpDeviceProtocolDialectProperties.class;
+    public Class<SerialDeviceProtocolDialectProperties> persistenceClass() {
+        return SerialDeviceProtocolDialectProperties.class;
     }
 
     @Override
@@ -67,7 +66,7 @@ public class TcpDeviceProtocolDialectPropertyPersistenceSupport implements Persi
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
         Stream
-            .of(TcpDeviceProtocolDialectProperties.ActualFields.values())
+            .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
             .forEach(field -> field.addTo(table));
     }
 

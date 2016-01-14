@@ -1,4 +1,4 @@
-package com.energyict.protocols.mdc.protocoltasks;
+package com.energyict.protocolimplv2.elster.garnet;
 
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
@@ -16,12 +16,12 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Provides an implementation for the {@link PersistenceSupport} interface for {@link TcpDeviceProtocolDialect}.
+ * Provides an implementation for the {@link PersistenceSupport} interface for {@link GarnetTcpDeviceProtocolDialect}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-26 (16:50)
  */
-public class TcpDeviceProtocolDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, TcpDeviceProtocolDialectProperties> {
+public class GarnetTcpDeviceProtocolDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, GarnetTcpDeviceProtocolDialectProperties> {
 
     @Override
     public String domainFieldName() {
@@ -35,12 +35,12 @@ public class TcpDeviceProtocolDialectPropertyPersistenceSupport implements Persi
 
     @Override
     public String tableName() {
-        return DeviceProtocolService.COMPONENT_NAME + "_TCP_DIALECT";
+        return DeviceProtocolService.COMPONENT_NAME + "_GARNETTCP_DIALECT";
     }
 
     @Override
     public String domainForeignKeyName() {
-        return "FK_TCP_DIALECT_PROPS";
+        return "FK_GARNETTCP_DIALECT_PROPS";
     }
 
     @Override
@@ -54,8 +54,8 @@ public class TcpDeviceProtocolDialectPropertyPersistenceSupport implements Persi
     }
 
     @Override
-    public Class<TcpDeviceProtocolDialectProperties> persistenceClass() {
-        return TcpDeviceProtocolDialectProperties.class;
+    public Class<GarnetTcpDeviceProtocolDialectProperties> persistenceClass() {
+        return GarnetTcpDeviceProtocolDialectProperties.class;
     }
 
     @Override
@@ -67,7 +67,7 @@ public class TcpDeviceProtocolDialectPropertyPersistenceSupport implements Persi
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
         Stream
-            .of(TcpDeviceProtocolDialectProperties.ActualFields.values())
+            .of(GarnetTcpDeviceProtocolDialectProperties.ActualFields.values())
             .forEach(field -> field.addTo(table));
     }
 

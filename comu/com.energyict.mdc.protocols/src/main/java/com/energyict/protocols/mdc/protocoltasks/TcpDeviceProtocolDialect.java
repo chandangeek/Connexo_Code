@@ -21,10 +21,7 @@ import java.util.Optional;
  */
 public class TcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
-    public static final BigDecimal DEFAULT_RETRIES = new BigDecimal(0);
-    public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(10, TimeDuration.TimeUnit.SECONDS);
-    public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(0, TimeDuration.TimeUnit.MILLISECONDS);
-    public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS);
+    public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(30, TimeDuration.TimeUnit.SECONDS);
 
     public TcpDeviceProtocolDialect(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
@@ -32,12 +29,12 @@ public class TcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectName.GARNET_TCP.getName();
+        return DeviceProtocolDialectName.TCP.getName();
     }
 
     @Override
     public String getDisplayName() {
-        return this.getThesaurus().getFormat(DeviceProtocolDialectName.GARNET_TCP).format();
+        return this.getThesaurus().getFormat(DeviceProtocolDialectName.TCP).format();
     }
 
     @Override

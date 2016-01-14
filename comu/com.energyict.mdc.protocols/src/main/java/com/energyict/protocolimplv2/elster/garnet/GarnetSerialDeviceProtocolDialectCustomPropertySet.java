@@ -18,17 +18,17 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Provides an implementation for the {@link CustomPropertySet} interface for {@link SerialDeviceProtocolDialect}.
+ * Provides an implementation for the {@link CustomPropertySet} interface for {@link GarnetSerialDeviceProtocolDialect}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-26 (14:44)
  */
-public class SerialDeviceProtocolDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, SerialDeviceProtocolDialectProperties> {
+public class GarnetSerialDeviceProtocolDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, GarnetSerialDeviceProtocolDialectProperties> {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
 
-    public SerialDeviceProtocolDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public GarnetSerialDeviceProtocolDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super();
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
@@ -50,8 +50,8 @@ public class SerialDeviceProtocolDialectCustomPropertySet implements CustomPrope
     }
 
     @Override
-    public PersistenceSupport<DeviceProtocolDialectPropertyProvider, SerialDeviceProtocolDialectProperties> getPersistenceSupport() {
-        return new SerialDeviceProtocolDialectPropertyPersistenceSupport();
+    public PersistenceSupport<DeviceProtocolDialectPropertyProvider, GarnetSerialDeviceProtocolDialectProperties> getPersistenceSupport() {
+        return new GarnetSerialDeviceProtocolDialectPropertyPersistenceSupport();
     }
 
     @Override
@@ -77,7 +77,7 @@ public class SerialDeviceProtocolDialectCustomPropertySet implements CustomPrope
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Stream
-                .of(SerialDeviceProtocolDialectProperties.ActualFields.values())
+                .of(GarnetSerialDeviceProtocolDialectProperties.ActualFields.values())
                 .map(field -> field.propertySpec(this.propertySpecService, this.thesaurus))
                 .collect(Collectors.toList());
     }

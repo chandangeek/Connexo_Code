@@ -6,8 +6,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 
-import com.energyict.protocolimplv2.elster.garnet.SerialDeviceProtocolDialect;
-
 import java.util.Optional;
 
 /**

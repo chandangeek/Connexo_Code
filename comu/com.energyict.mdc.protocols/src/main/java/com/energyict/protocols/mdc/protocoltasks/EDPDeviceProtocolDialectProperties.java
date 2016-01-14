@@ -6,10 +6,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
-
+import com.energyict.protocolimplv2.dlms.DlmsProperties;
 import com.energyict.protocolimplv2.edp.EDPProperties;
 import com.energyict.protocolimplv2.elster.garnet.GarnetTranslationKeys;
-import com.energyict.protocolimplv2.elster.garnet.SerialDeviceProtocolDialectProperties;
 
 import java.math.BigDecimal;
 
@@ -32,7 +31,7 @@ public class EDPDeviceProtocolDialectProperties extends SerialDeviceProtocolDial
             public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
                 return propertySpecService
                         .bigDecimalSpec()
-                        .named(this.propertySpecName(), GarnetTranslationKeys.SERVER_LOWER_MAC_ADDRESS)
+                        .named(this.propertySpecName(), DlmsProperties.TranslationKeys.SERVER_LOWER_MAC_ADDRESS_TK)
                         .fromThesaurus(thesaurus)
                         .setDefaultValue(BigDecimal.valueOf(16))
                         .finish();

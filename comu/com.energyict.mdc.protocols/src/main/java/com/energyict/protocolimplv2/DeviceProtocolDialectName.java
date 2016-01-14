@@ -23,12 +23,14 @@ public enum DeviceProtocolDialectName implements TranslationKey {
     SDK_SAMPLE_TOPOLOGY("SDKTopologyDialect", "SDK dialect for topology testing"),
     SDK_SAMPLE_FIRMWARE("SDKFirmwareDialect", "SDK dialect for Firmware testing"),
     ACE4000_DEVICE_PROTOCOL("ACE4000GprsDialect", "ACE 4000"),
-    GARNET_TCP("GarnetTcpDialect", "TCP"),
-    GARNET_SERIAL("GarnetSerialDialect", "Serial"),
+    GARNET_TCP("GarnetTcpDialect", "Garnet TCP"),
+    GARNET_SERIAL("GarnetSerialDialect", "Garnet Serial"),
     EDP("EDP", "Serial"),
     ABNT_SERIAL("AbntSerialDialect", "Serial"),
     ABNT_OPTICAL("AbntOpticalDialect", "Optical"),
-    NO_PARAMETERS_PROTOCOL("NoParamsDialect", "Default with no properties");
+    NO_PARAMETERS_PROTOCOL("NoParamsDialect", "Default with no properties"),
+    TCP("TcpDialect", "TCP Dlms"),
+    SERIAL("SerialDialect", "Serial Dlms");
 
     private final String uniqueName;
     private final String defaultFormat;

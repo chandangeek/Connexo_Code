@@ -375,7 +375,7 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
     }
 
 
-    private PropertySpec bigDecimalSpec(TranslationKeys translationKeys, BigDecimal defaultValue) {
+    protected PropertySpec bigDecimalSpec(TranslationKeys translationKeys, BigDecimal defaultValue) {
         return getPropertySpecService()
                 .bigDecimalSpec()
                 .named(translationKeys.getPropertySpecName(), translationKeys)
@@ -384,7 +384,7 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
                 .finish();
     }
 
-    private PropertySpec stringSpec(TranslationKeys translationKeys, String defaultValue, String... possibleValues) {
+    protected PropertySpec stringSpec(TranslationKeys translationKeys, String defaultValue, String... possibleValues) {
         return getPropertySpecService()
                 .stringSpec()
                 .named(translationKeys.getPropertySpecName(), translationKeys)
@@ -395,7 +395,7 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
                 .finish();
     }
 
-    private PropertySpec booleanSpec(TranslationKeys translationKey, Boolean defaultValue) {
+    protected PropertySpec booleanSpec(TranslationKeys translationKey, Boolean defaultValue) {
         return getPropertySpecService()
                 .booleanSpec()
                 .named(translationKey.getPropertySpecName(), translationKey)

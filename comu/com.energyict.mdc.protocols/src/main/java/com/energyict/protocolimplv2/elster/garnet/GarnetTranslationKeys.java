@@ -14,7 +14,6 @@ public enum GarnetTranslationKeys implements TranslationKey {
     TIMEOUT("Garnet.dialect.timeout", "Timeout"),
     FORCED_DELAY("Garnet.dialect.forcedDelay", "Forced delay"),
     DELAY_AFTER_ERROR("Garnet.dialect.delayAfterError", "Delay after error"),
-    SERVER_LOWER_MAC_ADDRESS("EDP.SERVER_LOWER_MAC_ADDRESS", "Server lower mac address"),
     ;
 
     private final String key;
