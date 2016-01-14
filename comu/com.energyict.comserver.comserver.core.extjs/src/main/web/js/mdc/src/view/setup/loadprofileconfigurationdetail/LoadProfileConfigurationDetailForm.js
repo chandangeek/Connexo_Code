@@ -92,6 +92,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                         xtype: 'numberfield',
                         fieldLabel: Uni.I18n.translate('channelConfig.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
                         name: 'nbrOfFractionDigits',
+                        itemId: 'nr-of-fraction-digits',
                         required: true,
                         value: 0,
                         minValue: 0,
