@@ -76,7 +76,7 @@ public class PropertyUtils {
             possibleObjects[i] = propertyInfoFactory.asInfoObjectForPredifinedValues(possibleValues.getAllValues().get(i));
         }
 
-        PropertySelectionMode selectionMode = PropertySelectionMode.UNSPECIFIED;
+        PropertySelectionMode selectionMode = propertySpec.getPossibleValues().getSelectionMode();
 
         return new PredefinedPropertyValuesInfo<>(possibleObjects, selectionMode, propertySpec.getPossibleValues().isExhaustive());
     }
