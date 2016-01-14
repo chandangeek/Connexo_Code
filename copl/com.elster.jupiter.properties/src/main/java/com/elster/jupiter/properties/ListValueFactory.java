@@ -37,6 +37,14 @@ public class ListValueFactory<T> implements ValueFactory<List> {
         return actualFactory;
     }
 
+    public List fromValues(List<Object> values) {
+        return values
+                .stream()
+                .map(Object::toString)
+                .map(this.actualFactory::fromStringValue)
+                .collect(Collectors.toList());
+    }
+
     @Override
     public List fromStringValue(String stringValue) {
         if (!Checks.is(stringValue).emptyOrOnlyWhiteSpace()) {
