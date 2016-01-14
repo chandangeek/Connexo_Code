@@ -295,7 +295,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
                 .describedAs(TranslationKeys.RELATIVE_PERIOD_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .addValues(timeService.getAllRelativePeriod())
+                .setDefaultValue(timeService.getAllRelativePeriod())
                 .finish());
 
         return builder.build();
