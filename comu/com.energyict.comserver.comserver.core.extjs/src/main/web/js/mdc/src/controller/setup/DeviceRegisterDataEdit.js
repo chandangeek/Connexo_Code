@@ -155,7 +155,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             record.save({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', cfg.successMessage);
-                    router.getRoute('devices/device/registers/registerdata').forward();
+                    window.history.back();
                 },
                 failure: function (record, resp) {
                     var response = resp.response;

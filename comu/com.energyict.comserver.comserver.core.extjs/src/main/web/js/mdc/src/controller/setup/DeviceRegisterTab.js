@@ -47,7 +47,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterTab', {
             var router = this.getController('Uni.controller.history.Router'),
                 routeParams = router.arguments,
                 route,
-                filterParams = {};
+                filterParams = {},
+                currentRouteParams = window.location.hash.split('?')[1].split('=');
+
+            filterParams[currentRouteParams[0]]=currentRouteParams[1];
             if (tab.itemId === 'register-data') {
                 routeParams.registerId = this.registerId;
                 route = 'devices/device/registers/registerdata';
