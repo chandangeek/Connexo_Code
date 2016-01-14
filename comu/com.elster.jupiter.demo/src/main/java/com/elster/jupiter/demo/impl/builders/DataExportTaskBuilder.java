@@ -75,7 +75,7 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
                 .fromReadingType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0")
                 .endSelection();
 
-        builder.addProperty("formatterProperties.separator").withValue("Semicolon (;)");
+        builder.addProperty("formatterProperties.separator").withValue("formatterProperties.separator.semicolon");
         builder.addProperty("formatterProperties.tag").withValue("new");
         builder.addProperty("formatterProperties.update.tag").withValue("update");
         ExportTask dataExportTask = builder.create();
