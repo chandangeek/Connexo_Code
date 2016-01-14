@@ -5,11 +5,11 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.validation.ValidationResult;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -35,18 +35,6 @@ class MissingValuesValidator extends AbstractValidator {
 
     MissingValuesValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
-    }
-
-    @Override
-    public NlsKey getPropertyNlsKey(String property) {
-        // there are no properties
-        return null;
-    }
-
-    @Override
-    public String getPropertyDefaultFormat(String property) {
-        // there are no properties
-        return null;
     }
 
     @Override

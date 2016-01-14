@@ -77,8 +77,8 @@ class RegisterIncreaseValidator extends AbstractValidator {
         builder.add(
             getPropertySpecService()
                 .booleanSpec()
-                .named(FAIL_EQUAL_DATA, FAIL_EQUAL_DATA)
-                .describedAs(FAIL_EQUAL_DATA)
+                .named(FAIL_EQUAL_DATA, TranslationKeys.REGISTER_INCREASE_VALIDATOR_FAIL_EQUAL_DATA)
+                .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .finish());
         return builder.build();
@@ -90,17 +90,8 @@ class RegisterIncreaseValidator extends AbstractValidator {
     }
 
     @Override
-    public String getPropertyDefaultFormat(final String property) {
-        switch (property) {
-            case FAIL_EQUAL_DATA:
-                return "Fail equal data";
-            default:
-                return null;
-        }
-    }
-
-    @Override
     public List<String> getRequiredProperties() {
         return Collections.singletonList(FAIL_EQUAL_DATA);
     }
+
 }

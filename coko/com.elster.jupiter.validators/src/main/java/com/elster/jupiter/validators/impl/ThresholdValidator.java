@@ -53,8 +53,22 @@ class ThresholdValidator extends AbstractValidator {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getPropertySpecService().bigDecimalSpec().named(MIN, MIN).describedAs(MIN).markRequired().setDefaultValue(BigDecimal.ZERO).finish());
-        builder.add(getPropertySpecService().bigDecimalSpec().named(MAX, MAX).describedAs(MAX).markRequired().setDefaultValue(BigDecimal.ZERO).finish());
+        builder
+            .add(getPropertySpecService()
+                    .bigDecimalSpec()
+                    .named(MIN, TranslationKeys.THRESHOLD_VALIDATOR_MIN)
+                    .fromThesaurus(this.getThesaurus())
+                    .markRequired()
+                    .setDefaultValue(BigDecimal.ZERO)
+                    .finish());
+        builder
+            .add(getPropertySpecService()
+                    .bigDecimalSpec()
+                    .named(MAX, TranslationKeys.THRESHOLD_VALIDATOR_MAX)
+                    .fromThesaurus(this.getThesaurus())
+                    .markRequired()
+                    .setDefaultValue(BigDecimal.ZERO)
+                    .finish());
         return builder.build();
     }
 
@@ -82,18 +96,6 @@ class ThresholdValidator extends AbstractValidator {
     @Override
     public String getDefaultFormat() {
         return TranslationKeys.THRESHOLD_VALIDATOR.getDefaultFormat();
-    }
-
-    @Override
-    public String getPropertyDefaultFormat(String property) {
-        switch (property) {
-            case MIN:
-                return "Minimum";
-            case MAX:
-                return "Maximum";
-            default:
-                return null;
-        }
     }
 
     @Override

@@ -5,17 +5,19 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.validation.ValidationResult;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,6 +28,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.validators.impl.RegisterIncreaseValidator.FAIL_EQUAL_DATA;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -52,10 +55,14 @@ public class RegisterIncreaseTest {
 
     @Before
     public void setUp() {
+        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
+        when(nlsMessageFormat.format()).thenReturn("This unit test does not care about translations");
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(nlsMessageFormat);
+
         ImmutableMap<String, Object> properties = ImmutableMap.of(FAIL_EQUAL_DATA, (Object) true);
         validator = new RegisterIncreaseValidator(thesaurus, propertySpecService, properties);
         validator.init(channel, readingType, Range.closed(Instant.ofEpochMilli(7000L), Instant.ofEpochMilli(14000L)));
-        List<BaseReadingRecord> records = Arrays.asList(previousReadingRecord);
+        List<BaseReadingRecord> records = Collections.singletonList(previousReadingRecord);
         when(channel.getReadingsBefore(readingRecord.getTimeStamp(), 1)).thenReturn(records);
     }
 
@@ -124,13 +131,6 @@ public class RegisterIncreaseTest {
         ValidationResult validationResult = validator.validate(intervalReading);
 
         assertThat(validationResult).isEqualTo(ValidationResult.VALID);
-    }
-
-    @Test
-    public void testGetPropertyDefaultFormat() {
-        assertThat(validator.getPropertyDefaultFormat(FAIL_EQUAL_DATA)).isEqualTo("Fail equal data");
-        assertThat(validator.getPropertyDefaultFormat("failEqualData~")).isNull();
-        assertThat(validator.getPropertyDefaultFormat("")).isNull();
     }
 
     @Test

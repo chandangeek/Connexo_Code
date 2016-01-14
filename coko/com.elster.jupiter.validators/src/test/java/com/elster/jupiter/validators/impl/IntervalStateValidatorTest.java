@@ -6,7 +6,9 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.ProfileStatus.Flag;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
@@ -28,6 +30,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.validators.impl.IntervalStateValidator.INTERVAL_FLAGS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,10 +50,12 @@ public class IntervalStateValidatorTest {
 
     private IntervalStateValidator validator;
 
-
-
     @Before
     public void setUp() {
+        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
+        when(nlsMessageFormat.format()).thenReturn("This unit test does not care about translations");
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(nlsMessageFormat);
+
         List<IntervalFlag> flags = new ArrayList<>();
         Map<String, Object> properties = new HashMap<>();
         properties.put(INTERVAL_FLAGS, flags);
@@ -94,13 +99,6 @@ public class IntervalStateValidatorTest {
         ValidationResult validationResult = validator.validate(intervalReadingRecord);
 
         assertThat(validationResult).isEqualTo(ValidationResult.SUSPECT);
-    }
-
-    @Test
-    public void testGetPropertyDefaultFormat() {
-        assertThat(validator.getPropertyDefaultFormat(INTERVAL_FLAGS)).isEqualTo("Interval flags");
-        assertThat(validator.getPropertyDefaultFormat("flags~")).isNull();
-        assertThat(validator.getPropertyDefaultFormat("")).isNull();
     }
 
     @Test

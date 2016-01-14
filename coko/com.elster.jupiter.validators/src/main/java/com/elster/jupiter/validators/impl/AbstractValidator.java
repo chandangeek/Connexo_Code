@@ -10,8 +10,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validators.MissingRequiredProperty;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -65,21 +63,12 @@ abstract class AbstractValidator implements IValidator {
 
     @Override
     public String getDisplayName(String property) {
-        return getThesaurus().getString(getPropertyNlsKey(property).getKey(), getPropertyDefaultFormat(property));
+        return this.getPropertySpec(property).map(PropertySpec::getDisplayName).orElse(property);
     }
 
     @Override
     public String getDisplayName() {
         return getThesaurus().getString(getNlsKey().getKey(), getDefaultFormat());
-    }
-
-    boolean isAProperty(final String property) {
-        return Iterables.any(getPropertySpecs(), new Predicate<PropertySpec>() {
-            @Override
-            public boolean apply(PropertySpec input) {
-                return property.equals(input.getName());
-            }
-        });
     }
 
     private void checkRequiredProperty(String propertyName, Map<String, Object> properties) {
@@ -98,18 +87,8 @@ abstract class AbstractValidator implements IValidator {
     }
 
     @Override
-    public NlsKey getPropertyNlsKey(String property) {
-        if (isAProperty(property)) {
-            /*
-             * Component=UNI and Layer=REST because the front-end will try to translate the property itself, using unifyingjs framework
-             */
-            return SimpleNlsKey.key("UNI", Layer.REST, property);
-        }
-        return null;
-    }
-
-    @Override
     public List<Pair<? extends NlsKey, String>> getExtraTranslations() {
         return Collections.emptyList();
     }
+
 }

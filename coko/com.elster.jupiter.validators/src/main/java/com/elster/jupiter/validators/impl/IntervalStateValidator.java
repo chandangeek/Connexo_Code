@@ -98,8 +98,8 @@ class IntervalStateValidator extends AbstractValidator {
         return Collections.singletonList(
                 getPropertySpecService()
                         .specForValuesOf(new IntervalFlagValueFactory())
-                        .named(INTERVAL_FLAGS, INTERVAL_FLAGS)
-                        .describedAs(INTERVAL_FLAGS)
+                        .named(INTERVAL_FLAGS, TranslationKeys.INTERVAL_STATE_VALIDATOR)
+                        .fromThesaurus(this.getThesaurus())
                         .addValues(POSSIBLE_FLAGS)
                         .markMultiValued()
                         .markExhaustive(PropertySelectionMode.LIST)
@@ -109,16 +109,6 @@ class IntervalStateValidator extends AbstractValidator {
     @Override
     public String getDefaultFormat() {
         return TranslationKeys.INTERVAL_STATE_VALIDATOR.getDefaultFormat();
-    }
-
-    @Override
-    public String getPropertyDefaultFormat(String property) {
-        switch (property) {
-            case INTERVAL_FLAGS:
-                return "Interval flags";
-            default:
-                return null;
-        }
     }
 
     @Override

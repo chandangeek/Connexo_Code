@@ -12,6 +12,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -87,7 +88,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
             translationKeys.add(new SimpleTranslationKey(validator.getNlsKey().getKey(), validator.getDefaultFormat()));
             validator.getPropertySpecs()
                     .stream()
-                    .map(key -> new SimpleTranslationKey(validator.getPropertyNlsKey(key.getName()).getKey(), validator.getPropertyDefaultFormat(key.getName())))
+                    .map(key -> new SimpleTranslationKey(key.getName(), key.getDisplayName()))
                     .forEach(translationKeys::add);
             validator.getExtraTranslations()
                     .stream()

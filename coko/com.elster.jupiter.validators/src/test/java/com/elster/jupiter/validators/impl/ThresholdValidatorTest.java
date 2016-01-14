@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -14,21 +15,22 @@ import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validators.MissingRequiredProperty;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static com.elster.jupiter.validators.impl.ThresholdValidator.MAX;
 import static com.elster.jupiter.validators.impl.ThresholdValidator.MIN;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -62,11 +64,6 @@ public class ThresholdValidatorTest {
         ImmutableMap<String, Object> properties = ImmutableMap.of(MIN, (Object) MINIMUM, MAX, MAXIMUM);
         thresholdValidator = new ThresholdValidator(thesaurus, propertySpecService, properties);
         thresholdValidator.init(channel, readingType, Range.closed(Instant.ofEpochMilli(7000L), Instant.ofEpochMilli(14000L)));
-    }
-
-    @After
-    public void tearDown() {
-
     }
 
     @Test
@@ -194,16 +191,6 @@ public class ThresholdValidatorTest {
     }
 
     @Test
-    public void testPropertyNlsKey() {
-        assertThat(thresholdValidator.getPropertyNlsKey(MIN)).isEqualTo(SimpleNlsKey.key("UNI", Layer.REST, ThresholdValidator.MIN));
-    }
-
-    @Test
-    public void testPropertyNlsKeyForNonExistingProperty() {
-        assertThat(thresholdValidator.getPropertyNlsKey("notAProperty")).isNull();
-    }
-
-    @Test
     public void testDisplayName() {
         when(thesaurus.getString(ThresholdValidator.class.getName(), THRESHOLD_VIOLATION)).thenReturn(THRESHOLD_VIOLATION + " en français");
 
@@ -212,16 +199,18 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testPropertyDisplayName() {
-        when(thesaurus.getString(ThresholdValidator.MIN, "Minimum")).thenReturn("Au moins");
+        NlsMessageFormat minMessageFormat = mock(NlsMessageFormat.class);
+        when(minMessageFormat.format()).thenReturn("Minimal");
+        when(thesaurus.getFormat(TranslationKeys.THRESHOLD_VALIDATOR_MIN)).thenReturn(minMessageFormat);
+        NlsMessageFormat maxMessageFormat = mock(NlsMessageFormat.class);
+        when(maxMessageFormat.format()).thenReturn("Maximal");
+        when(thesaurus.getFormat(TranslationKeys.THRESHOLD_VALIDATOR_MAX)).thenReturn(maxMessageFormat);
 
-        assertThat(thresholdValidator.getDisplayName(ThresholdValidator.MIN)).isEqualTo("Au moins");
-    }
+        // Business method
+        String displayName = thresholdValidator.getDisplayName(ThresholdValidator.MIN);
 
-    @Test
-    public void testGetPropertyDefaultFormat() {
-        assertThat(thresholdValidator.getPropertyDefaultFormat(MIN)).isEqualTo("Minimum");
-        assertThat(thresholdValidator.getPropertyDefaultFormat(MAX)).isEqualTo("Maximum");
-        assertThat(thresholdValidator.getPropertyDefaultFormat("notAProperty")).isNull();
+        // Asserts
+        assertThat(displayName).isEqualTo("Minimal");
     }
 
     @Test

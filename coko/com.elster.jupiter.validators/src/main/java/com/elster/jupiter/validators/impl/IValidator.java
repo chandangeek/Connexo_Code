@@ -10,11 +10,8 @@ interface IValidator extends Validator {
 
     NlsKey getNlsKey();
 
-    NlsKey getPropertyNlsKey(String property);
-
-    String getPropertyDefaultFormat(String property);
-    
     List<Pair<? extends NlsKey, String>> getExtraTranslations();
-    
+
     List<String> getRequiredProperties();
+
 }
