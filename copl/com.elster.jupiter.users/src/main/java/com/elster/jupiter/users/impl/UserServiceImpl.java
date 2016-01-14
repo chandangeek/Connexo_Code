@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         super();
     }
 
-    private final Object priviligeProviderRegistrationLock = new Object();
+    private final Object privilegeProviderRegistrationLock = new Object();
 
     @Inject
     public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, DataVaultService dataVaultService) {
@@ -259,7 +259,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public void grantGroupWithPrivilege(String groupName, String applicationName, String[] privileges) {
-        synchronized (priviligeProviderRegistrationLock) {
+        synchronized (privilegeProviderRegistrationLock) {
             Optional<Group> group = findGroup(groupName);
             if (group.isPresent()) {
                 for (String privilege : privileges) {
@@ -494,7 +494,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     private void installDataModel(boolean inTest) {
-        synchronized (priviligeProviderRegistrationLock) {
+        synchronized (privilegeProviderRegistrationLock) {
             InstallerImpl installer = new InstallerImpl(dataModel, this);
             installer.install(getRealm());
             if (inTest) {
@@ -614,7 +614,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Reference(name = "ModulePrivilegesProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     @SuppressWarnings("unused")
     public void addModulePrivileges(PrivilegesProvider privilegesProvider) {
-        synchronized (priviligeProviderRegistrationLock) {
+        synchronized (privilegeProviderRegistrationLock) {
             if (dataModel.isInstalled()) {
                 try {
                     transactionService.builder().principal(() -> "Jupiter Installer").action("INSTALL-privilege").module(getModuleName()).run(() -> {
@@ -631,7 +631,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @SuppressWarnings("unused")
     public void removeModulePrivileges(PrivilegesProvider privilegesProvider) {
-        synchronized (priviligeProviderRegistrationLock) {
+        synchronized (privilegeProviderRegistrationLock) {
             privilegesProviders.remove(privilegesProvider);
         }
     }
