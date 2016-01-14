@@ -141,8 +141,8 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
         builder.add(
                 propertySpecService
                         .specForValuesOf(new DeviceConfigurationInfoValueFactory())
-                        .named(DEVICE_CONFIGURATIONS, DEVICE_CONFIGURATIONS)
-                        .describedAs(DEVICE_CONFIGURATIONS)
+                        .named(DEVICE_CONFIGURATIONS, TranslationKeys.DEVICE_CONFIGURATIONS_PROPERTY)
+                        .fromThesaurus(this.thesaurus)
                         .markRequired()
                         .markMultiValued(",")
                         .addValues(possibleValues)
