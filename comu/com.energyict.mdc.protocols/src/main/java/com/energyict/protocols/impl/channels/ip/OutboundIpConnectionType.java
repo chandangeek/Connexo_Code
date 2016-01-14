@@ -16,7 +16,7 @@ import java.math.BigDecimal;
  */
 public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
 
-    private static final TimeDuration DEFAULT_CONNECTION_TIMEOUT = TimeDuration.seconds(10);
+    static final TimeDuration DEFAULT_CONNECTION_TIMEOUT = TimeDuration.seconds(10);
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;

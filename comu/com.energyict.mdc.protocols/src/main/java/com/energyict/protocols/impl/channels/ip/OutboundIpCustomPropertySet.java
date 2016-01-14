@@ -96,6 +96,7 @@ public abstract class OutboundIpCustomPropertySet implements CustomPropertySet<C
                 .specForValuesOf(new TimeDurationValueFactory())
                 .named(OutboundIpConnectionProperties.Fields.CONNECTION_TIMEOUT.propertySpecName(), ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT)
                 .fromThesaurus(this.thesaurus)
+                .setDefaultValue(OutboundIpConnectionType.DEFAULT_CONNECTION_TIMEOUT)
                 .finish();
     }
 
