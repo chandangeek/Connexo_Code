@@ -22,7 +22,7 @@ public class IsFileRequiredValidator implements ConstraintValidator<IsFileRequir
          */
         if (!FirmwareStatus.GHOST.equals(firmwareVersion.getFirmwareStatus())
                 && !FirmwareStatus.DEPRECATED.equals(firmwareVersion.getFirmwareStatus())) {
-            if (!firmwareVersion.hasFirmwareFile()) {
+            if (!firmwareVersion.hasFirmwareFile() && firmwareVersion.getId() == 0) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
                         .addPropertyNode("firmwareFile")
