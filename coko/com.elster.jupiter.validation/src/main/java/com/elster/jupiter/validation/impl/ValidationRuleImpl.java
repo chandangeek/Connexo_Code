@@ -23,6 +23,7 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
+
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
@@ -428,7 +429,7 @@ public final class ValidationRuleImpl implements IValidationRule {
 
     @Override
     public boolean appliesTo(Channel channel) {
-        return isActive() && getReadingTypes().stream().anyMatch(readingType -> channel.hasReadingType(readingType));
+        return isActive() && getReadingTypes().stream().anyMatch(channel::hasReadingType);
     }
 
 }
