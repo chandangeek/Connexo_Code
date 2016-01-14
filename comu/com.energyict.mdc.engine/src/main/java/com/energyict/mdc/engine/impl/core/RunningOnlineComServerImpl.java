@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactory;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
+import com.energyict.mdc.engine.impl.monitor.ServerQueryAPIStatistics;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiService;
@@ -106,22 +107,22 @@ public class RunningOnlineComServerImpl extends RunningComServerImpl implements 
 
     @Override
     public void queryApiClientRegistered () {
-        this.getOperationalMonitor().getQueryApiStatistics().clientRegistered();
+        ((ServerQueryAPIStatistics) this.getOperationalMonitor().getQueryApiStatistics()).clientRegistered();
     }
 
     @Override
     public void queryApiClientUnregistered () {
-        this.getOperationalMonitor().getQueryApiStatistics().clientUnregistered();
+        ((ServerQueryAPIStatistics) this.getOperationalMonitor().getQueryApiStatistics()).clientUnregistered();
     }
 
     @Override
     public void queryApiCallCompleted(long executionTimeInMillis) {
-        this.getOperationalMonitor().getQueryApiStatistics().callCompleted(executionTimeInMillis);
+        ((ServerQueryAPIStatistics) this.getOperationalMonitor().getQueryApiStatistics()).callCompleted(executionTimeInMillis);
     }
 
     @Override
     public void queryApiCallFailed(long executionTimeInMillis) {
-        this.getOperationalMonitor().getQueryApiStatistics().callFailed(executionTimeInMillis);
+        ((ServerQueryAPIStatistics) this.getOperationalMonitor().getQueryApiStatistics()).callFailed(executionTimeInMillis);
     }
 
 }

@@ -13,7 +13,8 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
-import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
+import com.energyict.mdc.engine.impl.monitor.ServerScheduledComPortOperationalStatistics;
+import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
@@ -47,11 +48,11 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     public interface ServiceProvider extends JobExecution.ServiceProvider {
 
-        public UserService userService();
+        UserService userService();
 
-        public ThreadPrincipalService threadPrincipalService();
+        ThreadPrincipalService threadPrincipalService();
 
-        public ManagementBeanFactory managementBeanFactory();
+        ManagementBeanFactory managementBeanFactory();
 
     }
 
@@ -233,7 +234,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     private void queriedForTasks () {
         this.lastActivityTimestamp = this.serviceProvider.clock().instant();
-        this.getOperationalMonitor().getOperationalStatistics().setLastCheckForWorkTimestamp(Date.from(this.lastActivityTimestamp));
+        ((ServerScheduledComPortOperationalStatistics) this.getOperationalMonitor().getOperationalStatistics()).setLastCheckForWorkTimestamp(Date.from(this.lastActivityTimestamp));
     }
 
     private void scheduleAll(List<ComJob> jobs) {
@@ -268,7 +269,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     protected interface JobScheduler {
-        public void scheduleAll(List<ComJob> jobs);
+        void scheduleAll(List<ComJob> jobs);
     }
 
     private class ExceptionLogger {

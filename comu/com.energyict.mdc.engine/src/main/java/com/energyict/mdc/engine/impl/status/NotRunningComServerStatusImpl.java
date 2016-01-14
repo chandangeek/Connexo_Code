@@ -1,11 +1,13 @@
 package com.energyict.mdc.engine.impl.status;
 
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.status.ComServerStatus;
-import com.energyict.mdc.engine.status.ComServerType;
+import com.energyict.mdc.engine.monitor.ComServerMonitor;
+import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
+import com.energyict.mdc.engine.status.*;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 
 /**
  * Provides an implementation for the {@link ComServerStatus} interface
@@ -62,4 +64,13 @@ public class NotRunningComServerStatusImpl implements ComServerStatus {
         return this.id;
     }
 
+    @Override
+    public ComServerMonitor getComServerMonitor() {
+        return null;
+    }
+
+    @Override
+    public List<ScheduledComPortMonitor> getScheduledComportMonitors() {
+        return null;
+    }
 }

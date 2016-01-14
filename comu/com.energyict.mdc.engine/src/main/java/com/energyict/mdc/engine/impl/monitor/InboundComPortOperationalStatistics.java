@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.monitor;
 
+import com.energyict.mdc.engine.monitor.OperationalStatistics;
+
 import java.time.Instant;
 
 /**
@@ -17,7 +19,7 @@ public interface InboundComPortOperationalStatistics extends OperationalStatisti
      *
      * @return The total number of connections
      */
-    public long getNumberOfConnections ();
+     long getNumberOfConnections ();
 
     /**
      * Gets the timestamp of the last time
@@ -27,7 +29,7 @@ public interface InboundComPortOperationalStatistics extends OperationalStatisti
      *
      * @return The timestamp of last activity of every thread
      */
-    public Instant getLastConnectionTimestamp ();
+     Instant getLastConnectionTimestamp ();
 
     /**
      * Gets the unique identifier of the last device
@@ -36,6 +38,6 @@ public interface InboundComPortOperationalStatistics extends OperationalStatisti
      *
      * @return The id of the last device that established a connection
      */
-    public String getLastConnectionDeviceId ();
+     String getLastConnectionDeviceId ();
 
 }

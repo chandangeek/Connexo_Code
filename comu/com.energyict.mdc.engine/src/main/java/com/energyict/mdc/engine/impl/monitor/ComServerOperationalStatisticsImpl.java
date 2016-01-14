@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import java.time.Clock;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.monitor.ComServerOperationalStatistics;
 
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
@@ -34,10 +35,19 @@ public class ComServerOperationalStatisticsImpl extends OperationalStatisticsImp
         return this.runningComServer.getComServer().getServerLogLevel();
     }
 
+    private String getServerLogLevelString () {
+        return getServerLogLevel().toString();
+    }
+
     @Override
     public ComServer.LogLevel getCommunicationLogLevel () {
         return this.runningComServer.getComServer().getCommunicationLogLevel();
     }
+
+    private String getCommunicationLogLevelString () {
+        return getCommunicationLogLevel().toString();
+    }
+
 
     @Override
     protected void addItemNames (List<String> itemNames) {
@@ -63,20 +73,8 @@ public class ComServerOperationalStatisticsImpl extends OperationalStatisticsImp
     @Override
     protected void initializeAccessors (List<CompositeDataItemAccessor> accessors) {
         super.initializeAccessors(accessors);
-        accessors.add(
-                new CompositeDataItemAccessor(SERVER_LOG_LEVEL_ITEM_NAME, new ValueProvider() {
-                    @Override
-                    public Object getValue () {
-                        return getServerLogLevel().toString();
-                    }
-                }));
-        accessors.add(
-                new CompositeDataItemAccessor(COMMUNICATION_LOG_LEVEL_ITEM_NAME, new ValueProvider() {
-                    @Override
-                    public Object getValue () {
-                        return getCommunicationLogLevel().toString();
-                    }
-                }));
+        accessors.add( new CompositeDataItemAccessor(SERVER_LOG_LEVEL_ITEM_NAME, this::getServerLogLevelString));
+        accessors.add( new CompositeDataItemAccessor(COMMUNICATION_LOG_LEVEL_ITEM_NAME, this::getCommunicationLogLevelString));
     }
 
 }

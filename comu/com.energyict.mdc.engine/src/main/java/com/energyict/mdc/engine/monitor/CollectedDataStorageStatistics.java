@@ -1,4 +1,6 @@
-package com.energyict.mdc.engine.impl.monitor;
+package com.energyict.mdc.engine.monitor;
+
+import aQute.bnd.annotation.ProviderType;
 
 /**
  * Models the statistics of the data collection storage process
@@ -8,6 +10,7 @@ package com.energyict.mdc.engine.impl.monitor;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-03 (11:16)
  */
+@ProviderType
 public interface CollectedDataStorageStatistics {
 
     /**
@@ -16,7 +19,7 @@ public interface CollectedDataStorageStatistics {
      *
      * @return The maximum capacity of the CollectedData queue
      */
-    public int getCapacity ();
+     int getCapacity ();
 
     /**
      * Gets the current number of CollectedData
@@ -24,7 +27,7 @@ public interface CollectedDataStorageStatistics {
      *
      * @return The current number of CollectedData elements on the queue
      */
-    public int getCurrentSize ();
+     int getCurrentSize ();
 
     /**
      * Gets the current load of the data collection storage process
@@ -34,7 +37,7 @@ public interface CollectedDataStorageStatistics {
      *
      * @return The load as percentage
      */
-    public int getLoadPercentage ();
+     int getLoadPercentage ();
 
     /**
      * Gets the number of threads that are consuming
@@ -43,7 +46,7 @@ public interface CollectedDataStorageStatistics {
      *
      * @return The number of threads that consume CollectedData elements from the queue
      */
-    public int getNumberOfThreads ();
+     int getNumberOfThreads ();
 
     /**
      * Gets the priority of the threads that are consuming
@@ -54,6 +57,6 @@ public interface CollectedDataStorageStatistics {
      *
      * @return The priority of the threads that consume CollectedData elements
      */
-    public int getThreadPriority ();
+     int getThreadPriority ();
 
 }

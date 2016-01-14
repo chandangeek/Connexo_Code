@@ -22,11 +22,10 @@ import com.energyict.mdc.engine.impl.core.mocks.MockOutboundComPort;
 import com.energyict.mdc.engine.impl.core.mocks.MockTCPInboundComPort;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
-import com.energyict.mdc.engine.impl.monitor.ComServerMonitor;
-import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
-import com.energyict.mdc.engine.impl.monitor.ComServerOperationalStatistics;
-import com.energyict.mdc.engine.impl.monitor.EventAPIStatistics;
-import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.monitor.*;
+import com.energyict.mdc.engine.monitor.ComServerMonitor;
+import com.energyict.mdc.engine.monitor.ComServerOperationalStatistics;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -74,7 +73,7 @@ public class RunningComServerChangesTest {
     @Mock(extraInterfaces = ComServerMonitor.class)
     private ComServerMonitorImplMBean comServerMonitor;
     @Mock
-    private EventAPIStatistics eventApiStatistics;
+    private ServerEventAPIStatistics eventApiStatistics;
     @Mock
     private ComServerOperationalStatistics comServerOperationalStatistics;
     @Mock

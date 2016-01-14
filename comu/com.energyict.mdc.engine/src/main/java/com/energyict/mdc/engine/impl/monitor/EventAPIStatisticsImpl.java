@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.monitor;
 
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 
 import javax.management.openmbean.CompositeType;
 import javax.management.openmbean.OpenDataException;
@@ -15,7 +16,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-05 (13:16)
  */
-public class EventAPIStatisticsImpl extends CanConvertToCompositeDataSupport implements EventAPIStatistics {
+public class EventAPIStatisticsImpl extends CanConvertToCompositeDataSupport implements ServerEventAPIStatistics {
 
     public static final String NUMBER_OF_CLIENTS_ITEM_NAME = "numberOfClients";
     private static final String NUMBER_OF_CLIENTS_ITEM_DESCRIPTION = "number of clients";

@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.monitor;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
+import com.energyict.mdc.engine.monitor.CollectedDataStorageStatistics;
 
 import javax.management.openmbean.CompositeType;
 import javax.management.openmbean.OpenDataException;
@@ -86,41 +87,11 @@ public class CollectedDataStorageStatisticsImpl extends CanConvertToCompositeDat
 
     @Override
     protected void initializeAccessors (List<CompositeDataItemAccessor> accessors) {
-        accessors.add(
-                new CompositeDataItemAccessor(CAPACITY_ITEM_NAME, new ValueProvider() {
-                    @Override
-                    public Object getValue () {
-                        return getCapacity();
-                    }
-                }));
-        accessors.add(
-                new CompositeDataItemAccessor(SIZE_ITEM_NAME, new ValueProvider() {
-                    @Override
-                    public Object getValue () {
-                        return getCurrentSize();
-                    }
-                }));
-        accessors.add(
-                new CompositeDataItemAccessor(LOAD_ITEM_PERCENTAGE_NAME, new ValueProvider() {
-                    @Override
-                    public Object getValue () {
-                        return getLoadPercentage();
-                    }
-                }));
-        accessors.add(
-                new CompositeDataItemAccessor(NUMBER_OF_THREADS_ITEM_NAME, new ValueProvider() {
-                    @Override
-                    public Object getValue () {
-                        return getNumberOfThreads();
-                    }
-                }));
-        accessors.add(
-                new CompositeDataItemAccessor(THREAD_PRIORITY_ITEM_NAME, new ValueProvider() {
-                    @Override
-                    public Object getValue () {
-                        return getThreadPriority();
-                    }
-                }));
+        accessors.add(new CompositeDataItemAccessor(CAPACITY_ITEM_NAME, this:: getCapacity));
+        accessors.add(new CompositeDataItemAccessor(SIZE_ITEM_NAME, this:: getCurrentSize));
+        accessors.add(new CompositeDataItemAccessor(LOAD_ITEM_PERCENTAGE_NAME, this:: getLoadPercentage));
+        accessors.add(new CompositeDataItemAccessor(NUMBER_OF_THREADS_ITEM_NAME, this:: getNumberOfThreads));
+        accessors.add(new CompositeDataItemAccessor(THREAD_PRIORITY_ITEM_NAME, this:: getThreadPriority));
     }
 
 }

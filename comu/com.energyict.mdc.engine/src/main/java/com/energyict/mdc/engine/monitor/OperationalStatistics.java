@@ -1,8 +1,8 @@
-package com.energyict.mdc.engine.impl.monitor;
+package com.energyict.mdc.engine.monitor;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TimeDuration;
 
-import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
 
@@ -12,6 +12,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-03 (10:50)
  */
+@ProviderType
 public interface OperationalStatistics {
 
     /**
@@ -19,7 +20,7 @@ public interface OperationalStatistics {
      *
      * @return The timestamp on which the RunningComServer was started
      */
-    public Date getStartTimestamp ();
+     Date getStartTimestamp ();
 
     /**
      * Gets the {@link TimeDuration} that indicates how long the RunningComServer
@@ -30,7 +31,7 @@ public interface OperationalStatistics {
      * @return The TimeDuration that indicates how long the RunningComServer has been running for
      * @see #getStartTimestamp()
      */
-    public TimeDuration getRunningTime ();
+     TimeDuration getRunningTime ();
 
     /**
      * Gets the {@link TimeDuration} between each poll for changes
@@ -39,20 +40,13 @@ public interface OperationalStatistics {
      *
      * @return The TimeDuration between polls to detect changes
      */
-    public TimeDuration getChangesInterPollDelay ();
+     TimeDuration getChangesInterPollDelay ();
 
     /**
      * Gets the timestamp on which the RunningComServer last checked for changes.
      *
      * @return The timestamp on which the RunningComServer last checked for changes
      */
-    public Optional<Date> getLastCheckForChangesTimestamp ();
-
-    /**
-     * Sets the timestamp on which the RunningComServer last checked for changes.
-     *
-     * @param lastCheckForChangesTimestamp The timestamp on which the RunningComServer last checked for changes
-     */
-    public void setLastCheckForChangesTimestamp (Date lastCheckForChangesTimestamp);
+     Optional<Date> getLastCheckForChangesTimestamp ();
 
 }

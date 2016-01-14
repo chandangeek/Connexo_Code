@@ -1,12 +1,8 @@
 package com.energyict.mdc.engine.impl.status;
 
-import com.energyict.mdc.engine.impl.monitor.ComServerMonitor;
-import com.energyict.mdc.engine.impl.monitor.ComServerOperationalStatistics;
-import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitor;
-import com.energyict.mdc.engine.impl.monitor.ScheduledComPortOperationalStatistics;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.status.ComServerStatus;
-import com.energyict.mdc.engine.status.ComServerType;
+import com.energyict.mdc.engine.monitor.*;
+import com.energyict.mdc.engine.status.*;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -134,6 +130,16 @@ public class RunningComServerStatusImpl implements ComServerStatus {
 
     private Duration getBlockTime(Instant lastActivity, Duration lenientDuration) {
         return Duration.between(lastActivity.plusMillis(lenientDuration.toMillis()), this.clock.instant());
+    }
+
+    @Override
+    public ComServerMonitor getComServerMonitor() {
+        return monitor;
+    }
+
+    @Override
+    public List<ScheduledComPortMonitor> getScheduledComportMonitors() {
+        return comPortMonitors;
     }
 
 }

@@ -5,6 +5,7 @@ import com.energyict.mdc.engine.impl.MessageSeeds;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.engine.monitor.OperationalStatistics;
 import org.joda.time.DateTimeConstants;
 
 import javax.management.openmbean.CompositeType;
@@ -24,7 +25,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-03 (14:30)
  */
-public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport implements OperationalStatistics {
+public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport implements ServerOperationalStatistics {
 
     public static final String START_TIMESTAMP_ITEM_NAME = "startTimeStamp";
     private static final String START_TIMESTAMP_ITEM_DESCRIPTION = "start timestamp";

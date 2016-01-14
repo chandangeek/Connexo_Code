@@ -27,7 +27,8 @@ import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-import com.energyict.mdc.engine.impl.monitor.ComServerMonitor;
+import com.energyict.mdc.engine.impl.monitor.ServerEventAPIStatistics;
+import com.energyict.mdc.engine.monitor.ComServerMonitor;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
@@ -401,9 +402,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     }
 
     private void startOutboundComPorts() {
-        for (ScheduledComPort scheduledComPort : this.scheduledComPorts) {
-            scheduledComPort.start();
-        }
+        this.scheduledComPorts.forEach(ScheduledComPort:: start);
     }
 
     private void startInboundComPorts() {
@@ -675,13 +674,8 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     }
 
     private boolean hasChanged(InboundComPort existingComPort, InboundComPort newVersion) {
-        if (existingComPort instanceof ModemBasedInboundComPort) {
-            // Any change will need a restart of the ModemBasedInboundComPort
-            return true;
-        }
-        else {
-            return this.hasChanged((IPBasedInboundComPort) existingComPort, (IPBasedInboundComPort) newVersion);
-        }
+        return (existingComPort instanceof  ModemBasedInboundComPort)
+                || this.hasChanged((IPBasedInboundComPort) existingComPort, (IPBasedInboundComPort) newVersion);
     }
 
     private boolean hasChanged(IPBasedInboundComPort existingComPort, IPBasedInboundComPort newVersion) {
@@ -939,7 +933,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     @Override
     public void eventWasPublished() {
         ComServerMonitor monitor = this.getOperationalMonitor();
-        monitor.getEventApiStatistics().eventWasPublished();
+        ((ServerEventAPIStatistics) monitor.getEventApiStatistics()).eventWasPublished();
     }
 
     private ComServerLogger getLogger () {

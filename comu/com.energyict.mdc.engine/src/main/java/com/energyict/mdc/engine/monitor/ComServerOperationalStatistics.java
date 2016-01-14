@@ -1,6 +1,8 @@
-package com.energyict.mdc.engine.impl.monitor;
+package com.energyict.mdc.engine.monitor;
 
+import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.monitor.ServerOperationalStatistics;
 
 /**
  * Models the operational statistics that are gathered by the process
@@ -9,7 +11,8 @@ import com.energyict.mdc.engine.config.ComServer;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-03 (10:50)
  */
-public interface ComServerOperationalStatistics extends OperationalStatistics {
+@ProviderType
+public interface ComServerOperationalStatistics extends ServerOperationalStatistics {
 
     /**
      * Gets the LogLevel that is used by the
@@ -18,7 +21,7 @@ public interface ComServerOperationalStatistics extends OperationalStatistics {
      *
      * @return The LogLevel that is used for global server processes.
      */
-    public ComServer.LogLevel getServerLogLevel ();
+     ComServer.LogLevel getServerLogLevel ();
 
     /**
      * Gets the LogLevel that is used by the
@@ -27,6 +30,6 @@ public interface ComServerOperationalStatistics extends OperationalStatistics {
      *
      * @return The LogLevel that is used for communication.
      */
-    public ComServer.LogLevel getCommunicationLogLevel ();
+     ComServer.LogLevel getCommunicationLogLevel ();
 
 }
