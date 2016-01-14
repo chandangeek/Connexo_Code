@@ -24,7 +24,7 @@ public class HasValidGroupTaskValidator implements ConstraintValidator<HasValidG
         Optional<UsagePointGroup> upGroup = validationTask.getUsagePointGroup();
         if (!bothNotNull(deviceGroup, upGroup)) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.REQUIRES_EXACTLY_ONE_GROUP + "}")
+            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
                     .addPropertyNode("groupTypeField").addConstraintViolation();
             return false;
         }
