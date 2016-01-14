@@ -138,7 +138,8 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                 .finish());
         builder.add(propertySpecService
                 .booleanSpec()
-                .named(AUTORESOLUTION, AUTORESOLUTION).describedAs(AUTORESOLUTION)
+                .named(AUTORESOLUTION, TranslationKeys.PARAMETER_AUTO_RESOLUTION)
+                .fromThesaurus(this.getThesaurus())
                 .setDefaultValue(true)
                 .finish());
         return builder.build();
