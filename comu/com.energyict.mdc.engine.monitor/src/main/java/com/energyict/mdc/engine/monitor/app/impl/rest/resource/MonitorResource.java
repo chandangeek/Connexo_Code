@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.monitor.impl.rest.resource;
+package com.energyict.mdc.engine.monitor.app.impl.rest.resource;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
@@ -31,7 +31,6 @@ public class MonitorResource{
     public synchronized String getServerDetails() {
         try {
            return this.jSonConverter.convertDetails().asReadEvent().toString();
-
         } catch (JSONException e) {
             throw new JSonException(e);
         }

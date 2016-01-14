@@ -1,4 +1,4 @@
-package com.energyict.mdc.engine.monitor.impl.rest.resource;
+package com.energyict.mdc.engine.monitor.app.impl.rest.resource;
 
 import org.json.JSONException;
 

@@ -25,7 +25,7 @@ Ext.define('CSMonitor.controller.ServerDetails', {
     config: {
         refreshTask : null,
         intervalInSeconds: 120,
-        remoteServersVisible: true,
+        remoteServersVisible: false,
         visibilityUpdated: false
     },
 

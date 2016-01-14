@@ -13,7 +13,7 @@
     <artifactId>mdc.engine.monitor</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>[MDC] mdc.engine.monitor </name>
+    <name>[MDC] mdc.engine.monitor.app </name>
     <description>
         Contains the ComServer Monitor web application
     </description>

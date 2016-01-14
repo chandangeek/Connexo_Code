@@ -1,6 +1,4 @@
-package com.energyict.mdc.engine.monitor;
-
-import com.energyict.mdc.engine.config.EngineConfigurationService;
+package com.energyict.mdc.engine.monitor.app;
 
 public interface MdcMonitorAppService {
 

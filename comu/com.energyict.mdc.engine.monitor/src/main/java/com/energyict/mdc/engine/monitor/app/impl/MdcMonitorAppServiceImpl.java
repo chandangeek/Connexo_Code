@@ -1,11 +1,12 @@
-package com.energyict.mdc.engine.monitor.impl;
+package com.energyict.mdc.engine.monitor.app.impl;
 
 import com.elster.jupiter.http.whiteboard.*;
 import com.elster.jupiter.nls.*;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.*;
-import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.monitor.MdcMonitorAppService;
+import com.energyict.mdc.engine.monitor.app.MdcMonitorAppService;
+import com.energyict.mdc.engine.status.StatusService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.*;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 @Component(
-        name = "com.energyict.mdc.engine.monitor",
+        name = "com.energyict.mdc.engine.monitor.app",
         service = {MdcMonitorAppService.class, TranslationKeyProvider.class, ApplicationPrivilegesProvider.class},
         immediate = true)
 @SuppressWarnings("unused")
@@ -30,15 +31,22 @@ public class MdcMonitorAppServiceImpl implements MdcMonitorAppService , Translat
     public static final String APPLICATION_ICON = "connexo";
 
     private volatile ServiceRegistration<HttpResource> registration;
+    private volatile StatusService statusService;
     private volatile EngineConfigurationService engineConfigurationService;
+    private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UserService userService;
 
     public MdcMonitorAppServiceImpl() {
     }
 
     @Inject
-    public MdcMonitorAppServiceImpl(EngineConfigurationService engineConfigurationService, UserService userService, BundleContext context) {
+    public MdcMonitorAppServiceImpl(StatusService statusService,
+                                    EngineConfigurationService engineConfigurationService,
+                                    ThreadPrincipalService threadPrincipalService,
+                                    UserService userService, BundleContext context) {
+        setStatusService(statusService);
         setEngineConfigurationService(engineConfigurationService);
+        setThreadPrincipalService(threadPrincipalService);
         setUserService(userService);
         activate(context);
     }
@@ -54,6 +62,16 @@ public class MdcMonitorAppServiceImpl implements MdcMonitorAppService , Translat
     @Deactivate
     public void stop(BundleContext context) throws Exception {
         registration.unregister();
+    }
+
+    @Reference
+    public void setStatusService(StatusService statusService) {
+        this.statusService = statusService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Reference

@@ -1,9 +1,11 @@
-package com.energyict.mdc.engine.monitor.impl.rest;
+package com.energyict.mdc.engine.monitor.app.impl.rest;
 
 import com.elster.jupiter.nls.*;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.monitor.MdcMonitorAppService;
-import com.energyict.mdc.engine.monitor.impl.rest.resource.MonitorResource;
+import com.energyict.mdc.engine.monitor.app.MdcMonitorAppService;
+import com.energyict.mdc.engine.monitor.app.impl.rest.resource.MonitorResource;
 import com.energyict.mdc.engine.status.StatusService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -23,6 +25,8 @@ public class MdcMonitorRestApplication extends Application implements Translatio
 
     private volatile StatusService statusService;
     private volatile EngineConfigurationService engineConfigurationService;
+    private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile UserService userService;
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
 
@@ -41,16 +45,21 @@ public class MdcMonitorRestApplication extends Application implements Translatio
     }
 
     @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+    @Reference
     public void setStatusService(StatusService statusService) {
         this.statusService = statusService;
     }
-
     @Reference
     public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
         this.engineConfigurationService = engineConfigurationService;
     }
-
-
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
@@ -78,6 +87,8 @@ public class MdcMonitorRestApplication extends Application implements Translatio
         protected void configure() {
             bind(statusService).to(StatusService.class);
             bind(engineConfigurationService).to(EngineConfigurationService.class);
+            bind(threadPrincipalService).to(ThreadPrincipalService.class);
+            bind(userService).to(UserService.class);
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
         }

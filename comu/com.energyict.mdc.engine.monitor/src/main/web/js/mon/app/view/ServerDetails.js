@@ -93,7 +93,7 @@ Ext.define('CSMonitor.view.ServerDetails', {
         this.down('#serverDetailsTitle').update('<h1>' + comServerText + ' ' + serverName + ' @ ' + rootName + '</h1>');
         this.down('#rootName').update('Root name: <b>' + rootName + '</b>');
         this.down('#serverName').update(comServerNameText + ': <b>' + serverName + '</b>');
-        this.down('#serverId').update(comServerIDText + ': <b>' + serverId + '</b');
+        this.down('#serverId').update(comServerIDText + ': <b>' + serverId + '</b>');
         this.down('#localOrRemote').update(localRemoteText + ': <b>' + localOrRemote + '</b>');
         this.down('#started').update(startedText + ': <b>' + startedInfo + '</b>');
         this.down('#currentTime').update(currentTimeText + ': <b>' +  currentInfo + '</b>');
