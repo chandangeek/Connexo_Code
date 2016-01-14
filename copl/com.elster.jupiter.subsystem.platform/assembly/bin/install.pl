@@ -13,7 +13,7 @@ use Sys::Hostname;
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20160106";
+my $INSTALL_VERSION="v20160114";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -22,6 +22,8 @@ my $CONNEXO_DIR="$SCRIPT_DIR/..";
 
 my $parameter_file=0;
 my $install=1;
+my $cmd_line=0;
+my $help=0;
 
 my $config_file="$CONNEXO_DIR/conf/config.properties";
 my $config_cmd="config.cmd";
@@ -111,8 +113,15 @@ sub read_args {
 		if ($ARGV[$i] eq "--uninstall") {
 			$install=0;
 		}
+		if ($ARGV[$i] eq "--uninstallcmd") {
+			$install=0;
+			$cmd_line=1;
+		}
+		if ($ARGV[$i] eq "--help") {
+			$help=1;
+		}
 		if ($ARGV[$i] eq "--version") {
-			print "\nInstallation script version $INSTALL_VERSION\n";
+			print "\n    Installation script version $INSTALL_VERSION\n";
 			exit (0);
 		}
 	}
@@ -238,18 +247,24 @@ sub read_config {
 }
 
 sub read_uninstall_config {
-    print "Please enter the version of you services (e.g. 10.1) or leave empty: ";
-    chomp($SERVICE_VERSION=<STDIN>);
-	#open(my $FH,"< $config_cmd") or die "Could not open $config_cmd: $!";
-	#while (my $row = <$FH>) {
-	#	$row=~s/set (.*)/$1/;
-	#	chomp($row);
-	#	if ( "$row" ne "") {
-	#		my @val=split('=',$row);
-	#		if ( "$val[0]" eq "SERVICE_VERSION" )	{$SERVICE_VERSION=$val[1];}
-	#	}
-	#}
-	#close($FH);
+    if ($cmd_line) {
+        print "Please enter the version of you services (e.g. 10.1) or leave empty: ";
+        chomp($SERVICE_VERSION=<STDIN>);
+		print "Please enter the path to your JAVA_HOME (leave empty to use the system variable): ";
+		chomp($JAVA_HOME=<STDIN>);
+    } else {
+        open(my $FH,"< $config_cmd") or die "Could not open $config_cmd: $!";
+        while (my $row = <$FH>) {
+            $row=~s/set (.*)/$1/;
+            chomp($row);
+            if ( "$row" ne "") {
+                my @val=split('=',$row);
+                if ( "$val[0]" eq "SERVICE_VERSION" )	{$SERVICE_VERSION=$val[1];}
+            }
+        }
+        close($FH);
+    }
+    check_java8();
 }
 
 sub check_port {
@@ -347,10 +362,11 @@ sub install_tomcat {
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"user\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"manager\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"tomcat\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
+        replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/bin/service.bat","set DISPLAYNAME=Apache Tomcat 7.0 ","set DISPLAYNAME=");
 		print "Installing Apache Tomcat For Connexo as service ...\n";
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.bat") or die "Could not open $TOMCAT_DIR/bin/setenv.bat: $!";
-			print $FH "set CATALINA_OPTS=".$ENV{CATALINA_OPTS}." -XX:PemSize=64m -XX:MaxPermSize=256m -Xmx512M -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dconnexo.url=$CONNEXO_URL -Dbtm.root=$CATALINA_HOME -Dbitronix.tm.configuration=$CATALINA_HOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false\n";
+			print $FH "set CATALINA_OPTS=".$ENV{CATALINA_OPTS}." -Xmx512M -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dconnexo.url=$CONNEXO_URL -Dbtm.root=$CATALINA_HOME -Dbitronix.tm.configuration=$CATALINA_HOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false\n";
 			close($FH);
 			system("service.bat install ConnexoTomcat$SERVICE_VERSION");
 		} else {
@@ -456,7 +472,8 @@ sub install_facts {
 
 		chdir "$CONNEXO_DIR";
 		system("\"$JAVA_HOME/bin/jar\" -uvf \"$CONNEXO_DIR/partners/facts/facts.jar\" custom.properties") == 0 or die "$JAVA_HOME/bin/jar -uvf \"$CONNEXO_DIR/partners/facts/facts.jar\" custom.properties failed: $?";
-		system("\"$JAVA_HOME/bin/java\" -jar \"$CONNEXO_DIR/partners/facts/facts.jar\" -silent") == 0 or die "$JAVA_HOME/bin/java -jar \"$CONNEXO_DIR/partners/facts/facts.jar\" -silent failed: $?";
+		unlink("$CONNEXO_DIR/custom.properties");
+        system("\"$JAVA_HOME/bin/java\" -jar \"$CONNEXO_DIR/partners/facts/facts.jar\" -silent") == 0 or die "$JAVA_HOME/bin/java -jar \"$CONNEXO_DIR/partners/facts/facts.jar\" -silent failed: $?";
 		if (!-d "$FACTS_DIR") { make_path("$FACTS_DIR"); }
 		copy("$FACTS_BASE/facts.war","$FACTS_DIR/facts.war") or die "File cannot be copied: $!";
 		chdir "$FACTS_DIR";
@@ -652,16 +669,12 @@ sub start_tomcat {
 }
 
 sub uninstall_all {
-        print "Please enter the path to your JAVA_HOME (leave empty to use the system variable): ";
-        chomp($JAVA_HOME=<STDIN>);
-        check_java8();
-
 	my $WSO2_DIR="$CONNEXO_DIR/partners";
 	$ENV{CARBON_HOME}="$WSO2_DIR/wso2is-4.5.0";
 	if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 		print "Stop and remove Connexo$SERVICE_VERSION service";
 		system("\"$CONNEXO_DIR/bin/ConnexoService.exe\" /uninstall Connexo$SERVICE_VERSION");
-		print "Stop and remove tomcat service";
+		print "Stop and remove ConnexoTomcat$SERVICE_VERSION service";
 		system("\"$CONNEXO_DIR/partners/tomcat/bin/service.bat\" remove ConnexoTomcat$SERVICE_VERSION");
 		while ((`sc query ConnexoTomcat$SERVICE_VERSION` =~ m/STATE.*:.*/) ne "") {
 			sleep 3;
@@ -698,6 +711,18 @@ sub uninstall_all {
 	if (-e "$CONNEXO_DIR/conf/config.properties") { unlink("$CONNEXO_DIR/conf/config.properties"); }
 }
 
+sub show_help() {
+    print "\n";
+    print "    Usage: $0 <option>\n";
+    print "\n";
+    print "    Possible options\n";
+    print "        --help         : show this help function\n";
+    print "        --version      : version of this installation script\n";
+    print "        --config       : start unattended installation; using the values in bin/config.cmd\n";
+    print "        no option      : start installation with console input\n";
+    print "        --uninstall    : remove installation; ; using the values in bin/config.cmd\n";
+    print "        --uninstallcmd : remove installation with console input\n";
+}
 
 # Main
 print ",---------------------------------------------------------,\n";
@@ -706,7 +731,9 @@ print "'---------------------------------------------------------'\n";
 check_root();
 check_create_users();
 read_args();
-if ($install) {
+if ($help) {
+    show_help();
+} elsif ($install) {
 	read_config();
 	checking_ports();
 	install_connexo();
