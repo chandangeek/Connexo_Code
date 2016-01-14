@@ -19,10 +19,16 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.impl.ChannelSpecImpl;
 import com.energyict.mdc.device.config.impl.LoadProfileSpecImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.tasks.*;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.FirmwareComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.issues.impl.IssueCollectorDefaultImplementation;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -41,13 +47,13 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceImplTest {
@@ -102,6 +108,24 @@ public class DeviceImplTest {
     private CustomPropertySetService customPropertySetService;
     @Mock
     private MdcReadingTypeUtilService mdcReadingTypeUtilService;
+//    @Mock
+//    private Provider<LoadProfileSpec> loadProfileSpecProvider;
+//    @Mock
+//    private Provider<NumericalRegisterSpec> numericalRegisterSpecProvider;
+//    @Mock
+//    private Provider<TextualRegisterSpec> textualRegisterSpecProvider;
+//    @Mock
+//    private Provider<LogBookSpec> logBookSpecProvider;
+//    @Mock
+//    private Provider<ChannelSpec> channelSpecProvider;
+//    @Mock
+//    private Provider<DeviceConfValidationRuleSetUsage> deviceConfValidationRuleSetUSageFactory;
+//    @Mock
+//    private Provider<DeviceConfigurationEstimationRuleSetUsage> deviceConfEstimationRuleSetUSageFactory;
+//    @Mock
+//    private SchedulingService schedulingService;
+//    @Mock
+//    private ThreadPrincipalService threadPrincipalService;
 
     @Before
     public void setUp() {
@@ -189,6 +213,8 @@ public class DeviceImplTest {
     }
 
     private DeviceImpl createDevice(BigDecimal registerOverflow, BigDecimal bulkOverflow) {
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService,
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskProvider,
                 manuallyScheduledComTaskExecutionTaskProvider, firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, mdcReadingTypeUtilService);
@@ -203,6 +229,11 @@ public class DeviceImplTest {
         channelSpec2.setChannelType(channelTypeBulk);
         loadProfileSpec2.addChannelSpec(channelSpec2);
         device.addLoadProfiles(Arrays.asList(loadProfileSpec1, loadProfileSpec2));
+        device.setNewDeviceConfiguration(deviceConfiguration);
+
+        when(deviceConfiguration.getChannelSpecs()).thenReturn(Arrays.asList(channelSpec1, channelSpec2));
+        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Collections.emptyList());
+
         return device;
     }
 

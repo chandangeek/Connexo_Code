@@ -10,7 +10,8 @@ import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
-import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.issues.IssueCollector;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Warning;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.streams.Currying.use;
+import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 class OverflowCheck {
 
@@ -123,11 +125,20 @@ class OverflowCheck {
     }
 
     private Optional<BigDecimal> getOverflowValue(String readingTypeCode) {
-        return device.getChannels()
+        Stream<BigDecimal> ofRegisters = decorate(device.getDeviceConfiguration()
+                .getRegisterSpecs()
+                .stream())
+                .filterSubType(NumericalRegisterSpec.class)
+                .filter(register -> register.getReadingType().getMRID().equals(readingTypeCode))
+                .map(NumericalRegisterSpec::getOverflowValue);
+        Stream<BigDecimal> ofChannels = device.getDeviceConfiguration()
+                .getChannelSpecs()
                 .stream()
                 .filter(channel -> channel.getReadingType().getMRID().equals(readingTypeCode))
-                .findAny()
-                .map(Channel::getOverflow);
+                .map(ChannelSpec::getOverflow);
+        return Stream.of(ofRegisters, ofChannels)
+                .flatMap(Function.identity())
+                .findAny();
     }
 
     private IntervalReading toCheckedIntervalReading(IntervalBlock intervalBlock, IntervalReading reading, Map<BaseReading, BigDecimal> overflowCheckedMap) {
