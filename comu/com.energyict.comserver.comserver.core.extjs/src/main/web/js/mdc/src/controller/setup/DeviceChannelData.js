@@ -172,7 +172,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     success: function (channel) {
                         me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
                         var widget = Ext.widget('tabbedDeviceChannelsView', {
-                            title: channel.get('name'),
+                            title: channel.get('readingType').fullAliasName,
                             router: router,
                             channel: channel,
                             device: device,
@@ -200,13 +200,28 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     setupSpecificationsTab: function (device, channel, widget) {
-        var customAttributesStore = this.getStore('Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets');
+        var me = this,
+            customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets'),
+            calculatedReadingTypeField = widget.down('#calculatedReadingType'),
+            multiplierField = widget.down('#mdc-channel-preview-multiplier');
+
         customAttributesStore.getProxy().setUrl(device.get('mRID'), channel.get('id'));
         widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(channel);
+        if (channel.get('calculatedReadingType')) {
+            calculatedReadingTypeField.show();
+        } else {
+            calculatedReadingTypeField.hide();
+        }
+        if (channel.get('multiplier')) {
+            multiplierField.show();
+        } else {
+            multiplierField.hide();
+        }
+
         customAttributesStore.load(function () {
             widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
         });
-        this.fromSpecification = true;
+        me.fromSpecification = true;
         widget.down('#deviceLoadProfileChannelsActionMenu').record = channel;
     },
 
@@ -603,7 +618,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         me.getReadingEstimationWindow().down('#error-label').show();
                         var listOfFailedReadings = [];
                         Ext.Array.each(responseText.readings, function (readingTimestamp) {
-                            listOfFailedReadings.push(Uni.I18n.translate('general.dateattime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false));
+                            listOfFailedReadings.push(Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false));
                         });
                         me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' +
                             Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0} with {1}',

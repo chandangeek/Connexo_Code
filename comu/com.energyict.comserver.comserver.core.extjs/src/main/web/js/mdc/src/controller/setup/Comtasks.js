@@ -80,6 +80,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         });
         this.store = this.getStore('Mdc.store.CommunicationTasks');
         this.commands = [];
+        this.recordCommands = [];
     },
 
     showCommunicationTasksView: function () {
@@ -207,10 +208,12 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         if (taskId) {
             this.getTaskEdit().getCenterContainer().down().setTitle(Uni.I18n.translate('comtask.edit', 'MDC', 'Edit communication task'));
             this.commands = [];
+            this.recordCommands = [];
             this.loadModelToEditForm(taskId, widget, selectedMessagesStore, allMessagesStore);
         } else {
             this.getTaskEdit().getCenterContainer().down().setTitle(Uni.I18n.translate('comtask.create', 'MDC', 'Add communication task'));
             this.commands = [];
+            this.recordCommands = []
             allMessagesStore.load();
         }
     },
@@ -286,6 +289,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                     window.location.href = backUrl;
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comtask.saved', 'MDC', 'Communication task configuration saved'));
                     me.commands = [];
+                    me.recordCommands = [];
                     editView.setLoading(false);
                 },
                 failure: function (record, requestObject) {
@@ -368,10 +372,11 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                             selectedMessagesStore.add(message);
                         });
                         self.commands = record.get('commands');
+                        self.recordCommands = self.commands.slice();
                         categoriesStore.load({
                             scope: this,
                             callback: function () {
-                                if (self.commands.length === categoriesStore.totalCount) {
+                                if (self.recordCommands.length === categoriesStore.totalCount) {
                                     widget.down('#addAnotherCommandsButton').hide();
                                 }
                                 widget.setLoading(false);
@@ -624,6 +629,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             protocol.action = action;
             protocol.parameters = [];
 
+
             if (Ext.isEmpty(protocol.action)) {
                 actionContainer.markInvalid(
                     Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
@@ -632,15 +638,18 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             }
 
             Ext.Array.each(self.commands, function (item) {
-                if (item.category === protocol.category) {
-                    protocol.id = item.id;
+                if (item.categoryId === protocol.categoryId) {
                     numItem = self.commands.indexOf(item);
                 }
             });
 
-            if (!Ext.isEmpty(numItem)) {
-                self.commands.splice(numItem, 1);
-            }
+            Ext.Array.each(self.recordCommands, function (item) {
+                if (item.categoryId === protocol.categoryId) {
+                    protocol.id = item.id;
+                }
+            });
+
+
 
             if (!Ext.isEmpty(parametersContainer)) {
                 switch (parametersContainer.xtype) {
@@ -686,7 +695,10 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             }
         }
         if (couldAdd) {
-            btnToRemoveAfterValidation && btnToRemoveAfterValidation.destroy();
+            if(btnToRemoveAfterValidation) {
+                btnToRemoveAfterValidation.destroy()
+
+            }
 
             if (self.commands.length === 1) {
                 editView.down('#noActionsAddedMsg').hide();
@@ -698,6 +710,11 @@ Ext.define('Mdc.controller.setup.Comtasks', {
 
             self.addTagButton(protocol);
             window.destroy();
+
+            if (!Ext.isEmpty(numItem)) {
+                self.commands.splice(numItem, 1);
+            }
+
         } else {
             self.commands.pop()
         }

@@ -10,6 +10,8 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
         'Uni.view.search.field.Simple',
         'Uni.grid.column.search.DeviceType',
         'Uni.grid.column.search.DeviceConfiguration',
+        'Uni.grid.column.search.Quantity',
+        'Uni.grid.column.search.Boolean',
         'Uni.view.container.EmptyGridContainer',
         'Mdc.view.setup.devicegroup.NoDevicesFound',
         'Mdc.view.setup.devicegroup.StaticGroupDevicesGrid',

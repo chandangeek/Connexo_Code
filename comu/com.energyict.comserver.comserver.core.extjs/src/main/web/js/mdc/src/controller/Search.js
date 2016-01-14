@@ -20,6 +20,8 @@ Ext.define('Mdc.controller.Search', {
         'Uni.view.search.field.Simple',
         'Uni.grid.column.search.DeviceType',
         'Uni.grid.column.search.DeviceConfiguration',
+        'Uni.grid.column.search.Quantity',
+        'Uni.grid.column.search.Boolean',
         'Mdc.service.Search'
     ],
 

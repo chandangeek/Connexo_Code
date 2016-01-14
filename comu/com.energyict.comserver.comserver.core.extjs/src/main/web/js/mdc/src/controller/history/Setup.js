@@ -1797,7 +1797,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                                     callback: function (route) {
                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
-                                            route.setTitle(record.get('name'));
+                                            route.setTitle(record.get('readingType').fullAliasName);
                                             return true;
                                         }, {single: true});
                                         return this;

@@ -36,23 +36,30 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
 
     initComponent: function () {
         var me = this,
+            readingType = me.channelRecord.get('readingType'),
+            unitOfCollectedValues = readingType && readingType.names
+                ? readingType.names.unitOfMeasure : undefined,
             calculatedReadingType = me.channelRecord.get('calculatedReadingType'),
-            measurementType = me.channelRecord.get('unitOfMeasure');
+            unitOfCalculatedValues = calculatedReadingType && calculatedReadingType.names
+                ? calculatedReadingType.names.unitOfMeasure : undefined;
 
         me.columns = [
             {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval'),
                 dataIndex: 'interval_end',
                 renderer: function (value) {
-                    return  value ? Uni.I18n.translate('general.dateattime', 'MDC', '{0} at {1}',[
-                        Uni.DateTime.formatDateShort(value),
-                        Uni.DateTime.formatTimeShort(value)
-                    ]) : '';
+                    return  value
+                        ? Uni.I18n.translate(
+                            'general.dateAtTime', 'MDC', '{0} at {1}',
+                            [Uni.DateTime.formatDateShort(value), Uni.DateTime.formatTimeShort(value)] )
+                        : '';
                 },
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value') + ' (' + measurementType + ')',
+                header: unitOfCalculatedValues
+                    ? Uni.I18n.translate('general.calculated', 'MDC', 'Calculated') + ' (' + unitOfCalculatedValues + ')'
+                    : Uni.I18n.translate('general.collected', 'MDC', 'Collected') + ' (' + unitOfCollectedValues + ')',
                 dataIndex: 'value',
                 align: 'right',
                 renderer: function (v, metaData, record) {
@@ -69,7 +76,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 width: 200
             },
             {
-                header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value') + ' (' + measurementType + ')',
+                header: unitOfCalculatedValues
+                    ? Uni.I18n.translate('general.calculated', 'MDC', 'Calculated') + ' (' + unitOfCalculatedValues + ')'
+                    : Uni.I18n.translate('general.collected', 'MDC', 'Collected') + ' (' + unitOfCollectedValues + ')',
                 dataIndex: 'value',
                 align: 'right',
                 renderer: function (v, metaData, record) {
@@ -86,7 +95,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 emptyText: ' '
             },
             {
-                header: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'MDC', 'Bulk value') + ' (' + measurementType + ')',
+                header: Uni.I18n.translate('general.collected', 'MDC', 'Collected') + (unitOfCollectedValues ? ' (' + unitOfCollectedValues + ')' :''),
                 dataIndex: 'collectedValue',
                 flex: 1,
                 align: 'right',

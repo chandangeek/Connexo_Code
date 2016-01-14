@@ -5,8 +5,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
     deviceTypeId: null,
     deviceConfigurationId: null,
     requires: [
-        'Uni.form.field.Obis',
-        'Uni.form.field.ObisDisplay'
+        'Uni.form.field.Obis'
     ],
     edit: false,
     cancelLink: undefined,
@@ -24,8 +23,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                 defaults: {
                     labelWidth: 150,
                     validateOnChange: false,
-                    validateOnBlur: false,
-                    anchor: '50%'
+                    validateOnBlur: false
                 },
                 items: [
                     {
@@ -57,13 +55,13 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                         valueField: 'id',
                         queryMode: 'local',
                         hidden: me.edit,
+                        width: 650,
                         listeners: {
                             change: {
                                 fn: me.edit ? undefined : function (combo, newValue) {
                                     var record = combo.findRecordByValue(newValue);
-
                                     if (record) {
-                                        combo.nextSibling('[name=obisCode]').setValue(record.get('obisCode'));
+                                        me.down('#obis-code-field').setValue(record.get('obisCode'));
                                     }
                                 }
                             },
@@ -73,15 +71,29 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                         }
                     },
                     {
-                        xtype: 'obis-displayfield',
-                        name: 'obisCode'
-                    },
-                    {
-                        xtype: 'obis-field',
-                        itemId: 'obis-code-field',
-                        required: false,
-                        fieldLabel: Uni.I18n.translate('general.overruledObisCode', 'MDC', 'Overruled OBIS code'),
-                        name: 'overruledObisCode'
+                        xtype: 'fieldcontainer',
+                        required: true,
+                        width: 450,
+                        layout: 'hbox',
+                        fieldLabel: Uni.I18n.translate('registerConfig.obisCode', 'MDC', 'OBIS code'),
+                        items: [
+                            {
+                                xtype: 'obis-field',
+                                name: 'overruledObisCode',
+                                itemId: 'obis-code-field',
+                                fieldLabel: '',
+                                required: false,
+                                afterSubTpl: null,
+                                allowBlank: false,
+                                width: 150
+                            },
+                            {
+                                xtype: 'uni-default-button',
+                                itemId: 'mdc-restore-obiscode-btn',
+                                hidden: false,
+                                disabled: true
+                            }
+                        ]
                     },
                     {
                         xtype: 'fieldcontainer',

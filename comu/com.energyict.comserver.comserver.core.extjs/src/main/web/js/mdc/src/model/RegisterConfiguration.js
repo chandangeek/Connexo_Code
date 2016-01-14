@@ -9,20 +9,59 @@ Ext.define('Mdc.model.RegisterConfiguration', {
         {name: 'obisCode', type: 'string', useNull: true},
         {name: 'overruledObisCode', type: 'string', useNull: true},
         {name: 'obisCodeDescription', type: 'string', useNull: true},
-      //  {name: 'unitOfMeasure', useNull: true},
-        {name: 'numberOfDigits', type: 'number', useNull: true},
         {name: 'numberOfFractionDigits', type: 'number', useNull: true},
         {name: 'overflow', type: 'number', useNull: true},
-        {name: 'timeOfUse', type:'number', useNull: true},
         {name: 'registerType', type:'number', useNull: true},
         {name: 'readingType', persist:false},
-        {name: 'asText', type:'boolean'}
+        {name: 'collectedReadingType', persist:false},
+        {name: 'calculatedReadingType'},
+        {name: 'possibleCalculatedReadingTypes', persist:false},
+        {
+            name: 'registerTypeName',
+            type: 'string',
+            persist: false,
+            mapping: 'readingType.fullAliasName'
+        },
+        {name: 'asText', type:'boolean'},
+        {name: 'useMultiplier', type:'boolean'}
     ],
     associations: [
-        {name: 'readingType', type: 'hasOne', model: 'Mdc.model.ReadingType', associationKey: 'readingType',
-            getterName: 'getReadingType', setterName: 'setReadingType', foreignKey: 'readingType'},
-        {name: 'unitOfMeasure', type: 'hasOne', model: 'Mdc.model.UnitOfMeasure', associationKey: 'unitOfMeasure',
-            getterName: 'getUnitOfMeasure', setterName: 'setUnitOfMeasure', foreignKey: 'unitOfMeasure'}
+        {
+            name: 'readingType',
+            type: 'hasOne',
+            model: 'Mdc.model.ReadingType',
+            associationKey: 'readingType',
+            getterName: 'getReadingType',
+            setterName: 'setReadingType',
+            foreignKey: 'readingType'
+        },
+        {
+            name: 'collectedReadingType',
+            type: 'hasOne',
+            model: 'Mdc.model.ReadingType',
+            associationKey: 'collectedReadingType',
+            getterName: 'getCollectedReadingType',
+            setterName: 'setCollectedReadingType',
+            foreignKey: 'collectedReadingType'
+        },
+        {
+            name: 'calculatedReadingType',
+            type: 'hasOne',
+            model: 'Mdc.model.ReadingType',
+            associationKey: 'calculatedReadingType',
+            getterName: 'getCalculatedReadingType',
+            setterName: 'setCalculatedReadingType',
+            foreignKey: 'calculatedReadingType'
+        },
+        {
+            name: 'possibleCalculatedReadingTypes',
+            type: 'hasMany',
+            model: 'Mdc.model.ReadingType',
+            associationKey: 'possibleCalculatedReadingTypes',
+            getterName: 'getPossibleCalculatedReadingTypes',
+            setterName: 'setPossibleCalculatedReadingTypes',
+            foreignKey: 'possibleCalculatedReadingTypes'
+        }
     ],
     proxy: {
         type: 'rest',
