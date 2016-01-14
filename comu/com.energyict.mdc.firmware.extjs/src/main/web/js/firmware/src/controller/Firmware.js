@@ -254,6 +254,7 @@ Ext.define('Fwc.controller.Firmware', {
             form = me.getFirmwareForm(),
             record;
         form.down('uni-form-error-message').hide();
+        form.getForm().clearInvalid();
         record = form.updateRecord().getRecord();
         var input = form.down('firmware-field-file').button.fileInputEl.dom,
             file = input.files[0],
@@ -317,6 +318,7 @@ Ext.define('Fwc.controller.Firmware', {
 
             reader.readAsBinaryString(file);
         } else {
+            record.set('fileSize', null);
             record.doValidate(precallback);
         }
     },
