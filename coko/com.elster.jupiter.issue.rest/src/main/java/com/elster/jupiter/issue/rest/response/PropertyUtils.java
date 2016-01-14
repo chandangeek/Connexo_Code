@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.rest.response;
 
 import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.properties.ListValueFactory;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -99,6 +100,7 @@ public class PropertyUtils {
         return propertyValueInfo != null && propertyValueInfo.getValue() != null && !"".equals(propertyValueInfo.getValue());
     }
 
+    @SuppressWarnings("unchecked")
     private Object convertPropertyInfoValueToPropertyValue(PropertySpec propertySpec, Object value) {
         if (HasIdAndName.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
             List<HasIdAndName> listValue = new ArrayList<>();
@@ -114,6 +116,13 @@ public class PropertyUtils {
             if (Boolean.class.isAssignableFrom(value.getClass())) {
                 return value;
             }
+        }
+        // Check for List values
+        if (   propertySpec.getValueFactory().getClass().equals(ListValueFactory.class)
+            && value instanceof List) {
+            List<Object> valueList = (List<Object>) value;
+            ListValueFactory listValueFactory = (ListValueFactory) propertySpec.getValueFactory();
+            return listValueFactory.fromValues(valueList);
         }
         return propertySpec.getValueFactory().fromStringValue(value.toString());
     }

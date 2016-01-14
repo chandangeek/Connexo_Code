@@ -3,6 +3,7 @@ package com.elster.jupiter.issue.rest.response;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.properties.ListValueFactory;
 import com.elster.jupiter.properties.LongFactory;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
@@ -15,6 +16,7 @@ public enum PropertyType implements com.elster.jupiter.rest.util.properties.Prop
     BOOLEAN(new ClassBasedValueFactoryMatcher(BooleanFactory.class)),
     TEXTAREA(new ClassBasedValueFactoryMatcher(StringFactory.class)),
     LONG(new ClassBasedValueFactoryMatcher(LongFactory.class)),
+    DEVICECONFIGURATIONLIST(new ClassBasedValueFactoryMatcher(ListValueFactory.class)),
     IDWITHNAME(new DomainClassValueFactoryMatcher(HasIdAndName.class)),
     ;
 
