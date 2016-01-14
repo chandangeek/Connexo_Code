@@ -132,7 +132,7 @@ public class CreateG3GatewayCommand {
         addConnectionTasksToDevice(device);
         addSecurityPropertiesToDevice(device);
         addComTaskToDevice(device, ComTaskTpl.TOPOLOGY_UPDATE);
-        device.setProtocolProperty("DlmsProperties.Short_MAC_address", BigDecimal.ZERO);
+        device.setProtocolProperty("Short_MAC_address", BigDecimal.ZERO);
         device.save();
         return device;
     }
