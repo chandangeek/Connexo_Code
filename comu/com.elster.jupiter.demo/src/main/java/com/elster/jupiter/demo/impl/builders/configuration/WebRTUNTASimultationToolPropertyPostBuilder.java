@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 public class WebRTUNTASimultationToolPropertyPostBuilder implements Consumer<Device> {
     @Override
     public void accept(Device device) {
-        device.setProtocolProperty("DlmsProperties.NTASimulationTool", true);
+        device.setProtocolProperty("NTASimulationTool", true);
         device.setProtocolProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"));
     }
 
