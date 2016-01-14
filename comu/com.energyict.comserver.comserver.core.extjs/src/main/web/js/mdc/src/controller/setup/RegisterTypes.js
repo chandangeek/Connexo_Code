@@ -183,6 +183,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 widget.down('#readingTypeCombo').disable();
                 if (registerType.get('isLinkedByDeviceType') === true) {
                     widget.down('obis-field').disable();
+                    widget.down('#createEditButton').disable();
                     widget.down('#registerTypeEditCreateInformation').update(Uni.I18n.translate('registertype.warningLinkedTodeviceType', 'MDC', 'The register type has been added to a device type'));
                     widget.down('#registerTypeEditCreateInformation').show();
                 } else {
