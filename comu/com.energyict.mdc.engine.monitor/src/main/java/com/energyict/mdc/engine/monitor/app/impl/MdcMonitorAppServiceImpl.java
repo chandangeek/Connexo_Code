@@ -25,7 +25,7 @@ public class MdcMonitorAppServiceImpl implements MdcMonitorAppService , Translat
 
     private final Logger logger = Logger.getLogger(MdcMonitorAppServiceImpl.class.getName());
 
-    public static final String HTTP_RESOURCE_ALIAS = "/CSMonitor";
+    public static final String HTTP_RESOURCE_ALIAS = "/comservermonitor";
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/mon";
 
     public static final String APPLICATION_ICON = "connexo";

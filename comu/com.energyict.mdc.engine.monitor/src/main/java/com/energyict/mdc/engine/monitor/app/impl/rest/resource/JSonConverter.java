@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import java.security.Principal;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -235,7 +236,7 @@ public class JSonConverter {
     public synchronized JSonConverter convertCollectedDataStorageStatistics() throws JSONException {
         CollectedDataStorageStatistics statistics = statusService.getStatus().getComServerMonitor().getCollectedDataStorageStatistics();
         JSONObject result = new JSONObject();
-        result.put("time", format(Instant.now()));
+        result.put("time", Instant.now().toEpochMilli());
         result.put("load", statistics.getLoadPercentage());
         result.put("threads", statistics.getNumberOfThreads());
         result.put("priority", statistics.getThreadPriority());
@@ -280,7 +281,7 @@ public class JSonConverter {
         Map<ComPortPool, List<ComPort>> activeMapping = getComPortPoolMapping(active == null ? null : true);
         HashSet<ComPortPool> notInactiveSet = new HashSet<>();
         if (active!= null && !active){
-            for (ComPortPool each: getComPortPoolMapping(false).keySet()){
+            for (ComPortPool each: engineConfigurationService.findAllComPortPools()){
                 if (!activeMapping.containsKey(each)){
                     notInactiveSet.add(each);
                 }
