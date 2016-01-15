@@ -65,7 +65,6 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     A1800_CORONIS(37, "com.energyict.protocolimpl.coronis.waveflowDLMS.A1800"),
     WAVE_LOG(38, "com.energyict.protocolimpl.coronis.wavelog.WaveLog", ProtocolFamily.CORONIS),
     CEWE_PROMETER(39, "com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer"),
-//    MK10_STUB(40, "com.energyict.genericprotocolimpl.edmi.mk10.executer.Mk10Stub", ProtocolFamily.EDMI, ProtocolFamily.TEST),
     SDK_SAMPLE_PROTOCOL(41, "com.energyict.protocolimpl.sdksample.SDKSampleProtocol", ProtocolFamily.TEST),
     TRIMARAN_CJE(42, "com.energyict.protocolimpl.edf.trimarancje.Trimaran"),
     GEKV2(43, "com.energyict.protocolimpl.ge.kv2.GEKV2"),
