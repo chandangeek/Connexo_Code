@@ -129,6 +129,8 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             List<ServerCollectedData> data = this.receivedCollectedDataFor(comTaskExecution);
             if (!data.isEmpty()) {
+                // Remove all already processed collected data elements (or else data is stored twice)
+                data.removeIf(collectedData -> dataWasProcessed(processedCollectedData, collectedData));
                 processedCollectedData.addAll(data);
                 this.postProcess(data);
                 addToRoot(new CreateComTaskExecutionSessionCommandImpl(
