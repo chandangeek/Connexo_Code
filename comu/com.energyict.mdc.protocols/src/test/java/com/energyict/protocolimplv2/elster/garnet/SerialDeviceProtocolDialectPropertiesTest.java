@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.energyict.protocols.mdc.protocoltasks.SerialDeviceProtocolDialectProperties;
 import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
