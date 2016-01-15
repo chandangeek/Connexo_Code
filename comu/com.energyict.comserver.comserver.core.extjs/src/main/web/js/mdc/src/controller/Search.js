@@ -115,27 +115,36 @@ Ext.define('Mdc.controller.Search', {
 
         me.getApplication().fireEvent('changecontentevent', widget);
 
+        if (searchDomains.isLoading() && searchDomains.lastRequest) {
+            Ext.Ajax.suspendEvent('requestexception');
+            Ext.Ajax.abort(searchDomains.lastRequest);
+            Ext.Ajax.resumeEvent('requestexception');
+        }
         searchDomains.clearFilter(true);
         searchDomains.addFilter({property: 'application', value: 'COMU'}, false);
-        searchDomains.load({callback: function(records) {
-            var value = router.queryParams.searchDomain,
-                selector = me.getObjectSelector(),
-                state, isStateChange;
+        searchDomains.load({callback: function(records, op, success) {
+            if (widget.rendered && success) {
+                var value = router.queryParams.searchDomain,
+                    selector = me.getObjectSelector(),
+                    state, isStateChange;
 
-            if (!!router.queryParams.restore === true) {
-                me.service.initState();
-                state = me.service.getState();
-                isStateChange = !!(state && state.domain);
-            }
+                if (!!router.queryParams.restore === true) {
+                    me.service.initState();
+                    state = me.service.getState();
+                    isStateChange = !!(state && state.domain);
+                }
 
-            if (!isStateChange) {
-                if (value && !Ext.isEmpty(records) && searchDomains.getById(value) !== null) {
-                    me.service.setDomain(searchDomains.getById(value));
-                } else if (selector && !Ext.isEmpty(records)) {
-                    me.service.setDomain(records[0]);
+                if (!isStateChange) {
+                    if (value && !Ext.isEmpty(records) && searchDomains.getById(value) !== null) {
+                        me.service.setDomain(searchDomains.getById(value));
+                    } else if (selector && !Ext.isEmpty(records)) {
+                        me.service.setDomain(records[0]);
+                    }
                 }
             }
         }});
+
+        searchDomains.lastRequest = Ext.Ajax.getLatest();
 
         var grid = me.getResultsGrid();
 
