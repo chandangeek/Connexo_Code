@@ -379,7 +379,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
 
     private List<OfflineDeviceMessage> createOfflineMessageList(final List<DeviceMessage<Device>> deviceMessages) {
         List<OfflineDeviceMessage> offlineDeviceMessages = new ArrayList<>(deviceMessages.size());
-        offlineDeviceMessages.addAll(deviceMessages.stream().map(deviceMessage -> new OfflineDeviceMessageImpl(deviceMessage, deviceProtocolPluggableClass.getDeviceProtocol(), serviceProvider.identificationService())).collect(Collectors.toList()));
+        offlineDeviceMessages.addAll(deviceMessages.stream().map(deviceMessage -> new OfflineDeviceMessageImpl(deviceMessage, deviceMessage.getDevice().getDeviceProtocolPluggableClass().getDeviceProtocol(), serviceProvider.identificationService())).collect(Collectors.toList()));
         return offlineDeviceMessages;
     }
 
