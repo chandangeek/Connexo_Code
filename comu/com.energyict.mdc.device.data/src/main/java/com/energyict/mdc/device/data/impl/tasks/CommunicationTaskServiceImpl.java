@@ -629,8 +629,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                             .and(where("connectionTask." + ConnectionTaskFields.DEVICE.name()).isEqualTo(device.getId()))
                             .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
                             .and(where(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).isEqualTo(true)
-                                    .or(where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now)
-                                            .and(where("connectionTask.nextExecutionTimestamp").isLessThanOrEqual(now))))
+                                    .or(where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now)))
                             .and(where(ComTaskExecutionFields.COMPORT.fieldName()).isNull())
                             .and(where("connectionTask.comPortPool").isEqualTo(inboundComPortPool));
             return this.deviceDataModelService.dataModel().query(ComTaskExecution.class, ConnectionTask.class).select(condition,
