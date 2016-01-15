@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 class Installer {
 
     public static final String DATA_LIFE_CYCLE_DESTINATION_NAME = "DataLifeCycle";
-    public static final String DATA_LIFE_CYCLE_DISPLAY_NAME = "Purge data";
+    public static final String DATA_LIFE_CYCLE_DISPLAY_NAME = "Handle purge data";
     public static final String DATA_LIFECYCLE_RECCURENT_TASK_NAME = "Data Lifecycle";
     private DataModel dataModel;
     private MessageService messageService;
