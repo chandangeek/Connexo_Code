@@ -3,30 +3,26 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
     alias: 'widget.favorite-device-groups',
     ui: 'tile',
     store: 'Dsh.store.FavoriteDeviceGroups',
+    header: {
+        ui: 'small'
+    },
+
     initComponent: function () {
         this.callParent(arguments);
         var me = this,
             store = Ext.getStore(me.store);
 
+        me.setTitle('');
         store.load({
             callback: function () {
                 me.add([
-                    {
-                        xtype: 'container',
-                        style: {
-                            margin: '0 0 10px 0'
-                        },
-                        html: store.count() > 0 ?
-                            '<h3>' + Ext.String.format(Uni.I18n.translate('overview.widget.favoriteDeviceGroups.header', 'DSH', 'My favorite device groups ({0})'), store.count()) + '</h3>' :
-                            '<h3>' + Uni.I18n.translate('overview.widget.favoriteDeviceGroups.headerNoItemsFound', 'DSH', 'My favorite device groups') + '</h3>'
-                    },
                     {
                         xtype: 'dataview',
                         store: me.store,
                         itemSelector: 'p a',
                         emptyText: Uni.I18n.translate('overview.widget.favoriteDeviceGroups.notFound', 'DSH', 'No favorite device groups found'),
                         overflowY: 'auto',
-                        style: 'max-height: 120px',
+                        style: 'max-height: 160px',
                         tpl: new Ext.XTemplate(
                             '<table style="margin-top: 5px">',
                                 '<tpl for=".">',
@@ -56,6 +52,14 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
                         href: '#/dashboard/selectfavoritedevicegroups'
                     }
                 ]);
+                me.setTitle(
+                    '<h3>' +
+                    ( store.count() > 0
+                        ? Uni.I18n.translate('overview.widget.favoriteDeviceGroups.header', 'DSH', 'My favorite device groups ({0})', store.count())
+                        : Uni.I18n.translate('overview.widget.favoriteDeviceGroups.headerNoItemsFound', 'DSH', 'My favorite device groups')
+                    )
+                    + '</h3>'
+                );
             }
         });
     }
