@@ -92,14 +92,14 @@ public enum MessageSeeds implements MessageSeed {
     CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER(2067, Keys.CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER, "Could not find a loadprofile for identifier ''{0}''"),
     CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER(2068, Keys.CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER, "Could not find a logbook for identifier ''{0}''"),
     CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER(2069, Keys.CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER, "Could not find a message for identifier ''{0}''"),
-    CAN_NOT_REPLACE_EXISTING_KPI(2070, Keys.CAN_NOT_REPLACE_EXISTING_KPI, "An existing KPI can not be replaced", Level.SEVERE ),
+    CAN_NOT_REPLACE_EXISTING_KPI(2070, Keys.CAN_NOT_REPLACE_EXISTING_KPI, "An existing KPI can not be replaced", Level.SEVERE),
     DUPLICATE_DEVICE_MRID(2071, Keys.DUPLICATE_DEVICE_MRID, "MRID must be unique"),
     FIRMWARE_COMTASKEXEC_NEEDS_FIRMAWARE_COMTASKENABLEMENT(2072, Keys.FIRMWARE_COMTASKEXEC_NEEDS_FIRMAWARE_COMTASKENABLEMENT, "The firmware comtask execution needs to have the 'Firmware management' ComTask"),
     DEVICE_GROUP_MUST_BE_UNIQUE(2073, Keys.DEVICE_GROUP_MUST_BE_UNIQUE, "There is already a KPI for this device group"),
     CAN_NOT_CHANGE_FREQUENCY(2074, Keys.CAN_NOT_CHANGE_FREQUENCY, "The frequency can not be changed"),
     USER_IS_NOT_ALLOWED_TO_EDIT_SECURITY_PROPERTIES(2075, Keys.USER_IS_NOT_ALLOWED_TO_EDIT_SECURITY_PROPERTIES, "You are not allowed to edit the security properties"),
-    NO_SUCH_COM_SCHEDULE(2076, "NoSuchComSchedule" , "No communication schedule with id {0}"),
-    NO_SUCH_DEVICE(2077, "NoSuchDevice" , "No device with MRID {0}"),
+    NO_SUCH_COM_SCHEDULE(2076, "NoSuchComSchedule", "No communication schedule with id {0}"),
+    NO_SUCH_DEVICE(2077, "NoSuchDevice", "No device with MRID {0}"),
     NO_METER_ACTIVATION_AT(2078, Keys.NO_METER_ACTIVATION_AT, "There is no meter activation at {0}"),
     LAST_CHECKED_CANNOT_BE_NULL(2079, Keys.LAST_CHECKED_CANNOT_BE_NULL, "The new last checked timestamp cannot be null"),
     LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED(2080, Keys.LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED, "The new last checked {2,date,yyyy-MM-dd HH:mm:ss} cannot be after current last checked {1,date,yyyy-MM-dd HH:mm:ss}"),
@@ -123,6 +123,8 @@ public enum MessageSeeds implements MessageSeed {
     MULTIPLIER_SHOULD_BE_LARGER_THAN_ZERO(2098, Keys.MULTIPLIER_OF_ZERO_IS_NOT_ALLOWED, "The multiplier should be larger than zero"),
     MULTIPLIER_VALUE_EXCEEDS_MAX_VALUE(2099, Keys.MULTIPLIER_VALUE_EXCEEDS_MAX_VALUE, "The multiplier exceeds the max value " + Integer.MAX_VALUE),
     READING_OVERFLOW_DETECTED(2100, Keys.READING_OVERFLOW_DETECTED, "Reading of device {0} and reading type {1} overflowed at {2}, corrected value from {3} to {4}.", Level.WARNING),
+    COM_TASK_ENABLEMENT_UPDATE_RESTRICTED(2101, Keys.COM_TASK_ENABLEMENT_UPDATE_RESTRICTED, "The communication task configuration is part of shared communication schedule on some devices" +
+            " and all communication tasks in that shared communication schedule should have the same connection method, security set, protocol dialect and/or urgency", Level.SEVERE),
     ;
 
     private final int number;
@@ -276,5 +278,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String MULTIPLIER_OF_ZERO_IS_NOT_ALLOWED = "multiplier.zero.not.allowed";
         public static final String MULTIPLIER_VALUE_EXCEEDS_MAX_VALUE = "multiplier.exceeds.max.value";
         public static final String READING_OVERFLOW_DETECTED = "reading.overflow";
+        public static final String COM_TASK_ENABLEMENT_UPDATE_RESTRICTED = "com.task.enablement.update.restricted";
     }
 }
