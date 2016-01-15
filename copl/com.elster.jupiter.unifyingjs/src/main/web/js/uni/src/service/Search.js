@@ -151,7 +151,6 @@ Ext.define('Uni.service.Search', {
             me.searchDomain = domain;
 
             me.filters.removeAll();
-            me.fireEvent('reset', me.filters);
 
             searchProperties.removeAll();
             searchFields.removeAll();
@@ -168,6 +167,7 @@ Ext.define('Uni.service.Search', {
             }
 
             searchProperties.load(function(){
+                me.fireEvent('reset', me.filters);
                 me.init();
                 searchFields.load(function(){
                     callback ? callback() : null;
