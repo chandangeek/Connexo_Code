@@ -35,7 +35,7 @@ public interface CommunicationTaskService {
     String FILTER_ITEMIZER_QUEUE_DISPLAYNAME = "Itemize communications from filter";
     String COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION = "ReschCommQD";
     String COMMUNICATION_RESCHEDULER_QUEUE_SUBSCRIBER = "ReschCommQS";
-    String COMMUNICATION_RESCHEDULER_QUEUE_DISPLAYNAME = "Reschedule communications message handler";
+    String COMMUNICATION_RESCHEDULER_QUEUE_DISPLAYNAME = "Handle communication task rescheduling";
 
     /**
      * Gets all {@link ComTaskExecution}s of the specified {@link Device}

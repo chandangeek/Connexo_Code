@@ -19,7 +19,7 @@ import org.osgi.service.component.annotations.Reference;
 public class ComTaskEnablementPriorityMessageHandlerFactory implements MessageHandlerFactory {
 
     public static final String SUBSCRIBER_NAME = "CTEPMH";
-    public static final String SUBSCRIBER_DISPLAYNAME = "Handle priority updates on comtask enablement";
+    public static final String SUBSCRIBER_DISPLAYNAME = "Handle priority updates on communication task configuration";
 
     private volatile JsonService jsonService;
     private volatile DeviceConfigurationService deviceConfigurationService;

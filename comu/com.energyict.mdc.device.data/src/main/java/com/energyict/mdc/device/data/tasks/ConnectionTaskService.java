@@ -33,10 +33,10 @@ public interface ConnectionTaskService {
     String CONNECTION_RESCHEDULER_QUEUE_DISPLAY_NAME = "Handle connection rescheduling";
     String FILTER_ITEMIZER_PROPERTIES_QUEUE_DESTINATION = "ItemizeConnPropFilterQD";
     String FILTER_ITEMIZER_PROPERTIES_QUEUE_SUBSCRIBER = "ItemizeConnPropFilterQS";
-    String FILTER_ITEMIZER_PROPERTIES_QUEUE_DISPLAY_NAME = "Itemize connection property updates from filter";
+    String FILTER_ITEMIZER_PROPERTIES_QUEUE_DISPLAY_NAME = "Itemize connection attribute updates from filter";
     String CONNECTION_PROP_UPDATER_QUEUE_DESTINATION = "PropUpConnQD";
     String CONNECTION_PROP_UPDATER_QUEUE_SUBSCRIBER = "PropUpConnQS";
-    String CONNECTION_PROP_UPDATER_QUEUE_DISPLAY_NAME = "Handle connection property updates";
+    String CONNECTION_PROP_UPDATER_QUEUE_DISPLAY_NAME = "Handle connection attribute updates";
 
     Optional<ConnectionTask> findConnectionTask(long id);
 
