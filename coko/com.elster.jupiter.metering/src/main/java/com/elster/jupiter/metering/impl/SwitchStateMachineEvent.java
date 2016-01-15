@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class SwitchStateMachineEvent {
 
     static final String SUBSCRIBER = "SwitchStateMachineEventSubsc";
-    static final String SUBSCRIBER_TRANSLATION = "Change device state";
+    static final String SUBSCRIBER_TRANSLATION = "Handle device state change";
     static final String DESTINATION = "SwitchStateMachineDest";
 
     /**
