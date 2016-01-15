@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.metering.ElectricityDetail;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.rest.UsagePointInfo;
@@ -27,6 +28,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
+    private volatile Thesaurus valueThesaurus;
 
     @Reference
     public void setClock(Clock clock) {
@@ -36,14 +38,16 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(MeteringApplication.COMPONENT_NAME, Layer.REST);
+        this.valueThesaurus = nlsService.getThesaurus(MeteringApplication.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Override
     public Object from(UsagePoint usagePoint) {
-        UsagePointInfo info = new UsagePointInfo();
+        UsagePointTranslatedInfo info = new UsagePointTranslatedInfo();
         info.id = usagePoint.getId();
         info.mRID = usagePoint.getMRID();
         info.serviceCategory = usagePoint.getServiceCategory().getKind();
+        info.displayServiceCategory = usagePoint.getServiceCategory().getKind().getDisplayName(valueThesaurus);
         info.serviceLocationId = usagePoint.getServiceLocationId();
         info.aliasName = usagePoint.getAliasName();
         info.description = usagePoint.getDescription();
@@ -62,8 +66,10 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
             UsagePointDetail detail = detailHolder.get();
             info.minimalUsageExpected = detail.isMinimalUsageExpected();
             info.amiBillingReady = detail.getAmiBillingReady();
+            info.displayAmiBillingReady = detail.getAmiBillingReady().getDisplayName(valueThesaurus);
             info.checkBilling = detail.isCheckBilling();
             info.connectionState = detail.getConnectionState();
+            info.displayConnectionState = detail.getConnectionState().getDisplayName(valueThesaurus);
             info.serviceDeliveryRemark = detail.getServiceDeliveryRemark();
             if (detail instanceof ElectricityDetail) {
                 ElectricityDetail eDetail = (ElectricityDetail) detail;
@@ -83,13 +89,13 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     public List<PropertyDescriptionInfo> modelStructure() {
         List<PropertyDescriptionInfo> infos = new ArrayList<>();
         infos.add(createDescription(TranslationSeeds.MRID, String.class));
-        infos.add(createDescription(TranslationSeeds.SERVICE_CATEGORY, String.class));
+        infos.add(createDescription(TranslationSeeds.SERVICE_CATEGORY_DISPLAY, String.class));
         infos.add(createDescription(TranslationSeeds.ALIAS_NAME, String.class));
         infos.add(createDescription(TranslationSeeds.DESCRIPTION, String.class));
         infos.add(createDescription(TranslationSeeds.NAME, String.class));
-        infos.add(createDescription(TranslationSeeds.BILLING_READY, String.class));
+        infos.add(createDescription(TranslationSeeds.BILLING_READY_DISPLAY, String.class));
         infos.add(createDescription(TranslationSeeds.CHECK_BILLING, Boolean.class));
-        infos.add(createDescription(TranslationSeeds.CONNECTION_STATE, String.class));
+        infos.add(createDescription(TranslationSeeds.CONNECTION_STATE_DISPLAY, String.class));
         infos.add(createDescription(TranslationSeeds.ESTIMATED_LOAD, Quantity.class));
         infos.add(createDescription(TranslationSeeds.GROUNDED, Boolean.class));
         infos.add(createDescription(TranslationSeeds.DSP, Boolean.class));

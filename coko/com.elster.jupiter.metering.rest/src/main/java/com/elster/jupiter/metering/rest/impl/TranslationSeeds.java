@@ -35,7 +35,11 @@ public enum TranslationSeeds implements TranslationKey {
     AMRSYSTEMNAME("amrSystemName", "AMR system name"),
     INSTALLEDDATE("installedDate", "Installed date"),
     REMOVEDDATE("removedDate", "Removed date"),
-    RETIREDDATE("retiredDate", "Retired date")
+    RETIREDDATE("retiredDate", "Retired date"),
+
+    SERVICE_CATEGORY_DISPLAY("displayServiceCategory", "Service category"),
+    CONNECTION_STATE_DISPLAY("displayConnectionState", "Connection state"),
+    BILLING_READY_DISPLAY("displayAmiBillingReady", "AMI billing ready")
 ;
 
     private final String key;

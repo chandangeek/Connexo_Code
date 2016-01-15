@@ -12,6 +12,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
@@ -29,6 +30,7 @@ public class UsagePointInfoFactoryTest {
 
     @Before
     public void setUp() throws Exception {
+        when(thesaurus.join(any(Thesaurus.class))).thenReturn(thesaurus);
         when(nlsService.getThesaurus(anyString(), anyObject())).thenReturn(thesaurus);
 
     }
@@ -39,10 +41,10 @@ public class UsagePointInfoFactoryTest {
         factory.setNlsService(nlsService);
         factory.modelStructure().stream().forEach(prop -> {
             try {
-                UsagePointInfo.class.getField(prop.propertyName);
+                UsagePointTranslatedInfo.class.getField(prop.propertyName);
                 assertTrue("Missing translation for " + prop.propertyName, Arrays.stream(TranslationSeeds.values()).anyMatch(key -> key.getKey().equals(prop.propertyName)));
             } catch (NoSuchFieldException e) {
-                fail("Expected UsagePointInfo to have a field "+prop.propertyName+" as defined in the info-structure/model");
+                fail("Expected UsagePointTranslatedInfo to have a field "+prop.propertyName+" as defined in the info-structure/model");
             }
         });
 
