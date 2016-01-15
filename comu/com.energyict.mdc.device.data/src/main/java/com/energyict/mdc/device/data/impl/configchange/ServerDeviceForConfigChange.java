@@ -19,7 +19,7 @@ public interface ServerDeviceForConfigChange extends Device {
 
     String CONFIG_CHANGE_BULK_QUEUE_DESTINATION = "ConfigChangeBulkQD";
     String DEVICE_CONFIG_CHANGE_SUBSCRIBER = "DeviceConfigChangeSubscriber";
-    String DEVICE_CONFIG_CHANGE_SUBSCRIBER_DISPLAY_NAME = "Handles bulk actions for device configuration changes";
+    String DEVICE_CONFIG_CHANGE_SUBSCRIBER_DISPLAY_NAME = "Handle bulk actions for device configuration changes";
 
     String CONFIG_CHANGE_MESSAGE_VALUE = "ConfigChangeMessageValue";
     String DEVICE_CONFIG_CHANGE_BULK_SETUP_ACTION = "deviceConfigChange/SETUP";
