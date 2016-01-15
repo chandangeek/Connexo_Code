@@ -14,10 +14,11 @@ Ext.define('CSMonitor.view.status.Status', {
         {
             xtype: 'runningInformation'
         },
-        {
+       // TODO : Remote Communication Servers not yet implemented in Connexo Multisense
+       /* {
             itemId: 'remoteServersPnl',
             xtype: 'connectedServers'
-        },
+        },  */
         {
             xtype: 'ports'
         },

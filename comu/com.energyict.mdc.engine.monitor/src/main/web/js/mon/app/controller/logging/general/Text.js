@@ -70,7 +70,7 @@ Ext.define('CSMonitor.controller.logging.general.Text', {
     fitsThisLogging: function(decorator) {
         // In General Logging we're interested in
         // CommunicationLoggingEvent & ComPortOperationsLoggingEvent
-        // (rejecting: ComPortCommunicationLoggingEvent & ComCommandLoggingEvent)
+        // (rejecting: ComPortDiscoveryEvent & ComCommandLoggingEvent)
         return "CommunicationLoggingEvent" === decorator.getEvent()['class']
             || "ComPortOperationsLoggingEvent" === decorator.getEvent()['class'];
     }
