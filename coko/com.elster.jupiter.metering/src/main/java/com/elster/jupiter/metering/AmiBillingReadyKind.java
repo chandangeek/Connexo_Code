@@ -8,9 +8,9 @@ public enum AmiBillingReadyKind implements TranslationKey {
 	ENABLED("enabled", "Enabled"),
 	OPERABLE("operable", "Operable"),
 	BILLINGAPPROVED("billingApproved", "Billing approved"),
-	NONAMI("nonAmi", "Non Ami"),
-	AMIDISABLED("amiDisabled", "Ami disabled"),
-	AMICAPABLE("amiCapable", "Ami capable"),
+	NONAMI("nonAmi", "Non AMI"),
+	AMIDISABLED("amiDisabled", "AMI disabled"),
+	AMICAPABLE("amiCapable", "AMI capable"),
 	NONMETERED("nonMetered", "Non metered");
 	
 	private final String value;
