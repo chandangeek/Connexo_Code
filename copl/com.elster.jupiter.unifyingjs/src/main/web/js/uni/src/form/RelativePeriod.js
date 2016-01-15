@@ -73,6 +73,8 @@ Ext.define('Uni.form.RelativePeriod', {
             {
                 xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('form.relativePeriod.preview', 'UNI', 'Preview'),
+                combineErrors: true,
+                msgTarget: 'under',
                 items: [
                     {
                         xtype: 'component',
@@ -82,6 +84,14 @@ Ext.define('Uni.form.RelativePeriod', {
                             fontWeight: 'normal'
                         },
                         html: ''
+                    },
+                    {
+                        // added for validation
+                        xtype: 'displayfield',
+                        name: me.startPeriodCfg && me.startPeriodCfg.errorId
+                            ? me.startPeriodCfg.errorId
+                            : undefined,
+                        hidden: true
                     }
                 ]
             }
@@ -112,12 +122,22 @@ Ext.define('Uni.form.RelativePeriod', {
             atHourField = atField.getHourField(),
             atMinuteField = atField.getMinuteField();
 
-        onField.setOptionCurrentDisabled(frequency !== 'months' || useStartDate);
-        onField.setOptionDayOfMonthDisabled(frequency !== 'months' || useStartDate);
-        onField.setOptionDayOfWeekDisabled(frequency !== 'weeks' || useStartDate);
+        var optionCurrentDisabled = frequency !== 'months' || useStartDate;
+        var optionDayOfMonthDisabled = frequency !== 'months' || useStartDate;
+        var optionDayOfWeekDisabled = frequency !== 'weeks' || useStartDate;
 
+        onField.setOptionCurrentDisabled(optionCurrentDisabled);
+        onField.setOptionDayOfMonthDisabled(optionDayOfMonthDisabled);
+        onField.setOptionDayOfWeekDisabled(optionDayOfWeekDisabled);
+
+        onField.setVisible(!optionCurrentDisabled || !optionDayOfMonthDisabled || !optionDayOfWeekDisabled);
+
+        var hourfieldVisibility = (frequency === 'hours' || frequency === 'minutes');
+        atHourField.setVisible(!hourfieldVisibility);
         atHourField.setDisabled(frequency === 'hours' || frequency === 'minutes');
         atMinuteField.setDisabled(frequency === 'minutes');
+        atMinuteField.setVisible(!(frequency === 'minutes'));
+
     },
 
     updatePreview: function () {

@@ -15,7 +15,7 @@ Ext.define('Uni.form.field.Obis', {
 
     afterSubTpl:
         '<div class="x-form-display-field"><i>' +
-        Uni.I18n.translate('obis.info', 'UNI', 'Provide the values for the 6 attributes of the Obis code, separated by a "."') +
+        Uni.I18n.translate('obis.info', 'UNI', 'Provide the values for the 6 attributes of the OBIS code, separated by a "."') +
         '</i></div>'
     ,
     maskRe: /[\dx.]+/,
@@ -24,7 +24,7 @@ Ext.define('Uni.form.field.Obis', {
     listeners: {
         blur: function( field, e, eOpts  ){
             var str=field.value;
-            var regex = /^(0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$/;
+            var regex = /^(0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]|[x])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$/;
                 return (regex.test(str)) ? (regex.test(str)) : field.reset();
             }
     }

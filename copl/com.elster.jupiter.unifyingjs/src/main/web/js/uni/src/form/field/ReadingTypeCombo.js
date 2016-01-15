@@ -85,7 +85,7 @@ Ext.define('Uni.form.field.ReadingTypeCombo', {
                     textDecoration: 'none !important',
                     position: 'absolute',
                     top: '5px',
-                    right: '-65px'
+                    right: '-45px'
                 },
                 handler: function () {
                     me.handler();

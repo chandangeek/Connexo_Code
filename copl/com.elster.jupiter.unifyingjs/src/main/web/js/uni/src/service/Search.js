@@ -83,14 +83,15 @@ Ext.define('Uni.service.Search', {
     columnMap: {
         'Long': 'numbercolumn',
         'Date': 'datecolumn',
-        'Boolean': 'booleancolumn',
+        'Boolean': 'uni-grid-column-search-boolean',
         'DeviceType': 'uni-grid-column-search-devicetype',
-        'DeviceConfiguration': 'uni-grid-column-search-deviceconfiguration'
+        'DeviceConfiguration': 'uni-grid-column-search-deviceconfiguration',
+        'Quantity': 'uni-grid-column-search-quantity'
     },
 
     defaultColumns: {
         'com.energyict.mdc.device.data.Device': ['id', 'mRID', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName', 'state.name'],
-        'com.elster.jupiter.metering.UsagePoint' : ['mRID', 'serviceCategory', 'connectionState', 'openIssues']
+        'com.elster.jupiter.metering.UsagePoint' : ['mRID', 'displayServiceCategory', 'displayConnectionState', 'openIssues']
     },
 
     getDomain: function() {
@@ -351,7 +352,7 @@ Ext.define('Uni.service.Search', {
         var propertyName = field.get('propertyName'),
             type = this.columnMap[field.get('type')],
             displayValue = field.get('displayValue'),
-            defaultColumns = this.defaultColumns[this.getDomain().get('id')];
+            defaultColumns = this.defaultColumns[this.getDomain().get('id')]
 
         if (!type) {
             type = 'gridcolumn';

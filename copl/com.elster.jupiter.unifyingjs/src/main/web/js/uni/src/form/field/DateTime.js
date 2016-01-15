@@ -120,6 +120,7 @@ Ext.define('Uni.form.field.DateTime', {
                     xtype: 'numberfield',
                     allowDecimals: false,
                     submitValue: false,
+                    allowExponential: false,
                     value: 0,
                     valueToRaw: me.formatDisplayOfTime,
                     listeners: {
@@ -227,6 +228,9 @@ Ext.define('Uni.form.field.DateTime', {
             minutes = me.down('#date-time-field-minutes').getValue();
 
         if (Ext.isDate(date)) {
+            date.setHours(0);
+            date.setMinutes(0);
+            date.setSeconds(0);
             date = date.getTime();
             if (hours) {
                 date += hours * 3600000;

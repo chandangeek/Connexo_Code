@@ -26,7 +26,7 @@ Ext.define('Uni.view.search.field.internal.InputObis', {
                 border: 0,
                 margin: 0
             },
-            tooltip: Uni.I18n.translate('obis.info', 'UNI', 'Provide the values for the 6 attributes of the Obis code, separated by a "."'),
+            tooltip: Uni.I18n.translate('obis.info', 'UNI', 'Provide the values for the 6 attributes of the OBIS code, separated by a "."'),
             maskRe: /[\dx.]+/,
             vtype: 'obisCode',
             listeners: {
