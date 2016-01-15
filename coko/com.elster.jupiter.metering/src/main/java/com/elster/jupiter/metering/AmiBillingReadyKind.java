@@ -1,19 +1,24 @@
 package com.elster.jupiter.metering;
 
-public enum AmiBillingReadyKind {
-	UNKNOWN("unknown"),
-	ENABLED ("enabled"),
-	OPERABLE ("operable"),
-	BILLINGAPPROVED ("billingApproved"),
-	NONAMI ("nonAmi"),
-	AMIDISABLED ("amiDisabled"),
-	AMICAPABLE ("amiCapable"),
-	NONMETERED ("nonMetered");
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+
+public enum AmiBillingReadyKind implements TranslationKey {
+	UNKNOWN("unknown", "Unknown"),
+	ENABLED("enabled", "Enabled"),
+	OPERABLE("operable", "Operable"),
+	BILLINGAPPROVED("billingApproved", "Billing approved"),
+	NONAMI("nonAmi", "Non Ami"),
+	AMIDISABLED("amiDisabled", "Ami disabled"),
+	AMICAPABLE("amiCapable", "Ami capable"),
+	NONMETERED("nonMetered", "Non metered");
 	
 	private final String value;
-	
-	private AmiBillingReadyKind(String value) {
+	private final String defaultFormat;
+
+	AmiBillingReadyKind(String value, String defaultFormat) {
 		this.value = value;
+		this.defaultFormat = defaultFormat;
 	}
 	
 	public static AmiBillingReadyKind get(int id) {
@@ -27,10 +32,23 @@ public enum AmiBillingReadyKind {
 	public String getValue() {
 		return value;
 	}
-	
-	@Override
-	public String toString() {
-		return value;
+
+	public String getDisplayName(Thesaurus thesaurus) {
+		return thesaurus.getString(this.value, this.defaultFormat);
 	}
 
+	@Override
+	public String toString() {
+		return defaultFormat;
+	}
+
+	@Override
+	public String getKey() {
+		return this.value;
+	}
+
+	@Override
+	public String getDefaultFormat() {
+		return this.defaultFormat;
+	}
 }
