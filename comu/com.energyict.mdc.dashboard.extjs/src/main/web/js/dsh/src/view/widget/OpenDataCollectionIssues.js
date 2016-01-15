@@ -71,7 +71,7 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
 
             var assignedFilter = {
                 assignee: assigned.get('filter').assigneeId + ':' + assigned.get('filter').assigneeType,
-                status: 'status.open',
+                status: ['status.open', 'status.in.progress'],
                 groupingType: 'none',
                 sort: ['dueDate', 'modTime']
             };
