@@ -19,7 +19,7 @@ import org.osgi.service.component.annotations.Reference;
 public class ComTaskEnablementStatusMessageHandlerFactory implements MessageHandlerFactory{
 
     public static final String SUBSCRIBER_NAME = "CTESMH";
-    public static final String SUBSCRIBER_DISPLAYNAME = "Handle status updates on comtask enablement";
+    public static final String SUBSCRIBER_DISPLAYNAME = "Handle status updates on communication task configuration";
     private volatile JsonService jsonService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ServerCommunicationTaskService serverCommunicationTaskService;
