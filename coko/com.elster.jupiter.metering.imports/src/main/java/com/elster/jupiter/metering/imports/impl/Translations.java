@@ -35,7 +35,7 @@ public class Translations implements TranslationKeyProvider, MessageSeedProvider
 
     enum Labels implements TranslationKey {
         USAGEPOINT_FILE_IMPORTER(UsagePointFileImporterFactory.NAME, "Usage Point Importer"),
-        USAGEPOINT_MESSAGE_SUBSCRIBER(UsagePointFileImporterMessageHandler.SUBSCRIBER_NAME, "Usage Point Importer"),
+        USAGEPOINT_MESSAGE_SUBSCRIBER(UsagePointFileImporterMessageHandler.SUBSCRIBER_NAME, "Handle usage point import"),
         ;
         private final String key;
         private final String defaultFormat;
