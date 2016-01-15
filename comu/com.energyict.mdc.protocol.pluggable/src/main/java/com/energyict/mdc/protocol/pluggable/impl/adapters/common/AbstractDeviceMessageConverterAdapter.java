@@ -129,18 +129,18 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
 
     private void addMessages(List<OfflineDeviceMessage> offlineDeviceMessages) {
         for (OfflineDeviceMessage offlineDeviceMessage : offlineDeviceMessages) {
-            // COMU-1469: If the offlineDeviceMessage 's Protocol uses a LegacyMessageConverter, it is
-            // this one we will use to create the MessageEntry instead of the current one
             //When preparing to execute the messages, this adapter represents the master protocol, even if the messages were defined on a slave protocol.
             LegacyMessageConverter messageConverter = getLegacyMessageConverter();
 
+            //The offline message has a reference to the proper DeviceProtocol, that holds the proper message converter.
+            //If the message was created on a slave device, the message references to the slave protocol, and the slave converter.
             DeviceProtocol deviceProtocol = offlineDeviceMessage.getDeviceProtocol();
             if (deviceProtocol != null && deviceProtocol instanceof UsesLegacyMessageConverter) {
                 messageConverter = ((UsesLegacyMessageConverter) deviceProtocol).getLegacyMessageConverter();
             }
 
             final MessageEntry messageEntry = messageConverter.toMessageEntry(offlineDeviceMessage);
-            messageEntry.setSerialNumber(this.serialNumber);
+            messageEntry.setSerialNumber(offlineDeviceMessage.getDeviceSerialNumber());
             this.messageEntries.put(messageEntry, offlineDeviceMessage);
         }
     }
