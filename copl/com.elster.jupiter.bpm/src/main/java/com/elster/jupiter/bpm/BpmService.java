@@ -12,7 +12,7 @@ public interface BpmService {
     String COMPONENTNAME = "BPM";
     String BPM_QUEUE_DEST = "BpmQueueDest";
     String BPM_QUEUE_SUBSC = "BpmQueueSubsc";
-    String BPM_QUEUE_DISPLAYNAME = "Connexo Flow handler";
+    String BPM_QUEUE_DISPLAYNAME = "Handle Connexo Flow";
 
     List<String> getProcesses();
 
