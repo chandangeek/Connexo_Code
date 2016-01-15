@@ -72,14 +72,20 @@ public class CloseIssueAction extends AbstractIssueAction {
         Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(
                 getPropertySpecService()
-                    .specForValuesOf(new StatusValueFactory())
-                    .named(CLOSE_STATUS, CLOSE_STATUS)
-                    .describedAs(CLOSE_STATUS)
-                    .markRequired()
-                    .addValues(this.getPossibleStatuses())
-                    .markExhaustive()
-                    .finish());
-        builder.add(getPropertySpecService().stringSpec().named(COMMENT, COMMENT).describedAs(COMMENT).finish());
+                        .specForValuesOf(new StatusValueFactory())
+                        .named(CLOSE_STATUS, TranslationKeys.CLOSE_ACTION_PROPERTY_CLOSE_STATUS)
+                        .describedAs(TranslationKeys.CLOSE_ACTION_PROPERTY_CLOSE_STATUS)
+                        .fromThesaurus(getThesaurus())
+                        .markRequired()
+                        .addValues(this.getPossibleStatuses())
+                        .markExhaustive()
+                        .finish());
+        builder.add(getPropertySpecService()
+                .stringSpec()
+                .named(COMMENT, TranslationKeys.CLOSE_ACTION_PROPERTY_COMMENT)
+                .describedAs(TranslationKeys.CLOSE_ACTION_PROPERTY_COMMENT)
+                .fromThesaurus(getThesaurus())
+                .finish());
         return builder.build();
     }
 
