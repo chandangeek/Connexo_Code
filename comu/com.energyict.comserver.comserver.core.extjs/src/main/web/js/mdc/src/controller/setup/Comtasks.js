@@ -275,6 +275,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             for(i = 0; i < me.commands.length; i++) {
                 if(me.commands[i].categoryName) {
                     delete me.commands[i].categoryName;
+                    delete me.commands[i].actionName;
                 }
             }
             record.set('commands', me.commands);
@@ -622,11 +623,13 @@ Ext.define('Mdc.controller.setup.Comtasks', {
 
         if (actionContainer) {
             action = actionContainer.value;
+            actionName = actionContainer.rawValue;
             parametersContainer = actionContainer.nextNode();
             protocol.category = category;
             protocol.categoryId = category;
             protocol.categoryName = categoryName;
             protocol.action = action;
+            protocol.actionName = actionName
             protocol.parameters = [];
 
 
@@ -863,6 +866,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         var self = this;
         if(command.categoryName) {
             command.category = command.categoryName;
+            command.action = command.actionName;
         }
         self.getCommandNames().add({
             xtype: 'tag-button',
