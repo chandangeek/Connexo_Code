@@ -85,7 +85,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     static final String ESTIMATION_TASKS_USER = "estimation";
     static final String DESTINATION_NAME = "EstimationTask";
     static final String SUBSCRIBER_NAME = "EstimationTask";
-    static final String SUBSCRIBER_DISPLAYNAME = "Handle estimation";
+    static final String SUBSCRIBER_DISPLAYNAME = "Handle data estimation";
     public static final Logger LOGGER = Logger.getLogger(EstimationService.class.getName());
     private final List<EstimatorFactory> estimatorFactories = new CopyOnWriteArrayList<>();
     private final List<EstimationResolver> resolvers = new CopyOnWriteArrayList<>();
