@@ -84,7 +84,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showDeviceTypeDetailsView',
                             callback: function (route) {
                                 this.getApplication().on('loadDeviceType', function (record) {
-                                    route.setTitle(Ext.String.htmlEncode(record.get('name')));
+                                    route.setTitle(record.get('name'));
                                     return true;
                                 }, {single: true});
 
@@ -1094,7 +1094,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                     callback: function (route) {
                         this.getApplication().on('loadDevice', function (record) {
-                            route.setTitle(Ext.htmlEncode(record.get('mRID')));
+                            route.setTitle(record.get('mRID'));
                             return true;
                         }, {single: true});
 

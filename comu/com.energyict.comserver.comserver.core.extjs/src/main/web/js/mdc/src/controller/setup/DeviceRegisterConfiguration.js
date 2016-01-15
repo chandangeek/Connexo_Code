@@ -192,7 +192,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         previewContainer.add(widget);
 
         var model = record.self;
-        model.getProxy().setUrl(router.arguments.mRID);
+        model.getProxy().setUrl(record.get('mRID'));
         form.setLoading(true);
         model.load(record.getId(), {
             callback: function(record, operation, success) {
