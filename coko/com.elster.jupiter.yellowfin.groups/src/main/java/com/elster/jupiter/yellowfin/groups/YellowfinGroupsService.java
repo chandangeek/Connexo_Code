@@ -12,7 +12,7 @@ public interface YellowfinGroupsService {
     String COMPONENTNAME = "YFG";
     String ADHOC_SEARCH_LIFE_CYCLE_QUEUE_DEST = "AdHocSearch";
     String ADHOC_SEARCH_LIFE_CYCLE_QUEUE_TASK = "AdHoc Search";
-    String ADHOC_SEARCH_LIFE_CYCLE_QUEUE_DEST_DISPLAYNAME = "Connexo Facts search";
+    String ADHOC_SEARCH_LIFE_CYCLE_QUEUE_DEST_DISPLAYNAME = "Handle Connexo Facts search";
 
     Thesaurus thesaurus();
 
