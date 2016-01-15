@@ -48,21 +48,42 @@ Ext.define('Mdc.controller.setup.GeneralAttributes', {
     saveGeneralAttributes: function() {
         var me = this,
             form = me.getEditPropertyForm(),
-            editView = me.getGeneralAttributesEdit();
+            editView = me.getGeneralAttributesEdit(),
+            formErrorsPanel = editView.down('#form-errors');
 
         editView.setLoading();
 
         form.updateRecord();
-        form.getRecord().save({
-            backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/deviceconfigurations/view/generalattributes').buildUrl(),
-            callback: function (model, operation, success) {
-                editView.setLoading(false);
-                if (success) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('generalAttributes.saved', 'MDC', 'General attributes saved.'));
-                    me.moveToPreviousPage();
-                }
+
+        if (!form.isValid()) {
+            formErrorsPanel.show();
+            editView.setLoading(false);
+        } else {
+            if (!formErrorsPanel.isHidden()) {
+                formErrorsPanel.hide();
             }
-        });
+
+            form.getRecord().save({
+                backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/deviceconfigurations/view/generalattributes').buildUrl(),
+                callback: function (model, operation, success) {
+
+                    if (success) {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('generalAttributes.saved', 'MDC', 'General attributes saved.'));
+                        me.moveToPreviousPage();
+                    }
+                    else {
+                        var json = Ext.decode(operation.response.responseText);
+                        if (operation.response.status === 400) {
+                            if (json && json.errors) {
+                                form.getForm().markInvalid(json.errors);
+                            }
+                            formErrorsPanel.show();
+                        }
+                    }
+
+                }
+            });
+        }
     },
 
     moveToPreviousPage: function() {
