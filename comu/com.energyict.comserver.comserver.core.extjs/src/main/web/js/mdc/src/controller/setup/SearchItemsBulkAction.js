@@ -237,6 +237,15 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         me.showStatusMsg(me.buildFailMessage(item));
                     });
                     finishBtn.enable();
+                },
+
+                failure: function (response) {
+                    statusPage.removeAll();
+                    var resp = Ext.decode(response.responseText, true);
+                    if(resp && resp.message) {
+                        me.showStatusMsg(me.buildMessage(resp.message));
+                    }
+                    finishBtn.enable();
                 }
             });
         } else {
@@ -276,6 +285,16 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     showStatusMsg: function (msg) {
         var me = this;
         me.getStatusPage().add(msg);
+    },
+
+    buildMessage: function (message) {
+         var messagePanel = {
+              xType: 'panel'
+          };
+
+        messagePanel.html = '<h3>' + message + '</h3>';
+
+        return messagePanel;
     },
 
     buildSuccessMessage: function (successful) {
