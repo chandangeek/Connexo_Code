@@ -190,7 +190,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                         });
                     } else {
                         me.getDeviceSecuritySettingEditForm().getForm().markInvalid(json.errors);
-                        //             me.getPropertiesController().showErrors(json.errors);
+                        me.getDeviceSecuritySettingEditView().down('property-form').getForm().markInvalid(json.errors);
                     }
                 }
             }

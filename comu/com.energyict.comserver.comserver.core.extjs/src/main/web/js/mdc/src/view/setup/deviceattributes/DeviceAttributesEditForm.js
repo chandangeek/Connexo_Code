@@ -115,6 +115,19 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 }
             },
             {
+                name: 'multiplier',
+                itemId: 'multiplierView',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.multiplier', 'MDC', 'Multiplier'),
+            },
+            {
+                xtype: 'numberfield',
+                name: 'multiplierEdit',
+                minValue: 1,
+                maxValue: 2147483647,
+                itemId: 'multiplierEdit',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.multiplier', 'MDC', 'Multiplier'),
+            },
+            {
 
                 name: 'shipmentDate',
                 itemId: 'shipmentDateView',

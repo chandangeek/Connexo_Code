@@ -100,10 +100,11 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
     showConnectionMethods: function (deviceTypeId, deviceConfigurationId) {
         var me = this,
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0];
         timeUnitsStore = me.getStore('TimeUnits');
 
         timeUnitsStore.load();
-
+        if (mainView) mainView.setLoading(Uni.I18n.translate('general.loading', 'MDC', 'Loading...'));
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigurationId = deviceConfigurationId;
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
@@ -117,6 +118,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                         widget.down('#connectionMethodSetupPanel').setTitle(Uni.I18n.translate('general.connectionMethods', 'MDC', 'Connection methods'));
+                        if (mainView) mainView.setLoading(false);
                         me.getApplication().fireEvent('changecontentevent', widget);
                         me.getConnectionmethodsgrid().getStore().load({
                             callback: function(){

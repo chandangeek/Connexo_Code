@@ -86,7 +86,12 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
 
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Ext.String.format(Uni.I18n.translate('device.registerData.delete.message', 'MDC', 'The register reading with measurement time {0} will no longer be available'), Ext.util.Format.date(new Date(lastSelected.get('timeStamp')), 'M j, Y \\a\\t G:i')),
+            msg: Ext.String.format(
+                Uni.I18n.translate('device.registerData.delete.message', 'MDC', 'The register reading with measurement time {0} will no longer be available'),
+                Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+                    [Uni.DateTime.formatDateShort(lastSelected.get('timeStamp')), Uni.DateTime.formatTimeShort(lastSelected.get('timeStamp'))]
+                )
+            ),
             title: Uni.I18n.translate('device.registerData.delete.title.question', 'MDC', 'Remove the reading?'),
             config: {
                 readingToDelete: lastSelected,
@@ -150,7 +155,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             record.save({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', cfg.successMessage);
-                    router.getRoute('devices/device/registers/registerdata').forward();
+                    window.history.back();
                 },
                 failure: function (record, resp) {
                     var response = resp.response;
@@ -219,10 +224,19 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                                     router: router
                                 });
                                 me.getApplication().fireEvent('loadRegisterConfiguration', register);
+                                if (reading.get('calculatedValue')) {
+                                    reading.set('value', reading.get('calculatedValue'));
+                                } else if (reading.get('collectedValue')) {
+                                    reading.set('value', reading.get('collectedValue'));
+                                }
                                 widget.down('form').loadRecord(reading);
                                 widget.setValues(register);
                                 me.getApplication().fireEvent('changecontentevent', widget);
-                                widget.down('#stepsMenu').setTitle(Ext.util.Format.date(new Date(reading.get('timeStamp')), 'M j, Y \\a\\t G:i'));
+                                widget.down('#stepsMenu').setTitle(
+                                    Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+                                        [ Uni.DateTime.formatDateShort(new Date(reading.get('timeStamp'))), Uni.DateTime.formatTimeShort(new Date(reading.get('timeStamp')))]
+                                    )
+                                );
                                 widget.down('#stepsMenu #editReading').setText(Uni.I18n.translate('device.registerData.editReading', 'MDC', 'Edit reading'));
                             },
 

@@ -33,11 +33,24 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Preview', {
                         items: [
                             {
                                 xtype: 'reading-type-displayfield',
+                                fieldLabel: Uni.I18n.translate('general.collectedReadingType', 'MDC', 'Collected reading type'),
                                 name: 'readingType'
+                            },
+                            {
+                                xtype: 'reading-type-displayfield',
+                                fieldLabel: Uni.I18n.translate('general.calculatedReadingType', 'MDC', 'Calculated reading type'),
+                                name: 'calculatedReadingType',
+                                hidden: true
                             },
                             {
                                 xtype: 'obis-displayfield',
                                 name: 'obisCode'
+                            },
+                            {
+                                xtype: 'displayfield',
+                                fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
+                                name: 'multiplier',
+                                hidden: true
                             },
                             {
                                 xtype: 'fieldcontainer',
@@ -49,7 +62,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Preview', {
                                         name: 'reportedDateTime',
                                         renderer: function (value) {
                                             if (!Ext.isEmpty(value)) {
-                                                return Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))]).toLowerCase()
+                                                return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))])
                                             }
 
                                             return '-';
@@ -73,15 +86,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Preview', {
                                 name: 'value'
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfDigits', 'MDC', 'Number of digits'),
-                                name: 'numberOfDigits'
-                            },
-                            {
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
-                                name: 'numberOfFractionDigits'
-                            },
-                            {
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.overflow', 'MDC', 'Overflow'),
+                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.overflowValue', 'MDC', 'Overflow value'),
                                 name: 'overflow',
                                 renderer: function (value) {
                                     if (!Ext.isEmpty(value)) {
@@ -90,6 +95,10 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Preview', {
 
                                     return Uni.I18n.translate('deviceregisterconfiguration.overflow.notspecified', 'MDC', 'Not specified')
                                 }
+                            },
+                            {
+                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
+                                name: 'numberOfFractionDigits'
                             }
                         ]
                     },

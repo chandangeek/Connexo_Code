@@ -28,7 +28,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypesSetup', {
                         itemId: 'ctr-no-device-type',
                         title: Uni.I18n.translate('deviceType.empty.title', 'MDC', 'No device types found'),
                         reasons: [
-                            Uni.I18n.translate('deviceType.empty.list.item1', 'MDC', 'No device types are associated to this register group.')
+                            Uni.I18n.translate('deviceType.empty.list.item1', 'MDC', 'No device types have been defined yet.'),
+                            Uni.I18n.translate('deviceType.empty.list.item2', 'MDC', 'Device types exist, but you do not have permission to view them.')
                         ],
                         stepItems: [
                             {

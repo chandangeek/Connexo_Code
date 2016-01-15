@@ -81,16 +81,13 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
 
     showAddDeviceConfigView: function (ruleSetId) {
         var me = this,
-            ruleDeviceConfigNotLinkedStore = me.getStore('Mdc.store.RuleDeviceConfigurationsNotLinked'),
             ruleSetsStore = me.getStore('Cfg.store.ValidationRuleSets'),
             router = me.getController('Uni.controller.history.Router'),
-            widget = Ext.widget('rule-device-configuration-add', {ruleSetId: router.arguments.ruleSetId});
+            widget = Ext.widget('rule-device-configuration-add', {ruleSetId: router.arguments.ruleSetId}),
+            ruleDeviceConfigNotLinkedStore = widget.down('#rule-device-configuration-add-grid-table').getStore();
 
         me.ruleSetId = ruleSetId;
-
-        if (widget.down('#addDeviceConfigGrid')) {
-            widget.down('#addDeviceConfigGrid').getStore().removeAll();
-        }
+        ruleDeviceConfigNotLinkedStore.removeAll();
 
         me.getApplication().fireEvent('changecontentevent', widget);
         ruleDeviceConfigNotLinkedStore.getProxy().setExtraParam('ruleSetId', router.arguments.ruleSetId);

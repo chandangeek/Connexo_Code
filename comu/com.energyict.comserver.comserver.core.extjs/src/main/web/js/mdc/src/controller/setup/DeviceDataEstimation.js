@@ -54,8 +54,9 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
                 me.getApplication().fireEvent('loadDevice', device);
                 view.down('#deviceDataEstimationStatusField').setValue(status ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive'));
                 if (toggleActivationButton) {
-                    toggleActivationButton.setText((status ? Uni.I18n.translate('general.deactivatex', 'MDC', 'Deactivate {0}',[Uni.I18n.translate('estimationDevice.statusSection.buttonAppendix', 'MDC', 'data estimation')]) :
-                        Uni.I18n.translate('general.activatex', 'MDC', 'Activate {0}',[Uni.I18n.translate('estimationDevice.statusSection.buttonAppendix', 'MDC', 'data estimation')])));
+                    toggleActivationButton.setText((status ?
+                        Uni.I18n.translate('estimationDevice.deactivateEstimation', 'MDC', 'Deactivate data estimation') :
+                        Uni.I18n.translate('estimationDevice.activateEstimation', 'MDC', 'Activate data estimation')));
                     toggleActivationButton.action = status ? 'deactivate' : 'activate';
                 }
                 me.getApplication().fireEvent('changecontentevent', view);

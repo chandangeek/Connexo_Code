@@ -21,10 +21,9 @@ Ext.define('Mdc.view.setup.highstock.GraphView', {
         Highcharts.Series.prototype.translate = function () {
 
             hsSeriesTranslate.apply(this, arguments);
-
             var series = this,
                 pointPlacement = series.options.pointPlacement,
-                dynamicallyPlaced = pointPlacement === 'between' || isNumber(pointPlacement);
+                dynamicallyPlaced = pointPlacement === 'between' || Ext.isNumber(pointPlacement);
 
             if (dynamicallyPlaced) {
                 var xAxis = series.xAxis,

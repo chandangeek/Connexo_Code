@@ -13,7 +13,6 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
         'Mdc.model.Device',
         'Mdc.model.LoadProfileOfDevice',
         'Mdc.model.ChannelOfLoadProfilesOfDevice',
-        'Mdc.model.filter.DeviceChannelsFilter',
         'Mdc.model.ChannelValidationPreview'
     ],
 
@@ -32,10 +31,6 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
         {
             ref: 'preview',
             selector: 'deviceLoadProfileChannelsSetup #deviceLoadProfileChannelsPreview'
-        },
-        {
-            ref: 'channelsFilterForm',
-            selector: '#device-channels-filter nested-form'
         },
         {
             ref: 'deviceLoadProfileChannelsPreviewForm',
@@ -98,11 +93,17 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
     },
 
     showPreview: function (selectionModel, record) {
-        var preview = this.getPreview(), me = this,
-            readingType = record.get('readingType');
-        preview.setLoading(true);
+        var me = this,
+            preview = me.getPreview(),
+            readingType = record.get('readingType'),
+            calculatedReadingTypeField = preview.down('#calculatedReadingType'),
+            multiplierField = preview.down('#mdc-channel-preview-multiplier'),
+            customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets'),
+            router = me.getController('Uni.controller.history.Router'),
+            routeParams = router.arguments;
 
-        preview.setTitle(readingType.aliasName + (!Ext.isEmpty(readingType.names.unitOfMeasure) ? (' (' + readingType.names.unitOfMeasure + ')') : ''));
+        preview.setLoading(true);
+        preview.setTitle(readingType.fullAliasName);
 
         if (!record.data.validationInfo.validationActive) {
             !!preview.down('#validateNowChannel') && preview.down('#validateNowChannel').hide();
@@ -114,27 +115,23 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
         preview.down('#deviceLoadProfileChannelsPreviewForm').loadRecord(record);
         preview.down('#deviceLoadProfileChannelsActionMenu').record = record;
 
-        var calculatedReadingType = preview.down('#calculatedReadingType'),
-            readingTypeLabel = preview.down('#readingType').labelEl;
-
-        if (record.data.calculatedReadingType) {
-            readingTypeLabel.update(Uni.I18n.translate('deviceloadprofiles.channels.readingTypeForBulk', 'MDC', 'Collected reading type'));
-            calculatedReadingType.show();
+        if (record.get('calculatedReadingType')) {
+            calculatedReadingTypeField.show();
         } else {
-            readingTypeLabel.update(Uni.I18n.translate('deviceloadprofiles.channels.readingType', 'MDC', 'Reading type'));
-            calculatedReadingType.hide();
+            calculatedReadingTypeField.hide();
+        }
+        if (record.get('multiplier')) {
+            multiplierField.show();
+        } else {
+            multiplierField.hide();
         }
 
-        var customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets');
         customAttributesStore.getProxy().setUrl(me.mRID, record.get('id'));
         customAttributesStore.load(function() {
             preview.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
             preview.setLoading(false);
         });
-        var router = me.getController('Uni.controller.history.Router'),
-            routeParams = router.arguments;
         routeParams.channelId = record.getId();
-
     },
 
     chooseAction: function (menu, item) {
@@ -216,7 +213,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                     editable: false,
                     showToday: false,
                     value: me.dataValidationLastChecked,
-                    fieldLabel: Uni.I18n.translate('devicechannel.validateNow.item1', 'MDC', 'The data of the load profile will be validated starting from'),
+                    fieldLabel: Uni.I18n.translate('devicechannel.validateNow.item1', 'MDC', 'The data of the channel will be validated starting from'),
                     labelWidth: 375,
                     labelPad: 0.5
                 },

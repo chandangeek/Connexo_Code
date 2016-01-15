@@ -128,11 +128,14 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
 
     showCommunicationTasks: function (deviceTypeId, deviceConfigurationId) {
         var me = this,
-            widget;
+            widget,
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
+            proxy = me.getCommunicationTaskConfigsOfDeviceConfigurationStore().getProxy();
+
+        if (mainView) mainView.setLoading(Uni.I18n.translate('general.loading', 'MDC', 'Loading...'));
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
 
-        var proxy = me.getCommunicationTaskConfigsOfDeviceConfigurationStore().getProxy();
         proxy.setExtraParam("deviceType",deviceTypeId);
         proxy.setExtraParam("deviceConfig",deviceConfigurationId);
 
@@ -149,6 +152,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                         model.getProxy().setExtraParam('deviceType', deviceTypeId);
                         model.load(deviceConfigurationId, {
                             success: function (deviceConfig) {
+                                if (mainView) mainView.setLoading(false);
                                 me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                                 widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                                 me.getApplication().fireEvent('changecontentevent', widget);

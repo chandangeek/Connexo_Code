@@ -17,7 +17,21 @@ Ext.define('Mdc.model.RegisterData', {
             persist: false,
             mapping: function (data) {
                 var result = null;
-                if (data.modificationFlag && data.reportedDateTime) {
+                if (!data.multiplier && data.modificationFlag && data.reportedDateTime) {
+                    result = {
+                        flag: data.modificationFlag,
+                        date: data.reportedDateTime
+                    }
+                }
+                return result;
+            }
+        },
+        {
+            name: 'calculatedModificationState',
+            persist: false,
+            mapping: function (data) {
+                var result = null;
+                if (data.multiplier && data.modificationFlag && data.reportedDateTime) {
                     result = {
                         flag: data.modificationFlag,
                         date: data.reportedDateTime

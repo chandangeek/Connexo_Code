@@ -340,34 +340,62 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             domainsStore = me.service.getSearchDomainsStore(),
             staticGrid,
             isDynamic = me.isDynamic,
-            selectionGroupType;
+            selectionGroupType,
+            devices = me.getStore('Mdc.store.DevicesOfDeviceGroupWithoutPagination'),
+            store = me.getStore(isDynamic ? 'Mdc.store.DynamicGroupDevices' : 'Mdc.store.StaticGroupDevices');
 
         step2.getLayout().setActiveItem(isDynamic ? 1 : 0);
-        me.service.setSearchResultsStore(me.getStore(isDynamic ? 'Mdc.store.DynamicGroupDevices' : 'Mdc.store.StaticGroupDevices'));
+        me.service.setSearchResultsStore(store);
         me.setColumnPicker(isDynamic);
+
         if (!isDynamic) {
             me.service.excludedCriteria = undefined;
             staticGrid = step2.down('static-group-devices-grid');
-            selectionGroupType = {};
-            staticGrid.setDevices([]);
-            staticGrid.getSelectionModel().deselectAll(true); // fix the ExtJS error: "getById called for ID that is not present in local cache"
-            staticGrid.getStore().data.clear();
-            selectionGroupType[staticGrid.radioGroupName] = staticGrid.allInputValue;
-            staticGrid.getSelectionGroupType().setValue(selectionGroupType);
+            staticGrid.setVisible(false);
+            if(wizard.isEdit) {
+                staticGrid.setLoading(true);
+            }
+            if(!devices.getRange()){
+                selectionGroupType = {};
+                staticGrid.getSelectionModel().deselectAll(true); // fix the ExtJS error: "getById called for ID that is not present in local cache"
+                staticGrid.setDevices([]);
+                staticGrid.getStore().data.clear();
+                selectionGroupType[staticGrid.radioGroupName] = staticGrid.allInputValue;
+                staticGrid.getSelectionGroupType().setValue(selectionGroupType);
+            }
         } else {
             staticGrid = step2.down('dynamic-group-devices-grid');
             staticGrid.down('pagingtoolbartop').resetPaging();
             staticGrid.down('pagingtoolbarbottom').resetPaging();
             me.service.excludedCriteria = 'deviceGroup';
         }
-
         if (domainsStore.isLoading()) {
+
             domainsStore.on('load', function () {
+                if(!isDynamic) {
+                    staticGrid.setVisible(true);
+                    if(wizard.isEdit) {
+                        staticGrid.setLoading(true);
+                        store.on('load', function () {
+                            staticGrid.setLoading(false);
+                        })
+                    }
+                }
                 me.service.applyState(me.state, function(){
                 });
+
             }, me, {single: true});
         } else {
             me.service.applyState(me.state, function(){
+                if(!isDynamic){
+                    staticGrid.setVisible(true);
+                    if(wizard.isEdit) {
+                        staticGrid.setLoading(true);
+                        store.on('load', function () {
+                            staticGrid.setLoading(false);
+                        })
+                    }
+                }
             });
         }
     },

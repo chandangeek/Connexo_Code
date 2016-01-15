@@ -67,7 +67,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                         width: 600,
                         listeners: {
                             afterrender: function (field) {
-                                field.focus(false, 500);
+                                field.focus(false, 200);
                             }
                         }
                     },
@@ -95,6 +95,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                 name: 'deviceLifeCycleId',
                                 width: 335,
                                 store: 'Mdc.store.DeviceLifeCycles',
+                                emptyText: Uni.I18n.translate('devicetype.selectDeviceLifeCycle', 'MDC', 'Select a device life cycle...'),
                                 editable: false,
                                 queryMode: 'local',
                                 displayField: 'name',

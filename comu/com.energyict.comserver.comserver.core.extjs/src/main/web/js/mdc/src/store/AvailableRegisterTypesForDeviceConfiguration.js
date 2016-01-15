@@ -8,6 +8,7 @@ Ext.define('Mdc.store.AvailableRegisterTypesForDeviceConfiguration', {
     proxy: {
         type: 'rest',
         url: '../../api/dtc/devicetypes/{deviceType}/registertypes',
+        //url: 'http://localhost:3000/registerTypes',
         reader: {
             type: 'json',
             root: 'registerTypes'

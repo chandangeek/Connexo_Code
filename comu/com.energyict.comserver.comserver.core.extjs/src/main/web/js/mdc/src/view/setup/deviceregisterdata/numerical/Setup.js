@@ -2,6 +2,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Setup', {
     extend: 'Mdc.view.setup.deviceregisterdata.MainSetup',
     alias: 'widget.deviceregisterreportsetup-numerical',
     itemId: 'deviceregisterreportsetup',
+    unitOfMeasureCollected: '',
+    unitOfMeasureCalculated: '',
+    multiplier: null,
 
     initComponent: function () {
         var me = this;
@@ -42,7 +45,10 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Setup', {
                                     ]
                                 },
                                 previewComponent: {
-                                    xtype: 'deviceregisterreportpreview-numerical'
+                                    xtype: 'deviceregisterreportpreview-numerical',
+                                    unitOfMeasureCollected: me.unitOfMeasureCollected,
+                                    unitOfMeasureCalculated: me.unitOfMeasureCalculated,
+                                    multiplier: me.multiplier
                                 }
                             }
                         ]

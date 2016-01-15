@@ -172,7 +172,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     success: function (channel) {
                         me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
                         var widget = Ext.widget('tabbedDeviceChannelsView', {
-                            title: channel.get('name'),
+                            title: channel.get('readingType').fullAliasName,
                             router: router,
                             channel: channel,
                             device: device,
@@ -200,13 +200,28 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     setupSpecificationsTab: function (device, channel, widget) {
-        var customAttributesStore = this.getStore('Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets');
+        var me = this,
+            customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets'),
+            calculatedReadingTypeField = widget.down('#calculatedReadingType'),
+            multiplierField = widget.down('#mdc-channel-preview-multiplier');
+
         customAttributesStore.getProxy().setUrl(device.get('mRID'), channel.get('id'));
         widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(channel);
+        if (channel.get('calculatedReadingType')) {
+            calculatedReadingTypeField.show();
+        } else {
+            calculatedReadingTypeField.hide();
+        }
+        if (channel.get('multiplier')) {
+            multiplierField.show();
+        } else {
+            multiplierField.hide();
+        }
+
         customAttributesStore.load(function () {
             widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
         });
-        this.fromSpecification = true;
+        me.fromSpecification = true;
         widget.down('#deviceLoadProfileChannelsActionMenu').record = channel;
     },
 
@@ -579,7 +594,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart;
 
                 Ext.suspendLayouts();
-                if (success) {
+                if (success && responseText[0]) {
                     if (!Ext.isArray(readings)) {
                         me.updateEstimatedValues(record, readings, responseText[0]);
                     } else {
@@ -598,20 +613,21 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     me.getReadingEstimationWindow().setLoading(false);
                     if (responseText.message) {
                         me.getReadingEstimationWindow().down('#error-label').show();
-                        me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #FF0000">' + responseText.message + '</div>', false);
+                        me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' + responseText.message + '</div>', false);
                     } else if (responseText.readings) {
                         me.getReadingEstimationWindow().down('#error-label').show();
                         var listOfFailedReadings = [];
                         Ext.Array.each(responseText.readings, function (readingTimestamp) {
-                            listOfFailedReadings.push(Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false).toLowerCase());
+                            listOfFailedReadings.push(Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false));
                         });
-                        me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #FF0000">' +
+                        me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' +
                             Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0} with {1}',
                                 [listOfFailedReadings.join(', '), me.getReadingEstimationWindow().down('#estimator-field').getRawValue().toLowerCase()]) + '</div>', false);
                     } else if (responseText.errors) {
                         me.getReadingEstimationWindow().down('#form-errors').show();
                         me.getReadingEstimationWindow().down('#property-form').markInvalid(responseText.errors);
                     }
+
                 }
                 Ext.resumeLayouts(true);
             }

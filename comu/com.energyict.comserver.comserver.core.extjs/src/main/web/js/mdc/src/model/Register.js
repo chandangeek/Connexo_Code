@@ -8,12 +8,12 @@ Ext.define('Mdc.model.Register', {
             useNull: true,
             convert: function (v, record) {
                 if (!Ext.isEmpty(record.data.lastReading)) {
-                    if (record.data.type == 'billing') {
-                        return record.data.lastReading.value + ' ' + record.data.lastReading.unitOfMeasure;
+                    if (record.get('type') == 'billing') {
+                        return record.get('lastReading').value + ' ' + record.get('lastReading').unitOfMeasure;
                     }
-                    if (record.data.type == 'numerical') {
-                        if(!Ext.isEmpty(record.data.lastReading.value)) {
-                            return Uni.Number.formatNumber(record.data.lastReading.value, -1) + ' ' + record.data.lastReading.unitOfMeasure;
+                    if (record.get('type') == 'numerical') {
+                        if(!Ext.isEmpty(record.get('lastReading').value)) {
+                            return Uni.Number.formatNumber(record.get('lastReading').value, -1) + ' ' + record.get('readingType').names.unitOfMeasure;
                         }
                         return '-'
 
@@ -34,7 +34,7 @@ Ext.define('Mdc.model.Register', {
         {name: 'reportedDateTime', mapping: 'lastReading.reportedDateTime', useNull: true},
         {name: 'interval', mapping: 'lastReading.interval', useNull: true},
         {name: 'detailedValidationInfo', type: 'auto'},
-        {name: 'unitOfMeasure', useNull: true},
+        {name: 'multiplier', type: 'auto'},
         {
             name: 'validationInfo_validationActive',
             persist: false,

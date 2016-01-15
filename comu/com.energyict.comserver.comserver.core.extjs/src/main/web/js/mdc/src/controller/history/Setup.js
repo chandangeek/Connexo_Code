@@ -84,7 +84,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showDeviceTypeDetailsView',
                             callback: function (route) {
                                 this.getApplication().on('loadDeviceType', function (record) {
-                                    route.setTitle(Ext.String.htmlEncode(record.get('name')));
+                                    route.setTitle(record.get('name'));
                                     return true;
                                 }, {single: true});
 
@@ -1094,7 +1094,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                     callback: function (route) {
                         this.getApplication().on('loadDevice', function (record) {
-                            route.setTitle(Ext.htmlEncode(record.get('mRID')));
+                            route.setTitle(record.get('mRID'));
                             return true;
                         }, {single: true});
 
@@ -1223,7 +1223,6 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: 'topology',
                             controller: 'Mdc.controller.setup.DeviceTopology',
                             privileges: Mdc.privileges.Device.deviceOperator,
-                            filter: 'Mdc.model.TopologyFilter',
                             action: 'showTopologyView'
                         },
                         generalattributes: {
@@ -1695,7 +1694,6 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.DeviceChannels',
                             privileges: Mdc.privileges.Device.viewDevice,
                             action: 'showOverview',
-                            filter: 'Mdc.model.filter.DeviceChannelsFilter',
                             dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                             items: {
                                 channel: {
@@ -1799,7 +1797,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                                     callback: function (route) {
                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
-                                            route.setTitle(record.get('name'));
+                                            route.setTitle(record.get('readingType').fullAliasName);
                                             return true;
                                         }, {single: true});
                                         return this;

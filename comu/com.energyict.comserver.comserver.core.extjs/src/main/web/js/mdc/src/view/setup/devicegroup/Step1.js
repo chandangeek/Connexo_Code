@@ -27,7 +27,12 @@ Ext.define('Mdc.view.setup.devicegroup.Step1', {
                 allowBlank: false,
                 maxLength: 80,
                 enforceMaxLength: true,
-                width: 400
+                width: 400,
+                listeners: {
+                    afterrender: function (field) {
+                        field.focus(false, 200);
+                    }
+                }
             }
         ];
 

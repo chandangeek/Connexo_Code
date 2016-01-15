@@ -6,6 +6,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
     ],
     itemId: 'deviceregisterreportpreview',
     title: '',
+    unitOfMeasureCollected: '',
+    unitOfMeasureCalculated: '',
+    multiplier: null,
 
     items: {
         xtype: 'form',
@@ -29,7 +32,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                         name: 'timeStamp',
                         renderer: function (value) {
                             if (!Ext.isEmpty(value)) {
-                                return Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))]).toLowerCase();
+                                return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+                                    [Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))]
+                                );
                             }
                         }
                     },
@@ -38,13 +43,15 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                         name: 'reportedDateTime',
                         renderer: function (value) {
                             if (!Ext.isEmpty(value)) {
-                                return Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))]).toLowerCase();
+                                return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+                                    [Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))]
+                                );
                             }
                         }
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
+                        fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
                         layout: {
                             type: 'hbox'
                         },
@@ -54,10 +61,10 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                                 margin: '0 10 0 0',
                                 name: 'value',
                                 renderer: function (value) {
-                                    var form = this.up('form'),
-                                        record = form.getRecord();
+                                    var record = this.up('form').getRecord();
                                     if (record && value) {
-                                        return Uni.Number.formatNumber(value, -1) + ' ' + record.get('unitOfMeasure');
+                                        var me = this.up('form').up('#deviceregisterreportpreview');
+                                        return Uni.Number.formatNumber(value, -1) + ' ' + me.unitOfMeasureCollected;
                                     } else {
                                         return '-'
                                     }
@@ -70,16 +77,52 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                         ]
                     },
                     {
+                        xtype: 'fieldcontainer',
+                        itemId: 'mdc-calculated-value-field',
+                        fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value'),
+                        layout: {
+                            type: 'hbox'
+                        },
+                        items: [
+                            {
+                                xtype: 'displayfield',
+                                margin: '0 10 0 0',
+                                name: 'calculatedValue',
+                                renderer: function (value) {
+                                    var record = this.up('form').getRecord();
+                                    if (record && value) {
+                                        var me = this.up('form').up('#deviceregisterreportpreview');
+                                        return Uni.Number.formatNumber(value, -1) + ' ' + me.unitOfMeasureCalculated;
+                                    } else {
+                                        return '-'
+                                    }
+                                }
+                            },
+                            {
+                                xtype: 'edited-displayfield',
+                                name: 'calculatedModificationState'
+                            }
+                        ]
+                    },
+                    {
                         fieldLabel: Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value'),
                         name: 'deltaValue',
                         renderer: function (value) {
-                            var form = this.up('form'),
-                                record = form.getRecord();
+                            var record = this.up('form').getRecord();
                             if (record && value) {
-                                return Uni.Number.formatNumber(value, -1) + ' ' + record.get('unitOfMeasure');
+                                var me = this.up('form').up('#deviceregisterreportpreview');
+                                return Uni.Number.formatNumber(value, -1) + ' ' +
+                                    (me.unitOfMeasureCalculated !== '' ? me.unitOfMeasureCalculated : me.unitOfMeasureCollected);
                             } else {
                                 return '-'
                             }
+                        }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
+                        itemId: 'mdc-register-preview-numerical-multiplier',
+                        renderer: function () {
+                            return this.up('form').up('#deviceregisterreportpreview').multiplier;
                         }
                     }
                 ]

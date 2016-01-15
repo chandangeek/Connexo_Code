@@ -67,7 +67,7 @@ Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Add', {
                             reasons: [
                                 Uni.I18n.translate('estimationDeviceConfigurations.empty.list.item1', 'MDC', 'No device configurations have been defined yet'),
                                 Uni.I18n.translate('estimationDeviceConfigurations.empty.list.item2', 'MDC', 'There are no device configurations that have reading types that match the rules in the estimation rule set'),
-                                Uni.I18n.translate('estimationDeviceConfigurations.empty.list.item3', 'MDC', 'Matching device configurations exists, but you do not have permission to view them')
+                                Uni.I18n.translate('estimationDeviceConfigurations.empty.list.item3', 'MDC', 'Matching device configurations exist, but you do not have permission to view them')
                             ]
                         }
                     }

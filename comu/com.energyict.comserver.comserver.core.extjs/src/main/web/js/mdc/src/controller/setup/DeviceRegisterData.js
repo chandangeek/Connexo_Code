@@ -63,10 +63,20 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
     loadGridItemDetail: function (rowmodel, record) {
         var me = this,
             previewPanel = me.getDeviceregisterreportpreview(),
-            form = previewPanel.down('form');
-        previewPanel.setTitle(Ext.util.Format.date(new Date(record.get('timeStamp')), 'M j, Y \\a\\t G:i'));
-        if (previewPanel.down('displayfield[name=deltaValue]')) {
-            previewPanel.down('displayfield[name=deltaValue]').setVisible(!Ext.isEmpty(record.get('deltaValue')));
+            form = previewPanel.down('form'),
+            deltaValueField = previewPanel.down('displayfield[name=deltaValue]'),
+            multiplierField = previewPanel.down('#mdc-register-preview-'+record.get('type')+'-multiplier'),
+            measurementDate = new Date(record.get('timeStamp'));
+        previewPanel.setTitle(
+            Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+                [Uni.DateTime.formatDateLong(measurementDate), Uni.DateTime.formatTimeLong(measurementDate)]
+            )
+        );
+        if (deltaValueField) {
+            deltaValueField.setVisible(!Ext.isEmpty(record.get('deltaValue')));
+        }
+        if (multiplierField) {
+            multiplierField.setVisible( !Ext.isEmpty(record.get('calculatedValue')) );
         }
         form.loadRecord(record);
     },
@@ -77,49 +87,71 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             registerModel = me.getModel('Mdc.model.Register'),
             router = me.getController('Uni.controller.history.Router'),
             dependenciesCount = 2,
+            device,
+            register,
             onDependenciesLoad = function () {
-                var widget,
-                    type,
-                    dataStore;
-
                 dependenciesCount--;
                 if (!dependenciesCount) {
-                    widget = Ext.widget('tabbedDeviceRegisterView', {
-                        device: device,
-                        router: router
-                    });
-                    type = register.get('type');
-                    dataStore = me.getStore(type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData');
+                    var widget = Ext.widget('tabbedDeviceRegisterView', {
+                            device: device,
+                            router: router
+                        }),
+                        type = register.get('type'),
+                        collectedReadingType = register.get('readingType'),
+                        collectedUnit = collectedReadingType.names.unitOfMeasure,
+                        calculatedReadingType = register.get('calculatedReadingType'),
+                        calculatedUnit = calculatedReadingType ? calculatedReadingType.names.unitOfMeasure : '',
+                        isCumulative = register.get('isCumulative'),
+                        multiplier = register.get('multiplier'),
+                        dataReport = Ext.widget('deviceregisterreportsetup-' + type, {
+                            mRID: encodeURIComponent(mRID),
+                            registerId: registerId,
+                            unitOfMeasureCollected: collectedUnit,
+                            unitOfMeasureCalculated: calculatedUnit,
+                            multiplier: multiplier
+                        }),
+                        preview = dataReport.down('deviceregisterreportpreview-' + type),
+                        dataStore = me.getStore(type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData');
 
                     me.getApplication().fireEvent('changecontentevent', widget);
 
                     Ext.suspendLayouts();
-                    widget.down('#registerTabPanel').setTitle(register.get('readingType').fullAliasName);
+                    widget.down('#registerTabPanel').setTitle(collectedReadingType.fullAliasName);
 
                     tabController.showTab(1);
 
-                    widget.down('#register-data').add(Ext.widget('deviceregisterreportsetup-' + type, {
-                        mRID: encodeURIComponent(mRID),
-                        registerId: registerId
-                    }));
-
-                    widget.down('grid').down('[dataIndex=value]').setText(Uni.I18n.translate('device.registerData.value', 'MDC', 'Value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
+                    widget.down('#register-data').add(dataReport);
+                    var valueColumn = widget.down('grid').down('[dataIndex=value]');
+                    valueColumn.setText(Uni.I18n.translate('general.collected', 'MDC', 'Collected') + ' (' + collectedUnit + ')');
 
                     me.getFilterPanel().bindStore(dataStore);
 
                     if (type === 'billing' || type === 'numerical') {
-                        var deltaValueColumn = widget.down('grid').down('[dataIndex=deltaValue]');
-                        deltaValueColumn.setText(Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
-                        deltaValueColumn.setVisible(register.get('isCumulative'));
+                        if (calculatedReadingType) {
+                            var calculatedValueColumn = widget.down('grid').down('[dataIndex=calculatedValue]');
+                            calculatedValueColumn.setText(Uni.I18n.translate('general.calculated', 'MDC', 'Calculated') + ' (' + calculatedUnit + ')');
+                            calculatedValueColumn.setVisible(true);
+                        } else if (preview.down('#mdc-calculated-value-field')) {
+                            preview.down('#mdc-calculated-value-field').setVisible(false);
+                        }
+
+                        if (isCumulative) {
+                            var deltaValueColumn = widget.down('grid').down('[dataIndex=deltaValue]');
+                            deltaValueColumn.setText(Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value')
+                                + ' (' + (calculatedReadingType ? calculatedUnit : collectedUnit) + ')'
+                            );
+                            deltaValueColumn.setVisible(true);
+                        } else if (preview.down('displayfield[name=deltaValue]')) {
+                            preview.down('displayfield[name=deltaValue]').setVisible(false);
+                        }
+                        preview.down('#mdc-register-preview-'+type+'-multiplier').setVisible(multiplier);
                     }
                     Ext.resumeLayouts(true);
 
                     contentPanel.setLoading(false);
                     dataStore.load();
                 }
-            },
-            device,
-            register;
+            };
 
         contentPanel.setLoading();
         me.getModel('Mdc.model.Device').load(mRID, {
