@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
 
-    MESSAGE_SPEC_SUBSCRIBER(ValidationServiceImpl.SUBSCRIBER_NAME, "Data validation"),
+    MESSAGE_SPEC_SUBSCRIBER(ValidationServiceImpl.SUBSCRIBER_NAME, "Handle data validation"),
     ;
 
     TranslationKeys(String key, String defaultFormat) {
