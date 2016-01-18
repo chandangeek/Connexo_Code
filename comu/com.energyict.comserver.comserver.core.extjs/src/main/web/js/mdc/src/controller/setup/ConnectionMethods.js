@@ -133,22 +133,26 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
     previewConnectionMethod: function () {
-        var connectionMethod = this.getConnectionmethodsgrid().getSelectionModel().getSelection(),
+        var selectedConnectionMethods = this.getConnectionmethodsgrid().getSelectionModel().getSelection(),
             timeUnitsStore = me.getStore('TimeUnits');
 
-        if (connectionMethod.length == 1) {
-
-            var record = connectionMethod[0],
+        if (selectedConnectionMethods.length == 1) {
+            var record = selectedConnectionMethods[0],
                 toggleDefaultMenuItemText =
                     record.get('isDefault') ?
                     Uni.I18n.translate('general.unsetAsDefault', 'MDC', 'Remove as default') :
                     Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default'),
-                translatedTimeUnit = timeUnitsStore.findRecord('timeUnit', record.get('rescheduleRetryDelay').timeUnit).get('localizedValue'),
-                count = record.get('rescheduleRetryDelay').count;
-            if(this.getToggleDefaultMenuItem())
-                this.getToggleDefaultMenuItem().setText(toggleDefaultMenuItemText);
+                rescheduleRetryDelay = record.get('rescheduleRetryDelay');
 
-            record.set('rescheduleRetryDelay', {count: count,timeUnit: translatedTimeUnit});
+            if (this.getToggleDefaultMenuItem()) {
+                this.getToggleDefaultMenuItem().setText(toggleDefaultMenuItemText);
+            }
+            if ( !Ext.isEmpty(rescheduleRetryDelay) ) { // == true for outbound connections only
+                var matchingStoreEntry = timeUnitsStore.findRecord('timeUnit', rescheduleRetryDelay.timeUnit);
+                if (matchingStoreEntry) {
+                    rescheduleRetryDelay.translatedTimeUnit = matchingStoreEntry.get('localizedValue');
+                }
+            }
 
             this.getConnectionMethodPreviewForm().loadRecord(record);
             var connectionMethodName = record.get('name');

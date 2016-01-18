@@ -172,7 +172,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                             field.hide();
                                         } else if (value) {
                                             field.show();
-                                            return value.count + ' ' + value.timeUnit;
+                                            return value.count + ' ' + (value.translatedTimeUnit ? value.translatedTimeUnit : value.timeUnit);
                                         }
                                     }
                                 }
