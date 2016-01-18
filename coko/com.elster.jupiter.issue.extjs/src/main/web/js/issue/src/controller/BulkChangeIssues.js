@@ -44,22 +44,41 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         var me = this,
             issuesStore = this.getStore(bundlePrefix + '.store.IssuesBuffered'),
             issuesStoreProxy = issuesStore.getProxy(),
+            queryStringValues = Uni.util.QueryString.getQueryStringValues(false),
+            filter = [],
+            grouping,
             widget, grid;
 
         me.bundlePrefix = bundlePrefix;
         issuesStoreProxy.extraParams = {};
-        issuesStoreProxy.setExtraParam('sort', ['dueDate', 'modTime']);
+        if (queryStringValues.sort) {
+            issuesStoreProxy.setExtraParam('sort', queryStringValues.sort);
+            delete queryStringValues.sort;
+        }
+        if (Ext.isDefined(queryStringValues.groupingType) && Ext.isDefined(queryStringValues.groupingValue) && Ext.isEmpty(queryStringValues[queryStringValues.groupingType])) {
+            grouping[queryStringValues.groupingType] = queryStringValues.groupingValue;
+            filter.push(grouping);
+        }
+        delete queryStringValues.groupingType;
+        delete queryStringValues.groupingValue;
+        Ext.iterate(queryStringValues, function (name, value) {
+            filter.push({
+                property: name,
+                value: value
+            });
+        });
 
         widget = Ext.widget('bulk-browse', {
             itemId: issueType + '-bulk-browse'
         });
         grid = widget.down('bulk-step1').down('issues-selection-grid');
         grid.reconfigure(issuesStore);
+        grid.filterParams = Ext.clone(filter);
 
         me.getApplication().fireEvent('changecontentevent', widget);
         issuesStore.data.clear();
         issuesStore.clearFilter(true);
-        issuesStore.filter([{property: 'status', value: ['status.open']}]);
+        issuesStore.filter(filter);
         issuesStore.on('load', function () {
             grid.onSelectDefaultGroupType();
         }, me, {single: true});
@@ -136,18 +155,9 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             requestUrl = '/api/' + me.bundlePrefix.toLowerCase() + '/issues/' + operation,
             warnIssues = [],
             failedIssues = [],
-            params = [],
             allIssues = false;
 
         this.setBulkActionListActiveItem(wizard);
-
-        if (record.get('allIssues')) {
-            allIssues = record.data.allIssues;
-            params = record.data.params;
-        } else {
-            params = [];
-            allIssues = false;
-        }
 
         var pb = Ext.create('Ext.ProgressBar', {width: '50%'});
         Ext.suspendLayouts();
@@ -164,8 +174,8 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         Ext.Ajax.request({
             url: requestUrl,
             method: 'PUT',
-            params: params,
             jsonData: requestData,
+            timeout: 120000,
             success: function (response) {
                 var obj = Ext.decode(response.responseText).data,
                     successCount = obj.success.length,
@@ -404,7 +414,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
         if (grid.isAllSelected()) {
             var allIssues = true;
-            var params = Ext.ComponentQuery.query('grid')[0].getStore().getProxy().extraParams;
+            var params = Ext.ComponentQuery.query('grid')[0].filterParams;
             record.set('allIssues', allIssues);
             record.set('params', params);
             record.set('issues', []);

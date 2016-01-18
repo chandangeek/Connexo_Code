@@ -87,7 +87,9 @@ Ext.define('Isu.view.issues.Grid', {
                         text: Uni.I18n.translate('general.title.bulkActions', 'ISU', 'Bulk action'),
                         privileges: Isu.privileges.Issue.commentOrAssing,
                         action: 'issuesBulkAction',
-                        href: me.router.getRoute(me.router.currentRoute + '/bulkaction').buildUrl()
+                        handler: function () {
+                            me.router.getRoute(me.router.currentRoute + '/bulkaction').forward(me.router.arguments, Uni.util.QueryString.getQueryStringValues(false));
+                        }
                     }
                 ]
             },
