@@ -105,6 +105,7 @@ public class DeviceComTaskInfoFactory {
         }
         setConnectionStrategy(deviceComTasksInfo, comTaskExecution);
         deviceComTasksInfo.urgency = comTaskExecution.getPlannedPriority();
+        deviceComTasksInfo.ignoreNextExecutionSpecsForInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound();
         deviceComTasksInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         deviceComTasksInfo.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
     }
@@ -162,6 +163,7 @@ public class DeviceComTaskInfoFactory {
             }
         }
         deviceComTasksInfo.urgency = comTaskExecution.getPlannedPriority();
+        deviceComTasksInfo.ignoreNextExecutionSpecsForInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound();
         deviceComTasksInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         deviceComTasksInfo.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
     }
