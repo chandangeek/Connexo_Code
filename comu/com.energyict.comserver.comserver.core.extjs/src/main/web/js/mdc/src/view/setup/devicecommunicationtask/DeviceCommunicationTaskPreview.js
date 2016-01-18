@@ -152,6 +152,17 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                     xtype: 'displayfield',
                                     name: 'protocolDialect',
                                     fieldLabel: Uni.I18n.translate('deviceCommunicationTask.protocolDialect', 'MDC', 'Protocol dialect')
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'ignoreNextExecutionSpecsForInbound',
+                                    fieldLabel: Uni.I18n.translate('communicationtasks.task.ignoreNextExecutionSpecsForInbound', 'MDC', 'Always execute for inbound'),
+                                    renderer: function (value) {
+                                        if (value === true) {
+                                            return Uni.I18n.translate('general.yes', 'MDC', 'Yes');
+                                        }
+                                        return Uni.I18n.translate('general.no', 'MDC', 'No');
+                                    }
                                 }
                             ]
                         },
