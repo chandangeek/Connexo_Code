@@ -16,20 +16,13 @@ import com.elster.jupiter.metering.StorerProcess;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.streams.Predicates;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -203,10 +196,10 @@ class ReadingStorerImpl implements ReadingStorer {
                 ));
 
         previousReadings = new HashMap<>();
-        List<Pair<ChannelContract, Instant>> needed = valuesView.keySet()
+        Set<Pair<ChannelContract, Instant>> needed = valuesView.keySet()
                 .stream()
                 .map(pair -> Pair.of(pair.getFirst(), pair.getFirst().getPreviousDateTime(pair.getLast())))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
         previousReadings.putAll(Maps.filterKeys(valuesView, needed::contains));
         previousReadings.putAll(readFromDb(needed));
 
@@ -230,11 +223,11 @@ class ReadingStorerImpl implements ReadingStorer {
     }
 
     private void updateExistingRecords(Map<Pair<ChannelContract, Instant>, Object[]> valuesView) {
-        List<Pair<ChannelContract, Instant>> mayNeedToUpdateTimes = valuesView.keySet()
+        Set<Pair<ChannelContract, Instant>> mayNeedToUpdateTimes = valuesView.keySet()
                 .stream()
                 .map(pair -> Pair.of(pair.getFirst(), pair.getFirst().getNextDateTime(pair.getLast())))
                 .filter(not(consolidatedValues::containsKey))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
         Map<Pair<ChannelContract, Instant>, Object[]> mayNeedToUpdate = readFromDb(mayNeedToUpdateTimes);
         TimeSeriesDataStorer updatingStorer = Behaviours.UPDATE.createTimeSeriesStorer(idsService);
         mayNeedToUpdate.entrySet()
@@ -395,7 +388,7 @@ class ReadingStorerImpl implements ReadingStorer {
         return current.subtract(previous);
     }
 
-    private Map<Pair<ChannelContract, Instant>, Object[]> readFromDb(List<Pair<ChannelContract, Instant>> needed) {
+    private Map<Pair<ChannelContract, Instant>, Object[]> readFromDb(Set<Pair<ChannelContract, Instant>> needed) {
         return needed.stream()
                 .filter(not(consolidatedValues::containsKey))
                 .map(pair -> Pair.of(pair, pair.getFirst().getReading(pair.getLast())))
