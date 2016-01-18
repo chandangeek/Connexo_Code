@@ -6,7 +6,7 @@ Ext.define('Mdc.model.Channel', {
     ],
     fields: [
         {name: 'id', type: 'number', useNull: true},
-        //{name: 'name', type: 'string', useNull: true},
+        {name: 'name', type: 'string', useNull: true},
         {name: 'overruledObisCode', type: 'string', useNull: true},
         {name: 'overflowValue', type: 'integer', useNull: true},
         {

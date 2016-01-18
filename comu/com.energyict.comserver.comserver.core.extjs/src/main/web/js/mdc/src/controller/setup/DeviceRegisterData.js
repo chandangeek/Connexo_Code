@@ -112,7 +112,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                         }),
                         preview = dataReport.down('deviceregisterreportpreview-' + type),
                         dataStore = me.getStore(type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData');
-
                     me.getApplication().fireEvent('changecontentevent', widget);
 
                     Ext.suspendLayouts();
