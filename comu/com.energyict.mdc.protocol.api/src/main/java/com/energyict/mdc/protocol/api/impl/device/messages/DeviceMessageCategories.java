@@ -163,7 +163,7 @@ public enum DeviceMessageCategories implements TranslationKey {
     /**
      * This category summarizes all messages related to a LoadProfile and their configuration.
      */
-    LOAD_PROFILES("Loadprofile messages") {
+    LOAD_PROFILES("Load profiles") {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications(DeviceMessageCategory category, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             return this.wrapAll(propertySpecService, thesaurus, category, LoadProfileMessage.values());
