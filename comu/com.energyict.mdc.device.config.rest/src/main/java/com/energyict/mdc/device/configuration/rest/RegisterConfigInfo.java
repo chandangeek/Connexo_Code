@@ -74,7 +74,7 @@ public class RegisterConfigInfo {
 
     public RegisterConfigInfo(TextualRegisterSpec registerSpec, List<ReadingType> multipliedCalculatedRegisterTypes) {
         this.id = registerSpec.getId();
-        this.name = registerSpec.getRegisterType().getReadingType().getAliasName();
+        this.name = registerSpec.getRegisterType().getReadingType().getFullAliasName();
         this.registerType = registerSpec.getRegisterType().getId();
         this.readingType = new ReadingTypeInfo(registerSpec.getRegisterType().getReadingType());
         this.obisCode = registerSpec.getObisCode();
