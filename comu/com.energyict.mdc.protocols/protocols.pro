@@ -35,6 +35,7 @@
 -keep class * implements com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol
 -keep class * implements com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol
 -keep class * implements com.energyict.mdc.protocol.api.MessageProtocol
+-keep class * implements com.energyict.mdc.protocol.api.ConnectionType
 
 # Keep annotations,
 -keepattributes *Annotation*
@@ -328,6 +329,8 @@
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.CX20009
 -keepnames class com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372
 -keepnames class com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.MbusDevice
+
+-keepnames class com.energyict.protocols.mdc.services.impl.ProtocolsModule
 
 # Currently not in sope, but might be after we port more and more from EIServer 9.x
 
