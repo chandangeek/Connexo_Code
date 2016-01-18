@@ -133,11 +133,11 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
     previewConnectionMethod: function () {
-        var connectionMethod = this.getConnectionmethodsgrid().getSelectionModel().getSelection(),
+        var selectedConnectionMethods = this.getConnectionmethodsgrid().getSelectionModel().getSelection(),
             timeUnitsStore = me.getStore('TimeUnits');
 
-        if (connectionMethod.length == 1) {
-            var record = connectionMethod[0],
+        if (selectedConnectionMethods.length == 1) {
+            var record = selectedConnectionMethods[0],
                 toggleDefaultMenuItemText =
                     record.get('isDefault') ?
                     Uni.I18n.translate('general.unsetAsDefault', 'MDC', 'Remove as default') :
