@@ -59,7 +59,7 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
             if (issuesCount === 0) {
                 countContainer.add({
                     xtype: 'label',
-                    text: Uni.I18n.translate('operator.dashboard.issuesEmptyMsg', 'DSH', 'No open issues assigned to you.')
+                    text: Uni.I18n.translate('operator.dashboard.issuesEmptyMsg', 'DSH', 'No open issues assigned to me')
                 });
             }
             if (issuesCount) {
@@ -71,7 +71,7 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
 
             var assignedFilter = {
                 assignee: assigned.get('filter').assigneeId + ':' + assigned.get('filter').assigneeType,
-                status: 'status.open',
+                status: ['status.open', 'status.in.progress'],
                 groupingType: 'none',
                 sort: ['dueDate', 'modTime']
             };

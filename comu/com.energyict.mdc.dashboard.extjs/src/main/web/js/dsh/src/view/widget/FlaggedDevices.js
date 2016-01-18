@@ -38,7 +38,7 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
         xtype: 'dataview',
         store: 'Dsh.store.FlaggedDevices',
         itemId: 'devices-dataview',
-        style: 'max-height: 160px',
+        style: 'max-height: 207px',
         overflowY: 'auto',
         itemSelector: 'a.x-btn.flag-toggle',
         emptyText: Uni.I18n.translate('overview.widget.flaggedDevices.noDevicesFound', 'DSH', 'No flagged devices found'),
