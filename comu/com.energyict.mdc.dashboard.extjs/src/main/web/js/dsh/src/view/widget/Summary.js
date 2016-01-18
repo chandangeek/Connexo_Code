@@ -20,7 +20,8 @@ Ext.define('Dsh.view.widget.Summary', {
                 itemId: 'target-container',
                 layout: 'vbox',
                 style: {
-                    marginRight: '20px'
+                    marginRight: '20px',
+                    color: '#686868'
                 },
                 items: []
             },
@@ -191,14 +192,16 @@ Ext.define('Dsh.view.widget.Summary', {
                 cls: color
             },
             {
-                cls: 'x-bar-label',
-                html: Uni.I18n.translate('overview.widget.label.success', 'DSH', '\<b\>{0}%\</b\> success', [successRate])
+                xtype: 'label',
+                cls: 'large',
+                text: Uni.I18n.translate('overview.widget.label.success1', 'DSH', '{0}% success', [successRate])
             },
             {
-                cls: 'x-bar-label',
-                html: direction === 'above'?
-                    Uni.I18n.translate('overview.widget.percentage.aboveLabel', 'DSH', '\<b\>{0}%\</b\> above target ({1}%)', [Math.abs(diff)], target) :
-                    Uni.I18n.translate('overview.widget.percentage.belowLabel', 'DSH', '\<b\>{0}%\</b\> below target ({1}%)', [Math.abs(diff)], target)
+                xtype: 'label',
+                cls: direction,
+                text: direction === 'above'?
+                    Uni.I18n.translate('overview.widget.percentage.aboveLabel', 'DSH', '{0}% above target ({1}%)', [Math.abs(diff),target]) :
+                    Uni.I18n.translate('overview.widget.percentage.belowLabel', 'DSH', '{0}% below target ({1}%)', [Math.abs(diff),target])
             }
         ]);
         Ext.resumeLayouts(true);
