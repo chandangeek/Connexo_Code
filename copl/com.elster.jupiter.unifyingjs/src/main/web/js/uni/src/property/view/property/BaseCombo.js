@@ -10,8 +10,6 @@
 Ext.define('Uni.property.view.property.BaseCombo', {
     extend: 'Uni.property.view.property.Base',
 
-    requires: ['Uni.property.store.PossibleValues'],
-
     /**
      * @final
      * @returns {Object}
@@ -40,25 +38,18 @@ Ext.define('Uni.property.view.property.BaseCombo', {
 
     getComboCmp: function () {
         var me = this,
-            store = Ext.getStore('Uni.property.store.PossibleValues'),
-            possibleValues = me.getProperty().getPossibleValues().sort(),
-            propertyValue = undefined;
-        store.loadData(possibleValues);
-        Ext.each(possibleValues, function(possibleValue) {
-            if(possibleValue.id === me.getProperty().get('value')){
-                propertyValue = possibleValue.name;
-            }
-        });
+            sortedStore = me.getProperty().getPossibleValues().sort(),
+            propertyValue = me.getProperty().get('value');
         return {
             xtype: 'combobox',
             itemId: me.key + 'combobox',
             name: this.getName(),
-            store: store,
+            store: sortedStore,
             queryMode: 'local',
-            displayField: 'name',
-            valueField: 'id',
+            displayField: 'value',
+            valueField: 'key',
+            value: (!propertyValue ? undefined : propertyValue),
             width: me.width,
-            value: propertyValue,
             forceSelection: me.getProperty().getExhaustive(),
             readOnly: me.isReadOnly,
             editable: !me.getProperty().getExhaustive(),
@@ -96,11 +87,7 @@ Ext.define('Uni.property.view.property.BaseCombo', {
 
         if (field) {
             field.on('change', function () {
-                if(this.getValue() === me.getProperty().get('default')) {
-                    me.getProperty().set('isInheritedOrDefaultValue', true);
-                } else {
-                    me.getProperty().set('isInheritedOrDefaultValue', false);
-                }
+                me.getProperty().set('isInheritedOrDefaultValue', false);
                 me.updateResetButton();
             });
         }
