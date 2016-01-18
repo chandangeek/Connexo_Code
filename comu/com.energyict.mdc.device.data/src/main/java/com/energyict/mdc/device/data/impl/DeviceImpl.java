@@ -395,6 +395,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private void doDelete() {
         deleteAllIssues();
         deleteProperties();
+        this.removeCustomProperties();
         deleteLoadProfiles();
         deleteLogBooks();
         deleteComTaskExecutions();
@@ -403,13 +404,23 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         deleteSecuritySettings();
         removeDeviceFromStaticGroups();
         closeCurrentMeterActivation();
-        this.removeCustomProperties();
         this.obsoleteKoreDevice();
         this.getDataMapper().remove(this);
     }
 
     private void removeCustomProperties() {
         this.getDeviceType().getCustomPropertySets().forEach(this::removeCustomPropertiesFor);
+        this.getRegisters().stream()
+                .forEach(register ->
+                        this.getDeviceType().getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType())
+                                .ifPresent(set -> this.customPropertySetService.removeValuesFor(set.getCustomPropertySet(), register.getRegisterSpec(), this.getId()))
+                );
+
+        this.getLoadProfiles().stream().flatMap(lp -> lp.getChannels().stream())
+                .forEach(channel ->
+                        this.getDeviceType().getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType())
+                                .ifPresent(set -> this.customPropertySetService.removeValuesFor(set.getCustomPropertySet(), channel.getChannelSpec(), this.getId()))
+                );
     }
 
     private void removeCustomPropertiesFor(RegisteredCustomPropertySet customPropertySet) {
