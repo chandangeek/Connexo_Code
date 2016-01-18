@@ -81,11 +81,15 @@ public enum AuthenticationTypes {
      */
     public static AuthenticationTypes getTypeFor(int level) {
         for (AuthenticationTypes authenticationType : values()) {
-            if (authenticationType.level == level) {
+            if (authenticationType.getLevel() == level) {
                 return authenticationType;
             }
         }
         return null;
+    }
+
+    public int getLevel() {
+        return level;
     }
 
     /**
