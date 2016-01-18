@@ -26,7 +26,12 @@ public class IntervalReadingImpl extends BaseReadingImpl implements IntervalRead
     public static IntervalReadingImpl of(Instant timeStamp, BigDecimal value, ProfileStatus profileStatus) {
 		return new IntervalReadingImpl(timeStamp, value, profileStatus);
 	}
-    
+
+    /**
+     * This method has been set as deprecated, whenever possible please use method
+     * {@link #of(Instant, BigDecimal, ProfileStatus)} to ensure the ProfileStatus is passed on.
+     */
+    @Deprecated
     public static IntervalReadingImpl of(Instant timeStamp, BigDecimal value) {
     	return of(timeStamp, value, ProfileStatus.of());
     }
