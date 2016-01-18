@@ -427,6 +427,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     private NumericalRegisterSpec mockNumericalRegister(long id, DeviceConfiguration deviceConfiguration) {
         ReadingType readingType = mockReadingType();
         when(readingType.getAliasName()).thenReturn("alias");
+        when(readingType.getFullAliasName()).thenReturn("alias");
         when(readingType.getCalculatedReadingType()).thenReturn(Optional.empty());
         RegisterType registerType = mock(RegisterType.class);
         when(registerType.getReadingType()).thenReturn(readingType);
