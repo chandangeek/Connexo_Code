@@ -194,7 +194,7 @@ Ext.define('Dsh.view.widget.Summary', {
             {
                 xtype: 'label',
                 cls: 'large',
-                text: Uni.I18n.translate('overview.widget.label.success1', 'DSH', '{0}% success', [successRate])
+                text: Uni.I18n.translate('overview.widget.label.success', 'DSH', '{0}% success', [successRate])
             },
             {
                 xtype: 'label',
