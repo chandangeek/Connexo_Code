@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.IntervalBlock;
+import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
@@ -89,7 +90,13 @@ public final class MeterDataFactory {
         for (IntervalData intervalData : collectedLoadProfile.getCollectedIntervalData()) {
             for (Pair<IntervalBlockImpl, IntervalValue> pair : DualIterable.endWithShortest(intervalBlock, intervalData.getIntervalValues())) {
                 // safest way to convert from Number to BigDecimal -> using the Number#toString()
-                pair.getFirst().addIntervalReading(IntervalReadingImpl.of(intervalData.getEndTime().toInstant(), new BigDecimal(pair.getLast().getNumber().toString())));
+                pair.getFirst().addIntervalReading(
+                        IntervalReadingImpl.of(
+                                intervalData.getEndTime().toInstant(),
+                                new BigDecimal(pair.getLast().getNumber().toString()),
+                                new ProfileStatus(pair.getLast().getEiStatus() | intervalData.getEiStatus())
+                        )
+                );
             }
         }
         return new ArrayList<>(intervalBlock);
