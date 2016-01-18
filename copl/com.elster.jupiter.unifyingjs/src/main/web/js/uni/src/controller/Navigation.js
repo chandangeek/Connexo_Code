@@ -137,7 +137,7 @@ Ext.define('Uni.controller.Navigation', {
             if(breadcrumbs.items.items[breadcrumbs.items.items.length -1].text === breadcrumb.text) {
                 me.setTitle(text);
             }
-            breadcrumb.setText(text);
+            breadcrumb.setText(Ext.htmlEncode(text));
         }
     },
 
