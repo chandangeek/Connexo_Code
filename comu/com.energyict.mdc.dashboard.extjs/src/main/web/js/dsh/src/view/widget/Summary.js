@@ -191,12 +191,14 @@ Ext.define('Dsh.view.widget.Summary', {
                 cls: color
             },
             {
-                cls: 'large',
-                html: '<h4>' + Uni.I18n.translate('overview.widget.label.success', 'DSH', '<b>{0}%</b> success', [successRate]) + '</h4>'
+                cls: 'x-bar-label',
+                html: Uni.I18n.translate('overview.widget.label.success', 'DSH', '\<b\>{0}%\</b\> success', [successRate])
             },
             {
-                cls: direction,
-                html: Uni.I18n.translate('overview.widget.percentage.label', 'DSH', '<b>{0}%</b>', [Math.abs(diff)])
+                cls: 'x-bar-label',
+                html: direction === 'above'?
+                    Uni.I18n.translate('overview.widget.percentage.aboveLabel', 'DSH', '\<b\>{0}%\</b\> above target ({1}%)', [Math.abs(diff)], target) :
+                    Uni.I18n.translate('overview.widget.percentage.belowLabel', 'DSH', '\<b\>{0}%\</b\> below target ({1}%)', [Math.abs(diff)], target)
             }
         ]);
         Ext.resumeLayouts(true);
