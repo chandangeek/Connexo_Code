@@ -203,7 +203,7 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
 
         @Override
         public String toStringValue(ProtocolDialect object) {
-            return null;
+            return object.getId();
         }
     }
 
