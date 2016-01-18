@@ -19,6 +19,7 @@ Ext.define('Mdc.model.RegisterType', {
     idProperty: 'id',
     associations: [
         {
+            instanceName: 'readingType',
             name: 'readingType',
             associationKey: 'readingType',
             type: 'hasOne',
@@ -28,17 +29,23 @@ Ext.define('Mdc.model.RegisterType', {
             foreignKey: 'readingType'
         },
         {
+            instanceName: 'collectedReadingType',
             name: 'collectedReadingType',
             associationKey: 'collectedReadingType',
             type: 'hasOne',
             model: 'Mdc.model.ReadingType',
+            getterName: 'getCollectedReadingType',
+            setterName: 'setCollectedReadingType',
             foreignKey: 'collectedReadingType'
         },
         {
+            instanceName: 'calculatedReadingType',
             name: 'calculatedReadingType',
             associationKey: 'calculatedReadingType',
             type: 'hasOne',
             model: 'Mdc.model.ReadingType',
+            getterName: 'getCalculatedReadingType',
+            setterName: 'setCalculatedReadingType',
             foreignKey: 'calculatedReadingType'
         },
         {
