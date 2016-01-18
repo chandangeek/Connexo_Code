@@ -30,6 +30,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -72,9 +73,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-
 import com.google.common.collect.HashMultiset;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multiset;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -93,7 +92,6 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -723,9 +721,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 .stream()
                 .map(LoadProfileSpec::getChannelSpecs)
                 .flatMap(List::stream)
-                .map(channelSpec -> channelSpec.getCalculatedReadingType()
-                        .map(calculated -> (List<ReadingType>) ImmutableList.of(channelSpec.getReadingType(), calculated))
-                        .orElseGet(() -> Collections.singletonList(channelSpec.getReadingType())))
+                .map(this::getReadingTypes)
                 .flatMap(List::stream);
         Stream<ReadingType> registerReadingTypes = configuration.getRegisterSpecs()
                 .stream()
@@ -734,6 +730,17 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 .flatMap(Function.identity())
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    private List<ReadingType> getReadingTypes(ChannelSpec channelSpec) {
+        List<ReadingType> readingTypes = new ArrayList<>();
+        ReadingType readingType = channelSpec.getReadingType();
+        readingTypes.add(readingType);
+        Stream.of(channelSpec.getCalculatedReadingType(), readingType.getCalculatedReadingType())
+                .flatMap(Functions.asStream())
+                .findFirst()
+                .ifPresent(readingTypes::add);
+        return readingTypes;
     }
 
     @Override
