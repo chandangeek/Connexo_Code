@@ -219,7 +219,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                                 var type = register.get('type');
                                 var widget = Ext.widget('deviceregisterreportedit-' + type, {
                                     edit: true,
-                                    returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({mRID: encodeURIComponent(mRID), registerId: registerId}),
+                                    returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({mRID: encodeURIComponent(mRID), registerId: registerId}) + (me.getController('Uni.controller.history.EventBus').getPreviousQueryString()!==null ? '?'+me.getController('Uni.controller.history.EventBus').getPreviousQueryString() : ''),
                                     registerType: type,
                                     router: router
                                 });
