@@ -1,6 +1,5 @@
 package com.elster.jupiter.issue.rest.response;
 
-import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ListValueFactory;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
@@ -10,7 +9,6 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -102,34 +100,17 @@ public class PropertyUtils {
 
     @SuppressWarnings("unchecked")
     private Object convertPropertyInfoValueToPropertyValue(PropertySpec propertySpec, Object value) {
-        if (HasIdAndName.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
-            List<HasIdAndName> listValue = new ArrayList<>();
-            if (value instanceof List) {
-                List<?> list = (List<?>) value;
-                for (Object listItem : list) {
-                    listValue.add(parseListValueInfo(propertySpec, listItem));
-                }
-                return listValue;
-            }
-        }
         if (Objects.equals(propertySpec.getValueFactory().getValueType(), Boolean.class)) {
             if (Boolean.class.isAssignableFrom(value.getClass())) {
                 return value;
             }
         }
         // Check for List values
-        if (   propertySpec.getValueFactory().getClass().equals(ListValueFactory.class)
-            && value instanceof List) {
+        if (propertySpec.getValueFactory().getClass().equals(ListValueFactory.class) && value instanceof List) {
             List<Object> valueList = (List<Object>) value;
             ListValueFactory listValueFactory = (ListValueFactory) propertySpec.getValueFactory();
             return listValueFactory.fromValues(valueList);
         }
         return propertySpec.getValueFactory().fromStringValue(value.toString());
     }
-
-    private HasIdAndName parseListValueInfo(PropertySpec propertySpec, Object value) {
-        String stringValue = value.toString();
-        return (HasIdAndName) propertySpec.getValueFactory().fromStringValue(stringValue);
-    }
-
 }
