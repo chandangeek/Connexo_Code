@@ -57,7 +57,7 @@ Ext.define('Mtr.readingtypes.view.PreviewForm', {
                                     {
                                         name: 'flowDirection',
                                         itemId: 'flow-direction',
-                                        fieldLabel: Uni.I18n.translate('readingtypesmanagment.flowDirection', 'MTR', 'Diretion of flow')
+                                        fieldLabel: Uni.I18n.translate('readingtypesmanagment.flowDirection', 'MTR', 'Direction of flow')
                                     },
                                     {
                                         name: 'commodity',
