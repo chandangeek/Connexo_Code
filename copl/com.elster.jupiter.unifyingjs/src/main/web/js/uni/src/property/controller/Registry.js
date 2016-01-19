@@ -41,7 +41,9 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.RelativePeriod',
         'Uni.property.view.property.AdvanceReadingsSettings',
         'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone',
-        'Uni.property.view.property.deviceconfigurations.DeviceConfigurations'
+        'Uni.property.view.property.deviceconfigurations.DeviceConfigurations',
+        'Uni.property.view.property.ObisCode',
+        'Uni.property.view.property.ObisCodeCombo'
     ],
 
     /**
@@ -71,7 +73,7 @@ Ext.define('Uni.property.controller.Registry', {
         LOADPROFILE: 'Uni.property.view.property.Reference',
         EAN13: 'Uni.property.view.property.Text',
         EAN18: 'Uni.property.view.property.Text',
-        OBISCODE: 'Uni.property.view.property.Text',
+        OBISCODE: 'Uni.property.view.property.ObisCode',
         ENCRYPTED_STRING: 'Uni.property.view.property.Password',
         UNKNOWN: 'Uni.property.view.property.Text',
         LISTVALUE: 'Uni.property.view.property.Multiselect',

@@ -15,7 +15,8 @@ Ext.define('Uni.controller.history.EventBus', {
         defaultToken: '',
         currentPath: null,
         previousPath: null,
-        previousQueryString: null
+        previousQueryString: null,
+        currentQueryString: null
     },
 
     onLaunch: function () {
@@ -68,14 +69,14 @@ Ext.define('Uni.controller.history.EventBus', {
             queryStringIndex = token.indexOf('?'),
             queryStringChanged = false,
             pathChanged = false;
-
         if (typeof token === 'undefined' || token === null || token === '') {
             token = this.getDefaultToken();
             Ext.util.History.add(token);
         }
         queryString = queryStringIndex===-1 ? null : token.substring(queryStringIndex+1, token.length);
-        if(queryString !== this.getPreviousQueryString()){
-            this.setPreviousQueryString(queryString);
+        if(queryString !== this.getCurrentQueryString()){
+            this.setPreviousQueryString(this.getCurrentQueryString());
+            this.setCurrentQueryString(queryString);
             if (!Uni.util.History.isSuspended()) {
                 queryStringChanged = true;
             }
@@ -92,7 +93,7 @@ Ext.define('Uni.controller.history.EventBus', {
         }
         if (Uni.util.History.isParsePath() || pathChanged) {
             crossroads.parse(token);
-            this.setPreviousQueryString(null);
+ //           this.setPreviousQueryString(null);
         } else if (queryStringChanged) {
             Uni.util.QueryString.changed(queryString);
         }
