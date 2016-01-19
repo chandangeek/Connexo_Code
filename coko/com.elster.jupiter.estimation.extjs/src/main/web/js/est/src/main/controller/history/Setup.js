@@ -30,7 +30,7 @@ Ext.define('Est.main.controller.history.Setup', {
                             action: 'showEstimationRuleSetDetails',
                             callback: function (route) {
                                 this.getApplication().on('loadEstimationRuleSet', function (record) {
-                                    route.setTitle(Ext.String.htmlEncode(record.get('name')));
+                                    route.setTitle(record.get('name'));
                                     return true;
                                 }, {single: true});
                                 return this;
@@ -74,7 +74,7 @@ Ext.define('Est.main.controller.history.Setup', {
                                             action: 'showOverview',
                                             callback: function (route) {
                                                 this.getApplication().on('loadEstimationRule', function (record) {
-                                                    route.setTitle(Ext.String.htmlEncode(record.get('name')));
+                                                    route.setTitle(record.get('name'));
                                                     return true;
                                                 }, {single: true});
                                                 return this;
