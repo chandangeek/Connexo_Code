@@ -14,7 +14,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_IMPORTER(2002, "importschedule.noSuchImporter", "Importer {0} does not exist.", Level.SEVERE),
     CAN_NOT_BE_EMPTY(2, Constants.NAME_REQUIRED_KEY, "This field is required", Level.SEVERE),
     DUPLICATE_IMPORT_SCHEDULE(2, Constants.DUPLICATE_IMPORT_SCHEDULE, "Duplicate name", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_256(4, Constants.FIELD_SIZE_BETWEEN_1_AND_4000, "Field's text length should be between 1 and 4000 symbols", Level.SEVERE),
+    FIELD_SIZE_BETWEEN_1_AND_256(4, Constants.FIELD_SIZE_BETWEEN_1_AND_4000, "This field''s text length should be between 1 and 4000 symbols", Level.SEVERE),
     MISSING_PROPERTY(1002, "property.missing", "Required property with key ''{0}'' was not found.", Level.SEVERE),
     INVALID_CHARS(5, Constants.INVALID_CHARS, "This field contains invalid characters", Level.SEVERE),
     IMPORT_SCHEDULE_PROPERTY_NOT_IN_SPEC(1005, Constants.IMPORT_SCHEDULE_PROPERTY_NOT_IN_SPEC_KEY, "The import schedule ''{0}'' does not contain a specification for attribute ''{1}''", Level.SEVERE),
