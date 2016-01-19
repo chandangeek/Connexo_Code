@@ -54,7 +54,8 @@ Ext.define('CSMonitor.controller.ServerDetails', {
     },
 
     updateVisibilityOfRemoteServers: function() {
-        this.getStatusPanel().setVisibilityOfRemoteServers(this.getRemoteServersVisible());
+      // TODO: no Remote ComServers in Connexo yet
+      //  this.getStatusPanel().setVisibilityOfRemoteServers(this.getRemoteServersVisible());
         this.setVisibilityUpdated(true);
     },
 

@@ -1,10 +1,7 @@
 {
     "name": "com.energyict.mdc.engine.monitor.app",
 
-    "requires": [
-        "com.elster.jupiter.loaderjs",
-        "com.elster.jupiter.unifyingjs"
-    ],
+    "requires": [],
 
-    "id": "28c552c9-436e-4d93-8f74-038373138820"
+    "id": "28ac7d9e-893c-40c8-b5d4-3b093bd29c3f"
 }

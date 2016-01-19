@@ -329,9 +329,6 @@
             <id>sencha-build</id>
             <properties>
                 <js.dir>js/mon</js.dir>
-                <sencha.cmd.dir>C:\Sencha\Cmd\4.0.5.87</sencha.cmd.dir>
-      		    <sencha.ext.dir>C:\repositorysvn\jupiterrepo\copl\com.elster.jupiter.extjs\src\main\web\js\ext</sencha.ext.dir>
-                <project.name>${project.groupId}.${project.artifactId}.extjs</project.name>
             </properties>
         </profile>
     </profiles>
