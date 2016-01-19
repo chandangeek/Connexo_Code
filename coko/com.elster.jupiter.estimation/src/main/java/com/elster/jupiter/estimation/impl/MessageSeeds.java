@@ -14,8 +14,8 @@ public enum MessageSeeds implements MessageSeed {
 
     CAN_NOT_BE_EMPTY(1, Constants.NAME_REQUIRED_KEY, "This field is required", Level.SEVERE),
     INVALID_CHARS(2, Constants.INVALID_CHARS, "This field contains invalid characters", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_80(3, Constants.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_256(4, Constants.FIELD_SIZE_BETWEEN_1_AND_4000, "Field's text length should be between 1 and 4000 symbols", Level.SEVERE),
+    FIELD_SIZE_BETWEEN_1_AND_80(3, Constants.FIELD_SIZE_BETWEEN_1_AND_80, "This field''s text length should be between 1 and 80 symbols", Level.SEVERE),
+    FIELD_SIZE_BETWEEN_1_AND_256(4, Constants.FIELD_SIZE_BETWEEN_1_AND_4000, "This field''s text length should be between 1 and 4000 symbols", Level.SEVERE),
 
     DUPLICATE_ESTIMATION_RULE_SET(101, Constants.DUPLICATE_ESTIMATION_RULE_SET, "Name must be unique", Level.SEVERE),
     DUPLICATE_ESTIMATION_RULE(102, Constants.DUPLICATE_ESTIMATION_RULE, "Name must be unique", Level.SEVERE),
