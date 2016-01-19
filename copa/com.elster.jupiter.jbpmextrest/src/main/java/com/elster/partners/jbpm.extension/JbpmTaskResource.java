@@ -5,6 +5,7 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jbpm.kie.services.api.RuntimeDataService;
 import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
+import org.jbpm.kie.services.impl.model.VariableStateDesc;
 import org.jbpm.services.task.impl.TaskContentRegistry;
 import org.jbpm.services.task.impl.model.TaskImpl;
 import org.jbpm.services.task.impl.model.UserImpl;
@@ -384,6 +385,30 @@ public class JbpmTaskResource {
             return runningProcessInfos;
         }
         return null;
+    }
+
+    @GET
+    @Path("/process/instance/{processInstanceId: [0-9-]+}/node")
+    @Produces("application/json")
+    public ProcessInstanceNodeInfos getProcessInstanceNode(@Context UriInfo uriInfo,@PathParam("processInstanceId") long processInstanceId){
+        String processInstanceState = "";
+        if(runtimeDataService.getProcessInstanceById(processInstanceId).getState() == 1){
+            processInstanceState = "Active";
+        }else if(runtimeDataService.getProcessInstanceById(processInstanceId).getState() == 2){
+            processInstanceState = "Completed";
+        }else{
+            processInstanceState = "Aborted";
+        }
+        EntityManager em = emf.createEntityManager();
+        String queryString = "select n.NODENAME, n.NODETYPE, MAX(n.TYPE), MIN(n.LOG_DATE), n.NODEINSTANCEID from NODEINSTANCELOG n where n.PROCESSINSTANCEID =:processInstanceId group by n.NODENAME, n.NODETYPE, n.NODEINSTANCEID order by MIN(n.LOG_DATE) DESC";
+        Query query = em.createNativeQuery(queryString);
+        query.setParameter("processInstanceId", processInstanceId);
+        List<Object[]> nodes = query.getResultList();
+        queryString = "select * from variableinstancelog v WHERE v.PROCESSINSTANCEID = :processInstanceId";
+        query = em.createNativeQuery(queryString);
+        query.setParameter("processInstanceId", processInstanceId);
+        List<Object[]> processVariables = query.getResultList();
+        return new ProcessInstanceNodeInfos(nodes, processInstanceState, processVariables);
     }
 
     @GET
