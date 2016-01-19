@@ -74,7 +74,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.rest</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -96,6 +95,10 @@
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
 
         <!--INTEGRATION TESTS-->
@@ -187,7 +190,6 @@
             <artifactId>mdc.protocol.pluggable</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
@@ -198,7 +200,6 @@
             <artifactId>json-path</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <profiles>
