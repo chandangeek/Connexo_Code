@@ -1,6 +1,5 @@
 package com.elster.jupiter.validation.rest;
 
-import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ListValueFactory;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
@@ -11,7 +10,6 @@ import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.time.RelativePeriod;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -109,16 +107,6 @@ public class PropertyUtils {
     }
 
     private Object convertPropertyInfoValueToPropertyValue(PropertySpec propertySpec, Object value) {
-        if (HasIdAndName.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
-            List<HasIdAndName> listValue = new ArrayList<>();
-            if (value instanceof List) {
-                List<?> list = (List<?>) value;
-                for (Object listItem : list) {
-                    listValue.add(parseListValueInfo(propertySpec, listItem));
-                }
-                return listValue;
-            }
-        }
         if (Objects.equals(propertySpec.getValueFactory().getValueType(), RelativePeriod.class)) {
             return propertySpec.getValueFactory().fromStringValue("" + ((Map)value).get("id"));
         }
@@ -135,10 +123,4 @@ public class PropertyUtils {
         }
         return propertySpec.getValueFactory().fromStringValue(value.toString());
     }
-
-    private HasIdAndName parseListValueInfo(PropertySpec propertySpec, Object value) {
-        String stringValue = (String) value;
-        return (HasIdAndName) propertySpec.getValueFactory().fromStringValue(stringValue);
-    }
-
 }

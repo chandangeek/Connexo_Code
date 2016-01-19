@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.properties.ListValueFactory;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -39,8 +40,10 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationVersionStatus;
 import com.elster.jupiter.validation.Validator;
-
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -59,18 +62,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.*;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ValidationResourceTest extends BaseValidationRestTest {
     public static final long OK_VERSION = 23L;
@@ -784,7 +778,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         when(possibleValues.isExhaustive()).thenReturn(true);
         when(propertySpec.getPossibleValues()).thenReturn(possibleValues);
         when(propertySpec.isRequired()).thenReturn(isRequired);
-        when(propertySpec.getValueFactory()).thenReturn(new Finder());
+        when(propertySpec.getValueFactory()).thenReturn(new ListValueFactory(new Finder()));
         return propertySpec;
     }
 
@@ -828,27 +822,6 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         return validator;
     }
 
-    private static class ListValueBean extends HasIdAndName {
-
-        private String id;
-        private String name;
-
-        private ListValueBean(String id, String name) {
-            this.id = id;
-            this.name = name;
-        }
-
-        @Override
-        public String getId() {
-            return id;
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
-    }
-
     private static class Finder extends AbstractValueFactory<ListValueBean> {
 
         static ListValueBean bean1 = new ListValueBean("1", "first");
@@ -874,7 +847,26 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         public String toStringValue(ListValueBean object) {
             return object.getId();
         }
-
     }
 
+    private static class ListValueBean extends HasIdAndName {
+
+        private String id;
+        private String name;
+
+        private ListValueBean(String id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        @Override
+        public String getId() {
+            return id;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+    }
 }
