@@ -105,7 +105,7 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
         var me = this,
             menu = me.getReadingTypesPreviewMenu();
         if(menu) menu.record = record;
-        me.getPreview().setTitle(record.get('fullAliasName'));
+        me.getPreview().setTitle(Ext.String.htmlEncode(record.get('fullAliasName')));
         me.getPreviewForm().loadRecord(record);
     },
 
@@ -119,7 +119,7 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
             case 'edit':
                 me.msg = Uni.I18n.translate('readingtypesmanagment.saved', 'MTR', 'saved');
                 var editWindow = Ext.create('Mtr.readingtypes.view.EditAliasWindow');
-                editWindow.setTitle(Uni.I18n.translate('readingtypesmanagment.editalias', 'MTR', 'Edit {0}', record.get('fullAliasName')));
+                editWindow.setTitle(Uni.I18n.translate('readingtypesmanagment.editalias', 'MTR', 'Edit {0}', record.get('fullAliasName'), false));
                 editWindow.down('textfield').setValue(record.get('aliasName'));
                 editWindow.show();
                 break;
