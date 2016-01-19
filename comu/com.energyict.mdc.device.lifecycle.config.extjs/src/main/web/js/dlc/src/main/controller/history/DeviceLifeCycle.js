@@ -29,7 +29,7 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                             action: 'showCloneDeviceLifeCycle',
                             callback: function (route) {
                                 this.getApplication().on('devicelifecyclecloneload', function (recordName) {
-                                    route.setTitle(Ext.String.htmlDecode(Uni.I18n.translate('general.clonex', 'DLC', "Clone '{0}'", recordName)));
+                                    route.setTitle(Uni.I18n.translate('general.clonex', 'DLC', "Clone '{0}'", recordName, false));
                                     return true;
                                 }, {single: true});
                                 return this;
@@ -56,7 +56,7 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                     action: 'showEditDeviceLifeCycle',
                                     callback: function (route) {
                                         this.getApplication().on('deviceLifeCycleEdit', function (record) {
-                                            route.setTitle(Ext.String.htmlDecode(Uni.I18n.translate('deviceLifeCycles.edit.title', 'DLC', "Edit '{0}'", [record.get('name')])));
+                                            route.setTitle(Uni.I18n.translate('deviceLifeCycles.edit.title', 'DLC', "Edit '{0}'", record.get('name'), false));
                                             return true;
                                         }, {single: true});
                                         return this;
