@@ -250,6 +250,28 @@ public class BpmResource {
     }
 
     @GET
+    @Path("/process/instance/{processInstanceId}/nodes")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
+    public ProcessInstanceNodeInfos getProcessInstanceNode(@Context UriInfo uriInfo,
+                                       @HeaderParam("Authorization") String auth,
+                                       @PathParam("processInstanceId") long processInstanceId) {
+        String jsonContent;
+        JSONObject jsnobject = null;
+        try {
+            jsonContent = bpmService.getBpmServer().doGet("/rest/tasks/process/instance/"+processInstanceId+"/node", auth);
+            if (!"".equals(jsonContent)) {
+                jsnobject = new JSONObject(jsonContent);
+            }
+        } catch (JSONException e) {
+        } catch (RuntimeException e) {
+        }
+        return new ProcessInstanceNodeInfos(jsnobject);
+
+
+    }
+
+    @GET
     @Path("/processes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
