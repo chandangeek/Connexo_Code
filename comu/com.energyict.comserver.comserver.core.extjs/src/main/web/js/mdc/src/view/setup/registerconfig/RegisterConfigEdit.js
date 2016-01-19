@@ -63,6 +63,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                     },
                     {
                         xtype: 'fieldcontainer',
+                        itemId: 'obis-code-container',
                         required: true,
                         width: 450,
                         layout: 'hbox',

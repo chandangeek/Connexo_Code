@@ -40,6 +40,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.EditLogbookConfiguration', {
                 },
                 {
                     xtype: 'fieldcontainer',
+                    itemId: 'obis-code-container',
                     required: true,
                     width: 450,
                     layout: 'hbox',

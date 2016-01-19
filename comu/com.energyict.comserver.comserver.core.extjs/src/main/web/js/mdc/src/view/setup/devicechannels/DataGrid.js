@@ -169,7 +169,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
     },
 
     formatColumn: function (v, metaData, record, validationInfo) {
-        var cls = 'icon-validation-cell',
+        var me = this,
+            cls = 'icon-validation-cell',
             status = validationInfo.validationResult ? validationInfo.validationResult.split('.')[1] : '';
 
         if (status == 'notValidated') {
@@ -182,7 +183,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
 
         metaData.tdCls = cls;
         if (!Ext.isEmpty(v)) {
-            var value = Uni.Number.formatNumber(v.toString(), -1);
+            var value = Uni.Number.formatNumber(v.toString(),
+                me.channelRecord && !Ext.isEmpty(me.channelRecord.get('nbrOfFractionDigits')) ? me.channelRecord.get('nbrOfFractionDigits') : -1);
             if (validationInfo.estimatedByRule && !record.isModified('value')) {
                 return !Ext.isEmpty(value) ? value + '<span style="margin: 0 0 0 10px; font-size: 16px; color: #33CC33; position: absolute" class="icon-play4"</span>' : '';
             } else if (validationInfo.isConfirmed && !record.isModified('value')) {

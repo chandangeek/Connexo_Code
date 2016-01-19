@@ -118,8 +118,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskGrid',
                 xtype: 'uni-actioncolumn',
                 menu: {
                     xtype: 'device-communication-task-action-menu'
-                },
-                flex: 0.5
+                }
             }
 
         ];
