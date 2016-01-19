@@ -36,6 +36,11 @@ public class FakeTransactionService implements TransactionService {
         return new FakeTransactionContext();
     }
 
+    @Override
+    public boolean isInTransaction() {
+        return false;
+    }
+
     private class FakeTransactionContext implements TransactionContext {
         @Override
         public void close() {
