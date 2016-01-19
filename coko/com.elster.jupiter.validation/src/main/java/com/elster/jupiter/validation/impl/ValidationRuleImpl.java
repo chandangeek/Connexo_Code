@@ -42,7 +42,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.util.streams.Currying.use;
+import static com.elster.jupiter.util.streams.Currying.*;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_VALIDATION_RULE + "}")
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
@@ -276,7 +276,7 @@ public final class ValidationRuleImpl implements IValidationRule {
         return readingTypesInRule
                 .stream()
                 .map(ReadingTypeInValidationRule::getReadingType)
-                .anyMatch(use(ReadingType::equals).with(readingType)::apply);
+                .anyMatch(test(ReadingType::equals).with(readingType));
     }
 
     @Override
