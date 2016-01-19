@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.properties.ListValueFactory;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -125,6 +126,12 @@ public class PropertyUtils {
             if (Boolean.class.isAssignableFrom(value.getClass())) {
                 return value;
             }
+        }
+        // Check for List values
+        if (propertySpec.getValueFactory().getClass().equals(ListValueFactory.class) && value instanceof List) {
+            List<Object> valueList = (List<Object>) value;
+            ListValueFactory listValueFactory = (ListValueFactory) propertySpec.getValueFactory();
+            return listValueFactory.fromValues(valueList);
         }
         return propertySpec.getValueFactory().fromStringValue(value.toString());
     }
