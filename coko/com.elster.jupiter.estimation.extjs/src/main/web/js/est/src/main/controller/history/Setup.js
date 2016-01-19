@@ -141,7 +141,7 @@ Ext.define('Est.main.controller.history.Setup', {
                             privileges: Est.privileges.EstimationConfiguration.viewTask,
                             callback: function (route) {
                                 this.getApplication().on('estimationTaskLoaded', function (record) {
-                                    route.setTitle(Ext.String.htmlEncode(record.get('name')));
+                                    route.setTitle(record.get('name'));
                                     return true;
                                 }, {single: true});
                                 return this;
