@@ -29,7 +29,12 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationClone', {
                         fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                         allowBlank: false,
                         enforceMaxLength: true,
-                        maxLength: 80
+                        maxLength: 80,
+                        listeners: {
+                            afterrender: function (field) {
+                                field.focus(false, 200);
+                            }
+                        }
                     },
                     {
                         xtype: 'fieldcontainer',

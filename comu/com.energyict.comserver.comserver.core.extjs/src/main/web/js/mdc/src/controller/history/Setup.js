@@ -53,7 +53,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showLogbookTypeEditView',
                             callback: function (route) {
                                 this.getApplication().on('loadLogbookType', function (record) {
-                                    route.setTitle(Ext.String.htmlDecode(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')])));
+                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
                                     return true;
                                 }, {single: true});
 
@@ -226,7 +226,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             action: 'showDeviceConfigurationLoadProfilesEditView',
                                                             callback: function (route) {
                                                                 this.getApplication().on('loadLoadProfile', function (record) {
-                                                                    route.setTitle(Ext.String.htmlDecode(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.name])));
+                                                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.name, false));
                                                                     return true;
                                                                 }, {single: true});
 
@@ -830,7 +830,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showEditView',
                             callback: function (route) {
                                 this.getApplication().on('loadComPortPool', function (record) {
-                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [Ext.String.htmlDecode(record.get('name'))]));
+                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
                                     return true;
                                 }, {single: true});
 
@@ -845,7 +845,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showOverview',
                             callback: function (route) {
                                 this.getApplication().on('comPortPoolOverviewLoad', function (record) {
-                                    route.setTitle(Ext.String.htmlEncode(record.get('name')));
+                                    route.setTitle(record.get('name'));
                                     return true;
                                 }, {single: true});
                                 return this;
@@ -961,7 +961,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showCommunicationTasksCreateEdit',
                             callback: function (route) {
                                 this.getApplication().on('loadCommunicationTask', function (record) {
-                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name')));
+                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
                                     return true;
                                 }, {single: true});
 
@@ -991,8 +991,8 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.DataCollectionKpi',
                             action: 'showDataCollectionKpiEditView',
                             callback: function (route) {
-                                this.getApplication().on('loadDataCollectionKpi', function (title) {
-                                    route.setTitle(title);
+                                this.getApplication().on('loadDataCollectionKpi', function (deviceGroupName) {
+                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", deviceGroupName, false));
                                     return true;
                                 }, {single: true});
                                 return this;
@@ -1022,7 +1022,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showCommunicationSchedulesEditView',
                             callback: function (route) {
                                 this.getApplication().on('loadCommunicationSchedule', function (record) {
-                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", Ext.String.htmlDecode([record.get('name')])));
+                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
                                     return true;
                                 }, {single: true});
 

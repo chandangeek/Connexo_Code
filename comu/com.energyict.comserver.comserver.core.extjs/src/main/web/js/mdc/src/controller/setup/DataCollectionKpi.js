@@ -201,14 +201,14 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                     widget.down('#dataCollectionKpiEditForm').setTitle(Uni.I18n.translate('datacollectionkpis.editDataCollectionKpi', 'MDC', 'Edit data collection KPI'));
                     kpiModel.load(id, {
                         success: function (kpiRecord) {
-                            var editTitle = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[kpiRecord.get('deviceGroup').name]);
-
                             Ext.suspendLayouts();
                             form.loadRecord(kpiRecord);
                             form.down('[name=deviceGroup]').disable();
                             form.down('[name=frequency]').disable();
-                            widget.down('#dataCollectionKpiEditForm').setTitle(editTitle);
-                            me.getApplication().fireEvent('loadDataCollectionKpi', Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[kpiRecord.get('deviceGroup').name]));
+                            widget.down('#dataCollectionKpiEditForm').setTitle(
+                                Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", kpiRecord.get('deviceGroup').name)
+                            );
+                            me.getApplication().fireEvent('loadDataCollectionKpi', kpiRecord.get('deviceGroup').name);
                             createBtn.setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
                             createBtn.action = 'save';
                             Ext.resumeLayouts(true);
