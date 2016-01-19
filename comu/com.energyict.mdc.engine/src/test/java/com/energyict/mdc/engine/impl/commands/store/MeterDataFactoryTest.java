@@ -4,9 +4,11 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.exceptions.ObisCodeParseException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -42,8 +45,9 @@ public class MeterDataFactoryTest {
         ChannelInfo channelInfo = new ChannelInfo(1, "1.0.1.8.0.255", Unit.get("kWh"), "meter", readingType);
         Date intervalDate = new Date(1385974800L);
         IntervalData intervalData = new IntervalData(intervalDate);
-        BigDecimal intervalValue = new BigDecimal(123.456);
-        intervalData.addValue(intervalValue);
+        IntervalValue intervalValue = new IntervalValue(new BigDecimal(123.456), 0, IntervalStateBits.OTHER);
+        intervalData.setIntervalValues(Collections.singletonList(intervalValue));
+        intervalData.setEiStatus(IntervalStateBits.BADTIME);
         CollectedLoadProfile collectedLoadProfile = mock(CollectedLoadProfile.class);
         when(collectedLoadProfile.getChannelInfo()).thenReturn(Arrays.asList(channelInfo));
         when(collectedLoadProfile.getCollectedIntervalData()).thenReturn(Arrays.asList(intervalData));
@@ -53,9 +57,10 @@ public class MeterDataFactoryTest {
         assertThat(intervalBlocks).isNotNull();
         assertThat(intervalBlocks).hasSize(1);
         assertThat(intervalBlocks.get(0).getIntervals()).hasSize(1);
-        assertThat(intervalBlocks.get(0).getIntervals().get(0).getValue()).isEqualTo(intervalValue);
+        assertThat(intervalBlocks.get(0).getIntervals().get(0).getValue()).isEqualTo((BigDecimal) intervalValue.getNumber());
         assertThat(intervalBlocks.get(0).getIntervals().get(0).getTimeStamp()).isEqualTo(intervalDate.toInstant());
-        assertThat(intervalBlocks.get(0).getReadingTypeCode()).isEqualTo(READING_TYPE_CODE);
+        assertThat(intervalBlocks.get(0).getIntervals().get(0).getProfileStatus().getBits()).isEqualTo(IntervalStateBits.BADTIME | IntervalStateBits.OTHER); // ProfileStatus should be a combination of the general IntervalData status
+        assertThat(intervalBlocks.get(0).getReadingTypeCode()).isEqualTo(READING_TYPE_CODE);                                                                 //and the status of the individual IntervalValue
     }
 
 }
