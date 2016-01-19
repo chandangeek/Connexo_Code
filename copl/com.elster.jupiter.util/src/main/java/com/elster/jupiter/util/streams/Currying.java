@@ -4,6 +4,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public enum Currying {
     ;
@@ -27,6 +28,28 @@ public enum Currying {
 
     public static <A, B, R> FunctionBuilder<A, B, R> use(BiFunction<A, B, R> biFunction) {
         return new FunctionBuilder<>(biFunction);
+    }
+
+    public static <A, B> PredicateBuilder<A, B> test(BiFunction<A, B, Boolean> biFunction) {
+        return new PredicateBuilder<>(biFunction);
+    }
+
+    public static class PredicateBuilder<A, B> {
+
+        private final BiFunction<A, B, Boolean> biFunction;
+
+        public PredicateBuilder(BiFunction<A, B, Boolean> biFunction) {
+            this.biFunction = biFunction;
+        }
+
+        public Predicate<B> on(A a) {
+            return b -> biFunction.apply(a, b);
+        }
+
+        public Predicate<A> with(B b) {
+            return a -> biFunction.apply(a, b);
+        }
+
     }
 
     public static class ConsumerBuilder<A, B> {
