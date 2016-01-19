@@ -13,7 +13,7 @@ public enum MessageSeeds implements MessageSeed {
 // 0001 - 1000 General validation messages
     FIELD_CAN_NOT_BE_EMPTY (1, Keys.FIELD_CAN_NOT_BE_EMPTY, "This field is required", Level.SEVERE),
 
-    FIELD_TOO_LONG(2, Keys.FIELD_TOO_LONG, "Field's text length should be between 1 and {max} symbols", Level.SEVERE),
+    FIELD_TOO_LONG(2, Keys.FIELD_TOO_LONG, "This field''s text length should be between 1 and {max} symbols", Level.SEVERE),
 
 // Domain record specific
     ISSUE_COMMENT_COMMENT_SIZE(1001, Keys.ISSUE_COMMENT_COMMENT_SIZE, "Comment length should be more than 1 symbol", Level.SEVERE),
