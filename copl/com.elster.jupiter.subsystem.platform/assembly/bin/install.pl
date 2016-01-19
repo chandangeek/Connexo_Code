@@ -332,6 +332,7 @@ sub install_connexo {
 				replace_in_file("/etc/init.d/Connexo$SERVICE_VERSION",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
 				copy("$CONNEXO_DIR/bin/start-connexo.temp","$CONNEXO_DIR/bin/start-connexo.sh") or die "File cannot be copied: $!";
 				chmod 0755,"$CONNEXO_DIR/bin/start-connexo.sh";
+                                chmod 0755,"$CONNEXO_DIR/bin/stop-connexo.sh";
 				replace_in_file("$CONNEXO_DIR/bin/start-connexo.sh",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
 				replace_in_file("$CONNEXO_DIR/bin/start-connexo.sh",'\${JAVA_HOME}',"$JAVA_HOME");
 			}
