@@ -7,7 +7,6 @@ import com.elster.jupiter.transaction.TransactionEvent;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Pair;
 import com.google.common.collect.ImmutableList;
-
 import org.mockito.exceptions.Reporter;
 import org.mockito.exceptions.base.MockitoAssertionError;
 import org.mockito.internal.invocation.InvocationMatcher;
@@ -67,6 +66,15 @@ public final class TransactionVerifier implements TransactionService {
                 return null;
             }
         };
+    }
+
+    @Override
+    public boolean isInTransaction() {
+        boolean intransaction = false;
+        for (Operation call : transactionMode.calls) {
+            intransaction = Operation.START.equals(call);
+        }
+        return intransaction;
     }
 
     public VerificationMode inTransaction() {
