@@ -38,4 +38,8 @@ public class FakeTransactionService implements TransactionService {
         return null;
     }
 
+    @Override
+    public boolean isInTransaction() {
+        return this.actualTransactionService.isInTransaction();
+    }
 }
