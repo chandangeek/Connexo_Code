@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 public enum MessageSeeds implements MessageSeed {
 
     CAN_NOT_BE_EMPTY(1, Constants.CAN_NOT_BE_EMPTY, "This field is required", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_80(2, Constants.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
+    FIELD_SIZE_BETWEEN_1_AND_80(2, Constants.FIELD_SIZE_BETWEEN_1_AND_80, "This field''s text length should be between 1 and 80 symbols", Level.SEVERE),
     DUPLICATE_LABEL_CATEGORY(3, Constants.DUPLICATE_LABEL_CATEGORY, "Label category with such name already exists", Level.SEVERE),
     ;
 
