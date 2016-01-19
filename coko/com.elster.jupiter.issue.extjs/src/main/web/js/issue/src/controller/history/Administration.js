@@ -48,7 +48,7 @@ Ext.define('Isu.controller.history.Administration', {
                             privileges: Isu.privileges.Issue.createRule,
                             callback: function (route) {
                                 this.getApplication().on('issueCreationRuleEdit', function (record) {
-                                    route.setTitle(Uni.I18n.translate('administration.issueCreationRules.title.editIssueCreationRule', 'ISU', "Edit '{0}'", record.get('name')));
+                                    route.setTitle(Uni.I18n.translate('administration.issueCreationRules.title.editIssueCreationRule', 'ISU', "Edit '{0}'", record.get('name'), false));
                                     return true;
                                 }, {single: true});
                                 return this;
