@@ -13,7 +13,7 @@ public enum MessageSeeds implements MessageSeed {
 
     NOT_UNIQUE(1, Constants.NOT_UNIQUE, "Must be unique", Level.SEVERE),
     CAN_NOT_BE_EMPTY(2, Constants.NAME_REQUIRED_KEY, "This field is required", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_80(6, Constants.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE);
+    FIELD_SIZE_BETWEEN_1_AND_80(6, Constants.FIELD_SIZE_BETWEEN_1_AND_80, "This field''s text length should be between 1 and 80 symbols", Level.SEVERE);
 
 
     private final int number;
