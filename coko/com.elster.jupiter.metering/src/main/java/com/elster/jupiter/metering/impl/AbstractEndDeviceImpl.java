@@ -334,6 +334,11 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     }
 
     @Override
+    public void setMRID(String mrid) {
+        this.mRID = mrid;
+    }
+
+    @Override
     public void setName(String name) {
         this.name = name;
     }

@@ -229,6 +229,33 @@ public class MeterImplIT {
 
     }
 
+    @Test
+    public void testUpdateMRID() {
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+
+        // activation
+
+        Meter meter;
+        try (TransactionContext context = transactionService.getContext()) {
+            meter = meteringService.findAmrSystem(1).get().newMeter("amrID")
+                    .setMRID("mRID")
+                    .create();
+            context.commit();
+        }
+        meter = meteringService.findMeter(meter.getId()).get();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            meter.setMRID("newMRID");
+            meter.update();
+            context.commit();
+        }
+
+        meter = meteringService.findMeter(meter.getId()).get();
+
+        assertThat(meter.getMRID()).isEqualTo("newMRID");
+    }
+
     private FiniteStateMachine createTinyFiniteStateMachine() {
         FiniteStateMachineServiceImpl finiteStateMachineService = this.injector.getInstance(FiniteStateMachineServiceImpl.class);
         FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("Tiny");

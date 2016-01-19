@@ -38,6 +38,8 @@ public interface EndDevice extends IdentifiedObject {
 
     void setSerialNumber(String serialNumber);
 
+    void setMRID(String mrid);
+
     /**
      * Gets the {@link FiniteStateMachine} that determines the possible {@link State}s.
      *
