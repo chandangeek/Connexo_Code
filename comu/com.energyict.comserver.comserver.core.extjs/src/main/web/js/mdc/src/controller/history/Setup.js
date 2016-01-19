@@ -515,7 +515,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                             callback: function (route) {
                                                 this.getApplication().on('loadDeviceConfiguration', function (record) {
                                                     route.setTitle(Uni.I18n.translate('cloneDeviceConfiguration.title',
-                                                        'MDC', "Clone device configuration '{0}'", [record.get('name')]));
+                                                        'MDC', "Clone device configuration '{0}'", record.get('name'), false));
                                                     return true;
                                                 }, {single: true});
 
