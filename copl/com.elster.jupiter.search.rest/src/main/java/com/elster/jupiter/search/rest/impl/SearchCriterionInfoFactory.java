@@ -1,5 +1,6 @@
 package com.elster.jupiter.search.rest.impl;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.search.SearchableProperty;
 import java.net.URI;
@@ -16,13 +17,14 @@ public class SearchCriterionInfoFactory {
 
     public PropertyInfo asInfoObject(SearchableProperty property, UriInfo uriInfo) {
         PropertyInfo propertyInfo = new PropertyInfo();
+        PropertySpec propertySpec = property.getSpecification();
         propertyInfo.name = property.getName();
         propertyInfo.displayValue = property.getDisplayName();
-        PropertySpecPossibleValues possibleValues = property.getSpecification().getPossibleValues();
+        PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         propertyInfo.exhaustive = possibleValues!=null && possibleValues.isExhaustive();
         propertyInfo.affectsAvailableDomainProperties = property.affectsAvailableDomainProperties();
-        propertyInfo.type = property.getSpecification().getValueFactory().getValueType().getSimpleName();
-        propertyInfo.factoryName = property.getSpecification().getValueFactory().getClass().getName();
+        propertyInfo.type = propertySpec.getValueFactory().getValueType().getSimpleName();
+        propertyInfo.factoryName = propertySpec.getValueFactory().getClass().getName();
         if (property.getGroup().isPresent()) {
             propertyInfo.group=new IdWithDisplayValueInfo();
             propertyInfo.group.id = property.getGroup().get().getId();
