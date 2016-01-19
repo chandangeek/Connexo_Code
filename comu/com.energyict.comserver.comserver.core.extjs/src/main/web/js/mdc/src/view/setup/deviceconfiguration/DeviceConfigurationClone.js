@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationClone', {
                 itemId: 'deviceConfigurationCloneForm',
                 ui: 'large',
                 title: Uni.I18n.translate('cloneDeviceConfiguration.title',
-                    'MDC', "Clone device configuration '{0}'", [me.deviceConfigurationName]),
+                    'MDC', "Clone device configuration '{0}'", me.deviceConfigurationName, false),
                 items: [
                     {
                         xtype: 'panel',
@@ -29,7 +29,12 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationClone', {
                         fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                         allowBlank: false,
                         enforceMaxLength: true,
-                        maxLength: 80
+                        maxLength: 80,
+                        listeners: {
+                            afterrender: function (field) {
+                                field.focus(false, 200);
+                            }
+                        }
                     },
                     {
                         xtype: 'fieldcontainer',

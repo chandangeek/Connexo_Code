@@ -243,7 +243,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
             success: function (loadProfileType) {
                 me.getApplication().fireEvent('loadprofiletypeondevicetype', loadProfileType);
                 form = widget.down('#edit-load-profile-type-form-panel');
-                form.setTitle(me.getController('Uni.controller.history.Router').getRoute().title);
+                form.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", loadProfileType.get('name')));
                 form.customLoadRecord(loadProfileType, deviceTypeId);
             }
         });
