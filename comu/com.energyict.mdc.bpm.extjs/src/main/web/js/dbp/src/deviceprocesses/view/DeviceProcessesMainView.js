@@ -3,7 +3,10 @@ Ext.define('Dbp.deviceprocesses.view.DeviceProcessesMainView', {
     alias: 'widget.dbp-device-processes-main-view',
     requires: [
         'Dbp.deviceprocesses.view.RunningProcesses',
-        'Dbp.deviceprocesses.view.HistoryProcesses'
+        'Dbp.deviceprocesses.view.HistoryProcesses',
+        'Dbp.deviceprocesses.view.RunningProcessPreview',
+        'Dbp.deviceprocesses.view.HistoryProcessPreview',
+        'Dbp.deviceprocesses.view.StatusProcessPreview',
     ],
     device: null,
     initComponent: function () {
@@ -39,7 +42,7 @@ Ext.define('Dbp.deviceprocesses.view.DeviceProcessesMainView', {
                 activeTab: -1,
                 items: [
                     {
-                        ui: 'medium',
+                    //    ui: 'medium',
                         title: Uni.I18n.translate('processes.processesRunning.title', 'DBP', 'Running processes'),
                         itemId: 'running-processes-tab',
                         items: [
@@ -50,13 +53,48 @@ Ext.define('Dbp.deviceprocesses.view.DeviceProcessesMainView', {
                         ]
                     },
                     {
-                        ui: 'medium',
+                    //    ui: 'medium',
                         title: Uni.I18n.translate('processes.processesHistory.title', 'DBP', 'History'),
                         itemId: 'history-processes-tab',
                         items: [
                             {
                                 xtype: 'dbp-history-processes',
                                 itemId: 'history-processes'
+                            }
+                        ]
+                    }
+                ]
+
+            },
+            {
+                xtype: 'tabpanel',
+                ui: 'large',
+                itemId: 'tab-process-preview',
+                activeTab: 0,
+                items: [
+                    {
+                        ui: 'medium',
+                        title: Uni.I18n.translate('processes.processDetails.title', 'DBP', 'Details'),
+                        itemId: 'details-process-tab',
+                        items: [
+                            {
+                                xtype: 'dbp-running-process-preview',
+                                itemId: 'running-process-preview'
+                            },
+                            {
+                                xtype: 'dbp-history-process-preview',
+                                itemId: 'history-process-preview'
+                            }
+                        ]
+                    },
+                    {
+                        ui: 'medium',
+                        title: Uni.I18n.translate('processes.processStatus.title', 'DBP', 'Status overview'),
+                        itemId: 'status-process-tab',
+                        items: [
+                            {
+                                xtype: 'dbp-status-process-preview',
+                                itemId: 'status-process-preview'
                             }
                         ]
                     }

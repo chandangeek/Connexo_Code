@@ -2,7 +2,6 @@ Ext.define('Dbp.deviceprocesses.view.RunningProcesses', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.dbp-running-processes',
     requires: [
-        'Dbp.deviceprocesses.view.RunningProcessPreview',
         'Dbp.deviceprocesses.view.RunningProcessesGrid'
     ],
 
@@ -13,7 +12,7 @@ Ext.define('Dbp.deviceprocesses.view.RunningProcesses', {
         me.content = {
             xtype: 'panel',
             itemId: 'dbp-running-processes-form',
-            ui: 'large',
+        //    ui: 'large',
             items: [
                 {
                     xtype: 'preview-container',
@@ -31,11 +30,11 @@ Ext.define('Dbp.deviceprocesses.view.RunningProcesses', {
                             Uni.I18n.translate('dbp.process.empty.runnninglist.item2', 'DBP', 'Processes exist, but you do not have permission to view them.'),
                             Uni.I18n.translate('dbp.process.empty.runnninglist.item3', 'DBP', 'No running proccesses have been found.')
                         ]
-                    },
+                    }/*,
                     previewComponent: {
                         xtype: 'dbp-running-process-preview',
                         itemId: 'running-process-preview'
-                    }
+                    }*/
                 }
             ]
         };

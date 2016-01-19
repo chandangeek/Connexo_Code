@@ -2,7 +2,6 @@ Ext.define('Dbp.deviceprocesses.view.HistoryProcesses', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.dbp-history-processes',
     requires: [
-        'Dbp.deviceprocesses.view.HistoryProcessPreview',
         'Dbp.deviceprocesses.view.HistoryProcessesGrid',
         'Dbp.deviceprocesses.view.HistoryTopFilter'
     ],
@@ -32,11 +31,11 @@ Ext.define('Dbp.deviceprocesses.view.HistoryProcesses', {
                             Uni.I18n.translate('dbp.process.empty.historylist.item2', 'DBP', 'Processes exist, but you do not have permission to view them.'),
                             Uni.I18n.translate('dbp.process.empty.historylist.item3', 'DBP', 'The filter criteria are too narrow.')
                         ]
-                    },
+                    }/*,
                     previewComponent: {
                         xtype: 'dbp-history-process-preview',
                         itemId: 'history-process-preview'
-                    }
+                    }*/
                 }
             ],
             dockedItems: [
