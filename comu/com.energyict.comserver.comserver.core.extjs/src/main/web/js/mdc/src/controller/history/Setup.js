@@ -142,7 +142,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                             action: 'showDeviceTypeLoadProfileTypesEditView',
                                             callback: function (route) {
                                                 this.getApplication().on('loadprofiletypeondevicetype', function (record) {
-                                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
+                                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
                                                     return true;
                                                 }, {single: true});
 
