@@ -105,6 +105,7 @@ public class DeviceComTaskInfoFactory {
         }
         setConnectionStrategy(deviceComTasksInfo, comTaskExecution);
         deviceComTasksInfo.urgency = comTaskExecution.getPlannedPriority();
+        deviceComTasksInfo.ignoreNextExecutionSpecsForInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound();
         deviceComTasksInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         deviceComTasksInfo.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
     }
@@ -162,6 +163,7 @@ public class DeviceComTaskInfoFactory {
             }
         }
         deviceComTasksInfo.urgency = comTaskExecution.getPlannedPriority();
+        deviceComTasksInfo.ignoreNextExecutionSpecsForInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound();
         deviceComTasksInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         deviceComTasksInfo.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
     }
@@ -226,6 +228,7 @@ public class DeviceComTaskInfoFactory {
 
         deviceComTasksInfo.urgency = comTaskEnablement.getPriority();
         deviceComTasksInfo.securitySettings = comTaskEnablement.getSecurityPropertySet().getName();
+        deviceComTasksInfo.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = comTaskEnablement.getProtocolDialectConfigurationProperties();
         deviceComTasksInfo.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
         return deviceComTasksInfo;

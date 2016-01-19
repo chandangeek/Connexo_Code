@@ -47,4 +47,6 @@ public class DeviceComTaskInfo {
     public Instant successfulFinishTime;
     @JsonProperty("isOnHold")
     public boolean isOnHold;
+    @JsonProperty("ignoreNextExecutionSpecsForInbound")
+    public boolean ignoreNextExecutionSpecsForInbound;
 }
