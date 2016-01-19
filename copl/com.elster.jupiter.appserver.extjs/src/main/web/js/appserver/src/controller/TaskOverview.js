@@ -43,7 +43,7 @@ Ext.define('Apr.controller.TaskOverview', {
 
     showPreview: function(records,record){
         var me = this;
-        this.getTaskPreview().setTitle(record.get('name'));
+        this.getTaskPreview().setTitle(Ext.String.htmlEncode(record.get('name')));
         this.getTaskPreview().down('form').loadRecord(record);
         if(record.get('queueStatus')== 'Busy'){
             this.getTaskPreview().down('#durationField').show();
