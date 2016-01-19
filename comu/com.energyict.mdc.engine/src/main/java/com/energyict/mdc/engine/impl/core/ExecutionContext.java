@@ -36,7 +36,8 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandFactoryImpl;
 import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
-import com.energyict.mdc.engine.impl.core.events.ComPortLogHandler;
+import com.energyict.mdc.engine.impl.core.events.ComPortCommunicationLogHandler;
+import com.energyict.mdc.engine.impl.core.events.ComPortOperationsLogHandler;
 import com.energyict.mdc.engine.impl.core.logging.ComPortConnectionLogger;
 import com.energyict.mdc.engine.impl.core.logging.CompositeComPortConnectionLogger;
 import com.energyict.mdc.engine.impl.core.logging.CompositeLogger;
@@ -166,7 +167,8 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     private void addEventLogger() {
-        Logger actualLogger = this.getAnonymousLogger(new ComPortLogHandler(this.getComPort(), this.serviceProvider.eventPublisher(), new ComServerEventServiceProvider()));
+        //ComPortOperationsLoggingEvent
+        Logger actualLogger = this.getAnonymousLogger(new ComPortCommunicationLogHandler(this.getComPort(), this.serviceProvider.eventPublisher(), new ComServerEventServiceProvider()));
         ComPortConnectionLogger eventLogger = LoggerFactory.getLoggerFor(ComPortConnectionLogger.class, actualLogger);
         this.connectionLogger.add(eventLogger);
         this.logger.add(actualLogger);

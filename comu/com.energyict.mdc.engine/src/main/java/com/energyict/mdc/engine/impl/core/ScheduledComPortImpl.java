@@ -6,7 +6,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.events.ComPortLogHandler;
+import com.energyict.mdc.engine.impl.core.events.ComPortOperationsLogHandler;
 import com.energyict.mdc.engine.impl.core.logging.ComPortOperationsLogger;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -322,7 +322,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
                     LoggerFactory.getLoggerFor(ComPortOperationsLogger.class, this.getServerLogLevel(comPort)),
                     LoggerFactory.getLoggerFor(
                             ComPortOperationsLogger.class,
-                            this.getAnonymousLogger(new ComPortLogHandler(comPort, serviceProvider.eventPublisher(), new ComServerEventServiceProvider())))
+                            this.getAnonymousLogger(new ComPortOperationsLogHandler(comPort, serviceProvider.eventPublisher(), new ComServerEventServiceProvider())))
             );
         }
 
