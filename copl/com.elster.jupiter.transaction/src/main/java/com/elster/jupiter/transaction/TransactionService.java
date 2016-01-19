@@ -1,5 +1,8 @@
 package com.elster.jupiter.transaction;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface TransactionService {
 
 	/*
@@ -31,5 +34,12 @@ public interface TransactionService {
 	 */
 	
 	TransactionBuilder builder();
-	
+
+	/**
+	 * indicates if there is a transaction running or not
+	 *
+	 * @return true is there is a transaction running, false else
+	 * @since 1.1
+	 */
+	boolean isInTransaction();
 }

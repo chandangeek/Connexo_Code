@@ -1,16 +1,23 @@
 package com.elster.jupiter.transaction.impl;
 
 import com.elster.jupiter.bootstrap.BootstrapService;
-import com.elster.jupiter.pubsub.*;
+import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.*;
-
-import org.osgi.service.component.annotations.*;
+import com.elster.jupiter.transaction.CommitException;
+import com.elster.jupiter.transaction.NestedTransactionException;
+import com.elster.jupiter.transaction.NotInTransactionException;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionBuilder;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionEvent;
+import com.elster.jupiter.transaction.TransactionService;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -125,8 +132,9 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
 
-    private boolean isInTransaction() {
-        return transactionStateHolder.get() != null;
+	@Override
+	public boolean isInTransaction() {
+		return transactionStateHolder.get() != null;
     }
     
     void addThreadSubscriber(Subscriber subscriber) {
