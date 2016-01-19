@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.streams.Currying;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -33,11 +34,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -118,26 +115,28 @@ public class ComTaskResource {
         ComTask comTask = resourceHelper.lockComTaskOrThrowException(comTaskInfo);
         comTask.setName(comTaskInfo.name);
         List<ProtocolTask> currentProtocolTasks = new ArrayList<>(comTask.getProtocolTasks());
-        Set<Long> protocolTasksIds = new HashSet<>();
+
+        currentProtocolTasks.stream()
+                .filter(protocolTask -> infoNoLongerContainsTask(comTaskInfo, protocolTask))
+                .forEach(comTask::removeTask);
 
         for (ProtocolTaskInfo protocolTaskInfo : comTaskInfo.commands) {
             Categories category = Categories.valueOf(protocolTaskInfo.categoryId.toUpperCase());
             if (protocolTaskInfo.id != null) {
-                protocolTasksIds.add(protocolTaskInfo.id);
                 taskService.findProtocolTask(protocolTaskInfo.id).ifPresent(t -> category.updateProtocolTask(masterDataService, t, protocolTaskInfo));
             } else {
                 category.createProtocolTask(masterDataService, comTask, protocolTaskInfo);
             }
         }
 
-        for (ProtocolTask protocolTask : currentProtocolTasks) {
-            if (!protocolTasksIds.contains(protocolTask.getId())) {
-                comTask.removeTask(protocolTask);
-            }
-        }
         addMessageCategoriesToComTask(comTaskInfo, comTask);
         comTask.save();
         return Response.ok(ComTaskInfo.from(comTask)).build();
+    }
+
+    private boolean infoNoLongerContainsTask(ComTaskInfo comTaskInfo, ProtocolTask protocolTask) {
+        return comTaskInfo.commands.stream()
+                .noneMatch(info -> Objects.equals(info.id, protocolTask.getId()));
     }
 
     @DELETE @Transactional
