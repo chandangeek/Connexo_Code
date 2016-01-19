@@ -33,7 +33,7 @@ Ext.define('Fwc.controller.History', {
                     action: 'editFirmware',
                     callback: function (route) {
                         this.getApplication().on('loadFirmware', function (record) {
-                            route.setTitle(Uni.I18n.translate('general.editx', 'FWC', "Edit '{0}'", record.get('firmwareVersion')));
+                            route.setTitle(Uni.I18n.translate('general.editx', 'FWC', "Edit '{0}'", record.get('firmwareVersion'), false));
                             return true;
                         }, {single: true});
 
