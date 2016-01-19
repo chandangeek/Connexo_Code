@@ -138,11 +138,11 @@ sub read_config {
 				if ( "$val[0]" eq "JAVA_HOME" )         {$JAVA_HOME=$val[1];}
 				if ( "$val[0]" eq "CONNEXO_HTTP_PORT" ) {$CONNEXO_HTTP_PORT=$val[1];}
 				if ( "$val[0]" eq "TOMCAT_HTTP_PORT" )  {$TOMCAT_HTTP_PORT=$val[1];}
-				if ( "$val[0]" eq "SERVICE_VERSION" )	{$SERVICE_VERSION=$val[1];}
-				if ( "$val[0]" eq "INSTALL_CONNEXO" )	{$INSTALL_CONNEXO=$val[1];}
-				if ( "$val[0]" eq "INSTALL_FACTS" )		{$INSTALL_FACTS=$val[1];}
-				if ( "$val[0]" eq "INSTALL_FLOW" )		{$INSTALL_FLOW=$val[1];}
-				if ( "$val[0]" eq "INSTALL_WSO2IS" )	{$INSTALL_WSO2IS=$val[1];}
+				if ( "$val[0]" eq "SERVICE_VERSION" )   {$SERVICE_VERSION=$val[1];}
+				if ( "$val[0]" eq "INSTALL_CONNEXO" )   {$INSTALL_CONNEXO=$val[1];}
+				if ( "$val[0]" eq "INSTALL_FACTS" )     {$INSTALL_FACTS=$val[1];}
+				if ( "$val[0]" eq "INSTALL_FLOW" )      {$INSTALL_FLOW=$val[1];}
+				if ( "$val[0]" eq "INSTALL_WSO2IS" )    {$INSTALL_WSO2IS=$val[1];}
 				if ( "$val[0]" eq "jdbcUrl" )           {$jdbcUrl=$val[1];}
 				if ( "$val[0]" eq "dbUserName" )        {$dbUserName=$val[1];}
 				if ( "$val[0]" eq "dbPassword" )        {$dbPassword=$val[1];}
@@ -152,7 +152,7 @@ sub read_config {
 				if ( "$val[0]" eq "FACTS_DB_NAME" )     {$FACTS_DB_NAME=$val[1];}
 				if ( "$val[0]" eq "FACTS_DBUSER" )      {$FACTS_DBUSER=$val[1];}
 				if ( "$val[0]" eq "FACTS_DBPASSWORD" )  {$FACTS_DBPASSWORD=$val[1];}
-				if ( "$val[0]" eq "FACTS_LICENSE" )		{$FACTS_LICENSE=$val[1];}
+				if ( "$val[0]" eq "FACTS_LICENSE" )     {$FACTS_LICENSE=$val[1];}
 				if ( "$val[0]" eq "FLOW_JDBC_URL" )     {$FLOW_JDBC_URL=$val[1];}
 				if ( "$val[0]" eq "FLOW_DB_USER" )      {$FLOW_DB_USER=$val[1];}
 				if ( "$val[0]" eq "FLOW_DB_PASSWORD" )  {$FLOW_DB_PASSWORD=$val[1];}
@@ -163,7 +163,7 @@ sub read_config {
 			}
 		}
 		close($FH);
-		check_java8();
+                check_java8();
     } else {
 		print "Parameters input\n";
 		print "------------------\n";
@@ -230,10 +230,6 @@ sub read_config {
 	            }
 	            print "Please enter the Tomcat http port: ";
 	            chomp($TOMCAT_HTTP_PORT=<STDIN>);
-	            $TOMCAT_SHUTDOWN_PORT=$TOMCAT_HTTP_PORT+10;
-	            $TOMCAT_AJP_PORT=$TOMCAT_HTTP_PORT+11;
-	            $TOMCAT_SSH_PORT=$TOMCAT_HTTP_PORT+12;
-	            $TOMCAT_DAEMON_PORT=$TOMCAT_HTTP_PORT+13;
         	}
 
         	print "\n";
@@ -241,6 +237,12 @@ sub read_config {
 		chomp($INSTALL_WSO2IS=<STDIN>);
 		print "Please enter the version of your services (e.g. 10.1) or leave empty: ";
 		chomp($SERVICE_VERSION=<STDIN>);        
+    }
+    if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
+        $TOMCAT_SHUTDOWN_PORT=$TOMCAT_HTTP_PORT+5;
+        $TOMCAT_AJP_PORT=$TOMCAT_HTTP_PORT+6;
+        $TOMCAT_SSH_PORT=$TOMCAT_HTTP_PORT+7;
+        $TOMCAT_DAEMON_PORT=$TOMCAT_HTTP_PORT+8;
     }
     $HOST_NAME=hostname;
     $CONNEXO_URL="http://$HOST_NAME:$CONNEXO_HTTP_PORT";
