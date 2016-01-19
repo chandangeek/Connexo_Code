@@ -103,7 +103,7 @@ Ext.define('Mtr.readingtypes.controller.AddReadingTypes', {
                                         }
                                     },
                                     msg: Uni.I18n.translate('readingtypesmanagment.addReadingType.addMsg', 'MTR', "This could produce reading types that won't be used"),
-                                    title: Uni.I18n.translate('readingtypesmanagment.addReadingType.addConfirmation', 'MTR', 'Add {0} reading types?', [count])
+                                    title: Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.addConfirmationXXX', count, 'MTR', 'Add {0} reading types?', 'Add {0} reading type?', 'Add {0} reading types?')
                                 });
                             } else if (count == 0) {
                                 errorMsg.setText(Uni.I18n.translate('readingtypesmanagment.addReadingType.readingTypesExists', 'MTR', 'Reading types already exists'));
