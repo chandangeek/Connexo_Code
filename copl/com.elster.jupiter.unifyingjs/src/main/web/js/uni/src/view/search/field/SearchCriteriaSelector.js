@@ -150,8 +150,8 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         var me = this,
             groups;
 
-        me.setDisabled(!store.count());
         Ext.suspendLayouts();
+        me.setDisabled(!store.count());
         me.menu.removeAll();
         me.menuItems = [];
         store.group('groupId');

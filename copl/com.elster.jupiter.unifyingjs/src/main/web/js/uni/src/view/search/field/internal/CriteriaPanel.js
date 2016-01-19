@@ -40,8 +40,8 @@ Ext.define('Uni.view.search.field.internal.CriteriaPanel', {
             });
         }
 
-        Ext.resumeLayouts(true);
         me.setVisible(false);
+        Ext.resumeLayouts(true);
     },
 
     onCriteriaAdd: function(filters, filter, property) {
@@ -74,8 +74,8 @@ Ext.define('Uni.view.search.field.internal.CriteriaPanel', {
                 me.add(filter);
             }
 
-            Ext.resumeLayouts(true);
             me.setVisible(me.items.length + me.dockedItems.length);
+            Ext.resumeLayouts(true);
         }
     },
 

@@ -181,6 +181,7 @@ Ext.define('Uni.service.Search', {
         var me = this,
             resultsStore = this.getSearchResultsStore();
 
+        Ext.suspendLayouts();
         resultsStore.removeAll(true);
         resultsStore.model.setFields(records.map(function (field) {
             return me.createFieldDefinitionFromModel(field)
@@ -189,6 +190,7 @@ Ext.define('Uni.service.Search', {
         if (!me.isStateLoad) {
             this.applyFilters();
         }
+        Ext.resumeLayouts(true);
     },
 
     onSearchResultsLoad: function(store, records, success) {
