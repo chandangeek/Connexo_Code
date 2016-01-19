@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
     FIELD_CAN_NOT_BE_EMPTY(1, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can not be empty", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_80(2, Keys.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
+    FIELD_SIZE_BETWEEN_1_AND_80(2, Keys.FIELD_SIZE_BETWEEN_1_AND_80, "This field''s text length should be between 1 and 80 symbols", Level.SEVERE),
 
     NAME_MUST_BE_UNIQUE(7, Keys.NAME_MUST_BE_UNIQUE, "Relative period with such name already exists", Level.SEVERE),
     RELATIVE_PERIOD_IN_USE(8, Keys.RELATIVE_PERIOD_IN_USE, "{0} category(s) can't be deleted, relative period is in use.", Level.SEVERE),
