@@ -157,6 +157,10 @@ public class JbpmTaskResource {
                                     predicatesDeploymentId.add(criteriaBuilder.equal(taskRoot.get("taskData").get("deploymentId"), deploymentId));
                                 }
                             }
+                        }else{
+                            for (String each : deploymentIds) {
+                                predicatesDeploymentId.add(criteriaBuilder.equal(taskRoot.get("taskData").get("deploymentId"), each));
+                            }
                         }
                     }
 
