@@ -617,6 +617,68 @@ public class JbpmTaskResource {
         return taskIdList;
     }
 
+    @GET
+    @Produces("application/json")
+    @Path("/mandatory")
+    public TaskMandatory checkMandatoryTask(@Context UriInfo uriInfo){
+        TaskMandatory taskMandatory = new TaskMandatory();
+        taskMandatory.result = "NOMANDATORY";
+        if(getQueryValue(uriInfo, "tasks") != null) {
+            List<Long> taskIds = taskIdList(getQueryValue(uriInfo, "tasks"));
+            List<TaskSummary> taskSummaries = new ArrayList<>();
+            for(Long id : taskIds){
+                taskSummaries.add(new TaskSummary(internalTaskService.getTaskById(id)));
+            }
+            List<TaskSummary> taskIdsMandatoryFields = getTaskWithMandatoryFields(taskIds);
+            if(taskIdsMandatoryFields.size() == taskSummaries.size()) {
+                if (areFormTaskTheSame(taskIds)) {
+                    taskMandatory.result = "ALLMANDATORY";
+//                    taskMandatory.taskSummaryList = new TaskSummaryList(taskIdsMandatoryFields);
+                    taskMandatory.connexoForm = getTaskContent(taskIdList(getQueryValue(uriInfo, "tasks")).get(0));
+                    taskMandatory.connexoForm.content = new HashMap<>();
+                    taskMandatory.connexoForm.outContent = new HashMap<>();
+                }else{
+                    taskMandatory.result = "WITHMANDATORY";
+                    taskMandatory.taskSummaryList = new TaskSummaryList(taskIdsMandatoryFields);
+                }
+            }else if(!taskIdsMandatoryFields.isEmpty()){
+                taskMandatory.result = "WITHMANDATORY";
+                taskMandatory.taskSummaryList = new TaskSummaryList(taskIdsMandatoryFields);
+            }else{
+                taskMandatory.result = "NOMANDATORY";
+            }
+        }
+        return taskMandatory;
+    }
+
+    private List<TaskSummary> getTaskWithMandatoryFields(List<Long> taskIds){
+        List<TaskSummary> taskSummaries = new ArrayList<>();
+        for(Long id : taskIds){
+            ConnexoForm form = getTaskContent(id);
+            for(ConnexoFormField field : form.fields){
+                for(ConnexoProperty property : field.properties){
+                    if(property.name.equals("fieldRequired")){
+                        if(property.value.equals("true")){
+                            taskSummaries.add(new TaskSummary(internalTaskService.getTaskById(id)));
+                        }
+                    }
+                }
+            }
+        }
+        return taskSummaries;
+    }
+
+    private boolean areFormTaskTheSame(List<Long> taskIds){
+        boolean sameForm = true;
+        String formName = ((InternalTask) internalTaskService.getTaskById(taskIds.get(0))).getFormName();
+        for(Long id : taskIds){
+            if(!((InternalTask) internalTaskService.getTaskById(id)).getFormName().equals(formName)){
+                sameForm = false;
+            }
+        }
+        return sameForm;
+    }
+
     @POST
     @Produces("application/json")
     @Path("/managetasks")
