@@ -665,7 +665,6 @@ public class ValidationServiceImplTest {
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(true);
         when(meterValidation.getValidateOnStorage()).thenReturn(true);
-        when(meter.getCurrentMeterActivation()).thenReturn(Optional.empty());
 
         validationService.deactivateValidation(meter);
 
@@ -715,7 +714,6 @@ public class ValidationServiceImplTest {
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(true);
         when(meterValidation.getValidateOnStorage()).thenReturn(false);
-        when(meter.getCurrentMeterActivation()).thenReturn(Optional.empty());
 
         validationService.deactivateValidation(meter);
 
@@ -730,7 +728,6 @@ public class ValidationServiceImplTest {
         Meter meter = mock(Meter.class);
         when(meter.getId()).thenReturn(ID);
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.<MeterValidationImpl>empty());
-        when(meter.getCurrentMeterActivation()).thenReturn(Optional.empty());
         validationService.deactivateValidation(meter);
 
         verify(meterValidation, never()).setActivationStatus(anyBoolean());
