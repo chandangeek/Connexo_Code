@@ -15,6 +15,8 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.UriInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -31,7 +33,7 @@ public class ThesaurusResourceTest {
 
     @Before
     public void setUp() {
-        thesaurusResource = new ThesaurusResource(nlsService);
+        thesaurusResource = new ThesaurusResource(nlsService, new ThesaurusCache());
 
         MultivaluedHashMap<String, String> map = new MultivaluedHashMap<>();
 
@@ -65,6 +67,16 @@ public class ThesaurusResourceTest {
         assertThat(thesaurusInfo.translations.get(2).cmp).isEqualTo("VAL");
         assertThat(thesaurusInfo.translations.get(2).key).isEqualTo("key3");
         assertThat(thesaurusInfo.translations.get(2).value).isEqualTo("value3");
+    }
+
+    @Test
+    public void testGetThesaurusIsCached() {
+        thesaurusResource.getThesaurus(uriInfo);
+        thesaurusResource.getThesaurus(uriInfo);
+        thesaurusResource.getThesaurus(uriInfo);
+
+        verify(nlsService, times(1)).getThesaurus("MTR", Layer.REST);
+        verify(nlsService, times(1)).getThesaurus("VAL", Layer.REST);
     }
 
 }

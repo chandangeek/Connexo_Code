@@ -3,6 +3,7 @@ package com.elster.jupiter.nls.rest.impl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -21,11 +22,13 @@ import java.util.Map;
 @Path("/thesaurus")
 public class ThesaurusResource {
 
-    private volatile NlsService nlsService;
+    private final NlsService nlsService;
+    private final ThesaurusCache cache;
 
     @Inject
-    public ThesaurusResource(NlsService nlsService) {
+    public ThesaurusResource(NlsService nlsService, ThesaurusCache cache) {
         this.nlsService = nlsService;
+        this.cache = cache;
     }
 
     @GET
@@ -41,7 +44,15 @@ public class ThesaurusResource {
     }
 
     private void addComponent(ThesaurusInfo thesaurusInfo, String component) {
-        Thesaurus thesaurus = nlsService.getThesaurus(component, Layer.REST);
+        Thesaurus thesaurus;
+        Optional<Thesaurus> optional = cache.get(component, Layer.REST);
+        if (!optional.isPresent()) {
+            thesaurus = nlsService.getThesaurus(component, Layer.REST);
+            cache.put(component, Layer.REST, thesaurus);
+        } else {
+            thesaurus = optional.get();
+        }
+
         for (Map.Entry<String, String> entry : thesaurus.getTranslations().entrySet()) {
             thesaurusInfo.translations.add(new TranslationInfo(component, entry.getKey(), entry.getValue()));
         }

@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Singleton;
 import javax.ws.rs.core.Application;
 import java.util.Set;
 
@@ -50,11 +51,6 @@ public class NlsApplication extends Application implements BinderProvider {
         this.transactionService = transactionService;
     }
 
-    @Reference
-    public void setRestQueryService(RestQueryService restQueryService) {
-        this.restQueryService = restQueryService;
-    }
-
     @Override
     public Binder getBinder() {
         return new AbstractBinder() {
@@ -62,7 +58,7 @@ public class NlsApplication extends Application implements BinderProvider {
             protected void configure() {
                 bind(nlsService).to(NlsService.class);
                 bind(transactionService).to(TransactionService.class);
-                bind(restQueryService).to(RestQueryService.class);
+                bind(ThesaurusCache.class).to(ThesaurusCache.class).in(Singleton.class);
             }
         };
     }
