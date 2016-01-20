@@ -11,8 +11,6 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.util.BigDecimalChecker;
-import com.energyict.mdc.common.ComWindow;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.ComWindow;
@@ -50,7 +48,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -137,6 +134,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     void setMultiplier(BigDecimal multiplier);
 
     void setMultiplier(BigDecimal multiplier, Instant from);
+
+    void setmRID(String mrid);
 
     BigDecimal getMultiplier();
 
