@@ -57,11 +57,11 @@ Ext.define('Bpm.controller.TaskBulk', {
     showOverview: function () {
         var me = this,
             taskTasksBuffered = me.getStore('Bpm.store.task.TasksBuffered'),
-            filteredTasks = me.getStore('Bpm.store.task.Tasks'),
+            filteredTasks = Ext.create('Bpm.store.task.Tasks'),
             router = this.getController('Uni.controller.history.Router'),
             queryString = Uni.util.QueryString.getQueryStringValues(false),
             tasksRoute = router.getRoute('workspace/tasks'),
-            sort,
+            sort, params = [],
             tasks = [],
             queryParams = {};
 
@@ -71,32 +71,54 @@ Ext.define('Bpm.controller.TaskBulk', {
         taskStatus = router.arguments.status;
         process = router.arguments.process;
 
-        tasksRoute.params.sort = tasksRoute.params.user = tasksRoute.params.dueDate = tasksRoute.params.status =
-            tasksRoute.params.process = undefined;
+        tasksRoute.params.sort = tasksRoute.params.user = tasksRoute.params.dueDate = tasksRoute.params.status = tasksRoute.params.process = undefined;
         tasksRoute.params.use = true;
 
         sort && (sort != '') && (queryParams.sort = tasksRoute.params.sort = sort);
-        user && (user != '') && (queryParams.user = tasksRoute.params.user = user);
-        dueDate && (dueDate != '') && (queryParams.dueDate = tasksRoute.params.dueDate = dueDate);
-        taskStatus && (taskStatus != '') && (queryParams.status = tasksRoute.params.status = taskStatus);
-        process && (process != '') && (queryParams.process = tasksRoute.params.process = process);
+        user && (user != '') && (queryParams.user = tasksRoute.params.user = user) && (params.push({
+            property: 'user',
+            value: Array.isArray(user)? user : [user]
+        }));
+        dueDate && (dueDate != '') && (queryParams.dueDate = tasksRoute.params.dueDate = dueDate) && (params.push({
+            property: 'dueDate',
+            value: Array.isArray(dueDate) ? dueDate :[dueDate]
+        }));
+        taskStatus && (taskStatus != '') && (queryParams.status = tasksRoute.params.status = taskStatus) && (params.push({
+            property: 'taskStatus',
+            value: Array.isArray(taskStatus) ? taskStatus : [taskStatus]
+        }));
+        process && (process != '') && (queryParams.process = tasksRoute.params.process = process) && (params.push({
+            property: 'process',
+            value: Array.isArray(process) ? process : [process]
+        }));
 
         queryString.sort = sort;
         window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
 
-        this.getApplication().fireEvent('changecontentevent', Ext.widget('tasks-bulk-browse', {
-            router: me.getController('Uni.controller.history.Router')
-        }));
+        filteredTasks.getProxy().pageParam = undefined;
+        filteredTasks.getProxy().startParam = undefined;
+        filteredTasks.getProxy().limitParam = undefined;
+        filteredTasks.filter(params);
+        filteredTasks.load({
+            callback: function (records, operation, success) {
+                if (success) {
+                    me.getApplication().fireEvent('changecontentevent', Ext.widget('tasks-bulk-browse', {
+                        router: me.getController('Uni.controller.history.Router')
+                    }));
 
-        Ext.Array.each(filteredTasks.data.items, function (item) {
-            tasks.push({
-                id: item.getId().toString()
-            });
+                    Ext.Array.each(filteredTasks.data.items, function (item) {
+                        tasks.push({
+                            id: item.getId().toString()
+                        });
+                    });
+
+                    me.alltasksBulk = tasks;
+                    taskTasksBuffered.data.clear();
+                    taskTasksBuffered.loadPage(1);
+                }
+
+            }
         });
-
-        me.alltasksBulk = tasks;
-        taskTasksBuffered.data.clear();
-        taskTasksBuffered.loadPage(1);
     },
 
     doRequest: function () {
@@ -113,7 +135,7 @@ Ext.define('Bpm.controller.TaskBulk', {
         manageTaskForm = wizard.down('#tskbw-step3').down('task-manage-form');
         if (selectionGrid.isAllSelected()) {
             tasks = me.alltasksBulk;
-            }
+        }
         else {
             Ext.Array.each(selectionGrid.getSelectionModel().getSelection(), function (item) {
                 tasks.push({
@@ -126,7 +148,7 @@ Ext.define('Bpm.controller.TaskBulk', {
             tasks: Ext.encode(tasks)
         };
 
-        if(action === 'taskmanagement') {
+        if (action === 'taskmanagement') {
             Ext.each(manageTaskActions, function (item) {
                 switch (item) {
                     case 'assign':
@@ -142,8 +164,7 @@ Ext.define('Bpm.controller.TaskBulk', {
 
             });
         }
-        else
-        {
+        else {
             operation.complete = 'true';
         }
         url = '/api/bpm/runtime/managetasks';
@@ -179,13 +200,13 @@ Ext.define('Bpm.controller.TaskBulk', {
             nextStep;
 
         if (button.action === 'step-next' || button.action === 'confirm-action') {
-            if(currentStep === 2 && me.getWizard().down('#tasks-bulk-action-radiogroup').getValue().action === 'taskexecute')
+            if (currentStep === 2 && me.getWizard().down('#tasks-bulk-action-radiogroup').getValue().action === 'taskexecute')
                 direction = 2;
             else
                 direction = 1;
             nextStep = currentStep + direction;
         } else {
-            if(currentStep === 4 && me.getWizard().down('#tasks-bulk-action-radiogroup').getValue().action === 'taskexecute')
+            if (currentStep === 4 && me.getWizard().down('#tasks-bulk-action-radiogroup').getValue().action === 'taskexecute')
                 direction = -2;
             else
                 direction = -1;
@@ -231,7 +252,7 @@ Ext.define('Bpm.controller.TaskBulk', {
                 stepView = me.getWizard().down('#tskbw-step2');
                 manageTaskActions = me.getWizard().down('#tskbw-step2').getManagementActions();
                 valid = ((manageTaskActions.length > 0 && me.getWizard().down('#tasks-bulk-action-radiogroup').getValue().action === 'taskmanagement')
-                    || me.getWizard().down('#tasks-bulk-action-radiogroup').getValue().action === 'taskexecute');
+                || me.getWizard().down('#tasks-bulk-action-radiogroup').getValue().action === 'taskexecute');
 
                 stepView.down('#step2-error-message').setVisible(!valid);
                 stepView.down('#action-selection-error').setVisible(!valid);
@@ -242,11 +263,9 @@ Ext.define('Bpm.controller.TaskBulk', {
                 assigneeCombo = manageTaskForm.down('combobox[name=assigneeCombo]');
 
                 Ext.each(manageTaskActions, function (item) {
-                    switch(item)
-                    {
+                    switch (item) {
                         case 'assign':
-                            if(assigneeCombo.getRawValue() === "")
-                            {
+                            if (assigneeCombo.getRawValue() === "") {
                                 valid = false;
                             }
                             break;
@@ -324,7 +343,7 @@ Ext.define('Bpm.controller.TaskBulk', {
         }
     },
     cancelFinishWizard: function () {
-        var me= this,
+        var me = this,
             router = this.getController('Uni.controller.history.Router');
         router.getRoute('workspace/tasks').forward(null, router.arguments);
 
