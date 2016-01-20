@@ -305,14 +305,11 @@ public class ValidationInfoFactory {
 
     DetailedValidationInfo createDetailedValidationInfo(Boolean active, List<DataValidationStatus> dataValidationStatuses, Optional<Instant> lastChecked) {
         DetailedValidationInfo detailedValidationInfo = createMinimalValidationInfo(active);
+        detailedValidationInfo.dataValidated = isDataCompletelyValidated(dataValidationStatuses);
+        detailedValidationInfo.suspectReason = getSuspectReasonMap(dataValidationStatuses).entrySet();
         if (lastChecked.isPresent()) {
             detailedValidationInfo.lastChecked = lastChecked.get().toEpochMilli();
-            detailedValidationInfo.dataValidated = isDataCompletelyValidated(dataValidationStatuses);
-            detailedValidationInfo.suspectReason = getSuspectReasonMap(dataValidationStatuses).entrySet();
         } else {
-            if (dataValidationStatuses.isEmpty()) {
-                detailedValidationInfo.dataValidated = isDataCompletelyValidated(dataValidationStatuses);
-            }
             detailedValidationInfo.lastChecked = null;
         }
         return detailedValidationInfo;

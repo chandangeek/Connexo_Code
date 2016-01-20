@@ -313,7 +313,7 @@ public class DeviceValidationResource {
                     .flatMap(l -> l.getChannels().stream())
                     .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
         } else {
-            deviceValidationStatusInfo.allDataValidated = statuses.stream()
+            deviceValidationStatusInfo.allDataValidated &= statuses.stream()
                     .allMatch(DataValidationStatus::completelyValidated);
         }
     }
