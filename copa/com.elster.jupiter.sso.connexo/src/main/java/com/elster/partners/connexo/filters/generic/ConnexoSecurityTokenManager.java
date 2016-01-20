@@ -100,8 +100,7 @@ public class ConnexoSecurityTokenManager {
 
     private boolean updateToken(String token) {
         ConnexoRestProxyManager restManager = ConnexoRestProxyManager.getInstance();
-        restManager.setAuthorization("Bearer " + token);
-        this.token = restManager.getConnexoAuthorizationToken();
+        this.token = restManager.getConnexoAuthorizationToken("Bearer " + token);
         if(this.token != null && !this.token.isEmpty()) {
             this.tokenUpdated = true;
             return true;

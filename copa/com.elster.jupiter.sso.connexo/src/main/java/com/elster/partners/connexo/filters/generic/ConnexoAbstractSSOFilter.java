@@ -116,8 +116,7 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
             }
             else if (authorization.startsWith("Basic ")){
                 ConnexoRestProxyManager restManager = ConnexoRestProxyManager.getInstance();
-                restManager.setAuthorization(authorization);
-                authorizationToken = restManager.getConnexoAuthorizationToken();
+                authorizationToken = restManager.getConnexoAuthorizationToken(authorization);
             }
         }
         return authorizationToken;

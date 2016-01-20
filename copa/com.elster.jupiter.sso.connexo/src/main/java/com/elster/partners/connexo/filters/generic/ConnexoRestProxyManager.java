@@ -13,8 +13,6 @@ import java.util.Map;
  */
 public class ConnexoRestProxyManager {
     private final String url;
-    private String authorization;
-
     private static ConnexoRestProxyManager instance = null;
 
     public static synchronized ConnexoRestProxyManager getInstance(String url) {
@@ -29,25 +27,21 @@ public class ConnexoRestProxyManager {
         return instance;
     }
 
-    public String getConnexoAuthorizationToken(){
-        return doPost("/api/apps/apps/login");
-    }
-
-    public void setAuthorization(String authorization){
-        this.authorization = authorization;
+    public String getConnexoAuthorizationToken(String authorization){
+        return doPost("/api/apps/apps/login", authorization);
     }
 
     private ConnexoRestProxyManager(String url) {
         this.url = url;
     }
 
-    private String doPost(String targetURL) {
+    private String doPost(String targetURL, String authorization) {
         HttpURLConnection httpConnection = null;
         try {
             URL connexoUrl = new URL(url + targetURL);
             httpConnection = (HttpURLConnection) connexoUrl.openConnection();
             httpConnection.setRequestMethod("POST");
-            httpConnection.setRequestProperty("Authorization", this.authorization);
+            httpConnection.setRequestProperty("Authorization", authorization);
             httpConnection.setRequestProperty("Accept", "application/json");
             if (httpConnection.getResponseCode() != 204) {
                 return null;
