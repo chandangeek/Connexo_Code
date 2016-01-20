@@ -195,33 +195,33 @@
 
     <build>
         <plugins>
-            <!--<plugin>-->
-                <!--<groupId>com.github.wvengen</groupId>-->
-                <!--<artifactId>proguard-maven-plugin</artifactId>-->
-                <!--<version>${proguard.maven.version}</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>proguard</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
+            <plugin>
+                <groupId>com.github.wvengen</groupId>
+                <artifactId>proguard-maven-plugin</artifactId>
+                <version>${proguard.maven.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>proguard</goal>
+                        </goals>
+                    </execution>
+                </executions>
 
-                <!--<configuration>-->
-                    <!--<proguardVersion>${proguard.version}</proguardVersion>-->
-                    <!--<maxMemory>512m</maxMemory>-->
-                    <!--<options>-->
-                        <!--<option>-allowaccessmodification</option>-->
-                    <!--</options>-->
-                    <!--<proguardInclude>${basedir}/protocols.pro</proguardInclude>-->
-                    <!--<libs>-->
-                        <!--<lib>${java.home}/lib/rt.jar</lib>-->
-                        <!--<lib>${java.home}/lib/jsse.jar</lib>-->
-                        <!--<lib>${java.home}/lib/jce.jar</lib>-->
-                    <!--</libs>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
+                <configuration>
+                    <proguardVersion>${proguard.version}</proguardVersion>
+                    <maxMemory>512m</maxMemory>
+                    <options>
+                        <option>-allowaccessmodification</option>
+                    </options>
+                    <proguardInclude>${basedir}/protocols.pro</proguardInclude>
+                    <libs>
+                        <lib>${java.home}/lib/rt.jar</lib>
+                        <lib>${java.home}/lib/jsse.jar</lib>
+                        <lib>${java.home}/lib/jce.jar</lib>
+                    </libs>
+                </configuration>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.felix</groupId>

@@ -191,7 +191,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     }
 
     @Reference
-    private void setMeteringService(MeteringService meteringService) {
+    public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
 
