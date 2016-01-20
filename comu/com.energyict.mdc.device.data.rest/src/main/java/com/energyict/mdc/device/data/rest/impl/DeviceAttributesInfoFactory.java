@@ -15,8 +15,8 @@ import com.energyict.mdc.device.data.rest.impl.DeviceAttributesInfo.DeviceAttrib
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import javax.inject.Inject;
-import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 
 public class DeviceAttributesInfoFactory {
@@ -163,7 +163,7 @@ public class DeviceAttributesInfoFactory {
                 batchService.findOrCreateBatch(info.batch.displayValue).addDevice(device);
             }
         }
-        if(DeviceAttribute.MULTIPLIER.isEditableForState(state) && info.multiplier != null){
+        if (DeviceAttribute.MULTIPLIER.isEditableForState(state) && info.multiplier != null) {
             device.setMultiplier(info.multiplier.displayValue);
         }
         Optional<UsagePoint> currentUsagePoint = device.getUsagePoint();
@@ -190,6 +190,10 @@ public class DeviceAttributesInfoFactory {
                     });
                 });
             }
+        }
+
+        if (DeviceAttribute.MRID.isEditableForState(state) && !Objects.equals(info.mrid.displayValue, device.getmRID())) {
+            device.setmRID(info.mrid.displayValue);
         }
 
         CIMLifecycleDates lifecycleDates = device.getLifecycleDates();

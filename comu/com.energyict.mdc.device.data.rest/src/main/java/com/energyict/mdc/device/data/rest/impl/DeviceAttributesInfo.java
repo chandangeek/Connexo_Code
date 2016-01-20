@@ -18,7 +18,7 @@ public class DeviceAttributesInfo {
         MRID {
             @Override
             public List<DefaultState> attributeIsEditableForStates() {
-                return Collections.emptyList();
+                return Arrays.asList(DefaultState.values());
             }
         },
         MULTIPLIER {
