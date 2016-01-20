@@ -3,19 +3,44 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTransitionEventType;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.*;
+import com.elster.jupiter.users.FormatKey;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserPreference;
+import com.elster.jupiter.users.UserPreferencesService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.lifecycle.*;
-import com.energyict.mdc.device.lifecycle.config.*;
+import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotAfterLastStateChangeException;
+import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotInRangeException;
+import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
+import com.energyict.mdc.device.lifecycle.RequiredMicroActionPropertiesException;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedStandardTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.config.Privileges;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCategoryTranslationKey;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCheckTranslationKey;
@@ -29,7 +54,12 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -238,7 +268,6 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         this.valueAvailableForAllRequiredProperties(action, properties);
         this.effectiveTimestampIsInRange(effectiveTimestamp, action.getDeviceLifeCycle());
         this.effectiveTimestampAfterLastStateChange(effectiveTimestamp, device);
-        this.effectiveTimestampAfterLastData(effectiveTimestamp, device);
     }
 
     private void valueAvailableForAllRequiredProperties(AuthorizedTransitionAction action, List<ExecutableActionProperty> properties) {
@@ -274,28 +303,6 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     private void effectiveTimestampAfterLastStateChange(Instant effectiveTimestamp, Device device) {
         List<StateTimeSlice> stateTimeSlices = device.getStateTimeline().getSlices();
         this.lastSlice(stateTimeSlices).ifPresent(lastSlice -> this.effectiveTimestampAfterLastStateChange(effectiveTimestamp, device, lastSlice));
-    }
-
-    private void effectiveTimestampAfterLastData(Instant effectiveTimestamp, Device device) {
-        Stream<Instant> loadProfileTimes = device.getLoadProfiles()
-                .stream()
-                .map(LoadProfile::getLastReading)
-                .flatMap(Functions.asStream());
-        Stream<Instant> registerTimes = device.getRegisters()
-                .stream()
-                .map(r -> (Register<?,?>) r)
-                .map(Register::getLastReadingDate)
-                .flatMap(Functions.asStream());
-        Stream.of(registerTimes, loadProfileTimes)
-                .flatMap(Function.identity())
-                .filter(max -> max.isAfter(effectiveTimestamp))
-                .findAny()
-                .ifPresent(max -> effectiveTimestampAfterLastData(effectiveTimestamp, device, max));
-    }
-
-    private void effectiveTimestampAfterLastData(Instant effectiveTimestamp, Device device, Instant max) {
-        throw new EffectiveTimestampNotAfterLastDataException(thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_DATA,
-                device, effectiveTimestamp, max, getLongDateFormatForCurrentUser());
     }
 
     private Optional<StateTimeSlice> lastSlice(List<StateTimeSlice> stateTimeSlices) {

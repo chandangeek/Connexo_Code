@@ -1,24 +1,27 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.device.data.Device;
-
-import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-
-import org.junit.*;
-import org.junit.runner.*;
+import com.energyict.mdc.device.data.LoadProfile;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link CreateMeterActivation} component.
@@ -59,6 +62,28 @@ public class CreateMeterActivationTest {
 
         // Asserts
         verify(this.device).activate(now);
+    }
+
+    @Test
+    public void executeCreatesMeterActivationIfDeviceHasDataAfterTimestamp() {
+        Instant now = Instant.ofEpochSecond(97L);
+        Instant lastDataTimestamp = now.plus(10, ChronoUnit.MINUTES);
+        CreateMeterActivation microAction = this.getTestInstance();
+        LoadProfile loadProfile = mock(LoadProfile.class);
+        when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile));
+        when(loadProfile.getLastReading()).thenReturn(Optional.of(lastDataTimestamp));
+        MeterActivation currentMeterActivation = mock(MeterActivation.class);
+        MeterActivation newMeterActivation = mock(MeterActivation.class);
+        doReturn(Optional.of(currentMeterActivation)).when(device).getCurrentMeterActivation();
+        when(device.activate(lastDataTimestamp)).thenReturn(newMeterActivation);
+
+        // Business method
+        microAction.execute(this.device, now, Collections.emptyList());
+
+        // Asserts
+        verify(device).deactivate(lastDataTimestamp);
+        verify(device).activate(lastDataTimestamp);
+        verify(newMeterActivation).advanceStartDate(now);
     }
 
     private CreateMeterActivation getTestInstance() {
