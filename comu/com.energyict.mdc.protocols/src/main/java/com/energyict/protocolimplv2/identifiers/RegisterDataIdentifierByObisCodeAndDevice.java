@@ -8,6 +8,8 @@ import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 
+import java.text.MessageFormat;
+
 /**
  * Implementation of a {@link RegisterIdentifier} that uniquely identifies
  * a {@link com.energyict.mdc.protocol.api.device.BaseRegister} based on the ObisCode of the mapping or the
@@ -61,7 +63,7 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
 
     @Override
     public String toString() {
-        return "deviceIdentifier = " + this.deviceIdentifier + " and ObisCode = " + this.registerObisCode.toString();
+        return MessageFormat.format("register having OBIS code {0} on device with deviceIdentifier ''{1}''", registerObisCode, deviceIdentifier);
     }
 
     public DeviceIdentifier<?> getDeviceIdentifier() {
