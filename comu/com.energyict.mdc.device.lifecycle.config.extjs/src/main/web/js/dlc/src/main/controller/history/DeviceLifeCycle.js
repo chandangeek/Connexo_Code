@@ -95,7 +95,7 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                             action: 'showDeviceLifeCycleStateEdit',
                                             callback: function (route) {
                                                 this.getApplication().on('loadlifecyclestate', function (record) {
-                                                    route.setTitle(Uni.I18n.translate('deviceLifeCycles.edit.title', 'DLC', "Edit '{0}'", [record.get('name')]));
+                                                    route.setTitle(Uni.I18n.translate('deviceLifeCycles.edit.title', 'DLC', "Edit '{0}'", [record.get('name')], false));
                                                     return true;
                                                 }, {single: true});
                                                 return this;
