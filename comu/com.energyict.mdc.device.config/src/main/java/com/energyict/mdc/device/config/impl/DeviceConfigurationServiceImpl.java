@@ -712,7 +712,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public Finder<DeviceConfiguration> findDeviceConfigurationsForEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
         Condition condition = where(DeviceConfigurationImpl.Fields.DEVICECONF_ESTIMATIONRULESET_USAGES.fieldName() + "." +
                                     DeviceConfigurationEstimationRuleSetUsageImpl.Fields.ESTIMATIONRULESET.fieldName()).isEqualTo(estimationRuleSet);
-        return DefaultFinder.of(DeviceConfiguration.class, condition, dataModel, DeviceConfigurationEstimationRuleSetUsage.class).sorted("name", true);
+        return DefaultFinder.of(DeviceConfiguration.class, condition, dataModel, DeviceConfigurationEstimationRuleSetUsage.class).sorted("deviceType", true).sorted("name", true);
     }
 
     @Override
