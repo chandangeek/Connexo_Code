@@ -82,7 +82,7 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
 
     @Override
     public String toString() {
-        return "id" + this.id;
+        return "load profile having id " + this.id;
     }
 
 }

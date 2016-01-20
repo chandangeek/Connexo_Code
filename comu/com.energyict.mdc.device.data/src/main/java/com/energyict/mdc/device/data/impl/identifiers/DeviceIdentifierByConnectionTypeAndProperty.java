@@ -82,7 +82,7 @@ public class DeviceIdentifierByConnectionTypeAndProperty implements DeviceIdenti
 
     @Override
     public String toString() {
-        return "device with connectiontype" + this.connectionTypeClass.getName() + " and property '" + this.propertyName + "' and value '" + this.propertyValue + "'";
+        return "device having connection type '" + this.connectionTypeClass.getName() + "', property '" + this.propertyName + "' and value '" + this.propertyValue + "'";
     }
 
     @XmlElement(name = "type")

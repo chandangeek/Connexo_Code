@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentif
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -75,7 +76,7 @@ public class LoadProfileIdentifierFirstOnDevice implements LoadProfileIdentifier
 
     @Override
     public String toString() {
-        return "fist load profile on device having deviceIdentifier = " + deviceIdentifier;
+        return MessageFormat.format("fist load profile on device with deviceIdentifier ''{0}''", deviceIdentifier);
     }
 
 }
