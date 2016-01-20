@@ -4,7 +4,6 @@ import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventPublishingLogHandler;
-import com.energyict.mdc.engine.impl.events.logging.CommunicationLoggingEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -32,7 +31,7 @@ public class ComPortDiscoveryLogHandler extends EventPublishingLogHandler {
     protected ComServerEvent toEvent(AbstractComServerEventImpl.ServiceProvider serviceProvider, LogLevel level, String logMessage) {
         InboundComPort comPort = this.inboundCommunicationHandler.getComPort();
         InboundConnectionTask connectionTask = this.inboundCommunicationHandler.getConnectionTask();
-        return new ComPortDiscoveryEvent(serviceProvider, connectionTask, comPort, level, logMessage);
+        return new ComPortDiscoveryLoggingEvent(serviceProvider, connectionTask, comPort, level, logMessage);
     }
 
 }

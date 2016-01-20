@@ -347,7 +347,6 @@ public class InboundCommunicationHandler {
         actualLogger.addHandler(new DiscoveryContextLogHandler(this.serviceProvider.clock(), this.context));
         this.context.setLogger(actualLogger);
         return logger;
-
     }
 
     private ComPortDiscoveryLogger newEventLogger() {
