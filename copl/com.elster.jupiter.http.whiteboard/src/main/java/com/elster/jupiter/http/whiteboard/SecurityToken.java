@@ -28,7 +28,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 
-
 public class SecurityToken {
 
     private final long MAX_COUNT = WhiteBoardImpl.getTokenRefreshMaxCount();
@@ -95,25 +94,29 @@ public class SecurityToken {
     public Optional<User> verifyToken(String token, HttpServletRequest request, HttpServletResponse response, UserService userService) {
         try {
             Optional<SignedJWT> signedJWT = checkTokenIntegrity(token);
-                if (signedJWT.isPresent() && (Long)signedJWT.get().getJWTClaimsSet().getCustomClaim("cnt") < MAX_COUNT) {
-                    long userId = Long.valueOf(signedJWT.get().getJWTClaimsSet().getSubject());
-                    Optional<User> user = userService.getLoggedInUser(userId);
-                    if (new Date().before(new Date(signedJWT.get().getJWTClaimsSet().getExpirationTime().getTime()))) {
-                        response.setHeader("X-AUTH-TOKEN", token);
-                        response.setHeader("Authorization", "Bearer " + token);
+            if (signedJWT.isPresent() && (Long)signedJWT.get().getJWTClaimsSet().getCustomClaim("cnt") < MAX_COUNT) {
+                long userId = Long.valueOf(signedJWT.get().getJWTClaimsSet().getSubject());
+                Optional<User> user = userService.getLoggedInUser(userId);
+                if (new Date().before(new Date(signedJWT.get().getJWTClaimsSet().getExpirationTime().getTime()))) {
+                    response.setHeader("X-AUTH-TOKEN", token);
+                    response.setHeader("Authorization", "Bearer " + token);
+                    return user;
+                } else if (new Date().before(new Date(signedJWT.get().getJWTClaimsSet().getExpirationTime().getTime() + TIMEOUT*1000))) {
+                    if(!userService.findUser(user.get().getName(), user.get().getDomain()).isPresent()){
+                        return Optional.empty();
+                    }
+
+                    long count = (Long) signedJWT.get().getJWTClaimsSet().getCustomClaim("cnt");
+                    Optional<String> newToken = createToken(request, response, userService.getLoggedInUser(userId).get(),++count);
+                    if(newToken.isPresent()){
+                        response.setHeader("X-AUTH-TOKEN", newToken.get());
+                        response.setHeader("Authorization", "Bearer " + newToken.get());
+                        createCookie("X-CONNEXO-TOKEN",newToken.get(),"/",response);
                         return user;
-                    } else if (new Date().before(new Date(signedJWT.get().getJWTClaimsSet().getExpirationTime().getTime() + TIMEOUT*1000))) {
-                        if(!userService.findUser(user.get().getName(), user.get().getDomain()).isPresent()) return Optional.empty();
-                        long count = (Long) signedJWT.get().getJWTClaimsSet().getCustomClaim("cnt");
-                        Optional<String> newToken = createToken(request, response, userService.getLoggedInUser(userId).get(),++count);
-                        if(newToken.isPresent()){
-                            response.setHeader("X-AUTH-TOKEN", newToken.get());
-                            response.setHeader("Authorization", "Bearer " + newToken.get());
-                            createCookie("X-CONNEXO-TOKEN",newToken.get(),"/",response);
-                            return user;
-                        }
                     }
                 }
+            }
+
             removeCookie(request, response);
             invalidateSession(request);
         } catch (ParseException e) {
@@ -129,11 +132,13 @@ public class SecurityToken {
 
         try {
             if(jwtCookie.isPresent() && jwtToken.isPresent()){
-                if(new String(jwtCookie.get().getSigningInput(), StandardCharsets.UTF_8).equals(new String(jwtToken.get().getSigningInput(),StandardCharsets.UTF_8))) return true;
+                if(new String(jwtCookie.get().getSigningInput(), StandardCharsets.UTF_8).equals(new String(jwtToken.get().getSigningInput(),StandardCharsets.UTF_8))){
+                    return true;
+                }
                 else if(jwtCookie.get().getJWTClaimsSet().getSubject().equals(jwtToken.get().getJWTClaimsSet().getSubject())
-                        && (jwtCookie.get().getJWTClaimsSet().getIssueTime().after(jwtToken.get().getJWTClaimsSet().getIssueTime()) || jwtCookie.get().getJWTClaimsSet().getIssueTime().equals(jwtToken.get().getJWTClaimsSet().getIssueTime()))
-                        && (jwtCookie.get().getJWTClaimsSet().getExpirationTime().after(jwtToken.get().getJWTClaimsSet().getExpirationTime()) || jwtCookie.get().getJWTClaimsSet().getExpirationTime().equals(jwtToken.get().getJWTClaimsSet().getExpirationTime()))
-                        && (Long)jwtCookie.get().getJWTClaimsSet().getCustomClaim("cnt") >= (Long)jwtToken.get().getJWTClaimsSet().getCustomClaim("cnt")) return true;
+                        && (Long)jwtCookie.get().getJWTClaimsSet().getCustomClaim("cnt") >= (Long)jwtToken.get().getJWTClaimsSet().getCustomClaim("cnt")){
+                    return true;
+                }
             }else{
                 return false;
             }
@@ -148,9 +153,7 @@ public class SecurityToken {
     private Optional<SignedJWT> checkTokenIntegrity(String token) {
         try {
             Optional<RSAKey> rsaKey = getRSAKey(PUBLIC_KEY, "PUB");
-            if (token != null && !(token.equals("null") || token.equals("undefined"))
-                    && rsaKey.isPresent()) {
-
+            if (token != null && !(token.equals("null") || token.equals("undefined")) && rsaKey.isPresent()) {
                 SignedJWT signedJWT = SignedJWT.parse(token);
                 String issuer = signedJWT.getJWTClaimsSet().getIssuer();
                 Date issueTime = signedJWT.getJWTClaimsSet().getIssueTime();
