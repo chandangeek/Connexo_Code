@@ -85,20 +85,6 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
 
     minorFilters: [
         {
-            text: Uni.I18n.translate('readingTypes.attribute.dataQualifier', 'MTR', 'Data qualifier'),
-            name: 'dataQualifier',
-            filterConfig: {
-                type: 'closablecombobox',
-                dataIndex: 'aggregate',
-                emptyText: Uni.I18n.translate('readingTypes.attribute.dataQualifier', 'MTR', 'Data qualifier'),
-                displayField: 'displayName',
-                valueField: 'code',
-                multiSelect: true,
-                itemId: 'reading-type-data-qualifier',
-                store: 'Mtr.readingtypes.attributes.store.DataQualifier'
-            }
-        },
-        {
             text: Uni.I18n.translate('readingTypes.attribute.accumulation', 'MTR', 'Accumulation'),
             name: 'accumulation',
             filterConfig: {
@@ -110,90 +96,6 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
                 multiSelect: true,
                 itemId: 'reading-type-accumulation',
                 store: 'Mtr.readingtypes.attributes.store.Accumulation'
-            }
-        },
-        {
-            text: Uni.I18n.translate('readingTypes.attribute.directionOfFlow', 'MTR', 'Direction of flow'),
-            name: 'directionOfFlow',
-            filterConfig: {
-                type: 'closablecombobox',
-                dataIndex: 'flowDirection',
-                emptyText: Uni.I18n.translate('readingTypes.attribute.directionOfFlow', 'MTR', 'Direction of flow'),
-                displayField: 'displayName',
-                valueField: 'code',
-                multiSelect: true,
-                itemId: 'reading-type-direction-of-Flow',
-                store: 'Mtr.readingtypes.attributes.store.DirectionOfFlow'
-            }
-        },
-        {
-            text: Uni.I18n.translate('readingTypes.attribute.commodity', 'MTR', 'Commodity'),
-            name: 'commodity',
-            filterConfig: {
-                type: 'closablecombobox',
-                dataIndex: 'commodity',
-                emptyText: Uni.I18n.translate('readingTypes.attribute.commodity', 'MTR', 'Commodity'),
-                displayField: 'displayName',
-                valueField: 'code',
-                multiSelect: true,
-                itemId: 'reading-type-commodity',
-                store: 'Mtr.readingtypes.attributes.store.Commodity'
-            }
-        },
-        {
-            text: Uni.I18n.translate('readingTypes.attribute.kind', 'MTR', 'Kind'),
-            name: 'kind',
-            filterConfig: {
-                type: 'closablecombobox',
-                dataIndex: 'measurementKind',
-                emptyText: Uni.I18n.translate('readingTypes.attribute.kind', 'MTR', 'Kind'),
-                displayField: 'displayName',
-                valueField: 'code',
-                multiSelect: true,
-                itemId: 'reading-type-kind',
-                store: 'Mtr.readingtypes.attributes.store.Kind'
-            }
-        },
-        {
-            text: Uni.I18n.translate('readingTypes.attribute.interharmonicNumerator', 'MTR', 'Interharmonic numerator'),
-            name: 'interharmonicNumerator',
-            filterConfig: {
-                type: 'closablecombobox',
-                dataIndex: 'interHarmonicNumerator',
-                emptyText: Uni.I18n.translate('readingTypes.attribute.interharmonicNumerator', 'MTR', 'Interharmonic numerator'),
-                displayField: 'displayName',
-                valueField: 'code',
-                multiSelect: true,
-                itemId: 'reading-type-interharmonic-numerator',
-                store: 'Mtr.readingtypes.attributes.store.InterharmonicNumerator'
-            }
-        },
-        {
-            text: Uni.I18n.translate('readingTypes.attribute.interharmonicDenominator', 'MTR', 'Interharmonic denominator'),
-            name: 'interharmonicDenominator',
-            filterConfig: {
-                type: 'closablecombobox',
-                dataIndex: 'interHarmonicDenominator',
-                emptyText: Uni.I18n.translate('readingTypes.attribute.interharmonicDenominator', 'MTR', 'Interharmonic denominator'),
-                displayField: 'displayName',
-                valueField: 'code',
-                multiSelect: true,
-                itemId: 'reading-type-interharmonic-interharmonic-denominator',
-                store: 'Mtr.readingtypes.attributes.store.InterharmonicDenominator'
-            }
-        },
-        {
-            text: Uni.I18n.translate('readingTypes.attribute.argumentNumerator', 'MTR', 'Argument numerator'),
-            name: 'argumentNumerator',
-            filterConfig: {
-                type: 'closablecombobox',
-                dataIndex: 'argumentNumerator',
-                emptyText: Uni.I18n.translate('readingTypes.attribute.argumentNumerator', 'MTR', 'Argument numerator'),
-                displayField: 'displayName',
-                valueField: 'code',
-                multiSelect: true,
-                itemId: 'reading-type-interharmonic-argument-numerator',
-                store: 'Mtr.readingtypes.attributes.store.ArgumentNumerator'
             }
         },
         {
@@ -211,17 +113,31 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
             }
         },
         {
-            text: Uni.I18n.translate('readingTypes.attribute.criticalPeakPeriod', 'MTR', 'Critical peak period'),
-            name: 'criticalPeakPeriod',
+            text: Uni.I18n.translate('readingTypes.attribute.argumentNumerator', 'MTR', 'Argument numerator'),
+            name: 'argumentNumerator',
             filterConfig: {
                 type: 'closablecombobox',
-                dataIndex: 'cpp',
-                emptyText: Uni.I18n.translate('readingTypes.attribute.criticalPeakPeriod', 'MTR', 'Critical peak period'),
+                dataIndex: 'argumentNumerator',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.argumentNumerator', 'MTR', 'Argument numerator'),
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
-                itemId: 'reading-type-interharmonic-critical-peak-period',
-                store: 'Mtr.readingtypes.attributes.store.CriticalPeakPeriod'
+                itemId: 'reading-type-interharmonic-argument-numerator',
+                store: 'Mtr.readingtypes.attributes.store.ArgumentNumerator'
+            }
+        },
+        {
+            text: Uni.I18n.translate('readingTypes.attribute.commodity', 'MTR', 'Commodity'),
+            name: 'commodity',
+            filterConfig: {
+                type: 'closablecombobox',
+                dataIndex: 'commodity',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.commodity', 'MTR', 'Commodity'),
+                displayField: 'displayName',
+                valueField: 'code',
+                multiSelect: true,
+                itemId: 'reading-type-commodity',
+                store: 'Mtr.readingtypes.attributes.store.Commodity'
             }
         },
         {
@@ -239,19 +155,104 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
             }
         },
         {
-            text: Uni.I18n.translate('readingTypes.attribute.phase', 'MTR', 'Phase'),
-            name: 'phase',
+            text: Uni.I18n.translate('readingTypes.attribute.criticalPeakPeriod', 'MTR', 'Critical peak period'),
+            name: 'criticalPeakPeriod',
             filterConfig: {
                 type: 'closablecombobox',
-                dataIndex: 'phases',
-                emptyText: Uni.I18n.translate('readingTypes.attribute.phase', 'MTR', 'Phase'),
+                dataIndex: 'cpp',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.criticalPeakPeriod', 'MTR', 'Critical peak period'),
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
-                itemId: 'reading-type-interharmonic-phase',
-                store: 'Mtr.readingtypes.attributes.store.Phase'
+                itemId: 'reading-type-interharmonic-critical-peak-period',
+                store: 'Mtr.readingtypes.attributes.store.CriticalPeakPeriod'
             }
         },
+        {
+            text: Uni.I18n.translate('readingTypes.attribute.currency', 'MTR', 'Currency'),
+            name: 'currency',
+            filterConfig: {
+                type: 'closablecombobox',
+                dataIndex: 'currency',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.currency', 'MTR', 'Currency'),
+                displayField: 'displayName',
+                valueField: 'code',
+                multiSelect: true,
+                itemId: 'reading-type-currency',
+                store: 'Mtr.readingtypes.attributes.store.Currency'
+            }
+        },
+        {
+            text: Uni.I18n.translate('readingTypes.attribute.dataQualifier', 'MTR', 'Data qualifier'),
+            name: 'dataQualifier',
+            filterConfig: {
+                type: 'closablecombobox',
+                dataIndex: 'aggregate',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.dataQualifier', 'MTR', 'Data qualifier'),
+                displayField: 'displayName',
+                valueField: 'code',
+                multiSelect: true,
+                itemId: 'reading-type-data-qualifier',
+                store: 'Mtr.readingtypes.attributes.store.DataQualifier'
+            }
+        },
+        {
+            text: Uni.I18n.translate('readingTypes.attribute.directionOfFlow', 'MTR', 'Direction of flow'),
+            name: 'directionOfFlow',
+            filterConfig: {
+                type: 'closablecombobox',
+                dataIndex: 'flowDirection',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.directionOfFlow', 'MTR', 'Direction of flow'),
+                displayField: 'displayName',
+                valueField: 'code',
+                multiSelect: true,
+                itemId: 'reading-type-direction-of-Flow',
+                store: 'Mtr.readingtypes.attributes.store.DirectionOfFlow'
+            }
+        },
+        {
+            text: Uni.I18n.translate('readingTypes.attribute.interharmonicDenominator', 'MTR', 'Interharmonic denominator'),
+            name: 'interharmonicDenominator',
+            filterConfig: {
+                type: 'closablecombobox',
+                dataIndex: 'interHarmonicDenominator',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.interharmonicDenominator', 'MTR', 'Interharmonic denominator'),
+                displayField: 'displayName',
+                valueField: 'code',
+                multiSelect: true,
+                itemId: 'reading-type-interharmonic-interharmonic-denominator',
+                store: 'Mtr.readingtypes.attributes.store.InterharmonicDenominator'
+            }
+        },
+        {
+            text: Uni.I18n.translate('readingTypes.attribute.interharmonicNumerator', 'MTR', 'Interharmonic numerator'),
+            name: 'interharmonicNumerator',
+            filterConfig: {
+                type: 'closablecombobox',
+                dataIndex: 'interHarmonicNumerator',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.interharmonicNumerator', 'MTR', 'Interharmonic numerator'),
+                displayField: 'displayName',
+                valueField: 'code',
+                multiSelect: true,
+                itemId: 'reading-type-interharmonic-numerator',
+                store: 'Mtr.readingtypes.attributes.store.InterharmonicNumerator'
+            }
+        },
+        {
+            text: Uni.I18n.translate('readingTypes.attribute.kind', 'MTR', 'Kind'),
+            name: 'kind',
+            filterConfig: {
+                type: 'closablecombobox',
+                dataIndex: 'measurementKind',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.kind', 'MTR', 'Kind'),
+                displayField: 'displayName',
+                valueField: 'code',
+                multiSelect: true,
+                itemId: 'reading-type-kind',
+                store: 'Mtr.readingtypes.attributes.store.Kind'
+            }
+        },
+
         {
             text: Uni.I18n.translate('readingTypes.attribute.multiplier', 'MTR', 'Multiplier'),
             name: 'multiplier',
@@ -267,17 +268,17 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
             }
         },
         {
-            text: Uni.I18n.translate('readingTypes.attribute.currency', 'MTR', 'Currency'),
-            name: 'currency',
+            text: Uni.I18n.translate('readingTypes.attribute.phase', 'MTR', 'Phase'),
+            name: 'phase',
             filterConfig: {
                 type: 'closablecombobox',
-                dataIndex: 'currency',
-                emptyText: Uni.I18n.translate('readingTypes.attribute.currency', 'MTR', 'Currency'),
+                dataIndex: 'phases',
+                emptyText: Uni.I18n.translate('readingTypes.attribute.phase', 'MTR', 'Phase'),
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
-                itemId: 'reading-type-currency',
-                store: 'Mtr.readingtypes.attributes.store.Currency'
+                itemId: 'reading-type-interharmonic-phase',
+                store: 'Mtr.readingtypes.attributes.store.Phase'
             }
         }
     ],
