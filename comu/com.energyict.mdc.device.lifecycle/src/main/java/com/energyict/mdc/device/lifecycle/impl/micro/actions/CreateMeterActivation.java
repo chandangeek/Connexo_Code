@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -89,6 +91,12 @@ public class CreateMeterActivation extends TranslatableServerMicroAction {
     }
 
     private void removeReadingQualities(List<Channel> channels) {
-        channels.stream().flatMap(channel -> channel.findReadingQuality(Range.all()).stream()).forEach(ReadingQualityRecord::delete);
+        channels.stream().flatMap(channel -> channel.findActualReadingQuality(Range.all()).stream())
+                .filter(this::isValidationQuality).forEach(ReadingQualityRecord::delete);
+    }
+
+    private boolean isValidationQuality(ReadingQualityRecord readingQualityRecord) {
+        ReadingQualityType type = readingQualityRecord.getType();
+        return type.system().filter(QualityCodeSystem.MDM::equals).isPresent() && (type.hasReasonabilityCategory() || type.hasValidationCategory());
     }
 }
