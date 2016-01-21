@@ -3,8 +3,8 @@ package com.energyict.mdc.engine.impl.meterdata.identifiers;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 
 import java.util.List;
 
@@ -62,7 +62,7 @@ public class RegisterDataIdentifier implements RegisterIdentifier {
 
     @Override
     public String toString() {
-        return this.registerObisCode.toString();
+        return "register having OBIS code " + this.registerObisCode;
     }
 
     @Override
