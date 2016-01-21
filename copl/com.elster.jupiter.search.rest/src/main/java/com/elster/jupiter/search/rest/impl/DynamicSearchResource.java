@@ -91,7 +91,7 @@ public class DynamicSearchResource {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
         Stream<SearchableProperty> propertyStream = getSearchableProperties(searchDomain, jsonQueryFilter);
         List<PropertyInfo> propertyList = propertyStream
-                .map(p -> searchCriterionInfoFactory.asInfoObject(p, uriInfo))
+                .map(p -> searchCriterionInfoFactory.asListObject(p, uriInfo))
                 .collect(toList());
         PagedInfoList pagedProperties = PagedInfoList.fromCompleteList("properties", propertyList, jsonQueryParameters);
         return Response.ok().entity(pagedProperties).build();
@@ -182,10 +182,11 @@ public class DynamicSearchResource {
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{domain}/searchcriteria/{property}")
-    public Response getDomainPropertyValues(@PathParam("domain") String domainId,
-                                            @PathParam("property") String property,
-                                            @BeanParam JsonQueryParameters jsonQueryParameters,
-                                            @BeanParam JsonQueryFilter jsonQueryFilter) {
+    public Response getFullCriteriaInfo(@PathParam("domain") String domainId,
+                                        @PathParam("property") String property,
+                                        @BeanParam JsonQueryParameters jsonQueryParameters,
+                                        @BeanParam JsonQueryFilter jsonQueryFilter,
+                                        @BeanParam UriInfo uriInfo) {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
         SearchableProperty searchableProperty = getSearchableProperties(searchDomain, jsonQueryFilter)
                 .filter(prop -> property.equals(prop.getName()))
@@ -196,37 +197,8 @@ public class DynamicSearchResource {
                 map(constrainingProperty -> SearchablePropertyValueConverter.convert(constrainingProperty, jsonQueryFilter).asConstriction()).
                 collect(toList());
         searchableProperty.refreshWithConstrictions(searchablePropertyConstrictions);
-        PropertySpecPossibleValues possibleValuesOrNull = searchableProperty.getSpecification().getPossibleValues();
-        List<?> possibleValues = possibleValuesOrNull!=null?possibleValuesOrNull.getAllValues():Collections.emptyList();
-        String nameFilter = jsonQueryFilter.getString("displayValue");
-        Predicate<IdWithDisplayValueInfo> nameFilterPredicate;
-        if (nameFilter!=null) {
-            nameFilterPredicate = dv -> dv.displayValue.toLowerCase().contains(nameFilter.toLowerCase());
-        } else {
-            nameFilterPredicate = dv-> true;
-        }
-        List allJsonValues = possibleValues.stream()
-                .map(v -> asJsonValueObject(searchableProperty.toDisplay(v), v))
-                .filter(nameFilterPredicate)
-                .sorted((v1, v2) -> v1.displayValue.compareToIgnoreCase(v2.displayValue))
-                .collect(toList());
-        return Response.ok().entity(PagedInfoList.fromCompleteList("values", allJsonValues, jsonQueryParameters)).build();
-    }
-
-    private IdWithDisplayValueInfo asJsonValueObject(String name, Object valueObject) {
-        IdWithDisplayValueInfo info = new IdWithDisplayValueInfo();
-        info.displayValue = name;
-        info.id = name; // support for dynamic attributes, whose possible values don't match these classes
-        if (HasId.class.isAssignableFrom(valueObject.getClass())) {
-            info.id = ((HasId)valueObject).getId();
-        } else if (Enum.class.isAssignableFrom(valueObject.getClass())) {
-            info.id = ((Enum)valueObject).name();
-        } else if (Long.class.isAssignableFrom(valueObject.getClass())) {
-            info.id = valueObject;
-        } else if (HasIdAndName.class.isAssignableFrom(valueObject.getClass())) {
-            info.id = ((HasIdAndName) valueObject).getId();
-        }
-        return info;
+        PropertyInfo propertyInfo = searchCriterionInfoFactory.asSingleObject(searchableProperty, uriInfo, jsonQueryFilter.getString("displayValue"));
+        return Response.ok().entity(propertyInfo).build();
     }
 
 
