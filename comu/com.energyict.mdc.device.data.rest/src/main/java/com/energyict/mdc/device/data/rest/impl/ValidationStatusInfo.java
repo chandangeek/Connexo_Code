@@ -17,10 +17,8 @@ public class ValidationStatusInfo {
         this.isActive = isActive;
         if (lastChecked.isPresent()) {
             this.lastChecked = lastChecked.get().toEpochMilli();
-        }
-        else {
+        }else{
             this.lastChecked = null;
-            this.allDataValidated = false;
         }
         this.hasValidation = hasValidation;
     }
