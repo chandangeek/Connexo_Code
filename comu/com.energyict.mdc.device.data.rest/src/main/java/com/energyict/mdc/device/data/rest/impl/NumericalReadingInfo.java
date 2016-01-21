@@ -3,6 +3,8 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.rest.BigDecimalAsStringAdapter;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,6 +17,8 @@ public class NumericalReadingInfo extends ReadingInfo {
     @JsonProperty("value")
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal value;
+    @XmlJavaTypeAdapter(UnitAdapter.class)
+    public Unit unit;
     @JsonProperty("deltaValue")
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal deltaValue;
@@ -24,6 +28,8 @@ public class NumericalReadingInfo extends ReadingInfo {
     @JsonProperty("calculatedValue")
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal calculatedValue;
+    @XmlJavaTypeAdapter(UnitAdapter.class)
+    public Unit calculatedUnit;
     @JsonProperty("validationStatus")
     public Boolean validationStatus;
     @JsonProperty("dataValidated")
