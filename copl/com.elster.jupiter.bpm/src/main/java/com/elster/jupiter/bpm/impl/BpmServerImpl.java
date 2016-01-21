@@ -83,7 +83,7 @@ public class BpmServerImpl implements BpmServer {
 
             int responseCode = httpConnection.getResponseCode();
             if( responseCode  != 200) {
-                throw new RuntimeException("Failed : HTTP error code : " + responseCode);
+                throw new RuntimeException(Integer.toString(responseCode));
             }
             BufferedReader br = new BufferedReader(new InputStreamReader(
                     (httpConnection.getInputStream())));
