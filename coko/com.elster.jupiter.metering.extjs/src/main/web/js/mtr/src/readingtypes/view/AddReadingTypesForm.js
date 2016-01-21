@@ -78,7 +78,7 @@ Ext.define('Mtr.readingtypes.view.AddReadingTypesForm', {
                         allowBlank: false,
                         name: 'mRID',
                         width: 420,
-                        afterSubTpl: '<div class="x-form-display-field"><i>' + Uni.I18n.translate('readingtypesmanagment.addreadingtypes.cimCodeInstruction', 'MTR', "Provide the values for the 18 attributes of the CIM code, separated by a '.'") + '</i></div>'
+                        afterSubTpl: '<div class="x-form-display-field"><i>' + Uni.I18n.translate('readingtypesmanagment.addreadingtypes.cimCodeValuesInstruction', 'MTR', "Provide the values for the 18 attributes of the CIM code, separated by a ' . '") + '</i></div>'
                     }
                 ]
             },

@@ -141,9 +141,9 @@ Ext.define('Mtr.readingtypes.controller.AddReadingTypes', {
             callback: function (record, operation, success) {
                 if (success) {
                     var response = Ext.JSON.decode(operation.response.responseText),
-                        addedCount = response.count;
+                        addedCount = response.countCreatedReadingTypes;
                     router.getRoute('administration/readingtypes').forward();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('readingtypesmanagment.addReadingType.acknowledge', 'MTR', '{0} reading types added', [addedCount]));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.readingTypesAddedAcknowledge', addedCount, 'MTR', '{0} reading types added', '{0} reading type added', '{0} reading types added'));
                 }
             }
         });

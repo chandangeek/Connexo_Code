@@ -47,7 +47,7 @@ Ext.define('Mtr.readingtypes.view.AddReadingTypes', {
     initComponent: function () {
         var me = this;
         me.content = {
-            xtype: 'panel',
+            xtype: 'form',
             ui: 'large',
             title: Uni.I18n.translate('readingtypesmanagment.addreadingtypes.title', 'MTR', 'Add reading types'),
             items: [
@@ -67,16 +67,14 @@ Ext.define('Mtr.readingtypes.view.AddReadingTypes', {
                     }
                 },
                 {
-                    xtype: 'fieldcontainer',
+                    xtype: 'displayfield',
                     labelWidth: 250,
                     fieldLabel: '&nbsp',
-                    items: [
-                        {
-                            html: '<div class="x-form-display-field"><i>' +
-                                Uni.I18n.translate('readingtypesmanagment.addreadingtypes.cimFormInstruction', 'MTR', 'Description of attributes can be found in CIM documentation') +
-                                '</i></div>'
-                        }
-                    ]
+                    itemId: 'add-reading-types-description-of-attributes-info',
+                    value: Uni.I18n.translate('readingtypesmanagment.addreadingtypes.cimFormDescriptionOfAttributesInfo', 'MTR', 'Description of attributes can be found in CIM documentation'),
+                    renderer: function(value){
+                        return '<i>' + value + '</i>'
+                    }
                 },
                 {
                     xtype: 'displayfield',
