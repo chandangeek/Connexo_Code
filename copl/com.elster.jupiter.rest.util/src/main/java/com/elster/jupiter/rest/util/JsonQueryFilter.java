@@ -13,10 +13,13 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.io.ByteArrayInputStream;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @XmlRootElement
 public class JsonQueryFilter {
@@ -145,13 +148,14 @@ public class JsonQueryFilter {
 
     public <T> List<T> getPropertyList(String name, Function<JsonNode, T> mapper){
         JsonNode node = getFilterProperties().get(name);
-        List<T> values = new ArrayList<>();
-        if (node != null) {
-            for (JsonNode value : node) {
-                values.add(mapper.apply(value));
-            }
+        if (node != null && !node.isNull()) {
+            return node.isArray()
+                    ? StreamSupport.stream(node.spliterator(), false)
+                        .map(mapper)
+                        .collect(Collectors.toList())
+                    : Collections.singletonList(mapper.apply(node));
         }
-        return values;
+        return Collections.emptyList();
     }
 
     public List<String> getPropertyList(String name){

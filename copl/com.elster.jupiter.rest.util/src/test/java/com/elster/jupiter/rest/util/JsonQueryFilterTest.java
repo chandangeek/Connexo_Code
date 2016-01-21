@@ -11,23 +11,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
-/**
- * Created by bvn on 9/9/14.
- */
 public class JsonQueryFilterTest {
-
-    public static final XmlAdapter<String, BigDecimal> BIG_DECIMAL_ADAPTER = new XmlAdapter<String, BigDecimal>() {
-        @Override
-        public BigDecimal unmarshal(String v) throws Exception {
-            return BigDecimal.valueOf(Long.valueOf(v));
-        }
-
-        @Override
-        public String marshal(BigDecimal v) throws Exception {
-            return v.toString();
-        }
-    };
 
     @Test
     public void testJsonQueryFilterSingleValue() throws Exception {
@@ -73,17 +57,45 @@ public class JsonQueryFilterTest {
         assertThat(jsonQueryFilter.getIntegerList("ids")).hasSize(3).containsExactly(1, 2, 3);
     }
 
-   /* @Test
-    public void testJsonQueryFilterWithListValueOfBigDecimals() throws Exception {
-        Map<String, Object> hashMap1 = new HashMap<>();
-        hashMap1.put("property", "ids");
-        hashMap1.put("value", Arrays.asList(BigDecimal.ONE, BigDecimal.TEN));
+    @Test
+    public void testGetListOfElementsForSingleItem() throws Exception {
+        Map<String, Object> filterMap = new HashMap<>();
+        filterMap.put("property", "test");
+        filterMap.put("value", "some_single_element");
 
-        String string = new ObjectMapper().writer().writeValueAsString(new Object[]{hashMap1});
+        String string = new ObjectMapper().writer().writeValueAsString(new Object[]{filterMap});
         JsonQueryFilter jsonQueryFilter = new JsonQueryFilter(string);
 
         assertThat(jsonQueryFilter.hasFilters()).isTrue();
-        assertThat(jsonQueryFilter.hasProperty("ids"));
-        assertThat(jsonQueryFilter.getPropertyList("ids", BIG_DECIMAL_ADAPTER)).hasSize(2).containsExactly(BigDecimal.ONE, BigDecimal.TEN);
-    }*/
+        assertThat(jsonQueryFilter.hasProperty("test"));
+        assertThat(jsonQueryFilter.getStringList("test")).hasSize(1).containsExactly("some_single_element");
+    }
+
+    @Test
+    public void testGetListOfElementsForArray() throws Exception {
+        Map<String, Object> filterMap = new HashMap<>();
+        filterMap.put("property", "test");
+        filterMap.put("value", Arrays.asList("some", "another"));
+
+        String string = new ObjectMapper().writer().writeValueAsString(new Object[]{filterMap});
+        JsonQueryFilter jsonQueryFilter = new JsonQueryFilter(string);
+
+        assertThat(jsonQueryFilter.hasFilters()).isTrue();
+        assertThat(jsonQueryFilter.hasProperty("test"));
+        assertThat(jsonQueryFilter.getStringList("test")).hasSize(2).containsExactly("some", "another");
+    }
+
+    @Test
+    public void testGetListOfElementsForNull() throws Exception {
+        Map<String, Object> filterMap = new HashMap<>();
+        filterMap.put("property", "test");
+        filterMap.put("value", null);
+
+        String string = new ObjectMapper().writer().writeValueAsString(new Object[]{filterMap});
+        JsonQueryFilter jsonQueryFilter = new JsonQueryFilter(string);
+
+        assertThat(jsonQueryFilter.hasFilters()).isTrue();
+        assertThat(jsonQueryFilter.hasProperty("test"));
+        assertThat(jsonQueryFilter.getStringList("test")).hasSize(0);
+    }
 }
