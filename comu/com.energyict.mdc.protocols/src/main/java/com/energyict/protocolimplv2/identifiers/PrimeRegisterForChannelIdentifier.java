@@ -2,10 +2,10 @@ package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.BaseRegister;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 
 import java.text.MessageFormat;
 
@@ -64,7 +64,7 @@ public class PrimeRegisterForChannelIdentifier implements RegisterIdentifier {
 
     @Override
     public String toString () {
-        return MessageFormat.format("Prime register for device {0} for channel index {1}", deviceIdentifier.toString(), channelIndex);
+        return MessageFormat.format("prime register for device ''{0}'' for channel index {1}", deviceIdentifier.toString(), channelIndex);
     }
 
     @Override
