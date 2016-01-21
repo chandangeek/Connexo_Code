@@ -97,7 +97,7 @@ public class ReadingTypeFilter {
         public Condition getRegexpCondition(List<String> values){
             Condition condition = Condition.TRUE;
             if(!values.isEmpty()) {
-                condition = condition.and(where("mRID").matches("^(\\d+\\.){" + offset + "}(" + String.join("|", values) + ")\\.", ""));
+                condition = condition.and(where("mRID").matches("^(\\d+\\.){" + offset + "}(" + String.join("|", values) + ")", ""));
             }
             return condition;
         }
