@@ -155,9 +155,19 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             requestUrl = '/api/' + me.bundlePrefix.toLowerCase() + '/issues/' + operation,
             warnIssues = [],
             failedIssues = [],
+            params = [],
             allIssues = false;
 
         this.setBulkActionListActiveItem(wizard);
+
+        if (record.get('allIssues')) {
+            allIssues = record.data.allIssues;
+            params = {};
+            params.filter = Ext.encode(record.data.params);
+        } else {
+            params = [];
+            allIssues = false;
+        }
 
         var pb = Ext.create('Ext.ProgressBar', {width: '50%'});
         Ext.suspendLayouts();
@@ -174,6 +184,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         Ext.Ajax.request({
             url: requestUrl,
             method: 'PUT',
+            params: params,
             jsonData: requestData,
             timeout: 120000,
             success: function (response) {
