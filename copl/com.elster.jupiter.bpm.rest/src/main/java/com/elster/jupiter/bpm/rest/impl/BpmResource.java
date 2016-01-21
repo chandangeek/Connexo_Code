@@ -293,8 +293,7 @@ public class BpmResource {
         List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
         ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos(arr);
         processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
-                .filter(s -> activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name)))
-                .filter(s -> activeProcesses.stream().anyMatch(a -> a.getVersion().equals(s.version)))
+                .filter(s -> activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name)&&a.getVersion().equals(s.version)))
                 .collect(Collectors.toList());
         processDefinitionInfos.processes.stream()
                 .forEach(s -> s.id = s.id + " (" + s.deploymentId+ ") ");
