@@ -31,6 +31,12 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.mrid', 'MDC', 'MRID')
             },
             {
+                name: 'mrid',
+                itemId: 'mridEdit',
+                xtype: 'textfield',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.mrid', 'MDC', 'MRID')
+            },
+            {
                 name: 'lifeCycleState',
                 itemId: 'lifeCycleStateView',
                 fieldLabel: Uni.I18n.translate('general.state', 'MDC', 'State')
