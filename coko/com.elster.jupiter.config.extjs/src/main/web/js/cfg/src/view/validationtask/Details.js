@@ -9,35 +9,37 @@ Ext.define('Cfg.view.validationtask.Details', {
 
     router: null,
     taskId: null,
-
-    content: {
-        xtype: 'container',
-        layout: 'hbox',
-        items: [
-            {
-                ui: 'large',
-                title: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
-                flex: 1,
-                items: {
-                    xtype: 'cfg-tasks-preview-form',
-                    itemId: 'frm-validation-task-details',
-                    margin: '0 0 0 100'
-                }
-            },
-            {
-                xtype: 'button',
-                text: Uni.I18n.translate('general.actions', 'CFG', 'Actions'),
-                iconCls: 'x-uni-action-iconD',
-                margin: '20 0 0 0',
-                menu: {
-                    xtype: 'cfg-validation-tasks-action-menu'
-                }
-            }
-        ]
-    },
+    appName: null,
 
     initComponent: function () {
         var me = this;
+
+        me.content = {
+            xtype: 'container',
+                layout: 'hbox',
+                items: [
+                {
+                    ui: 'large',
+                    title: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
+                    flex: 1,
+                    items: {
+                        xtype: 'cfg-tasks-preview-form',
+                        itemId: 'frm-validation-task-details',
+                        margin: '0 0 0 100',
+                        appName: me.appName
+                    }
+                },
+                {
+                    xtype: 'button',
+                    text: Uni.I18n.translate('general.actions', 'CFG', 'Actions'),
+                    iconCls: 'x-uni-action-iconD',
+                    margin: '20 0 0 0',
+                    menu: {
+                        xtype: 'cfg-validation-tasks-action-menu'
+                    }
+                }
+            ]
+        };
 
         me.side = [
             {

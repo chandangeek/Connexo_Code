@@ -9,6 +9,7 @@ Ext.define('Cfg.view.validationtask.Setup', {
         'Cfg.view.validationtask.ActionMenu'
     ],
 	router: null,
+    appName: null,
 	
     initComponent: function () {
         var me = this;
@@ -44,7 +45,8 @@ Ext.define('Cfg.view.validationtask.Setup', {
                     },
                     previewComponent: {
                         xtype: 'cfg-tasks-preview',
-                        itemId: 'pnl-validation-task-preview'
+                        itemId: 'pnl-validation-task-preview',
+                        appName: me.appName
                     }
                 }
             ]

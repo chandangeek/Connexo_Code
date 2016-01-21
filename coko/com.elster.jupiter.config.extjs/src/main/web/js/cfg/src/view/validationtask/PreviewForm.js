@@ -10,8 +10,26 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
         renderTo: Ext.getBody()
     }),
 
+    appName: null,
+
     initComponent: function () {
-        var me = this;
+        var me = this,
+            groupFieldConfig = {};
+
+        switch (me.appName) {
+            case 'MultiSense':
+                groupFieldConfig = {
+                    fieldLabel: Uni.I18n.translate('validationTasks.general.deviceGroup', 'CFG', 'Device group'),
+                    name: 'deviceGroup'
+                };
+                break;
+            case 'Insight':
+                groupFieldConfig = {
+                    fieldLabel: Uni.I18n.translate('validationTasks.general.usagePointGroup', 'CFG', 'Usage point group'),
+                    name: 'usagePointGroup'
+                };
+                break;
+        }
         me.items = [
             {
                 xtype: 'displayfield',
@@ -29,14 +47,12 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                     labelWidth: 250
                 },
                 items: [
-                    {
-                        fieldLabel: Uni.I18n.translate('validationTasks.general.deviceType', 'CFG', 'Group type'),
-                        name: 'groupType',
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('validationTasks.general.groupName', 'CFG', 'Group name'),
-                        name: 'groupName',
-                    },
+                    Ext.apply({
+                        xtype: 'displayfield',
+                        renderer: function (value) {
+                            return value && value.name ? value.name : '-';
+                        }
+                    }, groupFieldConfig)
                 ]
             },
             {

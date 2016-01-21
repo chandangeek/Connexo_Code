@@ -8,22 +8,36 @@ Ext.define('Cfg.view.validationtask.Add', {
 
     edit: false,
     returnLink: null,
-    setEdit: function (edit) {
-        if (edit) {
-            this.edit = edit;
-            this.down('#add-button').setText(Uni.I18n.translate('general.save', 'CFG', 'Save'));
-            this.down('#add-button').action = 'editTask';
-        } else {
-            this.edit = edit;
-            this.down('#add-button').setText(Uni.I18n.translate('general.add', 'CFG', 'Add'));
-            this.down('#add-button').action = 'addTask';
-        }
-        if (this.returnLink) {
-            this.down('#cancel-link').href = this.returnLink;
-        }
-    },
+    appName: null,
+
     initComponent: function () {
-        var me = this;
+        var me = this,
+            groupComboConfig = {},
+            groupLabel = '',
+            noGroupDefinedTxt = '';
+
+        switch (me.appName) {
+            case 'MultiSense':
+                groupComboConfig = {
+                    name: 'deviceGroup',
+                    store: 'Cfg.store.DeviceGroups',
+                    emptyText: Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...'),
+                    disabled: !Cfg.privileges.Validation.canAdministrate()
+                };
+                groupLabel = Uni.I18n.translate('validationTasks.general.deviceGroup', 'CFG', 'Device group');
+                noGroupDefinedTxt = Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'CFG', 'No device group defined yet.');
+                break;
+            case 'Insight':
+                groupComboConfig = {
+                    name: 'usagePointGroup',
+                    store: 'Cfg.store.UsagePointGroups',
+                    emptyText: Uni.I18n.translate('validationTasks.addValidationTask.usagePointGroupPrompt', 'CFG', 'Select a usage point group...')
+                };
+                groupLabel = Uni.I18n.translate('validationTasks.general.usagePointGroup', 'CFG', 'Usage point group');
+                noGroupDefinedTxt = Uni.I18n.translate('validationTasks.general.noUsagePointGroup', 'CFG', 'No usage point group defined yet.');
+                break;
+        }
+
         me.content = [
             {
                 xtype: 'form',
@@ -49,7 +63,6 @@ Ext.define('Cfg.view.validationtask.Add', {
                         itemId: 'txt-task-name',
                         width: 500,
                         required: true,
-                        allowBlank: false,
                         fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name'),
                         enforceMaxLength: true,
                         maxLength: 80,
@@ -65,50 +78,40 @@ Ext.define('Cfg.view.validationtask.Add', {
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('validationTasks.general.grouptype', 'CFG', 'Group type'),
+                        itemId: 'field-validation-task-group',
+                        fieldLabel: groupLabel,
                         required: true,
-                        itemId: 'group-type-container',
                         layout: 'hbox',
+                        msgTarget: 'under',
                         items: [
-                            {
-                                itemId: 'cbo-validation-tasks-grouptype-trigger',
+                            Ext.apply({
                                 xtype: 'combobox',
-                                name: 'grouptypeTrigger',
+                                itemId: 'cbo-validation-task-group',
+                                required: true,
                                 width: 235,
-                                emptyText: Uni.I18n.translate('validationTasks.general.selectGroupType', 'CFG', 'Select a group type...'),
-                                store: [
-                                    ['dg', Uni.I18n.translate('general.group.device', 'CFG', 'End device')],
-                                    ['upg', Uni.I18n.translate('general.group.usagepoint', 'CFG', 'Usage point')]
-                                ],
-                                queryMode: 'local'
-                            }
-                        ]
-                    },
-                    {
-                        xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('validationTasks.general.group', 'CFG', 'Group'),
-                        required: true,
-                        layout: 'hbox',
-                        itemId: 'cbo-validation-task-group-container',
-                        hidden: false,
-                        items: [
+                                editable: false,
+                                queryMode: 'local',
+                                displayField: 'name',
+                                valueField: 'id',
+                                setValue: function (value) {
+                                    var field = this,
+                                        combo = new Ext.form.field.ComboBox;
+
+                                    if (Ext.isObject(value)) {
+                                        value = value.id;
+                                    }
+                                    combo.setValue.apply(field, [value]);
+                                }
+                            }, groupComboConfig),
                             {
                                 xtype: 'displayfield',
-                                itemId: 'no-group',
-                                value: '<div style="color: #EB5642">' + Uni.I18n.translate('validationTasks.general.noGroupTypeSelected', 'CFG', 'No group type selected.') + '</div>',
+                                itemId: 'no-group-defined',
+                                hidden: true,
+                                value: '<div style="color: #FF0000">' + noGroupDefinedTxt + '</div>',
                                 htmlEncode: false,
-                                labelwidth: 500,
                                 width: 235
                             }
                         ]
-                    },
-                    {
-                        xtype: 'container',
-                        itemId: 'group-type-field-error-container',
-                        padding: '10 0 0 265',
-                        hidden: true,
-                        cls: 'x-form-invalid-under'
-
                     },
                     {
                         title: Uni.I18n.translate('validationTasks.general.schedule', 'CFG', 'Schedule'),
@@ -231,15 +234,22 @@ Ext.define('Cfg.view.validationtask.Add', {
                             {
                                 xtype: 'button',
                                 itemId: 'add-button',
-                                text: Uni.I18n.translate('general.add', 'CFG', 'Add'),
-                                ui: 'action'
+                                ui: 'action',
+                                text: me.edit
+                                    ? Uni.I18n.translate('general.save', 'CFG', 'Save')
+                                    : Uni.I18n.translate('general.add', 'CFG', 'Add'),
+                                action: me.edit
+                                    ? 'editTask'
+                                    : 'addTask'
                             },
                             {
                                 xtype: 'button',
                                 itemId: 'cancel-link',
                                 text: Uni.I18n.translate('general.cancel', 'CFG', 'Cancel'),
                                 ui: 'link',
-                                href: '#/administration/validationtasks/'
+                                href: me.returnLink
+                                    ? me.returnLink
+                                    : '#/administration/validationtasks/'
                             }
                         ]
                     }
@@ -249,56 +259,13 @@ Ext.define('Cfg.view.validationtask.Add', {
             }
         ];
         me.callParent(arguments);
-        me.setEdit(me.edit);
     },
+
     recurrenceNumberFieldValidation: function (field) {
         var value = field.getValue();
 
         if (Ext.isEmpty(value) || value < field.minValue) {
             field.setValue(field.minValue);
         }
-    },
-
-    groupComboBox: function(store, prompt, selected) {
-        return {
-            xtype: 'combobox',
-            itemId: 'cbo-validation-task-group',
-            name: 'group',
-            width: 235,
-            style: {marginBottom: '6px'},
-            store: store,
-            editable: false,
-            disabled: false,
-            emptyText: prompt,
-            queryMode: 'local',
-            displayField: 'name',
-            valueField: 'id',
-            value: selected
-        };
-    },
-    groupEmptyMessage: function(text) {
-        return {
-            xtype: 'displayfield',
-            itemId: 'no-group',
-            value: '<div style="color: #EB5642">' + text + '</div>',
-            htmlEncode: false,
-            labelwidth: 500,
-            width: 235
-        };
-    },
-    
-    getErrorContainer: function () {
-        return this.down('#group-type-field-error-container');
-    },
-
-    markInvalid: function (msg) {
-        Ext.suspendLayouts();
-        this.getErrorContainer().update(msg);
-        this.getErrorContainer().show();
-        Ext.resumeLayouts(true);
-    },
-
-    clearInvalid: function () {
-        this.getErrorContainer().hide();
     }
 });

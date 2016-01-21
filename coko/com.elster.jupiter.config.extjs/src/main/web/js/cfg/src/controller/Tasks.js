@@ -71,9 +71,6 @@ Ext.define('Cfg.controller.Tasks', {
 
     init: function () {
         this.control({
-            'cfg-validation-tasks-add #cbo-validation-tasks-grouptype-trigger': {
-                change: this.onChangeValidationTaskGroupType
-            },
             'cfg-validation-tasks-add #rgr-validation-tasks-recurrence-trigger': {
                 change: this.onRecurrenceTriggerChange
             },
@@ -97,7 +94,8 @@ Ext.define('Cfg.controller.Tasks', {
     showValidationTasks: function () {
         var me = this,
             view = Ext.widget('validation-tasks-setup', {
-                router: me.getController('Uni.controller.history.Router')
+                router: me.getController('Uni.controller.history.Router'),
+                appName: Uni.util.Application.getAppName()
             });
 
         me.fromDetails = false;
@@ -116,7 +114,8 @@ Ext.define('Cfg.controller.Tasks', {
             taskModel = me.getModel('Cfg.model.ValidationTask'),
             view = Ext.widget('cfg-validation-tasks-details', {
                 router: router,
-                taskId: currentTaskId
+                taskId: currentTaskId,
+                appName: Uni.util.Application.getAppName()
             }),
             actionsMenu = view.down('cfg-validation-tasks-action-menu');
 
@@ -192,14 +191,39 @@ Ext.define('Cfg.controller.Tasks', {
         }
     },
 
+    loadGroup: function (appName, view) {
+        var me = this,
+            onGroupsLoad = function (records) {
+                if (!records.length && view.rendered) {
+                    Ext.suspendLayouts();
+                    view.down('#cbo-validation-task-group').hide();
+                    view.down('#no-group-defined').show();
+                    view.down('#field-validation-task-group').combineErrors = true;
+                    Ext.resumeLayouts(true);
+                }
+            };
+
+        switch (appName) {
+            case 'MultiSense':
+                me.getStore('Cfg.store.DeviceGroups').load(onGroupsLoad);
+                break;
+            case 'Insight':
+                me.getStore('Cfg.store.UsagePointGroups').load(onGroupsLoad);
+                break;
+        }
+    },
+
     showAddValidationTask: function () {
         var me = this,
-            view = Ext.create('Cfg.view.validationtask.Add'),
-            deviceGroupCombo = view.down('#cbo-validation-task-device-group'),
-            usagepointGroupCombo = view.down('#cbo-validation-task-usagepoint-group'),
+            appName = Uni.util.Application.getAppName(),
+            view = Ext.create('Cfg.view.validationtask.Add', {
+                edit: false,
+                appName: appName
+            }),
             recurrenceTypeCombo = view.down('#cbo-recurrence-type');
 
         me.getApplication().fireEvent('changecontentevent', view);
+        me.loadGroup(appName, view);
 
         me.taskModel = null;
         me.taskId = null;
@@ -210,97 +234,51 @@ Ext.define('Cfg.controller.Tasks', {
     showEditValidationTask: function (taskId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            view;
-        if (me.fromDetails) {
+            appName = Uni.util.Application.getAppName(),
             view = Ext.create('Cfg.view.validationtask.Add', {
                 edit: true,
-                returnLink: router.getRoute('administration/validationtasks/validationtask').buildUrl({taskId: taskId})
-            })
-        } else {
-            view = Ext.create('Cfg.view.validationtask.Add', {
-                edit: true,
-                returnLink: router.getRoute('administration/validationtasks').buildUrl()
-            })
-        }
-        var taskModel = me.getModel('Cfg.model.ValidationTask'),
-            taskForm = view.down('#frm-add-validation-task'),
-            deviceGroupCombo = view.down('#cbo-validation-task-device-group'),
-            usagepointGroupCombo = view.down('#cbo-validation-task-usagepoint-group'),
-            recurrenceTypeCombo = view.down('#cbo-recurrence-type');
+                appName: appName,
+                returnLink: me.fromDetails
+                    ? router.getRoute('administration/validationtasks/validationtask').buildUrl()
+                    : router.getRoute('administration/validationtasks').buildUrl()
+            });
 
-        if (!Cfg.privileges.Validation.canAdministrate()) {
-            deviceGroupCombo.disabled = true;
-        }
         me.fromEdit = true;
         me.taskId = taskId;
 
-        taskModel.load(taskId, {
+        me.getApplication().fireEvent('changecontentevent', view);
+        me.loadGroup(appName, view);
+        view.setLoading();
+        me.getModel('Cfg.model.ValidationTask').load(taskId, {
             success: function (record) {
-                var schedule = record.get('schedule');
-                me.taskModel = record;
-                me.getApplication().fireEvent('validationtaskload', record);
-                taskForm.setTitle(Uni.I18n.translate('general.editx', 'CFG', "Edit '{0}'",[record.get('name')]));
-                taskForm.loadRecord(record);
+                var schedule = record.get('schedule'),
+                    taskForm,
+                    recurrenceTypeCombo;
 
-                var selector = view.down('#cbo-validation-tasks-grouptype-trigger');
-                if (record.get('groupType') == Uni.I18n.translate('general.group.device', 'CFG', 'End device')) { 
-                    selector.setValue('dg');
-                }
-                if (record.get('groupType') == Uni.I18n.translate('general.group.usagepoint', 'CFG', 'Usage point')) {
-                    selector.setValue('upg');
-                }
-                
-                if (record.data.nextRun && (record.data.nextRun !== 0)) {
-                    //if (schedule) {
-                    view.down('#rgr-validation-tasks-recurrence-trigger').setValue({recurrence: true});
-                    view.down('#num-recurrence-number').setValue(schedule.count);
-                    recurrenceTypeCombo.setValue(schedule.timeUnit);
-                    view.down('#start-on').setValue(record.data.nextRun);
-                } else {
-                    recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
-                }
+                if (view.rendered) {
+                    taskForm = view.down('#frm-add-validation-task');
+                    recurrenceTypeCombo = view.down('#cbo-recurrence-type');
 
-                view.setLoading(false);
+                    view.setLoading(false);
+                    me.taskModel = record;
+                    Ext.suspendLayouts();
+                    me.getApplication().fireEvent('validationtaskload', record);
+                    taskForm.setTitle(Uni.I18n.translate('general.editx', 'CFG', "Edit '{0}'",[record.get('name')]));
+                    taskForm.loadRecord(record);
+
+                    if (record.data.nextRun && (record.data.nextRun !== 0)) {
+                        //if (schedule) {
+                        view.down('#rgr-validation-tasks-recurrence-trigger').setValue({recurrence: true});
+                        view.down('#num-recurrence-number').setValue(schedule.count);
+                        recurrenceTypeCombo.setValue(schedule.timeUnit);
+                        view.down('#start-on').setValue(record.data.nextRun);
+                    } else {
+                        recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
+                    }
+                    Ext.resumeLayouts(true);
+                }
             }
         });
-
-
-        me.getApplication().fireEvent('changecontentevent', view);
-        view.setLoading();
-    },
-    onChangeValidationTaskGroupType: function(field, newValue, oldVallue) {   
-        var me=this,
-            container = me.getAddPage().down('#cbo-validation-task-group-container');
-        Ext.suspendLayouts();
-        container.removeAll();
-        if (newValue == 'dg') {
-            var store = Ext.getStore('Cfg.store.DeviceGroups'),
-                selected = undefined;
-            store.load(function() {
-                if (store.getCount() == 0) {
-                    container.add(me.getAddPage().groupEmptyMessage(Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'CFG', 'No device group defined yet.')));
-                } else {
-                    if (me.taskModel && me.taskModel.get('deviceGroup')) {
-                        selected = me.taskModel.get('deviceGroup').id;
-                    }
-                    container.add(me.getAddPage().groupComboBox(store, Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...'), selected));
-                }             
-            });
-          } else if (newValue == 'upg') {
-              var store = Ext.getStore('Cfg.store.UsagePointGroups');
-              store.load(function() {
-                  if (store.getCount() == 0) {
-                      container.add(me.getAddPage().groupEmptyMessage(Uni.I18n.translate('validationTasks.general.noUsagePointGroup', 'CFG', 'No usage point group defined yet.')));
-                  } else {
-                      if (me.taskModel && me.taskModel.get('usagePointGroup')) {
-                          selected = me.taskModel.get('usagePointGroup').id;
-                      }
-                      container.add(me.getAddPage().groupComboBox(store, Uni.I18n.translate('validationTasks.addValidationTask.usagePointGroupPrompt', 'CFG', 'Select a usage point group...'), selected));
-                  }
-              });
-          }
-          container.show();
-          Ext.resumeLayouts();
     },
     
     showPreview: function (selectionModel, record) {
@@ -539,6 +517,7 @@ Ext.define('Cfg.controller.Tasks', {
             form = page.down('#frm-add-validation-task'),
             formErrorsPanel = form.down('#form-errors'),
             lastDayOfMonth = false,
+            groupCombo = me.getAddPage().down('#cbo-validation-task-group'),
             startOnDate,
             timeUnitValue,
             dayOfMonth,
@@ -547,163 +526,143 @@ Ext.define('Cfg.controller.Tasks', {
             deviceGroupId,
             usagePointGroupId;
 
-        page.clearInvalid();
-        if (form.isValid()) {
-            var record = me.taskModel || Ext.create('Cfg.model.ValidationTask');
+        var record = me.taskModel || Ext.create('Cfg.model.ValidationTask');
 
-            record.beginEdit();
-            if (!formErrorsPanel.isHidden()) {
-                formErrorsPanel.hide();
-            }
-
-            record.set('name', form.down('#txt-task-name').getValue());
-            var groupTypeCombo = me.getAddPage().down('#cbo-validation-tasks-grouptype-trigger');
-            var groupCombo = me.getAddPage().down('#cbo-validation-task-group');
-            record.set('usagePointGroup', null);
-            record.set('deviceGroup', null);
-            if (groupCombo != null) {
-                if (groupTypeCombo.getValue() === 'dg') {
-                    record.set('deviceGroup', {
-                        id: groupCombo.getValue(),
-                        name: groupCombo.getDisplayValue()
-                    });
-                } else if (groupTypeCombo.getValue() === 'upg') {
-                    record.set('usagePointGroup', {
-                        id: groupCombo.getValue(),
-                        name: groupCombo.getDisplayValue()
-                    });
-                }
-            }
-            if (form.down('#rgr-validation-tasks-recurrence-trigger').getValue().recurrence) {
-                startOnDate = moment(form.down('#start-on').getValue()).valueOf();
-                timeUnitValue = form.down('#cbo-recurrence-type').getValue();
-                dayOfMonth = moment(startOnDate).date();
-                if (dayOfMonth >= 29) {
-                    lastDayOfMonth = true;
-                }
-                hours = form.down('#date-time-field-hours').getValue();
-                minutes = form.down('#date-time-field-minutes').getValue();
-                switch (timeUnitValue) {
-                    case 'years':
-                        record.set('schedule', {
-                            count: form.down('#num-recurrence-number').getValue(),
-                            timeUnit: timeUnitValue,
-                            offsetMonths: moment(startOnDate).month() + 1,
-                            offsetDays: dayOfMonth,
-                            lastDayOfMonth: lastDayOfMonth,
-                            dayOfWeek: null,
-                            offsetHours: hours,
-                            offsetMinutes: minutes,
-                            offsetSeconds: 0
-                        });
-                        break;
-                    case 'months':
-                        record.set('schedule', {
-                            count: form.down('#num-recurrence-number').getValue(),
-                            timeUnit: timeUnitValue,
-                            offsetMonths: 0,
-                            offsetDays: dayOfMonth,
-                            lastDayOfMonth: lastDayOfMonth,
-                            dayOfWeek: null,
-                            offsetHours: hours,
-                            offsetMinutes: minutes,
-                            offsetSeconds: 0
-                        });
-                        break;
-                    case 'weeks':
-                        record.set('schedule', {
-                            count: form.down('#num-recurrence-number').getValue(),
-                            timeUnit: timeUnitValue,
-                            offsetMonths: 0,
-                            offsetDays: 0,
-                            lastDayOfMonth: lastDayOfMonth,
-                            dayOfWeek: moment(startOnDate).format('dddd').toUpperCase(),
-                            offsetHours: hours,
-                            offsetMinutes: minutes,
-                            offsetSeconds: 0
-                        });
-                        break;
-                    case 'days':
-                        record.set('schedule', {
-                            count: form.down('#num-recurrence-number').getValue(),
-                            timeUnit: timeUnitValue,
-                            offsetMonths: 0,
-                            offsetDays: 0,
-                            lastDayOfMonth: lastDayOfMonth,
-                            dayOfWeek: null,
-                            offsetHours: hours,
-                            offsetMinutes: minutes,
-                            offsetSeconds: 0
-                        });
-                        break;
-                    case 'hours':
-                        record.set('schedule', {
-                            count: form.down('#num-recurrence-number').getValue(),
-                            timeUnit: timeUnitValue,
-                            offsetMonths: 0,
-                            offsetDays: 0,
-                            lastDayOfMonth: lastDayOfMonth,
-                            dayOfWeek: null,
-                            offsetHours: hours,
-                            offsetMinutes: minutes,
-                            offsetSeconds: 0
-                        });
-                        break;
-                    case 'minutes':
-                        record.set('schedule', {
-                            count: form.down('#num-recurrence-number').getValue(),
-                            timeUnit: timeUnitValue,
-                            offsetMonths: 0,
-                            offsetDays: 0,
-                            lastDayOfMonth: lastDayOfMonth,
-                            dayOfWeek: null,
-                            offsetHours: hours,
-                            offsetMinutes: minutes,
-                            offsetSeconds: 0
-                        });
-                        break;                        
-                }
-                record.set('nextRun', startOnDate);
-            } else {
-                record.set('nextRun', null);
-                record.set('schedule', null);
-            }
-
-            record.set('application', Uni.util.Application.getAppName());
-
-            record.endEdit();
-            record.save({
-                backUrl: button.action === 'editTask' && me.fromDetails
-                    ? me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks/validationtask').buildUrl({taskId: record.getId()})
-                    : me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks').buildUrl(),
-                success: function () {
-                    if (button.action === 'editTask' && me.fromDetails) {
-                        me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks/validationtask').forward({taskId: record.getId()});
-                    } else {
-                        me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks').forward();
-                    }
-                    if (button.action === 'editTask') {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.editValidationTask.successMsg.saved', 'CFG', 'Validation task saved'));
-                    } else {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.addValidationTask.successMsg', 'CFG', 'Validation task added'));
-                    }
-                },
-                failure: function (record, operation) {
-                    var json = Ext.decode(operation.response.responseText, true);
-                    if (json && json.errors) {
-                        form.getForm().markInvalid(json.errors);
-                        Ext.Array.each(json.errors, function (error) {
-                            if (error.id == 'groupTypeField') {
-                                page.markInvalid(error.msg);
-                            }
-                        });
-                        formErrorsPanel.show();
-                    }
-                }
-            })
-        } else {
-            formErrorsPanel.show();
+        form.getForm().clearInvalid();
+        record.beginEdit();
+        if (!formErrorsPanel.isHidden()) {
+            formErrorsPanel.hide();
         }
+
+        record.set('name', form.down('#txt-task-name').getValue());
+        if (groupCombo) {
+            record.set(groupCombo.name, {
+                id: groupCombo.getValue(),
+                name: groupCombo.getDisplayValue()
+            });
+        }
+        if (form.down('#rgr-validation-tasks-recurrence-trigger').getValue().recurrence) {
+            startOnDate = moment(form.down('#start-on').getValue()).valueOf();
+            timeUnitValue = form.down('#cbo-recurrence-type').getValue();
+            dayOfMonth = moment(startOnDate).date();
+            if (dayOfMonth >= 29) {
+                lastDayOfMonth = true;
+            }
+            hours = form.down('#date-time-field-hours').getValue();
+            minutes = form.down('#date-time-field-minutes').getValue();
+            switch (timeUnitValue) {
+                case 'years':
+                    record.set('schedule', {
+                        count: form.down('#num-recurrence-number').getValue(),
+                        timeUnit: timeUnitValue,
+                        offsetMonths: moment(startOnDate).month() + 1,
+                        offsetDays: dayOfMonth,
+                        lastDayOfMonth: lastDayOfMonth,
+                        dayOfWeek: null,
+                        offsetHours: hours,
+                        offsetMinutes: minutes,
+                        offsetSeconds: 0
+                    });
+                    break;
+                case 'months':
+                    record.set('schedule', {
+                        count: form.down('#num-recurrence-number').getValue(),
+                        timeUnit: timeUnitValue,
+                        offsetMonths: 0,
+                        offsetDays: dayOfMonth,
+                        lastDayOfMonth: lastDayOfMonth,
+                        dayOfWeek: null,
+                        offsetHours: hours,
+                        offsetMinutes: minutes,
+                        offsetSeconds: 0
+                    });
+                    break;
+                case 'weeks':
+                    record.set('schedule', {
+                        count: form.down('#num-recurrence-number').getValue(),
+                        timeUnit: timeUnitValue,
+                        offsetMonths: 0,
+                        offsetDays: 0,
+                        lastDayOfMonth: lastDayOfMonth,
+                        dayOfWeek: moment(startOnDate).format('dddd').toUpperCase(),
+                        offsetHours: hours,
+                        offsetMinutes: minutes,
+                        offsetSeconds: 0
+                    });
+                    break;
+                case 'days':
+                    record.set('schedule', {
+                        count: form.down('#num-recurrence-number').getValue(),
+                        timeUnit: timeUnitValue,
+                        offsetMonths: 0,
+                        offsetDays: 0,
+                        lastDayOfMonth: lastDayOfMonth,
+                        dayOfWeek: null,
+                        offsetHours: hours,
+                        offsetMinutes: minutes,
+                        offsetSeconds: 0
+                    });
+                    break;
+                case 'hours':
+                    record.set('schedule', {
+                        count: form.down('#num-recurrence-number').getValue(),
+                        timeUnit: timeUnitValue,
+                        offsetMonths: 0,
+                        offsetDays: 0,
+                        lastDayOfMonth: lastDayOfMonth,
+                        dayOfWeek: null,
+                        offsetHours: hours,
+                        offsetMinutes: minutes,
+                        offsetSeconds: 0
+                    });
+                    break;
+                case 'minutes':
+                    record.set('schedule', {
+                        count: form.down('#num-recurrence-number').getValue(),
+                        timeUnit: timeUnitValue,
+                        offsetMonths: 0,
+                        offsetDays: 0,
+                        lastDayOfMonth: lastDayOfMonth,
+                        dayOfWeek: null,
+                        offsetHours: hours,
+                        offsetMinutes: minutes,
+                        offsetSeconds: 0
+                    });
+                    break;
+            }
+            record.set('nextRun', startOnDate);
+        } else {
+            record.set('nextRun', null);
+            record.set('schedule', null);
+        }
+
+        record.set('application', Uni.util.Application.getAppName());
+
+        record.endEdit();
+        record.save({
+            backUrl: button.action === 'editTask' && me.fromDetails
+                ? me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks/validationtask').buildUrl({taskId: record.getId()})
+                : me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks').buildUrl(),
+            success: function () {
+                if (button.action === 'editTask' && me.fromDetails) {
+                    me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks/validationtask').forward({taskId: record.getId()});
+                } else {
+                    me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks').forward();
+                }
+                if (button.action === 'editTask') {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.editValidationTask.successMsg.saved', 'CFG', 'Validation task saved'));
+                } else {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.addValidationTask.successMsg', 'CFG', 'Validation task added'));
+                }
+            },
+            failure: function (record, operation) {
+                var json = Ext.decode(operation.response.responseText, true);
+                if (json && json.errors) {
+                    form.getForm().markInvalid(json.errors);
+                    formErrorsPanel.show();
+                }
+            }
+        })
     },
 
     onRecurrenceTriggerChange: function (field, newValue, oldValue) {
