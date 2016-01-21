@@ -7,7 +7,6 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifierT
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 
 import javax.xml.bind.annotation.XmlElement;
-import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 
@@ -61,7 +60,7 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
 
     @Override
     public String toString() {
-        return MessageFormat.format("message ''{0}'' on device having MRID {1}", deviceMessage.getSpecification().getName(), deviceMessage.getDevice().getmRID());
+        return "message having id " + deviceMessage.getId();
     }
 
     @Override
