@@ -1,5 +1,5 @@
 {
-    "name": "com.elster.jupiter.system.app",
+    "name": "com.elster.jupiter.yellowfin.app",
 
     "requires": [
         "com.elster.jupiter.loaderjs",
