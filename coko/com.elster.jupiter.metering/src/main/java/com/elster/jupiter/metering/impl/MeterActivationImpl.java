@@ -157,11 +157,12 @@ public final class MeterActivationImpl implements IMeterActivation {
         if (!requested.isConnected(getInterval().toOpenClosedRange())) {
             return Collections.emptyList();
         }
-        Range<Instant> active = requested.intersection(getInterval().toOpenClosedRange());
         Channel channel = getChannel(readingType);
         if (channel == null) {
             return Collections.emptyList();
         } else {
+            Function<Interval, Range<Instant>> toRange = channel.isRegular() ? Interval::toOpenClosedRange : Interval::toClosedRange;
+            Range<Instant> active = requested.intersection(toRange.apply(getInterval()));
             return channel.getReadings(readingType, active);
         }
     }
