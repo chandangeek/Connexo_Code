@@ -32,10 +32,14 @@ import java.util.Properties;
         property = {"osgi.command.scope=orm", "osgi.command.function=dbConnection"})
 public final class BootstrapServiceImpl implements BootstrapService {
 
+    /**
+     * see https://docs.oracle.com/cd/B28359_01/java.111/b31224/concache.htm for doc on oracle implicit connection caching
+     */
     private static final String MAX_LIMIT = "MaxLimit";
     private static final String MAX_STATEMENTS_LIMIT = "MaxStatementsLimit";
     private static final String CONNECTION_WAIT_TIMEOUT = "ConnectionWaitTimeout";
     static final String ORACLE_CONNECTION_POOL_NAME = "OracleConnectionPool";
+    private static final String VALIDATE_CONNECTIONS = "ValidateConnection";
 
     private String jdbcUrl;
     private String jdbcUser;
@@ -78,8 +82,8 @@ public final class BootstrapServiceImpl implements BootstrapService {
         source.setURL(jdbcUrl);
         source.setUser(jdbcUser);
         source.setPassword(jdbcPassword);
-        source.setConnectionCacheProperties(connectionCacheProperties());
         source.setConnectionCachingEnabled(true);
+        source.setConnectionCacheProperties(connectionCacheProperties());
         source.setConnectionCacheName(ORACLE_CONNECTION_POOL_NAME);
         // for now , no need to set connection properties , but possible interesting keys are
         // defaultRowPrefetch
@@ -92,7 +96,8 @@ public final class BootstrapServiceImpl implements BootstrapService {
         Properties connectionCacheProps = new Properties();
         connectionCacheProps.put(MAX_LIMIT, maxLimit);
         connectionCacheProps.put(MAX_STATEMENTS_LIMIT, maxStatementsLimit);
-        connectionCacheProps.put(CONNECTION_WAIT_TIMEOUT, "10"); // 10 seconds 
+        connectionCacheProps.put(CONNECTION_WAIT_TIMEOUT, "10"); // 10 seconds
+        connectionCacheProps.put(VALIDATE_CONNECTIONS, "true");
         return connectionCacheProps;
     }
 
