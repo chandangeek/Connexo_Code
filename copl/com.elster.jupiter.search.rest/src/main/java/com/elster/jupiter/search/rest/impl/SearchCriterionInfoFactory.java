@@ -51,6 +51,7 @@ public class SearchCriterionInfoFactory {
         propertyInfo.factoryName = propertySpec.getValueFactory().getClass().getName();
         PropertySpecPossibleValues possibleValuesOrNull = propertySpec.getPossibleValues();
         List<?> possibleValues = possibleValuesOrNull != null ? possibleValuesOrNull.getAllValues() : Collections.emptyList();
+        propertyInfo.selectionMode = property.getSelectionMode();
         propertyInfo.values = possibleValues.stream()
                 .map(v -> asJsonValueObject(property.toDisplay(v), v))
                 .filter(getNameFilter(nameFilter))
