@@ -5,8 +5,8 @@ import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 
 /**
  * Insert your comments here.
@@ -58,7 +58,7 @@ public class RegisterDataIdentifier implements RegisterIdentifier {
 
     @Override
     public String toString() {
-        return this.registerObisCode.toString();
+        return "register having OBIS code " + this.registerObisCode;
     }
 
     @Override
