@@ -202,7 +202,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     @Override
     public boolean isAllDataValidated() {
         if (isActive()) {
-            if (lastRun == null) {
+            if (lastRun == null && channelValidations.isEmpty()) {
                 return false;
             }
             Comparator<? super Instant> comparator = nullsLast(naturalOrder());
