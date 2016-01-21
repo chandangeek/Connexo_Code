@@ -81,7 +81,6 @@ public class CreateMeterActivationTest {
         microAction.execute(this.device, now, Collections.emptyList());
 
         // Asserts
-        verify(device).deactivate(lastDataTimestamp);
         verify(device).activate(lastDataTimestamp);
         verify(newMeterActivation).advanceStartDate(now);
     }
