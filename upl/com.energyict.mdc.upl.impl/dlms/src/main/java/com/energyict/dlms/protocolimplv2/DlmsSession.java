@@ -12,7 +12,6 @@ import com.energyict.dlms.protocolimplv2.connection.TCPIPConnection;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -147,13 +146,17 @@ public class DlmsSession implements ProtocolLink {
      */
     protected XdlmsAse buildXDlmsAse() {
         return new XdlmsAse(
-                (getProperties().getCipheringType() == CipheringType.DEDICATED) ? getProperties().getSecurityProvider().getDedicatedKey() : null,
+                (isDedicated()) ? getProperties().getSecurityProvider().getDedicatedKey() : null,
                 getProperties().getInvokeIdAndPriorityHandler().getCurrentInvokeIdAndPriorityObject().needsResponse(),
                 getProperties().getProposedQOS(),
                 getProperties().getProposedDLMSVersion(),
                 getProperties().getConformanceBlock(),
                 getProperties().getMaxRecPDUSize()
         );
+    }
+
+    private boolean isDedicated() {
+        return getProperties().getCipheringType() == CipheringType.DEDICATED || getProperties().getCipheringType() == CipheringType.GENERAL_DEDICATED;
     }
 
     /**
@@ -221,14 +224,14 @@ public class DlmsSession implements ProtocolLink {
     }
 
     public DLMSConnection getDLMSConnection() {
-        return (DLMSConnection) dlmsConnection;    //the instance is a SecureConnection, this implements DLMSConnection.
+        return dlmsConnection;    //the instance is a SecureConnection, this implements DLMSConnection.
     }
 
     /**
      * The V2 connection that does not throw IOExceptions, but instead handles errors itself by throwing the proper ComServer runtime exceptions.
      */
     public DlmsV2Connection getDlmsV2Connection() {
-        return (DlmsV2Connection) dlmsConnection;
+        return dlmsConnection;
     }
 
     public DLMSMeterConfig getMeterConfig() {
