@@ -87,7 +87,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
     showDeviceValidationResultsMainView: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            mRID = router.arguments.mRID,
+            mRID = decodeURIComponent(router.arguments.mRID),
             activeTab = parseInt(router.arguments.activeTab),
             viewport = Ext.ComponentQuery.query('#contentPanel')[0],
             validationResultsStore = me.getStore('Mdc.store.DeviceValidationResults'),
