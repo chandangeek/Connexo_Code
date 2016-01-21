@@ -44,44 +44,35 @@ public class SecurityContext {
     public static final int SYSTEM_TITLE_LENGTH = 8;
     public static final int CB_LENGTH = 1;
     public static final int FC_LENGTH = 4;
-
+    private static int DLMS_AUTH_TAG_SIZE = 12;    // 12 bytes is specified for DLMS using GCM
     /**
      * Holds the securityLevel for the DataTransport.
      */
     private final int securityPolicy;
-
     /**
      * Points to the encryption Method that has to be used for dataTransport.
      * Currently only 0 (meaning AES-GCM-128) is allowed
      */
     private final int securitySuite;
-
     /**
      * Holds the securityLevel for the Authentication mechanism used during
      * Association Establishment
      */
     private final int authenticationLevel;
-
     /**
      * The provider containing all the keys that may be used during an
      * Authenticated/Encrypted communication
      */
     private final SecurityProvider securityProvider;
-
     /**
      * Indicating whether global[0] or dedicated[1] ciphering is used
      */
     private final int cipheringType;
-
     private long frameCounter;
     private Integer responseFrameCounter = null;
     private byte[] systemTitle;
     private byte[] responseSystemTitle;
-
     private AuthenticationTypes authenticationAlgorithm;
-
-    private static int DLMS_AUTH_TAG_SIZE = 12;    // 12 bytes is specified for DLMS using GCM
-
     /**
      * Indicates whether the FrameCounter needs to be validated with a +1
      */
@@ -185,7 +176,7 @@ public class SecurityContext {
     /**
      * @param plainText - the text to encrypt ...
      * @return the cihperText
-     * @throws IOException when the desired Encryption algorithm isn't supported
+     * @throws NoSuchAlgorithmException when the desired Encryption algorithm isn't supported
      */
     public byte[] associationEncryption(byte[] plainText) throws NoSuchAlgorithmException {
         byte[] digest;
@@ -659,13 +650,6 @@ public class SecurityContext {
     }
 
     /**
-     * @return the responding frameCounter as byte array
-     */
-    public byte[] getRespondingFrameCounterInBytes() {
-        return calculateFrameCounterInBytes(getResponseFrameCounter());
-    }
-
-    /**
      * Setter for the responding FrameCounter
      *
      * @param frameCounter the frameCounter to set from the server
@@ -673,6 +657,13 @@ public class SecurityContext {
      */
     public void setResponseFrameCounter(int frameCounter) throws DLMSConnectionException {
         this.responseFrameCounter = this.securityProvider.getRespondingFrameCounterHandler().checkRespondingFrameCounter(frameCounter);
+    }
+
+    /**
+     * @return the responding frameCounter as byte array
+     */
+    public byte[] getRespondingFrameCounterInBytes() {
+        return calculateFrameCounterInBytes(getResponseFrameCounter());
     }
 
     /**
