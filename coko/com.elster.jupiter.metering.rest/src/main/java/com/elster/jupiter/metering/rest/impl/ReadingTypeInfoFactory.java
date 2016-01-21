@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
+import java.util.Locale;
 
 public class ReadingTypeInfoFactory {
     private final Thesaurus thesaurus;
@@ -26,6 +27,7 @@ public class ReadingTypeInfoFactory {
         info.measurementKind = thesaurus.getString("readingType.measurementKind."+readingType.getMeasurementKind().name(),readingType.getMeasurementKind().getDescription());
         info.phases = thesaurus.getString("readingType.phase."+readingType.getPhases().name(),readingType.getPhases().getBaseDescription());
         info.unit = thesaurus.getString("readingType.unit."+readingType.getUnit().name(),readingType.getUnit().getSymbol());
+        info.currency = thesaurus.getString("readingType.currency."+readingType.getCurrency().getCurrencyCode(),readingType.getCurrency().getDisplayName(Locale.ENGLISH));
         return info;
     }
 
