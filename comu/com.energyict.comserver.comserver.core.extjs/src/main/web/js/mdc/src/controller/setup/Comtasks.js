@@ -647,7 +647,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             });
 
             Ext.Array.each(self.recordCommands, function (item) {
-                if (item.categoryId === protocol.categoryId) {
+                if (item.categoryId === protocol.categoryId && item.action === protocol.actionName) {
                     protocol.id = item.id;
                 }
             });

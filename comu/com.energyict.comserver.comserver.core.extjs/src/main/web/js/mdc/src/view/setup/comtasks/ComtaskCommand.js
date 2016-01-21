@@ -3,8 +3,8 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCommand', {
     requires: [
         'Mdc.view.setup.comtasks.ComtaskCommandCategoryCombo',
         'Mdc.view.setup.comtasks.ComtaskCommandCategoryActionCombo',
-        'Mdc.view.setup.comtasks.parameters.clock.Set',
-        'Mdc.view.setup.comtasks.parameters.clock.Synchronize'
+        'Mdc.view.setup.comtasks.parameters.time.Set',
+        'Mdc.view.setup.comtasks.parameters.time.Synchronize'
     ],
     alias: 'widget.comtaskCommand',
     border: false,
