@@ -2,9 +2,9 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceUserFileConfigurationInformation;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,6 +62,6 @@ public class StoreConfigurationUserFileTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
 
         // Asserts
-        assertThat(journalMessage).contains("{deviceIdentifier: id 97; file extension: txt}");
+        assertThat(journalMessage).contains("{deviceIdentifier: device having id 97; file extension: txt}");
     }
 }

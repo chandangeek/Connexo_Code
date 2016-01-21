@@ -1,11 +1,11 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceMessageIdentifierForAlreadyKnownMessage;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessage;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageList;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceMessageIdentifierForAlreadyKnownMessage;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -100,7 +100,7 @@ public class CollectedMessageListDeviceCommandTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
 
         // Asserts
-        assertThat(journalMessage).contains("{messageIdentifier: messageId = 12, message status: confirmed, protocolInfo: null; messageIdentifier: messageId = 32, message status: indoubt, protocolInfo: null}");
+        assertThat(journalMessage).contains("{messageIdentifier: message having id 12, message status: confirmed, protocolInfo: null; messageIdentifier: message having id 32, message status: indoubt, protocolInfo: null}");
     }
 
     @Test
@@ -126,7 +126,7 @@ public class CollectedMessageListDeviceCommandTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).contains("{messageIdentifier: messageId = 12, message status: confirmed; messageIdentifier: messageId = 32, message status: indoubt}");
+        assertThat(journalMessage).contains("{messageIdentifier: message having id 12, message status: confirmed; messageIdentifier: message having id 32, message status: indoubt}");
     }
 
     @Test

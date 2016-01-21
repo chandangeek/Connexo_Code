@@ -2,8 +2,8 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
-import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -37,7 +37,7 @@ public class UpdateDeviceIpAddressTest {
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).contains("{deviceIdentifier: id 1; IP address: 10.0.1.50:4059}");
+        assertThat(journalMessage).contains("{deviceIdentifier: device having id 1; IP address: 10.0.1.50:4059}");
     }
 
 }

@@ -21,25 +21,23 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-
 import com.google.common.collect.Range;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.Optional;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the execution of the CollectedRegisterListDeviceCommand.
@@ -133,7 +131,7 @@ public class CollectedRegisterListDeviceCommandTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
 
         // asserts
-        assertThat(journalMessage).contains("{deviceIdentifier: id 1; nr of collected registers: 1}");
+        assertThat(journalMessage).contains("{deviceIdentifier: device having id 1; nr of collected registers: 1}");
     }
 
     private DeviceRegisterList getDeviceRegisterList() {

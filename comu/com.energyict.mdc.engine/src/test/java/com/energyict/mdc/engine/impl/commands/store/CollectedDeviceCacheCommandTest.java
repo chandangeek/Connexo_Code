@@ -14,24 +14,20 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for the {@link CollectedDeviceCacheCommand} component.
@@ -102,7 +98,7 @@ public class CollectedDeviceCacheCommandTest {
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).contains("{deviceIdentifier: id 654}");
+        assertThat(journalMessage).contains("{deviceIdentifier: device having id 654}");
     }
 
     private DeviceIdentifier getMockedDeviceIdentifier() {
