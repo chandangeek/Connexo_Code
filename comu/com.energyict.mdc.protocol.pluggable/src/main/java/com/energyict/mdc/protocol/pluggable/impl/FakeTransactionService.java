@@ -42,5 +42,4 @@ public class FakeTransactionService implements TransactionService {
     public boolean isInTransaction() {
         return this.actualTransactionService.isInTransaction();
     }
-
 }
