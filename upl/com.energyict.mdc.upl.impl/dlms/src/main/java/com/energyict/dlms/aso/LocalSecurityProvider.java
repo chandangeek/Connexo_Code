@@ -163,7 +163,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 	/**
 	 * @return the master key (this is the KeyEncryptionKey)
 	 */
-	public byte[] getMasterKey() throws IOException {
+	public byte[] getMasterKey() {
 		return this.masterKey;
 	}
 

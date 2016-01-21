@@ -28,6 +28,10 @@ public class CodingException extends ProtocolRuntimeException {
         return new CodingException(reflectionError, ProtocolExceptionReference.GENERIC_JAVA_REFLECTION_ERROR, className);
     }
 
+    public static CodingException protocolImplementationError(String error) {
+        return new CodingException(ProtocolExceptionReference.PROTOCOL_IMPLEMENTATION_ERROR, error);
+    }
+
     /**
      * Coding Exception created if some method is not supported for this class
      *

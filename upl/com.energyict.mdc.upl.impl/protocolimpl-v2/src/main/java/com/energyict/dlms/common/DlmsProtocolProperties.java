@@ -42,6 +42,7 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final String WAKE_UP = "WakeUp";
     public static final String IP_PORT_NUMBER = "IpPortNumber";
     public static final String CIPHERING_TYPE = "CipheringType";
+    public static final String GENERAL_CIPHERING_KEY_TYPE = "GeneralCipheringKeyType";
     public static final String NTA_SIMULATION_TOOL = "NTASimulationTool";
     public static final String BULK_REQUEST = "BulkRequest";
     public static final String CONFORMANCE_BLOCK_VALUE = "ConformanceBlockValue";
@@ -70,7 +71,6 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final int DEFAULT_LOWER_HDLC_ADDRESS = 0;
     public static final int DEFAULT_AUTHENTICATION_SECURITY_LEVEL = 0;
     public static final int DEFAULT_DATA_TRANSPORT_SECURITY_LEVEL = 0;
-    private static final int DEFAULT_DEST_WPDU_PORT = 1;
     public static final BigDecimal DEFAULT_CONNECTION = new BigDecimal(ConnectionMode.TCPIP.getMode());
     public static final String DEFAULT_SECURITY_LEVEL = DEFAULT_AUTHENTICATION_SECURITY_LEVEL + ":" + DEFAULT_DATA_TRANSPORT_SECURITY_LEVEL;
     public static final BigDecimal DEFAULT_CLIENT_MAC_ADDRESS = new BigDecimal(16);
@@ -101,10 +101,9 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final String DEFAULT_DEVICE_ID = "";
     public static final boolean DEFAULT_ENABLE_GBT = false;
     public static final BigDecimal DEFAULT_GBT_WINDOW_SIZE = BigDecimal.valueOf(-1);
-
-    private TypedProperties typedProperties;
-
+    private static final int DEFAULT_DEST_WPDU_PORT = 1;
     protected SecurityProvider securityProvider;
+    private TypedProperties typedProperties;
 
     public DlmsProtocolProperties() {
         this(new TypedProperties());

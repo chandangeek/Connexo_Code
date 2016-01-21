@@ -9,6 +9,7 @@ import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 
@@ -57,7 +58,7 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
             throw DeviceConfigurationException.invalidPropertyFormat(Beacon3100ConfigurationSupport.PSK_ENCRYPTION_KEY, "(hidden)", "Should be 32 hex characters");
         }
 
-        return OctetString.fromByteArray(aesWrap(pskBytes, pskEncryptionKeyBytes));
+        return OctetString.fromByteArray(ProtocolTools.aesWrap(pskBytes, pskEncryptionKeyBytes));
     }
 
     /**
@@ -74,17 +75,5 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
         }
 
         return macAndKeyPair;
-    }
-
-    private byte[] aesWrap(byte[] key, byte[] dlmsMeterKEK) {
-        final Key keyToWrap = new SecretKeySpec(key, "AES");
-        final Key kek = new SecretKeySpec(dlmsMeterKEK, "AES");
-        try {
-            final Cipher aesWrap = Cipher.getInstance("AESWrap");
-            aesWrap.init(Cipher.WRAP_MODE, kek);
-            return aesWrap.wrap(keyToWrap);
-        } catch (GeneralSecurityException e) {
-            throw DataEncryptionException.dataEncryptionException(e);
-        }
     }
 }

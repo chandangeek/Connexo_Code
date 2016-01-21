@@ -15,7 +15,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
  *
  * @author alex
  */
-public final class ECDSASignatureTest {
+public final class ECDSASignatureImplTest {
 
     /**
      * Taken from the Green Book, 8, Table C.1., p451.

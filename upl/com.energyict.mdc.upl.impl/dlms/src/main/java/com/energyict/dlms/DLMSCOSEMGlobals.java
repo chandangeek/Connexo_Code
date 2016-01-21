@@ -270,6 +270,8 @@ public interface DLMSCOSEMGlobals {
 
     byte GENERAL_GLOBAL_CIPHERING = (byte) 0xDB;
 	byte GENERAL_DEDICATED_CIPTHERING = (byte) 0xDC;
+	byte GENERAL_CIPHERING = (byte) 0xDD;
+	byte GENERAL_SIGNING = (byte) 0xDF;
 
 	byte COSEM_INITIATEREQUEST = (byte)0x01;
 	byte COSEM_INITIATERESPONSE = (byte)0x08;

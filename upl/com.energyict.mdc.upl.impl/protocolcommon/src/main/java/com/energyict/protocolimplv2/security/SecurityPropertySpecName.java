@@ -12,6 +12,7 @@ public enum SecurityPropertySpecName {
 
     PASSWORD("Password"),
     ENCRYPTION_KEY("EncryptionKey"),
+    MASTER_KEY("MasterKey"),
     ENCRYPTION_KEY_1("EncryptionKey1"),
     ENCRYPTION_KEY_2("EncryptionKey2"),
     ENCRYPTION_KEY_3("EncryptionKey3"),
@@ -57,7 +58,7 @@ public enum SecurityPropertySpecName {
 
     private final String name;
 
-    private SecurityPropertySpecName(String name) {
+    SecurityPropertySpecName(String name) {
         this.name = name;
     }
 

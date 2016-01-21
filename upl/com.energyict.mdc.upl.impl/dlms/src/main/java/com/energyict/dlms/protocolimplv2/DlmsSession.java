@@ -191,7 +191,8 @@ public class DlmsSession implements ProtocolLink {
                 0,
                 (getProperties().getSystemIdentifier() == null) ? null : getProperties().getSystemIdentifier(),
                 getProperties().getSecurityProvider(),
-                getProperties().getCipheringType().getType()
+                getProperties().getCipheringType().getType(),
+                getProperties().getGeneralCipheringKeyType()
         );
     }
 

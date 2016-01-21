@@ -185,7 +185,7 @@ public class NTASecurityProvider implements SecurityProvider {
     /**
      * @return the master key (this is the KeyEncryptionKey)
      */
-    public byte[] getMasterKey() throws IOException {
+    public byte[] getMasterKey(){
         if (this.masterKey == null) {
             this.masterKey = DLMSUtils.hexStringToByteArray(properties.getProperty(MASTERKEY, ""));
         }

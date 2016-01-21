@@ -18,7 +18,6 @@ import com.energyict.mdw.core.*;
 import com.energyict.mdwswing.decorators.mdc.NextExecutionSpecsShadowDecorator;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
@@ -31,13 +30,9 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Co
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
-import java.security.GeneralSecurityException;
-import java.security.Key;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -201,7 +196,7 @@ public class MasterDataSerializer {
         final int deviceTypeId = device.getConfigurationId();   //The ID of the config, instead of the device type. Since every new config represents a unique device type in the Beacon model
 
         String deviceTimeZone = DlmsProtocolProperties.DEFAULT_TIMEZONE;
-        final TimeZoneInUse timeZoneInUse = device.getProtocolProperties().<TimeZoneInUse>getTypedProperty(DlmsProtocolProperties.TIMEZONE);
+        final TimeZoneInUse timeZoneInUse = device.getProtocolProperties().getTypedProperty(DlmsProtocolProperties.TIMEZONE);
         if (timeZoneInUse != null && timeZoneInUse.getTimeZone() != null) {
             deviceTimeZone = timeZoneInUse.getTimeZone().getID();
         }
@@ -214,9 +209,9 @@ public class MasterDataSerializer {
         final byte[] ak = getSecurityKey(device, SecurityPropertySpecName.AUTHENTICATION_KEY.toString());
         final byte[] ek = getSecurityKey(device, SecurityPropertySpecName.ENCRYPTION_KEY.toString());
 
-        final String wrappedPassword = password == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(password, dlmsMeterKEK), "");
-        final String wrappedAK = ak == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(ak, dlmsMeterKEK), "");
-        final String wrappedEK = ek == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(ek, dlmsMeterKEK), "");
+        final String wrappedPassword = password == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(password, dlmsMeterKEK), "");
+        final String wrappedAK = ak == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(ak, dlmsMeterKEK), "");
+        final String wrappedEK = ek == null ? "" : ProtocolTools.getHexStringFromBytes(ProtocolTools.aesWrap(ek, dlmsMeterKEK), "");
 
         return new Beacon3100MeterDetails(callHomeId, deviceTypeId, deviceTimeZone, device.getSerialNumber(), wrappedPassword, wrappedAK, wrappedEK);
     }
@@ -540,18 +535,6 @@ public class MasterDataSerializer {
             }
         }
         return false;
-    }
-
-    private static byte[] wrap(byte[] key, byte[] dlmsMeterKEK) {
-        final Key keyToWrap = new SecretKeySpec(key, "AES");
-        final Key kek = new SecretKeySpec(dlmsMeterKEK, "AES");
-        try {
-            final Cipher aesWrap = Cipher.getInstance("AESWrap");
-            aesWrap.init(Cipher.WRAP_MODE, kek);
-            return aesWrap.wrap(keyToWrap);
-        } catch (GeneralSecurityException e) {
-            throw DataEncryptionException.dataEncryptionException(e);
-        }
     }
 
     /**

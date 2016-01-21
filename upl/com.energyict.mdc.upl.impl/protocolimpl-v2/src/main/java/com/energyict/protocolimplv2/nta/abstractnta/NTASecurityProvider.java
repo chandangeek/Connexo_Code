@@ -28,6 +28,7 @@ public class NTASecurityProvider implements SecurityProvider {
     protected byte[] cTOs;
     protected byte[] dedicatedKey;
     protected TypedProperties properties;
+    protected byte[] masterKey;
     private byte[] authenticationKey;
     private byte[] encryptionKey;
     private byte[] hlsSecret;
@@ -86,6 +87,15 @@ public class NTASecurityProvider implements SecurityProvider {
             hlsSecret = passwordBytes;
         }
         return this.hlsSecret;
+    }
+
+    @Override
+    public byte[] getMasterKey() {
+        if (this.masterKey == null) {
+            String hex = properties.getTypedProperty(SecurityPropertySpecName.MASTER_KEY.toString());
+            this.masterKey = DLMSUtils.hexStringToByteArray(hex);
+        }
+        return this.masterKey;
     }
 
     protected void setEncryptionKey(byte[] encryptionKey) {
