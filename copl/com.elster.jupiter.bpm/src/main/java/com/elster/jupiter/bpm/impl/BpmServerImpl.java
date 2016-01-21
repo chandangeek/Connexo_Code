@@ -71,17 +71,19 @@ public class BpmServerImpl implements BpmServer {
     @Override
     public String doGet(String targetURL, String authorization) {
         HttpURLConnection httpConnection = null;
-        authorization = (basicAuthString != null)?basicAuthString:authorization;
+        String authorizationHeader = (basicAuthString != null)?basicAuthString:authorization;
         try {
             URL targetUrl = new URL(url + targetURL);
             httpConnection = (HttpURLConnection) targetUrl.openConnection();
+            httpConnection.setConnectTimeout(60000);
             httpConnection.setDoOutput(true);
             httpConnection.setRequestMethod("GET");
-            httpConnection.setRequestProperty("Authorization", authorization);
+            httpConnection.setRequestProperty("Authorization", authorizationHeader);
             httpConnection.setRequestProperty("Accept", "application/json");
-            if (httpConnection.getResponseCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + httpConnection.getResponseCode());
+
+            int responseCode = httpConnection.getResponseCode();
+            if( responseCode  != 200) {
+                throw new RuntimeException("Failed : HTTP error code : " + responseCode);
             }
             BufferedReader br = new BufferedReader(new InputStreamReader(
                     (httpConnection.getInputStream())));
@@ -115,6 +117,7 @@ public class BpmServerImpl implements BpmServer {
         try {
             URL targetUrl = new URL(url + targetURL);
             httpConnection = (HttpURLConnection) targetUrl.openConnection();
+            httpConnection.setConnectTimeout(60000);
             httpConnection.setDoOutput(true);
             httpConnection.setRequestMethod("POST");
             httpConnection.setRequestProperty("Authorization", authorization);
