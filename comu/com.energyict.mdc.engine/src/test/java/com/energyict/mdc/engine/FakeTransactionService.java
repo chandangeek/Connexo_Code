@@ -51,6 +51,4 @@ public class FakeTransactionService implements TransactionService {
             return new TransactionEvent(false, new StopWatch(false), 0, 0);
         }
     }
-
-
 }
