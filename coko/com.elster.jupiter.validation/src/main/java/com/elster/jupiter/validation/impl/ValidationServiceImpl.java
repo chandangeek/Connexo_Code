@@ -376,21 +376,14 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     public void validate(MeterActivation meterActivation, Map<Channel, Range<Instant>> ranges) {
-        if (isValidationActiveOnStorage(meterActivation)) {
+        if(isValidationActive(meterActivation)){
             MeterActivationValidationContainer container = updatedMeterActivationValidationsFor(meterActivation);
             container.moveLastCheckedBefore(ranges);
-            container.validate();
-        }
-    }
-
-
-    public void moveLastCheck(MeterActivation meterActivation, Map<Channel, Range<Instant>> ranges) {
-        MeterActivationValidationContainer container = updatedMeterActivationValidationsFor(meterActivation);
-        container.moveLastCheckedBefore(ranges);
-        if (isValidationActiveOnStorage(meterActivation)) {
-            container.validate();
-        } else {
-            container.update();
+            if (isValidationActiveOnStorage(meterActivation)) {
+                container.validate();
+            } else {
+                container.update();
+            }
         }
     }
 

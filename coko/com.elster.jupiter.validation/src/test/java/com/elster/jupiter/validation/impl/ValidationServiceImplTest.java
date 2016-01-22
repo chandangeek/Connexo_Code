@@ -380,7 +380,7 @@ public class ValidationServiceImplTest {
         doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules(anyList());
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet));
         Map<Channel, Range<Instant>> changeScope = ImmutableMap.of(channel1, Range.atLeast(Instant.EPOCH));
-        validationService.moveLastCheck(meterActivation, changeScope);
+        validationService.validate(meterActivation, changeScope);
         verify(meterActivationValidation).moveLastCheckedBefore(changeScope);
     }
 
