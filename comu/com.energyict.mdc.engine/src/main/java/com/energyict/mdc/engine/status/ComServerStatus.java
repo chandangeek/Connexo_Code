@@ -1,8 +1,7 @@
 package com.energyict.mdc.engine.status;
 
 import aQute.bnd.annotation.ProviderType;
-import com.energyict.mdc.engine.monitor.ComServerMonitor;
-import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
+import com.energyict.mdc.engine.monitor.*;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -85,5 +84,5 @@ public interface ComServerStatus {
 
     List<ScheduledComPortMonitor> getScheduledComportMonitors();
 
-
+    List<InboundComPortMonitor> getInboundComportMonitors();
 }

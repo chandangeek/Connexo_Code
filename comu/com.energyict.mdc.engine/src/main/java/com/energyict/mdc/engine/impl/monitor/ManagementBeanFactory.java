@@ -1,10 +1,9 @@
 package com.energyict.mdc.engine.impl.monitor;
 
+import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.engine.impl.core.ComPortListener;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
 
 import java.util.Optional;
 
@@ -24,7 +23,7 @@ public interface ManagementBeanFactory {
      * @param runningComServer The RunningComServer
      * @return The ComServerMonitorImplMBean
      */
-    public ComServerMonitorImplMBean findOrCreateFor (RunningComServer runningComServer);
+     ComServerMonitorImplMBean findOrCreateFor (RunningComServer runningComServer);
 
     /**
      * Notifies this ManagementBeanFactory that the name
@@ -33,7 +32,7 @@ public interface ManagementBeanFactory {
      * @param oldName The old name of the specified RunningComServer
      * @param runningComServer The RunningComServer
      */
-    public void renamed (String oldName, RunningComServer runningComServer);
+     void renamed (String oldName, RunningComServer runningComServer);
 
     /**
      * Finds the {@link ComServerMonitorImplMBean} for the specified {@link ComServer}.
@@ -41,7 +40,7 @@ public interface ManagementBeanFactory {
      * @param comServer The ComServer
      * @return The ComServerMonitorImplMBean or <code>null</code> if the ComServer has not registered yet
      */
-    public Optional<ComServerMonitorImplMBean> findFor(ComServer comServer);
+     Optional<ComServerMonitorImplMBean> findFor(ComServer comServer);
 
     /**
      * Removes the {@link ComServerMonitorImplMBean}
@@ -51,7 +50,7 @@ public interface ManagementBeanFactory {
      *
      * @param runningComServer The RunningComServer
      */
-    public void removeIfExistsFor (RunningComServer runningComServer);
+     void removeIfExistsFor (RunningComServer runningComServer);
 
     /**
      * Finds or creates the {@link ScheduledComPortMBean}
@@ -60,7 +59,7 @@ public interface ManagementBeanFactory {
      * @param comPort The ScheduledComPort
      * @return The OutboundComPortMBean
      */
-    public ScheduledComPortMonitorImplMBean findOrCreateFor (ScheduledComPort comPort);
+     ScheduledComPortMonitorImplMBean findOrCreateFor (ScheduledComPort comPort);
 
     /**
      * Finds or creates the {@link ScheduledComPortMBean}
@@ -82,12 +81,31 @@ public interface ManagementBeanFactory {
     public void removeIfExistsFor (ScheduledComPort comPort);
 
     /**
-     * Finds or creates the {@link InboundComPortMBean}
-     * for the specified {@link ComPortListener inbound ComPort}.
+     * Finds or creates the {@link ScheduledComPortMBean}
+     * for the specified {@link ScheduledComPort outbound ComPort}.
      *
      * @param inboundComPort The ComPortListener
      * @return The InboundComPortMBean
      */
-    public InboundComPortMBean findOrCreateFor (ComPortListener inboundComPort);
+     InboundComPortMonitorImplMBean findOrCreateFor (ComPortListener inboundComPort);
+
+    /**
+     * Finds or creates the {@link InboundComPortMBean}
+     * for the specified {@link InboundComPort inbound ComPort}.
+     *
+     * @param inboundComPort The ComPortListener
+     * @return The InboundComPortMBean
+     */
+     Optional<InboundComPortMonitorImplMBean> findFor (InboundComPort inboundComPort);
+
+    /**
+     * Removes the {@link InboundComPortMBean}
+     * for the specified {@link ComPortListener}
+     * if it already exists and does nothing when
+     * the OutboundComPortImplMBean does not exist.
+     *
+     * @param inboundComPort The ComPortListener
+     */
+     void removeIfExistsFor (ComPortListener inboundComPort);
 
 }

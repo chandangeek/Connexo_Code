@@ -4,9 +4,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortListener;
@@ -135,7 +133,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
     @Override
     public ScheduledComPortMonitorImplMBean findOrCreateFor(ScheduledComPort comPort) {
         synchronized (this.registeredMBeans) {
-            ObjectName jmxName = this.nameFor(comPort);
+            ObjectName jmxName = this.nameFor(comPort.getComPort());
             ServiceRegistration registeredMBean = this.registeredMBeans.get(jmxName);
             ScheduledComPortMonitorImplMBean comPortMBean;
             if (registeredMBean == null) {
@@ -165,7 +163,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
     @Override
     public void removeIfExistsFor(ScheduledComPort comPort) {
         synchronized (this.registeredMBeans) {
-            ObjectName jmxName = this.nameFor(comPort);
+            ObjectName jmxName = this.nameFor(comPort.getComPort());
             Object registeredMBean = this.registeredMBeans.get(jmxName);
             if (registeredMBean != null) {
                 this.unRegisterMBean(jmxName);
@@ -174,8 +172,44 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
     }
 
     @Override
-    public InboundComPortMBean findOrCreateFor(ComPortListener inboundComPort) {
-        return null;
+    public InboundComPortMonitorImplMBean findOrCreateFor(ComPortListener inboundComPort) {
+        synchronized (this.registeredMBeans) {
+            ObjectName jmxName = this.nameFor(inboundComPort.getComPort());
+            ServiceRegistration registeredMBean = this.registeredMBeans.get(jmxName);
+            InboundComPortMonitorImplMBean comPortMBean;
+            if (registeredMBean == null) {
+                comPortMBean = new InboundComPortMonitorImpl(inboundComPort, this.clock, this.thesaurus);
+                this.registerMBean(comPortMBean, jmxName);
+            } else {
+                comPortMBean = (InboundComPortMonitorImplMBean) context.getService(registeredMBean.getReference());
+            }
+            return comPortMBean;
+        }
+    }
+
+    @Override
+    public Optional<InboundComPortMonitorImplMBean> findFor(InboundComPort inboundComPort) {
+        synchronized (this.registeredMBeans) {
+            ObjectName jmxName = this.nameFor(inboundComPort);
+            ServiceRegistration registeredMBean = this.registeredMBeans.get(jmxName);
+            if (registeredMBean == null) {
+                LOGGER.severe("Unable to find ComPortMonitorMBean for inbound comport " + inboundComPort.getName());
+                return Optional.empty();
+            } else {
+                return Optional.of((InboundComPortMonitorImplMBean) context.getService(registeredMBean.getReference()));
+            }
+        }
+    }
+
+    @Override
+    public void removeIfExistsFor(ComPortListener inboundComPort) {
+        synchronized (this.registeredMBeans) {
+            ObjectName jmxName = this.nameFor(inboundComPort.getComPort());
+            Object registeredMBean = this.registeredMBeans.get(jmxName);
+            if (registeredMBean != null) {
+                this.unRegisterMBean(jmxName);
+            }
+        }
     }
 
     private ObjectName nameFor(RunningComServer comServer) {
@@ -218,13 +252,17 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
         return "Connexo-MultiSense:type=Communication server,name=" + comServerName;
     }
 
-    private ObjectName nameFor(ScheduledComPort comPort) {
-        return this.nameFor(comPort.getComPort());
-    }
-
-    private ObjectName nameFor(ComPort comPort) {
+    private ObjectName nameFor(OutboundComPort comPort) {
         try {
             return new ObjectName(this.comServerBaseName(comPort.getComServer()) + ",process=Outbound communication ports,comPortName=" + comPort.getName());
+        } catch (MalformedObjectNameException e) {
+            throw CodingException.malformedObjectName(comPort, e, MessageSeeds.MBEAN_OBJECT_FORMAT);
+        }
+    }
+
+    private ObjectName nameFor(InboundComPort comPort) {
+        try {
+            return new ObjectName(this.comServerBaseName(comPort.getComServer()) + ",process=Inbound communication ports,comPortName=" + comPort.getName());
         } catch (MalformedObjectNameException e) {
             throw CodingException.malformedObjectName(comPort, e, MessageSeeds.MBEAN_OBJECT_FORMAT);
         }

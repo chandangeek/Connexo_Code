@@ -39,9 +39,11 @@ import com.energyict.mdc.engine.impl.events.connection.UndiscoveredEstablishConn
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
+import com.energyict.mdc.engine.impl.monitor.*;
 import com.energyict.mdc.engine.impl.protocol.inbound.statistics.StatisticsMonitoringHttpServletRequest;
 import com.energyict.mdc.engine.impl.protocol.inbound.statistics.StatisticsMonitoringHttpServletResponse;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
+import com.energyict.mdc.engine.monitor.InboundComPortMonitor;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
@@ -106,6 +108,8 @@ public class InboundCommunicationHandler {
 
         ThreadPrincipalService threadPrincipalService();
 
+        ManagementBeanFactory managementBeanFactory();
+
     }
 
     private static final long NANOS_IN_MILLI = 1000000L;
@@ -121,6 +125,7 @@ public class InboundCommunicationHandler {
     private InboundDeviceProtocol.DiscoverResponseType responseType;
     private StopWatch discovering;
     private CompositeComPortDiscoveryLogger logger;
+    private InboundComPortMonitor comPortMonitor;
 
     public InboundCommunicationHandler(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         super();
@@ -160,6 +165,7 @@ public class InboundCommunicationHandler {
         this.publish(new UndiscoveredEstablishConnectionEvent(new ComServerEventServiceProvider(), this.comPort));
         this.initializeContext(context);
         this.initializeLogging();
+        this.initializeMonitoring();
         Optional<OfflineDevice> device;
         InboundDeviceProtocol.DiscoverResultType discoverResultType;
         try {
@@ -277,6 +283,7 @@ public class InboundCommunicationHandler {
     }
 
     private void handleKnownDevice(InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContext context, InboundDeviceProtocol.DiscoverResultType discoverResultType, OfflineDevice device) {
+        ((ServerInboundComPortOperationalStatistics) this.comPortMonitor.getOperationalStatistics()).deviceRecognized(device.getDeviceIdentifier().toString());
         Cryptographer cryptographer = context.getCryptographer();
         if (this.deviceRequiresEncryption(device) && cryptographer != null && !cryptographer.wasUsed()) {
             this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.ENCRYPTION_REQUIRED);
@@ -339,6 +346,11 @@ public class InboundCommunicationHandler {
 
     private void initializeLogging() {
         this.logger = new CompositeComPortDiscoveryLogger(this.newNormalLogger(), this.newEventLogger());
+    }
+
+    private void initializeMonitoring(){
+        this.comPortMonitor = (InboundComPortMonitorImpl) serviceProvider.managementBeanFactory().findFor(comPort).get();
+        ((ServerInboundComPortOperationalStatistics) this.comPortMonitor.getOperationalStatistics()).notifyConnection();
     }
 
     private ComPortDiscoveryLogger newNormalLogger() {

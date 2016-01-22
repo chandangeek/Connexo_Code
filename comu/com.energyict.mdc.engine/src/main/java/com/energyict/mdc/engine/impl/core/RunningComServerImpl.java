@@ -1147,6 +1147,11 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
                     eventMechanism.eventPublisher,
                     serviceProvider.clock());
         }
+
+        @Override
+        public ManagementBeanFactory managementBeanFactory() {
+            return serviceProvider.managementBeanFactory();
+        }
     }
 
     private class ScheduledComPortFactoryServiceProvider implements ScheduledComPortImpl.ServiceProvider {

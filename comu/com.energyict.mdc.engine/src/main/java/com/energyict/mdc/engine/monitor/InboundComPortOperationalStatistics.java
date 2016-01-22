@@ -1,8 +1,9 @@
-package com.energyict.mdc.engine.impl.monitor;
+package com.energyict.mdc.engine.monitor;
 
-import com.energyict.mdc.engine.monitor.OperationalStatistics;
+import aQute.bnd.annotation.ProviderType;
 
-import java.time.Instant;
+import java.util.Date;
+import java.util.Optional;
 
 /**
  * Models the operational statistics that are gathered by the process
@@ -11,6 +12,7 @@ import java.time.Instant;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-03 (10:50)
  */
+@ProviderType
 public interface InboundComPortOperationalStatistics extends OperationalStatistics {
 
     /**
@@ -29,15 +31,15 @@ public interface InboundComPortOperationalStatistics extends OperationalStatisti
      *
      * @return The timestamp of last activity of every thread
      */
-     Instant getLastConnectionTimestamp ();
+     Optional<Date> getLastConnectionTimestamp ();
 
     /**
      * Gets the unique identifier of the last device
      * that established a connection to the
      * ComPortListener.
      *
-     * @return The id of the last device that established a connection
+     * @return The MRId of the last device that established a connection
      */
-     String getLastConnectionDeviceId ();
+     String getLastConnectionDeviceMRID ();
 
 }

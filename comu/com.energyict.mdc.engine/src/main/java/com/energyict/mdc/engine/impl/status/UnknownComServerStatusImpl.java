@@ -1,12 +1,12 @@
 package com.energyict.mdc.engine.impl.status;
 
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.monitor.ComServerMonitor;
-import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
+import com.energyict.mdc.engine.monitor.*;
 import com.energyict.mdc.engine.status.*;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -60,6 +60,11 @@ public class UnknownComServerStatusImpl implements ComServerStatus {
 
     @Override
     public List<ScheduledComPortMonitor> getScheduledComportMonitors() {
-        return null;
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<InboundComPortMonitor> getInboundComportMonitors() {
+        return  Collections.emptyList();
     }
 }

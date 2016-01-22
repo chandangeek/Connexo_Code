@@ -60,7 +60,7 @@ public class RunningComServerStatusImplTest {
         when(this.comServer.isOnline()).thenReturn(true);
         when(this.comServer.isRemote()).thenReturn(false);
         when(this.comServer.isOffline()).thenReturn(false);
-        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(Clock.systemDefaultZone(), this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
+        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(Clock.systemDefaultZone(), this.comServer, this.comServerMonitor, Collections.emptyList(), Collections.emptyList());
 
         // Business method
         ComServerType comServerType = comServerStatus.getComServerType();
@@ -74,7 +74,7 @@ public class RunningComServerStatusImplTest {
         when(this.comServer.isRemote()).thenReturn(true);
         when(this.comServer.isOnline()).thenReturn(false);
         when(this.comServer.isOffline()).thenReturn(false);
-        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(Clock.systemDefaultZone(), this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
+        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(Clock.systemDefaultZone(), this.comServer, this.comServerMonitor, Collections.emptyList(), Collections.emptyList());
 
         // Business method
         ComServerType comServerType = comServerStatus.getComServerType();
@@ -88,7 +88,7 @@ public class RunningComServerStatusImplTest {
         when(this.comServer.isOffline()).thenReturn(true);
         when(this.comServer.isRemote()).thenReturn(false);
         when(this.comServer.isOnline()).thenReturn(false);
-        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(Clock.systemDefaultZone(), this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
+        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(Clock.systemDefaultZone(), this.comServer, this.comServerMonitor, Collections.emptyList(), Collections.emptyList());
 
         // Business method
         ComServerType comServerType = comServerStatus.getComServerType();
@@ -99,7 +99,7 @@ public class RunningComServerStatusImplTest {
 
     @Test
     public void testComServerName () {
-        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(Clock.systemDefaultZone(), this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
+        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(Clock.systemDefaultZone(), this.comServer, this.comServerMonitor, Collections.emptyList(), Collections.emptyList());
 
         // Business method
         String comServerName = comServerStatus.getComServerName();
@@ -110,7 +110,7 @@ public class RunningComServerStatusImplTest {
 
     @Test
     public void testIsRunning () {
-        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(Clock.systemDefaultZone(), this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
+        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(Clock.systemDefaultZone(), this.comServer, this.comServerMonitor, Collections.emptyList(), Collections.emptyList());
 
         // Business method & asserts
         assertThat(comServerStatus.isRunning()).isTrue();
@@ -125,7 +125,7 @@ public class RunningComServerStatusImplTest {
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
         when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.of(Date.from(now.minus(Duration.ofMinutes(1)))));
         when(this.comServerMonitor.getOperationalStatistics()).thenReturn(operationalStatistics);
-        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(clock, this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
+        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(clock, this.comServer, this.comServerMonitor, Collections.emptyList(), Collections.emptyList());
 
         // Business method & asserts
         assertThat(comServerStatus.isBlocked()).isFalse();
@@ -142,7 +142,7 @@ public class RunningComServerStatusImplTest {
         when(operationalStatistics.getStartTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(1))));
         when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.<Date>empty());
         when(this.comServerMonitor.getOperationalStatistics()).thenReturn(operationalStatistics);
-        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(clock, this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
+        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(clock, this.comServer, this.comServerMonitor, Collections.emptyList(), Collections.emptyList());
 
         // Business method & asserts
         assertThat(comServerStatus.isBlocked()).isFalse();
@@ -158,7 +158,7 @@ public class RunningComServerStatusImplTest {
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
         when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.of(Date.from(now.minus(Duration.ofMinutes(10)))));
         when(this.comServerMonitor.getOperationalStatistics()).thenReturn(operationalStatistics);
-        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(clock, this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
+        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(clock, this.comServer, this.comServerMonitor, Collections.emptyList(), Collections.emptyList());
 
         // Business method & asserts
         assertThat(comServerStatus.isBlocked()).isTrue();
@@ -174,7 +174,7 @@ public class RunningComServerStatusImplTest {
         when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.<Date>empty());
         when(operationalStatistics.getStartTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(10))));
         when(this.comServerMonitor.getOperationalStatistics()).thenReturn(operationalStatistics);
-        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(clock, this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
+        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(clock, this.comServer, this.comServerMonitor, Collections.emptyList(), Collections.emptyList());
 
         // Business method & asserts
         assertThat(comServerStatus.isBlocked()).isTrue();
@@ -189,7 +189,7 @@ public class RunningComServerStatusImplTest {
         when(operationalStatistics.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(5));
         when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.of(Date.from(now.minus(Duration.ofMinutes(15)))));
         when(this.comServerMonitor.getOperationalStatistics()).thenReturn(operationalStatistics);
-        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(clock, this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
+        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(clock, this.comServer, this.comServerMonitor, Collections.emptyList(), Collections.emptyList());
 
         // Business method & asserts
         assertThat(comServerStatus.getBlockTime()).isEqualTo(Duration.ofMinutes(10));
@@ -205,7 +205,7 @@ public class RunningComServerStatusImplTest {
         when(operationalStatistics.getLastCheckForChangesTimestamp()).thenReturn(Optional.<Date>empty());
         when(operationalStatistics.getStartTimestamp()).thenReturn(Date.from(now.minus(Duration.ofMinutes(15))));
         when(this.comServerMonitor.getOperationalStatistics()).thenReturn(operationalStatistics);
-        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(clock, this.comServer, this.comServerMonitor, Collections.<ScheduledComPortMonitor>emptyList());
+        RunningComServerStatusImpl comServerStatus = new RunningComServerStatusImpl(clock, this.comServer, this.comServerMonitor, Collections.emptyList(), Collections.emptyList());
 
         // Business method & asserts
         assertThat(comServerStatus.getBlockTime()).isEqualTo(Duration.ofMinutes(10));
@@ -233,7 +233,8 @@ public class RunningComServerStatusImplTest {
                         clock,
                         this.comServer,
                         this.comServerMonitor,
-                        Arrays.asList(nonBlockedComPortMonitor));
+                        Arrays.asList(nonBlockedComPortMonitor),
+                        Collections.emptyList());
 
         // Business method & asserts
         assertThat(comServerStatus.isBlocked()).isFalse();
@@ -267,7 +268,8 @@ public class RunningComServerStatusImplTest {
                         clock,
                         this.comServer,
                         this.comServerMonitor,
-                        Arrays.asList(nonBlockedComPortMonitor, blockedComPortMonitor));
+                        Arrays.asList(nonBlockedComPortMonitor, blockedComPortMonitor),
+                        Collections.emptyList());
 
         // Business method & asserts
         assertThat(comServerStatus.isBlocked()).isTrue();
@@ -302,7 +304,8 @@ public class RunningComServerStatusImplTest {
                         clock,
                         this.comServer,
                         this.comServerMonitor,
-                        Arrays.asList(nonBlockedComPortMonitor, blockedComPortMonitor));
+                        Arrays.asList(nonBlockedComPortMonitor, blockedComPortMonitor),
+                        Collections.emptyList());
 
         // Business method & asserts
         assertThat(comServerStatus.isBlocked()).isTrue();
@@ -335,7 +338,8 @@ public class RunningComServerStatusImplTest {
                         clock,
                         this.comServer,
                         this.comServerMonitor,
-                        Arrays.asList(nonBlockedComPortMonitor, blockedComPortMonitor));
+                        Arrays.asList(nonBlockedComPortMonitor, blockedComPortMonitor),
+                        Collections.emptyList());
 
         // Business method & asserts
         assertThat(comServerStatus.getBlockTime()).isEqualTo(Duration.ofMinutes(10));

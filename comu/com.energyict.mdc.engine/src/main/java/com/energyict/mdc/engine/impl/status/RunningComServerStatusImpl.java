@@ -24,16 +24,18 @@ public class RunningComServerStatusImpl implements ComServerStatus {
     private final long id;
     private final ComServerType comServerType;
     private final ComServerMonitor monitor;
-    private final List<ScheduledComPortMonitor> comPortMonitors;
+    private final List<ScheduledComPortMonitor> scheduledComPortMonitors;
+    private final List<InboundComPortMonitor> inboundComPortMonitors;
 
-    public RunningComServerStatusImpl(Clock clock, ComServer comServer, ComServerMonitor monitor, List<ScheduledComPortMonitor> comPortMonitors) {
+    public RunningComServerStatusImpl(Clock clock, ComServer comServer, ComServerMonitor monitor, List<ScheduledComPortMonitor> comPortMonitors, List<InboundComPortMonitor> inboundComportMonitors) {
         super();
         this.clock = clock;
         this.comServerName = comServer.getName();
         this.id = comServer.getId();
         this.comServerType = ComServerType.typeFor(comServer);
         this.monitor = monitor;
-        this.comPortMonitors = Collections.unmodifiableList(comPortMonitors);
+        this.scheduledComPortMonitors = Collections.unmodifiableList(comPortMonitors);
+        this.inboundComPortMonitors = Collections.unmodifiableList(inboundComportMonitors);
     }
 
     @Override
@@ -58,7 +60,7 @@ public class RunningComServerStatusImpl implements ComServerStatus {
 
     @Override
     public boolean isBlocked() {
-        for (ScheduledComPortMonitor comPortMonitor : this.comPortMonitors) {
+        for (ScheduledComPortMonitor comPortMonitor : this.scheduledComPortMonitors) {
             if (this.isBlocked(comPortMonitor)) {
                 return true;
             }
@@ -68,7 +70,7 @@ public class RunningComServerStatusImpl implements ComServerStatus {
 
     @Override
     public Instant getBlockTimestamp() {
-        for (ScheduledComPortMonitor comPortMonitor : this.comPortMonitors) {
+        for (ScheduledComPortMonitor comPortMonitor : this.scheduledComPortMonitors) {
             if (this.isBlocked(comPortMonitor)) {
                 return this.lastActivity(comPortMonitor.getOperationalStatistics());
             }
@@ -107,7 +109,7 @@ public class RunningComServerStatusImpl implements ComServerStatus {
 
     @Override
     public Duration getBlockTime() {
-        for (ScheduledComPortMonitor comPortMonitor : this.comPortMonitors) {
+        for (ScheduledComPortMonitor comPortMonitor : this.scheduledComPortMonitors) {
             if (this.isBlocked(comPortMonitor)) {
                 return this.getBlockTime(comPortMonitor);
             }
@@ -139,7 +141,11 @@ public class RunningComServerStatusImpl implements ComServerStatus {
 
     @Override
     public List<ScheduledComPortMonitor> getScheduledComportMonitors() {
-        return comPortMonitors;
+        return scheduledComPortMonitors;
     }
 
+    @Override
+    public List<InboundComPortMonitor> getInboundComportMonitors() {
+        return inboundComPortMonitors;
+    }
 }

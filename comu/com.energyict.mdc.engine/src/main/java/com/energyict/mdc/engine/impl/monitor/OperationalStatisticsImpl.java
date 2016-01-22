@@ -94,6 +94,10 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
         }
     }
 
+    protected Clock getClock(){
+        return clock;
+    }
+
     private String[] itemNames () {
         List<String> itemNames = new ArrayList<>();
         this.addItemNames(itemNames);
