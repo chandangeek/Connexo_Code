@@ -22,8 +22,8 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
 
     fillActionsAndChecks: function (fromComboValue, toComboValue) {
         if (!!fromComboValue && !!toComboValue && (fromComboValue != this.fromValue || this.toValue != toComboValue)) {
-            this.fromValue = fromComboValue
-            this.toValue = toComboValue
+            this.fromValue = fromComboValue;
+            this.toValue = toComboValue;
             this.fillActions(fromComboValue, toComboValue);
             this.fillChecks(fromComboValue, toComboValue);
         }
@@ -38,6 +38,7 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
 
         store.load(
             function () {
+                Ext.suspendLayouts();
                 autoActionsContainer.removeAll();
                 autoActionsContainer.add({
                     xtype: 'state-properties-form',
@@ -46,8 +47,9 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
                     margin: '0 0 -20 0',
                     itemStack: 'actions'
                 });
-                autoActionsContainer.fireEvent('rendered', autoActionsContainer);
                 autoActionsContainer.show();
+                Ext.resumeLayouts(true);
+                autoActionsContainer.fireEvent('rendered', autoActionsContainer);
             }
         );
     },
@@ -61,6 +63,7 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
 
         store.load(
             function () {
+                Ext.suspendLayouts();
                 pretransitionChecksContainer.removeAll();
                 pretransitionChecksContainer.add({
                     xtype: 'state-properties-form',
@@ -69,8 +72,9 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
                     itemId: 'checks-property-form',
                     itemStack: 'checks'
                 });
-                pretransitionChecksContainer.fireEvent('rendered', pretransitionChecksContainer);
                 pretransitionChecksContainer.show();
+                Ext.resumeLayouts(true);
+                pretransitionChecksContainer.fireEvent('rendered', pretransitionChecksContainer);
             }
         );
     },
@@ -256,13 +260,15 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
                         xtype: 'fieldcontainer',
                         itemId: 'pretansitionsContainer',
                         fieldLabel: Uni.I18n.translate('deviceLifeCycleTransitions.add.pretransitionChecks', 'DLC', 'Pretransition checks'),
-                        hidden: true
+                        hidden: true,
+                        layout: 'fit'
                     },
                     {
                         xtype: 'fieldcontainer',
                         itemId: 'autoActionsContainer',
                         fieldLabel: Uni.I18n.translate('deviceLifeCycleTransitions.add.autoActions', 'DLC', 'Auto actions'),
-                        hidden: true
+                        hidden: true,
+                        layout: 'fit'
                     },
                     {
                         xtype: 'fieldcontainer',

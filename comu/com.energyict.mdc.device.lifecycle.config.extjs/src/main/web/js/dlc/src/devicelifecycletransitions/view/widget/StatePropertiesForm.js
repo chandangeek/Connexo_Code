@@ -226,6 +226,8 @@ Ext.define('Dlc.devicelifecycletransitions.view.widget.StatePropertiesForm', {
 
     setValue: function (micro) {
         var me = this;
+
+        Ext.suspendLayouts();
         Ext.each(micro, function (item) {
             if (Ext.isEmpty(item.conflictGroup)) {
                 var field = me.getFieldById(item.key);
@@ -248,7 +250,8 @@ Ext.define('Dlc.devicelifecycletransitions.view.widget.StatePropertiesForm', {
                 }
 
             }
-        })
+        });
+        Ext.resumeLayouts(true);
     },
 
     getValue: function () {
