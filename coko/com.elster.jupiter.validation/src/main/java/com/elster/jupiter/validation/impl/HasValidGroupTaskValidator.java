@@ -1,13 +1,12 @@
 package com.elster.jupiter.validation.impl;
 
-import java.util.Optional;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.validation.DataValidationTask;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import java.util.Optional;
 
 public class HasValidGroupTaskValidator implements ConstraintValidator<HasValidGroup, DataValidationTask> {
 
@@ -22,21 +21,21 @@ public class HasValidGroupTaskValidator implements ConstraintValidator<HasValidG
     public boolean isValid(DataValidationTask validationTask, ConstraintValidatorContext context) {
         Optional<EndDeviceGroup> deviceGroup = validationTask.getEndDeviceGroup();
         Optional<UsagePointGroup> upGroup = validationTask.getUsagePointGroup();
-        if (!bothNotNull(deviceGroup, upGroup)) {
+        if (bothNotSet(deviceGroup, upGroup)) {
+            //We don't know from what application this validation task is created, so will report both groups as required.
+            //On front-end only one field will be highlighted depending on application: "Usage point group" for Insight and "Device group" for MS.
+            //This should be changed when MDC/MDV demarcation will be implemented and validation task will "know" an origin app.
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
-                    .addPropertyNode("groupTypeField").addConstraintViolation();
+                    .addPropertyNode("deviceGroup").addConstraintViolation();
+            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+                    .addPropertyNode("usagePointGroup").addConstraintViolation();
             return false;
         }
-        return bothNotNull(deviceGroup, upGroup) && bothNotSet(deviceGroup, upGroup);
+        return true;
     }
 
     private boolean bothNotSet(Optional<EndDeviceGroup> deviceGroup, Optional<UsagePointGroup> upGroup) {
-        return !(deviceGroup.isPresent() && upGroup.isPresent());
+        return !deviceGroup.isPresent() && !upGroup.isPresent();
     }
-
-    private boolean bothNotNull(Optional<EndDeviceGroup> deviceGroup, Optional<UsagePointGroup> upGroup) {
-        return (deviceGroup.isPresent() || upGroup.isPresent());
-    }
-
 }
