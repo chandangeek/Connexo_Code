@@ -1,14 +1,24 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
-import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.lifecycle.config.*;
-import com.energyict.mdc.device.lifecycle.config.rest.info.*;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
+import com.energyict.mdc.device.lifecycle.config.Privileges;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCyclePrivilegeFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCyclePrivilegeInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateSummaryInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.info.StateTransitionEventTypeFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.info.StateTransitionEventTypeInfo;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -25,6 +35,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,6 +49,7 @@ public class DeviceLifeCycleResource {
             EventType.METER_UPDATED.topic(),
             EventType.METER_DELETED.topic()
     );
+    private static final String PRIVILEGE_VIABLE_DEVICE_LIFECYCLE = "viable.device.lifecycle";
 
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final FiniteStateMachineService finiteStateMachineService;
@@ -88,6 +100,21 @@ public class DeviceLifeCycleResource {
         return Response.ok(deviceLifeCycleFactory.from(deviceLifeCycle)).build();
     }
 
+    @GET
+    @Path("/{id}/privileges")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
+    public Response getDeviceLifeCycleDynamicPrivileges(@PathParam("id") Long id, @BeanParam JsonQueryParameters queryParams) {
+        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
+        List<IdWithNameInfo> privileges = deviceLifeCycle.isObsolete()
+                ? Collections.emptyList()
+                : Collections.singletonList(PRIVILEGE_VIABLE_DEVICE_LIFECYCLE)
+                .stream()
+                .map(privilege -> new IdWithNameInfo(null, privilege))
+                .collect(Collectors.toList());
+        return Response.ok(PagedInfoList.fromCompleteList("privileges", privileges, queryParams)).build();
+    }
+
     @POST
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -132,9 +159,7 @@ public class DeviceLifeCycleResource {
         info.id = id;
         DeviceLifeCycle deviceLifeCycle = resourceHelper.lockDeviceLifeCycleOrThrowException(info);
         resourceHelper.checkDeviceLifeCycleUsages(deviceLifeCycle);
-        FiniteStateMachine finiteStateMachine = deviceLifeCycle.getFiniteStateMachine();
         deviceLifeCycle.makeObsolete();
-        finiteStateMachine.makeObsolete();
         return Response.ok(deviceLifeCycleFactory.from(deviceLifeCycle)).build();
     }
 

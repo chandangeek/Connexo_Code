@@ -164,6 +164,35 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
         assertThat(jsonModel.<List<String>>get("$.eventTypes[*].symbol")).containsExactly("#activate", "#deactivate");
     }
 
+    @Test
+    public void testGetDynamicPrivilegesForObsoleteDeviceLifecycle() {
+        DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
+        when(dlc.isObsolete()).thenReturn(true);
+        FiniteStateMachine finiteStateMachine = mock(FiniteStateMachine.class);
+        when(finiteStateMachine.getStates()).thenReturn(Collections.emptyList());
+        when(dlc.getFiniteStateMachine()).thenReturn(finiteStateMachine);
+        when(dlc.getAuthorizedActions()).thenReturn(Collections.emptyList());
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
+
+        String stringResponse = target("/devicelifecycles/1/privileges").request().get(String.class);
+        JsonModel model = JsonModel.create(stringResponse);
+        assertThat(model.<Number>get("$.total")).isEqualTo(0);
+    }
+
+    @Test
+    public void testGetDynamicPrivilegesForDeviceLifecycle() {
+        DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
+        FiniteStateMachine finiteStateMachine = mock(FiniteStateMachine.class);
+        when(finiteStateMachine.getStates()).thenReturn(Collections.emptyList());
+        when(dlc.getFiniteStateMachine()).thenReturn(finiteStateMachine);
+        when(dlc.getAuthorizedActions()).thenReturn(Collections.emptyList());
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
+
+        String stringResponse = target("/devicelifecycles/1/privileges").request().get(String.class);
+        JsonModel model = JsonModel.create(stringResponse);
+        assertThat(model.<Number>get("$.total")).isEqualTo(1);
+    }
+
     private StateTransitionEventType mockEventType(String symbol) {
         StateTransitionEventType stateTransitionEventType = mock(StateTransitionEventType.class);
         when(stateTransitionEventType.getSymbol()).thenReturn(symbol);
