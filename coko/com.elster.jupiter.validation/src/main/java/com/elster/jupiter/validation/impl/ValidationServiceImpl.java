@@ -261,10 +261,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
                             meterValidation.save();
                         }
                 );
-        Optional<? extends MeterActivation> currentMeterActivation = meter.getCurrentMeterActivation();
-        if (currentMeterActivation.isPresent()) {
-            getIMeterActivationValidations(currentMeterActivation.get()).stream().forEach(IMeterActivationValidation::deactivate);
-        }
     }
 
     @Override
