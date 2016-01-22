@@ -71,12 +71,6 @@ Ext.define('CSMonitor.controller.ServerDetails', {
                     if (storageData) {
                         me.getViewPanel().setServerDetails(storageData);
                         me.getMainContainer().setServerName(storageData.get('serverName'));
-                        me.setRemoteServersVisible(
-                            'REMOTE' !== storageData.get('localOrRemote').toUpperCase()
-                        );
-                        if (me.getStatusPanel()) {
-                            me.updateVisibilityOfRemoteServers();
-                        }
                     }
                 } else {
                     console.log("serverDetailsStore.load() was UNsuccessful");

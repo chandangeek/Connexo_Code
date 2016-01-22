@@ -1,4 +1,4 @@
 Ext.define('CSMonitor.model.ServerDetails', {
     extend: 'Ext.data.Model',
-    fields: ['rootName', 'serverName', 'serverId', 'localOrRemote', 'started', 'duration', 'currentDate']
+    fields: ['serverName', 'serverId', 'started', 'duration', 'currentDate']
 });

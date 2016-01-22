@@ -98,9 +98,8 @@ public class JSonConverter {
         OperationalStatistics operationalStatistics= status.getComServerMonitor().getOperationalStatistics();
 
         JSONObject result = new JSONObject();
-        result.put("rootName", "No rootName available in Connexo");
         result.put("serverId", status.getComServerId());
-        result.put("localOrRemote", status.getComServerType().toString());
+      //  result.put("localOrRemote", status.getComServerType().toString());
         result.put("currentDate", format(Instant.now()));
         if (status.isRunning() && operationalStatistics != null) {
             Date startTime = operationalStatistics.getStartTimestamp();
@@ -195,25 +194,37 @@ public class JSonConverter {
     public synchronized JSonConverter convertCommunicationPorts(boolean active) throws JSONException {
         ComServerStatus status = statusService.getStatus();
         List<ScheduledComPortMonitor> scheduledComportMonitors = status.getScheduledComportMonitors();
+        List<InboundComPortMonitor> inboundComportMonitors = status.getInboundComportMonitors();
         ComServer comServer = engineConfigurationService.findComServer(status.getComServerId()).orElse(null);
 
         List<JSONObject> comPorts = new ArrayList<>();
 
         for (ComPort each : comServer.getComPorts()) {
-            Optional<ScheduledComPortMonitor> monitor = scheduledComportMonitors.stream().filter(m -> m.isMonitoring(each)).findFirst();
-            boolean activeProcess = (monitor.isPresent());
-
+            boolean activeProcess;
+            String lastSeen = null;
+            if (each.isInbound()){
+                Optional<InboundComPortMonitor> monitor = inboundComportMonitors.stream().filter(m -> m.isMonitoring(each)).findFirst();
+                activeProcess = (monitor.isPresent());
+            }else {
+                Optional<ScheduledComPortMonitor> monitor = scheduledComportMonitors.stream().filter(m -> m.isMonitoring(each)).findFirst();
+                activeProcess = (monitor.isPresent());
+                if (monitor.isPresent()){
+                    Optional<Date> lastCheckForWork = monitor.get().getOperationalStatistics().getLastCheckForWorkTimestamp();
+                    if (lastCheckForWork.isPresent()) {
+                        lastSeen = format(lastCheckForWork.get().toInstant());
+                    }
+                }
+            }
             if (active == activeProcess) {
                 JSONObject jsonComPort = new JSONObject();
                 jsonComPort.put("id", each.getId());
                 jsonComPort.put("name", each.getName());
                 jsonComPort.put("description", each.getDescription());
                 jsonComPort.put("inbound", each.isInbound());
+                if (lastSeen != null) {
+                    jsonComPort.put("lastSeen", lastSeen);
+                }
                 if (activeProcess){
-                    Optional<Date> lastCheckForWork = monitor.get().getOperationalStatistics().getLastCheckForWorkTimestamp();
-                    if (lastCheckForWork.isPresent()) {
-                        jsonComPort.put("lastSeen", format(lastCheckForWork.get().toInstant()));
-                    }
                     jsonComPort.put("threads", getThreadCount(each));
                 }
                 comPorts.add(jsonComPort);
@@ -342,8 +353,11 @@ public class JSonConverter {
 
     private boolean hasActiveProcess(ComPort comPort){
         ComServerStatus status = statusService.getStatus();
-        List<ScheduledComPortMonitor> scheduledComportMonitors = status.getScheduledComportMonitors();
-        return scheduledComportMonitors.stream().filter(m -> m.isMonitoring(comPort)).findFirst().isPresent();
+        if (comPort.isInbound()){
+            return status.getInboundComportMonitors().stream().filter(m -> m.isMonitoring(comPort)).findFirst().isPresent();
+        }else {
+            return status.getScheduledComportMonitors().stream().filter(m -> m.isMonitoring(comPort)).findFirst().isPresent();
+        }
     }
 
     private int getThreadCount(ComPort comPort){

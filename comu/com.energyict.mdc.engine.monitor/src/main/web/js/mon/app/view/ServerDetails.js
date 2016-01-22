@@ -36,11 +36,6 @@ Ext.define('CSMonitor.view.ServerDetails', {
                     items: [
                         {
                             xtype: 'component',
-                            itemId: 'rootName',
-                            html: 'Root name:'
-                        },
-                        {
-                            xtype: 'component',
                             itemId: 'serverId',
                             html: 'Communication server ID:'
                         },
@@ -53,11 +48,6 @@ Ext.define('CSMonitor.view.ServerDetails', {
                 },
                 {
                     items: [
-                        {
-                            xtype: 'component',
-                            itemId: 'localOrRemote',
-                            html: 'Local/Remote:'
-                        },
                         {
                             xtype: 'component',
                             itemId: 'started',
@@ -82,19 +72,15 @@ Ext.define('CSMonitor.view.ServerDetails', {
             startedText = "Started",
             currentTimeText = "Date of this information",
 
-            rootName = serverDetails.get('rootName'),
             serverId = serverDetails.get('serverId'),
-            localOrRemote = serverDetails.get('localOrRemote'),
             serverName = serverDetails.get('serverName'),
             startedInfo = serverDetails.get('started'),
             duration = serverDetails.get('duration'),
             currentInfo = serverDetails.get('currentDate');
 
-        this.down('#serverDetailsTitle').update('<h1>' + comServerText + ' ' + serverName + ' @ ' + rootName + '</h1>');
-        this.down('#rootName').update('Root name: <b>' + rootName + '</b>');
+        this.down('#serverDetailsTitle').update('<h1>' + comServerText + ' ' + serverName + '</h1>');
         this.down('#serverName').update(comServerNameText + ': <b>' + serverName + '</b>');
         this.down('#serverId').update(comServerIDText + ': <b>' + serverId + '</b>');
-        this.down('#localOrRemote').update(localRemoteText + ': <b>' + localOrRemote + '</b>');
         this.down('#started').update(startedText + ': <b>' + startedInfo + '</b>');
         this.down('#currentTime').update(currentTimeText + ': <b>' +  currentInfo + '</b>');
     },
