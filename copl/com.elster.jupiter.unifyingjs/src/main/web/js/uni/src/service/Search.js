@@ -86,6 +86,7 @@ Ext.define('Uni.service.Search', {
         'TimeOfDay:com.energyict.mdc.dynamic.TimeOfDayFactory':              'uni-search-criteria-timeofday',
         'ObisCode:com.energyict.mdc.dynamic.ObisCodeValueFactory':           'uni-search-criteria-obis'
     },
+
     fieldMap: {
         'Boolean': 'boolean',
         'Long': 'int',
@@ -103,7 +104,7 @@ Ext.define('Uni.service.Search', {
 
     defaultColumns: {
         'com.energyict.mdc.device.data.Device': ['id', 'mRID', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName', 'state.name'],
-        'com.elster.jupiter.metering.UsagePoint' : ['mRID', 'displayServiceCategory', 'displayConnectionState', 'openIssues']
+        'com.elster.jupiter.metering.UsagePoint': ['mRID', 'displayServiceCategory', 'displayConnectionState', 'openIssues']
     },
 
     getDomain: function() {
@@ -180,11 +181,13 @@ Ext.define('Uni.service.Search', {
             }
 
             searchProperties.load(function(){
+                Ext.suspendLayouts();
                 me.fireEvent('reset', me.filters);
                 me.init();
                 searchFields.load(function(){
                     callback ? callback() : null;
                 });
+                Ext.resumeLayouts(true);
             });
         }
     },

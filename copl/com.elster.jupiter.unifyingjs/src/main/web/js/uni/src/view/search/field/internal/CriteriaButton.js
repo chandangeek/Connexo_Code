@@ -80,7 +80,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
         });
 
         me.service.on('criteriaChange', function(criterias, criteria) {
-            if (me.dataIndex == criteria.getId()) {
+            if (me.dataIndex == criteria.getId() && me.rendered) {
                 me.setDisabled(criteria.get('disabled'));
             }
         });
