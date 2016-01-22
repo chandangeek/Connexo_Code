@@ -329,9 +329,12 @@ public class JSonConverter {
 
         Map<ComPortPool, List<ComPort>> mapping = new HashMap<>();
         for (ComPort each : comServer.getComPorts()) {
-            Optional<ComPortPool> pool;
+            Optional<ComPortPool> pool = Optional.empty();
             if (each.isInbound()){
-                pool = Optional.of(((InboundComPort) each).getComPortPool());
+                InboundComPortPool inboundComPortPool = ((InboundComPort) each).getComPortPool();
+                if (inboundComPortPool != null) {
+                    pool = Optional.of(inboundComPortPool);
+                }
             }else{
                 pool = findOutboundComportPool(comPortPools, each);
             }

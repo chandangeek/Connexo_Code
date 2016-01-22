@@ -17,7 +17,7 @@ Ext.define('CSMonitor.view.status.ports.Active', {
                 flex: 1
             },
             {
-                header: '<b>Active ports</b>',
+                header: '<b>Ports in action</b>',
                 dataIndex: 'name',
                 sortable: true,
                 flex: 8,
