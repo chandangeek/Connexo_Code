@@ -1,6 +1,9 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.core.logging.ComChannelLogger;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
@@ -10,13 +13,11 @@ import com.energyict.mdc.engine.impl.events.io.WriteEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.ComChannelType;
+import com.energyict.mdc.io.SerialComChannel;
+import com.energyict.mdc.io.ServerSerialPort;
 import com.energyict.mdc.protocol.api.services.HexService;
-
-import com.elster.jupiter.util.time.StopWatch;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -64,6 +65,14 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
     @Override
     public void setComPort(ComPort comPort) {
         this.comPort = comPort;
+    }
+
+    @Override
+    public ServerSerialPort getSerialPort() {
+        if (ComChannelType.SERIAL_COM_CHANNEL.is(getActualComChannel()) || ComChannelType.OPTICAL_COM_CHANNEL.is(getActualComChannel())) {
+            return ((SerialComChannel) getActualComChannel()).getSerialPort();
+        }
+        return null;
     }
 
     public void setJournalEntryFactory(JournalEntryFactory journalEntryFactory) {

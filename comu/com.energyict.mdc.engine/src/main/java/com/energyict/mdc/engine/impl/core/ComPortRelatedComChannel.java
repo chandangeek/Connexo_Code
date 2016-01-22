@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.SerialComChannel;
 
 import java.time.Duration;
 
@@ -12,7 +13,7 @@ import java.time.Duration;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-06-19 (14:07)
  */
-public interface ComPortRelatedComChannel extends ComChannel {
+public interface ComPortRelatedComChannel extends ComChannel, SerialComChannel {
 
     public ComPort getComPort ();
 
