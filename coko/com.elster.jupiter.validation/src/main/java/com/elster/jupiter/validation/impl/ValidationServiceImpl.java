@@ -376,7 +376,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     public void validate(MeterActivation meterActivation, Map<Channel, Range<Instant>> ranges) {
-        if(isValidationActive(meterActivation)){
             MeterActivationValidationContainer container = updatedMeterActivationValidationsFor(meterActivation);
             container.moveLastCheckedBefore(ranges);
             if (isValidationActiveOnStorage(meterActivation)) {
@@ -384,7 +383,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
             } else {
                 container.update();
             }
-        }
     }
 
     private boolean isValidationActive(MeterActivation meterActivation) {
