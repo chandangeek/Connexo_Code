@@ -28,8 +28,7 @@ public class ConnexoUserInfo implements UserInfo {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Iterator<OrganizationalEntity> getMembersForGroup(Group group) {
-		//List<String> members = new ArrayList<>();
-        List<String> members = manager.getMembersOf(group.getId());
+		List<String> members = manager.getMembersOf(group.getId());
 
 		List<OrganizationalEntity> membersList = new ArrayList<>();
 		for(String member : members) {
@@ -37,11 +36,6 @@ public class ConnexoUserInfo implements UserInfo {
 			((InternalOrganizationalEntity) user).setId(member);
 			membersList.add(user);
 		}
-
-		// TODO - remove this when REST is functional
-		User user = TaskModelProvider.getFactory().newUser();
-		((InternalOrganizationalEntity) user).setId("dragos");
-		membersList.add(user);
 
 		return (Iterator<OrganizationalEntity>) membersList;
 	}

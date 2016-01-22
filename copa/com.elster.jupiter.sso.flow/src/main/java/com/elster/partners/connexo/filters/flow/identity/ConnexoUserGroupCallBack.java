@@ -1,12 +1,8 @@
 package com.elster.partners.connexo.filters.flow.identity;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.List;
-import java.util.Properties;
-
 import org.jboss.solder.core.Veto;
 import org.kie.api.task.UserGroupCallback;
+import java.util.List;
 
 @Veto
 public class ConnexoUserGroupCallBack implements UserGroupCallback {
@@ -29,9 +25,6 @@ public class ConnexoUserGroupCallBack implements UserGroupCallback {
 
 	@Override
 	public List<String> getGroupsForUser(String userId, List<String> groupIds, List<String> allExistingGroupIds) {
-		List<String> roles = manager.getGroupsOf(userId);
-		// TODO - remove this when the AuthorizationManager issue is fixed
-		roles.add("admin");
-		return roles;
+		return manager.getGroupsOf(userId);
 	}
 }
