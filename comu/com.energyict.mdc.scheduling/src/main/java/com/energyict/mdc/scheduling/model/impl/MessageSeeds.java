@@ -8,7 +8,7 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
     SHOULD_BE_AT_LEAST(1, Keys.VALUE_TOO_SMALL, "Minimal acceptable value is {min}, was {value}"),
-    CAN_NOT_BE_EMPTY(2, Keys.CAN_NOT_BE_EMPTY, "This field can not be empty"),
+    CAN_NOT_BE_EMPTY(2, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
     VALUE_NOT_IN_RANGE(3, Keys.VALUE_NOT_IN_RANGE, "{value} not in range {min} to {max}"),
     INVALID_URL(4, Keys.INVALID_URL, "{value} is not a valid URL"),
     INVALID_CHARS(5, Keys.INVALID_CHARS, "This field contains invalid chars, should obey {regex}"),
