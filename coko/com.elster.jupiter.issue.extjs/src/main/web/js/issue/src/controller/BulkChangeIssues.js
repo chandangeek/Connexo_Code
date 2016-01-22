@@ -77,7 +77,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
         me.getApplication().fireEvent('changecontentevent', widget);
         issuesStore.data.clear();
-        issuesStore.clearFilter(true);
+        issuesStore.clearFilter(!!filter.length);
         issuesStore.filter(filter);
         issuesStore.on('load', function () {
             grid.onSelectDefaultGroupType();
