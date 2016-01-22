@@ -17,7 +17,7 @@ public enum MessageSeeds implements MessageSeed {
     FORCE_CLOCK(2, Keys.CLOCK_TASK_TYPE_FORCE_CLOCK, "Force the clock"),
     SYNC_CLOCK(3, Keys.CLOCK_TASK_TYPE_SYNCHRONIZE_CLOCK, "Synchronize the clock"),
     SHOULD_BE_AT_LEAST(4, Keys.VALUE_TOO_SMALL, "Minimal acceptable value is {min}, was {value}"),
-    CAN_NOT_BE_EMPTY(5, Keys.CAN_NOT_BE_EMPTY, "This field can not be empty"),
+    CAN_NOT_BE_EMPTY(5, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
     MIN_ABOVE_MAX(6, Keys.MIN_MUST_BE_BELOW_MAX, "Invalid range: minimum value exceeds maximum value"),
     MIN_EQUALS_MAX(7, Keys.MIN_EQUALS_MAX, "Invalid range: minimum value equals maximum value "),
     TIMEDURATION_IS_NULL(8, Keys.TIMEDURATION_MUST_BE_POSITIVE, "Field must denote non-0 duration"),
