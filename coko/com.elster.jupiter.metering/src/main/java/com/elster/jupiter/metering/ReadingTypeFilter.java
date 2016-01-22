@@ -78,7 +78,7 @@ public class ReadingTypeFilter {
         CPP("cpp",12),
         CONSUMPTION_TIER("consumptionTier",13),
         PHASES("phases",14),
-        MULTIPLIER("multiplier",15),
+        MULTIPLIER("metricMultiplier",15),
         UNIT("unit",16),
         CURRENCY("currency",17);
 
