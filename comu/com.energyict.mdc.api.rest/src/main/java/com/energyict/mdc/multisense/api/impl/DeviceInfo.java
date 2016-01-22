@@ -11,7 +11,6 @@ import java.util.List;
 public class DeviceInfo extends LinkInfo {
     @NotNull
     public String mRID;
-    public Long version;
     public String serialNumber;
     public String name;
 

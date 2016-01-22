@@ -10,8 +10,8 @@ import java.util.List;
  */
 public class FieldSelection {
     /**
-     * Comma separated list of fields that will be added to the response,
-     * if absent, all fields will be added.
+     * @summary Comma separated list of fields that will be added to the response, if absent, all fields will be added.
+     * Get a list of all available field with PROPFIND method on this resource.
      */
     private @QueryParam("fields") String fields;
 

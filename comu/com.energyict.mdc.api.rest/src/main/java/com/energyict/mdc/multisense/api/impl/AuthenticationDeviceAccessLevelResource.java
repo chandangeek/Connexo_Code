@@ -42,6 +42,12 @@ public class AuthenticationDeviceAccessLevelResource {
         this.exceptionFactory = exceptionFactory;
     }
 
+    /**
+     *
+     * @param deviceProtocolPluggableClassId
+     * @param authenticationDeviceAccessLevelId
+     * @return
+     */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{authenticationDeviceAccessLevelId}")

@@ -286,6 +286,74 @@
                                     <baseUrl>http://localhost:8080/public/api/comu/v${api.version}</baseUrl>
                                 </html>
                             </output>
+
+                            <restModel>
+                                <httpStatusCodes>
+                                    <httpStatusCode>
+                                        <httpCode>200</httpCode>
+                                        <document>get,put,propfind</document>
+                                        <defaultMessage>The service call has completed successfully.</defaultMessage>
+                                    </httpStatusCode>
+                                    <httpStatusCode>
+                                        <httpCode>204</httpCode>
+                                        <document>delete</document>
+                                        <defaultMessage>The service call has completed successfully, you shouldn't don't expect and answer</defaultMessage>
+                                    </httpStatusCode>
+                                    <httpStatusCode>
+                                        <httpCode>201</httpCode>
+                                        <document>post</document>
+                                        <defaultMessage>The service call has completed successfully and the requested entity has been created.</defaultMessage>
+                                    </httpStatusCode>
+                                    <httpStatusCode>
+                                        <httpCode>202</httpCode>
+                                        <document>post,put</document>
+                                        <defaultMessage>The service call has been accepted for processing, results may not be visible right away.</defaultMessage>
+                                    </httpStatusCode>
+                                    <httpStatusCode>
+                                        <httpCode>401</httpCode>
+                                        <document>always</document>
+                                        <defaultMessage>The user is logged in, but is not authorized to use this service.</defaultMessage>
+                                    </httpStatusCode>
+                                    <httpStatusCode>
+                                        <httpCode>404</httpCode>
+                                        <document>always</document>
+                                        <defaultMessage>The entity referred to in the URL does not exist.</defaultMessage>
+                                    </httpStatusCode>
+                                    <httpStatusCode>
+                                        <httpCode>409</httpCode>
+                                        <document>put,post,delete</document>
+                                        <defaultMessage>A version conflict was detected while processing the service call.</defaultMessage>
+                                    </httpStatusCode>
+                                    <httpStatusCode>
+                                        <httpCode>400</httpCode>
+                                        <document>put,post</document>
+                                        <document>explicit: com.elster.jupiter.rest.util.ConstraintViolationInfo</document>
+                                        <defaultMessage>Invalid JSON structure, missing parameters or constraint violations</defaultMessage>
+                                    </httpStatusCode>
+                                    <httpStatusCode>
+                                        <httpCode>500</httpCode>
+                                        <document>always</document>
+                                        <defaultMessage>Internal server exception. The service call did not succeed.</defaultMessage>
+                                    </httpStatusCode>
+                                </httpStatusCodes>
+                                <titleNamingStrategies>
+                                    <strategy>tag: summary</strategy>
+                                    <strategy>tag: title</strategy>
+                                    <strategy>firstsentence</strategy>
+                                </titleNamingStrategies>
+                                <typeReplacements>
+                                    <typeReplacement>
+                                        <source>javax.ws.rs.core.Link</source>
+                                        <target>com.energyict.mdc.multisense.api.impl.utils.doc.LinkJson</target>
+                                        <type>alternative</type>
+                                    </typeReplacement>
+                                    <typeReplacement>
+                                        <source>java.time.Instant</source>
+                                        <target>Milliseconds since epoch</target>
+                                        <type>literal</type>
+                                    </typeReplacement>
+                                </typeReplacements>
+                            </restModel>
                         </configuration>
                     </plugin>
                 </plugins>

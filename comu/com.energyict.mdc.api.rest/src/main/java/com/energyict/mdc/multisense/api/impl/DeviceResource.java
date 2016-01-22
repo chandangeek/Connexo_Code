@@ -71,10 +71,7 @@ public class DeviceResource {
      *
      * @summary View device identified by mRID
      *
-     * @statuscode 404 If there is no device with the provided mRID
-     * @statuscode 200 The device was successfully retrieved
      * @param mRID The device's mRID
-     * @param uriInfo added by Jersey framework
      * @return Device information and links to related resources
      */
     @GET @Transactional
@@ -92,9 +89,7 @@ public class DeviceResource {
      *
      * @summary View all devices
      *
-     * @statuscode 200 The devices were successfully retrieved
      * @param queryParameters Paging parameters 'start' and 'limit'
-     * @param fieldSelection comma separated list of fields that will be add to the response. If absent, all fields will be added
      * @param uriInfo added by Jersey framework
      * @return Device information and links to related resources
      */
@@ -112,7 +107,7 @@ public class DeviceResource {
      * Create a new device
      * @param info JSON payload describing the device
      * @param uriInfo added by framework
-     * @responseheader location href to newly created device
+     * @return location href to newly created device
      */
     @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -142,6 +137,12 @@ public class DeviceResource {
         return Response.created(uri).build();
     }
 
+    /**
+     * @summary update a device with the provided values
+     * @param mrid The device's mRID
+     * @param info JSON description of new device field values
+     * @return Device with updated fields or an error if something went wrong
+     */
     @PUT @Transactional
     @Path("/{mrid}")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -176,6 +177,11 @@ public class DeviceResource {
     }
 
 
+    /**
+     * @summary Delete a device identified by mRID
+     * @param mrid The device's unique mRID identifier
+     * @return No content
+     */
     @DELETE @Transactional
     @Path("/{mrid}")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
@@ -183,9 +189,13 @@ public class DeviceResource {
     public Response deleteDevice(@PathParam("mrid") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         device.delete();
-        return Response.ok().build();
+        return Response.noContent().build();
     }
 
+    /**
+     * @summary List the fields available on this entity
+     * @return A list of field names that can be requested as parameter in the GET method on this entity type
+     */
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})

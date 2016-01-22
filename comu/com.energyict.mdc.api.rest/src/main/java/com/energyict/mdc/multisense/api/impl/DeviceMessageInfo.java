@@ -12,7 +12,6 @@ import java.util.List;
  * Created by bvn on 9/24/15.
  */
 public class DeviceMessageInfo extends LinkInfo {
-    public Long id;
     @XmlJavaTypeAdapter(MessageStatusAdapter.class)
     public DeviceMessageStatus status;
     public Instant sentDate;

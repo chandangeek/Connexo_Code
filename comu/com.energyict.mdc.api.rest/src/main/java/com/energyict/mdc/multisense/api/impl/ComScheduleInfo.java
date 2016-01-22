@@ -8,7 +8,6 @@ import java.time.Instant;
 
 public class ComScheduleInfo extends LinkInfo {
 
-    public long id;
     public String name;
     public TemporalExpression temporalExpression;
     @JsonDeserialize(using = NullifyingDeserializer.class)
