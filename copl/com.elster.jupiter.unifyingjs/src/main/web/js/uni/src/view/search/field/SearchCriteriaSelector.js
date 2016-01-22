@@ -82,13 +82,13 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         this.onStoreLoad(this.store);
     },
 
-    onCriteriaAdd: function(filters, filter, property) {
+    onCriteriaAdd: function(filters, property) {
         if (!property.get('sticky')) {
             this.setChecked(property, true, true);
         }
     },
 
-    onCriteriaRemove: function(filters, filter, property) {
+    onCriteriaRemove: function(filters, property) {
         if (!property.get('sticky')) {
             this.setChecked(property, false, true);
         }
@@ -97,19 +97,19 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     /**
      * performs constraint update
      *
-     * @param widget
-     * @param value
+     * @param filters
+     * @param filter
      */
-    onCriteriaChange: function (widget, value) {
+    onCriteriaChange: function (filters, filter) {
         var me = this,
             deps = _.filter(me.menuItems, function (item) {
                 return !!(item.criteria.get('constraints')
                 && item.criteria.get('constraints').length
-                && item.criteria.get('constraints').indexOf(widget.property.get('name')) >= 0);
+                && item.criteria.get('constraints').indexOf(filter.id) >= 0);
             });
 
         deps.map(function (item) {
-            item.setDisabled(!value);
+            item.setDisabled(!filter);
         });
     },
 

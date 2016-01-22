@@ -1,5 +1,5 @@
 Ext.define('Uni.view.search.field.Numeric', {
-    extend: 'Uni.view.search.field.internal.CriteriaButton',
+    extend: 'Uni.view.search.field.internal.Criteria',
     xtype: 'uni-search-criteria-numeric',
 
     text: Uni.I18n.translate('search.field.numeric.text', 'UNI', 'Numeric'),

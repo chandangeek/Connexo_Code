@@ -1,53 +1,40 @@
 Ext.define('Uni.view.search.field.internal.CriteriaButton', {
     extend: 'Ext.button.Button',
-    xtype: 'uni-search-internal-criteria',
+    xtype: 'uni-search-internal-button',
     requires: [
         'Ext.util.Filter'
     ],
     menuConfig: null,
-    value: null,
-
-    getValue: function() {
-        return this.value
-    },
-
-    populateValue: function(value) {
-        this.menu.items.each(function(item, index) {
-            item.setValue(value[index]);
-        });
-    },
-
-    setValue: function(value) {
-        if (value && !Ext.isArray(value)) {
-            value = [value];
-        }
-
-        this.value = value;
-        this.updateButtonText();
-        this.fireEvent('change', this, value);
-    },
-
-    getFilter: function() {
-        var me = this,
-            value = me.getValue();
-
-        return new Ext.util.Filter({
-            property: me.dataIndex,
-            value: value ? value.map(function(v){return v.getData()}) : null,
-            id: me.dataIndex
-        });
-    },
+    items: [],
 
     reset: function() {
         this.value = null;
         this.setText(this.emptyText);
-        this.fireEvent('reset');
     },
 
-    updateButtonText: function () {
-        Ext.isEmpty(this.value)
+    updateButtonText: function (value) {
+        Ext.isEmpty(value)
             ? this.setText(this.emptyText)
-            : this.setText(this.emptyText + '&nbsp;(' + this.value.length + ')');
+            : this.setText(this.emptyText + '&nbsp;(' + value.length + ')');
+    },
+
+    reconfigure: function() {
+        var me = this;
+
+        me.property.refresh(function() {
+            Ext.suspendLayouts();
+            me.menu.removeAll();
+            var widget = me.menu.add(me.service.createWidgetForProperty(me.property));
+            var filter = me.service.filters.get(me.dataIndex);
+
+            // restore value
+            widget.populateValue(filter && filter.value
+                ? filter.value.map(function(rawValue) { return Ext.create('Uni.model.search.Value', rawValue)})
+                : null);
+
+            me.showMenu();
+            Ext.resumeLayouts(true);
+        });
     },
 
     initComponent: function () {
@@ -57,6 +44,8 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
         Ext.apply(me, {
             menu: Ext.apply({
                 plain: true,
+                width: 300,
+                maxHeight: 600,
                 bodyStyle: {
                     background: '#fff'
                 },
@@ -68,11 +57,35 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
             }, me.menuConfig)
         });
 
-        me.addEvents(
-            "change",
-            "reset"
-        );
-
         me.callParent(arguments);
+
+        me.on('click', function(){
+            me.reconfigure();
+        });
+        me.on('menuhide', function(){
+            me.menu.removeAll();
+        });
+
+        me.setDisabled(me.property.get('disabled'));
+
+        me.service.on('change', function(filters, filter) {
+            if (me.dataIndex == filter.id) {
+                if (me.property.get('exhaustive')) {
+                    me.updateButtonText(filter.value ? filter.value[0].criteria : null);
+                } else {
+                    me.updateButtonText(filter.value);
+                }
+
+            }
+        });
+
+        me.service.on('criteriaChange', function(criterias, criteria) {
+            if (me.dataIndex == criteria.getId()) {
+                me.setDisabled(criteria.get('disabled'));
+            }
+        });
+
+
+        // todo: drop listeners on destroy
     }
 });

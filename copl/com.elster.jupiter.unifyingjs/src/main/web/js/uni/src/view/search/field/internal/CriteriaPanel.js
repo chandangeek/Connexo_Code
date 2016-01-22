@@ -44,8 +44,9 @@ Ext.define('Uni.view.search.field.internal.CriteriaPanel', {
         Ext.resumeLayouts(true);
     },
 
-    onCriteriaAdd: function(filters, filter, property) {
-        var me = this;
+    onCriteriaAdd: function(filters, property) {
+        var me = this,
+            button = me.service.createCriteriaButton(property);
 
         if (property.get('sticky') === me.sticky) {
             Ext.suspendLayouts();
@@ -69,9 +70,9 @@ Ext.define('Uni.view.search.field.internal.CriteriaPanel', {
                     })[0];
                 }
 
-                dock.add(filter);
+                dock.add(button);
             } else {
-                me.add(filter);
+                me.add(button);
             }
 
             me.setVisible(me.items.length + me.dockedItems.length);
@@ -79,7 +80,10 @@ Ext.define('Uni.view.search.field.internal.CriteriaPanel', {
         }
     },
 
-    onCriteriaRemove: function(filters, filter, property) {
+    onCriteriaRemove: function(filters, property) {
+        var me = this,
+            filter = me.down('[dataIndex =' + property.getId() + ']');
+
         if (property.get('sticky') === this.sticky) {
             filter.destroy();
 

@@ -1,5 +1,5 @@
 Ext.define('Uni.view.search.field.DateTime', {
-    extend: 'Uni.view.search.field.internal.CriteriaButton',
+    extend: 'Uni.view.search.field.internal.Criteria',
     xtype: 'uni-search-criteria-datetime',
     requires: [
         'Uni.view.search.field.internal.CriteriaLine'

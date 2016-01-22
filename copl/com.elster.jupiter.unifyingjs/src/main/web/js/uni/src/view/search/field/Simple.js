@@ -1,5 +1,5 @@
 Ext.define('Uni.view.search.field.Simple', {
-    extend: 'Uni.view.search.field.internal.CriteriaButton',
+    extend: 'Uni.view.search.field.internal.Criteria',
     xtype: 'uni-search-criteria-simple',
     requires: [
         'Uni.view.search.field.internal.CriteriaLine'
@@ -14,14 +14,14 @@ Ext.define('Uni.view.search.field.Simple', {
         this.setValue(this.down('uni-search-internal-criterialine').getValue());
     },
 
-    onInputReset: function () {
-        this.setText(this.emptyText);
-    },
+    //onInputReset: function () {
+    //    this.setText(this.emptyText);
+    //},
 
     initComponent: function () {
         var me = this;
-        this.init();
 
+        me.init();
         me.callParent(arguments);
     },
 

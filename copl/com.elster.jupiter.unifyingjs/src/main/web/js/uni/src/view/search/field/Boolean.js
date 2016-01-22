@@ -1,5 +1,5 @@
 Ext.define('Uni.view.search.field.Boolean', {
-    extend: 'Uni.view.search.field.internal.CriteriaButton',
+    extend: 'Uni.view.search.field.internal.Criteria',
     xtype: 'uni-search-criteria-boolean',
     text: Uni.I18n.translate('view.search.field.yesno.label', 'UNI', 'Text'),
     minWidth: 70,
