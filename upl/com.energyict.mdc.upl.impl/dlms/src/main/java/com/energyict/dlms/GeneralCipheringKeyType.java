@@ -50,6 +50,15 @@ public enum GeneralCipheringKeyType {
         return null;
     }
 
+    public static GeneralCipheringKeyType fromId(int id) {
+        for (GeneralCipheringKeyType cipheringType : values()) {
+            if (cipheringType.getId() == id) {
+                return cipheringType;
+            }
+        }
+        return null;
+    }
+
     public int getId() {
         return id;
     }

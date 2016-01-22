@@ -18,7 +18,7 @@ public interface GeneralCipheringSecurityProvider extends SecurityProvider {
      * This is similar to the use of the dedicated key.
      * However, the dedicated key is agreed in the AARQ, while the session key can be renewed for every APDU within an AA.
      */
-    byte[] getSessionKey(SecurityContext securityContext);
+    byte[] getSessionKey();
 
     /**
      * Update the cached session key with a new value.

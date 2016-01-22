@@ -79,7 +79,12 @@ public class SecurityContext {
      * Indicates whether the FrameCounter needs to be validated with a +1
      */
     private boolean frameCounterInitialized = false;
-    private boolean generalCipheringKeyIsEstablished = false;
+
+    /**
+     * This state allows us to include the general ciphering key information just once, for the first request.
+     * From then on, the used session key is fixed, so there's no need to include the key information again in the next requests.
+     */
+    private boolean includeGeneralCipheringKeyInformation = true;
 
     public SecurityContext(int dataTransportSecurityLevel,
                            int associationAuthenticationLevel,
@@ -291,20 +296,27 @@ public class SecurityContext {
         }
     }
 
+    private byte[] getEncryptionKey() {
+        return getEncryptionKey(this.generalCipheringKeyType);
+    }
+
     /**
      * The block cipher key used to encrypt/decrypt an APDU.
      * The key to be used depends on the context. (ciphering type, and in case of general ciphering, the {@link GeneralCipheringKeyType}).
+     *
+     * @param generalCipheringKeyType - in case of general ciphering, this indicates the type of encryption key that should be used.
+     *                                If no key type is given, use the one that is configured in EIServer.
      */
-    private byte[] getEncryptionKey() {
+    private byte[] getEncryptionKey(GeneralCipheringKeyType generalCipheringKeyType) {
         if (this.cipheringType == CipheringType.GENERAL_CIPHERING.getType()) {
-            switch (generalCipheringKeyType) {  //TODO use the received keytype here for decryption, it can deviate from the one we used
+            switch (generalCipheringKeyType) {
                 case IDENTIFIED_KEY:
                     return getSecurityProvider().getGlobalKey();
                 case WRAPPED_KEY:
-                    return getGeneralCipheringSecurityProvider().getSessionKey(this);
+                    return getGeneralCipheringSecurityProvider().getSessionKey();
                 case AGREED_KEY:
+                    throw new IllegalStateException("not yet implemented");
                     //TODO implement
-                    return getSecurityProvider().getGlobalKey();
                 default:
                     throw DeviceConfigurationException.missingProperty(GENERAL_CIPHERING_KEY_TYPE);
             }
@@ -351,13 +363,18 @@ public class SecurityContext {
             }
 
             case WRAPPED_KEY: {
-                if (!generalCipheringKeyIsEstablished) {
-                    //Only include the wrapped key information the first request
-                    byte[] sessionKey = getGeneralCipheringSecurityProvider().getSessionKey(this);
+                if (includeGeneralCipheringKeyInformation) {
+                    byte[] sessionKey = getGeneralCipheringSecurityProvider().getSessionKey();
+
+                    //This is a newly generated session key, so reset the frame counters
+                    resetFrameCounters();
+
                     byte[] masterKey = getSecurityProvider().getMasterKey();
                     byte[] wrappedKey = ProtocolTools.aesWrap(sessionKey, masterKey);
 
-                    generalCipheringKeyIsEstablished = true;
+                    //Only include the wrapped key information the first request
+                    includeGeneralCipheringKeyInformation = false;
+
                     return ProtocolTools.concatByteArrays(
                             createGeneralCipheringHeader(true),
                             new byte[]{(byte) generalCipheringKeyType.getId()}, //key-id
@@ -418,44 +435,34 @@ public class SecurityContext {
      * Decrypts a received general-ciphered xDLMS APDU.
      * Structure: transaction-id, client system title, server system title, date-time, other info, key-info, ciphered APDU
      */
-    public byte[] dataTransportGeneralDecryption(byte[] generalCipheringAPDU) throws ConnectionException, DLMSConnectionException, UnsupportedException {
+    public byte[] dataTransportGeneralDecryption(byte[] generalCipheringAPDU) throws ConnectionException, DLMSConnectionException, ProtocolException {
         int ptr = 0;
         ptr = parseGeneralCipheringHeader(generalCipheringAPDU, ptr);
+        GeneralCipheringKeyType serverKeyType = this.generalCipheringKeyType;
 
-        switch (this.generalCipheringKeyType) {
-            case IDENTIFIED_KEY: {
-                boolean keyInfoIsPresent = (generalCipheringAPDU[ptr++] & 0xFF) != 0;    //0x01: key-info field is present. 0x00: key-info field is omitted.
+        boolean keyInfoIsPresent = (generalCipheringAPDU[ptr++] & 0xFF) != 0;    //0x01: key-info field is present. 0x00: key-info field is omitted.
 
-                if (keyInfoIsPresent) {
-                    int serverKeyType = generalCipheringAPDU[ptr++] & 0xFF;
-                    if (serverKeyType != generalCipheringKeyType.getId()) {
-                        //TODO I guess that's OK too?
-                    }
+        if (keyInfoIsPresent) {
 
-                    int identifiedKeyType = generalCipheringAPDU[ptr++] & 0xFF;
+            int keyTypeId = generalCipheringAPDU[ptr++] & 0xFF;
+            serverKeyType = GeneralCipheringKeyType.fromId(keyTypeId);
+            if (serverKeyType == null) {
+                throw new ProtocolException("Received an unsupported key type '" + keyTypeId + "' from the meter. Should be 0 (identified-key), 1 (wrapped-key), or 2 (agreed-key)");
+            }
 
-                    if (identifiedKeyType != GeneralCipheringKeyType.IdentifiedKeyTypes.GLOBAL_UNICAST_ENCRYPTION_KEY.getId()) {
-                        //TODO error, we only support unicast key
+            switch (serverKeyType) {
+                case IDENTIFIED_KEY: {
+                    int keyId = generalCipheringAPDU[ptr++] & 0xFF;
+                    if (keyId != GeneralCipheringKeyType.IdentifiedKeyTypes.GLOBAL_UNICAST_ENCRYPTION_KEY.getId()) {
+                        throw new ProtocolException("The general ciphering implementation only supports the global unicast encryption key (0) as identified key type. Received type '" + keyId + "' from meter is not supported");
                     }
                 }
-            }
-            break;
+                break;
 
-
-            case WRAPPED_KEY: {
-
-                boolean keyInfoIsPresent = (generalCipheringAPDU[ptr++] & 0xFF) != 0;    //0x01: key-info field is present. 0x00: key-info field is omitted.
-
-                if (keyInfoIsPresent) {
-                    int serverKeyType = generalCipheringAPDU[ptr++] & 0xFF;
-                    if (serverKeyType != generalCipheringKeyType.getId()) {
-                        //TODO I guess that's OK too?
-                    }
-
-                    int wrappedKeyType = generalCipheringAPDU[ptr++] & 0xFF;
-
-                    if (wrappedKeyType != GeneralCipheringKeyType.WrappedKeyTypes.MASTER_KEY.getId()) {
-                        //TODO error, we only support master key
+                case WRAPPED_KEY: {
+                    int kekId = generalCipheringAPDU[ptr++] & 0xFF;
+                    if (kekId != GeneralCipheringKeyType.WrappedKeyTypes.MASTER_KEY.getId()) {
+                        throw new ProtocolException("The general ciphering implementation only supports master key (0) as wrap key type. Received type '" + kekId + "' from meter is not supported");
                     }
 
                     int wrappedKeyLength = generalCipheringAPDU[ptr++] & 0xFF;
@@ -464,28 +471,40 @@ public class SecurityContext {
 
                     byte[] sessionKey = ProtocolTools.aesUnwrap(wrappedKey, getSecurityProvider().getMasterKey());
 
-                    if (!Arrays.equals(getGeneralCipheringSecurityProvider().getSessionKey(this), sessionKey)) {
+                    if (!Arrays.equals(getGeneralCipheringSecurityProvider().getSessionKey(), sessionKey)) {
                         getGeneralCipheringSecurityProvider().setSessionKey(sessionKey);
 
-                        getSecurityProvider().setInitialFrameCounter(1);  //New key in use, so start using a new frame counter
-                        setFrameCounter(1);     //TODO response FC also?
+                        //We're using a new session key (the one received from the server) from now on,
+                        //so make sure to specify it once again in the next general ciphering request
+                        includeGeneralCipheringKeyInformation = true;
+
+                        //New key in use, so start using a new frame counter
+                        resetFrameCounters();
                     }
                 }
+                break;
+
+
+                case AGREED_KEY:
+                    throw new IllegalStateException("General ciphering with agreed key is not yet implemented");
+                    //TODO implement
+                default:
+                    throw DeviceConfigurationException.missingProperty(GENERAL_CIPHERING_KEY_TYPE);
             }
-            break;
-
-
-            case AGREED_KEY:
-                throw new IllegalStateException("General ciphering with agreed key is not yet implemented");
-                //TODO implement
-            default:
-                throw DeviceConfigurationException.missingProperty(GENERAL_CIPHERING_KEY_TYPE);
         }
 
         // First byte is reserved for the tag, here we just insert a dummy byte
         // Decryption will start from position 1
         byte[] fullCipherFrame = ProtocolTools.concatByteArrays(new byte[]{(byte) 0x00}, ProtocolTools.getSubArray(generalCipheringAPDU, ptr));
-        return dataTransportDecryption(fullCipherFrame);
+
+        //Decrypt the frame using the key type that we received from the meter, it can be different from the configured key type in EIServer
+        return dataTransportDecryption(fullCipherFrame, serverKeyType);
+    }
+
+    private void resetFrameCounters() {
+        setFrameCounter(1);
+        getSecurityProvider().getRespondingFrameCounterHandler().resetRespondingFrameCounter(0);
+        responseFrameCounter = 0;
     }
 
     private int parseGeneralCipheringHeader(byte[] generalCipheringAPDU, int ptr) throws ConnectionException {
@@ -640,21 +659,26 @@ public class SecurityContext {
         return scByte;
     }
 
+    public byte[] dataTransportDecryption(byte[] cipherFrame) throws UnsupportedException, ConnectionException, DLMSConnectionException {
+        return dataTransportDecryption(cipherFrame, this.generalCipheringKeyType);
+    }
+
     /**
      * Decrypts the ciphered APDU.
      *
-     * @param cipherFrame - the text to decrypt ...
+     * @param cipherFrame             - the text to decrypt ...
+     * @param generalCipheringKeyType - in case of general ciphering, this indicates the type of encryption key that should be used.
+     *                                The server can respond with a different key type, so we should take that into account here
      * @return the plainText
-     * @throws IOException         when Keys could not be fetched
      * @throws ConnectionException when the decryption fails
      */
-    public byte[] dataTransportDecryption(byte[] cipherFrame) throws UnsupportedException, ConnectionException, DLMSConnectionException {
+    public byte[] dataTransportDecryption(byte[] cipherFrame, GeneralCipheringKeyType generalCipheringKeyType) throws UnsupportedException, ConnectionException, DLMSConnectionException {
         switch (this.securityPolicy) {
             case SECURITYPOLICY_NONE: {
                 return cipherFrame;
             }
             case SECURITYPOLICY_AUTHENTICATION: {
-                AesGcm128 ag128 = new AesGcm128(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
+                AesGcm128 ag128 = new AesGcm128(getEncryptionKey(generalCipheringKeyType), DLMS_AUTH_TAG_SIZE);
 
                 byte[] aTag = getAuthenticationTag(cipherFrame);
                 byte[] apdu = getApdu(cipherFrame, true);
@@ -679,7 +703,7 @@ public class SecurityContext {
                 }
             }
             case SECURITYPOLICY_ENCRYPTION: {
-                AesGcm128 ag128 = new AesGcm128(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
+                AesGcm128 ag128 = new AesGcm128(getEncryptionKey(generalCipheringKeyType), DLMS_AUTH_TAG_SIZE);
 
                 byte[] cipheredAPDU = getApdu(cipherFrame, false);
                 ag128.setInitializationVector(new BitVector(getRespondingInitializationVector()));
@@ -692,7 +716,7 @@ public class SecurityContext {
                 }
             }
             case SECURITYPOLICY_BOTH: {
-                AesGcm128 ag128 = new AesGcm128(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
+                AesGcm128 ag128 = new AesGcm128(getEncryptionKey(generalCipheringKeyType), DLMS_AUTH_TAG_SIZE);
 
                 byte[] aTag = getAuthenticationTag(cipherFrame);
                 byte[] cipheredAPDU = getApdu(cipherFrame, true);

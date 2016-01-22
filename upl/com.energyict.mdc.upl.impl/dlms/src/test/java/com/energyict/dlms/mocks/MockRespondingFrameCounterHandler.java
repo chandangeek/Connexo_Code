@@ -45,6 +45,11 @@ public class MockRespondingFrameCounterHandler implements RespondingFrameCounter
         return this.responseFrameCounter;
     }
 
+    @Override
+    public void resetRespondingFrameCounter(int initialValue) {
+        responseFrameCounter = initialValue;
+    }
+
 
     private boolean isFrameCounterInitialized() {
         return frameCounterInitialized;

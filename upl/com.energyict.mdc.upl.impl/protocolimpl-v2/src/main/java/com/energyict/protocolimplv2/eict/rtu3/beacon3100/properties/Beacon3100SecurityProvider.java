@@ -2,10 +2,10 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RespondingFrameCounterHandler;
 
 import java.util.Random;
 
@@ -21,6 +21,7 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
 
     public Beacon3100SecurityProvider(TypedProperties properties, int authenticationDeviceAccessLevel) {
         super(properties, authenticationDeviceAccessLevel);
+        setRespondingFrameCounterHandling(new DSMR40RespondingFrameCounterHandler());
     }
 
     /**
@@ -38,11 +39,10 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
         return this.masterKey;
     }
 
+
     @Override
-    public byte[] getSessionKey(SecurityContext securityContext) {
+    public byte[] getSessionKey() {
         if (sessionKey == null) {
-            setInitialFrameCounter(1);  //New key in use, so start using a new frame counter
-            securityContext.setFrameCounter(1);     //TODO response FC also?
             sessionKey = new byte[16];
             Random rnd = new Random();
             rnd.nextBytes(sessionKey);

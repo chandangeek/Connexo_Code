@@ -3,6 +3,7 @@ package com.energyict.dlms.aso;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
@@ -99,6 +100,8 @@ public class SecurityContextV2EncryptionHandler {
             throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
         } catch (UnsupportedException e) {             //Unsupported security policy
             throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
+        } catch (ProtocolException e) {
+            throw ConnectionCommunicationException.unExpectedProtocolError(e);
         }
     }
 }
