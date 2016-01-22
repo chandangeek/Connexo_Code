@@ -88,7 +88,7 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMul
 
     @Override
     public String toString () {
-        return "serial number " + this.serialNumber;
+        return "device having serial number '" + this.serialNumber + "'";
     }
 
     @Override

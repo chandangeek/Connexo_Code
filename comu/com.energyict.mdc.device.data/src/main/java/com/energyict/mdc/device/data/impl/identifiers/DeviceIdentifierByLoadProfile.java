@@ -65,4 +65,9 @@ public class DeviceIdentifierByLoadProfile implements DeviceIdentifier<Device> {
     public int hashCode() {
         return loadProfileIdentifier.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return "device having load profile identified by '" + this.loadProfileIdentifier + "'";
+    }
 }
