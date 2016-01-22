@@ -14,7 +14,7 @@ import java.util.logging.Level;
  */
 public enum MessageSeeds implements MessageSeed, TranslationKey {
 
-    CAN_NOT_BE_EMPTY(1, Keys.CAN_NOT_BE_EMPTY, "This field can not be empty"),
+    CAN_NOT_BE_EMPTY(1, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
     FIELD_TOO_LONG(2, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters"),
     EDIT_HISTORICAL_VALUES_NOT_SUPPORTED(3, Keys.EDIT_HISTORICAL_VALUES_NOT_SUPPORTED, "Editing of historical values is currently not supported"),
     CAN_NOT_BE_NULL(4, Keys.CAN_NOT_BE__NULL, "This field can not be null"),
