@@ -84,7 +84,7 @@ Ext.define('Bpm.controller.TaskBulk', {
             value: Array.isArray(dueDate) ? dueDate :[dueDate]
         }));
         taskStatus && (taskStatus != '') && (queryParams.status = tasksRoute.params.status = taskStatus) && (params.push({
-            property: 'taskStatus',
+            property: 'status',
             value: Array.isArray(taskStatus) ? taskStatus : [taskStatus]
         }));
         process && (process != '') && (queryParams.process = tasksRoute.params.process = process) && (params.push({
