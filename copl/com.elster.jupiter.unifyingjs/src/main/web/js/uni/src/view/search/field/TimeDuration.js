@@ -1,7 +1,7 @@
 Ext.define('Uni.view.search.field.TimeDuration', {
     extend: 'Uni.view.search.field.Numeric',
     xtype: 'uni-search-criteria-timeduration',
-
+    minWidth: 400,
     itemsDefaultConfig: {
         minValue: 0,
         autoStripChars: true,
@@ -12,6 +12,7 @@ Ext.define('Uni.view.search.field.TimeDuration', {
         var me = this,
             value = this.superclass.getValue.apply(me);
 
+        debugger;
         return value ? value.map(function (v) {
             var criteria = v.get('criteria');
             v.set('criteria', _.map(Ext.isArray(criteria) ? criteria : [criteria], function (item) {
@@ -22,7 +23,7 @@ Ext.define('Uni.view.search.field.TimeDuration', {
     },
 
     getUnitField: function () {
-        return this.menu.down('combobox[valueField=code]');
+        return this.down('combobox[valueField=code]');
     },
 
     reset: function () {
@@ -35,10 +36,7 @@ Ext.define('Uni.view.search.field.TimeDuration', {
     initComponent: function () {
         var me = this;
 
-        me.menuConfig = {
-            width: 400
-        };
-
+        debugger;
         Ext.suspendLayouts();
         me.callParent(arguments);
 

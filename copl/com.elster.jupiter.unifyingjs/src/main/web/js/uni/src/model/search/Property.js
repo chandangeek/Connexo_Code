@@ -86,5 +86,6 @@ Ext.define('Uni.model.search.Property', {
 
             callback ? callback() : null;
         });
+        // todo: add cache
     }
 });

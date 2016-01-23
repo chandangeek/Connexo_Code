@@ -4,17 +4,38 @@ Ext.define('Uni.view.search.field.internal.Criteria', {
     requires: [
         'Ext.util.Filter'
     ],
-    menuConfig: null,
-    value: null,
+    minWidth: 300,
     items: [],
 
-    getValue: function() {
-        return this.value
+    reset: function () {
+        this.items.filterBy(function (item) {
+            return Ext.isFunction(item.reset);
+        }).each(function (item) {
+            item.reset();
+        });
+
+        this.fireEvent('reset', this);
     },
 
-    populateValue: function(value) {
+    getValue: function () {
+        var value = [];
+
+        this.items.filterBy(function (item) {
+            return Ext.isFunction(item.getValue);
+        }).each(function (item) {
+            if (!Ext.isEmpty(item.getValue())) {
+                value.push(item.getValue());
+            }
+        });
+
+        return Ext.isEmpty(value) ? null : value;
+    },
+
+    setValue: function(value) {
         if (value) {
-            this.items.each(function(item, index) {
+            this.items.filterBy(function (item) {
+                return Ext.isFunction(item.setValue);
+            }).each(function (item, index) {
                 item.setValue(value[index]);
             });
         } else {
@@ -22,37 +43,20 @@ Ext.define('Uni.view.search.field.internal.Criteria', {
         }
     },
 
-    setValue: function(value) {
-        if (value && !Ext.isArray(value)) {
-            value = [value];
-        }
-
-        this.value = value;
-        this.fireEvent('change', this, value);
-    },
-
-    getFilter: function() {
-        var me = this,
-            value = me.getValue();
-
-        return new Ext.util.Filter({
-            property: me.dataIndex,
-            value: value ? value.map(function(v){return v.getData()}) : null,
-            id: me.dataIndex
-        });
-    },
-
-    reset: function() {
-        this.value = null;
-        this.fireEvent('reset');
+    onValueChange: function() {
+        //if (value && !Ext.isArray(value)) {
+        //    value = [value];
+        //}
+        //
+        //this.value = value;
+        this.fireEvent('change', this, this.getValue());
     },
 
     initComponent: function () {
         var me = this;
 
         me.addEvents(
-            "change",
-            "reset"
+            "change"
         );
 
         me.callParent(arguments);

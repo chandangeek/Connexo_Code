@@ -5,17 +5,14 @@ Ext.define('Uni.view.search.field.Simple', {
         'Uni.view.search.field.internal.CriteriaLine'
     ],
 
-    reset: function() {
-        this.down('uni-search-internal-criterialine').reset();
-        this.callParent(arguments);
-    },
+    //reset: function() {
+    //    debugger;
+    //    this.down('uni-search-internal-criterialine').reset();
+    //    this.callParent(arguments);
+    //},
 
-    onInputChange: function() {
-        this.setValue(this.down('uni-search-internal-criterialine').getValue());
-    },
-
-    //onInputReset: function () {
-    //    this.setText(this.emptyText);
+    //onInputChange: function() {
+    //    this.setValue(this.down('uni-search-internal-criterialine').getValue());
     //},
 
     initComponent: function () {
@@ -39,11 +36,7 @@ Ext.define('Uni.view.search.field.Simple', {
             },
             listeners: {
                 change: {
-                    fn: me.onInputChange,
-                    scope: me
-                },
-                reset: {
-                    fn: me.onInputReset,
+                    fn: me.onValueChange,
                     scope: me
                 }
             }

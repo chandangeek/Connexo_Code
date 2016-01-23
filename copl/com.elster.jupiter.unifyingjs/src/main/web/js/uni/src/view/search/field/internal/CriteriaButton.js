@@ -8,13 +8,12 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
     items: [],
 
     reset: function() {
-        this.value = null;
         this.setText(this.emptyText);
     },
 
     updateButtonText: function (value) {
         Ext.isEmpty(value)
-            ? this.setText(this.emptyText)
+            ? this.reset()
             : this.setText(this.emptyText + '&nbsp;(' + value.length + ')');
     },
 
@@ -26,9 +25,10 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
             me.menu.removeAll();
             var widget = me.menu.add(me.service.createWidgetForProperty(me.property));
             var filter = me.service.filters.get(me.dataIndex);
+            me.menu.setWidth(widget.minWidth);
 
             // restore value
-            widget.populateValue(filter && filter.value
+            widget.setValue(filter && filter.value
                 ? filter.value.map(function(rawValue) { return Ext.create('Uni.model.search.Value', rawValue)})
                 : null);
 
@@ -44,13 +44,14 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
         Ext.apply(me, {
             menu: Ext.apply({
                 plain: true,
-                width: 300,
+                //width: 70,
                 maxHeight: 600,
                 bodyStyle: {
                     background: '#fff'
                 },
                 padding: 0,
-                minWidth: 273,
+                //minWidth: 273,
+                minWidth: 70,
                 items: me.items,
                 onMouseOver: Ext.emptyFn,
                 enableKeyNav: false
@@ -71,7 +72,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
         me.service.on('change', function(filters, filter) {
             if (me.dataIndex == filter.id) {
                 if (me.property.get('exhaustive')) {
-                    me.updateButtonText(filter.value ? filter.value[0].criteria : null);
+                    me.updateButtonText(filter.value && filter.value[0] ? filter.value[0].criteria : null);
                 } else {
                     me.updateButtonText(filter.value);
                 }

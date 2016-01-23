@@ -54,8 +54,9 @@ Ext.define('Uni.view.search.field.Selection', {
 
     xtype: 'uni-search-criteria-selection',
     store: null,
+    minWidth: 300,
 
-    populateValue: function (value) {
+    setValue: function (value) {
         var me = this,
             store = me.getStore(),
             selection = me.selection;
@@ -74,19 +75,25 @@ Ext.define('Uni.view.search.field.Selection', {
         }
     },
 
-    onChange: function () {
-        var me = this, value,
-            filterSelected = me.down('#filter-selected');
+    getValue: function () {
+        var me = this, value;
 
         me.selection.sort();
         value = me.selection.getRange().map(function (item) {
             return item.get(me.valueField)
         });
 
-        me.setValue(value.length ? Ext.create('Uni.model.search.Value', {
+        return value.length ? [Ext.create('Uni.model.search.Value', {
             operator: this.down('#filter-operator').getValue(),
             criteria: value
-        }) : null);
+        })] : null
+    },
+
+    onChange: function () {
+        var me = this,
+            filterSelected = me.down('#filter-selected');
+
+        me.onValueChange();
 
         if (me.grid.rendered) {
             if (filterSelected.getValue()) {

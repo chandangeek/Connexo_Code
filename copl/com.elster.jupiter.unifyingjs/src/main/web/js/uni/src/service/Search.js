@@ -276,11 +276,15 @@ Ext.define('Uni.service.Search', {
      */
     removeProperty: function (property) {
         var me = this,
-            removed;
+            removed = me.criteria.remove(property),
+            filter =  me.filters.removeAtKey(property.getId());
 
-        removed = me.criteria.remove(property);
         if (removed) {
             me.fireEvent('remove', me.criteria, property);
+        }
+        if (filter) {
+            filter.value = null;
+            me.fireEvent('change', me.filters, filter);
         }
     },
 
@@ -409,8 +413,12 @@ Ext.define('Uni.service.Search', {
                 property: property,
                 listeners: {
                     change: {
-                        fn: function(widget) {
-                            me.setFilter(widget.getFilter());
+                        fn: function(widget, value) {
+                            me.setFilter(new Ext.util.Filter({
+                                property: widget.dataIndex,
+                                value: value ? value.map(function(v){return v.getData()}) : null,
+                                id: widget.dataIndex
+                            }));
                         },
                         scope: me
                     }
@@ -488,7 +496,6 @@ Ext.define('Uni.service.Search', {
         me.filters.removeAll();
         me.filters.add(filters);
 
-        debugger;
         filters.map(function(filter) {
             me.onFilterChange(filter);
         });
