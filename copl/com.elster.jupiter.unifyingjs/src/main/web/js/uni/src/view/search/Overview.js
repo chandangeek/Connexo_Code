@@ -83,15 +83,6 @@ Ext.define('Uni.view.search.Overview', {
                                         itemId: 'search-object-selector',
                                         xtype: 'search-object-selector',
                                         service: me.getService()
-                                    },
-                                    '->',
-                                    {
-                                        disabled: true,
-                                        itemId: 'search-criteria-selector',
-                                        xtype: 'search-criteria-selector',
-                                        margin: 0,
-                                        searchContainer: me,
-                                        service: me.getService()
                                     }
                                 ]
                             },
@@ -109,6 +100,14 @@ Ext.define('Uni.view.search.Overview', {
                                     text: Uni.I18n.translate('search.overview.criteria.label', 'UNI', 'Criteria'),
                                     width: 100
                                 },
+                                rbar: [{
+                                    disabled: true,
+                                    itemId: 'search-criteria-selector',
+                                    xtype: 'search-criteria-selector',
+                                    margin: 0,
+                                    searchContainer: me,
+                                    service: me.getService()
+                                }],
                                 margin: '10 0 0 0',
                                 service: me.getService(),
                                 sticky: true
