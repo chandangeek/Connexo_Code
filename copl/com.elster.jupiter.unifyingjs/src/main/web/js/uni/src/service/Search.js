@@ -165,6 +165,7 @@ Ext.define('Uni.service.Search', {
             me.searchDomain = domain;
 
             me.filters.removeAll();
+            me.criteria.removeAll();
 
             searchProperties.removeAll();
             searchFields.removeAll();
@@ -264,6 +265,7 @@ Ext.define('Uni.service.Search', {
 
         me.criteria.add(property);
         me.fireEvent('add', me.criteria, property);
+        return property;
     },
 
     /**
@@ -322,35 +324,25 @@ Ext.define('Uni.service.Search', {
     applyState: function (state, callback) {
         var me = this,
             propertiesStore = me.getSearchPropertiesStore(),
-            resultsStore = me.getSearchResultsStore();
+            resultsStore = me.getSearchResultsStore(),
+            filters = _.map(state.filters, function (f) {
+                return new Ext.util.Filter({
+                    property: f.property,
+                    value: f.value,
+                    id: f.property
+                });
+            });
 
         me.isStateLoad = true;
         resultsStore.clearFilter(true);
         propertiesStore.clearFilter(true);
-        resultsStore.addFilter(state.filters, false);
-        propertiesStore.addFilter(state.filters, false);
+        resultsStore.addFilter(filters, false);
+        propertiesStore.addFilter(filters, false);
 
+        Ext.suspendLayouts();
         me.setDomain(state.domain, function() {
-            if (state.filters && state.filters.length) {
-                Ext.suspendLayouts();
-
-                state.filters.map(function(item) {
-                    var property = propertiesStore.getById(item.property);
-                    if (property && property.get('visibility') === 'removable') {
-                        me.addProperty(property);
-                    }
-                    var filter = me.filters.getByKey(item.property);
-                    if (filter && item.value) {
-                        var value = Ext.isArray(item.value) ? item.value : [item.value];
-                        if (filter.store) {
-                            filter.store.clearFilter(true);
-                            filter.store.addFilter(state.filters, false);
-                        }
-                        filter.populateValue(value.map(function(rawValue) { return Ext.create('Uni.model.search.Value', rawValue)}));
-                    }
-                });
-
-                Ext.resumeLayouts(true);
+            if (filters && filters.length) {
+                me.setFilters(filters);
                 resultsStore.load();
             } else {
                 resultsStore.removeAll();
@@ -360,6 +352,7 @@ Ext.define('Uni.service.Search', {
             me.isStateLoad = false;
             callback ? callback() : null;
         });
+        Ext.resumeLayouts(true);
     },
 
     createColumnDefinitionFromModel: function (field) {
@@ -488,21 +481,42 @@ Ext.define('Uni.service.Search', {
         });
     },
 
-    setFilter: function (filter) {
-        var me = this,
-            property = me.criteria.get(filter.id),
-            deps = me.getDependentProperties(property);
+    setFilters: function(filters) {
+        var me = this;
+        Ext.suspendLayouts();
 
-        if (!property) {
-            debugger;
-        }
+        me.filters.removeAll();
+        me.filters.add(filters);
+
+        debugger;
+        filters.map(function(filter) {
+            me.onFilterChange(filter);
+        });
+
+        me.saveState();
+        Ext.resumeLayouts(true);
+    },
+
+    setFilter: function (filter) {
+        var me = this;
+
+        Ext.suspendLayouts();
+        me.filters.add(filter);
+        me.onFilterChange(filter);
+        me.saveState();
+        Ext.resumeLayouts(true);
+    },
+
+    onFilterChange: function(filter) {
+        var me = this,
+            propertiesStore = me.getSearchPropertiesStore(),
+            property = me.criteria.get(filter.id) || me.addProperty(propertiesStore.getById(filter.id)),
+            deps = me.getDependentProperties(property);
 
         if (property.get('affectsAvailableDomainProperties')
             && !me.isStateLoad) {
-            me.storeReload(me.getSearchPropertiesStore());
+            me.storeReload(propertiesStore);
         }
-
-        me.filters.add(filter);
 
         if (deps.length) {
             deps.each(function(criteria) {
@@ -517,7 +531,6 @@ Ext.define('Uni.service.Search', {
                     criteria.endEdit(true);
                 }
 
-                //criteria.getProxy().extraParams = criteria.getProxy().getParams({filters: me.getFilters()});
                 criteria.values().addFilter(me.getFilters(), false);
                 criteria.refresh(function () {
                     var f = me.filters.get(criteria.getId());
@@ -528,7 +541,7 @@ Ext.define('Uni.service.Search', {
                                 criteria: _.intersection(v.criteria, _.map(criteria.values().data.keys, function(v){return v.toString()}))
                             })
                         });
-                        me.fireEvent('change', me.filter, f);
+                        me.fireEvent('change', me.filters, f);
                     }
                 });
 
@@ -536,7 +549,6 @@ Ext.define('Uni.service.Search', {
             });
         }
 
-        me.saveState();
         me.fireEvent('change', me.filters, filter);
     },
 
