@@ -17,7 +17,7 @@ Ext.define('Uni.property.view.property.Period', {
                 readOnly: me.isReadOnly,
                 allowBlank: me.allowBlank,
                 blankText: me.blankText,
-                minValue: 1
+                minValue: 0
             },
             {
                 xtype: 'combobox',
