@@ -67,7 +67,7 @@ public final class ReadingTypeMockBuilder {
         when(readingTypeMockBuilder.mock.getCpp()).thenReturn(Integer.valueOf(arguments[CPP_INDEX]));
         when(readingTypeMockBuilder.mock.getConsumptionTier()).thenReturn(Integer.valueOf(arguments[CONSUMPTION_TIER_INDEX]));
         when(readingTypeMockBuilder.mock.getPhases()).thenReturn(Phase.get(Integer.valueOf(arguments[PHASE_INDEX])));
-        when(readingTypeMockBuilder.mock.getMultiplier()).thenReturn(MetricMultiplier.get(Integer.valueOf(arguments[SCALER_INDEX])));
+        when(readingTypeMockBuilder.mock.getMultiplier()).thenReturn(MetricMultiplier.with(Integer.valueOf(arguments[SCALER_INDEX])));
         when(readingTypeMockBuilder.mock.getUnit()).thenReturn(ReadingTypeUnit.get(Integer.valueOf(arguments[READING_TYPE_UNIT_INDEX])));
         Currency.getAvailableCurrencies().stream().filter(each -> each.getNumericCode() == Integer.valueOf(arguments[CURRENCY_INDEX])).forEach(each -> when(readingTypeMockBuilder.mock.getCurrency()).thenReturn(each));
         when(readingTypeMockBuilder.mock.getMRID()).thenReturn(mrid);
