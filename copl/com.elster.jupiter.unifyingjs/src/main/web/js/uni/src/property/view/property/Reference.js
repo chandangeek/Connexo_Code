@@ -41,9 +41,11 @@ Ext.define('Uni.property.view.property.Reference', {
                 var result;
 
                 if (value) {
-                    result = Ext.Array.findBy(me.getProperty().getPossibleValues(), function (item) {
-                        return value == item.id;
-                    });
+                    if(me.getProperty().getPossibleValues()) {
+                        result = Ext.Array.findBy(me.getProperty().getPossibleValues(), function (item) {
+                            return value == item.id;
+                        });
+                    }
                     result = Ext.isObject(result) ? result.name : value;
                 }
 
