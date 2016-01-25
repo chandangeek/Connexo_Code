@@ -16,7 +16,7 @@ public enum ReadingTypeFields {
     CPP(13, "criticalPeakPeriod"),
     CONSUMPTION_TIER(14, "consumptionTier"),
     PHASES(15, "phases"),
-    MULTIPLIER(16, "multiplier"),
+    MULTIPLIER(16, "metricMultiplier"),
     UNIT(17, "unit"),
     CURRENCY(18, "currency");
 
