@@ -11,8 +11,8 @@ import javax.servlet.http.HttpServletRequestWrapper;
 @Veto
 public class ConnexoFlowRequestWrapper extends HttpServletRequestWrapper {
 
-    Subject subject;
-    HttpServletRequest realRequest;
+    private final Subject subject;
+    private final HttpServletRequest realRequest;
 
     public ConnexoFlowRequestWrapper(Subject subject, HttpServletRequest request) {
         super(request);
