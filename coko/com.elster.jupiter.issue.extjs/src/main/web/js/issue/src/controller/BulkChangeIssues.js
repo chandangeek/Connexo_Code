@@ -46,7 +46,6 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             issuesStoreProxy = issuesStore.getProxy(),
             queryStringValues = Uni.util.QueryString.getQueryStringValues(false),
             filter = [],
-            grouping,
             widget, grid;
 
         me.bundlePrefix = bundlePrefix;
@@ -56,8 +55,10 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             delete queryStringValues.sort;
         }
         if (Ext.isDefined(queryStringValues.groupingType) && Ext.isDefined(queryStringValues.groupingValue) && Ext.isEmpty(queryStringValues[queryStringValues.groupingType])) {
-            grouping[queryStringValues.groupingType] = queryStringValues.groupingValue;
-            filter.push(grouping);
+            filter.push({
+                property: queryStringValues.groupingType,
+                value: queryStringValues.groupingValue
+            });
         }
         delete queryStringValues.groupingType;
         delete queryStringValues.groupingValue;
