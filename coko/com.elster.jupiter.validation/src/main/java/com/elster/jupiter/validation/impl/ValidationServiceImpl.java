@@ -411,11 +411,13 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
                 .map(r -> Pair.of(r, getForRuleSet(existingMeterActivationValidations, r)))
                 .map(p -> p.getLast().orElseGet(() -> applyRuleSet(p.getFirst(), meterActivation)))
                 .collect(Collectors.toList());
-
+        returnList.stream().forEach(m-> m.getChannels().stream().filter(c -> !m.getRuleSet()
+                .getRules(c.getReadingTypes()).isEmpty())
+                .filter(c -> !m.getChannelValidation(c).isPresent())
+                .forEach(c -> m.addChannelValidation(c)));
         existingMeterActivationValidations.stream()
                 .filter(m -> !ruleSets.contains(m.getRuleSet()))
                 .forEach(IMeterActivationValidation::makeObsolete);
-
         return returnList;
     }
 
