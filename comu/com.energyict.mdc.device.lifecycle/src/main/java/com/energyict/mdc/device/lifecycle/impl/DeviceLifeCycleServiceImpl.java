@@ -313,7 +313,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     private void effectiveTimestampAfterLastStateChange(Instant effectiveTimestamp, Device device, Optional<Instant> lastStateChangeTimestamp) {
         if (lastStateChangeTimestamp.isPresent() && !effectiveTimestamp.isAfter(lastStateChangeTimestamp.get())) {
             throw new EffectiveTimestampNotAfterLastStateChangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE,
-                    device, effectiveTimestamp,  lastStateChangeTimestamp.get(), getLongDateFormatForCurrentUser());
+                    device, effectiveTimestamp, lastStateChangeTimestamp.get(), getLongDateFormatForCurrentUser());
         }
     }
 
