@@ -53,7 +53,7 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
         },
         {
             type: 'combobox',
-            dataIndex: 'tou',
+            dataIndex: 'timeOfUse',
             emptyText: Uni.I18n.translate('readingTypes.attribute.ToU', 'MTR', 'Time of use'),
             displayField: 'displayName',
             valueField: 'code',
@@ -159,7 +159,7 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
             name: 'criticalPeakPeriod',
             filterConfig: {
                 type: 'closablecombobox',
-                dataIndex: 'cpp',
+                dataIndex: 'criticalPeakPeriod',
                 emptyText: Uni.I18n.translate('readingTypes.attribute.criticalPeakPeriod', 'MTR', 'Critical peak period'),
                 displayField: 'displayName',
                 valueField: 'code',

@@ -4,10 +4,10 @@ Ext.define('Mtr.readingtypes.attributes.store.Multiplier',{
     fields: ['code', 'displayName'],
     proxy: {
         type: 'rest',
-        url: '/api/mtr/readingtypes/codes/multiplier',
+        url: '/api/mtr/readingtypes/codes/metricMultiplier',
         reader: {
             type: 'json',
-            root: 'multiplierCodes'
+            root: 'metricMultiplierCodes'
         },
         limitParam: false
     }
