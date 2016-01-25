@@ -1,7 +1,17 @@
 package com.elster.jupiter.metering;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.cbo.*;
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.RationalNumber;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.util.conditions.Condition;
 
 import java.util.Currency;
@@ -12,7 +22,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @ProviderType
 public class ReadingTypeMridFilter {
     private static String regexDot = "\\.";
-    private static String wildCard = "[0-9]+";
+    private static String positiveIntegerWildCard = "[0-9]+";
+    private static String anyIntegerWildCard = "-?[0-9]+";
 
     private MacroPeriod macroPeriod = null;
     private Aggregate aggregate = null;
@@ -35,50 +46,50 @@ public class ReadingTypeMridFilter {
         MACRO_PERIOD() {
             @Override
             String getFilterCriteria(ReadingTypeMridFilter readingTypeMridFilter) {
-                return (readingTypeMridFilter.macroPeriod == null ? wildCard : String.valueOf(readingTypeMridFilter.macroPeriod.getId())) + regexDot;
+                return (readingTypeMridFilter.macroPeriod == null ? positiveIntegerWildCard : String.valueOf(readingTypeMridFilter.macroPeriod.getId())) + regexDot;
             }
         },
         AGGREGATE() {
             @Override
             String getFilterCriteria(ReadingTypeMridFilter readingTypeMridFilter) {
-                return (readingTypeMridFilter.aggregate == null ? wildCard : String.valueOf(readingTypeMridFilter.aggregate.getId())) + regexDot;
+                return (readingTypeMridFilter.aggregate == null ? positiveIntegerWildCard : String.valueOf(readingTypeMridFilter.aggregate.getId())) + regexDot;
             }
         },
         MEASUREINGPERIOD() {
             @Override
             String getFilterCriteria(ReadingTypeMridFilter readingTypeMridFilter) {
-                return (readingTypeMridFilter.measuringPeriod == null ? wildCard : String.valueOf(readingTypeMridFilter.measuringPeriod.getId())) + regexDot;
+                return (readingTypeMridFilter.measuringPeriod == null ? positiveIntegerWildCard : String.valueOf(readingTypeMridFilter.measuringPeriod.getId())) + regexDot;
             }
         },
         ACCUMULATION() {
             @Override
             String getFilterCriteria(ReadingTypeMridFilter readingTypeMridFilter) {
-                return (readingTypeMridFilter.accumulation == null ? wildCard : String.valueOf(readingTypeMridFilter.accumulation.getId())) + regexDot;
+                return (readingTypeMridFilter.accumulation == null ? positiveIntegerWildCard : String.valueOf(readingTypeMridFilter.accumulation.getId())) + regexDot;
             }
         },
         FLOWDIRECTION() {
             @Override
             String getFilterCriteria(ReadingTypeMridFilter readingTypeMridFilter) {
-                return (readingTypeMridFilter.flowDirection == null ? wildCard : String.valueOf(readingTypeMridFilter.flowDirection.getId())) + regexDot;
+                return (readingTypeMridFilter.flowDirection == null ? positiveIntegerWildCard : String.valueOf(readingTypeMridFilter.flowDirection.getId())) + regexDot;
             }
         },
         COMMODITY() {
             @Override
             String getFilterCriteria(ReadingTypeMridFilter readingTypeMridFilter) {
-                return (readingTypeMridFilter.commodity == null ? wildCard : String.valueOf(readingTypeMridFilter.commodity.getId())) + regexDot;
+                return (readingTypeMridFilter.commodity == null ? positiveIntegerWildCard : String.valueOf(readingTypeMridFilter.commodity.getId())) + regexDot;
             }
         },
         MEASUREMENTKIND() {
             @Override
             String getFilterCriteria(ReadingTypeMridFilter readingTypeMridFilter) {
-                return (readingTypeMridFilter.measurementKind == null ? wildCard : String.valueOf(readingTypeMridFilter.measurementKind.getId())) + regexDot;
+                return (readingTypeMridFilter.measurementKind == null ? positiveIntegerWildCard : String.valueOf(readingTypeMridFilter.measurementKind.getId())) + regexDot;
             }
         },
         INTERHARMONICS() {
             @Override
             String getFilterCriteria(ReadingTypeMridFilter readingTypeMridFilter) {
                 if (readingTypeMridFilter.interharmonic == null) {
-                    return wildCard + regexDot + wildCard + regexDot;
+                    return positiveIntegerWildCard + regexDot + positiveIntegerWildCard + regexDot;
                 } else {
                     return readingTypeMridFilter.interharmonic.getNumerator() + regexDot + readingTypeMridFilter.interharmonic.getDenominator() + regexDot;
                 }
@@ -88,7 +99,7 @@ public class ReadingTypeMridFilter {
             @Override
             String getFilterCriteria(ReadingTypeMridFilter readingTypeMridFilter) {
                 if (readingTypeMridFilter.argument == null) {
-                    return wildCard + regexDot + wildCard + regexDot;
+                    return positiveIntegerWildCard + regexDot + positiveIntegerWildCard + regexDot;
                 } else {
                     return readingTypeMridFilter.argument.getNumerator() + regexDot + readingTypeMridFilter.argument.getDenominator() + regexDot;
                 }
@@ -97,44 +108,44 @@ public class ReadingTypeMridFilter {
         TOU() {
             @Override
             String getFilterCriteria(ReadingTypeMridFilter readingTypeMridFilter) {
-                return (readingTypeMridFilter.tou < 0 ? wildCard : String.valueOf(readingTypeMridFilter.tou)) + regexDot;
+                return (readingTypeMridFilter.tou < 0 ? positiveIntegerWildCard : String.valueOf(readingTypeMridFilter.tou)) + regexDot;
             }
         },
         CPP() {
             @Override
             String getFilterCriteria(ReadingTypeMridFilter readingTypeMridFilter) {
-                return (readingTypeMridFilter.cpp < 0 ? wildCard : String.valueOf(readingTypeMridFilter.cpp)) + regexDot;
+                return (readingTypeMridFilter.cpp < 0 ? positiveIntegerWildCard : String.valueOf(readingTypeMridFilter.cpp)) + regexDot;
             }
         },
         CONSUMPTIONTIER() {
             @Override
             String getFilterCriteria(ReadingTypeMridFilter readingTypeMridFilter) {
-                return (readingTypeMridFilter.consumptionTier < 0 ? wildCard : String.valueOf(readingTypeMridFilter.consumptionTier)) + regexDot;
+                return (readingTypeMridFilter.consumptionTier < 0 ? positiveIntegerWildCard : String.valueOf(readingTypeMridFilter.consumptionTier)) + regexDot;
             }
         },
         PHASE() {
             @Override
             String getFilterCriteria(ReadingTypeMridFilter readingTypeMridFilter) {
-                return (readingTypeMridFilter.phases == null ? wildCard : String.valueOf(readingTypeMridFilter.phases.getId())) + regexDot;
+                return (readingTypeMridFilter.phases == null ? positiveIntegerWildCard : String.valueOf(readingTypeMridFilter.phases.getId())) + regexDot;
             }
         },
         MULTIPLIER() {
             @Override
             String getFilterCriteria(ReadingTypeMridFilter readingTypeMridFilter) {
-                return (readingTypeMridFilter.multiplier == null ? wildCard : String.valueOf(readingTypeMridFilter.multiplier.getId())) + regexDot;
+                return (readingTypeMridFilter.multiplier == null ? anyIntegerWildCard : String.valueOf(readingTypeMridFilter.multiplier.getMultiplier())) + regexDot;
             }
         },
         UNIT() {
             @Override
             String getFilterCriteria(ReadingTypeMridFilter readingTypeMridFilter) {
-                return (readingTypeMridFilter.unit == null ? wildCard : String.valueOf(readingTypeMridFilter.unit.getId())) + regexDot;
+                return (readingTypeMridFilter.unit == null ? positiveIntegerWildCard : String.valueOf(readingTypeMridFilter.unit.getId())) + regexDot;
             }
         },
         CURRENCY() {
             @Override
             String getFilterCriteria(ReadingTypeMridFilter readingTypeMridFilter) {
                 if(readingTypeMridFilter.currency == null){
-                    return wildCard;
+                    return positiveIntegerWildCard;
                 } else if(readingTypeMridFilter.currency.getNumericCode() == 999){
                     return "0";
                 }

@@ -82,7 +82,7 @@ public class ReadingTypeLocalizedFieldsFactory implements ReadingTypeFieldsFacto
                         .collect(Collectors.<Phase, Integer, String>toMap(Phase::getId, c -> thesaurus.getFormat(new ReadingTypeTranslationKeys.Phase(c)).format(), (s1, s2) -> s1))),
         MULTIPLIER("multiplier",
                 (thesaurus) -> Arrays.stream(MetricMultiplier.values())
-                        .collect(Collectors.<MetricMultiplier, Integer, String>toMap(c -> Long.valueOf(c.getId()).byteValue() & 0xFF,
+                        .collect(Collectors.<MetricMultiplier, Integer, String>toMap(MetricMultiplier::getMultiplier,
                                 c -> String.valueOf(c.getMultiplier()) + (c.getMultiplier() != 0 ? " (" + thesaurus.getFormat(new ReadingTypeTranslationKeys.Multiplier(c)).format() + ")" : "")))),
         CURRENCY(ReadingTypeFilter.ReadingTypeFields.CURRENCY.getName(),
                 (thesaurus) -> Arrays.stream(ReadingTypeTranslationKeys.Currency.values())

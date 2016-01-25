@@ -2,7 +2,17 @@ package com.elster.jupiter.metering;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
-import com.elster.jupiter.cbo.*;
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.RationalNumber;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -93,6 +103,7 @@ public class ReadingTypeMridFilterTest {
                             "0.0.0.1.1.1.12.0.0.0.0.0.0.4.0.0.72.0", // Consumption tier
                             "0.0.0.1.1.1.12.0.0.0.0.0.0.0.128.0.72.0", // Phase A
                             "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", // multiplier 3
+                            "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.-3.72.0", // multiplier -3
                             "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.38.0", // power
                             "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.978" // EURO
                     ),
@@ -127,7 +138,7 @@ public class ReadingTypeMridFilterTest {
     public void findByAllWildCardsTest() {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         List<ReadingType> readingTypes = meteringService.getReadingTypesByMridFilter(new ReadingTypeMridFilter()).find();
-        assertThat(readingTypes).hasSize(17);
+        assertThat(readingTypes).hasSize(18);
     }
 
     @Test
@@ -579,7 +590,7 @@ public class ReadingTypeMridFilterTest {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         ReadingType readingType = meteringService.getReadingType(defaultReadingType).get();
         List<ReadingType> readingTypes = meteringService.getReadingTypesByMridFilter(ReadingTypeMridFilter.fromTemplateReadingType(readingType).anyMultiplier()).find();
-        assertThat(readingTypes).hasSize(2);
+        assertThat(readingTypes).hasSize(3);
         assertThat(readingTypes).haveExactly(1, new Condition<ReadingType>() {
             @Override
             public boolean matches(ReadingType value) {
@@ -590,6 +601,12 @@ public class ReadingTypeMridFilterTest {
             @Override
             public boolean matches(ReadingType value) {
                 return value.getMRID().equals("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+            }
+        });
+        assertThat(readingTypes).haveExactly(1, new Condition<ReadingType>() {
+            @Override
+            public boolean matches(ReadingType value) {
+                return value.getMRID().equals("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.-3.72.0");
             }
         });
     }
