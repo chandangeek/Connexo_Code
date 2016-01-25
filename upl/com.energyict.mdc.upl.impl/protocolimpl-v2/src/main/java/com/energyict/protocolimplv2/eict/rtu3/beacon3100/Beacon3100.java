@@ -138,7 +138,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "EnergyICT Beacon3100 G3 DLMS";
+        return "Elster EnergyICT Beacon3100 G3 DLMS";
     }
 
     @Override
@@ -344,7 +344,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-01-21 17:39:46 +0100 (Thu, 21 Jan 2016)$";
+        return "$Date: 2016-01-25 15:02:12 +0100 (Mon, 25 Jan 2016)$";
     }
 
     @Override

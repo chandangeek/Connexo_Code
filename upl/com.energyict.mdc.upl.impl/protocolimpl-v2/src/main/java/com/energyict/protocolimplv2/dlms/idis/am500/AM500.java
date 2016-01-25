@@ -166,7 +166,7 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
         } else {
             getLogger().info("Cache exist, will not be read!");
         }
-        getDlmsSession().getMeterConfig().setInstantiatedObjectList(((DLMSCache) getDeviceCache()).getObjectList());
+        getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDeviceCache().getObjectList());
     }
 
     @Override
@@ -199,7 +199,7 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
 
     @Override
     public String getProtocolDescription() {
-        return "AM500 DLMS (IDIS P1) V2";
+        return "Elster AM500 DLMS (IDIS P1) V2";
     }
 
     @Override
@@ -308,6 +308,6 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-26 15:25:58 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2016-01-25 15:02:12 +0100 (Mon, 25 Jan 2016)$";
     }
 }
