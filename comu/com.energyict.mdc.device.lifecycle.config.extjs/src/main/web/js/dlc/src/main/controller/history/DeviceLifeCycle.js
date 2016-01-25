@@ -39,6 +39,7 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                             route: '{deviceLifeCycleId}',
                             controller: 'Dlc.devicelifecycles.controller.DeviceLifeCycles',
                             privileges: Dlc.privileges.DeviceLifeCycle.view,
+                            dynamicPrivilegeStores: Dlc.dynamicprivileges.Stores.deviceLifeCycleStore,
                             action: 'showDeviceLifeCycleOverview',
                             callback: function (route) {
                                 this.getApplication().on('devicelifecycleload', function (record) {
@@ -53,6 +54,8 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                     route: 'edit',
                                     controller: 'Dlc.devicelifecycles.controller.DeviceLifeCycles',
                                     privileges: Dlc.privileges.DeviceLifeCycle.configure,
+                                    dynamicPrivilegeStores: Dlc.dynamicprivileges.Stores.deviceLifeCycleStore,
+                                    dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable,
                                     action: 'showEditDeviceLifeCycle',
                                     callback: function (route) {
                                         this.getApplication().on('deviceLifeCycleEdit', function (record) {
@@ -73,18 +76,24 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                             route: 'add',
                                             controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
                                             action: 'showDeviceLifeCycleStateEdit',
+                                            dynamicPrivilegeStores: Dlc.dynamicprivileges.Stores.deviceLifeCycleStore,
+                                            dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable,
                                             items: {
                                                 addEntryProcesses: {
                                                     title: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'DLC', 'Add processes'),
                                                     route: 'entryprocesses',
                                                     controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
-                                                    action: 'showAvailableEntryTransitionProcesses'
+                                                    action: 'showAvailableEntryTransitionProcesses',
+                                                    dynamicPrivilegeStores: Dlc.dynamicprivileges.Stores.deviceLifeCycleStore,
+                                                    dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable
                                                 },
                                                 addExitProcesses: {
                                                     title: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'DLC', 'Add processes'),
                                                     route: 'exitprocesses',
                                                     controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
-                                                    action: 'showAvailableExitTransitionProcesses'
+                                                    action: 'showAvailableExitTransitionProcesses',
+                                                    dynamicPrivilegeStores: Dlc.dynamicprivileges.Stores.deviceLifeCycleStore,
+                                                    dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable
                                                 }
                                             }
                                         },
@@ -93,6 +102,8 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                             route: '{id}/edit',
                                             controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
                                             action: 'showDeviceLifeCycleStateEdit',
+                                            dynamicPrivilegeStores: Dlc.dynamicprivileges.Stores.deviceLifeCycleStore,
+                                            dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable,
                                             callback: function (route) {
                                                 this.getApplication().on('loadlifecyclestate', function (record) {
                                                     route.setTitle(Uni.I18n.translate('deviceLifeCycles.edit.title', 'DLC', "Edit '{0}'", [record.get('name')], false));
@@ -105,13 +116,17 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                                     title: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'DLC', 'Add processes'),
                                                     route: 'entryprocesses',
                                                     controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
-                                                    action: 'showAvailableEntryTransitionProcesses'
+                                                    action: 'showAvailableEntryTransitionProcesses',
+                                                    dynamicPrivilegeStores: Dlc.dynamicprivileges.Stores.deviceLifeCycleStore,
+                                                    dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable
                                                 },
                                                 addExitProcesses: {
                                                     title: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'DLC', 'Add processes'),
                                                     route: 'exitprocesses',
                                                     controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
-                                                    action: 'showAvailableExitTransitionProcesses'
+                                                    action: 'showAvailableExitTransitionProcesses',
+                                                    dynamicPrivilegeStores: Dlc.dynamicprivileges.Stores.deviceLifeCycleStore,
+                                                    dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable
                                                 }
                                             }
                                         }
@@ -122,18 +137,24 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                     route: 'transitions',
                                     controller: 'Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions',
                                     action: 'showDeviceLifeCycleTransitions',
+                                    dynamicPrivilegeStores: Dlc.dynamicprivileges.Stores.deviceLifeCycleStore,
+                                    dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable,
                                     items: {
                                         add: {
                                             title: Uni.I18n.translate('general.addTransition', 'DLC', 'Add transition'),
                                             route: 'add',
                                             controller: 'Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions',
-                                            action: 'showAddDeviceLifeCycleTransition'
+                                            action: 'showAddDeviceLifeCycleTransition',
+                                            dynamicPrivilegeStores: Dlc.dynamicprivileges.Stores.deviceLifeCycleStore,
+                                            dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable
                                         },
                                         edit: {
                                             title: Uni.I18n.translate('general.edit', 'DLC', 'Edit'),
                                             route: '{transitionId}/edit',
                                             controller: 'Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions',
                                             action: 'showAddDeviceLifeCycleTransition',
+                                            dynamicPrivilegeStores: Dlc.dynamicprivileges.Stores.deviceLifeCycleStore,
+                                            dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable,
                                             callback: function (route) {
                                                 this.getApplication().on('deviceLifeCycleTransitionEdit', function (record) {
                                                     route.setTitle(Uni.I18n.translate('deviceLifeCycles.edit.title', 'DLC', "Edit '{0}'", [record.get('name')]));

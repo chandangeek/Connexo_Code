@@ -21,7 +21,8 @@ Ext.define('Dlc.main.view.SideMenu', {
             {
                 text: Uni.I18n.translate('general.transitions', 'DLC', 'Transitions'),
                 itemId: 'device-life-cycles-transitions-link',
-                href: me.router.getRoute('administration/devicelifecycles/devicelifecycle/transitions').buildUrl()
+                href: me.router.getRoute('administration/devicelifecycles/devicelifecycle/transitions').buildUrl(),
+                dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable
             }
         ];
 

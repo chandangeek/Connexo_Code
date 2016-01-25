@@ -44,5 +44,23 @@ Ext.define('Dlc.devicelifecycles.view.PreviewForm', {
         ];
 
         me.callParent(arguments);
+    },
+
+    loadRecord: function (record) {
+        var me = this;
+
+        if (me.isOverview && record.get('obsolete')) {
+            me.insert(0, {
+                xtype: 'container',
+                layout: 'column',
+                items: {
+                    xtype: 'uni-form-empty-message',
+                    itemId: 'empty-message',
+                    text: Uni.I18n.translate('general.dlc.noLongerBeUsed', 'DLC', 'The device lifecycle was archived and can no longer be used')
+                }
+            });
+        }
+
+        me.callParent(arguments);
     }
 });

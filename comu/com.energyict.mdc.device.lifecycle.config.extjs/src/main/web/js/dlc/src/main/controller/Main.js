@@ -3,7 +3,9 @@ Ext.define('Dlc.main.controller.Main', {
 
     requires: [
         'Uni.store.PortalItems',
-        'Uni.store.MenuItems'
+        'Uni.store.MenuItems',
+        'Dlc.dynamicprivileges.DeviceLifeCycle',
+        'Dlc.dynamicprivileges.Stores'
     ],
 
     controllers: [
@@ -11,6 +13,10 @@ Ext.define('Dlc.main.controller.Main', {
         'Dlc.devicelifecycles.controller.DeviceLifeCycles',
         'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
         'Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions'
+    ],
+
+    stores: [
+        'Dlc.main.store.DeviceLifeCyclePrivileges'
     ],
 
     init: function () {

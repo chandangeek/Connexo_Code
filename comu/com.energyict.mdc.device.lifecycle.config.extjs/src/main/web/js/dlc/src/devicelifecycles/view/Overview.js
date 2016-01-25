@@ -29,6 +29,7 @@ Ext.define('Dlc.devicelifecycles.view.Overview', {
                     {
                         xtype: 'button',
                         privileges: Dlc.privileges.DeviceLifeCycle.configure,
+                        dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable,
                         itemId: 'device-life-cycles-action-menu-btn',
                         text: Uni.I18n.translate('general.actions', 'DLC', 'Actions'),
                         iconCls: 'x-uni-action-iconD',

@@ -21,6 +21,10 @@ Ext.define('Dlc.devicelifecycles.model.DeviceLifeCycle', {
         {
             name: 'deviceTypes',
             persist: false
+        },
+        {
+            name: 'obsolete',
+            persist: false
         }
     ],
 

@@ -50,7 +50,8 @@ Ext.define('Dlc.devicelifecyclestates.view.Setup', {
                                 xtype: 'button',
                                 itemId: 'add-state-button',
                                 text: Uni.I18n.translate('deviceLifeCycleStates.add', 'DLC', 'Add state'),
-                                action: 'addState'
+                                action: 'addState',
+                                dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable
                             }
                         ]
                     },

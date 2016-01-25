@@ -249,11 +249,14 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         var me = this,
             page = me.getPage(),
             preview = page.down('device-life-cycle-states-preview'),
-            previewForm = page.down('device-life-cycle-states-preview-form');
+            previewForm = page.down('device-life-cycle-states-preview-form'),
+            menu = preview.down('device-life-cycle-states-action-menu');
 
         Ext.suspendLayouts();
         preview.setTitle(Ext.String.htmlEncode(record.get('name')));
-        preview.down('device-life-cycle-states-action-menu').record = record;
+        if (menu) {
+            menu.record = record;
+        }
         previewForm.loadRecord(record);
         Ext.resumeLayouts(true);
     },
