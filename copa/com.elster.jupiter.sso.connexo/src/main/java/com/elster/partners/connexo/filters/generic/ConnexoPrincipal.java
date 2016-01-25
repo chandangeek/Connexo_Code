@@ -8,14 +8,16 @@ import java.util.List;
  */
 
 public class ConnexoPrincipal implements Principal {
-    final long userId;
-    final String user;
-    final List<String> roles;
+    final private long userId;
+    final private String user;
+    final private List<String> roles;
+    final private String token;
 
-    public ConnexoPrincipal(long userId, String user, List<String> roles) {
+    public ConnexoPrincipal(long userId, String user, List<String> roles, String token) {
         this.userId = userId;
         this.user = user;
         this.roles = roles;
+        this.token = token;
     }
 
     @Override
@@ -41,5 +43,9 @@ public class ConnexoPrincipal implements Principal {
 
     boolean isUserInRole(String role) {
         return this.roles.contains(role);
+    }
+
+    String getToken(){
+        return this.token;
     }
 }

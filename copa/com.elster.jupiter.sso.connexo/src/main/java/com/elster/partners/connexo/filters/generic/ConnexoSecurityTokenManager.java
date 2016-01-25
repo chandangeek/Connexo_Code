@@ -29,10 +29,6 @@ public class ConnexoSecurityTokenManager {
     private final int TOKEN_EXPTIME;
     private final String PUBLIC_KEY;
 
-    private String token = null;
-    private ConnexoPrincipal principal = null;
-    private boolean tokenUpdated = false;
-
     private static ConnexoSecurityTokenManager instance = null;
 
     public static synchronized ConnexoSecurityTokenManager getInstance(Properties properties) {
@@ -57,96 +53,87 @@ public class ConnexoSecurityTokenManager {
         PUBLIC_KEY = (publicKey != null) ? publicKey : "";
     }
 
-    public boolean verifyToken(String token) {
-        try {
-            this.tokenUpdated = false;
+    public ConnexoPrincipal verifyToken(String token) {
+        if(token != null) {
+            try {
+                RSAKey rsaKey = getRSAKey(PUBLIC_KEY);
+                if (rsaKey != null) {
+                    SignedJWT signedJWT = SignedJWT.parse(token);
+                    String issuer = signedJWT.getJWTClaimsSet().getIssuer();
+                    Date issueTime = signedJWT.getJWTClaimsSet().getIssueTime();
+                    Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+                    long count = (Long) signedJWT.getJWTClaimsSet().getCustomClaim("cnt");
+                    long tokenNumericTermination = Long.parseLong(signedJWT.getJWTClaimsSet().getJWTID().split("[a-z]")[5]);
 
-            RSAKey rsaKey = getRSAKey(PUBLIC_KEY);
-            if (rsaKey != null) {
-                SignedJWT signedJWT = SignedJWT.parse(token);
-                String issuer = signedJWT.getJWTClaimsSet().getIssuer();
-                Date issueTime = signedJWT.getJWTClaimsSet().getIssueTime();
-                Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
-                long count = (Long) signedJWT.getJWTClaimsSet().getCustomClaim("cnt");
-                long tokenNumericTermination = Long.parseLong(signedJWT.getJWTClaimsSet().getJWTID().split("[a-z]")[5]);
-
-                JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey)rsaKey);
+                    JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) rsaKey);
 
 
-                if (signedJWT.verify(verifier) && issuer.equals("Elster Connexo") &&
-                        issueTime.before(expirationTime) && count == tokenNumericTermination) {
-                    if (count < MAX_COUNT) {
-                        constructPrincipal(signedJWT);
-                        if (new Date().before(new Date(expirationTime.getTime())) && this.principal != null) {
-                            return true;
-                        } else if (new Date().before(new Date(expirationTime.getTime() + TIMEOUT * 1000))) {
-                            return updateToken(token);
+                    if (signedJWT.verify(verifier) && issuer.equals("Elster Connexo") &&
+                            issueTime.before(expirationTime) && count == tokenNumericTermination) {
+                        if (count < MAX_COUNT) {
+                            ConnexoPrincipal principal = constructPrincipal(signedJWT, token);
+                            if (new Date().before(new Date(expirationTime.getTime()))) {
+                                return constructPrincipal(signedJWT, token);
+                            } else if (new Date().before(new Date(expirationTime.getTime() + TIMEOUT * 1000))) {
+                                return constructPrincipal(signedJWT, updateToken(token));
+                            }
                         }
                     }
                 }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            } catch (JOSEException e) {
+                e.printStackTrace();
+            } catch (InvalidKeySpecException e) {
+                e.printStackTrace();
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
             }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (JOSEException e) {
-            e.printStackTrace();
-        } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
         }
 
-        return false;
+        return null;
     }
 
-    private boolean updateToken(String token) {
+    private String updateToken(String token) {
         ConnexoRestProxyManager restManager = ConnexoRestProxyManager.getInstance();
-        this.token = restManager.getConnexoAuthorizationToken("Bearer " + token);
-        if(this.token != null && !this.token.isEmpty()) {
-            this.tokenUpdated = true;
-            return true;
+        String newToken = restManager.getConnexoAuthorizationToken("Bearer " + token);
+        if(newToken != null && !newToken.isEmpty()) {
+            return newToken;
         }
 
-        return false;
-    }
-
-    public boolean needToUpdateToken(){
-        return this.tokenUpdated;
-    }
-
-    public String getUpdatedToken(){
-        return this.token;
-    }
-
-    public ConnexoPrincipal getPrincipal(){
-        return this.principal;
+        return null;
     }
 
     public int getMaxAge(){
         return TOKEN_EXPTIME+TIMEOUT;
     }
 
-    private void constructPrincipal(SignedJWT signedJWT) {
-        try {
-            this.principal = null;
+    private ConnexoPrincipal constructPrincipal(SignedJWT signedJWT, String token) {
+        ConnexoPrincipal principal = null;
 
-            long userId = Long.valueOf(signedJWT.getJWTClaimsSet().getSubject());
-            String user = signedJWT.getJWTClaimsSet().getStringClaim("username");
+        if(token != null) {
+            try {
+                long userId = Long.valueOf(signedJWT.getJWTClaimsSet().getSubject());
+                String user = signedJWT.getJWTClaimsSet().getStringClaim("username");
 
-            List<String> groups = new ArrayList<>();
-            JSONArray roles = (JSONArray) signedJWT.getJWTClaimsSet().getClaim("roles");
-            if(roles != null) {
-                for (int i = 0; i < roles.size(); i++) {
-                    JSONObject role = (JSONObject) roles.get(i);
-                    if(role != null) {
-                        groups.add((String) role.get("name"));
+                List<String> groups = new ArrayList<>();
+                JSONArray roles = (JSONArray) signedJWT.getJWTClaimsSet().getClaim("roles");
+                if (roles != null) {
+                    for (int i = 0; i < roles.size(); i++) {
+                        JSONObject role = (JSONObject) roles.get(i);
+                        if (role != null) {
+                            groups.add((String) role.get("name"));
+                        }
                     }
                 }
-            }
 
-            this.principal = new ConnexoPrincipal(userId, user, groups);
-        } catch (ParseException e) {
-            e.printStackTrace();
+                principal = new ConnexoPrincipal(userId, user, groups, token);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
+
+        return principal;
     }
 
     private RSAKey getRSAKey(String key) throws NoSuchAlgorithmException, InvalidKeySpecException {

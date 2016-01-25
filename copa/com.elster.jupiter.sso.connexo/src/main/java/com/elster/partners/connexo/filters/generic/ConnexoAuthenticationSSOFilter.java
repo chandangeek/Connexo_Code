@@ -1,7 +1,9 @@
 package com.elster.partners.connexo.filters.generic;
 
-import javax.servlet.*;
-import javax.servlet.http.Cookie;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -33,7 +35,8 @@ public class ConnexoAuthenticationSSOFilter extends ConnexoAbstractSSOFilter {
             authorizationToken = getTokenFromAuthorizationHeader(request);
         }
 
-        if(authorizationToken == null || !securityManager.verifyToken(authorizationToken)) {
+        ConnexoPrincipal principal = securityManager.verifyToken(authorizationToken);
+        if(principal == null) {
             if(authorizationToken != null){
                 updateToken(response, null, 0); // clear out token
             }
@@ -46,11 +49,11 @@ public class ConnexoAuthenticationSSOFilter extends ConnexoAbstractSSOFilter {
             }
         }
         else {
-            if(securityManager.needToUpdateToken()){
-                updateToken(response, securityManager.getUpdatedToken(), securityManager.getMaxAge());
+            if(!principal.getToken().equals(authorizationToken)){
+                updateToken(response, principal.getToken(), securityManager.getMaxAge());
             }
 
-            filterChain.doFilter(new ConnexoAuthenticationRequestWrapper(securityManager.getPrincipal(), request, authorizationToken), response);
+            filterChain.doFilter(new ConnexoAuthenticationRequestWrapper(principal, request, authorizationToken), response);
         }
     }
 

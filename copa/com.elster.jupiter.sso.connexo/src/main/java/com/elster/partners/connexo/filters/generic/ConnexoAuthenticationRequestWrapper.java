@@ -10,9 +10,9 @@ import java.security.Principal;
 
 public class ConnexoAuthenticationRequestWrapper extends HttpServletRequestWrapper {
 
-    private ConnexoPrincipal principal;
-    private HttpServletRequest realRequest;
-    private String authorizationToken;
+    private final ConnexoPrincipal principal;
+    private final HttpServletRequest realRequest;
+    private final String authorizationToken;
 
     public ConnexoAuthenticationRequestWrapper(ConnexoPrincipal principal, HttpServletRequest request, String authorizationToken) {
         super(request);
@@ -23,7 +23,7 @@ public class ConnexoAuthenticationRequestWrapper extends HttpServletRequestWrapp
 
     @Override
     public boolean isUserInRole(String role) {
-        if (!this.principal.isValid()) {
+        if (this.principal == null || !this.principal.isValid()) {
             return false;
         }
         return this.principal.isUserInRole(role);
@@ -31,7 +31,7 @@ public class ConnexoAuthenticationRequestWrapper extends HttpServletRequestWrapp
 
     @Override
     public Principal getUserPrincipal() {
-        if (!this.principal.isValid()) {
+        if (this.principal == null || !this.principal.isValid()) {
             return null;
         }
 
@@ -40,13 +40,17 @@ public class ConnexoAuthenticationRequestWrapper extends HttpServletRequestWrapp
 
     @Override
     public String getHeader(String name){
-        if(authorizationToken != null && name.equals("Authorization")){
-            String realAuthorization = realRequest.getHeader(name);
-            if(realAuthorization == null || !realAuthorization.startsWith("Bearer ")) {
-                return "Bearer " + authorizationToken;
+        if(this.realRequest != null) {
+            if (authorizationToken != null && name.equals("Authorization")) {
+                String realAuthorization = realRequest.getHeader(name);
+                if (realAuthorization == null || !realAuthorization.startsWith("Bearer ")) {
+                    return "Bearer " + authorizationToken;
+                }
             }
+
+            return realRequest.getHeader(name);
         }
 
-        return realRequest.getHeader(name);
+        return null;
     }
 }
