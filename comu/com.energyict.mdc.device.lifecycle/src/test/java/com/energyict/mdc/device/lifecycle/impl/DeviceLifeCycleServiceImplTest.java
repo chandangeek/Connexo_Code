@@ -1,9 +1,29 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
+import com.elster.jupiter.fsm.CustomStateTransitionEventType;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTimeSlice;
+import com.elster.jupiter.fsm.StateTimeline;
+import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.FormatKey;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreference;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
@@ -23,28 +43,12 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
-
-import com.elster.jupiter.fsm.CustomStateTransitionEventType;
-import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateTimeSlice;
-import com.elster.jupiter.fsm.StateTimeline;
-import com.elster.jupiter.fsm.StateTransition;
-import com.elster.jupiter.fsm.StateTransitionEventType;
-import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.Range;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.security.Principal;
@@ -60,22 +64,12 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link DeviceLifeCycleServiceImpl} component.
@@ -491,6 +485,12 @@ public class DeviceLifeCycleServiceImplTest {
         Instant effectiveTimeStamp = Instant.ofEpochMilli(123456789);
         when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(effectiveTimeStamp);
         when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(effectiveTimeStamp);
+        StateTimeline stateTimeline = mock(StateTimeline.class);
+        StateTimeSlice timeSlice = mock(StateTimeSlice.class);
+        Instant timeSliceStart = effectiveTimeStamp.minus(8, ChronoUnit.DAYS);
+        when(timeSlice.getPeriod()).thenReturn(Range.atLeast(timeSliceStart));
+        when(stateTimeline.getSlices()).thenReturn(Arrays.asList(timeSlice));
+        when(this.device.getStateTimeline()).thenReturn(stateTimeline);
 
         // Business method
         service.execute(this.action, this.device, effectiveTimeStamp.minus(7, ChronoUnit.DAYS), Collections.emptyList());
@@ -558,6 +558,31 @@ public class DeviceLifeCycleServiceImplTest {
 
         // Business method
         service.execute(this.action, this.device, timeSliceStart, Collections.emptyList());
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test(expected = EffectiveTimestampNotInRangeException.class)
+    public void executeWithEffectiveTimestampAfterLastStateChangeButNotInRange() {
+        DeviceLifeCycleServiceImpl service = this.getTestInstance();
+        when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.SET_LAST_READING)));
+        when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
+        when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
+        ServerMicroAction setLastReading = mock(ServerMicroAction.class);
+        when(this.microActionFactory.from(MicroAction.SET_LAST_READING)).thenReturn(setLastReading);
+
+        Instant lastStateChange = Instant.ofEpochMilli(100000L);
+        StateTimeline stateTimeline = mock(StateTimeline.class);
+        StateTimeSlice timeSlice = mock(StateTimeSlice.class);
+        when(timeSlice.getPeriod()).thenReturn(Range.atLeast(lastStateChange));
+        when(stateTimeline.getSlices()).thenReturn(Arrays.asList(timeSlice));
+        when(this.device.getStateTimeline()).thenReturn(stateTimeline);
+
+        when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(lastStateChange.plus(1, ChronoUnit.DAYS));
+        when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(lastStateChange.minus(1, ChronoUnit.DAYS));
+
+        // Business method
+        service.execute(this.action, this.device, lastStateChange.plus(2, ChronoUnit.DAYS), Collections.emptyList());
 
         // Asserts: see expected exception rule
     }
