@@ -161,9 +161,11 @@ class ReadingStorerImpl implements ReadingStorer {
         values[0] = processStatus.getBits();
         if (reading instanceof IntervalReading) {
             IntervalReading intervalReading = (IntervalReading) reading;
-            long bits = !(values[1] instanceof Long) ? 0L : (long) values[1];
-            bits |= intervalReading.getProfileStatus().getBits();
-            values[1] = bits;
+            if (intervalReading.getProfileStatus() != null) {
+                long bits = !(values[1] instanceof Long) ? 0L : (long) values[1];
+                bits |= intervalReading.getProfileStatus().getBits();
+                values[1] = bits;
+            }
         }
         addScope(channel, reading.getTimeStamp());
     }
