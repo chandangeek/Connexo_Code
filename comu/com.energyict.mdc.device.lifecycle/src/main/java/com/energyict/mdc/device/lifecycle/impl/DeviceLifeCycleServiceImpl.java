@@ -266,8 +266,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     private void validateTriggerExecution(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         this.validateTriggerExecution(action, device);
         this.valueAvailableForAllRequiredProperties(action, properties);
-        this.effectiveTimestampIsInRange(effectiveTimestamp, action.getDeviceLifeCycle());
-        this.effectiveTimestampAfterLastStateChange(effectiveTimestamp, device);
+        this.validateExecutionTimestamp(action, device, effectiveTimestamp);
     }
 
     private void valueAvailableForAllRequiredProperties(AuthorizedTransitionAction action, List<ExecutableActionProperty> properties) {
@@ -290,19 +289,15 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         }
     }
 
-    private void effectiveTimestampIsInRange(Instant effectiveTimestamp, DeviceLifeCycle deviceLifeCycle) {
-        Instant lowerBound = deviceLifeCycle.getMaximumPastEffectiveTimestamp().truncatedTo(ChronoUnit.DAYS);
-        Instant upperBound = deviceLifeCycle.getMaximumFutureEffectiveTimestamp().truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS);
-        Range<Instant> range = Range.closedOpen(lowerBound, upperBound);
-        if (!range.contains(effectiveTimestamp)) {
-            throw new EffectiveTimestampNotInRangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE,
-                    lowerBound, upperBound, getLongDateFormatForCurrentUser());
-        }
+    private void validateExecutionTimestamp(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp) {
+        Optional<Instant> lastStateChangeTimestamp = this.getLastStateChangeTimestamp(device);
+        this.effectiveTimestampAfterLastStateChange(effectiveTimestamp, device, lastStateChangeTimestamp);
+        this.effectiveTimestampIsInRange(effectiveTimestamp, action.getDeviceLifeCycle(), lastStateChangeTimestamp);
     }
 
-    private void effectiveTimestampAfterLastStateChange(Instant effectiveTimestamp, Device device) {
+    private Optional<Instant> getLastStateChangeTimestamp(Device device) {
         List<StateTimeSlice> stateTimeSlices = device.getStateTimeline().getSlices();
-        this.lastSlice(stateTimeSlices).ifPresent(lastSlice -> this.effectiveTimestampAfterLastStateChange(effectiveTimestamp, device, lastSlice));
+        return this.lastSlice(stateTimeSlices).map(lastSlice -> lastSlice.getPeriod().lowerEndpoint());
     }
 
     private Optional<StateTimeSlice> lastSlice(List<StateTimeSlice> stateTimeSlices) {
@@ -315,10 +310,23 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         }
     }
 
-    private void effectiveTimestampAfterLastStateChange(Instant effectiveTimestamp, Device device, StateTimeSlice lastStateTimeSlice) {
-        if (!effectiveTimestamp.isAfter(lastStateTimeSlice.getPeriod().lowerEndpoint())) {
+    private void effectiveTimestampAfterLastStateChange(Instant effectiveTimestamp, Device device, Optional<Instant> lastStateChangeTimestamp) {
+        if (lastStateChangeTimestamp.isPresent() && !effectiveTimestamp.isAfter(lastStateChangeTimestamp.get())) {
             throw new EffectiveTimestampNotAfterLastStateChangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE,
-                    device, effectiveTimestamp,  lastStateTimeSlice.getPeriod().lowerEndpoint(), getLongDateFormatForCurrentUser());
+                    device, effectiveTimestamp,  lastStateChangeTimestamp.get(), getLongDateFormatForCurrentUser());
+        }
+    }
+
+    private void effectiveTimestampIsInRange(Instant effectiveTimestamp, DeviceLifeCycle deviceLifeCycle, Optional<Instant> lastStateChangeTimestamp) {
+        Instant lowerBound = deviceLifeCycle.getMaximumPastEffectiveTimestamp().truncatedTo(ChronoUnit.DAYS);
+        if (lastStateChangeTimestamp.isPresent() && lowerBound.isBefore(lastStateChangeTimestamp.get())) {
+            lowerBound = lastStateChangeTimestamp.get();
+        }
+        Instant upperBound = deviceLifeCycle.getMaximumFutureEffectiveTimestamp().truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS);
+        Range<Instant> range = Range.closedOpen(lowerBound, upperBound);
+        if (!range.contains(effectiveTimestamp)) {
+            throw new EffectiveTimestampNotInRangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE,
+                    lowerBound, upperBound, getLongDateFormatForCurrentUser());
         }
     }
 
@@ -398,7 +406,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     private void executeMicroActions(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         action.getActions()
             .stream()
-            .map(this.microActionFactory::from)
+                .map(this.microActionFactory::from)
             .forEach(a -> this.execute(a, device, effectiveTimestamp, properties));
     }
 
@@ -415,7 +423,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                     device.getState().getName(),
                     effectiveTimestamp,
                     Collections.emptyMap())
-            .publish();
+                .publish();
     }
 
     @Override
