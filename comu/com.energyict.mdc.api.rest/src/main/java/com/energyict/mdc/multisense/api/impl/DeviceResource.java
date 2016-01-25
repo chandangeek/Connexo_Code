@@ -105,9 +105,10 @@ public class DeviceResource {
 
     /**
      * Create a new device
-     * @param info JSON payload describing the device
+     * @param info Payload describing the values for the to-be-created device
      * @param uriInfo added by framework
      * @return location href to newly created device
+     * @responseheader location href to newly created device
      */
     @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
