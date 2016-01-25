@@ -1,8 +1,8 @@
 package com.elster.jupiter.cbo;
 
-import java.util.Currency;
-
 import com.google.common.base.Joiner;
+
+import java.util.Currency;
 
 public final class ReadingTypeCodeBuilder {
 	private MacroPeriod macroPeriod = MacroPeriod.NOTAPPLICABLE;
@@ -156,7 +156,7 @@ public final class ReadingTypeCodeBuilder {
 			cpp,
 			consumptionTier,
 			phases.getId(), 
-			multiplier.getId(), 
+			multiplier.getMultiplier(),
 			unit.getId(), 
 			ReadingTypeCodeBuilder.getCurrencyId(currency));
 	}

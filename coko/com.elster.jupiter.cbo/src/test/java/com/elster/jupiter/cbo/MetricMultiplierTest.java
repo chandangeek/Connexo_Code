@@ -15,25 +15,18 @@ public class MetricMultiplierTest {
     }
 
     @Test
-    public void testIdsUnique() {
-        Set<Integer> usedIds = new HashSet<>();
+    public void testMultipliersUnique() {
+        Set<Integer> used = new HashSet<>();
         for (MetricMultiplier metricMultiplier : MetricMultiplier.values()) {
-            int id = metricMultiplier.getId();
-            assertThat(usedIds.add(id)).describedAs("Id " + id + " is used more than once.").isTrue();
+            int multiplier = metricMultiplier.getMultiplier();
+            assertThat(used.add(multiplier)).describedAs("Multiplier " + multiplier + " is used more than once.").isTrue();
         }
     }
 
     @Test
-    public void testIdsMapping() {
+    public void testMultipliersMapping() {
         for (MetricMultiplier metricMultiplier : MetricMultiplier.values()) {
-            assertThat(MetricMultiplier.get(metricMultiplier.getId())).isEqualTo(metricMultiplier);
-        }
-    }
-
-    @Test
-    public void testIdsPositive() {
-        for (MetricMultiplier metricMultiplier : MetricMultiplier.values()) {
-            assertThat(metricMultiplier.getId()).isGreaterThanOrEqualTo(0);
+            assertThat(MetricMultiplier.with(metricMultiplier.getMultiplier())).isEqualTo(metricMultiplier);
         }
     }
 
@@ -43,5 +36,4 @@ public class MetricMultiplierTest {
             assertThat(MetricMultiplier.with(metricMultiplier.getMultiplier())).isEqualTo(metricMultiplier);
         }
     }
-
 }
