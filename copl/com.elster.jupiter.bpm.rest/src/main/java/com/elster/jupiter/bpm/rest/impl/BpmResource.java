@@ -38,31 +38,25 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @Path("/runtime")
 public class BpmResource {
 
-    public static final String START = "start";
-    public static final String LIMIT = "limit";
     public static final String ME = "me";
     public static final String LIKE = "like";
-    private UserService userService;
-    private Thesaurus thesaurus;
+
+    private final UserService userService;
+    private final Thesaurus thesaurus;
     private final BpmService bpmService;
     private final TransactionService transactionService;
-    private final RestQueryService restQueryService;
+
+    private final String errorNotFoundMessage;
+    private final String errorInvalidMessage;
 
     @Inject
-    public BpmResource(BpmService bpmService, TransactionService transactionService, RestQueryService restQueryService) {
+    public BpmResource(BpmService bpmService, UserService userService, TransactionService transactionService, Thesaurus thesaurus) {
         this.bpmService = bpmService;
-        this.transactionService = transactionService;
-        this.restQueryService = restQueryService;
-    }
-
-    @Inject
-    public void setUserService(UserService userService) {
         this.userService = userService;
-    }
-
-    @Inject
-    public void setThesaurus(Thesaurus thesaurus) {
+        this.transactionService = transactionService;
         this.thesaurus = thesaurus;
+        this.errorNotFoundMessage = thesaurus.getString("error.flow.unavailable", "Cannot connect to Flow; HTTP error {0}.");
+        this.errorInvalidMessage = thesaurus.getString("error.flow.invalid.response", "Invalid response received, please check your Flow version.");
     }
 
     @GET
@@ -105,9 +99,9 @@ public class BpmResource {
                     arr = obj.getJSONArray("result");
                 }
             } catch (JSONException e) {
-                // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
+                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
             } catch (RuntimeException e) {
-                // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
+                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
             }
         }
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
@@ -147,9 +141,9 @@ public class BpmResource {
                 arr = (new JSONObject(jsonContent)).getJSONArray("result");
             }
         } catch (JSONException e) {
-            // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
-            // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
         }
         return new NodeInfos(arr);
     }
@@ -183,9 +177,9 @@ public class BpmResource {
                 arr = new JSONArray(jsonContent);
             }
         } catch (JSONException e) {
-            // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
-            // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
         }
         return new DeploymentInfos(arr);
     }
@@ -286,9 +280,9 @@ public class BpmResource {
             }
 
         } catch (JSONException e) {
-            // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
-            // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
         }
         List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
         ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos(arr);
