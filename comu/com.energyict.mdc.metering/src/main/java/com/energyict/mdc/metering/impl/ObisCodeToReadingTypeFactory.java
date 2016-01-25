@@ -85,7 +85,7 @@ public final class ObisCodeToReadingTypeFactory {
         mrid.append(criticalPeakPeriod).append(".");
         mrid.append(consumptionTier).append(".");
         mrid.append(phase.getId()).append(".");
-        mrid.append(metricMultiplier.getId()).append(".");
+        mrid.append(metricMultiplier.getMultiplier()).append(".");
         mrid.append(readingTypeUnit.getId()).append(".");
         mrid.append(currency.isPresent() ? currency.get().getNumericCode() : 0);
         return mrid.toString();
