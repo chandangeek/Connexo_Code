@@ -74,6 +74,23 @@ public class ConfigurationSecurityPropertySetResource {
         return securityPropertySetInfoFactory.from(securityPropertySet, uriInfo, fieldSelection.getFields());
     }
 
+    /**
+     * List the fields available on this entity.
+     * <br>E.g.
+     * <br>[
+     * <br> "id",
+     * <br> "name",
+     * <br> "actions",
+     * <br> "batch"
+     * <br>]
+     * <br>Fields in the list can be used as parameter on a GET request to the same resource, e.g.
+     * <br> <i></i>GET ..../resource?fields=id,name,batch</i>
+     * <br> The call above will return only the requested fields of the entity. In the absence of a field list, all fields
+     * will be returned
+     *
+     * @summary List the fields available on this entity
+     * @return A list of field names that can be requested as parameter in the GET method on this entity type
+     */
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
