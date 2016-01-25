@@ -63,7 +63,8 @@ public class ComTaskEnablementChangeEventHandler implements TopicHandler {
     }
 
     private Condition conditionForDeviceConfig(ComTaskEnablement comTaskEnablement) {
-        return where(ComTaskExecutionFields.DEVICE.fieldName() + "." + DeviceFields.DEVICECONFIGURATION.fieldName()).isEqualTo(comTaskEnablement.getDeviceConfiguration());
+        return where(ComTaskExecutionFields.DEVICE.fieldName() + "." + DeviceFields.DEVICECONFIGURATION.fieldName()).isEqualTo(comTaskEnablement.getDeviceConfiguration())
+                .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
     }
 
     private Condition conditionForComSchedules(List<ComSchedule> affectedComSchedules) {
