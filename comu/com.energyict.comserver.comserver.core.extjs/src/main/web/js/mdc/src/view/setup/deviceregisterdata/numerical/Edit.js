@@ -41,7 +41,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Edit', {
                 itemId: 'registerDataEditForm',
                 defaults: {
                     labelWidth: 200,
-                    labelAlign: 'right'
+                    labelAlign: 'right',
+                    width: 650
                 },
                 items: [
                     {
@@ -51,6 +52,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Edit', {
                         layout: 'hbox',
                         margin: '0 0 10 0',
                         hidden: true,
+                        width: 530,
                         defaults: {
                             xtype: 'container'
                         }
