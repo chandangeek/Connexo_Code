@@ -14,14 +14,15 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.metering.ReadingType;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
-import javax.ws.rs.core.Response;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -178,7 +179,7 @@ public class ReadingTypeFieldResourceTest extends MeteringApplicationJerseyTest 
         IntStream.range(0, 31).forEach(i -> collect.add(mockReadingTypeWithMultiplier("power " + i, i < 10 ? MetricMultiplier.KILO : MetricMultiplier.GIGA)));
         when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
         Response response = target("/fields/readingtypes")
-            .queryParam("filter", ExtjsFilter.filter().property("time", (long) TimeAttribute.FIXEDBLOCK15MIN.getId()).property("multiplier", (long) MetricMultiplier.KILO.getId()).create()).request().get();
+            .queryParam("filter", ExtjsFilter.filter().property("time", (long) TimeAttribute.FIXEDBLOCK15MIN.getId()).property("multiplier", (long) MetricMultiplier.KILO.getMultiplier()).create()).request().get();
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(10);
     }
@@ -192,7 +193,7 @@ public class ReadingTypeFieldResourceTest extends MeteringApplicationJerseyTest 
         Response response = target("/fields/readingtypes")
             .queryParam("filter", ExtjsFilter.filter().
                     property("time", (long) TimeAttribute.FIXEDBLOCK15MIN.getId()).
-                    property("multiplier", (long) MetricMultiplier.KILO.getId()).
+                    property("multiplier", (long) MetricMultiplier.KILO.getMultiplier()).
                     property("tou", 666L).create()).
                     request().get();
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
@@ -206,7 +207,7 @@ public class ReadingTypeFieldResourceTest extends MeteringApplicationJerseyTest 
         IntStream.range(0, 31).forEach(i -> collect.add(mockReadingTypeWithMultiplier("power " + i, i < 10 ? MetricMultiplier.KILO : MetricMultiplier.GIGA)));
         when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
         Response response = target("/fields/readingtypes")
-            .queryParam("filter", ExtjsFilter.filter().property("multiplier", (long) MetricMultiplier.KILO.getId()).create()).request().get();
+            .queryParam("filter", ExtjsFilter.filter().property("multiplier", (long) MetricMultiplier.KILO.getMultiplier()).create()).request().get();
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(10);
     }
