@@ -641,6 +641,7 @@ public class JbpmTaskResource {
                     taskMandatory.result = "ALLMANDATORY";
 //                    taskMandatory.taskSummaryList = new TaskSummaryList(taskIdsMandatoryFields);
                     taskMandatory.connexoForm = getTaskContent(taskIdList(getQueryValue(uriInfo, "tasks")).get(0));
+                    taskMandatory.connexoForm.taskStatus = Status.InProgress;
                     taskMandatory.connexoForm.content = new HashMap<>();
                     taskMandatory.connexoForm.outContent = new HashMap<>();
                 }else if(!taskIdsMandatoryFields.isEmpty()){
