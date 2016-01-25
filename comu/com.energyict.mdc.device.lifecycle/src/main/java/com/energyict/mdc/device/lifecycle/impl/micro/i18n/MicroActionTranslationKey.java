@@ -32,7 +32,7 @@ public enum MicroActionTranslationKey implements TranslationKey {
     MICRO_ACTION_NAME_FORCE_VALIDATION_AND_ESTIMATION(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.FORCE_VALIDATION_AND_ESTIMATION, "Force validation and estimation"),
     MICRO_ACTION_NAME_FORCE_ENABLE_ESTIMATION(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.ENABLE_ESTIMATION, "Activate estimation"),
     MICRO_ACTION_NAME_FORCE_DISABLE_ESTIMATION(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.DISABLE_ESTIMATION, "Deactivate estimation"),
-    MICRO_ACTION_NAME_SET_MULTIPLIER(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.SET_MULTIPLIER, "Set multiplier"),
+    MICRO_ACTION_NAME_SET_MULTIPLIER(DeviceLifeCycleService.MicroActionPropertyName.MULTIPLIER.key(), "Set multiplier"),
 
     MICRO_ACTION_DESCRIPTION_NAME_SET_LAST_CHECKED(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(), "Set the last checked date, so date can be validated from the transition date."),
     MICRO_ACTION_DESCRIPTION_SET_LAST_READING(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.SET_LAST_READING, "Set the last reading date, so data can be collected starting from the transition date."),
