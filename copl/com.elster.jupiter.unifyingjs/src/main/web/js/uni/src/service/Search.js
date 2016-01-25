@@ -542,7 +542,6 @@ Ext.define('Uni.service.Search', {
                 criteria.refresh(function () {
                     var f = me.filters.get(criteria.getId());
                     if (f) {
-                        // todo: perfomance?
                         f.value = _.map(f.value, function(v) {
                             return Ext.apply(v, {
                                 criteria: _.intersection(v.criteria, _.map(criteria.values().data.keys, function(v){return v.toString()}))

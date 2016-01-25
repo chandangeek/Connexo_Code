@@ -5,6 +5,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
         'Ext.util.Filter'
     ],
     menuConfig: null,
+    enableToggle: true,
     items: [],
 
     reset: function() {
@@ -40,8 +41,9 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
     initComponent: function () {
         var me = this;
 
-        me.emptyText = me.text;
         Ext.apply(me, {
+            emptyText: me.text,
+            disabled: me.property.get('disabled'),
             menu: Ext.apply({
                 plain: true,
                 maxHeight: 600,
@@ -50,41 +52,59 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
                 },
                 padding: 0,
                 minWidth: 70,
-                items: me.items,
+                items: [],
                 onMouseOver: Ext.emptyFn,
                 enableKeyNav: false
-            }, me.menuConfig)
+            }, me.menuConfig),
+            listeners: {
+                toggle:     me.onToggle,
+                menuhide:   me.onMenuHideEvent
+            }
         });
 
         me.callParent(arguments);
 
-        me.on('click', function(){
-            me.reconfigure();
+        var serviceListeners = me.service.on({
+            change:         me.onFilterChange,
+            criteriaChange: me.onCriteriaChange,
+            scope: me,
+            destroyable: true
         });
-        me.on('menuhide', function(){
-            me.menu.removeAll();
+
+        me.on('destroy', function () {
+            serviceListeners.destroy();
         });
+    },
 
-        me.setDisabled(me.property.get('disabled'));
+    onToggle: function() {
+        if (this.pressed) {
+            this.reconfigure();
+        }
+    },
 
-        me.service.on('change', function(filters, filter) {
-            if (me.dataIndex == filter.id) {
-                if (me.property.get('selectionMode') == 'multiple') {
-                    me.updateButtonText(filter.value ? _.reduce(filter.value, function(acc, v){return acc.concat(v.criteria)}, []) : null);
-                } else {
-                    me.updateButtonText(filter.value);
-                }
+    onMenuHideEvent: function() {
+        this.menu.removeAll();
+        this.toggle(false);
+    },
 
+    onFilterChange: function(filters, filter) {
+        var me = this;
+
+        if (me.dataIndex == filter.id) {
+            if (me.property.get('selectionMode') == 'multiple') {
+                me.updateButtonText(filter.value ? _.reduce(filter.value, function (acc, v) {
+                    return acc.concat(v.criteria)
+                }, []) : null);
+            } else {
+                me.updateButtonText(filter.value);
             }
-        });
 
-        me.service.on('criteriaChange', function(criterias, criteria) {
-            if (me.dataIndex == criteria.getId() && me.rendered) {
-                me.setDisabled(criteria.get('disabled'));
-            }
-        });
+        }
+    },
 
-
-        // todo: drop listeners on destroy
+    onCriteriaChange: function(criterias, criteria) {
+        if (this.dataIndex == criteria.getId() && this.rendered) {
+            this.setDisabled(criteria.get('disabled'));
+        }
     }
 });

@@ -44,11 +44,6 @@ Ext.define('Uni.view.search.field.internal.Criteria', {
     },
 
     onValueChange: function() {
-        //if (value && !Ext.isArray(value)) {
-        //    value = [value];
-        //}
-        //
-        //this.value = value;
         this.fireEvent('change', this, this.getValue());
     },
 
@@ -56,7 +51,8 @@ Ext.define('Uni.view.search.field.internal.Criteria', {
         var me = this;
 
         me.addEvents(
-            "change"
+            "change",
+            "reset"
         );
 
         me.callParent(arguments);

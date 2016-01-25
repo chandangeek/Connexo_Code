@@ -1,6 +1,5 @@
 /**
  * @class Uni.view.search.ColumnPicker
- * todo: translations
  */
 Ext.define('Uni.view.search.ColumnPicker', {
     extend: 'Ext.button.Button',
