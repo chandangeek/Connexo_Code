@@ -5,11 +5,11 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
-import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyDefaultValuesProvider;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -33,7 +33,7 @@ public class FirmwareMessageInfoFactory {
 
     public FirmwareMessageInfo from(DeviceMessageSpec deviceMessageSpec, DeviceType deviceType, String uploadOption, String firmwareType) {
         PropertyDefaultValuesProvider provider = (propertySpec, propertyType) -> {
-            if (FirmwareVersion.class.equals(propertySpec.getValueFactory().getValueType())){
+            if (BaseFirmwareVersion.class.equals(propertySpec.getValueFactory().getValueType())){
                 FirmwareVersionFilter filter = new FirmwareVersionFilter(deviceType);
                 if (firmwareType != null) {
                     filter.addFirmwareTypes(Collections.singletonList(FirmwareTypeFieldAdapter.INSTANCE.unmarshal(firmwareType)));
