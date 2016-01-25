@@ -537,6 +537,10 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             connectionMethod.set('temporalExpression', null);
         }
 
+        if(connectionMethod.get('rescheduleRetryDelay')) {
+            delete connectionMethod.get('rescheduleRetryDelay').translatedTimeUnit;
+        }
+
 //        this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);
         connectionMethod.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
         connectionMethod.save({
