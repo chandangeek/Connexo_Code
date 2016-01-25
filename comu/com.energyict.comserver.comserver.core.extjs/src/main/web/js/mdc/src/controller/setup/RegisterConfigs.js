@@ -581,7 +581,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                     readingTypesStore.add(item);
                 });
                 calculatedReadingTypeCombo.bindStore(readingTypesStore, true);
-                if (dataContainer.get('calculatedReadingType') !== undefined && dataContainer.get('calculatedReadingType') !== '') {
+                if ( !Ext.isEmpty(dataContainer.get('calculatedReadingType')) ) {
                     calculatedReadingTypeCombo.setValue(dataContainer.get('calculatedReadingType').mRID);
                 } else {
                     calculatedReadingTypeCombo.setValue(readingTypesStore.getAt(0));
