@@ -44,13 +44,11 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
         Ext.apply(me, {
             menu: Ext.apply({
                 plain: true,
-                //width: 70,
                 maxHeight: 600,
                 bodyStyle: {
                     background: '#fff'
                 },
                 padding: 0,
-                //minWidth: 273,
                 minWidth: 70,
                 items: me.items,
                 onMouseOver: Ext.emptyFn,
@@ -71,8 +69,8 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
 
         me.service.on('change', function(filters, filter) {
             if (me.dataIndex == filter.id) {
-                if (me.property.get('exhaustive')) {
-                    me.updateButtonText(filter.value && filter.value[0] ? filter.value[0].criteria : null);
+                if (me.property.get('selectionMode') == 'multiple') {
+                    me.updateButtonText(filter.value ? _.reduce(filter.value, function(acc, v){return acc.concat(v.criteria)}, []) : null);
                 } else {
                     me.updateButtonText(filter.value);
                 }
