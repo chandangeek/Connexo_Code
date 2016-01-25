@@ -843,6 +843,45 @@ public class BpmResource {
         return Response.ok().build();
     }
 
+    @PUT
+    @Path("/validateform/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.EXECUTE_TASK)
+    public Response validateForm(TaskContentInfos taskContentInfos,
+                                    @PathParam("id") long id,
+                                    @Context SecurityContext securityContext,
+                                    @HeaderParam("Authorization") String auth) {
+        List<Errors> err = new ArrayList<>();
+        TaskContentInfos taskContents = getTaskContent(id, auth);
+        taskContentInfos.properties.stream()
+                .forEach(s -> {
+                    if (s.propertyValueInfo.value == null) {
+                        Optional<TaskContentInfo> taskContentInfo = taskContents.properties.stream()
+                                .filter(x -> x.key.equals(s.key))
+                                .findFirst();
+                        if (taskContentInfo.isPresent()) {
+                            if (taskContentInfo.get().required) {
+                                err.add(new Errors("properties." + s.key, MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
+                            }
+                        }
+                    } else if (s.propertyValueInfo.value.equals("")) {
+                        Optional<TaskContentInfo> taskContentInfo = taskContents.properties.stream()
+                                .filter(x -> x.key.equals(s.key))
+                                .findFirst();
+                        if (taskContentInfo.isPresent()) {
+                            if (taskContentInfo.get().required) {
+                                err.add(new Errors("properties." + s.key, MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
+                            }
+                        }
+                    }
+                });
+        if(!err.isEmpty()){
+            return  Response.status(400).entity(new LocalizedFieldException(err)).build();
+        }else{
+            return Response.ok().build();
+        }
+    }
+
     private Map<String, Object> getOutputContent(TaskContentInfos taskContentInfos, long taskId, String processId, String auth){
         TaskContentInfos taskContents;
         if(processId != null) {
