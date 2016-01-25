@@ -14,6 +14,7 @@ public class DeviceLifeCycleInfo {
     public Integer statesCount;
     public Integer actionsCount;
     public List<IdWithNameInfo> deviceTypes;
+    public boolean obsolete;
 
     public DeviceLifeCycleInfo() {}
 
@@ -23,5 +24,6 @@ public class DeviceLifeCycleInfo {
         this.statesCount = deviceLifeCycle.getFiniteStateMachine().getStates().size();
         this.actionsCount = deviceLifeCycle.getAuthorizedActions().size();
         this.version = deviceLifeCycle.getVersion();
+        this.obsolete = deviceLifeCycle.isObsolete();
     }
 }
