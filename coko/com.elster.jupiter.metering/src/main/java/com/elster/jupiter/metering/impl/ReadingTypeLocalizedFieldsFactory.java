@@ -69,9 +69,9 @@ public class ReadingTypeLocalizedFieldsFactory implements ReadingTypeFieldsFacto
         ARGUMENT_DENOMINATOR(ReadingTypeFilter.ReadingTypeFields.ARGUMENT_DENOMINATOR.getName(),
                 (thesaurus) -> Stream.of(0, 1, 60, 120, 180, 240, 360)
                         .collect(Collectors.<Integer, Integer, String>toMap(Function.identity(), String::valueOf))),
-        TIME_OF_USE("timeOfUse",
+        TIME_OF_USE(ReadingTypeFilter.ReadingTypeFields.TIME_OF_USE.getName(),
                 (thesaurus) -> Stream.of(0, 1, 2, 3, 4, 5, 6, 7, 8).collect(Collectors.<Integer, Integer, String>toMap(Function.identity(), String::valueOf))),
-        CPP("criticalPeakPeriod",
+        CPP(ReadingTypeFilter.ReadingTypeFields.CPP.getName(),
                 (thesaurus) -> Stream.of(0, 1, 2, 3, 4, 5, 6, 7)
                         .collect(Collectors.<Integer, Integer, String>toMap(Function.identity(), String::valueOf))),
         CONSUMPTION_TIER(ReadingTypeFilter.ReadingTypeFields.CONSUMPTION_TIER.getName(),
@@ -82,7 +82,8 @@ public class ReadingTypeLocalizedFieldsFactory implements ReadingTypeFieldsFacto
                         .collect(Collectors.<Phase, Integer, String>toMap(Phase::getId, c -> thesaurus.getFormat(new ReadingTypeTranslationKeys.Phase(c)).format(), (s1, s2) -> s1))),
         MULTIPLIER(ReadingTypeFilter.ReadingTypeFields.MULTIPLIER.getName(),
                 (thesaurus) -> Arrays.stream(MetricMultiplier.values())
-                        .collect(Collectors.<MetricMultiplier, Integer, String>toMap(c -> Long.valueOf(c.getId()).byteValue() & 0xFF, c -> String.valueOf(c.getMultiplier())))),
+                        .collect(Collectors.<MetricMultiplier, Integer, String>toMap(MetricMultiplier::getMultiplier,
+                                c -> String.valueOf(c.getMultiplier()) + (c.getMultiplier() != 0 ? " (" + thesaurus.getFormat(new ReadingTypeTranslationKeys.Multiplier(c)).format() + ")" : "")))),
         CURRENCY(ReadingTypeFilter.ReadingTypeFields.CURRENCY.getName(),
                 (thesaurus) -> Arrays.stream(ReadingTypeTranslationKeys.Currency.values())
                         .collect(Collectors.<ReadingTypeTranslationKeys.Currency, Integer, String>toMap(ReadingTypeTranslationKeys.Currency::getCurrencyCode, c -> thesaurus.getFormat(c).format()))),

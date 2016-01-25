@@ -14,6 +14,7 @@ public class ReadingTypeFilter {
 
 
     private Condition condition;
+    private static final int CIM_CODE_SIZE = 18;
 
     public ReadingTypeFilter()
     {
@@ -74,11 +75,11 @@ public class ReadingTypeFilter {
         INTERHARMONIC_DENOMINATOR("interHarmonicDenominator",8),
         ARGUMENT_NUMERATOR("argumentNumerator",9),
         ARGUMENT_DENOMINATOR("argumentDenominator",10),
-        TIME_OF_USE("tou",11),
-        CPP("cpp",12),
+        TIME_OF_USE("timeOfUse",11),
+        CPP("criticalPeakPeriod",12),
         CONSUMPTION_TIER("consumptionTier",13),
         PHASES("phases",14),
-        MULTIPLIER("multiplier",15),
+        MULTIPLIER("metricMultiplier",15),
         UNIT("unit",16),
         CURRENCY("currency",17);
 
@@ -96,8 +97,8 @@ public class ReadingTypeFilter {
 
         public Condition getRegexpCondition(List<String> values){
             Condition condition = Condition.TRUE;
-            if(!values.isEmpty()) {
-                condition = condition.and(where("mRID").matches("^(\\d+\\.){" + offset + "}(" + String.join("|", values) + ")", ""));
+            if (!values.isEmpty()) {
+                condition = condition.and(where("mRID").matches("^(\\d+\\.){" + offset + "}(" + String.join("|", values) + (offset < CIM_CODE_SIZE - 1 ? ")\\." : ")$"), ""));
             }
             return condition;
         }

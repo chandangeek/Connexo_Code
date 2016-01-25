@@ -33,7 +33,6 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.HolderBuilder.first;
 
@@ -166,7 +165,7 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
             cpp = parse(parts[CPP]);
             consumptionTier = parse(parts[CONSUMPTION_TIER]);
             phases = Phase.get(parse(parts[PHASES]));
-            multiplier = MetricMultiplier.get(parse(parts[MULTIPLIER]));
+            multiplier = MetricMultiplier.with(parse(parts[MULTIPLIER]));
             unit = ReadingTypeUnit.get(parse(parts[UNIT]));
             currency = getCurrency(parse(parts[CURRENCY]), thesaurus);
         } catch (IllegalEnumValueException | IllegalCurrencyCodeException e) {
