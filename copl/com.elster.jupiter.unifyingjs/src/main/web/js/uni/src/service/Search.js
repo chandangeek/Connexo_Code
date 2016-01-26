@@ -315,7 +315,9 @@ Ext.define('Uni.service.Search', {
     },
 
     getFilters: function () {
-        return this.filters.getRange();
+        return _.filter(this.filters.getRange(), function(f){
+            return !!f.value
+        });
     },
 
     getState: function() {
