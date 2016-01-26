@@ -40,7 +40,7 @@ Ext.define('Est.main.view.ReadingTypeTopFilter', {
             },
             {
                 type: 'combobox',
-                dataIndex: 'tou',
+                dataIndex: 'timeOfUse',
                 itemId: 'time-of-use-field',
                 emptyText: Uni.I18n.translate('general.timeOfUse', 'EST', 'Time of use'),
                 store: 'Est.main.store.TimeOfUse',
