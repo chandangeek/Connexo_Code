@@ -83,8 +83,7 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
         }).collect(Collectors.toList());
         meterReading.addAllIntervalBlocks(intervalBlocks);
         meterReading.addAllReadings(registerReadingsToStore);
-        List<Warning> warnings = device.store(meterReading);
-        warnings.forEach(logger::warning);
+        device.store(meterReading);
         updateLastReading();
         resetState();
     }
