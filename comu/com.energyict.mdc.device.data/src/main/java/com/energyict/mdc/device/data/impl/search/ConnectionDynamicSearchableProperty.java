@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -23,8 +24,9 @@ public class ConnectionDynamicSearchableProperty extends AbstractDynamicSearchab
         super(ConnectionDynamicSearchableProperty.class, thesaurus);
     }
 
-    public ConnectionDynamicSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group, PropertySpec propertySpec, ConnectionTypePluggableClass pluggableClass) {
-        super.init(domain, group, propertySpec);
+    public ConnectionDynamicSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group, PropertySpec propertySpec,
+                                                    SearchableProperty constraintProperty, ConnectionTypePluggableClass pluggableClass) {
+        super.init(domain, group, propertySpec, constraintProperty);
         this.pluggableClass = pluggableClass;
         return this;
     }
