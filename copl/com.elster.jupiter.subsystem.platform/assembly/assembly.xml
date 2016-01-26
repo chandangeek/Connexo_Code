@@ -18,6 +18,10 @@
             <outputDirectory>bin</outputDirectory>
         </fileSet>
         <fileSet>
+            <directory>assembly/lib</directory>
+            <outputDirectory>lib</outputDirectory>
+        </fileSet>
+        <fileSet>
             <directory>assembly/conf</directory>
             <outputDirectory>conf</outputDirectory>
         </fileSet>
