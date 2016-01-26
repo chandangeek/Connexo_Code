@@ -242,43 +242,6 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         }
     }
 
-    @Test
-    @Transactional
-    public void preStoreWithOverflowExceededTest() {
-        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("preStoreWithOverflowExceededTest").loadProfileTypes(this.loadProfileType).create();
-        LoadProfile loadProfile = device.getLoadProfiles().get(0);
-        CollectedLoadProfile collectedLoadProfile =
-                enhanceCollectedLoadProfile(loadProfile, createMockLoadProfileWithOverflowData(loadProfile.getInterval()));
-        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
-        final ComServerDAO comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
-
-        freezeClock(currentTimeStamp);
-
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
-
-        assertThat(preStoredLoadProfile.getPreStoreResult()).isEqualTo(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK);
-        for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
-            IntervalData intervalData = collectedLoadProfile.getCollectedIntervalData().get(i);
-            for (int j = 0; j < intervalData.getIntervalValues().size(); j++) {
-                IntervalValue intervalValue = intervalData.getIntervalValues().get(j);
-                IntervalReading intervalReading = preStoredLoadProfile.getIntervalBlocks().get(j).getIntervals().get(i);
-                if (i >= 2 && j == 0) { // only the third and fourth interval of channel 1 have overflowed ...
-                    assertThat(new BigDecimal(intervalValue.getNumber().toString()).subtract(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)).compareTo(intervalReading.getValue()))
-                            .overridingErrorMessage("Values are not the same -> %s and %s",
-                                    new BigDecimal(intervalValue.getNumber().toString()).subtract(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)),
-                                    intervalReading.getValue())
-                            .isEqualTo(0);
-                } else {
-                    assertThat(new BigDecimal(intervalValue.getNumber().toString()).compareTo(intervalReading.getValue()))
-                            .overridingErrorMessage("Values are not the same -> %s and %s",
-                                    new BigDecimal(intervalValue.getNumber().toString()),
-                                    intervalReading.getValue())
-                            .isEqualTo(0);
-                }
-            }
-        }
-    }
 
     public OfflineLoadProfile createMockedOfflineLoadProfile(Device device) {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
@@ -287,83 +250,6 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         when(deviceIdentifier.getIdentifier()).thenReturn(String.valueOf(device.getId()));
         when(this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device)).thenReturn(deviceIdentifier);
         return new OfflineLoadProfileImpl(device.getLoadProfiles().get(0), mock(TopologyService.class), this.identificationService);
-    }
-
-    @Test
-    @Transactional
-    public void preStoreWithPositiveScalingAndOverflowExceededTest() {
-        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("preStoreWithPositiveScalingAndOverflowExceededTest").loadProfileTypes(this.loadProfileType).create();
-        LoadProfile loadProfile = device.getLoadProfiles().get(0);
-        CollectedLoadProfile collectedLoadProfile =
-                enhanceCollectedLoadProfile(loadProfile, createMockLoadProfileWithOverflowDataAfterPositiveScaling(loadProfile.getInterval()));
-        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
-        final ComServerDAO comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
-        freezeClock(currentTimeStamp);
-
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
-
-        assertThat(preStoredLoadProfile.getPreStoreResult()).isEqualTo(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK);
-        for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
-            IntervalData intervalData = collectedLoadProfile.getCollectedIntervalData().get(i);
-            for (int j = 0; j < intervalData.getIntervalValues().size(); j++) {
-                IntervalValue intervalValue = intervalData.getIntervalValues().get(j);
-                IntervalReading intervalReading = preStoredLoadProfile.getIntervalBlocks().get(j).getIntervals().get(i);
-                BigDecimal intervalValueBigDecimal = new BigDecimal(intervalValue.getNumber().toString()).multiply(BigDecimal.valueOf(1000));
-                if (i >= 2 && j == 0) { // only the third and fourth interval of channel 1 have overflowed ...
-                    assertThat(intervalValueBigDecimal.subtract(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)).compareTo(intervalReading.getValue()))
-                            .overridingErrorMessage("Values are not the same -> %s and %s",
-                                    intervalValueBigDecimal.subtract(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)),
-                                    intervalReading.getValue())
-                            .isEqualTo(0);
-                } else {
-                    assertThat(intervalValueBigDecimal.compareTo(intervalReading.getValue()))
-                            .overridingErrorMessage("Values are not the same -> %s and %s",
-                                    intervalValueBigDecimal,
-                                    intervalReading.getValue())
-                            .isEqualTo(0);
-                }
-            }
-        }
-    }
-
-    @Test
-    @Transactional
-    public void preStoreWithNegativeScalingAndOverflowExceededTest() {
-        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("preStoreWithNegativeScalingAndOverflowExceededTest").loadProfileTypes(this.loadProfileType).create();
-        LoadProfile loadProfile = device.getLoadProfiles().get(0);
-        CollectedLoadProfile collectedLoadProfile =
-                enhanceCollectedLoadProfile(loadProfile, createMockLoadProfileWithOverflowDataAfterNegativeScaling(loadProfile.getInterval()));
-        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(device);
-
-        final ComServerDAO comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
-        freezeClock(currentTimeStamp);
-
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
-
-        assertThat(preStoredLoadProfile.getPreStoreResult()).isEqualTo(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK);
-        for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
-            IntervalData intervalData = collectedLoadProfile.getCollectedIntervalData().get(i);
-            for (int j = 0; j < intervalData.getIntervalValues().size(); j++) {
-                IntervalValue intervalValue = intervalData.getIntervalValues().get(j);
-                IntervalReading intervalReading = preStoredLoadProfile.getIntervalBlocks().get(j).getIntervals().get(i);
-                BigDecimal intervalValueBigDecimal = new BigDecimal(intervalValue.getNumber().toString()).divide(BigDecimal.valueOf(1000));
-                if (i >= 2 && j == 0) { // only the third and fourth interval of channel 1 have overflowed ...
-                    assertThat(intervalValueBigDecimal.subtract(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)).compareTo(intervalReading.getValue()))
-                            .overridingErrorMessage("Values are not the same -> %s and %s",
-                                    intervalValueBigDecimal.subtract(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)),
-                                    intervalReading.getValue())
-                            .isEqualTo(0);
-                } else {
-                    assertThat(intervalValueBigDecimal.compareTo(intervalReading.getValue()))
-                            .overridingErrorMessage("Values are not the same -> %s and %s",
-                                    intervalValueBigDecimal,
-                                    intervalReading.getValue())
-                            .isEqualTo(0);
-                }
-            }
-        }
     }
 
     @Test
