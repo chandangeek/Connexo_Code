@@ -53,6 +53,7 @@ import org.osgi.service.event.EventAdmin;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -474,6 +475,88 @@ public class ReadingStorerImplIT {
             assertThat(baseReadingRecord.getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(10000 + i * 1000, 2), 3, "Wh"));
             assertThat(baseReadingRecord.getTimeStamp()).isEqualTo(BASE.plusMinutes(15 * i).toInstant());
         }
+    }
+
+    @Test
+    public void testWriteBulkDataWithOverflow() {
+        ReadingType deltaReadingType = meteringService.getReadingType(SECONDARY_DELTA).get();
+        ReadingType bulkReadingType = meteringService.getReadingType(SECONDARY_BULK).get();
+
+        Channel channel = createMeterAndChannelWithDelta(bulkReadingType);
+
+        transactionService.run(() -> {
+            Meter meter = channel.getMeterActivation().getMeter().get();
+            MeterConfiguration meterConfiguration = meter.startingConfigurationOn(Instant.EPOCH)
+                    .configureReadingType(bulkReadingType)
+                    .withOverflowValue(BigDecimal.valueOf(999999))
+                    .create();
+        });
+
+        transactionService.run(() -> {
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+            IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
+
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(999998, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15).toInstant(), BigDecimal.valueOf(100, 0), ProfileStatus.of()));
+
+            meterReading.addIntervalBlock(intervalBlock);
+
+            channel.getMeterActivation().getMeter().get().store(meterReading);
+        });
+
+        List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
+
+        assertThat(readings).hasSize(2);
+
+        assertThat(readings.get(0).getQuantity(deltaReadingType)).isNull();
+        assertThat(readings.get(0).getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(999998, 0), 3, "Wh"));
+        assertThat(readings.get(0).getTimeStamp()).isEqualTo(BASE.toInstant());
+
+        assertThat(readings.get(1).getQuantity(deltaReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(102, 0), 3, "Wh"));
+        assertThat(readings.get(1).getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(100, 0), 3, "Wh"));
+        assertThat(readings.get(1).getTimeStamp()).isEqualTo(BASE.plusMinutes(15).toInstant());
+
+    }
+
+    @Test
+    public void testWriteBulkDataWithBackflowUnderflow() {
+        ReadingType deltaReadingType = meteringService.getReadingType(SECONDARY_DELTA).get();
+        ReadingType bulkReadingType = meteringService.getReadingType(SECONDARY_BULK).get();
+
+        Channel channel = createMeterAndChannelWithDelta(bulkReadingType);
+
+        transactionService.run(() -> {
+            Meter meter = channel.getMeterActivation().getMeter().get();
+            MeterConfiguration meterConfiguration = meter.startingConfigurationOn(Instant.EPOCH)
+                    .configureReadingType(bulkReadingType)
+                    .withOverflowValue(BigDecimal.valueOf(999999))
+                    .create();
+        });
+
+        transactionService.run(() -> {
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+            IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
+
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(100, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15).toInstant(), BigDecimal.valueOf(999998, 0), ProfileStatus.of()));
+
+            meterReading.addIntervalBlock(intervalBlock);
+
+            channel.getMeterActivation().getMeter().get().store(meterReading);
+        });
+
+        List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
+
+        assertThat(readings).hasSize(2);
+
+        assertThat(readings.get(0).getQuantity(deltaReadingType)).isNull();
+        assertThat(readings.get(0).getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(100, 0), 3, "Wh"));
+        assertThat(readings.get(0).getTimeStamp()).isEqualTo(BASE.toInstant());
+
+        assertThat(readings.get(1).getQuantity(deltaReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(-102, 0), 3, "Wh"));
+        assertThat(readings.get(1).getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(999998, 0), 3, "Wh"));
+        assertThat(readings.get(1).getTimeStamp()).isEqualTo(BASE.plusMinutes(15).toInstant());
+
     }
 
     private Channel createMeterAndChannelWithMultplier(ReadingType measured, ReadingType caluclated, BigDecimal multiplierValue) {

@@ -40,6 +40,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.elster.jupiter.util.Checks.is;
 import static com.elster.jupiter.util.streams.Currying.perform;
 import static com.elster.jupiter.util.streams.Currying.use;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
@@ -94,6 +95,10 @@ class ReadingStorerImpl implements ReadingStorer {
 
     }
 
+    private enum FlowDetection {
+        NORMAL, OVERFLOW, BACKFLOW
+    }
+
     private ReadingStorerImpl(IdsService idsService, EventService eventService, UpdateBehaviour updateBehaviour, StorerProcess storerProcess) {
         this.idsService = idsService;
         this.eventService = eventService;
@@ -101,19 +106,19 @@ class ReadingStorerImpl implements ReadingStorer {
         this.storerProcess = storerProcess;
     }
 
-    static ReadingStorer createNonOverrulingStorer(IdsService idsService, EventService eventService) {
+    static ReadingStorerImpl createNonOverrulingStorer(IdsService idsService, EventService eventService) {
         return new ReadingStorerImpl(idsService, eventService, Behaviours.INSERT_ONLY, StorerProcess.DEFAULT);
     }
 
-    static ReadingStorer createOverrulingStorer(IdsService idsService, EventService eventService) {
+    static ReadingStorerImpl createOverrulingStorer(IdsService idsService, EventService eventService) {
         return new ReadingStorerImpl(idsService, eventService, Behaviours.OVERRULE, StorerProcess.DEFAULT);
     }
 
-    static ReadingStorer createUpdatingStorer(IdsService idsService, EventService eventService) {
+    static ReadingStorerImpl createUpdatingStorer(IdsService idsService, EventService eventService) {
         return new ReadingStorerImpl(idsService, eventService, Behaviours.UPDATE, StorerProcess.DEFAULT);
     }
 
-    static ReadingStorer createUpdatingStorer(IdsService idsService, EventService eventService, StorerProcess storerProcess) {
+    static ReadingStorerImpl createUpdatingStorer(IdsService idsService, EventService eventService, StorerProcess storerProcess) {
         return new ReadingStorerImpl(idsService, eventService, Behaviours.UPDATE, storerProcess);
     }
 
@@ -213,33 +218,56 @@ class ReadingStorerImpl implements ReadingStorer {
                 .stream()
                 .filter(meterReadingTypeConfiguration -> readingTypes.contains(meterReadingTypeConfiguration.getMeasured()))
                 .filter(meterReadingTypeConfiguration -> meterReadingTypeConfiguration.getOverflowValue().isPresent())
-                .forEach(meterReadingTypeConfiguration -> {
-                    int slotOffset = channel.getRecordSpecDefinition().slotOffset();
-                    ReadingType readingType = meterReadingTypeConfiguration.getMeasured();
-                    int valueIndex = slotOffset + channel.getReadingTypes().indexOf(readingType);
-                    if (values[valueIndex] instanceof BigDecimal) {
-                        BigDecimal value = (BigDecimal) values[valueIndex];
-                        BigDecimal overflowValue = BigDecimal.valueOf(meterReadingTypeConfiguration.getOverflowValue().getAsLong());
-                        if (value.compareTo(overflowValue) > 0) {
-                            overflowListeners.notify(listener -> listener.overflowOccurred(channel.getCimChannel(readingType).get(), timestamp, value, overflowValue));
-                        } else if (readingType.isCumulative()) {
-                            Instant previousDateTime = channel.getPreviousDateTime(timestamp);
-                            Object[] previousValues = previousReadings.get(Pair.of(channel, timestamp));
-                            if (previousValues != null && previousValues[valueIndex] instanceof BigDecimal) {
-                                BigDecimal previousValue = (BigDecimal) previousValues[valueIndex];
-                                if (value.compareTo(previousValue) < 0) {
-                                    BigDecimal diff = previousValue.subtract(value);
-                                    BigDecimal halfOfRange = overflowValue.divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP);
-                                    if (diff.compareTo(halfOfRange) < 0) {
-                                        backflowListeners.notify(listener -> listener.backflowOccurred(channel.getCimChannel(readingType).get(), timestamp, value, overflowValue));
-                                    } else {
-                                        overflowListeners.notify(listener -> listener.overflowOccurred(channel.getCimChannel(readingType).get(), timestamp, value, overflowValue));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
+                .forEach(meterReadingTypeConfiguration -> checkOverflowOrBackflow(meterReadingTypeConfiguration, channel, timestamp, values));
+    }
+
+    private void checkOverflowOrBackflow(MeterReadingTypeConfiguration meterReadingTypeConfiguration, ChannelContract channel, Instant timestamp, Object[] values) {
+        int slotOffset = channel.getRecordSpecDefinition().slotOffset();
+        ReadingType readingType = meterReadingTypeConfiguration.getMeasured();
+        CimChannel cimChannel = channel.getCimChannel(readingType).get();
+        int valueIndex = slotOffset + channel.getReadingTypes().indexOf(readingType);
+        if (!(values[valueIndex] instanceof BigDecimal)) {
+            return;
+        }
+        BigDecimal value = (BigDecimal) values[valueIndex];
+        BigDecimal overflowValue = meterReadingTypeConfiguration.getOverflowValue().get();
+        Object[] previousValues = getPreviousValues(channel, timestamp);
+        BigDecimal previousValue = previousValues != null && previousValues[valueIndex] instanceof BigDecimal ? (BigDecimal) previousValues[valueIndex] : null;
+        switch (flowDetection(cimChannel, overflowValue, value, previousValue)) {
+            case BACKFLOW:
+                backflowListeners.notify(listener -> listener.backflowOccurred(cimChannel, timestamp, value, overflowValue));
+                break;
+            case OVERFLOW:
+                overflowListeners.notify(listener -> listener.overflowOccurred(cimChannel, timestamp, value, overflowValue));
+                break;
+            default:
+        }
+
+    }
+
+    private FlowDetection flowDetection(CimChannel cimChannel, BigDecimal overflowValue, BigDecimal value, BigDecimal previousValue) {
+        if (value.compareTo(overflowValue) > 0) {
+            return FlowDetection.OVERFLOW;
+        }
+        if (previousValue != null && cimChannel.getReadingType().isCumulative()) {
+            BigDecimal diff = previousValue.subtract(value).abs();
+            BigDecimal halfOfRange = overflowValue.divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP);
+            if (is(value).smallerThan(previousValue)) {
+                if (diff.compareTo(halfOfRange) < 0) {
+                    return FlowDetection.BACKFLOW;
+                } else {
+                    return FlowDetection.OVERFLOW;
+                }
+            } else if (is(diff).greaterThan(halfOfRange)) {
+                return FlowDetection.BACKFLOW;
+            }
+        }
+        return FlowDetection.NORMAL;
+    }
+
+    private Object[] getPreviousValues(ChannelContract channel, Instant timestamp) {
+        Instant previousDateTime = channel.getPreviousDateTime(timestamp);
+        return previousReadings.get(Pair.of(channel, previousDateTime));
     }
 
     private List<MeterReadingTypeConfiguration> getMeterReadingTypeConfigurations(ChannelContract channel, Instant timestamp) {
@@ -251,7 +279,7 @@ class ReadingStorerImpl implements ReadingStorer {
     }
 
     private void doDeltas() {
-        Map<Pair<ChannelContract, Instant>, Object[]> valuesView = Maps.filterKeys(this.consolidatedValues, pair -> pair.getFirst().isRegular());
+        Map<Pair<ChannelContract, Instant>, Object[]> valuesView = Maps.filterKeys(consolidatedValues, pair -> pair.getFirst().isRegular());
         deltaDerivations = valuesView.keySet()
                 .stream()
                 .map(Pair::getFirst)
@@ -323,10 +351,14 @@ class ReadingStorerImpl implements ReadingStorer {
         int index = derivation.getIndex() + channel.getRecordSpecDefinition().slotOffset();
         BigDecimal previousBulk = getBigDecimal(previous[index + 1]);
         BigDecimal currentBulk = getBigDecimal(toUpdate[index + 1]);
+        IReadingType bulkReadingType = (IReadingType) derivation.getReadingType().getBulkReadingType().get();
+
+        Function<BigDecimal, BigDecimal> overflowCorrection = getOverflowCorrection(channel, bulkReadingType, instant, previousBulk, currentBulk);
+
         if (currentBulk != null && previousBulk != null) {
             BigDecimal delta = currentBulk.subtract(previousBulk);
+            delta = overflowCorrection.apply(delta);
             if (derivation.getDerivationRule().isMultiplied()) {
-                IReadingType bulkReadingType = (IReadingType) derivation.getReadingType().getBulkReadingType().get();
                 BigDecimal multiplier = getMultiplier(channel, instant, bulkReadingType);
                 delta = delta.multiply(multiplier);
             }
@@ -334,6 +366,33 @@ class ReadingStorerImpl implements ReadingStorer {
             return true;
         }
         return false;
+    }
+
+    private Function<BigDecimal, BigDecimal> getOverflowCorrection(ChannelContract channel, IReadingType bulkReadingType, Instant instant, BigDecimal previousBulk, BigDecimal currentBulk) {
+        if (currentBulk == null || previousBulk == null) {
+            return Function.identity();
+        }
+        Optional<MeterReadingTypeConfiguration> meterReadingTypeConfiguration = channel.getMeterActivation()
+                .getMeter()
+                .flatMap(meter -> meter.getConfiguration(instant))
+                .flatMap(use(MeterConfiguration::getReadingTypeConfiguration).with(bulkReadingType));
+        Optional<BigDecimal> overflowValue = meterReadingTypeConfiguration
+                .flatMap(MeterReadingTypeConfiguration::getOverflowValue);
+
+        return overflowValue.map(value -> {
+            FlowDetection flowDetection = flowDetection(channel.getCimChannel(bulkReadingType).get(), overflowValue.get(), currentBulk, previousBulk);
+            if (is(currentBulk).smallerThan(previousBulk) && FlowDetection.OVERFLOW.equals(flowDetection)) {
+                int fractionDigits = meterReadingTypeConfiguration.get().getNumberOfFractionDigits().orElse(0);
+                BigDecimal rollOver = BigDecimal.valueOf(1, fractionDigits).add(overflowValue.get());
+                return (Function<BigDecimal, BigDecimal>) bd -> bd.add(rollOver);
+            }
+            if (is(currentBulk).greaterThan(previousBulk) && FlowDetection.BACKFLOW.equals(flowDetection)) {
+                int fractionDigits = meterReadingTypeConfiguration.get().getNumberOfFractionDigits().orElse(0);
+                BigDecimal rollOver = BigDecimal.valueOf(1, fractionDigits).add(overflowValue.get());
+                return (Function<BigDecimal, BigDecimal>) bd -> bd.subtract(rollOver);
+            }
+            return Function.<BigDecimal>identity();
+        }).orElse(Function.identity());
     }
 
     private void doMultiplications() {
@@ -360,31 +419,33 @@ class ReadingStorerImpl implements ReadingStorer {
 
     private void doMultiplications(ChannelContract channelContract, List<Derivation> derivations) {
         List<IReadingType> readingTypes = channelContract.getReadingTypes();
-        derivations.forEach(derivation -> {
-            consolidatedValues.entrySet()
-                    .stream()
-                    .filter(entry -> entry.getKey().getFirst().equals(channelContract))
-                    .forEach(entry -> {
-                        Object[] values = entry.getValue();
-                        Instant instant = entry.getKey().getLast();
-                        int slotOffset = channelContract.getRecordSpecDefinition().slotOffset();
-                        int index = derivation.getIndex();
-                        if (values[index + slotOffset + 1] instanceof BigDecimal) {
-                            if (DerivationRule.MULTIPLIED.equals(derivation.getDerivationRule())) {
-                                if (values[index + slotOffset + 1] != storer.doNotUpdateMarker()) {
-                                    BigDecimal multiplier = getMultiplier(channelContract, instant, readingTypes.get(index + 1), readingTypes.get(index));
-                                    values[index + slotOffset] = ((BigDecimal) values[index + slotOffset + 1]).multiply(multiplier);
-                                }
-                            } else if (DerivationRule.MULTIPLIED_DELTA.equals(derivation.getDerivationRule())) {
-                                if (values[index + slotOffset] != storer.doNotUpdateMarker()) {
-                                    IReadingType target = (IReadingType) readingTypes.get(index).getBulkReadingType().get();
-                                    BigDecimal multiplier = getMultiplier(channelContract, instant, target);
-                                    values[index + slotOffset] = ((BigDecimal) values[index + slotOffset]).multiply(multiplier);
-                                }
+        derivations.forEach(derivation -> doMultiplication(channelContract, readingTypes, derivation));
+    }
+
+    private void doMultiplication(ChannelContract channelContract, List<IReadingType> readingTypes, Derivation derivation) {
+        consolidatedValues.entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().getFirst().equals(channelContract))
+                .forEach(entry -> {
+                    Object[] values = entry.getValue();
+                    Instant instant = entry.getKey().getLast();
+                    int slotOffset = channelContract.getRecordSpecDefinition().slotOffset();
+                    int index = derivation.getIndex();
+                    if (values[index + slotOffset + 1] instanceof BigDecimal) {
+                        if (DerivationRule.MULTIPLIED.equals(derivation.getDerivationRule())) {
+                            if (values[index + slotOffset + 1] != storer.doNotUpdateMarker()) {
+                                BigDecimal multiplier = getMultiplier(channelContract, instant, readingTypes.get(index + 1), readingTypes.get(index));
+                                values[index + slotOffset] = ((BigDecimal) values[index + slotOffset + 1]).multiply(multiplier);
+                            }
+                        } else if (DerivationRule.MULTIPLIED_DELTA.equals(derivation.getDerivationRule())) {
+                            if (values[index + slotOffset] != storer.doNotUpdateMarker()) {
+                                IReadingType target = (IReadingType) readingTypes.get(index).getBulkReadingType().get();
+                                BigDecimal multiplier = getMultiplier(channelContract, instant, target);
+                                values[index + slotOffset] = ((BigDecimal) values[index + slotOffset]).multiply(multiplier);
                             }
                         }
-                    });
-        });
+                    }
+                });
     }
 
     private BigDecimal getBigDecimal(Object object) {
@@ -441,7 +502,13 @@ class ReadingStorerImpl implements ReadingStorer {
                             int bulkIndex = slotOffset + derivation.index + 1;
                             BigDecimal previous = (BigDecimal) previousReading[bulkIndex];
                             BigDecimal current = (BigDecimal) entry.getValue()[bulkIndex];
-                            entry.getValue()[slotOffset + derivation.index] = delta(previous, current);
+
+                            // overflow backflow shenanigans now
+                            IReadingType bulkReadingType = channel.getReadingTypes().get(derivation.index + 1);
+                            Instant instant = entry.getKey().getLast();
+                            Function<BigDecimal, BigDecimal> overflowCorrection = getOverflowCorrection(channel, bulkReadingType, instant, previous, current);
+
+                            entry.getValue()[slotOffset + derivation.index] = overflowCorrection.apply(delta(previous, current));
                         }
                     }
                 });

@@ -88,6 +88,7 @@ public class EndDeviceImplIT {
     @Before
     public void setUp() throws SQLException {
         when(this.clock.instant()).thenAnswer(invocationOnMock -> Instant.now());
+        when(this.clock.getZone()).thenReturn(ZoneId.systemDefault());
         try {
             injector = Guice.createInjector(
                     new MockModule(),

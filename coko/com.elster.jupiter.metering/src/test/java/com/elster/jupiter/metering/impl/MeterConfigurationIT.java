@@ -143,7 +143,7 @@ public class MeterConfigurationIT {
                     .startingConfigurationOn(ACTIVE_DATE.toInstant())
                     .endingAt(END_DATE.toInstant())
                     .configureReadingType(secondaryMetered)
-                    .withOverflowValue(15)
+                    .withOverflowValue(BigDecimal.valueOf(15))
                     .withNumberOfFractionDigits(3)
                     .withMultiplierOfType(multiplierType)
                     .calculating(primaryMetered)
@@ -164,7 +164,7 @@ public class MeterConfigurationIT {
         assertThat(meterReadingTypeConfiguration.getMeasured()).isEqualTo(secondaryMetered);
         assertThat(meterReadingTypeConfiguration.getCalculated()).contains(primaryMetered);
         assertThat(meterReadingTypeConfiguration.getMultiplierType()).isEqualTo(multiplierType);
-        assertThat(meterReadingTypeConfiguration.getOverflowValue()).hasValue(15);
+        assertThat(meterReadingTypeConfiguration.getOverflowValue()).hasValue(BigDecimal.valueOf(15));
         assertThat(meterReadingTypeConfiguration.getNumberOfFractionDigits()).hasValue(3);
     }
 
@@ -178,7 +178,7 @@ public class MeterConfigurationIT {
             meterConfiguration = meter
                     .startingConfigurationOn(ACTIVE_DATE.toInstant())
                     .configureReadingType(secondaryMetered)
-                    .withOverflowValue(15)
+                    .withOverflowValue(BigDecimal.valueOf(15))
                     .withNumberOfFractionDigits(3)
                     .withMultiplierOfType(multiplierType)
                     .calculating(primaryMetered)
