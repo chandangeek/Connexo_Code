@@ -104,6 +104,11 @@ import java.util.logging.Logger;
 public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo,
         RegisterProtocol, MessageProtocol, EventMapper {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS230 IEC1107\n";
+    }
+
     private static final int DEBUG = 0;
 
 

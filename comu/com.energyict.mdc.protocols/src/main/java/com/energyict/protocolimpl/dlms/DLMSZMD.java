@@ -77,6 +77,12 @@ KV|10102006|fix to support 64 bit values in load profile
  */
 @Deprecated /** Deprecated as of jan 2012 - please use the new SmartMeter protocol (com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD) instead. **/
 public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProtocol, MessageProtocol {
+
+    @Override
+    public String getProtocolDescription() {
+        return "L&G/Siemens ZxD/ZMQ/ZMF/ZMG DLMS_V1";
+    }
+
     private static final byte DEBUG=0;
 
     private final MessageProtocol messageProtocol;

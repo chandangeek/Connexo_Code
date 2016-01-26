@@ -16,6 +16,11 @@ import java.time.Clock;
  */
 public class Enerium50 extends Enerium200 {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Enerdis Enerium 50 Modbus";
+    }
+
     @Inject
     public Enerium50(PropertySpecService propertySpecService, Clock clock) {
         super(propertySpecService, clock);

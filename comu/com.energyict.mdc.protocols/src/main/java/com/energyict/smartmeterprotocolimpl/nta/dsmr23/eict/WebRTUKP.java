@@ -30,6 +30,11 @@ import java.time.Clock;
  */
 public class WebRTUKP extends AbstractSmartNtaProtocol implements HHUEnabler {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT WebRTU KP DLMS (NTA DSMR2.3)";
+    }
+
     @Inject
     public WebRTUKP(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
         super(propertySpecService, clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);

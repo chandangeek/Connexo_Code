@@ -36,6 +36,11 @@ import java.util.logging.Logger;
  */
 public class Generic extends MBus {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Generic Mbus";
+    }
+
     final int DEBUG=0;
 
     // temporary

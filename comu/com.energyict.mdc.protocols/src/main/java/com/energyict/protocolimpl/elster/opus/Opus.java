@@ -92,6 +92,11 @@ import java.util.logging.Logger;
  */
 public class Opus extends AbstractProtocol {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Elster OPUS";
+	}
+
 	private ProtocolChannelMap channelMap=null;
 
 	private String oldPassword;

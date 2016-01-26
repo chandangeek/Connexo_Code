@@ -69,6 +69,11 @@ import java.util.logging.Logger;
  */
 public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, MeterExceptionInfo, RegisterProtocol, DemandResetProtocol, MessageProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Iskraemeco MT83 IEC1107 (VDEW)";
+    }
+
     private static final byte DEBUG = 0;
 
     private static final int LOADPROFILES_FIRST = 1;

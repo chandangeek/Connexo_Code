@@ -67,6 +67,11 @@ import java.util.logging.Logger;
 
 public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "L&G/Siemens ZxD IEC1107 VDEW";
+    }
+
     private static final ObisCode BILLING_COUNTER = ObisCode.fromString("1.1.0.1.0.255");
     private static final ObisCode SERIAL_NUMBER = ObisCode.fromString("1.0.9.0.0.255");
 

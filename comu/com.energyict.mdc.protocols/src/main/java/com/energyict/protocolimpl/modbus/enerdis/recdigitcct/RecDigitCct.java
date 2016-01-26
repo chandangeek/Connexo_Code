@@ -37,6 +37,11 @@ import java.util.Properties;
 
 public class RecDigitCct extends Modbus {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Enerdis Recdigit CCT Modbus";
+	}
+
     private boolean debug = false;
     private boolean GO = true;
 

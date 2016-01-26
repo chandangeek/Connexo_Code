@@ -15,6 +15,11 @@ import java.util.Properties;
 
 public class AS1253 extends AbstractDLMS {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS1253 WaveFlow AC";
+    }
+
     /**
      * Predefined obiscodes for the A1800 meter
      */

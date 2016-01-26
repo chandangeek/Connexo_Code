@@ -53,6 +53,11 @@ import java.util.logging.Logger;
  */
 public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, WakeUpProtocolSupport {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AM110R DLMS (SSWG IC)";
+    }
+
     /**
      * The properties to use for this protocol
      */

@@ -33,6 +33,11 @@ KV|30032007|Add support for FCM3 and FCR1.4W (Cegedel project)
  */
 public class FCL extends Metcom3FCL implements RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "L&G FCL SCTM";
+    }
+
     FCLRegisters fclRegisters;
 
     @Inject

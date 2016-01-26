@@ -25,6 +25,11 @@ import java.util.List;
  */
 public class MbusDevice extends AbstractNtaMbusDevice {
 
+    @Override
+    public String getProtocolDescription() {
+        return "XEMEX ReMI Datalogger DLMS Mbus Slave";
+    }
+
     @Inject
     public MbusDevice(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
         super(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient, propertySpecService);

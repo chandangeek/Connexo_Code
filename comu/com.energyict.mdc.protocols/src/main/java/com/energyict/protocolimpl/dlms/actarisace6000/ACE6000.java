@@ -71,6 +71,11 @@ import java.util.logging.Logger;
 
 public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Itron ACE6000 DLMS";
+    }
+
     private static final byte DEBUG = 0;  // KV 16012004 changed all DEBUG values
     private static final int iNROfIntervals = 50000;
 

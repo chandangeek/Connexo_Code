@@ -53,6 +53,11 @@ import java.util.Properties;
 
 public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EDF Trimaran+ ICE";
+    }
+
     private int t1Timeout;
     private int safetyTimeout;
     private Connection62056 connection62056;

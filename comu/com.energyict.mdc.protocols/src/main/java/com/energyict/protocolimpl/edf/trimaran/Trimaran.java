@@ -47,6 +47,11 @@ KV|04012007|Bugfix to correct the year transition behaviour in the load profile 
  */
 public class Trimaran extends AbstractProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EDF Trimaran CVE";
+    }
+
     private TrimeranConnection trimeranConnection=null;
     private SPDUFactory sPDUFactory=null;
     private DataFactory dataFactory=null;

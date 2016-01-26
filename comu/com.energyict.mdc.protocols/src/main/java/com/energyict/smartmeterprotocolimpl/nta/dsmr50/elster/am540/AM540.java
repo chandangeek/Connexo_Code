@@ -39,6 +39,11 @@ import java.util.logging.Level;
  */
 public class AM540 extends E350 {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AM540 DLMS (NTA DSMR5.0)";
+    }
+
     private static final String TIMEOUT = "timeout";
 
     @Inject

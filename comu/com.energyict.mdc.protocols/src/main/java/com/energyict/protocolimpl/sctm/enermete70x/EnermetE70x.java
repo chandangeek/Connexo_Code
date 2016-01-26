@@ -39,6 +39,11 @@ KV|23092005|Changed intervalstate bits behaviour (EDP)
 //com.energyict.protocolimpl.sctm.enermete70x.EnermetE70x
 public class EnermetE70x extends Metcom2 implements RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Enernet E7xx SCTM";
+    }
+
 
     RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
     GenericRegisters genericRegisters;

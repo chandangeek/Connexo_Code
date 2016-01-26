@@ -105,6 +105,11 @@ import java.util.logging.Logger;
  */
 public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, MessageProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster/ABB A1140 IEC1107";
+    }
+
     private static final long FORCE_DELAY = 300;
 
     /**

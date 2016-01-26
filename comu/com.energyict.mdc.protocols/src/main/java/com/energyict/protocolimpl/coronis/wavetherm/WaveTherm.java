@@ -44,6 +44,11 @@ import java.util.Properties;
 
 public class WaveTherm extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Coronis WaveTherm";
+    }
+
     private boolean verifyProfileInterval = false;
     private ObisCodeMapper obisCodeMapper;
     private WaveFlowConnect waveLogConnect;

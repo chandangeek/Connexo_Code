@@ -60,6 +60,11 @@ import java.util.Properties;
  */
 public class AlphaPlus extends AbstractProtocol implements Alpha {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster Alpha Plus";
+    }
+
     private static final int DEBUG=0;
     private AlphaConnection alphaConnection;
     private CommandFactory commandFactory;

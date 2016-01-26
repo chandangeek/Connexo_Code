@@ -23,6 +23,11 @@ import java.util.logging.Logger;
  */
 public class SlaveMeter extends AbstractSlaveMeter implements SimpleMeter {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT WebRTU Z3 DLMS TIC Slave";
+    }
+
     private final PropertySpecService propertySpecService;
     private final WebRTUZ3 meterProtocol;
     private final String serialNumber;

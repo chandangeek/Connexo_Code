@@ -40,6 +40,11 @@ import java.util.Properties;
  */
 public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 
+	@Override
+	public String getProtocolDescription() {
+		return "EDF Trimaran 2P";
+	}
+
 	private APSEPDUFactory aPSEFactory;
 	private APSEParameters aPSEParameters;
 	private DLMSPDUFactory dLMSPDUFactory;

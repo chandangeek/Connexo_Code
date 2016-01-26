@@ -20,6 +20,11 @@ import java.util.Properties;
 
 public class WaveTalk extends AbstractWaveTalk {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Coronis WaveTalk";
+	}
+
 	/**
 	 * specific obis code mapper
 	 */

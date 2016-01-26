@@ -50,6 +50,11 @@ import java.util.logging.Level;
  */
 public class Trimaran extends AbstractProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EDF Trimaran CJE";
+    }
+
     private TrimeranConnection trimaranConnection=null;
     private SPDUFactory sPDUFactory=null;
     private DataFactory dataFactory=null;

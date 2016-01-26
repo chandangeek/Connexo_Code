@@ -83,6 +83,11 @@ import java.util.logging.Logger;
 
 public class Flex extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "L&G ZxF AD-FG DLMS";
+    }
+
     private static final byte DEBUG = 0;  // KV 16012004 changed all DEBUG values
 
     ObisCode loadProfileObisCode1 = ObisCode.fromString("1.0.99.1.0.255");

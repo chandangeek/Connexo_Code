@@ -228,7 +228,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     // Rtu+ Server
 //    RtuServer(196, "com.energyict.rtuprotocol.RtuServer", ProtocolFamily.EICT_RTU_EMS, ProtocolFamily.ELSTER_PLC, ProtocolFamily.IDIS_P1),
 
-    EIWEB_DEVICE_PROTOCOL(197, "com.energyict.protocolimplv2.eict.eiweb.EIWeb", ProtocolFamily.EICT_RTU_EMS),
+   // EIWEB_DEVICE_PROTOCOL(197, "com.energyict.protocolimplv2.eict.eiweb.EIWeb", ProtocolFamily.EICT_RTU_EMS),
     EIMETER_FLEX_SLAVE_MODULE(198, "com.energyict.protocolimpl.modbus.energyict.EIMeterFlexSlaveModule"),
 
     WEB_RTU_KP_V2(199, "com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP", ProtocolFamily.EICT_NTA),

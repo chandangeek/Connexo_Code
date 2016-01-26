@@ -36,6 +36,11 @@ import java.util.Properties;
 
 public class Enerium200 extends Modbus {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Enerdis Enerium 200 Modbus";
+	}
+
 	private static final int NUMBER_OF_CHANNELS = 8;
 	private final Clock clock;
 

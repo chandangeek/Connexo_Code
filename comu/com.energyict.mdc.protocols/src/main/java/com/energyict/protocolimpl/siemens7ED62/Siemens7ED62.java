@@ -66,6 +66,11 @@ GN|03042008|Added the MSYNC
  */
 public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Siemens 7ED62 SCTM";
+    }
+
     private final PropertySpecService propertySpecService;
     // init
     private TimeZone timeZone;

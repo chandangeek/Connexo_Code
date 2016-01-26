@@ -101,6 +101,11 @@ GN|07112008|Only read the MBus unit when mbus is enabled, older meters don't hav
  */
 public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol, DemandResetProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Iskraemeco Mx372 DLMS";
+    }
+
     private static final byte DEBUG = 0;  // KV 16012004 changed all DEBUG values
     private static final byte AARE_APPLICATION_CONTEXT_NAME = (byte) 0xA1;
     private static final byte AARE_RESULT = (byte) 0xA2;

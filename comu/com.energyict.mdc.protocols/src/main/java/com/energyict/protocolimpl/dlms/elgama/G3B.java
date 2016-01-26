@@ -54,6 +54,11 @@ import java.util.logging.Logger;
  */
 public class G3B extends AbstractDLMSProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elgama G3B DLMS";
+    }
+
     private G3BStoredValues storedValuesImpl = null;
     private static final int MILLIS_1_DAY = 60 * 60 * 24 * 1000;
     private static final int MAX_TIME_SHIFT_SECONDS = 59;

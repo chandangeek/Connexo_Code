@@ -308,7 +308,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty extends SDKDeviceProtoco
 
     @Override
     public String getProtocolDescription() {
-        return "EICT SDK DeviceProtocol with all properties";
+        return "EICT SDK DeviceProtocol with mandatory properties";
     }
 
     @Override

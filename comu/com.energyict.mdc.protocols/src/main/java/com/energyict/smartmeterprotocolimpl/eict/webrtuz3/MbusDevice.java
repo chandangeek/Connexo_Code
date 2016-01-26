@@ -22,6 +22,11 @@ import java.util.Properties;
  */
 public class MbusDevice extends SlaveMeter implements MessageProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT WebRTU Z3 DLMS Mbus Slave";
+    }
+
     public MessageProtocol getMessageProtocol() {
         return new MbusDeviceMessaging();
     }

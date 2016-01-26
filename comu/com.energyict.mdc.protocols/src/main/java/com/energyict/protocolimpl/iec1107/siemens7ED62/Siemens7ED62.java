@@ -36,6 +36,11 @@ import java.util.Properties;
  */
 public class Siemens7ED62 extends AbstractIEC1107Protocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Siemens 7ED62 IEC1107 (VDEW)";
+    }
+
     Siemens7ED62Registry siemens7ED62Registry=null;
     Siemens7ED62Profile siemens7ED62Profile=null;
 

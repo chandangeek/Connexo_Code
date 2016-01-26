@@ -43,6 +43,11 @@ import java.util.Properties;
  */
 public class EZ7 extends AbstractProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EMON EZ7";
+    }
+
     EZ7Connection ez7Connection=null;
     EZ7Profile ez7Profile=null;
     EZ7CommandFactory ez7CommandFactory=null;

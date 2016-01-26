@@ -17,6 +17,11 @@ import java.util.Date;
 
 public class RecDigitCdtE extends RecDigitCdt {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Enerdis Recdigit CDT E Modbus";
+    }
+
     private final Clock clock;
 
     @Inject

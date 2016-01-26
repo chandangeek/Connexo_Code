@@ -32,6 +32,11 @@ import java.util.Properties;
  */
 public class A20 extends Modbus {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Socomec Diris A20 Modbus";
+    }
+
     ModbusConnection modbusConnection;
     private RegisterFactory registerFactory;
     private MultiplierFactory multiplierFactory=null;

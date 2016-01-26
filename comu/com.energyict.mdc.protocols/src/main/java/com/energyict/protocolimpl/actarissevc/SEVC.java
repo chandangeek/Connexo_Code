@@ -57,6 +57,11 @@ KV|07042006|Bugfix to correct read gross and corrected volume
  */
 public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNumber {
 
+
+    @Override
+    public String getProtocolDescription() {
+        return "Actaris SEVCD IEC1107";
+    }
     private static final byte DEBUG = 0;
 
     private final String[] strRegisters = {"CVC", null, null, null, null};

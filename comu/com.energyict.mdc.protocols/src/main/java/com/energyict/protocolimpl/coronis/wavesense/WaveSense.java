@@ -43,6 +43,11 @@ import java.util.Properties;
 
 public class WaveSense extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Coronis WaveSense";
+    }
+
     private boolean verifyProfileInterval = false;
     private ObisCodeMapper obisCodeMapper;
     private WaveFlowConnect waveSenseConnect;

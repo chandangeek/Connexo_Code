@@ -29,6 +29,11 @@ import java.util.List;
  */
 public class Hydreka extends WaveFlow implements MessageProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Hydreka WaveFlow";
+    }
+
     private ObisCodeMapperHydreka obisCodeMapperHydreka;
     private ParameterFactoryHydreka parameterFactory = null;
     private RadioCommandFactoryHydreka radioCommandFactory;

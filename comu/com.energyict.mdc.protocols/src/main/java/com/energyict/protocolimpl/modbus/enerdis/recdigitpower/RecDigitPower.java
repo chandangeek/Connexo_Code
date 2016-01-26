@@ -47,6 +47,11 @@ import java.util.Properties;
 
 public class RecDigitPower extends Modbus {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Enerdis Recdigit Power Modbus";
+	}
+
     private boolean debug = false;
 
     static final Unit kWh = Unit.get(BaseUnit.WATT);

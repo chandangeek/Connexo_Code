@@ -125,6 +125,11 @@ import java.util.logging.Logger;
 
 public class PPM extends AbstractPPM {
 
+    @Override
+    public String getProtocolDescription() {
+        return "ABB/GE PPM Issue1 OPUS";
+    }
+
     private static final int SECONDS_PER_MINUTE = 60;
 
     /**

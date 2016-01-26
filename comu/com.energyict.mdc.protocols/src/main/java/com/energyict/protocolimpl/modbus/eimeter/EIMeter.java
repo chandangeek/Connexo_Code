@@ -33,6 +33,11 @@ import java.util.Properties;
  */
 public class EIMeter extends Modbus {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT EIMeter Modbus";
+    }
+
     @Inject
     public EIMeter(PropertySpecService propertySpecService) {
         super(propertySpecService);

@@ -136,7 +136,7 @@ public class CX20009 extends AbstractDlmsProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "SagemCom CX2000-9 DLMS";
+        return "Sagemcom CX2000-9 DLMS";
     }
 
     @Override

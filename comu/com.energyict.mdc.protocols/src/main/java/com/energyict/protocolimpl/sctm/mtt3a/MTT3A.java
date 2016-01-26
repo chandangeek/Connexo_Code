@@ -39,6 +39,11 @@ KV|14112007|Password mechanism
  */
 public class MTT3A extends Metcom3 implements RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "L&G MTT3A SCTM";
+    }
+
     RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
     GenericRegisters genericRegisters;
 

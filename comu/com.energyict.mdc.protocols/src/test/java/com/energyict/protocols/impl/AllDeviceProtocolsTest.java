@@ -11,25 +11,33 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.license.LicensedProtocolRule;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.protocols.mdc.InboundDeviceProtocolRule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
-
-import com.energyict.license.LicensedProtocolRule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -37,19 +45,16 @@ import javax.validation.MessageInterpolator;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.time.Clock;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.anyVararg;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -140,22 +145,35 @@ public class AllDeviceProtocolsTest {
 
     @Test
     public void testAllOutboundProtocols() {
-        Stream.of(LicensedProtocolRule.values()).forEach(this::testProtocolCreation);
+        final Set<String> descriptions = new HashSet<>();
+
+        Stream.of(LicensedProtocolRule.values()).forEach(rule -> this.testProtocolCreationAndUniqueDescription(rule, descriptions));
         System.out.println("Successfully tested the creation of " + LicensedProtocolRule.values().length + " outbound protocol(s)");
     }
 
-    private void testProtocolCreation(LicensedProtocolRule rule) {
+    private void testProtocolCreationAndUniqueDescription(LicensedProtocolRule rule, Set<String> descriptions) {
         Object protocol = null;
         try {
             // Business method
             protocol = this.deviceProtocolService.createProtocol(rule.getClassName());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             fail("Failed to create protocol: " + rule.getClassName());
         }
 
         // Asserts
         assertThat(protocol).isNotNull();
+
+        String description = null;
+        if (protocol instanceof MeterProtocol) {
+            description = ((MeterProtocol) protocol).getProtocolDescription();
+        } else if (protocol instanceof SmartMeterProtocol) {
+            description = ((SmartMeterProtocol) protocol).getProtocolDescription();
+        } else if (protocol instanceof DeviceProtocol) {
+            description = ((DeviceProtocol) protocol).getProtocolDescription();
+        }
+
+        assertNotNull("Protocol " + rule.getClassName() + " has no description!", description);
+        assertTrue("The description '" + description + "' of protocol '" + rule.getClassName() + "' was not unique!", descriptions.add(description));
     }
 
     @Test
@@ -169,8 +187,7 @@ public class AllDeviceProtocolsTest {
         try {
             // Business method
             protocol = this.deviceProtocolService.createProtocol(rule.getProtocolTypeClass().getName());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             fail("Failed to create protocol: " + rule.getProtocolTypeClass().getName());
         }
 

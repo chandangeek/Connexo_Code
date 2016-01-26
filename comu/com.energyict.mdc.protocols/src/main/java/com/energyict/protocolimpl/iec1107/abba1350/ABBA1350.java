@@ -77,6 +77,11 @@ public class ABBA1350
         extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, MeterExceptionInfo,
         RegisterProtocol, MessageProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster/ABB A1350 IEC1107 (VDEW)";
+    }
+
     private static final int DEBUG = 0;
 
     private static final int MIN_LOADPROFILE = 1;

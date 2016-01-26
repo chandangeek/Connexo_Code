@@ -12,6 +12,11 @@ import javax.inject.Inject;
  */
 public class LGE450 extends AbstractPrimeMeter {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Landis+Gyr E450 DLMS (PRIME1.5)";
+    }
+
     @Inject
     public LGE450(PropertySpecService propertySpecService) {
         super(propertySpecService);

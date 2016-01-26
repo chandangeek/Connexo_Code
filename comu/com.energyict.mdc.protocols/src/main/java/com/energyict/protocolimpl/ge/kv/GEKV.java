@@ -59,6 +59,11 @@ KV|04012007|reengineered protocol to allow Eiserver 7 new channel properties
  */
 public class GEKV extends AbstractProtocol implements C12ProtocolLink {
 
+    @Override
+    public String getProtocolDescription() {
+        return "General Electric KV ANSI";
+    }
+
     private C12Layer2 c12Layer2;
     private PSEMServiceFactory psemServiceFactory;
     private StandardTableFactory standardTableFactory;

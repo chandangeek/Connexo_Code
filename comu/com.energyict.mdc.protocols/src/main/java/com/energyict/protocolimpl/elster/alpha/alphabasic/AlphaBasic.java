@@ -55,6 +55,11 @@ import java.util.Properties;
  */
 public class AlphaBasic extends AbstractProtocol implements Alpha {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster Alpha Basic";
+    }
+
     public static final int DEBUG=0;
 
     private AlphaConnection alphaConnection;

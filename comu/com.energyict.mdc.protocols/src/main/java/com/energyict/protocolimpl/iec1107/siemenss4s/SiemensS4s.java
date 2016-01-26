@@ -24,6 +24,11 @@ import java.util.Properties;
 
 public class SiemensS4s extends AbstractIEC1107Protocol {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Landis&Gyr S4S IEC1107";
+	}
+
 	private S4sObjectFactory objectFactory;
 	private SiemensS4sProfile profileObject;
 	private SiemensS4sObisCodeMapper obisCodeMapper;

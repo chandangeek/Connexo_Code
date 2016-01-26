@@ -41,6 +41,11 @@ import java.util.Properties;
  */
 public class S4s extends AbstractProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Landis&Gyr S4S DGCOM";
+    }
+
     private DGCOMConnection dgcomConnection;
     private CommandFactory commandFactory;
     S4sProfile s4sProfile;

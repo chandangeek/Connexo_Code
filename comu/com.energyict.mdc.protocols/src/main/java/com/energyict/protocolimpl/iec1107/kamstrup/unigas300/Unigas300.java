@@ -41,6 +41,11 @@ import java.util.logging.Logger;
  */
 public class Unigas300 extends AbstractUnigas300 {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Kampstrup Unigas 300 IEC1107";
+    }
+
     private static final int KAMSTRUP_NR_OF_CHANNELS = 11;
 
     private String strID;

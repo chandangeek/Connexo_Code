@@ -31,6 +31,11 @@ import java.util.List;
  */
 public class AS300DPET extends AS300 {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS300D-PET DLMS";
+    }
+
     @Inject
     public AS300DPET(PropertySpecService propertySpecService, CodeFactory codeFactory, UserFileFactory userFileFactory, OrmClient ormClient) {
         super(propertySpecService, codeFactory, userFileFactory, ormClient);

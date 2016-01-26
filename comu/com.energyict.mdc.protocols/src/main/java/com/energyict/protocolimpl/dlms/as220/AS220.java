@@ -42,6 +42,11 @@ import java.util.List;
  */
 public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS220/AS1440 AM500 DLMS";
+    }
+
 //    private static final int	PROFILETYPE_EMETER_PLC_PQ	= 0;
     private static final int	PROFILETYPE_EMETER_ONLY	    = 1;
     private static final int	PROFILETYPE_PLC_ONLY	    = 2;

@@ -30,6 +30,11 @@ import java.util.Properties;
  */
 public class EictModbusRtu extends Modbus {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT RTU Modbus";
+    }
+
     @Inject
     public EictModbusRtu(PropertySpecService propertySpecService) {
         super(propertySpecService);

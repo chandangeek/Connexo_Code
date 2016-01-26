@@ -28,6 +28,11 @@ import java.util.Properties;
 
 public class Echodis extends WaveFlow100mW {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Echodis WaveFlow";
+	}
+
 	/**
 	 * Actaris specific obis code mapper
 	 */

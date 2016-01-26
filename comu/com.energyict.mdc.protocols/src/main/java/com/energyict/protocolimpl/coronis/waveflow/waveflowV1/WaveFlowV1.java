@@ -20,6 +20,11 @@ import java.util.Date;
 
 public class WaveFlowV1 extends WaveFlow implements MessageProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Coronis WaveFlow V1";
+    }
+
     /**
      * specific obis code mapper
      */

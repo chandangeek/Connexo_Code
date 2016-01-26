@@ -46,6 +46,11 @@ import java.util.logging.Logger;
 
 public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Ziv 5CTD IEC870-102";
+    }
+
     static final BigDecimal MAX_PROFILE_VALUE = new BigDecimal(9999999);
 
     /**

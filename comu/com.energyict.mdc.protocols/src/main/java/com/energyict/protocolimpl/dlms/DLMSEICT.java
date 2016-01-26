@@ -25,6 +25,11 @@ import java.util.Properties;
 
 public class DLMSEICT extends DLMSSN {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT RTU DLMS";
+    }
+
     @Inject
     public DLMSEICT(PropertySpecService propertySpecService, OrmClient ormClient) {
         super(propertySpecService, ormClient);

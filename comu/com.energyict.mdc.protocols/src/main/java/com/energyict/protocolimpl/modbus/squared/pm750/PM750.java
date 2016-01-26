@@ -32,6 +32,11 @@ import java.util.Properties;
  */
 public class PM750 extends Modbus  {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Merlin Gerin PM750 Modbus";
+	}
+
 	private MultiplierFactory multiplierFactory = null;
 
 	@Inject

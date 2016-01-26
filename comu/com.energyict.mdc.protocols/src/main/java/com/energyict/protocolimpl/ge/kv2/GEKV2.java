@@ -56,6 +56,11 @@ import java.util.TimeZone;
  */
 public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
 
+    @Override
+    public String getProtocolDescription() {
+        return "General Electric KV2 ANSI";
+    }
+
     private C12Layer2 c12Layer2;
     private PSEMServiceFactory psemServiceFactory;
     private StandardTableFactory standardTableFactory;

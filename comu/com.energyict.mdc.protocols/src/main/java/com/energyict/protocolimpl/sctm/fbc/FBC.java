@@ -32,6 +32,11 @@ KV|23032005|Changed header to be compatible with protocol version tool
  */
 public class FBC extends Metcom3FBC implements RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "L&G FBC SCTM";
+    }
+
     FBCRegisters fbcRegisters;
 
     @Inject

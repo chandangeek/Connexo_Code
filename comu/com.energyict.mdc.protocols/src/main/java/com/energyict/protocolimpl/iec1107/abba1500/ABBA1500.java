@@ -80,6 +80,11 @@ import java.util.logging.Logger;
  */
 public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster/ABB A1500 IEC1107 (VDEW)";
+    }
+
     private String strID;
     private String strPassword;
     private String serialNumber;

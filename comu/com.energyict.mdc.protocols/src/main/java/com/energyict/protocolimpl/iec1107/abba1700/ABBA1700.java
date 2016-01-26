@@ -65,6 +65,11 @@ import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactor
  */
 public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, DemandResetProtocol, MessageProtocol { // KV 19012004
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster/ABB A1700 IEC1107";
+    }
+
     private static final int BREAK_DELAY = 500;
     private static final int BREAK_BAUDRATE = 9600;
 

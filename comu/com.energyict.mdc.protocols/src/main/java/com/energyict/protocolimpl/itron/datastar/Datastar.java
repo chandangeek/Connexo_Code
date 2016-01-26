@@ -43,6 +43,11 @@ KV|04072007|Add additional multipliers
 
 public class Datastar extends SchlumbergerProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Itron/Schlumberger Datastar";
+    }
+
     private BasePagesFactory basePagesFactory=null;
 
     private DatastarProfile datastarProfile=null;

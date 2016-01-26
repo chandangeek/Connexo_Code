@@ -58,6 +58,11 @@ import java.util.logging.Level;
  */
 public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Janz C280 DLMS";
+    }
+
     private static final ObisCode OBISCODE_ACTIVE_FIRMWARE = ObisCode.fromString("0.0.128.0.1.255");
     private static final ObisCode OBISCODE_SERIAL_NUMBER = ObisCode.fromString("0.0.96.1.0.255");
 

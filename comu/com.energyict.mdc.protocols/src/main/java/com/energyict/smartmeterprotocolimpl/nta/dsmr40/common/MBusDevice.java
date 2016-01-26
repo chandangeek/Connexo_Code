@@ -28,6 +28,11 @@ import java.util.Properties;
  */
 public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Dummy DLMS (NTA DSMR4.0) Mbus Slave";
+    }
+
     private final Clock clock;
 
     @Inject

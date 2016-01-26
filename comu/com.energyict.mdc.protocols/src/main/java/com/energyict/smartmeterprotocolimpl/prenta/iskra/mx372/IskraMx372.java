@@ -58,6 +58,11 @@ import java.util.logging.Logger;
  */
 public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLink, MessageProtocol, WakeUpProtocolSupport {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Iskraemeco Mx372 DLMS (PRE-NTA)";
+    }
+
     private IskraMX372Properties properties;
     private String serialnr = null;
     private String devID = null;

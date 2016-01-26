@@ -16,6 +16,11 @@ import javax.inject.Inject;
 @Deprecated
 public class Cube350 extends EIMeter {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Northern Design Cube350 Modbus";
+    }
+
     @Inject
     public Cube350(PropertySpecService propertySpecService) {
         super(propertySpecService);

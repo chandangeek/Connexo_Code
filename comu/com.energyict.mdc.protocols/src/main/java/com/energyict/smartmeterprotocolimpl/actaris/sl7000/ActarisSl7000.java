@@ -53,6 +53,11 @@ import java.util.logging.Level;
  */
 public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements ProtocolLink, MessageProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Itron SL7000 DLMS";
+    }
+
     /**
      * Contains properties related to the Actaris SL7000 protocol
      */

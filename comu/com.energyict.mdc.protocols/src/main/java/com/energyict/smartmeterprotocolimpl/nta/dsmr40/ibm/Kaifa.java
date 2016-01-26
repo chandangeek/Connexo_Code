@@ -36,7 +36,7 @@ public class Kaifa extends E350 {
     }
 
     public String getProtocolDescription() {
-        return "IBM Kaifa NTA DSMR 4.0";
+        return "IBM Kaifa DLMS (NTA DSMR4.0)";
     }
 
     @Override

@@ -41,6 +41,11 @@ KV|06042006|Add IntervalStatusBehaviour custom property to correct power fail st
  */
 public class Metcom2 extends Metcom{
 
+    @Override
+    public String getProtocolDescription() {
+        return "Metcom2 SCTM";
+    }
+
     // TABENQ1(E1) list numbers
     protected final String REG_NR_OF_CHANNELS="60200";
     protected final String REG_PROFILEINTERVAL="70101";

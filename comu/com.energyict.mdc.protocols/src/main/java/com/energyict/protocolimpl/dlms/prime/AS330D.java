@@ -12,6 +12,11 @@ import javax.inject.Inject;
  */
 public class AS330D extends AbstractPrimeMeter {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS330D DLMS (PRIME1.5)";
+    }
+
     @Inject
     public AS330D(PropertySpecService propertySpecService) {
         super(propertySpecService);

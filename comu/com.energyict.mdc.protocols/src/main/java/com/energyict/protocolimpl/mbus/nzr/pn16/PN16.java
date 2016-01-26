@@ -30,6 +30,11 @@ import java.util.Properties;
  */
 public class PN16 extends MBus {
 
+    @Override
+    public String getProtocolDescription() {
+        return "NZR PN16 Mbus";
+    }
+
     @Inject
     public PN16(PropertySpecService propertySpecService) {
         super(propertySpecService);

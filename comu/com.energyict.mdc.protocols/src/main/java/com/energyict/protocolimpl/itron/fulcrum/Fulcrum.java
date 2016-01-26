@@ -40,6 +40,11 @@ import java.util.Properties;
  */
 public class Fulcrum extends SchlumbergerProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Itron/Schlumberger Fulcrum";
+    }
+
     private BasePagesFactory basePagesFactory=null;
     RegisterFactory registerFactory=null;
     private FulcrumProfile fulcrumProfile=null;

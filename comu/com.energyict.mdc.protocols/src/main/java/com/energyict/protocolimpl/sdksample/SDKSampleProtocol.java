@@ -66,6 +66,11 @@ import java.util.Properties;
  */
 public class SDKSampleProtocol extends AbstractProtocol implements MessageProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT SDK MeterProtocol";
+    }
+
     private static final String FIRMWAREPROGRAM = "UpgradeMeterFirmware";
     private static final String FIRMWAREPROGRAM_DISPLAY = "Upgrade Meter Firmware";
 

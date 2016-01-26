@@ -47,6 +47,11 @@ import java.util.List;
  */
 public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT WebRTU Z3 DLMS";
+    }
+
     private static final int OBIS_CODE_B_FIELD_INDEX = 1;
 
     /**

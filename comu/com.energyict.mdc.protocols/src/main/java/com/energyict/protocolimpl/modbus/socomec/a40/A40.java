@@ -36,6 +36,11 @@ import java.util.logging.Logger;
  */
 public class A40 extends Modbus {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Socomec Diris A40 Modbus";
+    }
+
     private MultiplierFactory multiplierFactory=null;
     private String socomecType;
     private SocomecProfile profile;

@@ -30,6 +30,11 @@ KV|23032005|Changed header to be compatible with protocol version tool
  */
 public class FAF10 extends Metcom3FAF implements RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "L&G FAF10 SCTM";
+    }
+
     FAF10Registers fafRegisters=null;
 
     @Inject

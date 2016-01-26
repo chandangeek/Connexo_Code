@@ -27,6 +27,11 @@ import java.util.logging.Logger;
 @SuppressWarnings("unused")
 public class A1800 extends AbstractDlmsSessionProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster Alpha A1800 DLMS";
+    }
+
     public static final ObisCode CLOCK_OBIS_CODE = ObisCode.fromString("0.0.1.0.0.255");
 
     protected A1800Properties properties = new A1800Properties();

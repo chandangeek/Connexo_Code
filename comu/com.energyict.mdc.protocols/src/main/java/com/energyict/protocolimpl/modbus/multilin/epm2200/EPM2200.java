@@ -25,6 +25,11 @@ import java.util.logging.Logger;
  */
 public class EPM2200 extends Modbus {
 
+    @Override
+    public String getProtocolDescription() {
+        return "GE Multilin EPM 2200 Modbus";
+    }
+
     @Inject
     public EPM2200(PropertySpecService propertySpecService) {
         super(propertySpecService);

@@ -68,6 +68,11 @@ import java.util.regex.Pattern;
 
 public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Landis&Gyr MaxSys 2510 SMD US";
+    }
+
     /**
      * Property keys
      */

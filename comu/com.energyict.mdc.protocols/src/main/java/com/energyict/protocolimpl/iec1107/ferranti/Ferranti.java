@@ -58,6 +58,11 @@ import java.util.logging.Logger;
  */
 public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, MeterExceptionInfo {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Ferranti";
+    }
+
     private static final int FERRANTI_NR_OF_PROFILE_CHANNELS = 3;
     private static final int FERRANTI_NR_OF_METERREADINGS = 4;
     private static final String[] FERRANTI_METERREADINGS = {"7-0:23.0.0*101", "7-0:23.2.0*101", "7-0:97.97.0*101", "7-0:0.1.2*101"};

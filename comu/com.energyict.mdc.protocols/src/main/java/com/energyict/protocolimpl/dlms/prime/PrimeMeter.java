@@ -12,6 +12,11 @@ import javax.inject.Inject;
  */
 public class PrimeMeter extends AbstractPrimeMeter {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Generic PRIME E-Meter DLMS (PRIME1.5)";
+    }
+
     @Inject
     public PrimeMeter(PropertySpecService propertySpecService) {
         super(propertySpecService);

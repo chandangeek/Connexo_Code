@@ -29,6 +29,11 @@ import java.util.List;
  */
 public class MBusDevice extends AbstractNtaMbusDevice {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Landis+Gyr E350 XEMEX DLMS (NTA DSMR4.0) Mbus Slave";
+    }
+
     @Inject
     public MBusDevice(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
         super(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient, propertySpecService);

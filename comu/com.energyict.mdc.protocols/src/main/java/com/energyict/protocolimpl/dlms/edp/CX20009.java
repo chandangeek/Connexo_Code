@@ -45,6 +45,11 @@ import java.util.logging.Level;
  */
 public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, CacheMechanism {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Sagemcom CX2000-9 DLMS_V1";
+    }
+
     public static final ObisCode SERIAL_NUMBER = ObisCode.fromString("0.0.96.1.0.255");
     public static final ObisCode CORE_FIRMWARE_VERSION = ObisCode.fromString("1.0.0.2.0.255");
     public static final ObisCode APPLICATION_FIRMWARE_VERSION = ObisCode.fromString("1.1.0.2.0.255");

@@ -57,6 +57,11 @@ import java.util.logging.Logger;
 
 public class DukePower extends PluggableMeterProtocol implements SerialNumber {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT RTU DukePower";
+    }
+
     private static final byte DUKEPOWERPROTOCOL_DEBUG = 0;
 
     private static final byte EV_POWER_DOWN = 0x01;

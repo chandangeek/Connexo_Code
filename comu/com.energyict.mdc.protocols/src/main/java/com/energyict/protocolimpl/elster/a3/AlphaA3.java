@@ -80,6 +80,11 @@ import java.util.TimeZone;
 // changed
 public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster Alpha A3 ANSI";
+    }
+
     public static String SECURITY_MODE = "SecurityMode";
 	public static String CALLED_AP_TITLE = "CalledAPTitle";
     public static String SECURITY_KEY = "SecurityKey";

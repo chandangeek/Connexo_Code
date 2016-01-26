@@ -46,6 +46,11 @@ import java.util.logging.Logger;
  */
 public class Unilog extends AbstractUnilog {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Kamstrup Unilog IEC1107";
+    }
+
     private static final String KAMSTRUP_ID = "/KAM5";
 
     /**

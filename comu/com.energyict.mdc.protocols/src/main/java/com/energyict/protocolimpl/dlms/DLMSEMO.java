@@ -38,6 +38,11 @@ KV|31032005|Handle DataContainerException
  */
 public class DLMSEMO extends DLMSSN {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Enernet E7xx DLMS";
+    }
+
     @Inject
     public DLMSEMO(PropertySpecService propertySpecService, OrmClient ormClient) {
         super(propertySpecService, ormClient);

@@ -43,6 +43,11 @@ import java.util.StringTokenizer;
  */
 public class Instromet444 extends InstrometProtocol {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Instromet EVHI 444";
+	}
+
 	private Instromet444Profile instromet444Profile = null;
 	private TableFactory tableFactory = null;
 	private CommandFactory commandFactory=null;

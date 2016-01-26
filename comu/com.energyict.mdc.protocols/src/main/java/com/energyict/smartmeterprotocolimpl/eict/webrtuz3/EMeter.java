@@ -22,6 +22,11 @@ import java.util.Properties;
  */
 public class EMeter extends SlaveMeter implements MessageProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT WebRTU Z3 DLMS E-meter slave";
+    }
+
     public MessageProtocol getMessageProtocol() {
         return new EMeterMessaging();
     }

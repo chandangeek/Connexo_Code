@@ -65,6 +65,11 @@ import java.util.logging.Logger;
  */
 public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtocol, MessageProtocol, ProtocolLink {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Landis+Gyr ICG Family DLMS";
+    }
+
     protected String firmwareVersion;
 
     private CosemObjectFactory cosemObjectFactory = null;

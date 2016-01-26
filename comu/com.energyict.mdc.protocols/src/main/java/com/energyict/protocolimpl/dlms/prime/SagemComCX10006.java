@@ -12,6 +12,11 @@ import javax.inject.Inject;
  */
 public class SagemComCX10006 extends AbstractPrimeMeter {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Sagemcom CX10006 DLMS (PRIME1.5)";
+    }
+
     @Inject
     public SagemComCX10006(PropertySpecService propertySpecService) {
         super(propertySpecService);

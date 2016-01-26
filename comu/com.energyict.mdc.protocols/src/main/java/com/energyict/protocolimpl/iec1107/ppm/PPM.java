@@ -132,6 +132,11 @@ import java.util.logging.Logger;
  */
 public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "ABB/GE PPM Issue2 OPUS";
+    }
+
     /**
      * The minimum period of time that must be elapsed in order for an interval
      * to be valid/acceptable. (in millisecs) (see Fix for data spikes)

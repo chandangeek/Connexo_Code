@@ -43,6 +43,11 @@ import java.util.Properties;
 
 public class S200 extends AbstractProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Landis&Gyr Sentry S200";
+    }
+
     private S200Connection s200Connection=null;
     private CommandFactory commandFactory = null;
     private S200Profile s200Profile=null;

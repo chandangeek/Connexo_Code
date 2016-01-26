@@ -27,6 +27,11 @@ import java.util.List;
  */
 public class Metcom3FAG extends Metcom3 {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Metcom3 FAG SCTM";
+    }
+
     private static final int DEBUG = 0;
 
     @Inject

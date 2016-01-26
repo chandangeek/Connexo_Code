@@ -30,6 +30,11 @@ KV|23032005|Changed header to be compatible with protocol version tool
  */
 public class FAG extends Metcom3FAG implements RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "L&G FAG SCTM";
+    }
+
     FAGRegisters fagRegisters;
 
     @Inject

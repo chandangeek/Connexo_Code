@@ -29,6 +29,11 @@ import java.util.List;
  */
 public class Metcom3FAF extends Metcom3 {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Metcom3 FAF SCTM";
+    }
+
     private static final int DEBUG = 0;
     protected final String REG_PROFILEINTERVAL="70300";
     protected final String DIGITS_PER_VALUE="82001";

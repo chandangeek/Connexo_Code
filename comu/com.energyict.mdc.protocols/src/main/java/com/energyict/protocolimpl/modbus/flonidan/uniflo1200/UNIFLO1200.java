@@ -46,6 +46,11 @@ import java.util.Properties;
 
 public class UNIFLO1200 extends Modbus {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Flonidan UNIFLO Modbus";
+	}
+
 	private static final int DEBUG = 0;
 
 	private static final int MIN_LOADPROFILE_NUMBER = 1;

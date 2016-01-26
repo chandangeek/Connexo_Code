@@ -44,6 +44,11 @@ import java.util.TimeZone;
 
 public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper, RTMFactory {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Coronis RTM Wavenis";
+    }
+
     private ObisCodeMapper obisCodeMapper;
     private WaveFlowConnect rtmConnect;
     private RadioCommandFactory radioCommandFactory;

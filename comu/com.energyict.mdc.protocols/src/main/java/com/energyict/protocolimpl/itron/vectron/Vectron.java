@@ -35,6 +35,11 @@ import java.util.Properties;
  */
 public class Vectron extends SchlumbergerProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Itron/Schlumberger Vectron";
+    }
+
     private BasePagesFactory basePagesFactory=null;
     RegisterFactory registerFactory=null;
     private VectronProfile vectronProfile=null;

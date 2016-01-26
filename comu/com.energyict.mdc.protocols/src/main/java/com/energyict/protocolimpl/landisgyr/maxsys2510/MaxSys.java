@@ -66,6 +66,11 @@ import java.util.logging.Logger;
 
 public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Landis&Gyr MaxSys 2510 SMD";
+    }
+
     /**
      * Property keys
      */

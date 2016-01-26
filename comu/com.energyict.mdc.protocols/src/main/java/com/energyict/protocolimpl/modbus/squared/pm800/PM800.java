@@ -34,6 +34,11 @@ import java.util.logging.Logger;
  */
 public class PM800 extends Modbus  {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Schneider Electric SquareD PM800 Modbus";
+    }
+
     private MultiplierFactory multiplierFactory=null;
 
     @Inject

@@ -65,6 +65,11 @@ import java.util.logging.Logger;
 
 public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster EK240 DLMS";
+    }
+
     private static final int DEBUG = 0;
     private static final String DEVICE_ID = "ELS";
 

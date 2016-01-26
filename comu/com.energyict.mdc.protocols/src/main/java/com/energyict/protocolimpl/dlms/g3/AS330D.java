@@ -41,6 +41,11 @@ import java.util.logging.Level;
  */
 public class AS330D extends AbstractDlmsSessionProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS330D DLMS (G3 Linky)";
+    }
+
     private static final String TIMEOUT = "timeout";
 
     private final OrmClient ormClient;

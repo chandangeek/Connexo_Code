@@ -72,6 +72,11 @@ import java.util.logging.Logger;
  */
 public class EictRtuVdew extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, HalfDuplexEnabler {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT RTU IEC1107 (VDEW)";
+    }
+
     private static final byte DEBUG = 0;
 
     private String strID;

@@ -27,6 +27,11 @@ import java.util.Properties;
 
 public class CM10 extends AbstractProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Siemens Energy Services Ltd CM10";
+    }
+
     static final String IS_C10_METER = "CM_10_meter";
     private static final int MAX_CLOCK_DEVIATION = 59;  // max 59 sec deviation
 

@@ -53,6 +53,11 @@ import java.util.logging.Level;
  */
 public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, CacheMechanism {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AM500 DLMS (IDIS P1)";
+    }
+
     public static final String CALLING_AP_TITLE = "CallingAPTitle";
     public static final String CALLING_AP_TITLE_DEFAULT = "0000000000000000";
 

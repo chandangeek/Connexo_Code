@@ -61,6 +61,11 @@ import java.util.logging.Logger;
  **/
 public class MK10 extends AbstractProtocol {
 
+	@Override
+	public String getProtocolDescription() {
+		return "EDMI MK10 [Pull] CommandLine";
+	}
+
 	private static final int DEBUG				= 0;
 	private static final boolean USE_HARD_INFO 	= true;
 

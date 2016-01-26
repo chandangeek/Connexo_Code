@@ -18,6 +18,11 @@ import java.util.Properties;
 
 public class SM150E extends WaveFlow100mW {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Severntrent SM150E WaveFlow";
+	}
+
 	/**
 	 * specific severntrent obis code mapper
 	 */

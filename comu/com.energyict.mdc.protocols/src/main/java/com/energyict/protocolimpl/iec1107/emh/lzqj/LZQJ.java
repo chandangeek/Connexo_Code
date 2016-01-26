@@ -72,6 +72,11 @@ import java.util.logging.Logger;
  */
 public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EMH LZQJ IEC1107 (VDEW)";
+    }
+
     private String strID;
     private String strPassword;
     private int iIEC1107TimeoutProperty;

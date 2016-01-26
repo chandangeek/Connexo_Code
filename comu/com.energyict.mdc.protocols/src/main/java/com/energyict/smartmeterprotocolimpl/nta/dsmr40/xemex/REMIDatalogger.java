@@ -30,6 +30,11 @@ import java.time.Clock;
  */
 public class REMIDatalogger extends E350 {
 
+    @Override
+    public String getProtocolDescription() {
+        return "XEMEX ReMI Datalogger DLMS";
+    }
+
     private XemexLoadProfileBuilder loadProfileBuilder;
 
     @Inject

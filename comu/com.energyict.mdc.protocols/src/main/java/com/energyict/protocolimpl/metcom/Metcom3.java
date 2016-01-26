@@ -36,6 +36,11 @@ KV|23092005|Changed intervalstate bits behaviour (EDP)
  */
 public class Metcom3 extends Metcom {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Metcom3 SCTM";
+    }
+
     private static final int DEBUG = 0;
 
     @Inject

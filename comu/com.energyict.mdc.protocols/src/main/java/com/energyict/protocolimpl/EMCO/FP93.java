@@ -41,6 +41,11 @@ import java.util.logging.Level;
  */
 public class FP93 extends AbstractProtocol implements MessageProtocol{
 
+    @Override
+    public String getProtocolDescription() {
+        return "EMCO FP93 Steam Meter";
+    }
+
     private FP93Connection connection;
     private ObisCodeMapper obisCodeMapper;
     private EventLog eventLog;

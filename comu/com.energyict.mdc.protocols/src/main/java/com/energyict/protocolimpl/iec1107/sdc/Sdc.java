@@ -27,6 +27,11 @@ KV|01092005|Add manufacturer specific code
  */
 public class Sdc extends SdcBase {
 
+    @Override
+    public String getProtocolDescription() {
+        return "SDC LM30x IEC1107";
+    }
+
     RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
 
     @Inject

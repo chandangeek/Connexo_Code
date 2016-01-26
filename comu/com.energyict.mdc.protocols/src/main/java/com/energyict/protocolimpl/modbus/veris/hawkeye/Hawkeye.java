@@ -32,6 +32,11 @@ import java.util.logging.Logger;
  */
 public class Hawkeye extends Modbus  {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Veris Hawkeye h80xx Modbus";
+    }
+
     @Inject
     public Hawkeye(PropertySpecService propertySpecService) {
         super(propertySpecService);

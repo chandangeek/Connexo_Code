@@ -13,6 +13,11 @@ import javax.inject.Inject;
  */
 public class JanzB280 extends CX20009 {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Janz B280 DLMS_V1";
+    }
+
     @Inject
     public JanzB280(PropertySpecService propertySpecService, OrmClient ormClient) {
         super(propertySpecService, ormClient);

@@ -21,6 +21,11 @@ import java.time.Clock;
  */
 public class CX20009 extends AM540 {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Sagemcom CX20009 DLMS (NTA DSMR5.0)";
+    }
+
     @Inject
     public CX20009(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
         super(propertySpecService, clock, topologyService, ormClient, readingTypeUtilService, loadProfileFactory);

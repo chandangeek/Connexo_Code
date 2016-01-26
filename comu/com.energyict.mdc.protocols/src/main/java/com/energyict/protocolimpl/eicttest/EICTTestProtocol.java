@@ -66,6 +66,11 @@ import java.util.Properties;
  */
 public class EICTTestProtocol extends AbstractProtocol implements MessageProtocol  {
 
+	@Override
+	public String getProtocolDescription() {
+		return "EnergyICT Test Protocol";
+	}
+
 	private static final String FIRMWAREPROGRAM = "UpgradeMeterFirmware";
 	private static final String FIRMWAREPROGRAM_DISPLAY_1 = "Upgrade Meter Firmware 1";
 	private static final String FIRMWAREPROGRAM_DISPLAY_2 = "Upgrade Meter Firmware 2";

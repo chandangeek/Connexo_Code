@@ -35,6 +35,11 @@ import java.util.Properties;
  */
 public class Quantum extends SchlumbergerProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Itron/Schlumberger Quantum";
+    }
+
     private BasePagesFactory basePagesFactory=null;
     RegisterFactory registerFactory=null;
     private QuantumProfile quantumProfile=null;

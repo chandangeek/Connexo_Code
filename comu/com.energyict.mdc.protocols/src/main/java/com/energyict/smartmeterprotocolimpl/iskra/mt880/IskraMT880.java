@@ -36,6 +36,11 @@ import java.util.List;
  */
 public class IskraMT880 extends AbstractSmartDlmsProtocol implements MessageProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Iskraemeco MT880 DLMS";
+    }
+
     /** Contains all properties of the Iskra MT880 device **/
     private IskraMT880Properties properties;
 

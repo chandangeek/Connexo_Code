@@ -27,6 +27,11 @@ import java.util.List;
  */
 public class Metcom3FCL extends Metcom3 {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Metcom3 FCL SCTM";
+    }
+
     private static final int DEBUG=0;
 
     protected final String[] REG_PROFILEINTERVAL={"70101","70102"};

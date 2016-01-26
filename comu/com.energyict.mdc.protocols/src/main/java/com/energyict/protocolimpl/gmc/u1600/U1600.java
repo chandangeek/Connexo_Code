@@ -50,6 +50,11 @@ KV|04122006|Implement setTime() & getTime() and fix DST transision behaviour
  */
 public class U1600 extends AbstractProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "GMC U1600";
+    }
+
     LogicalAddressFactory logicalAddressFactory;
     U1600Profile u1600Profile=null;
     EclConnection eclConnection=null;

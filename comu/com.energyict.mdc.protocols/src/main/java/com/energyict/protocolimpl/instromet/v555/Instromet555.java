@@ -28,6 +28,11 @@ import java.util.StringTokenizer;
 
 public class Instromet555 extends InstrometProtocol {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Instromet EVHI 555";
+	}
+
 	private Instromet555Profile instromet555Profile = null;
 	private TableFactory tableFactory = null;
     private CommandFactory commandFactory=null;

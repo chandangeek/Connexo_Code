@@ -27,6 +27,11 @@ import java.util.List;
 
 public class RecDigitCdtPr extends RecDigitCdt {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Enerdis Recdigit CDT PR Modbus";
+	}
+
     private boolean debug = false;
 
     static final Unit kWh = Unit.get(BaseUnit.WATT);

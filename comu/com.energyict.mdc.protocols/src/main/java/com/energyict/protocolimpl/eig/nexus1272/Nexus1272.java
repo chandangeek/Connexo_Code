@@ -39,6 +39,11 @@ import java.util.Properties;
 
 public class Nexus1272 extends AbstractProtocol  {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Electro Industries Nexus 1272 Modbus";
+	}
+
 	private NexusProtocolConnection connection;
 	private OutputStream outputStream;
 

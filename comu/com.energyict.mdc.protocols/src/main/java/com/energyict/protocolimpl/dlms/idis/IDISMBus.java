@@ -33,6 +33,11 @@ import java.util.List;
  */
 public class IDISMBus extends IDIS {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AM500 DLMS (IDIS P1) MBus slave";
+    }
+
     private int gasMeterSlot = -1;
     private MBusProfileDataReader mBusProfileDataReader = null;
     private IDISMessageHandler messageHandler = null;

@@ -58,6 +58,11 @@ KV|15122005|Test if protocol retrieved new interval data, intervals retrieved be
  */
 public class IndigoPlus extends AbstractIEC1107Protocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Actaris Indigo+ IEC1107";
+    }
+
     LogicalAddressFactory logicalAddressFactory;
     IndigoProfile indigoProfile;
     int statusFlagChannel,readCurrentDay;

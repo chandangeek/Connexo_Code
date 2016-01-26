@@ -54,6 +54,11 @@ import java.util.TimeZone;
  */
 public class MarkV extends AbstractProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Transdata MarkV";
+    }
+
     MarkVConnection markVConnection=null;
     MarkVProfile markVProfile=null;
     CommandFactory commandFactory=null;

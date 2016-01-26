@@ -53,6 +53,11 @@ import java.util.logging.Level;
 
 public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Elster Alpha A1800 ANSI";
+	}
+
 	private A1800LoadProfile a1800LoadProfile;
 
 	private boolean messageSucceeded = true;

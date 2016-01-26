@@ -27,6 +27,11 @@ import java.time.Clock;
  */
 public class Mx382 extends AbstractSmartNtaProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Iskraemeco Mx382 DLMS (NTA DSMR2.3)";
+    }
+
     @Inject
     public Mx382(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
         super(propertySpecService, clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);

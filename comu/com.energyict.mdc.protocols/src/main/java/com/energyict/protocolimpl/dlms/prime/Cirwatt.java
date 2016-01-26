@@ -12,6 +12,11 @@ import javax.inject.Inject;
  */
 public class Cirwatt extends AbstractPrimeMeter {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Circutor Cirwatt B 410D DLMS (PRIME1.5)";
+    }
+
     @Inject
     public Cirwatt(PropertySpecService propertySpecService) {
         super(propertySpecService);

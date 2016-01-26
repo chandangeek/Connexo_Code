@@ -31,6 +31,11 @@ import java.util.Properties;
  */
 public class Sharky770 extends MBus {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Hydrometer Sharky 770 Mbus";
+    }
+
     @Inject
     public Sharky770(PropertySpecService propertySpecService) {
         super(propertySpecService);

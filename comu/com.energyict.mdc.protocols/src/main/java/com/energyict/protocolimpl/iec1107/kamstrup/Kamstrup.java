@@ -61,6 +61,11 @@ import java.util.logging.Logger;
  */
 public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, RegisterProtocol { //,CommunicationParameters {
 
+    @Override
+    public String getProtocolDescription() {
+        return "L&G/Siemens ZxD IEC1107 (VDEW)";
+    }
+
     private static final int KAMSTRUP_NR_OF_CHANNELS = 6;
     private static final String[] KAMSTRUP_METERREADINGS_979D1 = {"23.2.0", "13.1.0", "1:13.0.0", "0:41.0.0", "0:42.0.0", "97.97.0"};
     private static final String[] KAMSTRUP_METERREADINGS_979E1 = {"23.2.0", "1:12.0.0", "1:13.0.0", "0:41.0.0", "0:42.0.0", "97.97.0"};

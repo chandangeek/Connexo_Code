@@ -32,6 +32,11 @@ import java.util.Properties;
  */
 public class Ci extends Modbus {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Socomec Countis Ci Modbus";
+	}
+
 	private MultiplierFactory multiplierFactory=null;
 
 	@Inject

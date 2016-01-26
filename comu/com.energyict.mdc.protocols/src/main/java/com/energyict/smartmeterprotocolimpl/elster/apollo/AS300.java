@@ -46,6 +46,11 @@ import java.util.logging.Logger;
  */
 public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, WakeUpProtocolSupport {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS300-P DLMS (SSWG IC)";
+    }
+
     protected AS300Properties properties;
     private AS300ObjectFactory objectFactory;
     private RegisterReader registerReader;

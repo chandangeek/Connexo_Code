@@ -42,6 +42,10 @@ KV|06042006|Add IntervalStatusBehaviour custom property to correct power fail st
 //com.energyict.protocolimpl.sctm.enermete70x.EKM
 public class EKM extends Metcom2 implements RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "L&G EKM SCTM";
+    }
 
     private static final String BILLING_TIME_STAMP_ID = "BillingTimeStampID";
     private static final String BILLINGPOINT_TIMESTAMP_ID_DEFAULT = "40*";

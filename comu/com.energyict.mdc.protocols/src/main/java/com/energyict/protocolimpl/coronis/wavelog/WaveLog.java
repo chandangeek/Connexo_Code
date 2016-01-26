@@ -44,6 +44,11 @@ import java.util.Properties;
 
 public class WaveLog extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Coronis WaveLog";
+    }
+
     private ObisCodeMapper obisCodeMapper;
     private WaveFlowConnect waveLogConnect;
     private RadioCommandFactory radioCommandFactory;

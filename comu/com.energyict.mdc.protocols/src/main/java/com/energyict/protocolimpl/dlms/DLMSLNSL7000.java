@@ -95,6 +95,11 @@ import java.util.logging.Logger;
 
 public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Itron SL7000 DLMS V1";
+    }
+
     private static final byte DEBUG = 0;  // KV 16012004 changed all DEBUG values
     private static final byte[] profileLN = {0, 0, 99, 1, 0, (byte) 255};
     private static final int iNROfIntervals = 50000;

@@ -53,6 +53,11 @@ import java.util.TimeZone;
  */
 public class Sentinel extends AbstractProtocol implements C12ProtocolLink {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Itron/Schlumberger Sentinel ANSI";
+    }
+
     private C12Layer2 c12Layer2;
     private PSEMServiceFactory psemServiceFactory;
     private StandardTableFactory standardTableFactory;

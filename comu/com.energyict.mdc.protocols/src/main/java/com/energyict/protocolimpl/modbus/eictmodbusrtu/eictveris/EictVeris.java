@@ -34,6 +34,10 @@ import java.util.logging.Logger;
  */
 public class EictVeris extends Modbus {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Veris EICT PowerScout 18 Modbus";
+    }
 
     MultiplierFactory multiplierFactory=null;
 

@@ -195,7 +195,7 @@ public class GarnetConcentrator implements DeviceProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "Elster Concentrator Garnet";
+        return "Elster Garnet Concentrator";
     }
 
     @Override

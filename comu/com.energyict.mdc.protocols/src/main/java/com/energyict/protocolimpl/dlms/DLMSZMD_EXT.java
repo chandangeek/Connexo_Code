@@ -20,6 +20,11 @@ import java.util.Properties;
 @Deprecated
 public class DLMSZMD_EXT extends DLMSZMD {
 
+    @Override
+    public String getProtocolDescription() {
+        return "L&G/Siemens ZxD/ZMQ/ZMF/ZMG DLMS_V1 extension";
+    }
+
 	private int profileInterval;
 
     @Inject

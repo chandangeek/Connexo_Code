@@ -65,6 +65,11 @@ import java.util.logging.Logger;
  */
 public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "PRI PACT";
+    }
+
     private int DEBUG = 0;
 
     private TimeZone timeZone;

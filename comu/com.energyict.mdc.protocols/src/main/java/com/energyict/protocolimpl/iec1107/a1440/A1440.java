@@ -73,6 +73,11 @@ import java.util.logging.Logger;
  */
 public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDuplexEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol, DemandResetProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS1440 IEC1107";
+    }
+
     private static final int DEBUG = 0;
     private static final String PR_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
 

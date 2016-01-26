@@ -16,6 +16,12 @@ import java.time.Clock;
  */
 @Deprecated
 public final class EIMeterFlexSM352 extends EIMeterFlexSlaveModule {
+
+    @Override
+    public String getProtocolDescription() {
+        return "Northern Design MultiCube Modbus";
+    }
+
     @Inject
     public EIMeterFlexSM352(PropertySpecService propertySpecService, Clock clock) {
         super(propertySpecService, clock);

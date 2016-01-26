@@ -86,6 +86,11 @@ import java.util.logging.Logger;
  */
 public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Kenda Medeo";
+    }
+
     private MedoCommunicationsFactory mcf;
     private int outstationID, retry, timeout, delayAfterConnect;
 

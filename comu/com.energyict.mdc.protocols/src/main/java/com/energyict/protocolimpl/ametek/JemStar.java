@@ -33,6 +33,11 @@ import java.util.List;
  */
 public class JemStar extends Jem implements MessageProtocol  {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Ametek JemStar";
+	}
+
 	@Inject
 	public JemStar(PropertySpecService propertySpecService) {
 		super(propertySpecService);

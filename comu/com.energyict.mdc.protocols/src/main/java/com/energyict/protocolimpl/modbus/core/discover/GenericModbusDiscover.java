@@ -40,6 +40,11 @@ import java.util.logging.Logger;
  */
 public class GenericModbusDiscover extends Modbus {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Generic modbus discover";
+    }
+
     private static final int DEBUG=0;
 
     private final Clock clock;

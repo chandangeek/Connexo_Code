@@ -27,6 +27,11 @@ KV|01092005|Add manufacturer specific code
  */
 public class EnermetE60X extends EnermetBase {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Enernet E7xx IEC1107 (VDEW)";
+    }
+
     RegisterConfig regs = new UcontoRegisterConfig();
 
     @Inject

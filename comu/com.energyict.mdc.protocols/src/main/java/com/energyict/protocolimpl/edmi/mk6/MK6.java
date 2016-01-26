@@ -52,6 +52,11 @@ import java.util.TimeZone;
  */
 public class MK6 extends AbstractProtocol implements Serializable{
 
+	@Override
+	public String getProtocolDescription() {
+		return "EDMI MK6 CommandLine";
+	}
+
 	/** Generated SerialVersionUID */
 	private static final long serialVersionUID = 4668911907276635756L;
 	private transient MK6Connection mk6Connection=null;

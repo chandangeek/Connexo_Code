@@ -15,6 +15,11 @@ import java.util.Properties;
 
 public class AS253 extends AbstractDLMS {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS253 WaveFlow AC";
+    }
+
     /**
      * Predefiened obis codes for the AS253 meter
      */

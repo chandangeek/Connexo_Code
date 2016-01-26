@@ -33,6 +33,11 @@ import java.time.Clock;
  */
 public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Landis+Gyr E350 XEMEX DLMS (NTA DSMR4.0)";
+    }
+
     private LoadProfileBuilder loadProfileBuilder;
     protected MessageProtocol messageProtocol;
 

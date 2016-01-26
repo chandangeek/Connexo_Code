@@ -136,6 +136,11 @@ import java.util.logging.Level;
 
 public class CewePrometer extends AbstractProtocol  {
 
+    @Override
+    public String getProtocolDescription() {
+        return "CEWE CEWEPrometer IEC1107";
+    }
+
     /** Property keys specific for CewePrometer protocol. */
     private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
     private static final String PK_LOGGER = "Logger";

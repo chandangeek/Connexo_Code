@@ -32,6 +32,11 @@ import java.util.Properties;
  */
 public class IQ230 extends Modbus {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Cutler-Hammer IQ230 Modbus";
+    }
+
     private final Clock clock;
     private MultiplierFactory multiplierFactory = null;
 

@@ -47,6 +47,11 @@ import java.util.Properties;
  */
 public class GasDevice extends AS220 implements MessageProtocol{
 
+	@Override
+	public String getProtocolDescription() {
+		return "Elster AS220/AS1440 AM500 DLMS Mbus Slave";
+	}
+
 	private static final int MAX_MBUS_CHANNELS = 4;
 
     private String emeterSerialnumber;

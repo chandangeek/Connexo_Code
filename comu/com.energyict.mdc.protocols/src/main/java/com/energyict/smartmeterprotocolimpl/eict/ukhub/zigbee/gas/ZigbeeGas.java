@@ -46,6 +46,11 @@ import java.util.logging.Logger;
  */
 public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, WakeUpProtocolSupport {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster BK-G4E DLMS (SSWG IC) Zigbee Slave";
+    }
+
     /**
      * The properties to use for this protocol
      */

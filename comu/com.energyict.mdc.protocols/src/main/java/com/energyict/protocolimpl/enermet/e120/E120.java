@@ -63,6 +63,11 @@ import java.util.logging.Level;
 
 public class E120 extends AbstractProtocol implements RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Enermet E120 ODEP";
+    }
+
     /** Maximum nr of intervals that can be fetched in 1 SeriesOnCount request */
     private static final int FETCH_LIMIT = 306;
 

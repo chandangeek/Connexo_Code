@@ -19,6 +19,11 @@ import java.time.Clock;
 @Deprecated //Never released, technical class
 public class Dsmr40MbusProtocol extends MbusDevice {
 
+    @Override
+    public String getProtocolDescription() {
+        return "DSMR40 MBus slave technical class";
+    }
+
     @Inject
     public Dsmr40MbusProtocol(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
         super(propertySpecService, clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);

@@ -14,6 +14,11 @@ import javax.inject.Inject;
  */
 public class ZIV extends AbstractPrimeMeter {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Ziv 5CTM E2C DLMS (PRIME1.5)";
+    }
+
     @Inject
     public ZIV(PropertySpecService propertySpecService) {
         super(propertySpecService);

@@ -20,6 +20,11 @@ import java.time.Clock;
  */
 public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster BK-Gx DLMS (NTA DSMR4.0) Mbus Slave";
+    }
+
     @Inject
     public MBusDevice(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
         super(propertySpecService, clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);

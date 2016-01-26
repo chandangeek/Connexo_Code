@@ -88,6 +88,11 @@ import java.util.logging.Logger;
 
 public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnabler {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT RTU RtuPlusBus";
+    }
+
     private static final int DEBUG = 0;
 
     private RtuPlusBusFrames RtuPlusBusFrame;

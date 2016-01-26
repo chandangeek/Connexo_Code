@@ -45,6 +45,11 @@ import java.util.logging.Logger;
  */
 public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLink {
 
+    @Override
+    public String getProtocolDescription() {
+        return "DataWatt D15 IEC870-5-101";
+    }
+
     public static final int MAX_COUNTER = 100000000; // = max counter + 1
 
     // properties

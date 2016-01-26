@@ -32,6 +32,11 @@ import java.util.logging.Level;
 @Deprecated //Never released, technical class
 public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "DSMR40 technical class";
+    }
+
     @Inject
     public Dsmr40Protocol(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
         super(propertySpecService, clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);

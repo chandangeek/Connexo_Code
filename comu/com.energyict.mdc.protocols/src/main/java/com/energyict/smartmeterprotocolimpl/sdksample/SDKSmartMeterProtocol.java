@@ -53,6 +53,11 @@ import java.util.logging.Logger;
  */
 public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements MessageProtocol, PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT SDK SmartMeterProtocol";
+    }
+
     private static final String MeterSerialNumber = "Master";
 
     private final Clock clock;

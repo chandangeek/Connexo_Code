@@ -24,6 +24,11 @@ import java.util.Properties;
 
 public class CM32 extends AbstractProtocol {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Siemens Energy Services Ltd CM32";
+	}
+
 	private CM32Connection cm32Connection = null;
 	private CM32Profile cm32Profile = null;
     private CommandFactory commandFactory=null;

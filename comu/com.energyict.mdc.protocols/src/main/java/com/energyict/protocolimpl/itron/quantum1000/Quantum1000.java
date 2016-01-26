@@ -47,6 +47,11 @@ import java.util.Properties;
  */
 public class Quantum1000 extends AbstractProtocol implements ProtocolLink {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Itron/Schlumberger Quantum1000";
+    }
+
     private MiniDLMSConnection miniDLMSConnection=null;
     private ApplicationStateMachine applicationStateMachine=null;
     private int clientAddress;

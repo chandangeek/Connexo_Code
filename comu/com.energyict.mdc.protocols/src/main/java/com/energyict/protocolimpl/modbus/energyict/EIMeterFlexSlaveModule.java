@@ -24,6 +24,11 @@ import java.util.Properties;
 @SuppressWarnings("unchecked")
 public class EIMeterFlexSlaveModule extends Modbus {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT EIFlex Meter Modbus";
+    }
+
     /** The name of the register that contains the firmware version. */
     private static final String FIRMWARE_VERSION_REGISTER_NAME = "FirmwareVersion";
 

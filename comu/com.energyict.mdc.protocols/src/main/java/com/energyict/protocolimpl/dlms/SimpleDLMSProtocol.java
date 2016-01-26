@@ -70,6 +70,11 @@ import java.util.logging.Logger;
  */
 public class SimpleDLMSProtocol extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, CacheMechanism {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT Generic DLMS Protocol";
+    }
+
     /**
      * The {@link com.energyict.dlms.aso.ConformanceBlock} used
      */

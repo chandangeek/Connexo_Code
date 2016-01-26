@@ -30,6 +30,11 @@ import java.util.Properties;
  */
 public class PQM2 extends Modbus  {
 
+    @Override
+    public String getProtocolDescription() {
+        return "GE PQM2 Modbus";
+    }
+
     @Inject
     public PQM2(PropertySpecService propertySpecService) {
         super(propertySpecService);

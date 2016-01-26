@@ -28,6 +28,11 @@ import java.util.List;
  */
 public class InHomeDisplay extends UkHub {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AM110R DLMS (SSWG IC) Zigbee IHD";
+    }
+
     @Inject
     public InHomeDisplay(PropertySpecService propertySpecService, OrmClient ormClient, UserFileFactory userFileFactory) {
         super(propertySpecService, ormClient, userFileFactory);

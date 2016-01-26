@@ -128,6 +128,11 @@ import java.util.logging.Logger;
 @Deprecated
 public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT EictZ3 DLMS";
+    }
+
     /**
      * The name of the property containing the information field size.
      */

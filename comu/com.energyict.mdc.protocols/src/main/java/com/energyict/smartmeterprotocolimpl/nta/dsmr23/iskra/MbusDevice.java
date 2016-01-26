@@ -26,6 +26,11 @@ import java.util.Properties;
  */
 public class MbusDevice extends AbstractNtaMbusDevice {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Iskraemeco Mx382 DLMS (NTA DSMR2.3) Mbus Slave";
+    }
+
     @Inject
     public MbusDevice(Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient, PropertySpecService propertySpecService) {
         super(clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient, propertySpecService);

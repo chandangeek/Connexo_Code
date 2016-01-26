@@ -31,6 +31,11 @@ import java.util.Properties;
  */
 public class IQ200 extends Modbus  {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Cutler-Hammer IQ200 Modbus";
+    }
+
     private MultiplierFactory multiplierFactory=null;
 
     @Inject

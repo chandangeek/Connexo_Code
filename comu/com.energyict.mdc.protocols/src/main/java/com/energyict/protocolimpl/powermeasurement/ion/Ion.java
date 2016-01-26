@@ -64,6 +64,11 @@ import static com.elster.jupiter.util.Checks.is;
 public class Ion extends PluggableMeterProtocol implements RegisterProtocol, ProtocolLink,
         HHUEnabler, SerialNumber {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Power Measurement ION";
+    }
+
     /**
      * Property keys
      */

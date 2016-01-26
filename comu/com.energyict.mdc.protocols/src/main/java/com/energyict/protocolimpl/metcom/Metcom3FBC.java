@@ -26,6 +26,11 @@ import java.util.List;
  */
 public class Metcom3FBC extends Metcom3 {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Metcom3 FBC SCTM";
+    }
+
     private static final int DEBUG = 0;
 
     @Inject

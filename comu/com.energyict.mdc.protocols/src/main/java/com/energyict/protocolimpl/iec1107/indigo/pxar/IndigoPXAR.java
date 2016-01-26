@@ -47,6 +47,11 @@ import java.util.Properties;
  */
 public class IndigoPXAR extends AbstractIEC1107Protocol {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Actaris Indigo PXA/R IEC1107";
+	}
+
 	@Inject
 	public IndigoPXAR(PropertySpecService propertySpecService) {
 		super(propertySpecService);

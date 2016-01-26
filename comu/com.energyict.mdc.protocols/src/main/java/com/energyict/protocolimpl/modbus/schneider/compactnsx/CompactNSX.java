@@ -29,6 +29,11 @@ import java.util.Properties;
  */
 public class CompactNSX extends Modbus {
 
+	@Override
+	public String getProtocolDescription() {
+		return "Schneider Electric Compact NSX Modbus";
+	}
+
 	@Inject
 	public CompactNSX(PropertySpecService propertySpecService) {
 		super(propertySpecService);

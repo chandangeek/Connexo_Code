@@ -75,6 +75,11 @@ import java.util.logging.Logger;
  */
 public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, MeterExceptionInfo, RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Iskraemeco MT851 IEC1107 (VDEW)";
+    }
+
     private static final byte DEBUG = 0;
 
     private static final String[] ISKRAEMECO_METERREADINGS_DEFAULT = {"Total Energy A+", "Total Energy R1", "Total Energy R4"};

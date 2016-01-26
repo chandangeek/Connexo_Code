@@ -31,6 +31,11 @@ import java.util.logging.Logger;
  */
 public class MbusDevice extends AbstractNtaMbusDevice {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Iskraemeco Mx372 DLMS (PRE-NTA) Mbus Slave";
+    }
+
     private IskraMx372 iskra;
     private String customerID;
     public BaseDevice mbus;

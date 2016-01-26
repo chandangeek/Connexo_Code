@@ -93,6 +93,11 @@ import java.util.logging.Logger;
 @Deprecated
 public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessageProtocol, ProtocolLink, RegisterProtocol, Constant {
 
+    @Override
+    public String getProtocolDescription() {
+        return "DLMS Z3 Messaging";
+    }
+
     /**
      * Properties
      */

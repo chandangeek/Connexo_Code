@@ -28,6 +28,11 @@ import java.util.Date;
  */
 public class Poreg2P extends Poreg {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Iskraemeco Poreg 2P DIN19244";
+    }
+
     @Inject
     public Poreg2P(PropertySpecService propertySpecService) {
         super(propertySpecService);

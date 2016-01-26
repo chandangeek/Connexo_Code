@@ -67,6 +67,11 @@ import java.util.logging.Logger;
 public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler,
         SerialNumber, MeterExceptionInfo, RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster/ABB A140 IEC1107";
+    }
+
     private int dbg = 0;
 
     static final long FORCE_DELAY = 350;

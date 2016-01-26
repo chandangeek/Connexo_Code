@@ -17,6 +17,11 @@ import javax.inject.Inject;
  */
 public class SagemCom extends AS330D {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Sagemcom Linky DLMS (G3 Linky)";
+    }
+
     @Inject
     public SagemCom(PropertySpecService propertySpecService, OrmClient ormClient) {
         super(propertySpecService, ormClient);

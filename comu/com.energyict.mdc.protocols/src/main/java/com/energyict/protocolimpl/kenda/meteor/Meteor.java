@@ -32,6 +32,11 @@ import java.util.logging.Logger;
 
 public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Kenda Meteor";
+    }
+
     /**
      * ---------------------------------------------------------------------------------<p>
      * Meteor Protocol description:<p>

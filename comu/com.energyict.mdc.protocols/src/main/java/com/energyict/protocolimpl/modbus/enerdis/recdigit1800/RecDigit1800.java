@@ -42,6 +42,11 @@ import java.util.Properties;
 
 public class RecDigit1800 extends Modbus {
 
+    @Override
+    public String getProtocolDescription() {
+        return "Enerdis Recdigit 1800 Modbus";
+    }
+
     private boolean debug = false;
     private boolean GO = true;
 
