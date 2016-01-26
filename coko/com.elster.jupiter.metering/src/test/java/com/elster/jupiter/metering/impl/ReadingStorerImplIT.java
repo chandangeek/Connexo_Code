@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.Reading;
@@ -516,6 +517,11 @@ public class ReadingStorerImplIT {
         assertThat(readings.get(1).getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(100, 0), 3, "Wh"));
         assertThat(readings.get(1).getTimeStamp()).isEqualTo(BASE.plusMinutes(15).toInstant());
 
+        List<ReadingQualityRecord> qualities = channel.findReadingQuality(BASE.plusMinutes(15).toInstant());
+        assertThat(qualities).hasSize(1);
+
+        ReadingQualityRecord readingQualityRecord = qualities.get(0);
+        assertThat(readingQualityRecord.getTypeCode()).isEqualTo("3.4.1");
     }
 
     @Test
@@ -557,6 +563,11 @@ public class ReadingStorerImplIT {
         assertThat(readings.get(1).getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(999998, 0), 3, "Wh"));
         assertThat(readings.get(1).getTimeStamp()).isEqualTo(BASE.plusMinutes(15).toInstant());
 
+        List<ReadingQualityRecord> qualities = channel.findReadingQuality(BASE.plusMinutes(15).toInstant());
+        assertThat(qualities).hasSize(1);
+
+        ReadingQualityRecord readingQualityRecord = qualities.get(0);
+        assertThat(readingQualityRecord.getTypeCode()).isEqualTo("3.3.4");
     }
 
     private Channel createMeterAndChannelWithMultplier(ReadingType measured, ReadingType caluclated, BigDecimal multiplierValue) {
