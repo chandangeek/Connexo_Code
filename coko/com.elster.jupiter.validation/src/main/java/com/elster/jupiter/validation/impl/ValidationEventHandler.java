@@ -111,7 +111,7 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
     }
 
     private void handleDeleteEvent(Channel.ReadingsDeletedEvent deleteEvent) {
-    	validationService.moveLastCheck(deleteEvent.getChannel().getMeterActivation(), ImmutableMap.of(deleteEvent.getChannel(), deleteEvent.getRange()));
+    	validationService.validate(deleteEvent.getChannel().getMeterActivation(), ImmutableMap.of(deleteEvent.getChannel(), deleteEvent.getRange()));
     }
 
 }

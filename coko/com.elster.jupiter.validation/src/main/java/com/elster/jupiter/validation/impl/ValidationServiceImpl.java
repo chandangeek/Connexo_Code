@@ -261,10 +261,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
                             meterValidation.save();
                         }
                 );
-        Optional<? extends MeterActivation> currentMeterActivation = meter.getCurrentMeterActivation();
-        if (currentMeterActivation.isPresent()) {
-            getIMeterActivationValidations(currentMeterActivation.get()).stream().forEach(IMeterActivationValidation::deactivate);
-        }
     }
 
     @Override
@@ -380,22 +376,13 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     public void validate(MeterActivation meterActivation, Map<Channel, Range<Instant>> ranges) {
-        if (isValidationActiveOnStorage(meterActivation)) {
             MeterActivationValidationContainer container = updatedMeterActivationValidationsFor(meterActivation);
             container.moveLastCheckedBefore(ranges);
-            container.validate();
-        }
-    }
-
-
-    public void moveLastCheck(MeterActivation meterActivation, Map<Channel, Range<Instant>> ranges) {
-        MeterActivationValidationContainer container = updatedMeterActivationValidationsFor(meterActivation);
-        container.moveLastCheckedBefore(ranges);
-        if (isValidationActiveOnStorage(meterActivation)) {
-            container.validate();
-        } else {
-            container.update();
-        }
+            if (isValidationActiveOnStorage(meterActivation)) {
+                container.validate();
+            } else {
+                container.update();
+            }
     }
 
     private boolean isValidationActive(MeterActivation meterActivation) {
@@ -424,11 +411,13 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
                 .map(r -> Pair.of(r, getForRuleSet(existingMeterActivationValidations, r)))
                 .map(p -> p.getLast().orElseGet(() -> applyRuleSet(p.getFirst(), meterActivation)))
                 .collect(Collectors.toList());
-
+        returnList.stream().forEach(m-> m.getChannels().stream().filter(c -> !m.getRuleSet()
+                .getRules(c.getReadingTypes()).isEmpty())
+                .filter(c -> !m.getChannelValidation(c).isPresent())
+                .forEach(c -> m.addChannelValidation(c)));
         existingMeterActivationValidations.stream()
                 .filter(m -> !ruleSets.contains(m.getRuleSet()))
                 .forEach(IMeterActivationValidation::makeObsolete);
-
         return returnList;
     }
 
