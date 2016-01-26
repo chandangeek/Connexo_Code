@@ -65,7 +65,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     private RegisterType registerType;
     private RegisterType registerTypeWhichCanNotBeMultiplied;
     private RegisterType calculatedRegisterType;
-    private Unit unit = Unit.get("kWh");
+    private RegisterType deltaRegisterType;
     private ChannelType channelType;
     private final String activeEnergySecondary = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
     private final ReadingType readingTypeActiveEnergySecondaryMetered = inMemoryPersistence.getMeteringService().getReadingType(activeEnergySecondary).get();
@@ -74,6 +74,8 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     private final String invalidActiveEnergyPrimary = ReadingTypeCodeBuilder.of(ELECTRICITY_PRIMARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
     private final ReadingType invalidReadingTypeActiveEnergyPrimaryMetered = inMemoryPersistence.getMeteringService().getReadingType(invalidActiveEnergyPrimary).get();
+    private final String deltaReadingTypeCode = ReadingTypeCodeBuilder.of(ELECTRICITY_PRIMARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.DELTADELTA).code();
+    private final ReadingType deltaReadingType = inMemoryPersistence.getMeteringService().getReadingType(deltaReadingTypeCode).get();
 
     @Before
     public void initializeDatabaseAndMocks() {
@@ -84,8 +86,9 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         this.registerType = createOrSetRegisterType(readingTypeActiveEnergySecondaryMetered, channelTypeObisCode);
         this.calculatedRegisterType = createOrSetRegisterType(readingTypeActiveEnergySecondaryMetered.getCalculatedReadingType().get(), channelTypeObisCode);
         this.registerTypeWhichCanNotBeMultiplied = createOrSetRegisterType(invalidReadingTypeActiveEnergyPrimaryMetered, channelTypeObisCode);
+        this.deltaRegisterType = createOrSetRegisterType(deltaReadingType, channelTypeObisCode);
 
-        loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval, Arrays.asList(registerType, calculatedRegisterType, registerTypeWhichCanNotBeMultiplied));
+        loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval, Arrays.asList(registerType, calculatedRegisterType, registerTypeWhichCanNotBeMultiplied, deltaRegisterType));
         channelType = loadProfileType.findChannelType(registerType).get();
         loadProfileType.save();
 
@@ -262,6 +265,49 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         channelSpecUpdater.update();
 
         assertThat(channelSpec.getOverflow()).isEqualTo(overflow);
+    }
+
+    @Test
+    @Transactional
+    public void noOverFlowForDeltaChannelSpecs() {
+        ChannelSpec channelSpec;
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(loadProfileType.findChannelType(deltaRegisterType).get(), loadProfileSpec);
+        channelSpecBuilder.nbrOfFractionDigits(numberOfFractionDigits);
+        channelSpecBuilder.overflow(null);
+        channelSpec = channelSpecBuilder.add();
+
+        assertThat(channelSpec.getOverflow()).isNull();
+    }
+
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CHANNEL_SPEC_INVALID_OVERFLOW_VALUE+"}", property = "overflow")
+    public void invalidOverFlowForDeltaChannelSpecs() {
+        ChannelSpec channelSpec;
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(loadProfileType.findChannelType(deltaRegisterType).get(), loadProfileSpec);
+        channelSpecBuilder.nbrOfFractionDigits(numberOfFractionDigits);
+        channelSpecBuilder.overflow(BigDecimal.ZERO);
+        channelSpec = channelSpecBuilder.add();
+
+        assertThat(channelSpec.getOverflow()).isNull();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CHANNEL_SPEC_OVERFLOW_IS_REQUIRED+"}", property = "overflow")
+    public void overflowIsRequiredTest() {
+        ChannelSpec channelSpec;
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
+        channelSpecBuilder.nbrOfFractionDigits(numberOfFractionDigits);
+        channelSpecBuilder.overflow(null);
+        channelSpec = channelSpecBuilder.add();
     }
 
     @Test

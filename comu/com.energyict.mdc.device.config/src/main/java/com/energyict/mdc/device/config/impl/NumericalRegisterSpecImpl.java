@@ -25,13 +25,12 @@ import java.util.Optional;
 @ValidOverFlowAndNumberOfFractionDigits(groups = {Save.Create.class, Save.Update.class})
 @ValidRegisterSpecMultiplierConfiguration(groups = {Save.Create.class, Save.Update.class})
 @ValidateUpdatableRegisterSpecFields(groups = {Save.Update.class})
+@RegisterOverflowValueValidation(groups = {Save.Create.class, Save.Update.class})
 public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegisterSpec> implements NumericalRegisterSpec {
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
     @Range(min = 0, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
     private Integer numberOfFractionDigits;
-    @Range(min= 1, max = Integer.MAX_VALUE, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE + "}")
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_OVERFLOW_IS_REQUIRED + "}")
     private BigDecimal overflow;
 
     private boolean useMultiplier;

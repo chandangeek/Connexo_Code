@@ -44,16 +44,18 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     private static final String DEVICE_CONFIGURATION_NAME = RegisterSpecImplTest.class.getName() + "Config";
     private static final String REGISTER_TYPE_NAME = RegisterSpecImplTest.class.getSimpleName() + "RegisterType";
 
-    private final ObisCode registerTypeObisCode = ObisCode.fromString("1.0.1.6.0.255");
+    private final ObisCode registerTypeObisCode = ObisCode.fromString("1.0.1.8.0.255");
     private final ObisCode overruledRegisterSpecObisCode = ObisCode.fromString("1.0.1.8.2.255");
     private final int numberOfFractionDigits = 3;
     private final BigDecimal overflowValue = BigDecimal.valueOf(10000);
 
     private DeviceConfiguration deviceConfiguration;
     private RegisterType registerType;
+    private RegisterType deltaRegisterType;
     private ReadingType readingType1;
     private ReadingType readingType2;
     private ReadingType readingType3;
+    private ReadingType deltaReadingType;
     private final String invalidActiveEnergyPrimary = ReadingTypeCodeBuilder.of(ELECTRICITY_PRIMARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
     private final ReadingType invalidReadingTypeActiveEnergyPrimaryMetered = inMemoryPersistence.getMeteringService().getReadingType(invalidActiveEnergyPrimary).get();
 
@@ -66,18 +68,22 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     }
 
     private void initializeDeviceTypeWithRegisterSpecAndDeviceConfiguration() {
-
-        String code2 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.DELTADELTA).code();
+        String code2 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(REVERSE).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
         this.readingType2 = inMemoryPersistence.getMeteringService().getReadingType(code2).get();
-        String code1 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.DELTADELTA).code();
+        String code1 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
         this.readingType1 = inMemoryPersistence.getMeteringService().getReadingType(code1).get();
-        String code3 = ReadingTypeCodeBuilder.of(ELECTRICITY_PRIMARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.DELTADELTA).code();
+        String code3 = ReadingTypeCodeBuilder.of(ELECTRICITY_PRIMARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
         this.readingType3 = inMemoryPersistence.getMeteringService().getReadingType(code3).get();
         this.registerType = createOrSetRegisterType(readingType1, registerTypeObisCode);
+
+        String deltaCode = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.DELTADELTA).code();
+        this.deltaReadingType = inMemoryPersistence.getMeteringService().getReadingType(deltaCode).get();
+        this.deltaRegisterType = createOrSetRegisterType(deltaReadingType, registerTypeObisCode);
 
         // Business method
         this.deviceType.setDescription("For registerSpec Test purposes only");
         this.deviceType.addRegisterType(registerType);
+        this.deviceType.addRegisterType(deltaRegisterType);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         this.deviceConfiguration = deviceConfigurationBuilder.add();
         this.deviceType.save();
@@ -164,11 +170,37 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
+    public void noOverFlowForDeltaRegisterSpecs() {
+        NumericalRegisterSpec.Builder registerSpecBuilder = this.deviceConfiguration.createNumericalRegisterSpec(deltaRegisterType);
+        setRegisterSpecDefaultFields(registerSpecBuilder);
+        NumericalRegisterSpec registerSpec = registerSpecBuilder.add();
+
+        NumericalRegisterSpec.Updater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
+        registerSpecUpdater.overflowValue(null);
+        registerSpecUpdater.update();
+    }
+
+    @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE+"}", property = "overflow")
     public void updateOverflowValueTooSmallTest() {
         NumericalRegisterSpec registerSpec = createNumericalRegisterSpecWithDefaults();
 
         NumericalRegisterSpec.Updater registerSpecUpdater = getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
+        registerSpecUpdater.overflowValue(BigDecimal.ZERO);
+        registerSpecUpdater.update();
+    }
+
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE+"}", property = "overflow")
+    public void overflowValueIsToSmallForDeltaRegisterType() {
+        NumericalRegisterSpec.Builder registerSpecBuilder = this.deviceConfiguration.createNumericalRegisterSpec(deltaRegisterType);
+        setRegisterSpecDefaultFields(registerSpecBuilder);
+        NumericalRegisterSpec registerSpec = registerSpecBuilder.add();
+
+        NumericalRegisterSpec.Updater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
         registerSpecUpdater.overflowValue(BigDecimal.ZERO);
         registerSpecUpdater.update();
     }
@@ -337,18 +369,6 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE +"}")
-    public void testMaxOverflowValue() throws Exception {
-        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().
-                createNumericalRegisterSpec(registerType).
-                numberOfFractionDigits(3).
-                overflowValue(BigDecimal.valueOf(Integer.MAX_VALUE).add(BigDecimal.valueOf(1000))).
-                add();
-        getReloadedDeviceConfiguration().save();
-    }
-
-    @Test
-    @Transactional
     public void cloneTextualWithOverruledObisCodeTest() {
         ObisCode deviceObisCode = ObisCode.fromString("1.9.1.8.17.255");
         TextualRegisterSpec.Builder builder = getReloadedDeviceConfiguration().createTextualRegisterSpec(registerType);
@@ -486,7 +506,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CALCULATED_READINGTYPE_DOES_NOT_MATCH_CRITERIA +"}")
     public void calculatedReadingTypeDoesNotMatchCriteriaTest() {
-        NumericalRegisterSpec.Builder registerSpecBuilder = this.deviceConfiguration.createNumericalRegisterSpec(registerType);
+        NumericalRegisterSpec.Builder registerSpecBuilder = this.deviceConfiguration.createNumericalRegisterSpec(deltaRegisterType);
         setRegisterSpecDefaultFields(registerSpecBuilder);
         registerSpecBuilder.useMultiplierWithCalculatedReadingType(invalidReadingTypeActiveEnergyPrimaryMetered);
         registerSpecBuilder.add();
