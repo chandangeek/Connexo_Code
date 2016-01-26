@@ -55,4 +55,9 @@ public final class DeviceIdentifierForAlreadyKnownDeviceByMrID implements Device
     public Device findDevice() {
         return this.device;
     }
+
+    @Override
+    public String toString() {
+        return "device having MRID " + getIdentifier();
+    }
 }

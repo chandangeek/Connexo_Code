@@ -89,7 +89,7 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchableProperty<T> exte
         sqlBuilder.append(contains.getCollection().stream()
                 .map(UnitOfMeasureInfo.class::cast)
                 .map(unit -> ' ' + "MDS_MEASUREMENTTYPE.readingtype like '%.%.%.%.%.%.%.%.%.%.%.%.%.%.%." +
-                        unit.getMetricMultiplier().getId() +
+                        unit.getMetricMultiplier().getMultiplier() +
                         "." +
                         unit.getReadingTypeUnit().getId() +
                         ".%' ")
@@ -162,7 +162,13 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchableProperty<T> exte
     private class UnitOfMeasureValueFactory implements ValueFactory<UnitOfMeasureInfo> {
         @Override
         public UnitOfMeasureInfo fromStringValue(String stringValue) {
-            return null;
+            String[] parts = stringValue.split(":");
+            if (parts.length != 2) {
+                return null;
+            }
+            MetricMultiplier multiplier = MetricMultiplier.with(Integer.parseInt(parts[0]));
+            ReadingTypeUnit readingTypeUnit = ReadingTypeUnit.get(Integer.parseInt(parts[1]));
+            return new UnitOfMeasureInfo(multiplier, readingTypeUnit);
         }
 
         @Override
@@ -219,7 +225,7 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchableProperty<T> exte
 
         @Override
         public String getId() {
-            return metricMultiplier.getId() + ":" + readingTypeUnit.getId();
+            return metricMultiplier.getMultiplier() + ":" + readingTypeUnit.getId();
         }
 
         @Override

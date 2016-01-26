@@ -6,7 +6,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentif
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
 
 import javax.xml.bind.annotation.XmlElement;
-import java.util.Arrays;
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 
@@ -52,5 +52,10 @@ public class LoadProfileIdentifierForAlreadyKnownLoadProfile implements LoadProf
     @Override
     public DeviceIdentifier<?> getDeviceIdentifier() {
         return new DeviceIdentifierForAlreadyKnownDeviceByMrID(this.loadProfile.getDevice());
+    }
+
+    @Override
+    public String toString() {
+        return MessageFormat.format("load profile with name ''{0}'' on device having MRID {1}", loadProfile.getLoadProfileSpec().getLoadProfileType().getName(), loadProfile.getId());
     }
 }

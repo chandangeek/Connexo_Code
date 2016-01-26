@@ -47,7 +47,7 @@ public final class DeviceIdentifierByMRID implements DeviceIdentifier<Device> {
 
     @Override
     public String toString() {
-        return "mrid " + this.mrid;
+        return "device having MRID " + this.mrid;
     }
 
     @Override

@@ -63,4 +63,9 @@ public class DeviceIdentifierByLogBook implements DeviceIdentifier<Device> {
     public int hashCode() {
         return logBookIdentifier.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return "device having logbook identified by '" + this.logBookIdentifier + "'";
+    }
 }

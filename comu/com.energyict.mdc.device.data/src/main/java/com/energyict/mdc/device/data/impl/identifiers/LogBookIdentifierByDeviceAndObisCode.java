@@ -10,6 +10,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.text.MessageFormat;
 
 /**
  * Provides an implementation for the {@link LogBookIdentifier} interface
@@ -78,7 +79,7 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier<L
 
     @Override
     public String toString() {
-        return "Identifier for logbook with obiscode '" + logBookObisCode.toString() + "' on " + deviceIdentifier.toString();
+        return MessageFormat.format("logbook having OBIS code {0} on device with deviceIdentifier ''{1}''", logBookObisCode, deviceIdentifier);
     }
 
 }
