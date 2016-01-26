@@ -902,14 +902,14 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{X.name.required}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.FIELD_IS_REQUIRED +"}", property = "name")
     public void testCanNotAddDeviceConfigurationWithoutName() throws Exception {
         deviceType.newConfiguration(null).description("this is it!").add();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.NAME_REQUIRED +"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.FIELD_IS_REQUIRED +"}", property = "name")
     public void testCanNotAddDeviceConfigurationWithEmptyName() throws Exception {
         deviceType.newConfiguration("").description("this is it!").add();
     }

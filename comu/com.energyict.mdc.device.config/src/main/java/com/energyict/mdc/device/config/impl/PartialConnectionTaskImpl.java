@@ -60,7 +60,7 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     private final ProtocolPluggableService protocolPluggableService;
 
     @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private String name;
     private Reference<DeviceConfiguration> configuration = ValueReference.absent();
     @NotNull()

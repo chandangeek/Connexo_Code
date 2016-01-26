@@ -376,7 +376,7 @@ public class SecurityPropertySetImplCrudIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     public void testCreateWithoutName() {
         DeviceType deviceType = createDeviceType("MyType");
 
@@ -393,7 +393,7 @@ public class SecurityPropertySetImplCrudIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "name")
     public void testCreateWithEmptyName() {
         DeviceType deviceType = createDeviceType("MyType");
 
