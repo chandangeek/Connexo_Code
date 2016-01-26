@@ -130,7 +130,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
@@ -1126,11 +1125,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public List<Warning> store(MeterReading meterReading) {
-        OverflowCheck overflowCheck = OverflowCheck.from(dataModel, this);
+    public void store(MeterReading meterReading) {
         Meter meter = findOrCreateKoreMeter(getMdcAmrSystem());
-        meter.store(overflowCheck.toCheckedMeterReading(meterReading));
-        return overflowCheck.getWarnings();
+        meter.store(meterReading);
     }
 
     @Override

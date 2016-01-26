@@ -11,11 +11,9 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.util.BigDecimalChecker;
 import com.energyict.mdc.common.ComWindow;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -41,7 +39,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
@@ -233,7 +230,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      *
      * @param meterReading the meterReadings which will be stored
      */
-    List<Warning> store(MeterReading meterReading);
+    void store(MeterReading meterReading);
 
     boolean hasData();
 
