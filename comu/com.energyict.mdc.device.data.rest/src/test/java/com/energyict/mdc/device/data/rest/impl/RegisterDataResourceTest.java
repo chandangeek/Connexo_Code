@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.AmrSystem;
@@ -20,7 +21,13 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.BillingReading;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.NumericalReading;
+import com.energyict.mdc.device.data.NumericalRegister;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.RegisterDataUpdater;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
@@ -31,7 +38,6 @@ import org.mockito.Mock;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
-import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -44,10 +50,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -168,7 +171,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
     }
 
     @Test
-    public void testGetRegisterData() {
+    public void testGetRegisterData() throws Exception {
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
         when(numericalRegisterSpec.getCalculatedReadingType()).thenReturn(Optional.empty());
@@ -177,7 +180,10 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
         long intervalStart = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli();
         long intervalEnd = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli();
-        String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":" + intervalStart + "},{\"property\":\"intervalEnd\",\"value\":"+ intervalEnd + "}]");
+        String filter = ExtjsFilter.filter()
+                .property("intervalStart", intervalStart)
+                .property("intervalEnd", intervalEnd)
+                .create();
         Map json = target("devices/1/registers/1/data")
                 .queryParam("filter", filter)
                 .request().get(Map.class);
@@ -197,6 +203,29 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         assertThat(jsonModel.<String>get("$.data[1].estimatedByRule.name")).isEqualTo("EstimationRule");
         assertThat(jsonModel.<List<?>>get("$.data[1].estimatedByRule.properties")).isEmpty();
         assertThat(jsonModel.<Boolean>get("$.data[2].isConfirmed")).isEqualTo(true);
+    }
+
+    @Test
+    public void testGetRegisterDataSuspectsOnly() throws Exception {
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(numericalRegisterSpec.getId()).thenReturn(1L);
+        when(numericalRegisterSpec.getCalculatedReadingType()).thenReturn(Optional.empty());
+        when(device.getId()).thenReturn(1L);
+        when(device.getMultiplier()).thenReturn(BigDecimal.ONE);
+
+        long intervalStart = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli();
+        long intervalEnd = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli();
+        String filter = ExtjsFilter.filter()
+                .property("intervalStart", intervalStart)
+                .property("intervalEnd", intervalEnd)
+                .property("suspect", "suspect")
+                .create();
+        Map json = target("devices/1/registers/1/data")
+                .queryParam("filter", filter)
+                .request().get(Map.class);
+
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<List<?>>get("$.data")).isEmpty();
     }
 
     @Test

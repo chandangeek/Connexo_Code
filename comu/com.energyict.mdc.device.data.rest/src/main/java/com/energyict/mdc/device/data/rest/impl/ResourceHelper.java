@@ -40,6 +40,7 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -58,6 +59,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.util.streams.Predicates.not;
 
 public class ResourceHelper {
 
@@ -1004,4 +1006,18 @@ public class ResourceHelper {
                 e -> true;
     }
 
+    public <T> Predicate<T> getSuspectsFilter(JsonQueryFilter filter, Predicate<T> hasSuspects) {
+        ImmutableList.Builder<Predicate<T>> list = ImmutableList.builder();
+        if (filter.hasProperty("suspect")){
+            List<String> suspectFilters = filter.getStringList("suspect");
+            if (suspectFilters.size() == 1) {
+                if ("suspect".equals(suspectFilters.get(0))) {
+                    list.add(hasSuspects);
+                } else {
+                    list.add(not(hasSuspects));
+                }
+            }
+        }
+        return info -> list.build().stream().allMatch(p -> p.test(info));
+    }
 }

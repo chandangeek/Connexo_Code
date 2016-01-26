@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -16,7 +15,6 @@ import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
@@ -37,7 +35,6 @@ import java.time.temporal.ChronoField;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -54,15 +51,13 @@ public class LoadProfileResource {
     private static final Comparator<LoadProfile> LOAD_PROFILE_COMPARATOR_BY_NAME = new LoadProfileComparator();
 
     private final ResourceHelper resourceHelper;
-    private final Thesaurus thesaurus;
     private final Clock clock;
     private final DeviceDataInfoFactory deviceDataInfoFactory;
     private final ValidationInfoFactory validationInfoFactory;
 
     @Inject
-    public LoadProfileResource(ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory) {
+    public LoadProfileResource(ResourceHelper resourceHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory) {
         this.resourceHelper = resourceHelper;
-        this.thesaurus = thesaurus;
         this.clock = clock;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
         this.validationInfoFactory = validationInfoFactory;
@@ -205,36 +200,10 @@ public class LoadProfileResource {
                     (v.bulkValidationInfo != null && ValidationStatus.SUSPECT.equals(v.bulkValidationInfo.validationResult)));
     }
 
-    private boolean hasMissingData(LoadProfileDataInfo info) {
-        return info.channelData.values().stream().anyMatch(Objects::isNull);
-    }
-
     private List<LoadProfileDataInfo> filter(List<LoadProfileDataInfo> infos, JsonQueryFilter filter) {
-        Predicate<LoadProfileDataInfo> toKeep = getFilter(filter);
+        Predicate<LoadProfileDataInfo> toKeep = resourceHelper.getSuspectsFilter(filter, this::hasSuspects);
         infos.removeIf(not(toKeep));
         return infos;
-    }
-
-    private Predicate<LoadProfileDataInfo> getFilter(JsonQueryFilter filter) {
-        ImmutableList.Builder<Predicate<LoadProfileDataInfo>> list = ImmutableList.builder();
-        if (filter.hasProperty("suspect")){
-            List<String> suspectFilters = filter.getStringList("suspect");
-            if (suspectFilters.size() == 0) {
-                if ("suspect".equals(filter.getString("suspect"))) {
-                    list.add(this::hasSuspects);
-                } else {
-                    list.add(not(this::hasSuspects));
-                }
-            }
-        }
-        if (filterActive(filter, "hideMissing")) {
-            list.add(not(this::hasMissingData));
-        }
-        return lpi -> list.build().stream().allMatch(p -> p.test(lpi));
-    }
-
-    private boolean filterActive(JsonQueryFilter filter, String key) {
-        return filter.hasProperty(key) && filter.getBoolean(key);
     }
 
     @Path("{lpid}/validationstatus")
@@ -252,8 +221,6 @@ public class LoadProfileResource {
     }
 
     private boolean hasData(LoadProfile loadProfile) {
-        return loadProfile.getChannels().stream()
-                .anyMatch(Channel::hasData);
+        return loadProfile.getChannels().stream().anyMatch(Channel::hasData);
     }
-
 }

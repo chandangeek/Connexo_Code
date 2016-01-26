@@ -6,7 +6,6 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -28,8 +27,6 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
-
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
@@ -64,8 +61,6 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.util.streams.Predicates.not;
-
 @DeviceStatesRestricted(
         value = {DefaultState.DECOMMISSIONED},
         methods = {HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE},
@@ -74,7 +69,6 @@ public class ChannelResource {
     private final ExceptionFactory exceptionFactory;
     private final Provider<ChannelResourceHelper> channelHelper;
     private final ResourceHelper resourceHelper;
-    private final Thesaurus thesaurus;
     private final Clock clock;
     private final DeviceDataInfoFactory deviceDataInfoFactory;
     private final ValidationInfoFactory validationInfoFactory;
@@ -82,11 +76,10 @@ public class ChannelResource {
     private final EstimationHelper estimationHelper;
 
     @Inject
-    public ChannelResource(ExceptionFactory exceptionFactory, Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper) {
+    public ChannelResource(ExceptionFactory exceptionFactory, Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper) {
         this.exceptionFactory = exceptionFactory;
         this.channelHelper = channelHelper;
         this.resourceHelper = resourceHelper;
-        this.thesaurus = thesaurus;
         this.clock = clock;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
         this.validationInfoFactory = validationInfoFactory;
@@ -362,32 +355,9 @@ public class ChannelResource {
     }
 
     private List<ChannelDataInfo> filter(List<ChannelDataInfo> infos, JsonQueryFilter filter) {
-        Predicate<ChannelDataInfo> fromParams = getFilter(filter);
+        Predicate<ChannelDataInfo> fromParams = resourceHelper.getSuspectsFilter(filter, this::hasSuspects);
         return infos.stream().filter(fromParams).collect(Collectors.toList());
     }
-
-    private Predicate<ChannelDataInfo> getFilter(JsonQueryFilter filter) {
-        ImmutableList.Builder<Predicate<ChannelDataInfo>> list = ImmutableList.builder();
-        if (filter.hasProperty("suspect")) {
-            List<String> suspectFilters = filter.getStringList("suspect");
-            if (suspectFilters.size() == 0) {
-                if ("suspect".equals(filter.getString("suspect"))) {
-                    list.add(this::hasSuspects);
-                } else {
-                    list.add(not(this::hasSuspects));
-                }
-            }
-        }
-        if (filterActive(filter, "hideMissing")) {
-            list.add(this::hasMissingData);
-        }
-        return cdi -> list.build().stream().allMatch(p -> p.test(cdi));
-    }
-
-    private boolean filterActive(JsonQueryFilter filter, String key) {
-        return filter.hasProperty(key) && filter.getBoolean(key);
-    }
-
 
     private boolean hasSuspects(ChannelDataInfo info) {
         return ValidationStatus.SUSPECT.equals(info.mainValidationInfo.validationResult) ||

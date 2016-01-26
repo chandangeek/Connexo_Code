@@ -5,8 +5,8 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.NumericalRegister;
@@ -16,7 +16,6 @@ import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
@@ -41,8 +40,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static com.elster.jupiter.util.streams.Predicates.not;
 
 @DeviceStatesRestricted(
         value = {DefaultState.DECOMMISSIONED},
@@ -196,34 +193,8 @@ public class RegisterDataResource {
         return result;
     }
 
-    private boolean hideSuspects(ReadingInfo info) {
-        return !hasSuspects(info);
-    }
-
     private List<ReadingInfo> filter(List<ReadingInfo> infos, JsonQueryFilter filter) {
-        Predicate<ReadingInfo> fromParams = getFilter(filter);
+        Predicate<ReadingInfo> fromParams = resourceHelper.getSuspectsFilter(filter, this::hasSuspects);
         return infos.stream().filter(fromParams).collect(Collectors.toList());
-    }
-
-    private Predicate<ReadingInfo> getFilter(JsonQueryFilter filter) {
-        ImmutableList.Builder<Predicate<ReadingInfo>> list = ImmutableList.builder();
-        if (filter.hasProperty("suspect")){
-            List<String> suspectFilters = filter.getStringList("suspect");
-            if (suspectFilters.size() == 0) {
-                if ("suspect".equals(filter.getString("suspect"))) {
-                    list.add(this::hasSuspects);
-                } else {
-                    list.add(not(this::hasSuspects));
-                }
-            }
-        }
-        if (filterActive(filter, "hideSuspects")) {
-            list.add(this::hideSuspects);
-        }
-        return lpi -> list.build().stream().allMatch(p -> p.test(lpi));
-    }
-
-    private boolean filterActive(JsonQueryFilter filter, String key) {
-        return filter.hasProperty(key) && filter.getBoolean(key);
     }
 }
