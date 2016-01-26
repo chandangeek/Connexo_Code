@@ -115,6 +115,7 @@ Ext.define('Mdc.controller.Search', {
                 service: me.service
             });
 
+        Ext.suspendLayouts();
         me.getApplication().fireEvent('changecontentevent', widget);
 
         if (searchDomains.isLoading() && searchDomains.lastRequest) {
@@ -158,6 +159,7 @@ Ext.define('Mdc.controller.Search', {
             scope: me
         });
 
+        Ext.resumeLayouts(true);
         me.service.on('change', me.availableClearAll, me);
         widget.on('destroy', function () {
             me.service.un('change', me.availableClearAll, me);

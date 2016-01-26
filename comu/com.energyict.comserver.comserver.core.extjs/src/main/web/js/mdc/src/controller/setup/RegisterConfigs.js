@@ -210,6 +210,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
 
     showRegisterConfigurationCreateView: function (deviceTypeId, deviceConfigId) {
         var me = this;
+        this.registerConfigurationBeingEdited = null;
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigId = deviceConfigId;
         var registerTypesOfDevicetypeStore = Ext.data.StoreManager.lookup('AvailableRegisterTypesForDeviceConfiguration'),
@@ -554,7 +555,9 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             collectedReadingTypeField = form.down('#mdc-collected-readingType-field'),
             calculatedReadingTypeField = form.down('#mdc-calculated-readingType-field'),
             calculatedReadingTypeCombo = form.down('#mdc-calculated-readingType-combo'),
-            possibleCalculatedReadingTypes = dataContainer.get('possibleCalculatedReadingTypes');
+            overflowField = form.down('#editOverflowValueField'),
+            possibleCalculatedReadingTypes = dataContainer.get('possibleCalculatedReadingTypes'),
+            isCumulative = dataContainer.get('isCumulative');
 
         if (dataContainer.get('collectedReadingType') !== undefined) {
             collectedReadingTypeField.setValue(dataContainer.get('collectedReadingType'));
@@ -581,7 +584,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                     readingTypesStore.add(item);
                 });
                 calculatedReadingTypeCombo.bindStore(readingTypesStore, true);
-                if (dataContainer.get('calculatedReadingType') !== undefined && dataContainer.get('calculatedReadingType') !== '') {
+                if ( !Ext.isEmpty(dataContainer.get('calculatedReadingType')) ) {
                     calculatedReadingTypeCombo.setValue(dataContainer.get('calculatedReadingType').mRID);
                 } else {
                     calculatedReadingTypeCombo.setValue(readingTypesStore.getAt(0));
@@ -592,6 +595,20 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         } else {
             calculatedReadingTypeField.setVisible(false);
             calculatedReadingTypeCombo.setVisible(false);
+        }
+
+        if (me.registerConfigurationBeingEdited === null) {
+            overflowField.setValue(isCumulative ? 99999999 : null);
+            overflowField.required = isCumulative;
+            overflowField.allowBlank = !isCumulative;
+            // Geert: I find the following lines of code not so neat. If anyone finds another way to make (dis)appear
+            //        the label's little red star indicating the field is (not) required, please tell me.
+            if (isCumulative && !overflowField.labelEl.dom.classList.contains('uni-form-item-label-required')) {
+                overflowField.labelEl.dom.classList.add('uni-form-item-label-required');
+            } else if (!isCumulative && overflowField.labelEl.dom.classList.contains('uni-form-item-label-required')) {
+                overflowField.labelEl.dom.classList.remove('uni-form-item-label-required');
+            }
+            overflowField.labelEl.repaint();
         }
     },
 

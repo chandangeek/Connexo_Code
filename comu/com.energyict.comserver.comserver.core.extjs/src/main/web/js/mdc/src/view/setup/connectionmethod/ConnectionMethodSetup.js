@@ -60,6 +60,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodSetup', {
         if (this.isDirectlyAddressable) {
             return  {
                 xtype: 'no-items-found-panel',
+                itemId: 'no-connections-method-panel',
                 title: Uni.I18n.translate('connectionMethod.empty.title', 'MDC', 'No connection methods found'),
                 reasons: [
                     Uni.I18n.translate('connectionMethod.empty.list.item1', 'MDC', 'No connection methods have been defined yet.')
