@@ -377,6 +377,10 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         if (connectionMethodToDelete.hasOwnProperty('action')) {
             connectionMethodToDelete = this.getConnectionmethodsgrid().getSelectionModel().getSelection()[0];
         }
+
+        if(connectionMethodToDelete.get('rescheduleRetryDelay')) {
+            delete connectionMethodToDelete.get('rescheduleRetryDelay').translatedTimeUnit;
+        }
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('connectionmethod.deleteConnectionMethod', 'MDC', 'This connection method will no longer be available.'),
             title: Uni.I18n.translate('connectionmethod.deleteConnectionMethod.title', 'MDC', "Remove '{0}'?",[connectionMethodToDelete.get('name')]),
@@ -531,6 +535,10 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         }
         if (connectionMethod.get('connectionStrategy') === 'AS_SOON_AS_POSSIBLE' || connectionMethod.get('direction') === 'Inbound') {
             connectionMethod.set('temporalExpression', null);
+        }
+
+        if(connectionMethod.get('rescheduleRetryDelay')) {
+            delete connectionMethod.get('rescheduleRetryDelay').translatedTimeUnit;
         }
 
 //        this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);

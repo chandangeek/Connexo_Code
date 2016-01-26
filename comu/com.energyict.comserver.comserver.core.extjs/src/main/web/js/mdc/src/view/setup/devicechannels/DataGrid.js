@@ -135,7 +135,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 store: me.store,
                 isFullTotalCount: true,
                 noBottomPaging: true,
-                displayMsg: '{2} reading(s)',
+                displayMsg: ' ',
                 items: [
                     {
                         xtype: 'button',
