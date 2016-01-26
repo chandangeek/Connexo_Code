@@ -34,6 +34,11 @@ import java.util.logging.Logger;
  */
 public class SimpleTestMeterProtocol implements MeterProtocol, MessageProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return this.getClass().getName();
+    }
+
     public SimpleTestMeterProtocol() {
     }
 

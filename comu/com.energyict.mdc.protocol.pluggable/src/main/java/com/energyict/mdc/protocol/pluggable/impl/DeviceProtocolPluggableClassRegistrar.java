@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceDescriptionSupport;
 
 import java.time.Instant;
 import java.util.Iterator;
@@ -74,7 +75,15 @@ public class DeviceProtocolPluggableClassRegistrar extends PluggableClassRegistr
     }
 
     private DeviceProtocolPluggableClass doCreateDeviceProtocol(LicensedProtocol licensedProtocol) {
-        DeviceProtocolPluggableClass pluggableClass = this.protocolPluggableService.newDeviceProtocolPluggableClass(licensedProtocol.getName(), licensedProtocol.getClassName());
+        Object protocol = protocolPluggableService.createProtocol(licensedProtocol.getClassName());
+        String description;
+        if (protocol instanceof DeviceDescriptionSupport) {
+            description = ((DeviceDescriptionSupport) protocol).getProtocolDescription();
+        } else {
+            description = licensedProtocol.getName();
+        }
+
+        DeviceProtocolPluggableClass pluggableClass = this.protocolPluggableService.newDeviceProtocolPluggableClass(description, licensedProtocol.getClassName());
         pluggableClass.getDeviceProtocol().supportedEventTypes().stream().forEach(this::findOrCreateEndDeviceEventType);
         return pluggableClass;
     }

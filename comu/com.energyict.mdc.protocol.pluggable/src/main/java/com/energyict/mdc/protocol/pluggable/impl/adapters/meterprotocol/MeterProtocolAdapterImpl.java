@@ -266,7 +266,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
 
     @Override
     public String getProtocolDescription() {
-        return this.meterProtocol.getClass().getName() + "" + this.meterProtocol.getProtocolVersion();
+        return meterProtocol.getProtocolDescription();
     }
 
     @Override

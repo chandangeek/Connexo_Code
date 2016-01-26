@@ -9,6 +9,11 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
  */
 public class SecondSimpleTestMeterProtocol extends SimpleTestMeterProtocol {
 
+    @Override
+    public String getProtocolDescription() {
+        return this.getClass().getName();
+    }
+
     public SecondSimpleTestMeterProtocol() {
         super();
     }

@@ -26,6 +26,11 @@ import java.util.logging.Logger;
  */
 public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecurityPropertyConverter {
 
+    @Override
+    public String getProtocolDescription() {
+        return this.getClass().getName();
+    }
+
     public ThirdSimpleTestMeterProtocol() {
         super();
     }

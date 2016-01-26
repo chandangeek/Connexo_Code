@@ -43,6 +43,11 @@ import java.util.logging.Logger;
  */
 public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, DeviceMessageSupport {
 
+    @Override
+    public String getProtocolDescription() {
+        return this.getClass().getName();
+    }
+
     private final PropertySpecService propertySpecService;
 
     public MockMeterProtocol(PropertySpecService propertySpecService) {

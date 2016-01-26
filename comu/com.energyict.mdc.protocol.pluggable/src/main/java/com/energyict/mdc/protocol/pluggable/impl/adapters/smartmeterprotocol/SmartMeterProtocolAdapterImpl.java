@@ -261,7 +261,7 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
 
     @Override
     public String getProtocolDescription() {
-        return this.meterProtocol.getClass().getName() + "" + this.meterProtocol.getVersion();
+        return this.meterProtocol.getProtocolDescription();
     }
 
     @Override
