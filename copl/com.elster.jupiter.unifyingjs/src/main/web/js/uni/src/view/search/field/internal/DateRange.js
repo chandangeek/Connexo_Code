@@ -5,6 +5,8 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
         'Uni.view.search.field.internal.DateTimeField'
     ],
     layout: 'vbox',
+    margin: 0,
+    padding: 0,
     defaults: {
         margin: '0 0 5 0'
     },
@@ -19,7 +21,7 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
     getValue: function() {
         var value = [];
         this.items.each(function(item){
-            if (!Ext.isEmpty(item.getValue())) {value.push(item.getValue());}
+            value.push(item.getValue());
         });
         return Ext.isEmpty(value) ? null : value;
     },
