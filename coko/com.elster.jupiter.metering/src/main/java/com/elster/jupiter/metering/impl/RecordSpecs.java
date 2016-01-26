@@ -34,7 +34,7 @@ public enum RecordSpecs {
 		private Object[] toArray(BaseReading reading, ProcessStatus status) {
 			Object[] result = new Object[3];
 			result[0] = status.getBits();
-			if (reading instanceof IntervalReading) {
+			if (reading instanceof IntervalReading && ((IntervalReading) reading).getProfileStatus() != null) {
 				result[1] = ((IntervalReading) reading).getProfileStatus().getBits();
 			} else {
 				result[1] = 0L;
@@ -76,7 +76,7 @@ public enum RecordSpecs {
 			}
 			Object[] result = new Object[4];
 			result[0] = status.getBits();
-			if (reading instanceof IntervalReading) {
+			if (reading instanceof IntervalReading && ((IntervalReading) reading).getProfileStatus() != null) {
 				result[1] = ((IntervalReading) reading).getProfileStatus().getBits();
 			} else {
 				result[1] = 0L;
@@ -113,7 +113,7 @@ public enum RecordSpecs {
 			}
 			Object[] result = new Object[8];
 			result[0] = status.getBits();
-			if (reading instanceof IntervalReading) {
+			if (reading instanceof IntervalReading && ((IntervalReading) reading).getProfileStatus() != null) {
 				result[1] = ((IntervalReading) reading).getProfileStatus().getBits();
 			} else {
 				result[1] = 0L;
@@ -281,7 +281,7 @@ public enum RecordSpecs {
             }
             Object[] result = new Object[4];
             result[0] = status.getBits();
-            if (reading instanceof IntervalReading) {
+			if (reading instanceof IntervalReading && ((IntervalReading) reading).getProfileStatus() != null) {
                 result[1] = ((IntervalReading) reading).getProfileStatus().getBits();
             } else {
                 result[1] = 0L;

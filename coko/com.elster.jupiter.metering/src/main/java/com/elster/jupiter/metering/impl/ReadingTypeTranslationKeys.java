@@ -471,14 +471,17 @@ public final class ReadingTypeTranslationKeys {
     }
 
     public enum Currency implements TranslationKey {
-        POUND(java.util.Currency.getInstance("GBP")),
-        EURO(java.util.Currency.getInstance("EUR")),
-        USDOLLAR(java.util.Currency.getInstance("USD"));
+        NOTAPPLICABLE("XXX"),
+        POUND("GBP"),
+        EURO("EUR"),
+        USDOLLAR("USD");
 
+        private final int id;
         private final java.util.Currency currency;
 
-        Currency(java.util.Currency currency) {
-            this.currency = currency;
+        Currency(String currencyCode) {
+            this.currency = java.util.Currency.getInstance(currencyCode);
+            this.id = this.currency.getNumericCode() != 999 ? this.currency.getNumericCode() : 0;
         }
 
         @Override
@@ -488,11 +491,11 @@ public final class ReadingTypeTranslationKeys {
 
         @Override
         public String getDefaultFormat() {
-            return this.currency.getDisplayName(Locale.ENGLISH);
+            return this.currency.getNumericCode() != 999 ? this.currency.getDisplayName(Locale.ENGLISH) : "Not applicable";
         }
 
         public int getCurrencyCode() {
-            return this.currency.getNumericCode();
+            return id;
         }
 
         private TranslationKey asTranslationKey() {
