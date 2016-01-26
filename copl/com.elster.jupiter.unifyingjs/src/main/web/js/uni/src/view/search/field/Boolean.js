@@ -3,6 +3,7 @@ Ext.define('Uni.view.search.field.Boolean', {
     xtype: 'uni-search-criteria-boolean',
     text: Uni.I18n.translate('view.search.field.yesno.label', 'UNI', 'Text'),
     minWidth: 70,
+    value: 1,
 
     defaults: {
         margin: 0,
@@ -12,6 +13,8 @@ Ext.define('Uni.view.search.field.Boolean', {
     setValue: function(value) {
         if (value) {
             this.down('radiofield[inputValue="' + value[0].get('criteria')[0] + '"]').setValue(true);
+        } else {
+            this.down('radiofield[inputValue="' + this.value + '"]').setValue(true);
         }
     },
 
@@ -31,7 +34,6 @@ Ext.define('Uni.view.search.field.Boolean', {
                 name: me.dataIndex,
                 inputValue: "1",
                 itemId: 'radio-yes',
-                checked: true,
                 handler: me.onValueChange,
                 scope: me
             },
@@ -51,6 +53,5 @@ Ext.define('Uni.view.search.field.Boolean', {
         ];
 
         me.callParent(arguments);
-        me.setValue(me.getValue());
     }
 });
