@@ -160,9 +160,16 @@ Ext.define('Mdc.controller.Search', {
         });
 
         Ext.resumeLayouts(true);
-        me.service.on('change', me.availableClearAll, me);
+
+        var listeners = me.service.on({
+            change: me.availableClearAll,
+            reset: me.availableClearAll,
+            scope: me,
+            destroyable: true
+        });
+
         widget.on('destroy', function () {
-            me.service.un('change', me.availableClearAll, me);
+            listeners.destroy();
         }, me)
     },
 
