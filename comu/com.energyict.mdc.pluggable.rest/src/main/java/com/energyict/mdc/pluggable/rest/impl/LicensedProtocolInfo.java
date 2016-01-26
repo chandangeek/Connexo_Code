@@ -20,8 +20,8 @@ public class LicensedProtocolInfo {
     public LicensedProtocolInfo() {
     }
 
-    public LicensedProtocolInfo(LicensedProtocol licensedProtocolRule) {
-        protocolName = licensedProtocolRule.getName();
+    public LicensedProtocolInfo(LicensedProtocol licensedProtocolRule, String description) {
+        protocolName = description;
         protocolJavaClassName = licensedProtocolRule.getClassName();
         protocolFamilies = new LicensedProtocolFamilyInfo[licensedProtocolRule.getFamilies().size()];
         int counter = 0;

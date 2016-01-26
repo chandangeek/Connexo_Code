@@ -7,11 +7,10 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -42,7 +41,7 @@ public class DeviceCommunicationProtocolInfo {
             this.deviceProtocolVersion = "*** PROTOCOL NOT YET SUPPORTED IN THE CURRENT OSGI BUNDLE ***";
         }
         if (licensedProtocol != null) {
-            this.licensedProtocol = new LicensedProtocolInfo(licensedProtocol);
+            this.licensedProtocol = new LicensedProtocolInfo(licensedProtocol, deviceProtocolPluggableClass.getDeviceProtocol().getProtocolDescription());
         }
         if (embedProperties) {
             List<PropertyInfo> propertyInfoList = createPropertyInfoList(uriInfo, deviceProtocolPluggableClass, mdcPropertyUtils);
