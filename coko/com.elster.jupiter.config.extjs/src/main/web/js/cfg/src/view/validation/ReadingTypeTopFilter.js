@@ -41,7 +41,7 @@ Ext.define('Cfg.view.validation.ReadingTypeTopFilter', {
             },
             {
                 type: 'combobox',
-                dataIndex: 'tou',
+                dataIndex: 'timeOfUse',
                 emptyText: Uni.I18n.translate('validation.timeOfUse', 'CFG', 'Time of use'),
                 itemId: 'timeOfUseCombo',
                 store: 'TimeOfUse',
