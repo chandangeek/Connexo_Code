@@ -210,6 +210,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
 
     showRegisterConfigurationCreateView: function (deviceTypeId, deviceConfigId) {
         var me = this;
+        this.registerConfigurationBeingEdited = null;
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigId = deviceConfigId;
         var registerTypesOfDevicetypeStore = Ext.data.StoreManager.lookup('AvailableRegisterTypesForDeviceConfiguration'),
@@ -596,17 +597,19 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             calculatedReadingTypeCombo.setVisible(false);
         }
 
-        overflowField.setValue(isCumulative ? 99999999 : null);
-        overflowField.required = isCumulative;
-        overflowField.allowBlank = !isCumulative;
-        // Geert: I find the following lines of code not so neat. If anyone finds another way to make (dis)appear
-        //        the label's little red star indicating the field is (not) required, please tell me.
-        if (isCumulative && !overflowField.labelEl.dom.classList.contains('uni-form-item-label-required') ) {
-            overflowField.labelEl.dom.classList.add('uni-form-item-label-required');
-        } else if (!isCumulative && overflowField.labelEl.dom.classList.contains('uni-form-item-label-required') ) {
-            overflowField.labelEl.dom.classList.remove('uni-form-item-label-required');
+        if (me.registerConfigurationBeingEdited === null) {
+            overflowField.setValue(isCumulative ? 99999999 : null);
+            overflowField.required = isCumulative;
+            overflowField.allowBlank = !isCumulative;
+            // Geert: I find the following lines of code not so neat. If anyone finds another way to make (dis)appear
+            //        the label's little red star indicating the field is (not) required, please tell me.
+            if (isCumulative && !overflowField.labelEl.dom.classList.contains('uni-form-item-label-required')) {
+                overflowField.labelEl.dom.classList.add('uni-form-item-label-required');
+            } else if (!isCumulative && overflowField.labelEl.dom.classList.contains('uni-form-item-label-required')) {
+                overflowField.labelEl.dom.classList.remove('uni-form-item-label-required');
+            }
+            overflowField.labelEl.repaint();
         }
-        overflowField.labelEl.repaint();
     },
 
     onOverruledObisCodeChange: function(overruledObisCodeField, newValue) {
