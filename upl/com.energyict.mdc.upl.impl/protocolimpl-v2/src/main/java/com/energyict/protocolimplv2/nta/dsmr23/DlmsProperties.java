@@ -4,13 +4,13 @@ import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
@@ -308,5 +308,16 @@ public class DlmsProperties implements DlmsSessionProperties {
     @Override
     public boolean isUsePolling() {
         return true;
+    }
+
+    public GeneralCipheringKeyType getGeneralCipheringKeyType() {
+        String keyTypeDescription = properties.getStringProperty(DlmsProtocolProperties.GENERAL_CIPHERING_KEY_TYPE);
+
+        if (keyTypeDescription == null && getCipheringType().equals(CipheringType.GENERAL_CIPHERING)) {
+            //In the case of general-ciphering, the key type is a required property
+            throw DeviceConfigurationException.missingProperty(DlmsProtocolProperties.GENERAL_CIPHERING_KEY_TYPE);
+        } else {
+            return keyTypeDescription == null ? null : GeneralCipheringKeyType.fromDescription(keyTypeDescription);
+        }
     }
 }

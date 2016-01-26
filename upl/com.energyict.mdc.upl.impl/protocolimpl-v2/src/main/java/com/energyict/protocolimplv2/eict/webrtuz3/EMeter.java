@@ -19,12 +19,12 @@ public class EMeter extends AbstractDlmsSlaveProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "EnergyICT WebRTU Z3 DLMS e-meter V2";
+        return "EnergyICT WebRTU Z3 DLMS E-meter slave V2";
     }
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-04-29 16:11:31 +0200 (Wed, 29 Apr 2015) $";
+        return "$Date: 2016-01-25 15:02:12 +0100 (Mon, 25 Jan 2016)$";
     }
 
     protected DeviceProtocolSecurityCapabilities getSecurityCapabilities() {

@@ -129,11 +129,12 @@
 	</ciManagement>
 
 	<modules>
-		<module>protocolimpl</module>
-		<module>protocolcommon</module>
 		<module>dlms</module>
-		<module>protocolimpl-elster</module>
+		<module>protocolcommon</module>
+		<module>protocolimpl</module>
 		<module>protocolimpl-v2</module>
+		<module>protocolimpl-elster</module>
+		<module>protocolimpl-us</module>
 		<module>connectiontypes</module>
 	</modules>
 

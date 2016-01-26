@@ -20,6 +20,7 @@ import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -152,11 +153,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             case HLS3_MD5: {
                 if (this.acse.getRespondingAuthenticationValue() != null) {
                     plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
-                    try {
-                        decryptedResponse = replyToHLSAuthentication(this.securityContext.associationEncryption(plainText));
-                    } catch (NoSuchAlgorithmException e) {
-                        throw DataEncryptionException.dataEncryptionException(e);
-                    }
+                    decryptedResponse = replyToHLSAuthentication(associationEncryption(plainText));
                     analyzeDecryptedResponse(decryptedResponse);
                 } else {
                     disconnect();
@@ -170,11 +167,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             case HLS4_SHA1: {
                 if (this.acse.getRespondingAuthenticationValue() != null) {
                     plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
-                    try {
-                        decryptedResponse = replyToHLSAuthentication(this.securityContext.associationEncryption(plainText));
-                    } catch (NoSuchAlgorithmException e) {
-                        throw DataEncryptionException.dataEncryptionException(e);
-                    }
+                    decryptedResponse = replyToHLSAuthentication(associationEncryption(plainText));
                     analyzeDecryptedResponse(decryptedResponse);
                 } else {
                     disconnect();
@@ -198,6 +191,34 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 }
             }
             break;
+            case HLS6_SHA256: {
+                if (this.acse.getRespondingAuthenticationValue() != null) {
+
+                    plainText = ProtocolTools.concatByteArrays(
+                            this.securityContext.getSecurityProvider().getHLSSecret(),
+                            this.securityContext.getSystemTitle(),
+                            this.securityContext.getResponseSystemTitle(),
+                            this.acse.getRespondingAuthenticationValue(),
+                            this.securityContext.getSecurityProvider().getCallingAuthenticationValue()
+                    );
+
+                    byte[] digest = associationEncryption(plainText);   //Hash the plaintext with SHA-256
+                    decryptedResponse = replyToHLSAuthentication(digest);
+
+                    analyzeDecryptedResponse(decryptedResponse);
+                } else {
+                    disconnect();
+                    ConnectionException connectionException = new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
+                            ") requires the server to respond with a challenge.");
+                    throw ConnectionCommunicationException.protocolConnectFailed(connectionException);
+                }
+            }
+            break;
+            case HLS7_ECDSA: {
+
+                //TODO
+            }
+            break;
             default: {
                 // should never get here
                 throw DeviceConfigurationException.unsupportedPropertyValue("AuthenticationAccessLevel", String.valueOf(this.securityContext.getAuthenticationLevel()));
@@ -205,26 +226,44 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
         }
     }
 
-    /**
-     * Calculate the digest from the meter and compare it with the response you got from the meter.
-     *
-     * @param encryptedResponse is the response from the server to the reply_to_HLS_authentication
-     */
-    protected void analyzeDecryptedResponse(byte[] encryptedResponse) throws UnsupportedException {
-
-        byte[] cToSEncrypted;
-        // We have to make a distinction between the response from HLS5_GMAC or one of the below ones.
-        if (this.securityContext.getAuthenticationType() != AuthenticationTypes.HLS5_GMAC) {
-            byte[] plainText = ProtocolUtils.concatByteArrays(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
-            try {
-                cToSEncrypted = this.securityContext.associationEncryption(plainText);
-            } catch (NoSuchAlgorithmException e) {
-                throw DataEncryptionException.dataEncryptionException(e);
-            }
-        } else {
-            cToSEncrypted = this.securityContext.createHighLevelAuthenticationGMACResponse(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), encryptedResponse);
+    private byte[] associationEncryption(byte[] plainText) {
+        try {
+            return this.securityContext.associationEncryption(plainText);
+        } catch (NoSuchAlgorithmException e) {
+            throw DataEncryptionException.dataEncryptionException(e);
         }
-        if (!Arrays.equals(cToSEncrypted, encryptedResponse)) {
+    }
+
+    /**
+     * Manually calculate the digest from the meter and compare it with the response you got from the meter.
+     *
+     * @param serverDigest is the response from the server to the reply_to_HLS_authentication
+     * @throws ConnectionCommunicationException if the two challenges don't match, or if the HLSSecret could not be supplied, if it's not a valid algorithm or when there is no callingAuthenticationvalue
+     */
+    protected void analyzeDecryptedResponse(byte[] serverDigest) throws UnsupportedException {
+
+        byte[] calculatedServerDigest = new byte[0];
+        if (this.securityContext.getAuthenticationType() == AuthenticationTypes.HLS3_MD5 || this.securityContext.getAuthenticationType() == AuthenticationTypes.HLS4_SHA1) {
+            byte[] plainText = ProtocolUtils.concatByteArrays(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
+            calculatedServerDigest = associationEncryption(plainText);
+        } else if (this.securityContext.getAuthenticationType() == AuthenticationTypes.HLS5_GMAC) {
+            calculatedServerDigest = this.securityContext.createHighLevelAuthenticationGMACResponse(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), serverDigest);
+        } else if (this.securityContext.getAuthenticationType() == AuthenticationTypes.HLS6_SHA256) {
+            byte[] plainText = ProtocolTools.concatByteArrays(
+                    this.securityContext.getSecurityProvider().getHLSSecret(),
+                    this.securityContext.getResponseSystemTitle(),
+                    this.securityContext.getSystemTitle(),
+                    this.securityContext.getSecurityProvider().getCallingAuthenticationValue(),
+                    this.acse.getRespondingAuthenticationValue()
+            );
+
+            calculatedServerDigest = associationEncryption(plainText);
+        } else if (this.securityContext.getAuthenticationType() == AuthenticationTypes.HLS7_ECDSA) {
+            //TODO HLS7
+            calculatedServerDigest = null;
+        }
+
+        if (!Arrays.equals(calculatedServerDigest, serverDigest)) {
             disconnect();
             IOException ioException = new IOException("HighLevelAuthentication failed, client and server challenges do not match.");
             throw ConnectionCommunicationException.protocolConnectFailed(ioException);
@@ -314,7 +353,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
         }
     }
 
-    private void disconnect(){
+    private void disconnect() {
         try {
             releaseAssociation();
             getDlmsV2Connection().disconnectMAC();

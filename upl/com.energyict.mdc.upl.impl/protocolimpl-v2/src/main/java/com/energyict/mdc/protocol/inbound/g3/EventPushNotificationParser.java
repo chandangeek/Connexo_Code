@@ -91,6 +91,7 @@ public class EventPushNotificationParser {
         } else if (tag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING) {
             parseEncryptedFrame(inboundFrame);
         } else {
+            //TODO support general ciphering & general signing (suite 0, 1 and 2)
             throw DataParseException.ioException(new ProtocolException("Unexpected tag '" + tag + "' in received push event notification. Expected '" + getCosemNotificationAPDUTag() + "' or '" + DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING + "'"));
         }
     }
