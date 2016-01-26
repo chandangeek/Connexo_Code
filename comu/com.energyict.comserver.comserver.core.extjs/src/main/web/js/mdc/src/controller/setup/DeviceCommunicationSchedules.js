@@ -92,7 +92,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                 scheduleStore.getProxy().setUrl(mrid);
                 scheduleStore.load({
                     callback: function () {
-
                         var shared = [];
                         var individual = [];
                         var adHocComTasks = [];
@@ -329,9 +328,8 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
 
     removeSharedCommunicationSchedule: function (record) {
         var me = this;
-
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + encodeURIComponent(this.mrid) + '/schedules/' + record.getId(),
+            url: '/api/ddr/devices/' + encodeURIComponent(this.mrid) + '/schedules/' + record.get('id'),
             method: 'DELETE',
             params: '',
             jsonData: _.pick(record.getRecordData(), 'id', 'name', 'version', 'parent'),
