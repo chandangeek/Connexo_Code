@@ -17,4 +17,12 @@ public class BigDecimalChecker extends ObjectChecker<BigDecimal> {
         }
         return other != null && getToCheck().compareTo(other) == 0;
     }
+
+    public boolean greaterThan(BigDecimal other) {
+        return getToCheck().compareTo(other) > 0;
+    }
+
+    public boolean smallerThan(BigDecimal other) {
+        return getToCheck().compareTo(other) < 0;
+    }
 }
