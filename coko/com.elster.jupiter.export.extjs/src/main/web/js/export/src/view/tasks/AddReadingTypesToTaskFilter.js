@@ -31,7 +31,7 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskFilter', {
         },
         {
             type: 'combobox',
-            dataIndex: 'tou',
+            dataIndex: 'timeOfUse',
             emptyText: Uni.I18n.translate('dataExportTasks.timeOfUse', 'DES', 'Time of use'),
             displayField: 'name',
             valueField: 'tou',
