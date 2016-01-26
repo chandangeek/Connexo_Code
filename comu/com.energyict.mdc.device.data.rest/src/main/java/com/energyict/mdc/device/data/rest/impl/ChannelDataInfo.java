@@ -46,14 +46,14 @@ public class ChannelDataInfo {
     public BigDecimal multiplier;
 
     public BaseReading createNew() {
-        return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value);
+        return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value, null);
     }
 
     public BaseReading createNewBulk() {
-        return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.collectedValue);
+        return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.collectedValue, null);
     }
 
     public BaseReading createConfirm() {
-        return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), null);
+        return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), null, null);
     }
 }
