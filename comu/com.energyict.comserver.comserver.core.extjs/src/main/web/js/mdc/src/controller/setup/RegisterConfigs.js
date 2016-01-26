@@ -554,7 +554,9 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             collectedReadingTypeField = form.down('#mdc-collected-readingType-field'),
             calculatedReadingTypeField = form.down('#mdc-calculated-readingType-field'),
             calculatedReadingTypeCombo = form.down('#mdc-calculated-readingType-combo'),
-            possibleCalculatedReadingTypes = dataContainer.get('possibleCalculatedReadingTypes');
+            overflowField = form.down('#editOverflowValueField'),
+            possibleCalculatedReadingTypes = dataContainer.get('possibleCalculatedReadingTypes'),
+            isCumulative = dataContainer.get('isCumulative');
 
         if (dataContainer.get('collectedReadingType') !== undefined) {
             collectedReadingTypeField.setValue(dataContainer.get('collectedReadingType'));
@@ -593,6 +595,18 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             calculatedReadingTypeField.setVisible(false);
             calculatedReadingTypeCombo.setVisible(false);
         }
+
+        overflowField.setValue(isCumulative ? 99999999 : null);
+        overflowField.required = isCumulative;
+        overflowField.allowBlank = !isCumulative;
+        // Geert: I find the following lines of code not so neat. If anyone finds another way to make (dis)appear
+        //        the label's little red star indicating the field is (not) required, please tell me.
+        if (isCumulative && !overflowField.labelEl.dom.classList.contains('uni-form-item-label-required') ) {
+            overflowField.labelEl.dom.classList.add('uni-form-item-label-required');
+        } else if (!isCumulative && overflowField.labelEl.dom.classList.contains('uni-form-item-label-required') ) {
+            overflowField.labelEl.dom.classList.remove('uni-form-item-label-required');
+        }
+        overflowField.labelEl.repaint();
     },
 
     onOverruledObisCodeChange: function(overruledObisCodeField, newValue) {
