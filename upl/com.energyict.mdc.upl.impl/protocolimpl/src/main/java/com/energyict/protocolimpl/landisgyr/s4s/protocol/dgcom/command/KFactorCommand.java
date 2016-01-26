@@ -10,12 +10,11 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import java.io.*;
-import java.util.*;
-import java.math.BigDecimal;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocolimpl.base.ParseUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
+import java.math.BigDecimal;
 
 
 /**
@@ -41,7 +40,7 @@ public class KFactorCommand extends AbstractCommand {
         return strBuff.toString();
     }
     
-    protected byte[] prepareBuild() throws IOException {
+    protected byte[] prepareBuild() throws ProtocolException {
         return new byte[]{(byte)0x1F,0,0,0,0,0,0,0,0};
     }
     

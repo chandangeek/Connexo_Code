@@ -1,19 +1,16 @@
 package com.energyict.protocolimpl.iec1107.ppm;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  * Year offset explaned by example:
@@ -140,11 +137,11 @@ public class PPMUtils {
 	 * @param offset
 	 * @param length
 	 * @return
-	 * @throws IOException
+	 * @throws ProtocolException
 	 */
-	public static Long parseBitfield(byte[] data, int offset, int length) throws IOException {
+	public static Long parseBitfield(byte[] data, int offset, int length) throws ProtocolException {
 		if (length > 8) {
-			throw new IOException("Register, parseBitfield, datalength should not exceed 8!");
+			throw new ProtocolException("Register, parseBitfield, datalength should not exceed 8!");
 		}
 		return new Long(ProtocolUtils.getLong(data, offset, length));
 	}
@@ -154,14 +151,17 @@ public class PPMUtils {
 	 * @param offset
 	 * @param length
 	 * @return
-	 * @throws IOException
-	 * @throws NumberFormatException
+	 * @throws ProtocolException
 	 */
-	public static Long parseLong(byte[] data, int offset, int length) throws IOException, NumberFormatException {
+	public static Long parseLong(byte[] data, int offset, int length) throws ProtocolException {
 		if (length > 8) {
-			throw new IOException("Register, parseLong, datalength should not exceed 8!");
+			throw new ProtocolException("Register, parseLong, datalength should not exceed 8!");
 		}
-		return new Long(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data, offset, length))));
+        try{
+            return new Long(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data, offset, length))));
+        }catch (NumberFormatException e){
+            throw new ProtocolException(e);
+        }
 	}
 
 	/**
@@ -169,14 +169,17 @@ public class PPMUtils {
 	 * @param offset
 	 * @param length
 	 * @return
-	 * @throws IOException
-	 * @throws NumberFormatException
+	 * @throws ProtocolException
 	 */
-	public static Integer parseInteger(byte[] data, int offset, int length) throws IOException, NumberFormatException {
+	public static Integer parseInteger(byte[] data, int offset, int length) throws ProtocolException {
 		if (length > 4) {
-			throw new IOException("Register, parseInteger, datalength should not exceed 4!");
+			throw new ProtocolException("Register, parseInteger, datalength should not exceed 4!");
 		}
-		return new Integer(Integer.parseInt(Integer.toHexString(ProtocolUtils.getIntLE(data, offset, length))));
+        try{
+		    return new Integer(Integer.parseInt(Integer.toHexString(ProtocolUtils.getIntLE(data, offset, length))));
+        }catch (NumberFormatException e){
+            throw new ProtocolException(e);
+        }
 	}
 
 	/**
@@ -204,9 +207,9 @@ public class PPMUtils {
 	 * @param offset
 	 * @param timeZone
 	 * @return
-	 * @throws IOException
+	 * @throws ProtocolException
 	 */
-	public static Date parseDate(byte[] data, int offset, TimeZone timeZone) throws IOException {
+	public static Date parseDate(byte[] data, int offset, TimeZone timeZone) throws ProtocolException {
 		Calendar calendar = ProtocolUtils.getCalendar(timeZone);
 		calendar.clear();
 
@@ -234,9 +237,9 @@ public class PPMUtils {
 	 * @param offset
 	 * @param timeZone
 	 * @return
-	 * @throws IOException
+	 * @throws ProtocolException
 	 */
-	public static Date parseTimeStamp(byte[] data, int offset, TimeZone timeZone) throws IOException {
+	public static Date parseTimeStamp(byte[] data, int offset, TimeZone timeZone) throws ProtocolException {
 
 		Calendar calendar = ProtocolUtils.getCalendar(timeZone);
 		calendar.set(Calendar.SECOND, 0);

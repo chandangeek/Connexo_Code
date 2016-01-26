@@ -86,7 +86,11 @@ public enum DeviceActionMessage implements DeviceMessageSpec {
     ResumeDCScheduler(45),
     SyncDeviceDataForDC(46,
             PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.cleanUpUnusedDeviceTypesAttributeName, false)),
-    SyncOneConfigurationForDC(47, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.deviceConfigurationIDAttributeName));
+    SyncOneConfigurationForDC(47, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.deviceConfigurationIDAttributeName)),
+    
+    /** Trigger the preliminary protocol (read out serial) for a group of meters. */
+	TRIGGER_PRELIMINARY_PROTOCOL(48, 
+				PropertySpecFactory.groupReferencePropertySpec(DeviceMessageConstants.deviceGroupAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.DEVICE_ACTIONS;
     private final int id;

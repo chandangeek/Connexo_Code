@@ -6,11 +6,12 @@
 
 package com.energyict.protocolimpl.base;
 
-import java.io.IOException;
-
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.meteridentification.MeterType;
+
+import java.io.IOException;
 
 /**
  * The low level communication class extending from Connection should also implement ProtocolConnection interface. That interface is returned by the doInit(...) abstract method implemented in the protocol implementation class that extends AbstractProtocol.
@@ -51,7 +52,8 @@ public interface ProtocolConnection {
 	 * @param nodeId property MeterProtocol.NODEID (NodeAddress)
 	 * @throws com.energyict.cbo.NestedIOException Thrown when something goes wrong different from a protocol related exception
 	 * @throws com.energyict.protocolimpl.base.ProtocolConnectionException thrown for protocol and communication related exceptions
+     * @throws com.energyict.protocolimpl.base.ProtocolException thrown for protocol application exceptions
 	 * @return byte[] data
 	 */
-	byte[] dataReadout(String strID,String nodeId) throws NestedIOException, ProtocolConnectionException;
+	byte[] dataReadout(String strID,String nodeId) throws NestedIOException, ProtocolConnectionException, ProtocolException;
 }

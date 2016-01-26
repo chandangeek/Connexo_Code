@@ -10,9 +10,11 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.cbo.*;
-import java.io.*;
-import com.energyict.protocol.*;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
@@ -73,7 +75,7 @@ public class MeasurementUnitsCommand extends AbstractCommand {
             else
                 return new byte[]{(byte)0xA4,0,0,0,0,0,0,0,0};
         }
-        else throw new IOException("MeasurementUnitsCommand, only for RX meters!");
+        else throw new ProtocolException("MeasurementUnitsCommand, only for RX meters!");
         
     }
     

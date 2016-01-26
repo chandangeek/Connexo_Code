@@ -4,6 +4,7 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -69,11 +70,11 @@ public class ModbusTCPConnection extends ModbusConnection {
                 return responseData;
             } catch (ConnectionException e) {
                 if (retry++ >= getMaxRetries()) {
-                    throw new ProtocolConnectionException("ModbusConnection, sendRequest(), error maxRetries (" + getMaxRetries() + "), " + e.getMessage());
+                    throw new ProtocolConnectionException("ModbusConnection, sendRequest(), error maxRetries (" + getMaxRetries() + "), " + e.getMessage(), MAX_RETRIES_ERROR);
                 }
             } catch (ModbusException e) {
                 if (retry++ >= getMaxRetries()) {
-                    throw new ProtocolConnectionException("ModbusConnection, sendRequest(), error maxRetries (" + getMaxRetries() + "), " + e.getMessage());
+                    throw new ProtocolConnectionException("ModbusConnection, sendRequest(), error maxRetries (" + getMaxRetries() + "), " + e.getMessage(), MAX_RETRIES_ERROR);
                 }
             }
         }
@@ -150,7 +151,7 @@ public class ModbusTCPConnection extends ModbusConnection {
             byte[] data = ProtocolUtils.concatByteArrays(header.getHeaderBytes(), requestData.getFrameData());
             sendRawData(data);
         } catch (NestedIOException e) {
-            throw new ProtocolConnectionException(e.getCause().getMessage());
+            throw new ProtocolConnectionException(e.getCause().getMessage(), PROTOCOL_ERROR);
         }
     }
 
@@ -161,5 +162,11 @@ public class ModbusTCPConnection extends ModbusConnection {
 
     public int getTransactionIdentifier() {
         return transactionIdentifier;
+    }
+
+    @Override
+    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException, ProtocolConnectionException {
+        //do nothing
+        return null;
     }
 }

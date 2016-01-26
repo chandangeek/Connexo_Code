@@ -10,13 +10,11 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
+import java.math.BigDecimal;
 
 /**
  *
@@ -47,7 +45,7 @@ public class Class0ComputationalConfiguration extends AbstractClass {
         super(classFactory);
     }
     
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data) throws ProtocolException {
         UKH = BigDecimal.valueOf(ParseUtils.getBCD2Long(data, 0, 3),3);
         UPR = ProtocolUtils.getBCD2Int(data, 3, 1);
         UKE = BigDecimal.valueOf(ParseUtils.getBCD2Long(data, 4, 5),6);

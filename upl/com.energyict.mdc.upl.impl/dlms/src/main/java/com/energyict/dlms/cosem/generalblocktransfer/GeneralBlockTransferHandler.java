@@ -5,7 +5,7 @@ import com.energyict.dlms.XdlmsApduTags;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
 import com.energyict.dlms.cosem.AbstractCosemObject;
-import com.energyict.dlms.cosem.ExceptionResponseException;
+import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.dlms.protocolimplv2.connection.SecureConnection;
 import com.energyict.protocol.ProtocolException;
@@ -331,8 +331,14 @@ public class GeneralBlockTransferHandler {
                 if (XdlmsApduTags.contains(cipheredTag)) {
                     this.responseData = decrypt(secureConnection, getResponseData());
                 } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING || cipheredTag == DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING) {
-                    this.responseData = decryptGeneralCiphering(secureConnection, getResponseData());
+                    this.responseData = decryptGloOrDedGeneralCiphering(secureConnection, getResponseData());
+                } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_CIPHERING) {
+
+                    //TODO general ciphering
+
                 } else {
+                    //TODO general signing
+
                     IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + getResponseData()[LOCATION_SECURED_XDLMS_APDU_TAG]);
                     throw ConnectionCommunicationException.unExpectedProtocolError(ioException);
                 }
@@ -344,8 +350,8 @@ public class GeneralBlockTransferHandler {
         return SecurityContextV2EncryptionHandler.dataTransportDecryption(secureConnection.getAso().getSecurityContext(), securedResponse);
     }
 
-    private byte[] decryptGeneralCiphering(SecureConnection secureConnection, byte[] securedResponse) {
-        return SecurityContextV2EncryptionHandler.dataTransportGeneralDecryption(secureConnection.getAso().getSecurityContext(), securedResponse);
+    private byte[] decryptGloOrDedGeneralCiphering(SecureConnection secureConnection, byte[] securedResponse) {
+        return SecurityContextV2EncryptionHandler.dataTransportGeneralGloOrDedDecryption(secureConnection.getAso().getSecurityContext(), securedResponse);
     }
 
     /**

@@ -10,7 +10,8 @@
 
 package com.energyict.protocolimpl.edmi.mk6.core;
 
-import java.io.IOException;
+import com.energyict.protocol.ProtocolException;
+
 import java.math.BigDecimal;
 
 /**
@@ -22,7 +23,7 @@ public class RegisterTypeDouble extends AbstractRegisterType {
     private double value;
     
     /** Creates a new instance of RegisterTypeByte */
-    public RegisterTypeDouble(byte[] data) throws IOException {
+    public RegisterTypeDouble(byte[] data) throws ProtocolException {
                 
         // in case of reading TOU registers, if the 'D' is omitted with the R connand, the register is returned as float instead of double
         // See EDMI register manual and command line protocol info page 4-4
@@ -46,7 +47,7 @@ public class RegisterTypeDouble extends AbstractRegisterType {
 
             this.setValue((double)Float.intBitsToFloat(bits));
         } else {
-			throw new IOException("RegisterTypeDouble: data length error, not possible to parse fload or double (length="+data.length+")!");
+			throw new ProtocolException("RegisterTypeDouble: data length error, not possible to parse fload or double (length="+data.length+")!");
 		}
 
     }

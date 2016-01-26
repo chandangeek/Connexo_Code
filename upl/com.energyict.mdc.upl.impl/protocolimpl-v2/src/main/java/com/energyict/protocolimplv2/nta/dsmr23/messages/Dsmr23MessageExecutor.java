@@ -5,6 +5,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.*;
@@ -22,7 +23,6 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import org.xml.sax.SAXException;
 
@@ -146,7 +146,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     collectedMessage.setDeviceProtocolInformation("Message is currently not supported by the protocol");
                 }
             } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSessionProperties().getRetries() + 1)) {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
@@ -191,28 +191,28 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     private void mbusCommission(OfflineDeviceMessage pendingMessage) throws IOException {
         int installChannel = getIntegerAttribute(pendingMessage);
         int primaryAddress = getMBusPhysicalAddress(installChannel);
-        ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) primaryAddress);
+        ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) (primaryAddress - 1));
         MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION9);
         mbusClient.installSlave(primaryAddress);
     }
 
     private void mBusClientRemoteCommissioning(OfflineDeviceMessage pendingMessage) throws IOException{
         int installChannel = getIntegerAttribute(pendingMessage);
-        int channel = getMBusPhysicalAddress(installChannel);
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(channel).getObisCode(), 9);
+        int physicalAddress = getMBusPhysicalAddress(installChannel);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), 9);
         String shortId = getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_mBusClientShortId);
         MbusProvider mbusProvider = new MbusProvider(getCosemObjectFactory(), getProtocol().getDlmsSessionProperties().getFixMbusHexShortId());
         mbusClient.setManufacturerID(mbusProvider.getManufacturerID(shortId));
         mbusClient.setIdentificationNumber(mbusProvider.getIdentificationNumber(shortId));
         mbusClient.setVersion(mbusProvider.getVersion(shortId));
         mbusClient.setDeviceType(mbusProvider.getDeviceType(shortId));
-        mbusClient.installSlave(channel);
+        mbusClient.installSlave(physicalAddress);
     }
 
     private void changeMBusClientAttributes(OfflineDeviceMessage pendingMessage) throws IOException {
         int installChannel = getIntegerAttribute(pendingMessage);
-        int channel = getMBusPhysicalAddress(installChannel);
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(channel).getObisCode(), 9);
+        int physicalAddress = getMBusPhysicalAddress(installChannel);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), 9);
         mbusClient.setManufacturerID(getManufacturerId(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientManufacturerId)));
         mbusClient.setIdentificationNumber(getIdentificationNumber(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber) , getProtocol().getDlmsSessionProperties().getFixMbusHexShortId()));
         mbusClient.setDeviceType(getDeviceType(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientDeviceType)));

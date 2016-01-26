@@ -10,8 +10,11 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import com.energyict.protocol.*;
-import java.io.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  *
@@ -76,7 +79,7 @@ public class DSDU {
     public void init(byte[] data) throws IOException {
         init(data,false);
     }
-    public void init(byte[] data, boolean priority) throws IOException {
+    public void init(byte[] data, boolean priority) throws ProtocolException {
         setPriority(priority);
         setData(data);
         if (data != null) {

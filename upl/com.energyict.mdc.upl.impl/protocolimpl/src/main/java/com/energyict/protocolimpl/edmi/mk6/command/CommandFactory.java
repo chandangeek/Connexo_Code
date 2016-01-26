@@ -10,11 +10,12 @@
 
 package com.energyict.protocolimpl.edmi.mk6.command;
 
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocolimpl.edmi.mk6.MK6;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
-
-import com.energyict.protocolimpl.edmi.mk6.MK6;
 
 
 /**
@@ -73,7 +74,7 @@ public class CommandFactory implements Serializable{
             }
             catch(CommandResponseException e) {
                 if (retries++>=5) {
-					throw new IOException("CommandFactory, getInformationCommand() Max retries "+e.toString());
+					throw new ProtocolException("CommandFactory, getInformationCommand() Max retries error: "+e.toString());
 				}
             }
         }
@@ -91,7 +92,7 @@ public class CommandFactory implements Serializable{
             }
             catch(CommandResponseException e) {
                 if (retries++>=5) {
-					throw new IOException("CommandFactory, getInformationCommand() Max retries "+e.toString());
+					throw new ProtocolException("CommandFactory, getInformationCommand() Max retries error:"+e.toString());
 				}
             }
         }

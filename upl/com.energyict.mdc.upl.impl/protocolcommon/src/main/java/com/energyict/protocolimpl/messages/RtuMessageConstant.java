@@ -428,4 +428,19 @@ public class RtuMessageConstant {
     public static final String MBUS_CLIENT_DEVICE_TYPE = "MBus_Client_Device_Type";
     public static final String MBUS_REMOTE_COMMISSION = "MBus_Remote_Commission";
     public static final String MBUS_SHORT_ID = "MBus_Short_Id";
+
+    public static final String READ_EVENTS = "ReadEvents";
+    public static final String READ_PROFILE_DATA = "ReadProfileData";
+    public static final String CONNECT = "CloseContactor";
+    public static final String DISCONNECT = "Disconnect";
+    public static final String SHORT_DISPLAY_MESSAGE = "ShortDisplayMessage";
+    public static final String LONG_DISPLAY_MESSAGE = "LongDisplayMessage";
+    public static final String NO_DISPLAY_MESSAGE = "NoDisplayMessage";
+    public static final String DISPLAY_CONFIG = "DisplayConfiguration";
+    public static final String CONFIG_LOADPROFILE = "ConfigureLoadProfile";
+    public static final String CONFIG_SPECIAL_DATA_MODE = "ConfigureSpecialDataMode";
+    public static final String CONFIG_MAX_DEMAND = "ConfigureMaxDemand";
+    public static final String CONFIG_CONSUMPTION_LIMITATION = "ConfigureConsumptionLimitation";
+    public static final String CONFIG_EMERGENCY_CONSUMPTION_LIMITATION = "ConfigureEmergencyConsumptionLimitation";
+    public static final String CONFIG_TARIFF = "TariffConfig";
 }

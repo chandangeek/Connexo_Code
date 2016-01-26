@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
 import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
@@ -61,9 +62,8 @@ public class ABBA1140DataIdentityFactory {
             ABBA1140DataIdentity rawRegister = findRawRegister(dataID);
             return rawRegister.read(cached,(dataLength==-1?rawRegister.getLength():dataLength),set);
         } catch(FlagIEC1107ConnectionException e) {
-        	String msg = "ABBA1140DataIdentityFactory, getDataIdentity, "
-                    + "dataID=" + dataID + " " + e.getMessage();
-            throw new IOException(msg);
+            throw new ProtocolConnectionException("ABBA1140DataIdentityFactory, getDataIdentity, "
+                    + "dataID=" + dataID + " " + e.getMessage(), e.getReason());
         } 
     }
     
@@ -82,7 +82,7 @@ public class ABBA1140DataIdentityFactory {
                 throw new IOException("ABBA1140DataIdentity, getDataIdentityStream, data identity not streameable!");
             return rawRegister.readStream(cached,nrOfBlocks);
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("ABBA1140DataIdentityFactory, getDataIdentityStream, "+e.getMessage());
+            throw new ProtocolConnectionException("ABBA1140DataIdentityFactory, getDataIdentityStream, "+e.getMessage(), e.getReason());
         }
     }
     
@@ -96,7 +96,7 @@ public class ABBA1140DataIdentityFactory {
             ABBA1140DataIdentity rawRegister = findRawRegister(dataID);
             rawRegister.writeRawRegister(value);
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("ABBA1140DataIdentityFactory, setDataIdentity, "+e.getMessage());
+            throw new ProtocolConnectionException("ABBA1140DataIdentityFactory, setDataIdentity, "+e.getMessage(), e.getReason());
         }
     }
     

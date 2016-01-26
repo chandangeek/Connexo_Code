@@ -6,6 +6,7 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
@@ -15,15 +16,11 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology.DeviceMappingRange;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -111,21 +108,23 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
      * If the serialNumber can't be retrieved from the device then we just log and try the next one.
      */
     protected void discoverMbusDevices() {
-        mbusMap = new ArrayList<>();
-        for (int i = MBUS_DEVICES.getFrom(); i <= MBUS_DEVICES.getTo(); i++) {
-            try {
-                String mbusSerial;
-                ObisCode serialObisCode = ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, 1, (byte) i);
-                if (this.meterProtocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
-                    OctetString serialOctetString = this.discoveryComposedCosemObject.getAttribute(this.mbusSerialAttributes.get(i)).getOctetString();
-                    mbusSerial = serialOctetString != null ? serialOctetString.stringValue() : null;
-                    if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase(""))) {
-                        mbusMap.add(new DeviceMapping(mbusSerial, i));
+        if(mbusMap == null){
+            mbusMap = new ArrayList<>();
+            for (int i = MBUS_DEVICES.getFrom(); i <= MBUS_DEVICES.getTo(); i++) {
+                try {
+                    String mbusSerial;
+                    ObisCode serialObisCode = ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, 1, (byte) i);
+                    if (this.meterProtocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
+                        OctetString serialOctetString = this.discoveryComposedCosemObject.getAttribute(this.mbusSerialAttributes.get(i)).getOctetString();
+                        mbusSerial = serialOctetString != null ? serialOctetString.stringValue() : null;
+                        if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase(""))) {
+                            mbusMap.add(new DeviceMapping(mbusSerial, i));
+                        }
                     }
-                }
-            } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, meterProtocol.getDlmsSession())) {
-                    continue;   //Go to the next meter
+                } catch (IOException e) {
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, meterProtocol.getDlmsSession().getProperties().getRetries() + 1)) {
+                        continue;   //Go to the next meter
+                    }
                 }
             }
         }
@@ -136,21 +135,23 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
      * If the serialNumber can't be retrieved from the device then we just log and try the next one.
      */
     protected void discoverEMeters() {
-        eMeterMap = new ArrayList<>();
-        for (int i = EMETER_DEVICES.getFrom(); i <= EMETER_DEVICES.getTo(); i++) {
-            try {
-                String eMeterSerial;
-                ObisCode serialObisCode = ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, 1, (byte) i);
-                if (this.meterProtocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
-                    OctetString serialOctetString = this.discoveryComposedCosemObject.getAttribute(this.emeterSerialAttributes.get(i)).getOctetString();
-                    eMeterSerial = serialOctetString != null ? serialOctetString.stringValue() : null;
-                    if ((eMeterSerial != null) && (!eMeterSerial.equalsIgnoreCase(""))) {
-                        eMeterMap.add(new DeviceMapping(eMeterSerial, i));
+        if(eMeterMap.isEmpty()){
+            eMeterMap = new ArrayList<>();
+            for (int i = EMETER_DEVICES.getFrom(); i <= EMETER_DEVICES.getTo(); i++) {
+                try {
+                    String eMeterSerial;
+                    ObisCode serialObisCode = ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, 1, (byte) i);
+                    if (this.meterProtocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
+                        OctetString serialOctetString = this.discoveryComposedCosemObject.getAttribute(this.emeterSerialAttributes.get(i)).getOctetString();
+                        eMeterSerial = serialOctetString != null ? serialOctetString.stringValue() : null;
+                        if ((eMeterSerial != null) && (!eMeterSerial.equalsIgnoreCase(""))) {
+                            eMeterMap.add(new DeviceMapping(eMeterSerial, i));
+                        }
                     }
-                }
-            } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, meterProtocol.getDlmsSession())) {
-                    continue;   //Go to the next meter
+                } catch (IOException e) {
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, meterProtocol.getDlmsSession().getProperties().getRetries() + 1)) {
+                        continue;   //Go to the next meter
+                    }
                 }
             }
         }
@@ -232,12 +233,10 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
      * @return the next available physicalAddress or -1 if none is available.
      */
     public int searchNextFreePhysicalAddress(){
-        int availablePhysicalAddress = 0;
+        List<Integer> availablePhysicalAddresses = new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4));
         for (DeviceMapping dm : this.mbusMap) {
-            if(availablePhysicalAddress < dm.getPhysicalAddress()) {
-                availablePhysicalAddress = dm.getPhysicalAddress();
-            }
+            availablePhysicalAddresses.remove((Integer) dm.getPhysicalAddress());    // Remove the specified object from the list
         }
-        return availablePhysicalAddress + 1;
+        return availablePhysicalAddresses.isEmpty() ? 0 : availablePhysicalAddresses.get(0);
     }
 }

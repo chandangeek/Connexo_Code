@@ -10,8 +10,9 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import java.io.*;
-import com.energyict.protocol.*;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.ProtocolException;
 
 /**
  *
@@ -45,7 +46,7 @@ public class UnlockCommand extends AbstractCommand {
         return data;
     }
     
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data) throws ProtocolException, ConnectionException, NestedIOException {
     }
 
     public String getPassword() {

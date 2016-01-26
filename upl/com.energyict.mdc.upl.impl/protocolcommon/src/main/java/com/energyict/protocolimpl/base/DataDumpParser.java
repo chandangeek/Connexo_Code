@@ -9,6 +9,7 @@ package com.energyict.protocolimpl.base;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.File;
@@ -16,11 +17,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  *
@@ -34,13 +31,13 @@ public class DataDumpParser {
     String datetimeSignature;
 
     /** Creates a new instance of SCTMDumpData */
-    public DataDumpParser(byte[] frame) throws IOException {
+    public DataDumpParser(byte[] frame) throws ProtocolException {
         this(frame,ENERMET_DUMP_DATETIME_SIGNATURE);
     }
-    public DataDumpParser(byte[] frame,String datetimeSignature) throws IOException {
+    public DataDumpParser(byte[] frame,String datetimeSignature) throws ProtocolException {
         this.datetimeSignature=datetimeSignature;
         if (frame == null) {
-			throw new IOException("SCTMDumpData, frame data == null!");
+			throw new ProtocolException("SCTMDumpData, frame data == null!");
 		}
         strFrame = new String(frame);
     }
@@ -49,7 +46,7 @@ public class DataDumpParser {
         return strFrame;
     }
 
-    public String getRegisterFFStrValue(String strReg) throws IOException {
+    public String getRegisterFFStrValue(String strReg) throws NoSuchRegisterException {
         String strRegister=strReg;
         String strValue = searchRegister(strRegister);
         return strValue.substring(0,strValue.indexOf("\r"));

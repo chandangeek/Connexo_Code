@@ -29,16 +29,16 @@ import java.util.logging.Logger;
  */
 public class DlmsSession implements ProtocolLink {
 
-    private DlmsSessionProperties properties;
     protected final ApplicationServiceObject aso;
     protected DLMSMeterConfig dlmsMeterConfig;
-    private Logger logger;
-    private TimeZone timeZone;
     protected DLMSConnection dlmsConnection;
-    private InputStream in;
-    private OutputStream out;
     protected CosemObjectFactory cosemObjectFactory;
     protected HHUSignOn hhuSignOn = null;
+    private DlmsSessionProperties properties;
+    private Logger logger;
+    private TimeZone timeZone;
+    private InputStream in;
+    private OutputStream out;
 
     /**
      * @param in
@@ -308,13 +308,17 @@ public class DlmsSession implements ProtocolLink {
      */
     protected XdlmsAse buildXDlmsAse() {
         return new XdlmsAse(
-                (getProperties().getCipheringType() == CipheringType.DEDICATED) ? getProperties().getSecurityProvider().getDedicatedKey() : null,
+                isDedicated() ? getProperties().getSecurityProvider().getDedicatedKey() : null,
                 getProperties().getInvokeIdAndPriorityHandler().getCurrentInvokeIdAndPriorityObject().needsResponse(),
                 getProperties().getProposedQOS(),
                 getProperties().getProposedDLMSVersion(),
                 getProperties().getConformanceBlock(),
                 getProperties().getMaxRecPDUSize()
         );
+    }
+
+    private boolean isDedicated() {
+        return getProperties().getCipheringType() == CipheringType.DEDICATED || getProperties().getCipheringType() == CipheringType.GENERAL_DEDICATED;
     }
 
     /**

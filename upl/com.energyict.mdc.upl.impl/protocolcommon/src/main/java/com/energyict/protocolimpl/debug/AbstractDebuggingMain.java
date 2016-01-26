@@ -1,12 +1,17 @@
 package com.energyict.protocolimpl.debug;
 
-import com.energyict.dialer.core.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.LinkException;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dialer.coreimpl.OpticalDialer;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -69,7 +74,7 @@ public abstract class AbstractDebuggingMain<P extends MeterProtocol> {
         }
     }
 
-    public void initAndConnectMeterProtocol() throws LinkException, IOException {
+    public void initAndConnectMeterProtocol() throws LinkException, IOException, ParseException {
         getMeterProtocol().setProperties(getProperties());
         getMeterProtocol().init(getDialer().getInputStream(), getDialer().getOutputStream(), getTimeZone(), getLogger());
         if (getDialer() instanceof OpticalDialer) {

@@ -6,6 +6,7 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
+import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.protocol.ProtocolException;
@@ -16,6 +17,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 
 /**
@@ -62,6 +64,7 @@ public class TCPIPConnection implements DlmsV2Connection {
         this.useGeneralBlockTransfer = properties.useGeneralBlockTransfer();
         this.generalBlockTransferWindowSize = properties.getGeneralBlockTransferWindowSize();
         this.usePolling = properties.isUsePolling();
+        this.comChannel.setTimeout(this.timeout);
     }
 
     public long getForceDelay() {
@@ -106,7 +109,9 @@ public class TCPIPConnection implements DlmsV2Connection {
 
         comChannel.startReading();
 
-        if (!usePolling) {
+        //If the protocol indicates we should avoid polling, AND it is a TCP connection, use this way of reading responses.
+        //Else, use the old way (polling .available() frequently).
+        if (!usePolling && ComChannelType.SocketComChannel.is(comChannel)) {
             wpdu = new WPDU();
 
             //Read the header
@@ -119,7 +124,7 @@ public class TCPIPConnection implements DlmsV2Connection {
 
             //Read the rest of the frame (APDU)
             byte[] frame = new byte[length];
-            int readBytes = readFixedNumberOfBytes(frame);
+            int readBytes = readFixedNumberOfBytesWithoutPolling(frame);
             if (readBytes != length) {
                 throw DataParseException.ioException(new ProtocolException("Attempted to read out full frame (" + length + " bytes), but received " + readBytes + " bytes instead..."));
             }
@@ -269,30 +274,52 @@ public class TCPIPConnection implements DlmsV2Connection {
     } // private byte waitForTCPIPFrameStateMachine()
 
     /**
-     * Read in a fixed number of bytes, or throw an IOException in case of a timeout
+     * Read in a fixed number of bytes, or throw an IOException in case of a timeout.
+     * No polling is done here. Timeout management is done in the underlying socket inputstream.
+     * <p/>
+     * If we receive an incomplete frame, the mechanism will keep trying to read in the remaining bytes until the timeout period.
      */
-    private int readFixedNumberOfBytes(byte[] frame) throws IOException {
-        final long timeoutMoment = System.currentTimeMillis() + timeout;
+    private int readFixedNumberOfBytesWithoutPolling(byte[] frame) throws IOException {
+        try {
+            int offset = 0;
+            int numRead;
+            final long timeoutMoment = System.currentTimeMillis() + timeout;
 
-        while (comChannel.available() == 0) {
-            if (System.currentTimeMillis() > timeoutMoment) {
-                throw new IOException("receiveResponse() response timeout error");
-            } else {
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    throw ConnectionCommunicationException.communicationInterruptedException(e);
+            while (offset < frame.length && (numRead = comChannel.read(frame, offset, frame.length - offset)) >= 0) {
+                offset += numRead;
+                if (System.currentTimeMillis() > timeoutMoment) {
+                    //Failsafe mechanism for incomplete frames. If we received some bytes but not enough, throw an IOException after the timeout period.
+                    throw new IOException("Could not read " + frame.length + " withing the given timeout interval, only received " + offset + " bytes");
                 }
             }
-        }
+            return offset;
 
-        return comChannel.read(frame);
+        } catch (ConnectionCommunicationException e) {
+            if (isSocketTimeoutException(e)) {
+                throw new IOException("receiveResponse() response timeout error");
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    /**
+     * A SocketTimeoutException indicates that we did not receive a response from the meter within the given timeout interval
+     */
+    private boolean isSocketTimeoutException(Throwable t) {
+        while (t.getCause() != null) {
+            if (t.getCause() instanceof SocketTimeoutException) {
+                return true;
+            } else {
+                t = t.getCause();
+            }
+        }
+        return false;
     }
 
     private ByteBuffer readHeader() throws IOException {
         byte[] header = new byte[8];
-        int readBytes = readFixedNumberOfBytes(header);
+        int readBytes = readFixedNumberOfBytesWithoutPolling(header);
         if (readBytes != 8) {
             throw DataParseException.ioException(new ProtocolException("Attempted to read out 8 header bytes but received " + readBytes + " bytes instead..."));
         }
@@ -418,6 +445,7 @@ public class TCPIPConnection implements DlmsV2Connection {
 
     public void setTimeout(long timeout) {
         this.timeout = timeout;
+        comChannel.setTimeout(timeout);
     }
 
     public void setRetries(int retries) {

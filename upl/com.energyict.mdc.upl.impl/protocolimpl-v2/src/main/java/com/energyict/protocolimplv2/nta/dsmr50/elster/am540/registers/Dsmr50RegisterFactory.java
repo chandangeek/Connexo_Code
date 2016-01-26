@@ -12,6 +12,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRDate;
 import com.energyict.dlms.axrdencoding.util.AXDRTime;
 import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
@@ -22,7 +23,6 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DLMSStoredValues;
 import com.energyict.protocolimplv2.dlms.idis.am540.registers.AM540PLCRegisterMapper;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.dsmr40.registers.Dsmr40RegisterFactory;
 
 import java.io.IOException;
@@ -148,8 +148,8 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
     }
 
     private void handleIOException(List<CollectedRegister> collectedRegisters, OfflineRegister register, IOException e) {
-        if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
-            if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+        if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
+            if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                 collectedRegisters.add(createUnsupportedRegister(register));
             } else {
                 collectedRegisters.add(createIncompatibleRegister(register, e.getMessage()));

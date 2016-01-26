@@ -17,6 +17,7 @@ import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
@@ -39,7 +40,7 @@ import java.util.List;
  * @author sva
  * @since 11/08/2015 - 14:04
  */
-public class AM540 extends AM130 {
+public class AM540 extends AM130 implements SerialNumberSupport{
 
     private AM540Cache am540Cache;
 
@@ -51,7 +52,7 @@ public class AM540 extends AM130 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-17 16:28:58 +0100 (Tue, 17 Nov 2015) $";
+        return "$Date: 2015-11-26 15:26:44 +0200 (Thu, 26 Nov 2015)$";
     }
 
     /**

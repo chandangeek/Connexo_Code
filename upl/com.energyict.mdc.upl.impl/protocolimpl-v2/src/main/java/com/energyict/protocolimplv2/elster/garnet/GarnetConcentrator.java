@@ -7,13 +7,7 @@ import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.meterdata.ResultType;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
@@ -31,6 +25,7 @@ import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.garnet.common.TopologyMaintainer;
@@ -46,7 +41,7 @@ import java.util.List;
  * @author sva
  * @since 23/05/2014 - 9:12
  */
-public class GarnetConcentrator implements DeviceProtocol {
+public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
 
     private OfflineDevice offlineDevice;
     private TopologyMaintainer topologyMaintainer;
@@ -169,7 +164,7 @@ public class GarnetConcentrator implements DeviceProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "Elster Concentrator Garnet";
+        return "Elster Garnet Concentrator";
     }
 
     @Override
@@ -264,7 +259,7 @@ public class GarnetConcentrator implements DeviceProtocol {
      */
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
+        return "$Date: 2016-01-25 15:02:12 +0100 (Mon, 25 Jan 2016)$";
     }
 
     public GarnetProperties getProperties() {

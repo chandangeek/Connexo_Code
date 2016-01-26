@@ -6,6 +6,7 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.meterdata.CollectedTopology;
@@ -17,7 +18,7 @@ import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.ComposedMeterInfo;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
@@ -38,7 +39,7 @@ import java.util.logging.Logger;
  * Time: 13:30
  * Author: khe
  */
-public abstract class AbstractDlmsProtocol implements DeviceProtocol {
+public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumberSupport {
 
     protected DlmsProperties dlmsProperties;
     protected AbstractMeterTopology meterTopology;
@@ -63,9 +64,6 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     public void logOn() {
         getDlmsSession().connect();
         checkCacheObjects();
-        if (!getOfflineDevice().getAllSlaveDevices().isEmpty()) {
-            getMeterTopology().searchForSlaveDevices();
-        }
     }
 
     @Override
@@ -73,7 +71,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         try {
             return getDlmsSession().getCosemObjectFactory().getClock().getDateTime();
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
         }
     }
 
@@ -82,7 +80,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         try {
             getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(timeToSet, getTimeZone()));
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
         }
     }
 
@@ -162,6 +160,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     public AbstractMeterTopology getMeterTopology() {
         if (this.meterTopology == null) {
             this.meterTopology = new MeterTopology(this);
+            meterTopology.searchForSlaveDevices();
         }
         return meterTopology;
     }
@@ -189,7 +188,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
                 throw new IllegalArgumentException("Invalid reference method, only 0 and 1 are allowed.");
             }
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
         }
     }
 

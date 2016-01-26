@@ -14,11 +14,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.modbus.core.AbstractRegister;
-import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
-import com.energyict.protocolimpl.modbus.core.HoldingRegister;
-import com.energyict.protocolimpl.modbus.core.Modbus;
-import com.energyict.protocolimpl.modbus.core.Parser;
+import com.energyict.protocolimpl.modbus.core.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -29,8 +25,8 @@ import java.util.Calendar;
  * @author Koen
  */
 public class RegisterFactory extends AbstractRegisterFactory {
-	
-	final static String slotInfo 		= "slotInfo";	
+
+    final static String slotInfo 		= "slotInfo";
 	final static String productCode 	= "productCode";
 	final static String profileInterval	= "profileInterval";
 	final static String channelInfos	= "channelInfos";
@@ -38,8 +34,9 @@ public class RegisterFactory extends AbstractRegisterFactory {
 	final static String rePointer		= "reactiveEnergyPointer";
 	final static String dtLastUpdate	= "dateTimeLastProfileUpdate";
 	final static String currentDateTime = "currentDateTime";
-	
-	
+    public static final String SERIAL_NUMBER = "serial number";
+
+
     /** Creates a new instance of RegisterFactory */
     public RegisterFactory(Modbus modBus) {
         super(modBus);
@@ -87,6 +84,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(514,1,ObisCode.fromString("1.1.0.4.2.255"),"ctPrim"));
         getRegisters().add(new HoldingRegister(516,2,ObisCode.fromString("1.1.0.4.3.255"),"ptPrim"));
         getRegisters().add(new HoldingRegister(518,1,ObisCode.fromString("1.1.0.4.6.255"),"ptSec"));
+        getRegisters().add(new HoldingRegister(263,2,ObisCode.fromString("0.0.96.1.0.255"), SERIAL_NUMBER));
 
         getRegisters().add(new HoldingRegister(3072, 6, currentDateTime));
         
@@ -225,7 +223,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
                 return BigDecimal.valueOf(val).multiply(getModBus().getRegisterMultiplier('E')); 
             }
         });
-        
+
     } //private void initParsers()
     
 } // public class RegisterFactory extends AbstractRegisterFactory

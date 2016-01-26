@@ -9,6 +9,7 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
@@ -35,6 +36,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -47,20 +49,21 @@ import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayPr
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.G3GatewayRegisters;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
  * Date: 9/04/13
  * Time: 16:00
  */
-public class RtuPlusServer implements DeviceProtocol {
+public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
     private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
@@ -74,6 +77,7 @@ public class RtuPlusServer implements DeviceProtocol {
     private G3GatewayRegisters g3GatewayRegisters;
     private G3GatewayEvents g3GatewayEvents;
     private DLMSCache dlmsCache = null;
+    private Logger logger;
 
     @Override
     public String getProtocolDescription() {
@@ -82,7 +86,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-06 14:27:09 +0100 (Fri, 06 Nov 2015) $";
+        return "$Date: Thu Nov 26 10:45:14 2015 +0100 $";
     }
 
     public DlmsSession getDlmsSession() {
@@ -138,7 +142,7 @@ public class RtuPlusServer implements DeviceProtocol {
         } catch (DataAccessResultException | ProtocolException e) {
             frameCounter = new Random().nextInt();
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, publicDlmsSession);
+            throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries()+ 1);
         }
 
         //Read out the frame counter using the public client, it has a pre-established association
@@ -157,7 +161,7 @@ public class RtuPlusServer implements DeviceProtocol {
         try {
             return getDlmsSession().getCosemObjectFactory().getData(SERIAL_NUMBER_OBISCODE).getString();
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
     }
 
@@ -166,7 +170,7 @@ public class RtuPlusServer implements DeviceProtocol {
         try {
             return getDlmsSession().getCosemObjectFactory().getClock().getDateTime();
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries()+ 1);
         }
     }
 
@@ -178,7 +182,7 @@ public class RtuPlusServer implements DeviceProtocol {
             cal.setTime(currentTime);
             getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(cal));
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries()+ 1);
         }
     }
 
@@ -208,7 +212,7 @@ public class RtuPlusServer implements DeviceProtocol {
             sapAssignmentList = this.getDlmsSession().getCosemObjectFactory().getSAPAssignment().getSapAssignmentList();
             nodeList = this.getDlmsSession().getCosemObjectFactory().getG3NetworkManagement().getNodeList();
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
 
         final List<G3Topology.G3Node> g3Nodes = G3Topology.convertNodeList(nodeList, this.getDlmsSession().getTimeZone());
@@ -224,7 +228,8 @@ public class RtuPlusServer implements DeviceProtocol {
                     //G3 node that was read out has a newer link to a DC, update allowed.
                     //Else: this device is no longer considered a slave device of the gateway.
                     if (hasNewerLastSeenDate(g3Node, configuredLastSeenDate)) {
-
+                        getLogger().log(Level.FINEST, "hasNewerLastSeenDate returns true");
+                        getLogger().log(Level.FINEST, "g3node macAddress = "+g3Node.getMacAddressString() +" g3node lastSeenDate = "+ g3Node.getLastSeenDate().toString() +" configuredLastSeenDate = "+configuredLastSeenDate);
                         DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(sapAssignmentItem.getLogicalDeviceName());
                         deviceTopology.addSlaveDevice(slaveDeviceIdentifier);
                         deviceTopology.addAdditionalCollectedDeviceInfo(
@@ -241,6 +246,10 @@ public class RtuPlusServer implements DeviceProtocol {
                                         BigDecimal.valueOf(g3Node.getLastSeenDate().getTime())
                                 )
                         );
+                        getLogger().log(Level.FINEST, "g3node with macAddress = "+g3Node.getMacAddressString() + " was added");
+                    } else {
+                        getLogger().log(Level.FINEST, "hasNewerLastSeenDate returns false");
+                        getLogger().log(Level.FINEST, "g3node macAddress = " + g3Node.getMacAddressString() + " g3node lastSeenDate = " + g3Node.getLastSeenDate().toString() + " configuredLastSeenDate = " + configuredLastSeenDate);
                     }
                 }
             }
@@ -480,7 +489,14 @@ public class RtuPlusServer implements DeviceProtocol {
                 throw new IllegalArgumentException("Invalid reference method, only 0 and 1 are allowed.");
             }
         } catch (IOException e) {
-            throw IOExceptionHandler.handle(e, getDlmsSession());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
+    }
+
+    public Logger getLogger() {
+        if (logger == null) {
+            logger = Logger.getLogger(this.getClass().getName());
+        }
+        return logger;
     }
 }

@@ -10,14 +10,11 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.cbo.*;
+
+import java.io.IOException;
 
 /**
  *
@@ -75,7 +72,7 @@ public class Class14LoadProfileConfiguration extends AbstractClass {
         super(classFactory);
     }
     
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data) throws ProtocolException {
         RLPSCAL = ProtocolUtils.getInt(data,3,1);
         LPLEN = ProtocolUtils.getInt(data,4,1);
         DASIZE = ProtocolUtils.getInt(data,5,2);

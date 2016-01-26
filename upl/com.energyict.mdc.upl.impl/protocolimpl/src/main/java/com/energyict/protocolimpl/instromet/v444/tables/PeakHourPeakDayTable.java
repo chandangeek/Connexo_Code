@@ -1,13 +1,14 @@
 package com.energyict.protocolimpl.instromet.v444.tables;
 
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.instromet.connection.Response;
+import com.energyict.protocolimpl.instromet.v444.CommandFactory;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.instromet.connection.Response;
-import com.energyict.protocolimpl.instromet.v444.CommandFactory;
 
 public class PeakHourPeakDayTable extends AbstractTable {
 	
@@ -18,7 +19,7 @@ public class PeakHourPeakDayTable extends AbstractTable {
 		super(tableFactory);
 	}
 	
-	protected void parse(byte[] data) throws IOException {
+	protected void parse(byte[] data) throws ProtocolException {
 		//System.out.println("parse peak");
 		//System.out.println(ProtocolUtils.outputHexString(data));
 		int peakValue = ProtocolUtils.getIntLE(data, 0, 4);
@@ -61,7 +62,7 @@ public class PeakHourPeakDayTable extends AbstractTable {
 		Response response = 
 			commandFactory.switchToPeakTable().invoke();
 		if (response == null)
-			throw new IOException("Peak table switch: No answer from corrector");
+			throw new ProtocolException("Peak table switch: No answer from corrector");
 		parseStatus(response);
     	readHeaders();
 	}

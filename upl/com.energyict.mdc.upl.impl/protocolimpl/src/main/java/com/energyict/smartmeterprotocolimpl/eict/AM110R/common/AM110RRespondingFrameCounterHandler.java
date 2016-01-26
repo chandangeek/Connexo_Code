@@ -36,6 +36,10 @@ public class AM110RRespondingFrameCounterHandler implements RespondingFrameCount
         return this.responseFrameCounter;
     }
 
+    @Override
+    public void resetRespondingFrameCounter(int initialValue) {
+        responseFrameCounter = initialValue;
+    }
 
     private boolean isFrameCounterInitialized() {
         return frameCounterInitialized;

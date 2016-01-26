@@ -10,7 +10,9 @@ public enum FunctionCode {
     READ_INPUT_STATUS(2, "read input status"),
     READ_HOLDING_REGISTER(3, "Read holding register"),
     READ_INPUT_REGISTER(4, "Read input register"),
+    WRITE_SINGLE_COIL(5, "Write single coil"),
     WRITE_SINGLE_REGISTER(6, "Write single register"),
+    WRITE_MULTIPLE_COILS(15, "Write multiple coils"),
     WRITE_MULTIPLE_REGISTER(16, "Write multiple registers"),
     REPORT_SLAVE_ID(17, "Report slave ID"),
     READ_DEVICE_ID(43, "Read device ID");

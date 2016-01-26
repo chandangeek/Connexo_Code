@@ -108,6 +108,15 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpec {
             return result;
         }
 
+        public static String getStringValue(int id){
+            for(MessageType type: MessageType.values()){
+                if(type.getId() == id){
+                    return type.name();
+                }
+            }
+            return "Unknown message type";
+        }
+
         public int getId() {
             return id;
         }
@@ -130,6 +139,15 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpec {
                 result[index] = allTypes[index].name();
             }
             return result;
+        }
+
+        public static String getStringValue(int id){
+            for(TransportType type: TransportType.values()){
+                if(type.getId() == id){
+                    return type.name();
+                }
+            }
+            return "Unknown transport type";
         }
 
         public int getId() {

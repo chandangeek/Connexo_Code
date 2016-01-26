@@ -9,10 +9,8 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.MemoryManagementAttributes;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.cosem.attributes.*;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
@@ -26,7 +24,6 @@ import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.util.*;
@@ -109,13 +106,16 @@ public class RegisterFactory {
                 } else if (universalObject.getClassID() == DLMSClassId.MEMORY_MANAGEMENT.getClassId()) {
                     DLMSAttribute memoryStatisticsAttribute = new DLMSAttribute(register.getObisCode(), MemoryManagementAttributes.MEMORY_STATISTICS.getAttributeNumber(), universalObject.getClassID());
                     composedRegister.setRegisterValue(memoryStatisticsAttribute);
+                } else if (universalObject.getClassID() == DLMSClassId.NTP_SERVER_ADDRESS.getClassId()) {
+                    DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), NPTServerAddressAttributes.NTP_SERVER_NAME.getAttributeNumber(), universalObject.getClassID());
+                    composedRegister.setRegisterValue(valueAttribute);
                 }
                 dlmsAttributes.addAll(composedRegister.getAllAttributes());
                 composedRegisterMap.put(register.getObisCode(), composedRegister);
             }
         }
 
-        ComposedCosemObject composedCosemObject = new ComposedCosemObject(this.getDlmsSession(), true, dlmsAttributes);
+        ComposedCosemObject composedCosemObject = new ComposedCosemObject(this.getDlmsSession(), this.getDlmsSession().getProperties().isBulkRequest(), dlmsAttributes);
         List<CollectedRegister> result = new ArrayList<>();
         for (OfflineRegister offlineRegister : allRegisters) {
             ComposedRegister composedRegister = composedRegisterMap.get(offlineRegister.getObisCode());
@@ -143,7 +143,7 @@ public class RegisterFactory {
                         AbstractDataType memoryStatisticsAttribute = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
 
                         if (!memoryStatisticsAttribute.isStructure() || memoryStatisticsAttribute.getStructure().nrOfDataTypes() != 4) {
-                            result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Cannot parse the memory statistics, should be a structure of with 4 elements"));
+                            result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Cannot parse the memory statistics, should be a structure with 4 elements"));
                             continue;
                         } else {
                             //Special parsing for this structure
@@ -154,7 +154,8 @@ public class RegisterFactory {
                                             ", total space: " + memoryStatisticsAttribute.getStructure().getDataType(2).toBigDecimal() + " " + unit);
                         }
 
-                    } else if (universalObject.getClassID() == DLMSClassId.DATA.getClassId()) {
+                    } else if (universalObject.getClassID() == DLMSClassId.DATA.getClassId()
+                            || universalObject.getClassID() == DLMSClassId.NTP_SERVER_ADDRESS.getClassId()) {
                         //Generic parsing for all data registers
 
                         final AbstractDataType attribute = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
@@ -188,8 +189,8 @@ public class RegisterFactory {
 
                     result.add(createCollectedRegister(registerValue, offlineRegister));
                 } catch (IOException e) {
-                    if (IOExceptionHandler.isUnexpectedResponse(e, getDlmsSession())) {
-                        if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSession().getProperties().getRetries() + 1)) {
+                        if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                             result.add(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
                         } else {
                             result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage()));

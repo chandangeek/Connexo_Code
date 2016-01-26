@@ -9,8 +9,12 @@
  */
 
 package com.energyict.protocolimpl.ansi.c12;
-import java.io.*;
+
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+
+import java.io.IOException;
+
 /**
  *
  * @author Koen
@@ -40,7 +44,7 @@ public class AuthenticateRequest extends AbstractRequest {
 				// check response, but not for A1800
 				for (int i=0;i<getDoubleEncryptedTicket().length;i++) {
 					if (getDoubleEncryptedTicket()[i] != authenticateResponse.getDoubleEncryptedTicket()[i]) {
-						throw new IOException("Authentication failed, double encryption mismatch!");
+						throw new ProtocolConnectionException("Authentication failed, double encryption mismatch!");
 					}
 				}
 			}
@@ -48,7 +52,7 @@ public class AuthenticateRequest extends AbstractRequest {
 			//elster A1800 until a proper fix is made
 //			else throw new IOException("Authentication failed, double encryption length mismatch!");
 		}
-		else throw new IOException("Authentication failed, security level mismatch!");
+		else throw new ProtocolConnectionException("Authentication failed, security level mismatch!");
 	}
 
 	protected RequestData getRequestData() {

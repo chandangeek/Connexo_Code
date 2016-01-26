@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
 import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
@@ -62,9 +64,8 @@ public class ABBA230DataIdentityFactory {
             ABBA230DataIdentity rawRegister = findRawRegister(dataID);
             return rawRegister.read(cached,(dataLength==-1?rawRegister.getLength():dataLength),set);
         } catch(FlagIEC1107ConnectionException e) {
-            String msg = "ABBA230DataIdentityFactory, getDataIdentity, "
-                    + "dataID=" + dataID + " " + e.getMessage();
-            throw new IOException(msg);
+            throw new ProtocolConnectionException("ABBA230DataIdentityFactory, getDataIdentity error: "
+                    + "dataID=" + dataID + " " + e.getMessage(), e.getReason());
         }
     }
     
@@ -84,7 +85,7 @@ public class ABBA230DataIdentityFactory {
 			}
             return rawRegister.readStream(cached,nrOfBlocks);
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("ABBA230DataIdentityFactory, getDataIdentityStream, "+e.getMessage());
+            throw new ProtocolConnectionException("ABBA230DataIdentityFactory, getDataIdentityStream error: "+e.getMessage(), e.getReason());
         }
     }
     
@@ -98,7 +99,7 @@ public class ABBA230DataIdentityFactory {
             ABBA230DataIdentity rawRegister = findRawRegister(dataID);
             rawRegister.writeRawRegister(value);
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("ABBA230DataIdentityFactory, setDataIdentity, "+e.getMessage());
+            throw new ProtocolConnectionException("ABBA230DataIdentityFactory, setDataIdentity error: "+e.getMessage(), e.getReason());
         }
     }
     
@@ -107,7 +108,7 @@ public class ABBA230DataIdentityFactory {
             ABBA230DataIdentity rawRegister = new ABBA230DataIdentity(dataID,this);
             rawRegister.writeRawRegister(packet,value);
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("ABBA230DataIdentityFactory, setDataIdentity, "+e.getMessage());
+            throw new ProtocolConnectionException("ABBA230DataIdentityFactory, setDataIdentity error: "+e.getMessage(), e.getReason());
         }
     }
     void setDataIdentityHex(String dataID, int packet, String value) throws IOException {
@@ -115,7 +116,7 @@ public class ABBA230DataIdentityFactory {
             ABBA230DataIdentity rawRegister = new ABBA230DataIdentity(dataID,this);
             rawRegister.writeRawRegisterHex(packet,value);
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("ABBA230DataIdentityFactory, setDataIdentity, "+e.getMessage());
+            throw new ProtocolConnectionException("ABBA230DataIdentityFactory, setDataIdentity error: "+e.getMessage(), e.getReason());
         }
     }
     void setDataIdentityHex2(String dataID, int packet, String value) throws IOException {
@@ -231,10 +232,10 @@ public class ABBA230DataIdentityFactory {
         rawRegisters.put( id, di );
     }
     
-    private ABBA230DataIdentity findRawRegister(String dataID) throws IOException {
+    private ABBA230DataIdentity findRawRegister(String dataID) throws ProtocolException {
         ABBA230DataIdentity rawRegister = (ABBA230DataIdentity)rawRegisters.get(dataID);
         if (rawRegister == null) {
-			throw new IOException("ABBA230DataIdentityFactory, findRawRegister, "+dataID+" does not exist!");
+			throw new ProtocolException("ABBA230DataIdentityFactory, findRawRegister error: "+dataID+" does not exist!");
 		}
         return rawRegister;
     }

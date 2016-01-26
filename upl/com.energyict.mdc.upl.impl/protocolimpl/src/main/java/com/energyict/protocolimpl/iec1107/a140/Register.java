@@ -6,13 +6,13 @@
 
 package com.energyict.protocolimpl.iec1107.a140;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
 import com.energyict.cbo.ApplicationException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 
 /** Base class for all the registers.  
@@ -116,8 +116,8 @@ public abstract class Register {
      */
     private static final int AUTHENTICATE_REARM = 270000;
     
-    private byte [] readDataIdentity( ) 
-        throws FlagIEC1107ConnectionException, IOException {
+    private byte [] readDataIdentity( )
+            throws IOException {
         
         long logInTimeout = System.currentTimeMillis() + AUTHENTICATE_REARM;
         FlagIEC1107Connection con = a140.getFlagIEC1107Connection();

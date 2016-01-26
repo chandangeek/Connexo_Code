@@ -56,7 +56,7 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
+        return "$Date: 2015-12-17 16:52:58 +0200 (Thu, 17 Dec 2015)$";
     }
 
     @Override
@@ -97,35 +97,20 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
     @Override
     public void provideResponse(DiscoverResponseType responseType) {
         if (!this.response.isCommitted()) {
-            try {
-                switch (responseType) {
-                    case SUCCESS:
-                        this.responseWriter.success();
-                        break;
-                    case DATA_ONLY_PARTIALLY_HANDLED:
-                        this.response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "The data was received correctly but due to a configuration issue not all data was processed and/or stored!");
-                    case FAILURE:
-                        this.response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "The inbound discovery failed. No data was processed nor stored!");
-                        break;
-                    case STORING_FAILURE:
-                        this.response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "The data was received correctly but a problem occurred while storing it");
-                        break;
-                    case DEVICE_DOES_NOT_EXPECT_INBOUND:
-                        this.response.sendError(HttpServletResponse.SC_FORBIDDEN, "The device is not configured for inbound communication, request refused!");
-                        break;
-                    case ENCRYPTION_REQUIRED:
-                        this.response.sendError(HttpServletResponse.SC_FORBIDDEN, "The device with the id specified in the request requires encrypted data to be sent.");
-                        break;
-                    case DEVICE_NOT_FOUND:
-                    case DUPLICATE_DEVICE:
-                        this.response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Device for which data is posted does not exist.");
-                        break;
-                    case SERVER_BUSY:
-                        this.response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Service is temporarily unavailable due to a high load on the data storage component.");
-                        break;
-                }
-            } catch (IOException e) {
-                throw ConnectionCommunicationException.unexpectedIOException(e);
+            switch (responseType) {
+                case SUCCESS:
+                    this.responseWriter.success();
+                    break;
+                case DATA_ONLY_PARTIALLY_HANDLED:
+                case FAILURE:
+                case STORING_FAILURE:
+                case DEVICE_DOES_NOT_EXPECT_INBOUND:
+                case ENCRYPTION_REQUIRED:
+                case DEVICE_NOT_FOUND:
+                case DUPLICATE_DEVICE:
+                case SERVER_BUSY:
+                    this.responseWriter.failure();
+                    break;
             }
         }
     }

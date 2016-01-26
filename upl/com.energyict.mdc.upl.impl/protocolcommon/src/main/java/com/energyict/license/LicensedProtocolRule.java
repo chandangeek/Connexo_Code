@@ -213,7 +213,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 
     // DeviceProtocols
     ELSTER_MBUS(185, "com.energyict.protocolimplv2.nta.elster.MbusDevice", FamilyRule.ELSTER_AM100),
-    RTU_PLUS_G3(186, "com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer", FamilyRule.G3_LINKY_DLMS),
+    RTU_PLUS_G3(186, "com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer", FamilyRule.G3_LINKY_DLMS, FamilyRule.G3_PLC),
     AM100(188, "com.energyict.protocolimplv2.nta.elster.AM100", FamilyRule.ELSTER_AM100),
     MTU155(189, "com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155"),
     WEB_RTU_WAVENIS_GATEWAY(190, "com.energyict.protocolimplv2.coronis.muc.WebRTUWavenisGateway", FamilyRule.CORONIS),
@@ -253,7 +253,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     SOCOMEC_COUNTIS_E44(221, "com.energyict.protocolimpl.modbus.socomec.countis.e44.E44"),
     EMH_NXT4(222, "com.energyict.protocolimpl.iec1107.emh.nxt4.NXT4"),
     ELSTER_A1055(223, "com.energyict.protocolimplv2.abnt.elster.A1055"),
-    AM540(224, "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540", FamilyRule.ELSTER_IDIS, FamilyRule.ELSTER_IDIS_P2),
+    AM540(224, "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540", FamilyRule.ELSTER_IDIS, FamilyRule.ELSTER_IDIS_P2, FamilyRule.G3_PLC),
     AM500(225, "com.energyict.protocolimplv2.dlms.idis.am500.AM500", FamilyRule.ELSTER_IDIS, FamilyRule.ELSTER_IDIS_P1),
     AM500_MBUS_DEVICE(226, "com.energyict.protocolimplv2.dlms.idis.am500.MBusDevice", FamilyRule.ELSTER_IDIS, FamilyRule.ELSTER_IDIS_P1),
     AM130(227, "com.energyict.protocolimplv2.dlms.idis.am130.AM130", FamilyRule.ELSTER_IDIS, FamilyRule.ELSTER_IDIS_P2),
@@ -292,13 +292,27 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     WEB_RTU_Z3_MBUS_DEVICE_V2(256, "com.energyict.protocolimplv2.eict.webrtuz3.MBusDevice", FamilyRule.EICT_Z3),
     WEB_RTU_Z3_EMETER_V2(257, "com.energyict.protocolimplv2.eict.webrtuz3.EMeter", FamilyRule.EICT_Z3),
     TRANSPARENT_GATEWAY(258, "com.energyict.protocolimplv2.eict.gateway.TransparentGateway"),
-    G3_AS330D_V2(259, "com.energyict.protocolimplv2.dlms.g3.AS330D", FamilyRule.G3_LINKY_DLMS),
-    G3_BEACON_3100(260, "com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100"),
+    G3_AS330D_V2(259, "com.energyict.protocolimplv2.dlms.g3.AS330D", FamilyRule.G3_LINKY_DLMS, FamilyRule.G3_PLC),
+    G3_BEACON_3100(260, "com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100", FamilyRule.G3_PLC),
     E35C(261, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C.E35C"),
     ELSTER_A1_THEMISPLUS(262, "com.elster.protocolimpl.dlms.A1"),
     DL230_LIS200(263, "com.elster.protocolimpl.lis200.DL230"),
-    AM540_IDIS_P2_DEVICE(264, "com.energyict.protocolimplv2.dlms.idis.am540.AM540", FamilyRule.ELSTER_IDIS, FamilyRule.ELSTER_IDIS_P2),
+    AM540_IDIS_P2_DEVICE(264, "com.energyict.protocolimplv2.dlms.idis.am540.AM540", FamilyRule.ELSTER_IDIS, FamilyRule.ELSTER_IDIS_P2, FamilyRule.G3_PLC),
     AM540_IDIS_P2_MBUS_DEVICE(265, "com.energyict.protocolimplv2.dlms.idis.am540.MBusDevice", FamilyRule.ELSTER_IDIS, FamilyRule.ELSTER_IDIS_P2),
+
+    FP93B(266, "com.energyict.protocolimpl.modbus.emco.FP93B"),
+    VLM20(267, "com.energyict.protocolimpl.modbus.spiraxsarco.VLM20"),
+    RIM20(268, "com.energyict.protocolimpl.modbus.spiraxsarco.RIM20"),
+
+    CryptoE350_42(269, "com.enexis.smartmeterprotocolimpl.nta.dsmr42.landisgyr.CryptoE350", FamilyRule.DSMR_NTA),
+    CryptoKaifa_42(270, "com.enexis.smartmeterprotocolimpl.nta.dsmr42.ibm.Cryptokaifa", FamilyRule.DSMR_NTA),
+    Landis_Gyr_CryptoMbusDevice_42(271, "com.enexis.smartmeterprotocolimpl.nta.dsmr42.landisgyr.CryptoMbusDevice", FamilyRule.EICT_NTA),
+    Elster_CryptoMbusDevice_42(272, "com.enexis.smartmeterprotocolimpl.nta.dsmr42.elster.CryptoMbusDevice", FamilyRule.DSMR_NTA),
+    Dummy_CryptoMbusDevice_42(273, "com.enexis.smartmeterprotocolimpl.nta.dsmr42.common.CryptoMbusDevice", FamilyRule.DSMR_NTA),
+    Itron_CryptoMbusDevice_42(274, "com.enexis.smartmeterprotocolimpl.nta.dsmr42.itron.CryptoMbusDevice", FamilyRule.DSMR_NTA),
+
+    CryptoWebRTUKP_42(275, "com.enexis.protocolimplv2.nta.dsmr23.eict.CryptoWebRTUKP", FamilyRule.EICT_NTA),
+    CryptoRtuPlusServer_42(276, "com.enexis.protocolimplv2.rtuplusserver.g3.CryptoRtuPlusServer", FamilyRule.G3_LINKY_DLMS, FamilyRule.G3_PLC),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),

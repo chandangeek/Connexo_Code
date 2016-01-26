@@ -7,6 +7,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.messages.DeviceMessage;
@@ -35,7 +36,6 @@ import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -245,7 +245,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                     }
                 }
             } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, session)) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, session.getProperties().getRetries()+ 1)) {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());

@@ -18,12 +18,14 @@ import java.util.List;
 public class IDISConfigurationSupport extends AM130ConfigurationSupport {
 
     public static final String SWAP_SERVER_AND_CLIENT_ADDRESS_PROPERTY = "SwapServerAndClientAddress";
+    public static final String IGNORE_CALLING_AP_TITLE = "IgnoreCallingAPTitle";
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
         List<PropertySpec> result = new ArrayList<>();
         result.addAll(super.getOptionalProperties());
         result.add(this.swapServerAndClientAddress());
+        result.add(this.ignoreCallingAPTitle());
 
         // Not supported in IDIS P1
         result.remove(super.useGeneralBlockTransferPropertySpec());
@@ -34,5 +36,9 @@ public class IDISConfigurationSupport extends AM130ConfigurationSupport {
 
     protected PropertySpec swapServerAndClientAddress() {
         return PropertySpecFactory.notNullableBooleanPropertySpec(SWAP_SERVER_AND_CLIENT_ADDRESS_PROPERTY, true);
+    }
+
+    protected PropertySpec ignoreCallingAPTitle() {
+        return PropertySpecFactory.notNullableBooleanPropertySpec(IGNORE_CALLING_AP_TITLE, false);
     }
 }

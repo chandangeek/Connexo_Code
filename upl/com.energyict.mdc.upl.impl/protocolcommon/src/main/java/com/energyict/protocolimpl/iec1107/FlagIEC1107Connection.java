@@ -1,14 +1,20 @@
 package com.energyict.protocolimpl.iec1107;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -336,7 +342,7 @@ public class FlagIEC1107Connection extends Connection {
      * Method that requests a MAC connection for the HDLC layer. this request negotiates some parameters
      * for the buffersizes and windowsizes.
      */
-    public MeterType connectMAC() throws IOException, FlagIEC1107ConnectionException {
+    public MeterType connectMAC() throws IOException {
         return connectMAC(strIdentConfig, strPass, iSecurityLevel, meterID, baudrate);
     }
 
@@ -344,7 +350,7 @@ public class FlagIEC1107Connection extends Connection {
         return connectMAC(strIdentConfig, strPass, iSecurityLevel, meterID, 0);
     }
 
-    public MeterType connectMAC(String strIdentConfig, String strPass, int iSecurityLevel, String meterID, int baudrate) throws IOException, FlagIEC1107ConnectionException {
+    public MeterType connectMAC(String strIdentConfig, String strPass, int iSecurityLevel, String meterID, int baudrate) throws IOException {
 
         this.strIdentConfig = strIdentConfig;
         this.strPass = strPass;
@@ -368,10 +374,10 @@ public class FlagIEC1107Connection extends Connection {
                 return meterType;
             }
             catch (FlagIEC1107ConnectionException e) {
-                throw new FlagIEC1107ConnectionException("connectMAC(), FlagIEC1107ConnectionException " + e.getMessage());
+                throw new FlagIEC1107ConnectionException("connectMAC(), FlagIEC1107ConnectionException " + e.getMessage(), e.getReason());
             }
             catch (ConnectionException e) {
-                throw new FlagIEC1107ConnectionException("connectMAC(), ConnectionException " + e.getMessage());
+                throw new ProtocolConnectionException("connectMAC(), ConnectionException " + e.getMessage(), e.getReason());
             }
         } // if (boolFlagIEC1107Connected==false
 
@@ -379,7 +385,7 @@ public class FlagIEC1107Connection extends Connection {
 
     } // public MeterType connectMAC() throws HDLCConnectionException
 
-    protected MeterType signOn(String strIdentConfig, String meterID) throws IOException, NestedIOException, FlagIEC1107ConnectionException {
+    protected MeterType signOn(String strIdentConfig, String meterID) throws IOException {
         int retries = 0;
         while (true) {
             try {
@@ -646,15 +652,15 @@ public class FlagIEC1107Connection extends Connection {
     public static final byte[] LOGON_PROCEDURE_2 = {'P', '2'};
     public static final byte[] EXECUTE_COMMAND = {'E', '2'};
 
-    public void sendRawCommandFrame(byte[] command, byte[] rawdata) throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+    public void sendRawCommandFrame(byte[] command, byte[] rawdata) throws IOException {
         doSendCommandFrame(command, rawdata, false);
     }
 
-    public String sendRawCommandFrameAndReturn(byte[] command, byte[] rawdata) throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+    public String sendRawCommandFrameAndReturn(byte[] command, byte[] rawdata) throws IOException {
         return doSendCommandFrame(command, rawdata, true);
     }
 
-    private String doSendCommandFrame(byte[] command, byte[] data, boolean returnResult) throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+    private String doSendCommandFrame(byte[] command, byte[] data, boolean returnResult) throws IOException {
         int iRetries = 0;
         int t, i;
         initTxBuffer(command.length + data.length + 3); // KV 27102004
@@ -752,7 +758,7 @@ public class FlagIEC1107Connection extends Connection {
     private static final byte STATE_WAIT_FOR_END = 3;
     private static final byte STATE_WAIT_FOR_CHECKSUM = 4;
 
-    public String receiveString() throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+    public String receiveString() throws IOException {
         return new String(receiveRawData());
     }
 
@@ -772,13 +778,13 @@ public class FlagIEC1107Connection extends Connection {
      * @throws ConnectionException
      * @throws FlagIEC1107ConnectionException
      */
-    public byte[] receiveRawData() throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+    public byte[] receiveRawData() throws IOException {
         return doReceiveDataRetry();
     }
 
     // KV 27102004
 
-    private byte[] doReceiveDataRetry() throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+    private byte[] doReceiveDataRetry() throws IOException {
         int retries = 0;
         while (true) {
             try {
@@ -798,7 +804,7 @@ public class FlagIEC1107Connection extends Connection {
         }
     }
 
-    private byte[] doReceiveData() throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+    private byte[] doReceiveData() throws IOException {
         long lMSTimeout, lMSTimeoutInterFrame;
         int iNewKar;
         int iState;
@@ -842,9 +848,9 @@ public class FlagIEC1107Connection extends Connection {
                         // KV 27102004
                         if ((byte) iNewKar == NAK) {
                             if (sessionState != STATE_SIGNON) {
-                                throw new FlagIEC1107ConnectionException("doReceiveData() NAK received", NAK_RECEIVED);
+                                throw new ProtocolConnectionException("doReceiveData() NAK received" + NAK_RECEIVED);
                             } else {
-                                throw new NestedIOException(new IOException("Probably wrong password! (NAK received)"));
+                                throw new ProtocolConnectionException("Probably wrong password! (NAK received)");
                             }
                         }
 

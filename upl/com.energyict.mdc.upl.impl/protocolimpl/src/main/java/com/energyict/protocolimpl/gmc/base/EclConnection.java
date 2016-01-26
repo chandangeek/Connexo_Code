@@ -119,7 +119,7 @@ public class EclConnection extends Connection implements ProtocolConnection {
             }
             catch (ConnectionException e) {
                 if (retries++ >=iMaxRetries)
-                    throw new ProtocolConnectionException("signOn() error iMaxRetries, "+e.getMessage());
+                    throw new ProtocolConnectionException("signOn() error iMaxRetries, "+e.getMessage(), MAX_RETRIES_ERROR);
                 else {
                     //       sendBreak();
                     delay(DELAY_AFTER_BREAK); // KV 06102003
@@ -144,7 +144,7 @@ public class EclConnection extends Connection implements ProtocolConnection {
             }
             catch (ConnectionException e) {
                 if (retries++ >=iMaxRetries)
-                    throw new ProtocolConnectionException("signOn() error iMaxRetries, "+e.getMessage());
+                    throw new ProtocolConnectionException("signOn() error iMaxRetries, "+e.getMessage(), MAX_RETRIES_ERROR);
                 else {
                     //       sendBreak();
                     delay(DELAY_AFTER_BREAK); // KV 06102003
@@ -226,7 +226,7 @@ public class EclConnection extends Connection implements ProtocolConnection {
             }
             catch (ConnectionException e) {
                 if (retries++ >=iMaxRetries)
-                    throw new ProtocolConnectionException("signOn() error iMaxRetries, "+e.getMessage());
+                    throw new ProtocolConnectionException("signOn() error iMaxRetries, "+e.getMessage(), MAX_RETRIES_ERROR);
                 else {
                     //       sendBreak();
                     delay(DELAY_AFTER_BREAK); // KV 06102003
@@ -317,7 +317,7 @@ public class EclConnection extends Connection implements ProtocolConnection {
             }
             catch (ConnectionException e) {
                 if (retries++ >=iMaxRetries)
-                    throw new ProtocolConnectionException("signOn() error iMaxRetries, "+e.getMessage());
+                    throw new ProtocolConnectionException("signOn() error iMaxRetries, "+e.getMessage(), MAX_RETRIES_ERROR);
                 else {
                     //       sendBreak();
                     delay(DELAY_AFTER_BREAK); // KV 06102003
@@ -338,7 +338,7 @@ public class EclConnection extends Connection implements ProtocolConnection {
    }
     catch (ConnectionException e) {
         if (retries++ >=iMaxRetries)
-            throw new ProtocolConnectionException("signOn() error iMaxRetries, "+e.getMessage());
+            throw new ProtocolConnectionException("signOn() error iMaxRetries, "+e.getMessage(), MAX_RETRIES_ERROR);
         else {
             //       sendBreak();
             delay(DELAY_AFTER_BREAK); // KV 06102003
@@ -360,7 +360,7 @@ public class EclConnection extends Connection implements ProtocolConnection {
        }
        catch (ConnectionException e) {
          if (retries++ >=iMaxRetries)
-             throw new ProtocolConnectionException("signOn() error iMaxRetries, "+e.getMessage());
+             throw new ProtocolConnectionException("signOn() error iMaxRetries, "+e.getMessage(), e.getReason());
          else {
            //       sendBreak();
            delay(DELAY_AFTER_BREAK); // KV 06102003
@@ -377,7 +377,7 @@ public class EclConnection extends Connection implements ProtocolConnection {
    }
     catch (ConnectionException e) {
         if (retries++ >=iMaxRetries)
-            throw new ProtocolConnectionException("signOn() error iMaxRetries, "+e.getMessage());
+            throw new ProtocolConnectionException("signOn() error iMaxRetries, "+e.getMessage(), MAX_RETRIES_ERROR);
         else {
             //       sendBreak();
             delay(DELAY_AFTER_BREAK); // KV 06102003
@@ -401,7 +401,7 @@ public class EclConnection extends Connection implements ProtocolConnection {
        }
        catch (ConnectionException e) {
          if (retries++ >=iMaxRetries)
-             throw new ProtocolConnectionException("signOn() error iMaxRetries, "+e.getMessage());
+             throw new ProtocolConnectionException("signOn() error iMaxRetries, "+e.getMessage(), MAX_RETRIES_ERROR);
          else {
            //       sendBreak();
            delay(DELAY_AFTER_BREAK); // KV 06102003
@@ -512,7 +512,7 @@ public class EclConnection extends Connection implements ProtocolConnection {
                             try {
                                 resultArrayOutputStream.write(data);
                             } catch ( IOException e) {
-                                throw new ProtocolConnectionException("receiveStreamData(), IOException, "+e.getMessage());
+                                throw new ProtocolConnectionException("receiveStreamData(), IOException, "+e.getMessage(), PROTOCOL_ERROR);
                             }
                             
                             return resultArrayOutputStream.toByteArray();

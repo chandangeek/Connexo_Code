@@ -7,12 +7,12 @@
 package com.energyict.protocolimpl.iec1107.zmd;
 
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWRegister;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWRegisterDataParse;
-
-import java.io.IOException;
 
 /**
  *
@@ -29,7 +29,7 @@ class Registry extends AbstractVDEWRegistry {
         super(meterExceptionInfo,protocolLink,Integer.parseInt(protocolLink.getProtocolChannelMap().getProtocolChannel(0).getRegister()));
     }
     
-    public void validateData(String exceptionId) throws IOException {
+    public void validateData(String exceptionId) throws FlagIEC1107ConnectionException {
 
         if( exceptionId.indexOf("ER") == -1 ) return;
 

@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import java.io.*;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -41,7 +41,7 @@ public class DemandIntervalCommand extends AbstractCommand {
         return new byte[]{(byte)0x0F,0,0,0,0,0,0,0,0};
     }
     
-    protected void parse(byte[] data) throws IOException {
+    protected void parse(byte[] data) throws ProtocolException {
         subIntervalInMinutes = ProtocolUtils.getInt(data,0, 1);
         type = ProtocolUtils.getInt(data,1, 1);
         nrOfSubintervals = ProtocolUtils.getInt(data,2, 1)+1;

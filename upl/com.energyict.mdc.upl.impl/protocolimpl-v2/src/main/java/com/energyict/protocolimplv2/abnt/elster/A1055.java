@@ -9,12 +9,7 @@ import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
@@ -31,14 +26,9 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.abnt.common.AbntProperties;
-import com.energyict.protocolimplv2.abnt.common.AbstractAbntProtocol;
-import com.energyict.protocolimplv2.abnt.common.LoadProfileBuilder;
-import com.energyict.protocolimplv2.abnt.common.LogBookFactory;
-import com.energyict.protocolimplv2.abnt.common.MessageFactory;
-import com.energyict.protocolimplv2.abnt.common.RegisterFactory;
-import com.energyict.protocolimplv2.abnt.common.RequestFactory;
+import com.energyict.protocolimplv2.abnt.common.*;
 import com.energyict.protocolimplv2.abnt.common.dialects.AbntOpticalDeviceProtocolDialect;
 import com.energyict.protocolimplv2.abnt.common.dialects.AbntSerialDeviceProtocolDialect;
 import com.energyict.protocolimplv2.abnt.common.dialects.AbntTransparentTCPDeviceProtocolDialect;
@@ -58,7 +48,7 @@ import java.util.TimeZone;
  * @author sva
  * @since 13/08/2014 - 11:28
  */
-public class A1055 extends AbstractAbntProtocol {
+public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
 
     private OfflineDevice offlineDevice;
     private RequestFactory requestFactory;
@@ -78,7 +68,7 @@ public class A1055 extends AbstractAbntProtocol {
      */
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
+        return "$Date: 2015-11-26 15:25:57 +0200 (Thu, 26 Nov 2015)$";
     }
 
     @Override

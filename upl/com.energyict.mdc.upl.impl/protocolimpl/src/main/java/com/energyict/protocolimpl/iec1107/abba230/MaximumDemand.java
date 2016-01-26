@@ -1,19 +1,16 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TimeZone;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.*;
 
 /* @author  Koen */
 
@@ -31,13 +28,13 @@ public class MaximumDemand extends MainRegister implements Comparable {
     public MaximumDemand() {
     }
     
-    public MaximumDemand(byte[] data,TimeZone timeZone) throws IOException {
+    public MaximumDemand(byte[] data,TimeZone timeZone) throws ProtocolException {
         super();
         this.timeZone=timeZone;
         parse(data);
     }
     
-    private void parse(byte[] data) throws IOException {
+    private void parse(byte[] data) throws ProtocolException {
         long shift = (long)ProtocolUtils.getInt(data,0,4)&0xFFFFFFFFL;
         setDateTime(ProtocolUtils.getCalendar(timeZone,shift).getTime());
         
@@ -45,9 +42,13 @@ public class MaximumDemand extends MainRegister implements Comparable {
         
         if( rs != 0xff ){
             setRegSource(rs);
-            BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,5,7))));
-            Unit u = EnergyTypeCode.getUnitFromRegSource(getRegSource(),false);
-            setQuantity(new Quantity(bd,u));
+            try{
+                BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,5,7))));
+                Unit u = EnergyTypeCode.getUnitFromRegSource(getRegSource(),false);
+                setQuantity(new Quantity(bd,u));
+            }catch (NumberFormatException e){
+                throw new ProtocolException(e);
+            }
         }
     }
     

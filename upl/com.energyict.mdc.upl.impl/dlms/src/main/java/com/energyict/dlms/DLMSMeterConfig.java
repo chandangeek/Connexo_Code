@@ -473,6 +473,10 @@ public class DLMSMeterConfig {
         return config.getSpecialDaysTable(IOL);
     }
 
+    /**
+     * Returns the MBus client for a provided 0-based physicalAddress
+     *
+     **/
     public UniversalObject getMbusClient(int physicalAddress) throws NotInObjectListException {
         return config.getMbusClient(IOL, manuf, physicalAddress);
     }

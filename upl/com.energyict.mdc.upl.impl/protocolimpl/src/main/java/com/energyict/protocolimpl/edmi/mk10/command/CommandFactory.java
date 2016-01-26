@@ -10,10 +10,11 @@
 
 package com.energyict.protocolimpl.edmi.mk10.command;
 
-import java.io.IOException;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.edmi.mk10.MK10;
 
+import java.io.IOException;
 
 /**
  *
@@ -90,7 +91,7 @@ public class CommandFactory {
 			}
 			catch(CommandResponseException e) {
 				if (retries++>=5) {
-					throw new IOException("CommandFactory, getInformationCommand() Max retries "+e.toString());
+					throw new ProtocolException("CommandFactory, getInformationCommand() Max retries error: "+e.toString());
 				}
 			}
 		}
