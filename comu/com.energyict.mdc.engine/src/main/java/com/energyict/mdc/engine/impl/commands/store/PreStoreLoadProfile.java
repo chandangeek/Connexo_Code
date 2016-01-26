@@ -50,7 +50,6 @@ public class PreStoreLoadProfile {
      * <ul>
      * <li>Filter future dates</li>
      * <li>Scale value according to unit</li>
-     * <li>OverFlow calculation</li>
      * <li>Apply multiplier</li>
      * <li>Calculate last reading</li>
      * <li>Remove the entry which corresponds with the lastReading (because we already have it)</li>
@@ -74,14 +73,12 @@ public class PreStoreLoadProfile {
 
                     Unit configuredUnit = this.mdcReadingTypeUtilService.getMdcUnitFor(channelInfo.getReadingTypeMRID());
                     int scaler = getScaler(channelInfo.getUnit(), configuredUnit);
-                    BigDecimal channelOverFlowValue = getChannelOverFlowValue(channelInfo, offlineLoadProfile);
                     BigDecimal multiplier = channelInfo.getMultiplier();
                     IntervalBlockImpl processingBlock = IntervalBlockImpl.of(intervalBlock.getReadingTypeCode());
                     for (IntervalReading intervalReading : intervalBlock.getIntervals()) {
                         if (range.contains(intervalReading.getTimeStamp())) {
                             IntervalReading scaledIntervalReading = getScaledIntervalReading(scaler, intervalReading);
-                            IntervalReading overflowCheckedReading = getOverflowCheckedReading(channelOverFlowValue, scaledIntervalReading);
-                            IntervalReading multipliedReading = getMultipliedReading(multiplier, overflowCheckedReading);
+                            IntervalReading multipliedReading = getMultipliedReading(multiplier, scaledIntervalReading);
                             processingBlock.addIntervalReading(multipliedReading);
                             lastReading = updateLastReadingIfLater(lastReading, intervalReading);
                         }
@@ -117,25 +114,6 @@ public class PreStoreLoadProfile {
         else {
             return intervalReading;
         }
-    }
-
-    private IntervalReading getOverflowCheckedReading(BigDecimal channelOverFlowValue, IntervalReading scaledIntervalReading) {
-        if (scaledIntervalReading.getValue().compareTo(channelOverFlowValue) > 0) {
-            return IntervalReadingImpl.of(scaledIntervalReading.getTimeStamp(), scaledIntervalReading.getValue().subtract(channelOverFlowValue), scaledIntervalReading.getProfileStatus());
-        }
-        return scaledIntervalReading;
-    }
-
-    private BigDecimal getChannelOverFlowValue(ChannelInfo channelInfo, OfflineLoadProfile offlineLoadProfile) {
-        for (OfflineLoadProfileChannel offlineLoadProfileChannel : offlineLoadProfile.getChannels()) {
-            /**
-             * Check the ObisCode, NOT the ReadingTye
-             */
-            if (offlineLoadProfileChannel.getObisCode().equals(channelInfo.getChannelObisCode())) {
-                return offlineLoadProfileChannel.getOverflow();
-            }
-        }
-        return new BigDecimal(Double.MAX_VALUE);
     }
 
     private IntervalReading getScaledIntervalReading(int scaler, IntervalReading intervalReading) {

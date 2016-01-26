@@ -40,8 +40,7 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl implements Mete
     protected void doExecute(ComServerDAO comServerDAO) {
         try {
             for (Map.Entry<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> deviceMeterReadingEntry : meterReadings.entrySet()) {
-                List<Warning> warnings = comServerDAO.storeMeterReadings(deviceMeterReadingEntry.getValue().getFirst(), deviceMeterReadingEntry.getValue().getLast());
-                warnings.forEach(this::logWarning);
+                comServerDAO.storeMeterReadings(deviceMeterReadingEntry.getValue().getFirst(), deviceMeterReadingEntry.getValue().getLast());
             }
 
             for (Map.Entry<LoadProfileIdentifier, Instant> loadProfileDateEntry : lastReadings.entrySet()) {
@@ -55,10 +54,6 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl implements Mete
         catch (RuntimeException e) {
             this.getExecutionLogger().logUnexpected(e, this.getComTaskExecution());
         }
-    }
-
-    private void logWarning(Warning warning) {
-        getExecutionLogger().addIssue(CompletionCode.Ok, warning, getComTaskExecution());
     }
 
     @Override
