@@ -1,23 +1,22 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
@@ -114,6 +113,8 @@ public class DeviceMultiplierTest {
     private MultiplierType multiplierType;
     @Mock
     private CustomPropertySetService customPropertySetService;
+    @Mock
+    private DeviceConfiguration deviceConfiguration;
 
     private Instant now = Instant.ofEpochSecond(1448460000L); //25-11-2015
     private Instant startOfMeterActivation = Instant.ofEpochSecond(1447977600L); // 20-11-2015
@@ -163,6 +164,7 @@ public class DeviceMultiplierTest {
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider,
                 firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService);
         setId(device, ID);
+        device.initialize(deviceConfiguration, "Name", "Mrid");
         return device;
     }
 
@@ -200,6 +202,7 @@ public class DeviceMultiplierTest {
         Instant from = Instant.ofEpochSecond(1448466879L);
         MeterActivation newMeterActivation = mock(MeterActivation.class);
         when(meter.activate(from)).thenReturn(newMeterActivation);
+        when(meter.getConfiguration(from)).thenReturn(Optional.empty());
 
         // business method
         BigDecimal multiplier = BigDecimal.TEN;
@@ -218,6 +221,7 @@ public class DeviceMultiplierTest {
         Instant past = now.minus(1, ChronoUnit.DAYS);
         MeterActivation newMeterActivation = mock(MeterActivation.class);
         when(meter.activate(past)).thenReturn(newMeterActivation);
+        when(meter.getConfiguration(past)).thenReturn(Optional.empty());
 
         // business method
         BigDecimal multiplier = BigDecimal.TEN;
@@ -253,6 +257,7 @@ public class DeviceMultiplierTest {
         Instant from = Instant.ofEpochSecond(1448466879L);
         MeterActivation newMeterActivation = mock(MeterActivation.class);
         when(meter.activate(from)).thenReturn(newMeterActivation);
+        when(meter.getConfiguration(from)).thenReturn(Optional.empty());
 
         // business method
         BigDecimal multiplier = BigDecimal.TEN;

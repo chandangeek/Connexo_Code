@@ -271,7 +271,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         } else {
             Save.CREATE.save(dataModel, this);
             Meter meter = this.createKoreMeter();
-            this.createMeterConfiguration(meter, this.clock.instant());
+            this.createMeterConfiguration(meter, this.clock.instant(), false);
             this.saveNewDialectProperties();
             this.notifyCreated();
         }
@@ -283,24 +283,24 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .forEach(ConnectionTaskPropertyProvider::saveAllProperties);
     }
 
-    private void createMeterConfiguration(Meter meter, Instant timeStamp) {
+    private void createMeterConfiguration(Meter meter, Instant timeStamp, boolean validMultiplierSet) {
         meter.getConfiguration(timeStamp).ifPresent(meterConfiguration -> meterConfiguration.endAt(timeStamp));
         if (getDeviceConfiguration().getChannelSpecs().size() > 0 || getDeviceConfiguration().getRegisterSpecs().size() > 0) {
             MultiplierType defaultMultiplierType = getDefaultMultiplierType();
             Meter.MeterConfigurationBuilder meterConfigurationBuilder = meter.startingConfigurationOn(timeStamp);
-            createMeterConfigurationsForChannelSpecs(defaultMultiplierType, meterConfigurationBuilder);
-            createMeterConfigurationsForRegisterSpecs(defaultMultiplierType, meterConfigurationBuilder);
+            createMeterConfigurationsForChannelSpecs(defaultMultiplierType, meterConfigurationBuilder, validMultiplierSet);
+            createMeterConfigurationsForRegisterSpecs(defaultMultiplierType, meterConfigurationBuilder, validMultiplierSet);
             meterConfigurationBuilder.create();
         }
     }
 
-    private void createMeterConfigurationsForChannelSpecs(MultiplierType defaultMultiplierType, Meter.MeterConfigurationBuilder meterConfigurationBuilder) {
+    private void createMeterConfigurationsForChannelSpecs(MultiplierType defaultMultiplierType, Meter.MeterConfigurationBuilder meterConfigurationBuilder, boolean addCalculatedReadingType) {
         getDeviceConfiguration().getChannelSpecs().forEach(channelSpec -> {
             Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = meterConfigurationBuilder
                     .configureReadingType(channelSpec.getReadingType())
                     .withNumberOfFractionDigits(channelSpec.getNbrOfFractionDigits())
                     .withOverflowValue(channelSpec.getOverflow().longValue());
-            if (channelSpec.isUseMultiplier()) {
+            if (addCalculatedReadingType && channelSpec.isUseMultiplier()) {
                 meterReadingTypeConfigurationBuilder
                         .withMultiplierOfType(defaultMultiplierType)
                         .calculating(getMultipliedReadingTypeForChannelSpec(channelSpec));
@@ -308,14 +308,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         });
     }
 
-    private void createMeterConfigurationsForRegisterSpecs(MultiplierType defaultMultiplierType, Meter.MeterConfigurationBuilder meterConfigurationBuilder) {
+    private void createMeterConfigurationsForRegisterSpecs(MultiplierType defaultMultiplierType, Meter.MeterConfigurationBuilder meterConfigurationBuilder, boolean addCalculatedReadingType) {
         getDeviceConfiguration().getRegisterSpecs().stream().filter(registerSpec -> !registerSpec.isTextual())
                 .map(registerSpec1 -> ((NumericalRegisterSpec) registerSpec1)).forEach(registerSpec -> {
             Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = meterConfigurationBuilder
                     .configureReadingType(registerSpec.getReadingType())
                     .withNumberOfFractionDigits(registerSpec.getNumberOfFractionDigits())
                     .withOverflowValue(registerSpec.getOverflowValue().longValue());
-            if (registerSpec.isUseMultiplier()) {
+            if (addCalculatedReadingType && registerSpec.isUseMultiplier()) {
                 meterReadingTypeConfigurationBuilder
                         .withMultiplierOfType(defaultMultiplierType)
                         .calculating(registerSpec.getCalculatedReadingType().get());
@@ -659,10 +659,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Instant now = clock.instant();
             Optional<Instant> startDateMultiplier = Optional.ofNullable(from);
             validateStartDateOfNewMultiplier(now, startDateMultiplier);
-            MeterActivation newMeterActivation = activate(startDateMultiplier.orElse(now), multiplier.compareTo(BigDecimal.ONE) == 1);
-            if(multiplier.compareTo(BigDecimal.ONE) == 1){
+            boolean validMultiplierValue = multiplier.compareTo(BigDecimal.ONE) == 1;
+            MeterActivation newMeterActivation = activate(startDateMultiplier.orElse(now), validMultiplierValue);
+            if(validMultiplierValue){
                 newMeterActivation.setMultiplier(getDefaultMultiplierType(), multiplier);
             }
+            createMeterConfiguration(findOrCreateKoreMeter(getMdcAmrSystem()), startDateMultiplier.orElse(now), validMultiplierValue);
             this.multiplier = multiplier;
         }
     }
@@ -797,7 +799,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void updateMeterConfiguration(Instant updateTimeStamp) {
-        createMeterConfiguration(findKoreMeter(getMdcAmrSystem()).get(), updateTimeStamp);
+        createMeterConfiguration(findKoreMeter(getMdcAmrSystem()).get(), updateTimeStamp, getMultiplier().compareTo(BigDecimal.ONE) == 1);
     }
 
     @Override
