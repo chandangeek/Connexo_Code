@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -9,7 +10,7 @@
 
 	<artifactId>protocols</artifactId>
 	<packaging>pom</packaging>
-	<version>9.1.28-SNAPSHOT</version>
+	<version>9.1-FEAT02.0-SNAPSHOT</version>
 	<name>protocols</name>
 
 	<dependencies>
@@ -25,7 +26,7 @@
 	<properties>
 		<eiserver.version>${project.version}</eiserver.version>
 		<comserver.version>${project.version}</comserver.version>
-		<protocol-api.version>9.1.28-SNAPSHOT</protocol-api.version>
+		<protocol-api.version>9.1-FEAT02.0-SNAPSHOT</protocol-api.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<proguard.maven.version>2.0.11</proguard.maven.version>
 		<!-- Supports Java 7 from version 4.7 -->
