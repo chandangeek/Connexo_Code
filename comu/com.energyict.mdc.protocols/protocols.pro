@@ -54,7 +54,11 @@
 -keepnames class * implements com.energyict.mdc.protocol.api.DeviceProtocolDialect
 -keepnames class * implements com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter
 -keepnames class * implements com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter
+-keepnames class * implements com.elster.jupiter.cps.PersistenceSupport{*;}
+-keepclassmembers class * implements com.elster.jupiter.cps.PersistenceSupport{*;}
+-keepnames class * implements com.elster.jupiter.cps.PersistentDomainExtension{*;}
 -keepclassmembers class * implements com.elster.jupiter.cps.PersistentDomainExtension{*;}
+-keepnames class * implements com.elster.jupiter.cps.CustomPropertySet{*;}
 -keepclassmembers class * implements com.elster.jupiter.cps.CustomPropertySet{*;}
 
 # Keep annotations,
