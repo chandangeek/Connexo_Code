@@ -5,17 +5,7 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.pluggable.Pluggable;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.legacy.DeviceCachingSupport;
-import com.energyict.mdc.protocol.api.tasks.support.ConnectionTypeSupport;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceAccessSupport;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceBasicSupport;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceClockSupport;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceProtocolDialectSupport;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceStatusInformationSupport;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceTopologySupport;
+import com.energyict.mdc.protocol.api.tasks.support.*;
 
 import java.util.List;
 
@@ -26,7 +16,7 @@ import java.util.List;
 @ProviderType
 public interface DeviceProtocol extends Pluggable, DeviceAccessSupport, DeviceClockSupport, DeviceProtocolDialectSupport,
         DeviceBasicSupport, DeviceLoadProfileSupport, DeviceLogBookSupport, DeviceRegisterSupport, DeviceStatusInformationSupport,
-        DeviceTopologySupport, DeviceMessageSupport, DeviceCachingSupport, DeviceSecuritySupport, ConnectionTypeSupport {
+        DeviceTopologySupport, DeviceMessageSupport, DeviceCachingSupport, DeviceSecuritySupport, ConnectionTypeSupport, DeviceDescriptionSupport {
 
     /**
      * Initializes the DeviceProtocol.
@@ -53,8 +43,6 @@ public interface DeviceProtocol extends Pluggable, DeviceAccessSupport, DeviceCl
      * @return the possible Capabilities
      */
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities();
-
-    public String getProtocolDescription();
 
     public DeviceFunction getDeviceFunction();
 

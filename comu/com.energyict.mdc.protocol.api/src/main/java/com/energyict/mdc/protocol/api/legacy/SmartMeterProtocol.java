@@ -4,6 +4,7 @@ import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.legacy.dynamic.Pluggable;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceDescriptionSupport;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +17,7 @@ import java.util.logging.Logger;
  * SmartMeterProtocol is an extension to the standard {@link MeterProtocol} interface.
  * The basic idea is to do more bulk request and adjust our framework to the current smarter meter market.
  */
-public interface SmartMeterProtocol extends Pluggable, MultipleLoadProfileSupport, BulkRegisterProtocol, MeterProtocolEventSupport, CachingProtocol {
+public interface SmartMeterProtocol extends Pluggable, MultipleLoadProfileSupport, BulkRegisterProtocol, MeterProtocolEventSupport, CachingProtocol, DeviceDescriptionSupport {
 
     /**
      * The string typically used for the device address property

@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.legacy.dynamic.Pluggable;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceDescriptionSupport;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +40,7 @@ import java.util.logging.Logger;
  *         KV 15122003 serialnumber of the device
  */
 
-public interface MeterProtocol extends Pluggable, CachingProtocol {
+public interface MeterProtocol extends Pluggable, CachingProtocol, DeviceDescriptionSupport {
 
     /**
      * The string typically used for the device address property

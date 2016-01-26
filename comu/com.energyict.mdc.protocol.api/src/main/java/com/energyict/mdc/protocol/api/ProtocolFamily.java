@@ -39,7 +39,7 @@ public enum ProtocolFamily {
     DSMR_NTA(21),           // NTA DSMR4.0 DLMS
     XEMEX(22),              // Xemex ReMI DLMS
     EDP_DLMS(23),           // EDP Public Lights Monitoring DLMS
-    PPM(24),                // ABB/GE PPM IEC1107
+    PPM(24),                // ABB/GE PPM OPUS
     CEWE_PROMETER(25),      // Cewe Prometer IEC1107
     ELSTER_DL_LIS200(26),   // Elster DLxxx LIS200
     ELSTER_Ek_LIS200(27),   // Elster EKxxx LIS200
