@@ -363,6 +363,11 @@
                                         <type>alternative</type>
                                     </typeReplacement>
                                     <typeReplacement>
+                                        <source>com.elster.jupiter.rest.util.JsonQueryParameters</source>
+                                        <target>com.energyict.mdc.multisense.api.impl.utils.doc.PagingParametersJson</target>
+                                        <type>alternative</type>
+                                    </typeReplacement>
+                                    <typeReplacement>
                                         <source>java.time.Instant</source>
                                         <target>Milliseconds since epoch</target>
                                         <type>literal</type>

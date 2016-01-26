@@ -8,6 +8,7 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
+import com.energyict.mdc.multisense.api.impl.utils.doc.PagingParametersJson;
 import com.energyict.mdc.multisense.api.security.Privileges;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -67,14 +68,22 @@ public class AuthenticationDeviceAccessLevelResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_AUTH_DEVICE_ACCESS_LEVEL));
     }
 
+    /**
+     *
+     * @param deviceProtocolPluggableClassId The ID of the device protocol pluggable class
+     * @param queryParameters
+     * @param fieldSelection
+     * @param uriInfo
+     * @return List of authentication access levels. Paged if paging parameters were provided in the call.
+     */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<DeviceAccessLevelInfo> getAuthenticationDeviceAccessLevels(
             @PathParam("deviceProtocolPluggableClassId") long deviceProtocolPluggableClassId,
-            @PathParam("authenticationDeviceAccessLevelId") long authenticationDeviceAccessLevelId,
             @BeanParam JsonQueryParameters queryParameters,
-            @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+            @BeanParam FieldSelection fieldSelection,
+            @Context UriInfo uriInfo) {
         DeviceProtocolPluggableClass pluggableClass = protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_PROTOCOL));
         List<DeviceAccessLevelInfo> infos = ListPager.of(pluggableClass.getDeviceProtocol().getAuthenticationAccessLevels()).from(queryParameters)
