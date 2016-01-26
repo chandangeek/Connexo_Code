@@ -31,6 +31,15 @@ public class DeviceAttributesInfoFactory {
         this.thesaurus = thesaurus;
     }
 
+    public static String getStateName(Thesaurus thesaurus, State state) {
+        Optional<DefaultState> defaultState = DefaultState.from(state);
+        if (defaultState.isPresent()) {
+            return thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getKey());
+        } else {
+            return state.getName();
+        }
+    }
+
     public DeviceAttributesInfo from(Device device) {
         DeviceAttributesInfo info = new DeviceAttributesInfo();
         info.device = DeviceInfo.from(device);
@@ -110,15 +119,6 @@ public class DeviceAttributesInfoFactory {
         return getStateName(thesaurus, state);
     }
 
-    public static String getStateName(Thesaurus thesaurus, State state) {
-        Optional<DefaultState> defaultState = DefaultState.from(state);
-        if (defaultState.isPresent()) {
-            return thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getKey());
-        } else {
-            return state.getName();
-        }
-    }
-
     public void validateOn(Device device, DeviceAttributesInfo info) {
         State currentState = device.getState();
         RestValidationBuilder validationBuilder = new RestValidationBuilder();
@@ -163,60 +163,28 @@ public class DeviceAttributesInfoFactory {
                 batchService.findOrCreateBatch(info.batch.displayValue).addDevice(device);
             }
         }
-        if(DeviceAttribute.MULTIPLIER.isEditableForState(state) && info.multiplier != null){
+        if (DeviceAttribute.MULTIPLIER.isEditableForState(state) && info.multiplier != null) {
             device.setMultiplier(info.multiplier.displayValue);
         }
-        Optional<UsagePoint> currentUsagePoint = device.getUsagePoint();
         if (DeviceAttribute.USAGE_POINT.isEditableForState(state)) {
-            if (info.usagePoint != null && info.usagePoint.attributeId > 0) {
-                if (!currentUsagePoint.isPresent() || currentUsagePoint.get().getId() != info.usagePoint.attributeId) {
-                    // set new usage point
-                    meteringService.findUsagePoint(info.usagePoint.attributeId).ifPresent(usagePoint -> {
-                        meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).ifPresent(amrSystem -> {
-                            amrSystem.findMeter(String.valueOf(device.getId())).ifPresent(meter -> {
-                                usagePoint.activate(meter, Instant.now());
-                            });
-                        });
-                    });
-                }
-            } else if (currentUsagePoint.isPresent()) {
-                // remove old usage point
-                meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).ifPresent(amrSystem -> {
-                    amrSystem.findMeter(String.valueOf(device.getId())).ifPresent(meter -> {
-                        meter.getCurrentMeterActivation().ifPresent(meterActivation -> {
-                            meterActivation.endAt(Instant.now());
-                            meter.activate(Instant.now());
-                        });
-                    });
-                });
+            if (info.usagePoint != null) {
+                meteringService.findUsagePoint(info.usagePoint.attributeId)
+                        .ifPresent(usagePoint -> device.setUsagePoint(usagePoint));
             }
         }
-
         CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
-        if (DeviceAttribute.SHIPMENT_DATE.isEditableForState(state) && info.shipmentDate != null)
-
-        {
+        if (DeviceAttribute.SHIPMENT_DATE.isEditableForState(state) && info.shipmentDate != null) {
             lifecycleDates.setReceivedDate(info.shipmentDate.displayValue);
         }
-
-        if (DeviceAttribute.INSTALLATION_DATE.isEditableForState(state) && info.installationDate != null)
-
-        {
+        if (DeviceAttribute.INSTALLATION_DATE.isEditableForState(state) && info.installationDate != null) {
             lifecycleDates.setInstalledDate(info.installationDate.displayValue);
         }
-
-        if (DeviceAttribute.DEACTIVATION_DATE.isEditableForState(state) && info.deactivationDate != null)
-
-        {
+        if (DeviceAttribute.DEACTIVATION_DATE.isEditableForState(state) && info.deactivationDate != null) {
             lifecycleDates.setRemovedDate(info.deactivationDate.displayValue);
         }
-
-        if (DeviceAttribute.DECOMMISSIONING_DATE.isEditableForState(state) && info.decommissioningDate != null)
-
-        {
+        if (DeviceAttribute.DECOMMISSIONING_DATE.isEditableForState(state) && info.decommissioningDate != null) {
             lifecycleDates.setRetiredDate(info.decommissioningDate.displayValue);
         }
-
         lifecycleDates.save();
         device.save();
     }
