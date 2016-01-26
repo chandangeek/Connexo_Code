@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -139,15 +140,16 @@ public class RegisterDataResource {
     public Response editRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, ReadingInfo readingInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?,?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
+        BaseReading reading = readingInfo.createNew(register);
+        validateManualAddedEditValueForOverflow(register, reading);
         if((readingInfo instanceof NumericalReadingInfo && NumericalReadingInfo.class.cast(readingInfo).isConfirmed != null && NumericalReadingInfo.class.cast(readingInfo).isConfirmed) ||
                 (readingInfo instanceof BillingReadingInfo && BillingReadingInfo.class.cast(readingInfo).isConfirmed != null && BillingReadingInfo.class.cast(readingInfo).isConfirmed)) {
-            register.startEditingData().confirmReading(readingInfo.createNew(register)).complete();
+            register.startEditingData().confirmReading(reading).complete();
         } else {
-            register.startEditingData().editReading(readingInfo.createNew(register)).complete();
+            register.startEditingData().editReading(reading).complete();
         }
         return Response.status(Response.Status.OK).build();
     }
-
 
     @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
@@ -157,12 +159,23 @@ public class RegisterDataResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?,?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         try {
-            register.startEditingData().editReading(readingInfo.createNew(register)).complete();
+            BaseReading reading = readingInfo.createNew(register);
+            validateManualAddedEditValueForOverflow(register, reading);
+            register.startEditingData().editReading(reading).complete();
         } catch (NoMeterActivationAt e) {
             Instant time = (Instant) e.get("time");
             throw this.exceptionFactory.newExceptionSupplier(MessageSeeds.CANT_ADD_READINGS_FOR_STATE, Date.from(time)).get();
         }
         return Response.status(Response.Status.OK).build();
+    }
+
+    private void validateManualAddedEditValueForOverflow(Register<?, ?> register, BaseReading reading) {
+        if(register instanceof NumericalRegister && (!((NumericalRegister) register).getRegisterSpec().isUseMultiplier() || !register.getDevice().getMultiplierAt(reading.getTimeStamp()).isPresent())){
+            BigDecimal overflowValue = ((NumericalRegister) register).getRegisterSpec().getOverflowValue();
+            if(overflowValue != null && overflowValue.compareTo(reading.getValue()) < 0){
+                throw this.exceptionFactory.newExceptionSupplier(MessageSeeds.VALUE_MAY_NOT_EXCEED_OVERFLOW_VALUE, reading.getValue(), overflowValue).get();
+            }
+        }
     }
 
     @DELETE @Transactional
