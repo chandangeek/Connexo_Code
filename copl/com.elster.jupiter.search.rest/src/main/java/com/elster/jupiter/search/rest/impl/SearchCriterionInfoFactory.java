@@ -9,7 +9,6 @@ import com.elster.jupiter.util.HasId;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -27,6 +26,7 @@ public class SearchCriterionInfoFactory {
             propertyInfo.group.id = property.getGroup().get().getId();
             propertyInfo.group.displayValue = property.getGroup().get().getDisplayName();
         }
+        propertyInfo.selectionMode = property.getSelectionMode();
         propertyInfo.visibility = property.getVisibility();
         propertyInfo.constraints = property.getConstraints().stream().map(c -> c.getName()).collect(toList());
         propertyInfo.link = Link.fromUri(getCriteriaDetailsUri(property, uriInfo)).build();
@@ -50,13 +50,15 @@ public class SearchCriterionInfoFactory {
         propertyInfo.type = propertySpec.getValueFactory().getValueType().getSimpleName();
         propertyInfo.factoryName = propertySpec.getValueFactory().getClass().getName();
         PropertySpecPossibleValues possibleValuesOrNull = propertySpec.getPossibleValues();
-        List<?> possibleValues = possibleValuesOrNull != null ? possibleValuesOrNull.getAllValues() : Collections.emptyList();
-        propertyInfo.selectionMode = property.getSelectionMode();
-        propertyInfo.values = possibleValues.stream()
-                .map(v -> asJsonValueObject(property.toDisplay(v), v))
-                .filter(getNameFilter(nameFilter))
-                .sorted((v1, v2) -> v1.displayValue.compareToIgnoreCase(v2.displayValue))
-                .collect(toList());
+        if (possibleValuesOrNull != null) {
+            List<?> possibleValues = possibleValuesOrNull.getAllValues();
+            propertyInfo.exhaustive = possibleValuesOrNull.isExhaustive();
+            propertyInfo.values = possibleValues.stream()
+                    .map(v -> asJsonValueObject(property.toDisplay(v), v))
+                    .filter(getNameFilter(nameFilter))
+                    .sorted((v1, v2) -> v1.displayValue.compareToIgnoreCase(v2.displayValue))
+                    .collect(toList());
+        }
         propertyInfo.total = propertyInfo.values != null ? propertyInfo.values.size() : 0;
         return propertyInfo;
     }
