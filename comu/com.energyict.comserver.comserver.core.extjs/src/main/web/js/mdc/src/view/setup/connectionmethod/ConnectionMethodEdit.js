@@ -70,6 +70,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 name: 'name',
                                 msgTarget: 'under',
                                 required: true,
+                                allowBlank: false,
                                 fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                 itemId: 'editConnectionMethodNameField',
                                 maxLength: 80,
@@ -92,6 +93,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 emptyText: Uni.I18n.translate('connectionmethod.selectConnectionType', 'MDC', 'Select a connection type...'),
                                 required: true,
                                 forceSelection: true,
+                                allowBlank: false,
                                 typeAhead: true,
                                 msgTarget: 'under'
                             },
@@ -123,6 +125,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 store: this.connectionStrategies,
                                 queryMode: 'local',
                                 required: true,
+                                allowBlank: false,
                                 displayField: 'localizedValue',
                                 valueField: 'connectionStrategy',
                                 emptyText: Uni.I18n.translate('connectionmethod.selectconnectionStrategy', 'MDC', 'Select a connection strategy...'),
