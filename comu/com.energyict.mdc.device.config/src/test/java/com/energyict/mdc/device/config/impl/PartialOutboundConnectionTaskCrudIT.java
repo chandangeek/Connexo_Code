@@ -728,7 +728,7 @@ public class PartialOutboundConnectionTaskCrudIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.CONNECTION_STRATEGY_REQUIRED + '}')
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.FIELD_IS_REQUIRED + '}')
     public void testCreateWithoutConnectionStrategy() {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
