@@ -299,7 +299,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CHANNEL_SPEC_OVERFLOW_IS_REQUIRED+"}", property = "overflow")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.FIELD_IS_REQUIRED+"}", property = "overflow")
     public void overflowIsRequiredTest() {
         ChannelSpec channelSpec;
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();

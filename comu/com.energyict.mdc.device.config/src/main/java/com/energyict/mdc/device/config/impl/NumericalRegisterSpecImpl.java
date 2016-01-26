@@ -17,7 +17,6 @@ import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Optional;

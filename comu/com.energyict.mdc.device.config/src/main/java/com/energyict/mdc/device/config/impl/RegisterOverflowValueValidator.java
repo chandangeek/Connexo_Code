@@ -20,7 +20,7 @@ public class RegisterOverflowValueValidator implements ConstraintValidator<Regis
             if (registerSpec.getReadingType().isCumulative() && registerSpec.getOverflowValue() == null) {
                 constraintValidatorContext.disableDefaultConstraintViolation();
                 constraintValidatorContext
-                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.REGISTER_SPEC_OVERFLOW_IS_REQUIRED + "}")
+                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
                         .addPropertyNode("overflow")
                         .addConstraintViolation();
                 return false;
