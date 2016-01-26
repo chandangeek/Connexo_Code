@@ -98,7 +98,7 @@ Ext.define('Mtr.readingtypes.view.PreviewForm', {
                                     {
                                         name: 'argumentNumerator',
                                         itemId: 'argument-numerator',
-                                        fieldLabel: Uni.I18n.translate('readingtypesmanagment.argumentNumerical', 'MTR', 'Argument nominator')
+                                        fieldLabel: Uni.I18n.translate('readingtypesmanagment.argumentNumerical', 'MTR', 'Argument numerator')
                                     },
                                     {
                                         name: 'argumentDenominator',
