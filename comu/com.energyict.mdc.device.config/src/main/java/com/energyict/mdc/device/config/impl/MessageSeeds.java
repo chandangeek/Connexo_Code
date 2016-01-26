@@ -45,7 +45,6 @@ public enum MessageSeeds implements MessageSeed {
     REGISTER_SPEC_REGISTER_TYPE_CAN_NOT_CHANGE_FOR_ACTIVE_CONFIG(6012, Keys.REGISTER_SPEC_REGISTER_TYPE_ACTIVE_DEVICE_CONFIG,"The register type can not be modified if the device configuration is active"),
     REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_ONE(6014, Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS, "Invalid number of fraction digits."),
     REGISTER_SPEC_OVERFLOW_INVALID(6015, Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE, "Invalid overflow value, must be above larger than 0 and smaller than " + Integer.MAX_VALUE),
-    REGISTER_SPEC_OVERFLOW_REQUIRED(6017, Keys.REGISTER_SPEC_OVERFLOW_IS_REQUIRED, "Overflow value is required"),
     DEVICE_TYPE_NAME_IS_REQUIRED(7001, "deviceType.name.required", "The name of a device type is required"),
     DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS(7003, Keys.DEVICE_TYPE_XSTILL_HAS_ACTIVE_CONFIGURATIONS, "The device type {0} cannot be removed because it still has active configurations"),
     DEVICE_PROTOCOL_IS_REQUIRED(7004, Keys.DEVICE_PROTOCOL_IS_REQUIRED, "The protocol of a device type is required"),
@@ -85,7 +84,6 @@ public enum MessageSeeds implements MessageSeed {
     CHANNEL_SPEC_CANNOT_CHANGE_LOAD_PROFILE_SPEC(11024, "channelSpec.change.loadProfileSpec", "You can not change the load profile configuration of an existing channel configuration"),
     CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_ONE(11025, Keys.CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS, "Invalid number of fraction digits."),
     CHANNEL_SPEC_OVERFLOW_VALUE_INVALID(11026, Keys.CHANNEL_SPEC_INVALID_OVERFLOW_VALUE, "Invalid overflow value, must be larger than 0 and smaller than " + Integer.MAX_VALUE),
-    CHANNEL_SPEC_OVERFLOW_REQUIRED(11027, Keys.CHANNEL_SPEC_OVERFLOW_IS_REQUIRED, "Overflow value is required"),
     DEVICE_CONFIGURATION_NAME_IS_REQUIRED(12001, "deviceConfig.name.required", "The name of the device configuration is required"),
     DEVICE_CONFIGURATION_DEVICE_TYPE_IS_REQUIRED(12002, "deviceConfig.deviceType.required", "The device type of the device configuration is required"),
     DEVICE_CONFIGURATION_IS_ACTIVE_CAN_NOT_DELETE(12003, "deviceConfig.active", "You can not remove an active device configuration"),
@@ -230,10 +228,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String UNDER_MINIMUM_RESCHEDULE_DELAY = "partialScheduledConnectionTask.underMinimumRescheduleDelay";
         public static final String REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS = "registerSpec.invalidNumberOfFractionDigits";
         public static final String REGISTER_SPEC_INVALID_OVERFLOW_VALUE = "registerSpec.invalidOverflow";
-        public static final String REGISTER_SPEC_OVERFLOW_IS_REQUIRED = "registerSpec.required";
         public static final String CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS = "channelSpec.invalidNumberOfFractionDigits";
         public static final String CHANNEL_SPEC_INVALID_OVERFLOW_VALUE = "channelSpec.invalidOverflow";
-        public static final String CHANNEL_SPEC_OVERFLOW_IS_REQUIRED = "channelSpec.required";
         public static final String UNSUPPORTED_SECURITY_LEVEL = "securityPropertySet.unsupportedSecurityLevel";
         public static final String SECURITY_PROPERTY_SET_IN_USE = "securityPropertySet.inUse";
         public static final String COM_TASK_ENABLEMENT_COM_TASK_REQUIRED = "comTaskEnablement.comTask.required";

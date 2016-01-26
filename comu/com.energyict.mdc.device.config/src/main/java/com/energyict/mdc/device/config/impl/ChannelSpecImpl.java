@@ -84,7 +84,7 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
     @Range(min = 1, max = Integer.MAX_VALUE, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_INVALID_OVERFLOW_VALUE + "}")
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_OVERFLOW_IS_REQUIRED + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private BigDecimal overflow;
     private TimeDuration interval;
     @SuppressWarnings("unused")
