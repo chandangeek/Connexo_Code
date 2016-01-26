@@ -540,6 +540,7 @@ Ext.define('Uni.service.Search', {
                     criteria.endEdit(true);
                 }
 
+                criteria.values().clearFilter(true);
                 criteria.values().addFilter(me.getFilters(), false);
                 criteria.refresh(function () {
                     var f = me.filters.get(criteria.getId());
@@ -551,6 +552,7 @@ Ext.define('Uni.service.Search', {
                         });
                         me.fireEvent('change', me.filters, f);
                     }
+                    me.fireEvent('criteriaChange', me.criteria, criteria);
                 });
 
                 me.fireEvent('criteriaChange', me.criteria, criteria);

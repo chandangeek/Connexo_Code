@@ -21,21 +21,18 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
     reconfigure: function() {
         var me = this;
 
-        me.property.refresh(function() {
-            Ext.suspendLayouts();
-            me.menu.removeAll();
-            var widget = me.menu.add(me.service.createWidgetForProperty(me.property));
-            var filter = me.service.filters.get(me.dataIndex);
-            me.menu.setWidth(widget.minWidth);
+        Ext.suspendLayouts();
+        me.menu.removeAll();
+        var widget = me.menu.add(me.service.createWidgetForProperty(me.property));
+        var filter = me.service.filters.get(me.dataIndex);
+        me.menu.setWidth(widget.minWidth);
 
-            // restore value
-            widget.setValue(filter && filter.value
-                ? filter.value.map(function(rawValue) { return Ext.create('Uni.model.search.Value', rawValue)})
-                : null);
+        // restore value
+        widget.setValue(filter && filter.value
+            ? filter.value.map(function(rawValue) { return Ext.create('Uni.model.search.Value', rawValue)})
+            : null);
 
-            me.showMenu();
-            Ext.resumeLayouts(true);
-        });
+        Ext.resumeLayouts(true);
     },
 
     initComponent: function () {
@@ -77,13 +74,23 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
     },
 
     onToggle: function() {
-        if (this.pressed) {
-            this.reconfigure();
+        var me = this;
+        if (me.pressed) {
+            if (!me.property.isCached) {
+                me.property.refresh(function(){
+                    me.reconfigure();
+                    me.showMenu();
+                });
+            } else {
+                if (!me.menu.items.getRange().length) {
+                    me.reconfigure();
+                    me.showMenu();
+                }
+            }
         }
     },
 
     onMenuHideEvent: function() {
-        this.menu.removeAll();
         this.toggle(false);
     },
 
@@ -105,6 +112,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
     onCriteriaChange: function(criterias, criteria) {
         if (this.dataIndex == criteria.getId() && this.rendered) {
             this.setDisabled(criteria.get('disabled'));
+            this.reconfigure();
         }
     }
 });

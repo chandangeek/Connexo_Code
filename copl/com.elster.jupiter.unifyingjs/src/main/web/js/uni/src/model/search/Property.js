@@ -4,7 +4,7 @@
 Ext.define('Uni.model.search.Property', {
     extend: 'Ext.data.Model',
     idProperty: 'name',
-
+    isCached: false,
     fields: [
         {name: 'name', type: 'string'},
         {name: 'displayValue', type: 'string'},
@@ -84,8 +84,8 @@ Ext.define('Uni.model.search.Property', {
                 store.loadRawData(me.get('values'));
             }
 
+            me.isCached = true;
             callback ? callback() : null;
         });
-        // todo: add cache
     }
 });
