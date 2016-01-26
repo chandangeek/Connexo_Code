@@ -126,8 +126,8 @@ public class SecurityToken {
         return Optional.empty();
     }
 
-    public boolean doComparison(Cookie cookie, String token){
-        Optional<SignedJWT> jwtCookie = checkTokenIntegrity(cookie.getValue());
+    public boolean doComparison(String cookie, String token){
+        Optional<SignedJWT> jwtCookie = checkTokenIntegrity(cookie);
         Optional<SignedJWT> jwtToken = checkTokenIntegrity(token);
 
         try {

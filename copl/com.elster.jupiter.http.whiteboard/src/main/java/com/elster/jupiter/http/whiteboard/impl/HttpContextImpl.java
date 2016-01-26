@@ -113,12 +113,18 @@ public class HttpContextImpl implements HttpContext {
     }
 
     private boolean doBearerAuthorization(HttpServletRequest request, HttpServletResponse response, String authentication) {
+        String token = authentication.substring(authentication.lastIndexOf(" ") + 1);
         Optional<Cookie> xsrf = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
-        if (xsrf.isPresent() && !SecurityToken.getInstance().doComparison(xsrf.get(), authentication.substring(authentication.lastIndexOf(" ") + 1))) {
-            return deny(request, response);
+        if (xsrf.isPresent()){
+            token = xsrf.get().getValue();
+            if(!SecurityToken.getInstance().doComparison(token, authentication.substring(authentication.lastIndexOf(" ") + 1))) {
+                return deny(request, response);
+            }
         }
 
-        Optional<User> user = SecurityToken.getInstance().verifyToken(authentication.substring(authentication.lastIndexOf(" ") + 1), request, response, userService);
+        // Since the cookie value can be updated without updating the authorization header, it should be used here instead of the header
+        // The check before ensures the header is also valid syntactically, but it may be expires if only the cookie was updated (Facts, Flow)
+        Optional<User> user = SecurityToken.getInstance().verifyToken(token, request, response, userService);
         return isAuthenticated(user) ? allow(request, response, user.get()) : deny(request, response);
     }
 
