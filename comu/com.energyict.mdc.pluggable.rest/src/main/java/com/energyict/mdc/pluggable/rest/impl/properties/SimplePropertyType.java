@@ -16,10 +16,10 @@ import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.LargeStringFactory;
-import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
 
 import java.math.BigDecimal;
@@ -56,7 +56,7 @@ public enum SimplePropertyType implements PropertyType {
     LOGBOOK(LogBook.class, true),
     REGISTER(Register.class, true),
     TEXT(StringFactory.class),
-    FIRMWAREVERSION(FirmwareVersion.class, true),
+    FIRMWAREVERSION(BaseFirmwareVersion.class, true),
     TIMESTAMP(Instant.class),
     ;
 
