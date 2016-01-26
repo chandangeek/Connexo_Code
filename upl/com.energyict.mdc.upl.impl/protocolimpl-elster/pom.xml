@@ -16,13 +16,17 @@
     <dependencies>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>protocolcommon</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
+            <artifactId>mdw</artifactId>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdw</artifactId>
+            <artifactId>protocol-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>protocolcommon</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.elster</groupId>
@@ -40,7 +44,7 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>com.pyx4me</groupId>
+                <groupId>com.github.wvengen</groupId>
                 <artifactId>proguard-maven-plugin</artifactId>
                 <version>${proguard.maven.version}</version>
                 <executions>
@@ -338,18 +342,6 @@
                         </exclusion>
                     </exclusions>
                 </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>net.sf.proguard</groupId>
-                        <artifactId>proguard</artifactId>
-                        <version>${proguard.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>net.sf.proguard</groupId>
-                        <artifactId>proguard-base</artifactId>
-                        <version>${proguard.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
 
         </plugins>
