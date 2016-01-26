@@ -378,6 +378,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     Optional<UsagePoint> getUsagePoint();
 
+    void setUsagePoint(UsagePoint usagePoint);
+
     GatewayType getConfigurationGatewayType();
 
     DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId);
