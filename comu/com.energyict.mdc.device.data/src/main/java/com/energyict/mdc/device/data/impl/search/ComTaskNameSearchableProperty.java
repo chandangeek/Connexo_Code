@@ -22,7 +22,6 @@ import java.util.Optional;
 
 public class ComTaskNameSearchableProperty extends AbstractSearchableDeviceProperty {
     static final String PROPERTY_NAME = "device.comtask.name";
-    static final int DEFAULT_PAGE_SIZE = 50;
 
     private final PropertySpecService propertySpecService;
     private final TaskService taskService;
@@ -84,12 +83,13 @@ public class ComTaskNameSearchableProperty extends AbstractSearchableDevicePrope
 
     @Override
     public PropertySpec getSpecification() {
-        List<ComTask> comTasks = taskService.findAllComTasks().paged(1, DEFAULT_PAGE_SIZE).find();
+        List<ComTask> comTasks = taskService.findAllComTasks().find();
         return this.propertySpecService
                 .referenceSpec(ComTask.class)
                 .named(PROPERTY_NAME, getNameTranslationKey())
                 .fromThesaurus(this.getThesaurus())
-                .addValues(comTasks.toArray(new ComTask[comTasks.size()]))  // do not mark as exhaustive because there could in fact be more because of the paging
+                .addValues(comTasks.toArray(new ComTask[comTasks.size()]))
+                .markExhaustive()
                 .finish();
     }
 
