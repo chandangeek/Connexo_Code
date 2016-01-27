@@ -71,6 +71,7 @@ Ext.define('Fim.view.importservices.Grid', {
                 items: [
                     {
                         xtype: 'button',
+                        itemId: 'add-import-service',
                         text: Uni.I18n.translate('general.addImportService', 'FIM', 'Add import service'),
                         privileges: Fim.privileges.DataImport.getAdmin,
                         href: '#/administration/importservices/add'
