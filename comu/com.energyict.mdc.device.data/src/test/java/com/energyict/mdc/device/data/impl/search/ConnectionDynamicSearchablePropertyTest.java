@@ -22,7 +22,7 @@ public class ConnectionDynamicSearchablePropertyTest extends AbstractDynamicSear
 
     protected SearchableProperty getTestInstance() {
         return new ConnectionDynamicSearchableProperty(this.getThesaurus())
-                .init(this.domain, this.group, this.propertySpec, this.pluggableClass);
+                .init(this.domain, this.group, this.propertySpec, this.searchableProperty, this.pluggableClass);
     }
 
 }

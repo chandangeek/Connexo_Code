@@ -166,7 +166,7 @@ public class ComTaskNameSearchablePropertyTest {
         assertThat(specification.getPossibleValues()).isNotNull();
         assertThat(specification.getPossibleValues().getAllValues()).hasSize(2);
         assertThat(specification.getPossibleValues().getAllValues()).containsExactly(comTask1, comTask2);
-        assertThat(specification.getPossibleValues().isExhaustive()).isFalse();
+        assertThat(specification.getPossibleValues().isExhaustive()).isTrue();
     }
 
     @Test
