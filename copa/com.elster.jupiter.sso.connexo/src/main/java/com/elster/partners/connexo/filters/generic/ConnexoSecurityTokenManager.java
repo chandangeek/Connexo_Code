@@ -53,7 +53,7 @@ public class ConnexoSecurityTokenManager {
         PUBLIC_KEY = (publicKey != null) ? publicKey : "";
     }
 
-    public ConnexoPrincipal verifyToken(String token) {
+    public ConnexoPrincipal verifyToken(String token, boolean allowTokenRefresh) {
         if(token != null) {
             try {
                 RSAKey rsaKey = getRSAKey(PUBLIC_KEY);
@@ -69,13 +69,15 @@ public class ConnexoSecurityTokenManager {
 
 
                     if (signedJWT.verify(verifier) && issuer.equals("Elster Connexo") &&
-                            issueTime.before(expirationTime) && count == tokenNumericTermination) {
-                        if (count < MAX_COUNT) {
-                            ConnexoPrincipal principal = constructPrincipal(signedJWT, token);
-                            if (new Date().before(new Date(expirationTime.getTime()))) {
-                                return constructPrincipal(signedJWT, token);
-                            } else if (new Date().before(new Date(expirationTime.getTime() + TIMEOUT * 1000))) {
+                            issueTime.before(expirationTime) && count == tokenNumericTermination && count < MAX_COUNT) {
+                        if (new Date().before(new Date(expirationTime.getTime()))) {
+                            return constructPrincipal(signedJWT, token);
+                        } else if (new Date().before(new Date(expirationTime.getTime() + TIMEOUT * 1000))) {
+                            if(allowTokenRefresh) {
                                 return constructPrincipal(signedJWT, updateToken(token));
+                            }
+                            else{
+                                return constructPrincipal(signedJWT, token);
                             }
                         }
                     }

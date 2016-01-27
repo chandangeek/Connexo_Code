@@ -35,7 +35,7 @@ public class ConnexoAuthenticationSSOFilter extends ConnexoAbstractSSOFilter {
             authorizationToken = getTokenFromAuthorizationHeader(request);
         }
 
-        ConnexoPrincipal principal = securityManager.verifyToken(authorizationToken);
+        ConnexoPrincipal principal = securityManager.verifyToken(authorizationToken, shouldRefreshToken(request));
         if(principal == null) {
             if(authorizationToken != null){
                 updateToken(response, null, 0); // clear out token

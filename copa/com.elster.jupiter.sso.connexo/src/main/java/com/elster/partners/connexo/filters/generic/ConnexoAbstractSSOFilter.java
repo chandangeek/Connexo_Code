@@ -82,6 +82,10 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
         return false;
     }
 
+    protected boolean shouldRefreshToken(final HttpServletRequest request){
+        return !(shouldUnauthorize(request) && request.getParameterMap().containsKey("wait"));
+    }
+
     protected boolean shouldUnauthorize(final HttpServletRequest request) {
         String requestUrl = request.getRequestURI().toString();
         for(String url : unauthorizedUrls) {
