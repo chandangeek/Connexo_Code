@@ -374,7 +374,7 @@
                                     </typeReplacement>
                                     <typeReplacement>
                                         <source>javax.ws.rs.core.Response</source>
-                                        <target>java.lang.Object</target>
+                                        <target>Response</target>
                                         <type>literal</type>
                                     </typeReplacement>
                                 </typeReplacements>

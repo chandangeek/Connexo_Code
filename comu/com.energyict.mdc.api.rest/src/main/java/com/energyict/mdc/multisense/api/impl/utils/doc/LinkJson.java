@@ -26,6 +26,6 @@ public class LinkJson {
     }
 
     private enum Relation {
-        self, prev, next, first, last, describedby, glossary
+        self, prev, next, first, last, describedby, glossary, parent
     }
 }

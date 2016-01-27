@@ -106,7 +106,7 @@ public class DeviceResource {
     }
 
     /**
-     * Create a new device
+     * @summary Create a new device
      * @param info Payload describing the values for the to-be-created device
      * @param uriInfo added by framework
      * @return location href to newly created device
@@ -196,7 +196,7 @@ public class DeviceResource {
     }
 
     /**
-     * List the fields available on this entity.
+     * List the fields available on this type of entity.
      * <br>E.g.
      * <br>[
      * <br> "id",
@@ -207,9 +207,9 @@ public class DeviceResource {
      * <br>Fields in the list can be used as parameter on a GET request to the same resource, e.g.
      * <br> <i></i>GET ..../resource?fields=id,name,batch</i>
      * <br> The call above will return only the requested fields of the entity. In the absence of a field list, all fields
-     * will be returned
+     * will be returned. If IDs are required in the URL for parent entities, then will be ignored when using the PROPFIND method.
      *
-     * @summary List the fields available on this entity
+     * @summary List the fields available on this type of entity
      * @return A list of field names that can be requested as parameter in the GET method on this entity type
      */
     @PROPFIND

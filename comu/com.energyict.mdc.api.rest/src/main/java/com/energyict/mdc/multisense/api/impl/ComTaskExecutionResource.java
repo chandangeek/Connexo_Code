@@ -156,6 +156,12 @@ public class ComTaskExecutionResource {
 
     }
 
+    /**
+     *
+     * @param mrid mRID of device whose communication task execution needs to be deleted
+     * @param comTaskExecutionid The ID of the communication task execution that needs to be deleted
+     * @return No content
+     */
     @DELETE @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
@@ -175,7 +181,7 @@ public class ComTaskExecutionResource {
 
 
     /**
-     * List the fields available on this entity.
+     * List the fields available on this type of entity.
      * <br>E.g.
      * <br>[
      * <br> "id",
@@ -186,9 +192,9 @@ public class ComTaskExecutionResource {
      * <br>Fields in the list can be used as parameter on a GET request to the same resource, e.g.
      * <br> <i></i>GET ..../resource?fields=id,name,batch</i>
      * <br> The call above will return only the requested fields of the entity. In the absence of a field list, all fields
-     * will be returned
+     * will be returned. If IDs are required in the URL for parent entities, then will be ignored when using the PROPFIND method.
      *
-     * @summary List the fields available on this entity
+     * @summary List the fields available on this type of entity
      * @return A list of field names that can be requested as parameter in the GET method on this entity type
      */
     @PROPFIND
