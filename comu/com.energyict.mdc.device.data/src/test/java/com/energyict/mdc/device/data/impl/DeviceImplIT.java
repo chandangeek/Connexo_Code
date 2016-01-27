@@ -217,6 +217,26 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
+    public void testUpdateMRID() {
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+
+        DeviceImpl reloadedDevice = (DeviceImpl) getReloadedDevice(device);
+
+        reloadedDevice.setmRID("newMRID");
+        reloadedDevice.save();
+
+        reloadedDevice = (DeviceImpl) getReloadedDevice(device);
+
+        assertThat(reloadedDevice.getmRID()).isEqualTo("newMRID");
+
+        Optional<Meter> koreMeter = reloadedDevice.findKoreMeter(inMemoryPersistence.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get());
+        assertThat(koreMeter).isPresent();
+        assertThat(koreMeter.get().getMRID()).isEqualTo("newMRID");
+    }
+
+    @Test
+    @Transactional
     public void updateWithSerialNumberTest() {
         String serialNumber = "MyUpdatedSerialNumber";
         Device simpleDevice = createSimpleDevice();

@@ -169,6 +169,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -305,7 +306,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.deviceConfiguration.set(deviceConfiguration);
         this.setDeviceTypeFromDeviceConfiguration();
         setName(name);
-        this.setMRID(mRID);
+        this.setmRID(mRID);
         createLoadProfiles();
         createLogBooks();
         return this;
@@ -348,6 +349,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         boolean alreadyPersistent = this.id > 0;
         if (alreadyPersistent) {
             Save.UPDATE.save(dataModel, this);
+            findKoreMeter(getMdcAmrSystem())
+                    .filter(meter -> !Objects.equals(meter.getMRID(), this.getmRID()))
+                    .ifPresent(meter -> {
+                        meter.setMRID(getmRID());
+                        meter.update();
+                    });
+
             this.saveDirtySecurityProperties();
             this.saveDirtyConnectionProperties();
             this.saveNewAndDirtyDialectProperties();
@@ -614,11 +622,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    private void setMRID(String mRID) {
+    @Override
+    public void setmRID(String mRID) {
         this.mRID = null;
-        if (mRID != null) {
-            this.mRID = mRID.trim();
-        }
+        Optional.ofNullable(mRID)
+                .map(String::trim)
+                .ifPresent(trimmed -> this.mRID = trimmed);
     }
 
     public long getId() {
@@ -681,7 +690,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public BigDecimal getMultiplier() {
-        if(this.multiplier == null){
+        if (this.multiplier == null) {
             Optional<MeterActivation> optionalCurrentMeterActivation = getCurrentMeterActivation();
             if (optionalCurrentMeterActivation.isPresent()) {
                 this.multiplier = optionalCurrentMeterActivation.get().getMultiplier(getDefaultMultiplierType()).orElse(MULTIPLIER_ONE);
@@ -696,7 +705,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public Optional<BigDecimal> getMultiplierAt(Instant multiplierEffectiveTimeStamp) {
         List<MeterActivation> meterActivationsMostRecentFirst = getMeterActivationsMostRecentFirst();
         Optional<MeterActivation> meterActivationForEffectiveTimeStamp = meterActivationsMostRecentFirst.stream().filter(meterActivation -> meterActivation.getInterval().toOpenClosedRange().contains(multiplierEffectiveTimeStamp)).findAny();
-        if(meterActivationForEffectiveTimeStamp.isPresent()){
+        if (meterActivationForEffectiveTimeStamp.isPresent()) {
             return meterActivationForEffectiveTimeStamp.get().getMultiplier(getDefaultMultiplierType());
         } else {
             return Optional.empty();
@@ -722,7 +731,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private MultiplierType getDefaultMultiplierType() {
-        if(this.multiplierType == null){
+        if (this.multiplierType == null) {
             Optional<MultiplierType> multiplierType = meteringService.getMultiplierType(MULTIPLIER_TYPE);
             if (multiplierType.isPresent()) {
                 this.multiplierType = multiplierType.get();
@@ -760,9 +769,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private void validateMultiplierValue(BigDecimal multiplier) {
-        if(multiplier.compareTo(BigDecimal.ZERO) != 1){
+        if (multiplier.compareTo(BigDecimal.ZERO) != 1) {
             throw MultiplierConfigurationException.multiplierShouldBeLargerThanZero(thesaurus);
-        } else if (multiplier.compareTo(maxMultiplier) == 1){
+        } else if (multiplier.compareTo(maxMultiplier) == 1) {
             throw MultiplierConfigurationException.multiplierValueExceedsMax(thesaurus);
         }
     }
@@ -874,7 +883,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == originDeviceConfiguration.getId()
                         && deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == destinationDeviceConfiguration.getId())
                 .filter(Predicates.not(DeviceConfigConflictMapping::isSolved)).findFirst()
-                .ifPresent(deviceConfigConflictMapping1 -> {throw new CannotChangeDeviceConfigStillUnresolvedConflicts(thesaurus, this, destinationDeviceConfiguration);});
+                .ifPresent(deviceConfigConflictMapping1 -> {
+                    throw new CannotChangeDeviceConfigStillUnresolvedConflicts(thesaurus, this, destinationDeviceConfiguration);
+                });
     }
 
     @Override
@@ -930,9 +941,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     public Optional<ReadingType> getCalculatedReadingTypeFromMeterConfiguration(ReadingType readingType, Instant timeStamp) {
         Optional<MeterConfiguration> configuration = findKoreMeter(getMdcAmrSystem()).get().getConfiguration(timeStamp);
-        if(configuration.isPresent()){
+        if (configuration.isPresent()) {
             Optional<MeterReadingTypeConfiguration> mrtConfiguration = configuration.get().getReadingTypeConfigs().stream().filter(meterReadingTypeConfiguration -> meterReadingTypeConfiguration.getMeasured().equals(readingType)).findAny();
-            if(mrtConfiguration.isPresent()){
+            if (mrtConfiguration.isPresent()) {
                 return mrtConfiguration.get().getCalculated();
             } else {
                 return Optional.empty();
@@ -1172,7 +1183,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     Optional<Meter> findKoreMeter(AmrSystem amrSystem) {
-        if(!this.meter.isPresent()){
+        if (!this.meter.isPresent()) {
             this.meter = amrSystem.findMeter(String.valueOf(getId()));
         }
         return this.meter;
@@ -1217,7 +1228,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private AmrSystem getMdcAmrSystem() {
-        if(this.amrSystem == null){
+        if (this.amrSystem == null) {
             this.amrSystem = findMdcAmrSystem().orElseThrow(mdcAMRSystemDoesNotExist());
         }
         return this.amrSystem;
@@ -1587,18 +1598,18 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      * Activate the meter. Either end the current MeterActivation and create a new one, or just create a new one.
      * Depending on 'copyMultiplier' also copy the multiplierValue
      *
-     * @param start start of the meterActivation
+     * @param start          start of the meterActivation
      * @param copyMultiplier indication to copy the multiplier
      * @return the new meterActivation
      */
-    private MeterActivation activate(Instant start, boolean copyMultiplier){
+    private MeterActivation activate(Instant start, boolean copyMultiplier) {
         Optional<MeterActivation> currentMeterActivation = getCurrentMeterActivation();
         AmrSystem amrSystem = getMdcAmrSystem();
         Meter meter = this.findOrCreateKoreMeter(amrSystem);
         if (currentMeterActivation.isPresent()) {
             this.currentMeterActivation = Optional.of(endMeterActivationAndCreateNewWithCurrentAsTemplate(start, meter, currentMeterActivation.get(), copyMultiplier));
         } else {
-            this.currentMeterActivation = Optional.of(meter.activate(start)) ;
+            this.currentMeterActivation = Optional.of(meter.activate(start));
         }
         return this.currentMeterActivation.get();
     }
@@ -1612,7 +1623,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         } else {
             newMeterActivation = meter.activate(start);
         }
-        if(copyMultiplier){
+        if (copyMultiplier) {
             meterActivation.getMultiplier(getDefaultMultiplierType()).ifPresent(multiplier -> newMeterActivation.setMultiplier(getDefaultMultiplierType(), multiplier));
         }
         return newMeterActivation;
@@ -1635,7 +1646,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public Optional<MeterActivation> getCurrentMeterActivation() {
-        if(!this.currentMeterActivation.isPresent()){
+        if (!this.currentMeterActivation.isPresent()) {
             this.currentMeterActivation = this.getOptionalMeterAspect(m -> m.getCurrentMeterActivation().map(Function.<MeterActivation>identity()));
         }
         return this.currentMeterActivation;
