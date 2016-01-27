@@ -40,6 +40,18 @@ public class DeviceProtocolPluggableClassResource {
         this.exceptionFactory = exceptionFactory;
     }
 
+    /**
+     * A protocol dialect is a communication protocol of which specific parameters can be changed so that certain tasks
+     * can be carried out. E.g. firmware dialect the parameter DatagramPDU size has a default value of 500 bytes however
+     * because firmware upgrades are often larger than this, the size of this parameter can be increased.
+     * <br>
+     * The amount of protocol dialects and which parameters can be changed is determined by the protocol of which the dialect
+     * originates. Typically protocol dialects are used for defining communication tasks.
+     *
+     * @summary Fetch uniquely identified device protocol
+     * @param deviceProtocolPluggableClassId identifies device protocol pluggable class
+     * @return The device protocol pluggable class
+     */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{deviceProtocolPluggableClassId}")
@@ -51,7 +63,9 @@ public class DeviceProtocolPluggableClassResource {
     }
 
     /**
+     * Get a list of all known device protocols pluggable classes
      *
+     * @summary Get device protocols pluggable classes
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
