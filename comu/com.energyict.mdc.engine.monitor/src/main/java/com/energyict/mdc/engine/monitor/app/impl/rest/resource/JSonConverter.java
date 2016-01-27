@@ -14,7 +14,6 @@ import javax.inject.Inject;
 import java.security.Principal;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -38,16 +37,6 @@ public class JSonConverter {
     private static final int SECONDS_IN_MONTH = SECONDS_IN_DAY * DAYS_IN_MONTH;
     private static final int DAYS_IN_YEAR = 365;
     private static final int SECONDS_IN_YEAR = SECONDS_IN_DAY * DAYS_IN_YEAR;
-
-    public enum LocalOrRemote {
-        LOCAL, REMOTE;
-
-        @Override
-        public String toString() {
-            String name = super.toString();
-            return name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
-        }
-    }
 
     private StatusService statusService;
     private EngineConfigurationService engineConfigurationService;
@@ -99,12 +88,11 @@ public class JSonConverter {
 
         JSONObject result = new JSONObject();
         result.put("serverId", status.getComServerId());
-      //  result.put("localOrRemote", status.getComServerType().toString());
-        result.put("currentDate", format(Instant.now()));
+        result.put("currentDate", format(Instant.now(), FormatKey.SHORT_DATETIME));
         if (status.isRunning() && operationalStatistics != null) {
             Date startTime = operationalStatistics.getStartTimestamp();
             if (startTime != null) {
-                String startedAndDurationText = format(startTime.toInstant());
+                String startedAndDurationText = format(startTime.toInstant(), FormatKey.SHORT_DATETIME);
                 TimeDuration duration = operationalStatistics.getRunningTime();
                 if (duration != null) {
                     startedAndDurationText += " (" + formatDuration(duration) + ")";
@@ -132,7 +120,7 @@ public class JSonConverter {
             jsDuration.put("time-unit", changesInterPollDelay.getTimeUnit());
             result.put("changeDetectionFrequency", jsDuration);
             if (lastCheckForChanges != null){
-                result.put("changeDetectionNextRun", format(lastCheckForChanges.toInstant().plusSeconds(changesInterPollDelay.getSeconds())));
+                result.put("changeDetectionNextRun", format(lastCheckForChanges.toInstant().plusSeconds(changesInterPollDelay.getSeconds()),FormatKey.LONG_DATETIME));
             }
         }
         if (comServer != null) {
@@ -165,7 +153,7 @@ public class JSonConverter {
     public synchronized JSonConverter convertConnectedRemoteServers(boolean active) throws JSONException {
         //TODO: Remote ComServers not yet supported in Connexo
 //        ComServer comServer =  comServerDAO.getThisComServer();
-        List<JSONObject> remotes = new ArrayList<>();
+//        List<JSONObject> remotes = new ArrayList<>();
 //        if (comServer.isOnline()){
 //            List<RemoteComServer> remoteComServers = ManagerFactory.getCurrent().getComServerFactory().findRemoteComServersWithOnlineComServer((OnlineComServer) monitor.getComServer());
 //            QueryAPIStatistics queryAPIStatistics = monitor.getQueryApiStatistics();
@@ -187,7 +175,7 @@ public class JSonConverter {
 //                }
 //            }
 //        }
-        setConvertedArray(remotes.toArray(new JSONObject[remotes.size()]));
+//        setConvertedArray(remotes.toArray(new JSONObject[remotes.size()]));
         return this;
     }
 
@@ -211,7 +199,7 @@ public class JSonConverter {
                 if (monitor.isPresent()){
                     Optional<Date> lastCheckForWork = monitor.get().getOperationalStatistics().getLastCheckForWorkTimestamp();
                     if (lastCheckForWork.isPresent()) {
-                        lastSeen = format(lastCheckForWork.get().toInstant());
+                        lastSeen = format(lastCheckForWork.get().toInstant(), FormatKey.LONG_DATETIME);
                     }
                 }
             }
@@ -371,8 +359,8 @@ public class JSonConverter {
         return pool.getComPorts().stream().filter(p -> p.getId() == port.getId()).findFirst().isPresent();
     }
 
-    private String format(Instant date){
-        return date!=null ? getLongDateFormatForCurrentUser().format(LocalDateTime.ofInstant(date, ZoneId.systemDefault())) : "";
+    private String format(Instant date, FormatKey format){
+        return date!=null ? getDateFormatForCurrentUser(format).format(LocalDateTime.ofInstant(date, ZoneId.systemDefault())) : "";
     }
 
     private static String formatDuration(TimeDuration duration) {
@@ -392,7 +380,12 @@ public class JSonConverter {
             int quantity = pair.getFirst();
             TimeDuration timeDuration = pair.getLast();
             if (numberOfSeconds >= quantity) {
-                builder.append( numberOfSeconds / quantity + " " + timeDuration.getTimeUnit());
+                int numberOf = numberOfSeconds / quantity;
+                String timeUnitDescription = timeDuration.getTimeUnit().getDescription();
+                if (numberOf == 1){
+                    timeUnitDescription = timeUnitDescription.substring(0, timeUnitDescription.length() - 1);
+                }
+                builder.append(numberOf).append(" ").append(timeUnitDescription);
                 numberOfSeconds = numberOfSeconds % quantity;
                 numberOfUnits++;
                 if (numberOfUnits >= maxNumberOfUnits) {
@@ -403,19 +396,19 @@ public class JSonConverter {
             }
         }
         if (numberOfUnits < 2 && numberOfSeconds > 0) {
-            builder.append( numberOfSeconds + " " + TimeDuration.getTimeUnitDescription(Calendar.SECOND));
+            builder.append(numberOfSeconds).append(" ").append(TimeDuration.getTimeUnitDescription(Calendar.SECOND));
         }
         return builder.toString();
     }
 
 
-    private DateTimeFormatter getLongDateFormatForCurrentUser(){
+    private DateTimeFormatter getDateFormatForCurrentUser(FormatKey format){
         UserPreferencesService preferencesService = this.userService.getUserPreferencesService();
         Principal principal = threadPrincipalService.getPrincipal();
         String dateFormat = "HH:mm:ss EEE dd MMM ''yy"; // default backend date format
         Locale locale = Locale.ENGLISH;
         if (principal instanceof User){
-            Optional<UserPreference> dateFormatPref = preferencesService.getPreferenceByKey((User) principal, FormatKey.LONG_DATETIME);
+            Optional<UserPreference> dateFormatPref = preferencesService.getPreferenceByKey((User) principal, format);
             if (dateFormatPref.isPresent()){
                 dateFormat = dateFormatPref.get().getFormatBE();
             }

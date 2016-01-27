@@ -5,11 +5,10 @@ import java.util.*;
 
 class MdcMonitorAppPrivileges {
 
+    private final static String MONITOR_COMMUNICATION_SERVER = "privilege.monitor.communication.server";
+
     static List<String> getApplicationPrivileges() {
-        return Collections.singletonList(Constants.MONITOR_COMMUNICATION_SERVER);
+        return Collections.singletonList(MONITOR_COMMUNICATION_SERVER);
       }
 
-    public interface Constants {
-        String MONITOR_COMMUNICATION_SERVER = "privilege.monitor.communication.server";
-    }
 }
