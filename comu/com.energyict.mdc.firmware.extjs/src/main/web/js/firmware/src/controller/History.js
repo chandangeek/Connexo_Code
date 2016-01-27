@@ -123,7 +123,7 @@ Ext.define('Fwc.controller.History', {
                             privileges: Fwc.privileges.FirmwareCampaign.view,
                             callback: function (route) {
                                 this.getApplication().on('loadFirmwareCampaign', function (record) {
-                                    route.setTitle(Ext.String.htmlEncode(record.get('name')));
+                                    route.setTitle(record.get('name'));
                                     return true;
                                 }, {single: true});
                                 return this;
