@@ -161,22 +161,17 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         assertThat(model.<Integer>get("$.total")).isEqualTo(3);
         assertThat(model.<List>get("$.properties")).hasSize(3);
         assertThat(model.<String>get("$.properties[0].name")).isEqualTo("mRID");
-        assertThat(model.<String>get("$.properties[0].type")).isEqualTo("String");
-        assertThat(model.<String>get("$.properties[0].selectionMode")).isEqualTo("multiple");
-        assertThat(model.<String>get("$.properties[0].visibility")).isEqualTo("sticky");
         assertThat(model.<Boolean>get("$.properties[0].affectsAvailableDomainProperties")).isEqualTo(false);
-        assertThat(model.<List>get("$.properties[0].constraints")).hasSize(0);
-        assertThat(model.<Object>get("$.properties[0].link")).isNull();
-        assertThat(model.<Boolean>get("$.properties[0].exhaustive")).isFalse();
         assertThat(model.<String>get("$.properties[0].group.id")).isEqualTo("Abc");
         assertThat(model.<String>get("$.properties[0].group.displayValue")).isEqualTo("Group abc");
-
+        assertThat(model.<String>get("$.properties[0].selectionMode")).isEqualTo("multiple");
+        assertThat(model.<String>get("$.properties[0].visibility")).isEqualTo("sticky");
+        assertThat(model.<List>get("$.properties[0].constraints")).hasSize(0);
+        assertThat(model.<Object>get("$.properties[0].link")).isNotNull();
         assertThat(model.<Boolean>get("$.properties[1].affectsAvailableDomainProperties")).isEqualTo(true);
-
         assertThat(model.<String>get("$.properties[2].name")).isEqualTo("deviceConfig");
         assertThat(model.<String>get("$.properties[2].displayValue")).isEqualTo("Device configuration");
         assertThat(model.<String>get("$.properties[2].link.href")).endsWith("/search/com.devices/searchcriteria/deviceConfig");
-        assertThat(model.<Boolean>get("$.properties[2].exhaustive")).isTrue();
         assertThat(model.<List>get("$.properties[2].constraints")).hasSize(1);
     }
 
