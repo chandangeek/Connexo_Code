@@ -3,28 +3,28 @@ package com.elster.jupiter.bpm.rest.impl;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Component(
         name = "com.elster.jupiter.bpm.rest",
-        service = {Application.class},
+        service = {Application.class, MessageSeedProvider.class},
         immediate = true,
         property = {"alias=/bpm", "app=BPM", "name=" + BpmApplication.COMPONENT_NAME})
-public class BpmApplication extends Application {
+public class BpmApplication extends Application implements MessageSeedProvider {
 
     public static final String APP_KEY = "BPM";
     public static final String COMPONENT_NAME = "BPM";
@@ -86,6 +86,16 @@ public class BpmApplication extends Application {
             bind(restQueryService).to(RestQueryService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
         }
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 }
 

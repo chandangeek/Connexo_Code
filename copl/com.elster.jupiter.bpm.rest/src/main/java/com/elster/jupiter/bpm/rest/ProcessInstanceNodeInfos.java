@@ -1,5 +1,6 @@
 package com.elster.jupiter.bpm.rest;
 
+import com.elster.jupiter.nls.Thesaurus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,13 +12,12 @@ public class ProcessInstanceNodeInfos {
 
     public String processInstanceStatus;
     public List<ProcessInstanceNodeInfo> processInstanceNodes = new ArrayList<ProcessInstanceNodeInfo>();
-    public List<ProcessInstanceVariableInfo> processInstanceVariables = new ArrayList<ProcessInstanceVariableInfo>();
 
     public ProcessInstanceNodeInfos(){
 
     }
 
-    public ProcessInstanceNodeInfos(JSONObject jsonObject){
+    public ProcessInstanceNodeInfos(JSONObject jsonObject, Thesaurus thesaurus){
         JSONArray nodes = null;
         JSONArray variables = null;
         try {
@@ -27,30 +27,15 @@ public class ProcessInstanceNodeInfos {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        addAllNodes(nodes);
-        addAllVariables(variables);
+        addAllNodes(nodes, variables, thesaurus);
     }
 
-    private void addAllVariables(JSONArray variables) {
-        if (variables != null) {
-            for(int i = 0; i < variables.length(); i++) {
-                try {
-                    JSONObject variable = variables.getJSONObject(i);
-                    ProcessInstanceVariableInfo result = new ProcessInstanceVariableInfo(variable);
-                    processInstanceVariables.add(result);
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-    }
-
-    private void addAllNodes(JSONArray nodes) {
+    private void addAllNodes(JSONArray nodes,JSONArray variables, Thesaurus thesaurus) {
         if (nodes != null) {
             for(int i = 0; i < nodes.length(); i++) {
                 try {
                     JSONObject node = nodes.getJSONObject(i);
-                    ProcessInstanceNodeInfo result = new ProcessInstanceNodeInfo(node);
+                    ProcessInstanceNodeInfo result = new ProcessInstanceNodeInfo(node, variables, thesaurus);
                     processInstanceNodes.add(result);
                 } catch (JSONException e) {
                     throw new RuntimeException(e);

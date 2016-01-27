@@ -260,7 +260,7 @@ public class BpmResource {
         } catch (JSONException e) {
         } catch (RuntimeException e) {
         }
-        return new ProcessInstanceNodeInfos(jsnobject);
+        return new ProcessInstanceNodeInfos(jsnobject, thesaurus);
 
 
     }
