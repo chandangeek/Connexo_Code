@@ -28,7 +28,6 @@ import com.elster.jupiter.validation.ValidationRule;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -49,6 +48,7 @@ import static com.elster.jupiter.util.Checks.is;
  */
 @ValidChannelSpecMultiplierConfiguration(groups = {Save.Create.class, Save.Update.class})
 @ValidateUpdatableChannelSpecFields(groups = {Save.Update.class})
+@ChannelOverflowValueValidation(groups = {Save.Create.class, Save.Update.class})
 public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ChannelSpec {
 
     enum ChannelSpecFields {
@@ -83,8 +83,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     private Integer nbrOfFractionDigits = 0;
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
-    @Range(min = 1, max = Integer.MAX_VALUE, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_INVALID_OVERFLOW_VALUE + "}")
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_OVERFLOW_IS_REQUIRED + "}")
     private BigDecimal overflow;
     private TimeDuration interval;
     @SuppressWarnings("unused")
