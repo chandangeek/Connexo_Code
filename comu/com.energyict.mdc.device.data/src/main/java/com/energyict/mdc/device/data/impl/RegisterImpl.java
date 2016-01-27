@@ -5,27 +5,20 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.energyict.mdc.device.data.*;
 import com.google.common.collect.Range;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.Reading;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.RegisterDataUpdater;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -240,13 +233,13 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         private void addOrEdit(BaseReading reading) {
             this.register.device
                 .findOrCreateKoreChannel(reading.getTimeStamp(), this.register)
-                .editReadings(Arrays.asList(reading));
+                .editReadings(Collections.singletonList(reading));
         }
 
         private void confirm(BaseReading reading) {
             this.register.device
                     .findOrCreateKoreChannel(reading.getTimeStamp(), this.register)
-                    .confirmReadings(Arrays.asList(reading));
+                    .confirmReadings(Collections.singletonList(reading));
         }
     }
 
