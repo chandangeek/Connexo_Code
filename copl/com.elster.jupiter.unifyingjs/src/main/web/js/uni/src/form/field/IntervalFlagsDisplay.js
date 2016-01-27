@@ -23,7 +23,7 @@ Ext.define('Uni.form.field.IntervalFlagsDisplay', {
             });
             flags = flags.slice(0,-1);
             flags += ')</span>';
-            result = result + flags + '<span class="uni-icon-info-small" style="display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Ext.htmlEncode(tooltip) + '"></span>';
+            result = result + flags + '<span class="uni-icon-info-small" style="display: inline-block; width: 16px; height: 16px; float: left; margin-left: 7px" data-qtip="' + Ext.htmlEncode(tooltip) + '"></span>';
         }
         return result || this.emptyText;
     }
