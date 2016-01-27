@@ -50,6 +50,18 @@ public class ComTaskExecutionResource {
         this.communicationTaskService = communicationTaskService;
     }
 
+    /**
+     * Returns the identified communication task execution.
+     * If the <i>fields</i>-query parameters was provided, only the requested fields will be returned. If no such query
+     * parameter was provided, all existing fields will be returned. Note that empty fields, that is, fields without value,
+     * will not be included in the response.
+     *
+     * @summary Fetch single communication task execution by unique id
+     *
+     * @param mRID The device's mRID
+     * @param comTaskExecutionId
+     * @return Communication task execution
+     */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{comTaskExecutionId}")
@@ -65,7 +77,9 @@ public class ComTaskExecutionResource {
     }
 
     /**
+     * Fetch all existing communication task executions of a certain device
      *
+     * @summary Fetch a device's communication task executions
      * @param mRID mRID of device for which executions will be retrieved
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
@@ -86,10 +100,12 @@ public class ComTaskExecutionResource {
     }
 
     /**
+     * Create a new communication task execution for a device
      *
+     * @summary Create communication task execution
      * @param mrid mRID of device for which execution will be created
      * @param comTaskExecutionInfo Payload describing to-be-created communication task execution
-     * @return url to newly created device
+     * @return no content
      * @responseheader location href to newly created device
      */
     @POST @Transactional
@@ -115,16 +131,14 @@ public class ComTaskExecutionResource {
     }
 
     /**
-     * @title title
+     * Updates an existing communication task execution.
      *
-     * content
-     *
-     * @summary summary
+     * @summary Updates an existing communication task execution
      *
      * @param mrid mRID of device for which execution will be updated
      * @param comTaskExecutionId Identifier of the device's communication task execution
      * @param comTaskExecutionInfo Contents for updated communication task execution
-     * @return
+     * @return URI to updated communication task execution
      */
     @PUT @Transactional
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
@@ -153,11 +167,12 @@ public class ComTaskExecutionResource {
                 .resolveTemplate("comTaskExecutionId", updatedComTaskExecution.getId())
                 .build();
         return Response.ok(uri).build();
-
     }
 
     /**
+     * Delete an existing new communication task execution for a device
      *
+     * @summary Delete communication task execution
      * @param mrid mRID of device whose communication task execution needs to be deleted
      * @param comTaskExecutionid The ID of the communication task execution that needs to be deleted
      * @return No content
