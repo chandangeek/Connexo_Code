@@ -3,14 +3,9 @@ package com.energyict.mdc.device.data.impl.events;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageBuilder;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.ItemizeComTaskEnablementQueueMessage;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -25,16 +20,24 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComTaskEnablementChangeEventHandlerTest {
 
+    @Mock
+    private List comTaskExecutions;
     @Mock
     private DeviceDataModelService deviceDataModelService;
     @Mock
@@ -72,8 +75,12 @@ public class ComTaskEnablementChangeEventHandlerTest {
 
     @Before
     public void createEventHandler() {
+        QueryExecutor queryExecutor = mock(QueryExecutor.class);
+        when(queryExecutor.select(any(Condition.class), any(), anyBoolean(), any(), anyInt(), anyInt())).thenReturn(comTaskExecutions);
+        DataModel dataModel = mock(DataModel.class);
+        when(dataModel.query(any(Class.class), anyVararg())).thenReturn(queryExecutor);
+        when(this.deviceDataModelService.dataModel()).thenReturn(dataModel);
         when(this.deviceDataModelService.thesaurus()).thenReturn(this.thesaurus);
-        when(this.deviceDataModelService.communicationTaskService()).thenReturn(this.communicationTaskService);
         this.eventHandler = new ComTaskEnablementChangeEventHandler(this.deviceDataModelService, this.schedulingService);
         when(this.comTaskEnablement.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
         when(this.comTaskEnablement.getComTask()).thenReturn(this.comTask);
@@ -115,13 +122,12 @@ public class ComTaskEnablementChangeEventHandlerTest {
         verify(this.comSchedule2).containsComTask(this.comTask);
     }
 
-
     @Test
     public void testNoExceptionForComScheduleWithSingleComTask() {
         when(this.deviceConfiguration.isActive()).thenReturn(true);
         when(this.comSchedule1.containsComTask(this.comTask)).thenReturn(false);
         when(this.comSchedule2.containsComTask(this.comTask)).thenReturn(true);
-        when(this.comSchedule2.getComTasks()).thenReturn(Arrays.asList(this.comTask));
+        when(this.comSchedule2.getComTasks()).thenReturn(Collections.singletonList(this.comTask));
 
         this.eventHandler.handle(this.event);
 
@@ -138,9 +144,7 @@ public class ComTaskEnablementChangeEventHandlerTest {
         when(this.comSchedule2.containsComTask(this.comTask)).thenReturn(true);
         ComTask anotherComTask = mock(ComTask.class);
         when(this.comSchedule2.getComTasks()).thenReturn(Arrays.asList(this.comTask, anotherComTask));
-        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
-        when(this.communicationTaskService.findComTaskExecutionsByFilter(any(ComTaskExecutionFilterSpecification.class), anyInt(), anyInt()))
-                .thenReturn(Arrays.asList(comTaskExecution));
+        when(this.comTaskExecutions.isEmpty()).thenReturn(false);
 
         this.eventHandler.handle(this.event);
 
@@ -149,5 +153,4 @@ public class ComTaskEnablementChangeEventHandlerTest {
         verify(this.comSchedule2).containsComTask(this.comTask);
         verify(this.comSchedule2).getComTasks();
     }
-
 }

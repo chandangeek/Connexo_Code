@@ -2,22 +2,15 @@ package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.data.ItemizeComTaskEnablementQueueMessage;
-import com.energyict.mdc.device.data.exceptions.NoDestinationSpecFound;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.scheduling.SchedulingService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.event.EventConstants;
 
-import java.util.HashMap;
-import java.util.Map;
-
-@Component(name = "com.energyict.mdc.device.data.comtaskenablement.changed.eventhandler", service = TopicHandler.class, immediate = true)
+@Component(name = "com.energyict.mdc.device.data.comtaskenablement.eventhandler", service = TopicHandler.class, immediate = true)
 public class ComTaskEnablementChangeEventHandler implements TopicHandler {
 
     static final String TOPIC = com.energyict.mdc.device.config.events.EventType.COMTASKENABLEMENT_UPDATED.topic();
@@ -48,15 +41,30 @@ public class ComTaskEnablementChangeEventHandler implements TopicHandler {
     }
 
     private void validateComTaskEnablementChangeIsAllowed(ComTaskEnablement comTaskEnablement) {
-        ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
-        this.schedulingService.findAllSchedules().stream()
-                .filter(comSchedule -> comSchedule.containsComTask(comTaskEnablement.getComTask()))
-                .filter(comSchedule -> comSchedule.getComTasks().size() > 1)
-                .forEach(filter.comSchedules::add);
-        if (!filter.comSchedules.isEmpty()
-                && !this.deviceDataModelService.communicationTaskService().findComTaskExecutionsByFilter(filter, 0, 1).isEmpty()) {
-            throw new VetoComTaskEnablementChangeException(getThesaurus(), comTaskEnablement);
-        }
+        List<ComSchedule> affectedComSchedules = this.schedulingService.findAllSchedules().stream()
+                        .filter(comSchedule -> comSchedule.containsComTask(comTaskEnablement.getComTask()))
+                        .filter(comSchedule -> comSchedule.getComTasks().size() > 1)
+                        .collect(Collectors.toList());
+       if (!affectedComSchedules.isEmpty() && !hasNoUsageOnDevices(comTaskEnablement, affectedComSchedules)) {
+        throw new VetoComTaskEnablementChangeException(getThesaurus(), comTaskEnablement);
+       }
+    }
+
+    private boolean hasNoUsageOnDevices(ComTaskEnablement comTaskEnablement, List<ComSchedule> affectedComSchedules) {
+        return this.deviceDataModelService
+                .dataModel()
+                .query(ComTaskExecution.class, Device.class, DeviceConfiguration.class)
+                .select(conditionForDeviceConfig(comTaskEnablement).and(conditionForComSchedules(affectedComSchedules)), null, false, null, 1, 1)
+                .isEmpty();
+    }
+
+    private Condition conditionForDeviceConfig(ComTaskEnablement comTaskEnablement) {
+        return where(ComTaskExecutionFields.DEVICE.fieldName() + "." + DeviceFields.DEVICECONFIGURATION.fieldName()).isEqualTo(comTaskEnablement.getDeviceConfiguration())
+                .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
+    }
+
+    private Condition conditionForComSchedules(List<ComSchedule> affectedComSchedules) {
+        return where(ComTaskExecutionFields.COM_SCHEDULE.fieldName()).in(affectedComSchedules);
     }
 
     private void notifyInterestedPartiesOfChange(ComTaskEnablement comTaskEnablement) {
