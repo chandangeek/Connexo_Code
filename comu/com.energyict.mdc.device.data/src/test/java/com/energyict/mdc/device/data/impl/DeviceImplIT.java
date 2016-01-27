@@ -15,7 +15,14 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterConfiguration;
+import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -26,7 +33,11 @@ import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.BillingReading;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -58,7 +69,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -114,7 +131,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         return createSimpleDeviceWithName(DEVICENAME);
     }
 
-    private Device createSimpleDeviceWithName(String name, String mRID){
+    private Device createSimpleDeviceWithName(String name, String mRID) {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, mRID);
         device.save();
         return device;
@@ -606,7 +623,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(dayStart, dayEnd));
         assertThat(readings).describedAs("There should be no data(holders) for the interval 00:00->08:45").hasSize(24 * 4 - 4 * 9 + 1);
         assertThat(readings.get(0).getRange().upperEndpoint()).isEqualTo(dayEnd);
-        assertThat(readings.get(readings.size()-1).getRange().lowerEndpoint()).isEqualTo(startIntervalForPreviousReadingTimeStamp);
+        assertThat(readings.get(readings.size() - 1).getRange().lowerEndpoint()).isEqualTo(startIntervalForPreviousReadingTimeStamp);
         for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
             if (reading.getRange().upperEndpoint().equals(readingTimeStamp)) {
                 assertThat(reading.getChannelValues()).hasSize(1);
@@ -688,7 +705,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Instant start = LocalDateTime.of(2014, 8, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
         Instant end = LocalDateTime.of(2014, 8, 1, 16, 0, 0).toInstant(ZoneOffset.UTC);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(start, end));
-        assertThat(readings).describedAs("There should be data(holders) for the interval 12:00->16:00 even though there are no meter readings").hasSize(4*4);
+        assertThat(readings).describedAs("There should be data(holders) for the interval 12:00->16:00 even though there are no meter readings").hasSize(4 * 4);
     }
 
     // JP-5583
@@ -911,7 +928,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(requestIntervalStart, requestIntervalEnd));
         assertThat(readings).describedAs("There should be only 2 intervals between activation and last reading").hasSize(2);
         assertThat(readings.get(0).getRange().upperEndpoint()).isEqualTo(lastReading);
-        assertThat(readings.get(readings.size()-1).getRange().lowerEndpoint()).isEqualTo(Instant.ofEpochMilli(1420800300000L));// 9/1/2015 10:45
+        assertThat(readings.get(readings.size() - 1).getRange().lowerEndpoint()).isEqualTo(Instant.ofEpochMilli(1420800300000L));// 9/1/2015 10:45
     }
 
     @Test
@@ -941,7 +958,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(dayStart, dayEnd));
         assertThat(readings).hasSize(24 * 4);
         assertThat(readings.get(0).getRange().upperEndpoint()).isEqualTo(dayEnd);
-        assertThat(readings.get(readings.size()-1).getRange().lowerEndpoint()).isEqualTo(dayStart);
+        assertThat(readings.get(readings.size() - 1).getRange().lowerEndpoint()).isEqualTo(dayStart);
         for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
             if (reading.getRange().upperEndpoint().equals(readingTimeStamp)) {
                 assertThat(reading.getChannelValues()).hasSize(1);
@@ -980,7 +997,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(dayStart, dayEnd));
         assertThat(readings).hasSize(24 * 4);
         assertThat(readings.get(0).getRange().upperEndpoint()).isEqualTo(dayEnd);
-        assertThat(readings.get(readings.size()-1).getRange().lowerEndpoint()).isEqualTo(dayStart);
+        assertThat(readings.get(readings.size() - 1).getRange().lowerEndpoint()).isEqualTo(dayStart);
         for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
             if (reading.getRange().upperEndpoint().equals(readingTimeStamp)) {
                 assertThat(reading.getChannelValidationStates()).hasSize(1);
@@ -1183,14 +1200,14 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         // Business method(s)
         device
-            .getLifecycleDates()
-            .setInstalledDate(expectedInstalledDate)
-            .setManufacturedDate(expectedManufacturedDate)
-            .setPurchasedDate(expectedPurchasedDate)
-            .setReceivedDate(expectedReceivedDate)
-            .setRetiredDate(expectedRetiredDate)
-            .setRemovedDate(expectedRemovedDate)
-            .save();
+                .getLifecycleDates()
+                .setInstalledDate(expectedInstalledDate)
+                .setManufacturedDate(expectedManufacturedDate)
+                .setPurchasedDate(expectedPurchasedDate)
+                .setReceivedDate(expectedReceivedDate)
+                .setRetiredDate(expectedRetiredDate)
+                .setRemovedDate(expectedRemovedDate)
+                .save();
 
         // Asserts: assert the dates on the EndDevice
         EndDevice endDevice = inMemoryPersistence.getMeteringService().findEndDevice(device.getmRID()).get();
@@ -1249,9 +1266,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         BigDecimal multiplier = BigDecimal.TEN;
         Instant initialStart = freezeClock(2015, 11, 25);
         device.setMultiplier(multiplier);
-        freezeClock(2015,11,26);
+        freezeClock(2015, 11, 26);
         device.setMultiplier(multiplier);
-        freezeClock(2015,11,30);
+        freezeClock(2015, 11, 30);
         device.setMultiplier(multiplier);
         assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(1);
         assertThat(device.getMultiplier()).isEqualTo(multiplier);
@@ -1328,7 +1345,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeter(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
         assertThat(meterConfigurationOptional).isPresent();
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).hasSize(2);
-        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>(){
+        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(forwardBulkSecondaryEnergyReadingType.getMRID()) &&
@@ -1364,14 +1381,14 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeter(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
         assertThat(meterConfigurationOptional).isPresent();
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).hasSize(2);
-        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>(){
+        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(forwardBulkSecondaryEnergyReadingType.getMRID()) &&
                         value.getCalculated().get().getMRID().equals(forwardBulkPrimaryEnergyReadingType.getMRID());
             }
         });
-        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>(){
+        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(reverseBulkSecondaryEnergyReadingType.getMRID()) &&
@@ -1419,14 +1436,14 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeter(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
         assertThat(meterConfigurationOptional).isPresent();
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).hasSize(3);
-        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>(){
+        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(forwardBulkSecondaryEnergyReadingType.getMRID()) &&
                         value.getCalculated().get().getMRID().equals(forwardBulkPrimaryEnergyReadingType.getMRID());
             }
         });
-        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>(){
+        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code()) &&
@@ -1435,7 +1452,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                         value.getNumberOfFractionDigits().getAsInt() == nbrOfFractionDigits;
             }
         });
-        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>(){
+        assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(getReverseSecondaryBulkReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code()) &&
@@ -1444,6 +1461,71 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                         value.getNumberOfFractionDigits().getAsInt() == nbrOfFractionDigits;
             }
         });
+    }
+
+    @Test
+    @Transactional
+    public void successfulCreateNoAdditionalComTaskExecutionsCreatedTest() {
+        DeviceConfiguration deviceConfiguration = super.deviceConfiguration;
+        ComTask comTask_1 = inMemoryPersistence.getTaskService().newComTask("Status information task");
+        comTask_1.createStatusInformationTask();
+        comTask_1.save();
+        ComTask comTask_2 = inMemoryPersistence.getTaskService().newComTask("Messages task");
+        comTask_2.createStatusInformationTask();
+        comTask_2.save();
+
+        deviceConfiguration.enableComTask(
+                comTask_1,
+                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get(),
+                deviceConfiguration.getProtocolDialectConfigurationPropertiesList().stream().findFirst().get())
+                .setIgnoreNextExecutionSpecsForInbound(false)
+                .add();
+        deviceConfiguration.enableComTask(
+                comTask_2,
+                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get(),
+                deviceConfiguration.getProtocolDialectConfigurationPropertiesList().stream().findFirst().get())
+                .setIgnoreNextExecutionSpecsForInbound(false)
+                .add();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+
+        Device reloadedDevice = getReloadedDevice(device);
+
+        assertThat(reloadedDevice.getComTaskExecutions()).isEmpty(); // I don't expect any ComTaskExecution was created
+    }
+
+    @Transactional
+    public void successfulCreateWithAdditionalComTaskExecutionsCreatedTest() {
+        DeviceConfiguration deviceConfiguration = super.deviceConfiguration;
+        ComTask comTask_1 = inMemoryPersistence.getTaskService().newComTask("Status information task");
+        comTask_1.createStatusInformationTask();
+        comTask_1.save();
+        ComTask comTask_2 = inMemoryPersistence.getTaskService().newComTask("Messages task");
+        comTask_2.createStatusInformationTask();
+        comTask_2.save();
+
+        deviceConfiguration.enableComTask(
+                comTask_1,
+                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get(),
+                deviceConfiguration.getProtocolDialectConfigurationPropertiesList().stream().findFirst().get())
+                .setIgnoreNextExecutionSpecsForInbound(false)
+                .add();
+        deviceConfiguration.enableComTask(
+                comTask_2,
+                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get(),
+                deviceConfiguration.getProtocolDialectConfigurationPropertiesList().stream().findFirst().get())
+                .setIgnoreNextExecutionSpecsForInbound(true)
+                .add();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+
+        Device reloadedDevice = getReloadedDevice(device);
+
+        assertThat(reloadedDevice.getComTaskExecutions()).isNotEmpty(); // I expect a ComTaskExecution was created for comTask_2 (which was marked as ignoreNextExecutionSpecsForInbound)
+        assertThat(reloadedDevice.getComTaskExecutions()).hasSize(1);
+        assertThat(reloadedDevice.getComTaskExecutions().get(0).getComTasks().stream().mapToLong(ComTask::getId).toArray()).containsOnly(Long.valueOf(comTask_2.getId()));
     }
 
     private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs() {
@@ -1488,8 +1570,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         RegisterType measurementType;
         if (xRegisterType.isPresent()) {
             measurementType = xRegisterType.get();
-        }
-        else {
+        } else {
             measurementType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType, obisCode);
             measurementType.save();
         }
@@ -1505,11 +1586,11 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                 .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
     }
 
-    private ReadingTypeCodeBuilder getForwardBulkPrimaryEnergyReadingType(){
+    private ReadingTypeCodeBuilder getForwardBulkPrimaryEnergyReadingType() {
         return getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().commodity(Commodity.ELECTRICITY_PRIMARY_METERED);
     }
 
-    private ReadingTypeCodeBuilder getForwardDeltaPrimaryMonthlyEnergyReadingType(){
+    private ReadingTypeCodeBuilder getForwardDeltaPrimaryMonthlyEnergyReadingType() {
         return getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().commodity(Commodity.ELECTRICITY_PRIMARY_METERED).accumulate(Accumulation.DELTADELTA);
     }
 

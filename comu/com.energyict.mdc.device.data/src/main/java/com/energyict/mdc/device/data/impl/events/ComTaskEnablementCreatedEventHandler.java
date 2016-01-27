@@ -8,8 +8,6 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.ItemizeComTaskEnablementQueueMessage;
 import com.energyict.mdc.device.data.exceptions.NoDestinationSpecFound;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
-import com.energyict.mdc.scheduling.SchedulingService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.EventConstants;
@@ -17,45 +15,26 @@ import org.osgi.service.event.EventConstants;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component(name = "com.energyict.mdc.device.data.comtaskenablement.changed.eventhandler", service = TopicHandler.class, immediate = true)
-public class ComTaskEnablementChangeEventHandler implements TopicHandler {
+@Component(name = "com.energyict.mdc.device.data.comtaskenablement.created.eventhandler", service = TopicHandler.class, immediate = true)
+public class ComTaskEnablementCreatedEventHandler implements TopicHandler {
 
-    static final String TOPIC = com.energyict.mdc.device.config.events.EventType.COMTASKENABLEMENT_UPDATED.topic();
+    static final String TOPIC = com.energyict.mdc.device.config.events.EventType.COMTASKENABLEMENT_CREATED.topic();
 
     private volatile DeviceDataModelService deviceDataModelService;
-    private volatile SchedulingService schedulingService;
 
-    public ComTaskEnablementChangeEventHandler() {
+    public ComTaskEnablementCreatedEventHandler() {
         super();
     }
 
-    public ComTaskEnablementChangeEventHandler(DeviceDataModelService deviceDataModelService, SchedulingService schedulingService) {
+    public ComTaskEnablementCreatedEventHandler(DeviceDataModelService deviceDataModelService) {
         this.setDeviceDataModelService(deviceDataModelService);
-        this.setSchedulingService(schedulingService);
     }
 
     @Override
     public void handle(LocalEvent localEvent) {
         ComTaskEnablement source = (ComTaskEnablement) localEvent.getSource();
         if (source.getDeviceConfiguration().isActive()) {
-            handleOnActiveDeviceConfig(source);
-        }
-    }
-
-    private void handleOnActiveDeviceConfig(ComTaskEnablement comTaskEnablement) {
-        validateComTaskEnablementChangeIsAllowed(comTaskEnablement);
-        notifyInterestedPartiesOfChange(comTaskEnablement);
-    }
-
-    private void validateComTaskEnablementChangeIsAllowed(ComTaskEnablement comTaskEnablement) {
-        ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
-        this.schedulingService.findAllSchedules().stream()
-                .filter(comSchedule -> comSchedule.containsComTask(comTaskEnablement.getComTask()))
-                .filter(comSchedule -> comSchedule.getComTasks().size() > 1)
-                .forEach(filter.comSchedules::add);
-        if (!filter.comSchedules.isEmpty()
-                && !this.deviceDataModelService.communicationTaskService().findComTaskExecutionsByFilter(filter, 0, 1).isEmpty()) {
-            throw new VetoComTaskEnablementChangeException(getThesaurus(), comTaskEnablement);
+            notifyInterestedPartiesOfChange(source);
         }
     }
 
@@ -80,11 +59,6 @@ public class ComTaskEnablementChangeEventHandler implements TopicHandler {
     @Override
     public String getTopicMatcher() {
         return TOPIC;
-    }
-
-    @Reference
-    public void setSchedulingService(SchedulingService schedulingService) {
-        this.schedulingService = schedulingService;
     }
 
     @Reference

@@ -3,9 +3,14 @@ package com.energyict.mdc.device.data.impl.events;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageBuilder;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.data.ItemizeComTaskEnablementQueueMessage;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -21,12 +26,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComTaskEnablementChangeEventHandlerTest {
@@ -35,6 +39,10 @@ public class ComTaskEnablementChangeEventHandlerTest {
     private DeviceDataModelService deviceDataModelService;
     @Mock
     private ServerCommunicationTaskService communicationTaskService;
+    @Mock
+    private MessageService messageService;
+    @Mock
+    private JsonService jsonService;
     @Mock
     private SchedulingService schedulingService;
     @Mock
@@ -74,6 +82,18 @@ public class ComTaskEnablementChangeEventHandlerTest {
         when(scheduleFinder.find()).thenReturn(comSchedules);
         when(scheduleFinder.stream()).thenReturn(comSchedules.stream());
         when(this.schedulingService.findAllSchedules()).thenReturn(scheduleFinder);
+
+        String helloFromMyTest = "HelloFromMyTest";
+        when(this.jsonService.serialize(any(ItemizeComTaskEnablementQueueMessage.class))).thenReturn(helloFromMyTest);
+        when(this.deviceDataModelService.jsonService()).thenReturn(this.jsonService);
+        when(this.deviceDataModelService.messageService()).thenReturn(this.messageService);
+
+        MessageBuilder messageBuilder = mock(MessageBuilder.class);
+        DestinationSpec destinationSpec = mock(DestinationSpec.class);
+        when(destinationSpec.message(any(String.class))).thenReturn(messageBuilder);
+        MessageService messageService = mock(MessageService.class);
+        when(deviceDataModelService.messageService()).thenReturn(messageService);
+        when(messageService.getDestinationSpec(ComTaskEnablementChangeMessageHandler.COMTASK_ENABLEMENT_QUEUE_DESTINATION)).thenReturn(Optional.of(destinationSpec));
     }
 
     @Test
