@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Ranges.does;
-import static com.elster.jupiter.util.streams.Currying.use;
+import static com.elster.jupiter.util.streams.Currying.*;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
 public final class MeterActivationImpl implements IMeterActivation {
@@ -237,7 +237,7 @@ public final class MeterActivationImpl implements IMeterActivation {
         return getChannels().stream()
                     .map(Channel::getLastDateTime)
                     .filter(Objects::nonNull)
-                    .anyMatch(use(Instant::isAfter).with(end)::apply);
+                    .anyMatch(test(Instant::isAfter).with(end));
     }
 
     @Override
