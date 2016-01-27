@@ -114,6 +114,7 @@ public class DeviceImplSecurityPropertiesTest {
         when(meter.getLifecycleDates()).thenReturn(lifeCycleDates);
         mockDataModelWithNoValidationIssues();
         when(meteringService.findAmrSystem(anyLong())).thenReturn(Optional.of(amrSystem));
+        when(amrSystem.findMeter(anyString())).thenReturn(Optional.of(meter));
     }
 
     private DeviceImpl setId(DeviceImpl entity, long id) {
