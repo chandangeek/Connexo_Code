@@ -103,6 +103,11 @@ public class ConnectionTaskResource {
         return connectionTaskInfoFactory.from(connectionTask, uriInfo, fieldSelection.getFields());
     }
 
+    /**
+     *
+     * @return url to newly created connection task
+     * @responseheader location href to newly created connection task
+     */
     @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")

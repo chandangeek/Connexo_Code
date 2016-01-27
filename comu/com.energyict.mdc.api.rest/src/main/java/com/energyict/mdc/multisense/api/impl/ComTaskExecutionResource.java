@@ -66,7 +66,7 @@ public class ComTaskExecutionResource {
 
     /**
      *
-     * @param mRID
+     * @param mRID mRID of device for which executions will be retrieved
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
@@ -85,6 +85,13 @@ public class ComTaskExecutionResource {
         return PagedInfoList.from(infoList, queryParameters, uriBuilder, uriInfo);
     }
 
+    /**
+     *
+     * @param mrid mRID of device for which execution will be created
+     * @param comTaskExecutionInfo Payload describing to-be-created communication task execution
+     * @return url to newly created device
+     * @responseheader location href to newly created device
+     */
     @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
@@ -107,6 +114,18 @@ public class ComTaskExecutionResource {
 
     }
 
+    /**
+     * @title title
+     *
+     * content
+     *
+     * @summary summary
+     *
+     * @param mrid mRID of device for which execution will be updated
+     * @param comTaskExecutionId Identifier of the device's communication task execution
+     * @param comTaskExecutionInfo Contents for updated communication task execution
+     * @return
+     */
     @PUT @Transactional
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")

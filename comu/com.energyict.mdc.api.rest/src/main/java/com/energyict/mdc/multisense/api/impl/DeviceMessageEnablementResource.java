@@ -126,6 +126,13 @@ public class DeviceMessageEnablementResource {
         return deviceMessageEnablementInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
 
+    /**
+     *
+     * @param deviceTypeId
+     * @param deviceConfigId
+     * @return url to newly created device message enablement
+     * @responseheader location href to newly created device message enablement
+     */
     @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")

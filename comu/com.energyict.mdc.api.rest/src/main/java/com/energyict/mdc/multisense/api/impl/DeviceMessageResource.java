@@ -74,14 +74,14 @@ public class DeviceMessageResource {
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{messageId}")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
-    public Response getDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long messageId,
-                                     @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+    public DeviceMessageInfo getDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long messageId,
+                                              @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         Device device = deviceService.findByUniqueMrid(mRID).orElseThrow(exceptionFactory
                 .newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == messageId).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE));
 
-        return Response.ok(deviceMessageInfoFactory.from(deviceMessage, uriInfo, fieldSelection.getFields())).build();
+        return deviceMessageInfoFactory.from(deviceMessage, uriInfo, fieldSelection.getFields());
     }
 
 
@@ -111,10 +111,15 @@ public class DeviceMessageResource {
     }
 
     /**
+     * No check will be done to verify the device message will actually be send to the device. There might not be a
+     * communication task that picks up your message. If the newly created message contains a reference 'preferredComTask',
+     * the referenced ComTask can be triggered with 'runnow' for pickup of the message.
+     *
      * @summary Create a new device message for a device
      *
      * @param mRID The device's mRID
-     * @return
+     * @return url to newly created device message
+     * @responseheader location href to newly created device message
      */
     @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
@@ -166,15 +171,15 @@ public class DeviceMessageResource {
      *
      * @param mRID The device's mRID
      * @param messageId The device message identifier
-     * @return
+     * @return Device message
      */
     @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     @Path("/{messageId}")
-    public Response updateDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long messageId,
-                                        DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
+    public DeviceMessageInfo updateDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long messageId,
+                                                 DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
         if (deviceMessageInfo.version==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "version");
         }
@@ -204,11 +209,13 @@ public class DeviceMessageResource {
 
         DeviceMessage reloadedDeviceMessage = deviceMessageService.findDeviceMessageById(deviceMessage.getId()).get();
 
-        return Response.ok().entity(deviceMessageInfoFactory.from(reloadedDeviceMessage, uriInfo, Collections.emptyList())).build();
+        return deviceMessageInfoFactory.from(reloadedDeviceMessage, uriInfo, Collections.emptyList());
     }
 
 
     /**
+     * This delete will return the revoked message, because the message has not really been deleted, merely revoked.
+     *
      * @summary Revokes a specific device message
      *
      * @param mRID The device's mRID
@@ -220,8 +227,8 @@ public class DeviceMessageResource {
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     @Path("/{messageId}")
-    public Response deleteDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long messageId,
-                                        DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
+    public DeviceMessageInfo deleteDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long messageId,
+                                                 DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
         Device device = deviceService.findByUniqueMrid(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == messageId).findFirst()
@@ -230,7 +237,7 @@ public class DeviceMessageResource {
         deviceMessage.revoke();
         deviceMessage.save();
         DeviceMessage reloadedDeviceMessage = deviceMessageService.findDeviceMessageById(deviceMessage.getId()).get();
-        return Response.ok().entity(deviceMessageInfoFactory.from(reloadedDeviceMessage, uriInfo, Collections.emptyList())).build();
+        return deviceMessageInfoFactory.from(reloadedDeviceMessage, uriInfo, Collections.emptyList());
     }
 
 
