@@ -195,6 +195,7 @@ public class DeviceDataInfoFactory {
         }
         if (reading.getQuantity() != null) {
             billingReadingInfo.value = reading.getQuantity().getValue();
+            billingReadingInfo.unit = register.getRegisterSpec().getRegisterType().getUnit();
             setCalculatedValueIfApplicable(reading, register, billingReadingInfo, 0);
         }
         if (reading.getRange().isPresent()) {
@@ -216,6 +217,7 @@ public class DeviceDataInfoFactory {
         int numberOfFractionDigits = ((NumericalRegisterSpec) register.getRegisterSpec()).getNumberOfFractionDigits();
         if(collectedValue != null){
             numericalReadingInfo.value = collectedValue.getValue().setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
+            numericalReadingInfo.unit = register.getRegisterSpec().getRegisterType().getUnit();
             numericalReadingInfo.rawValue = numericalReadingInfo.value;
         }
         setCalculatedValueIfApplicable(reading, register, numericalReadingInfo, numberOfFractionDigits);
@@ -228,6 +230,7 @@ public class DeviceDataInfoFactory {
             Quantity calculatedQuantity = reading.getQuantityFor(register.getCalculatedReadingType(reading.getTimeStamp()).get());
             if(calculatedQuantity != null){
                 numericalReadingInfo.calculatedValue = calculatedQuantity.getValue().setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
+                numericalReadingInfo.calculatedUnit = register.getRegisterSpec().getRegisterType().getUnit();
             }
         }
     }

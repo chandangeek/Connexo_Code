@@ -177,7 +177,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
         when(readingType.getCpp()).thenReturn(iterator.next());
         when(readingType.getConsumptionTier()).thenReturn(iterator.next());
         when(readingType.getPhases()).thenReturn(Phase.get(iterator.next()));
-        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.get(iterator.next()));
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.with(iterator.next()));
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.get(iterator.next()));
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
         when(readingType.getCalculatedReadingType()).thenReturn(Optional.<ReadingType>empty());

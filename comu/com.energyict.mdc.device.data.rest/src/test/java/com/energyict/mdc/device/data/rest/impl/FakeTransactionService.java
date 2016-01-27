@@ -32,13 +32,13 @@ public class FakeTransactionService implements TransactionService {
     }
 
     @Override
-    public TransactionContext getContext() {
-        return new FakeTransactionContext();
+    public boolean isInTransaction() {
+        return false;
     }
 
     @Override
-    public boolean isInTransaction() {
-        return false;
+    public TransactionContext getContext() {
+        return new FakeTransactionContext();
     }
 
     private class FakeTransactionContext implements TransactionContext {
