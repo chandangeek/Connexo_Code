@@ -16,6 +16,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Converting (monitoring) Java Objects to JSONObjects
@@ -197,7 +198,7 @@ public class JSonConverter {
 
         List<JSONObject> comPorts = new ArrayList<>();
 
-        for (ComPort each : comServer.getComPorts()) {
+        for (ComPort each : comServer.getComPorts().stream().sorted((p1,p2) -> p1.getName().compareTo(p2.getName())).collect(Collectors.toList())) {
             boolean activeProcess;
             String lastSeen = null;
             if (each.isInbound()){
@@ -302,6 +303,7 @@ public class JSonConverter {
         }else{
             comPortPools = notInactiveSet;
         }
+        comPortPools.stream().sorted((p1,p2) -> p1.getName().compareTo(p2.getName())).collect(Collectors.toList());
         List<JSONObject>  jsonPools = new ArrayList<>();
         for (ComPortPool each: comPortPools){
             JSONObject jsonPool = new JSONObject();
