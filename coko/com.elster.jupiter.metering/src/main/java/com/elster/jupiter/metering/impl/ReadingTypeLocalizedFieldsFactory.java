@@ -15,8 +15,11 @@ import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.nls.Thesaurus;
 
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,58 +41,88 @@ public class ReadingTypeLocalizedFieldsFactory implements ReadingTypeFieldsFacto
     public enum ReadingTypeCodes {
         MACRO_PERIOD(ReadingTypeFilter.ReadingTypeFields.MACRO_PERIOD.getName(),
                 (thesaurus) -> Arrays.stream(MacroPeriod.values())
-                        .collect(Collectors.<MacroPeriod, Integer, String>toMap(MacroPeriod::getId, c -> thesaurus.getFormat(new ReadingTypeTranslationKeys.MacroPeriod(c)).format()))),
+                        .map(c -> new CodeField(c.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.MacroPeriod(c)).format())).sorted()
+                        .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll)),
+
         AGGREGATE(ReadingTypeFilter.ReadingTypeFields.AGGREAGTE.getName(),
                 (thesaurus) -> Arrays.stream(Aggregate.values())
-                        .collect(Collectors.<Aggregate, Integer, String>toMap(Aggregate::getId, c -> thesaurus.getFormat(new ReadingTypeTranslationKeys.Aggregate(c)).format()))),
+                        .map(c -> new CodeField(c.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.Aggregate(c)).format())).sorted()
+                        .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll)),
+
         MEASUREMENT_PERIOD(ReadingTypeFilter.ReadingTypeFields.MEASUREMENT_PERIOD.getName(),
                 (thesaurus) -> Arrays.stream(TimeAttribute.values())
-                        .collect(Collectors.<TimeAttribute, Integer, String>toMap(TimeAttribute::getId, c -> thesaurus.getFormat(new ReadingTypeTranslationKeys.MeasuringPeriod(c)).format()))),
+                        .sorted((a,b) -> Integer.compare(a.getMinutes(),b.getMinutes()))
+                        .sorted((a,b) -> Boolean.compare(a.getMinutes()==0 && a.getId()!=0,b.getMinutes()==0 && b.getId()!=0))
+                        .map(c -> new CodeField(c.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.MeasuringPeriod(c)).format()))
+                        .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll)),
+
         ACCUMULATION(ReadingTypeFilter.ReadingTypeFields.ACCUMULATION.getName(),
                 (thesaurus) -> Arrays.stream(Accumulation.values())
-                        .collect(Collectors.<Accumulation, Integer, String>toMap(Accumulation::getId, c -> thesaurus.getFormat(new ReadingTypeTranslationKeys.AccumulationFields(c)).format()))),
+                        .map(c -> new CodeField(c.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.AccumulationFields(c)).format())).sorted()
+                        .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll)),
+
         FLOW_DIRECTION(ReadingTypeFilter.ReadingTypeFields.FLOW_DIRECTION.getName(),
                 (thesaurus) -> Arrays.stream(FlowDirection.values())
-                        .collect(Collectors.<FlowDirection, Integer, String>toMap(FlowDirection::getId, c -> thesaurus.getFormat(new ReadingTypeTranslationKeys.FlowDirection(c)).format()))),
+                        .map(c -> new CodeField(c.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.FlowDirection(c)).format())).sorted()
+                        .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll)),
+
         COMMODITY(ReadingTypeFilter.ReadingTypeFields.COMMODITY.getName(),
                 (thesaurus) -> Arrays.stream(Commodity.values())
-                        .collect(Collectors.<Commodity, Integer, String>toMap(Commodity::getId, c -> thesaurus.getFormat(new ReadingTypeTranslationKeys.CommodityFields(c)).format()))),
+                        .map(c -> new CodeField(c.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.CommodityFields(c)).format())).sorted()
+                        .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll)),
+
         MEASUREMENT_KIND(ReadingTypeFilter.ReadingTypeFields.MEASUREMENT_KIND.getName(),
                 (thesaurus) -> Arrays.stream(MeasurementKind.values())
-                        .collect(Collectors.<MeasurementKind, Integer, String>toMap(MeasurementKind::getId, c -> thesaurus.getFormat(new ReadingTypeTranslationKeys.MeasurementKind(c)).format()))),
+                        .map(c -> new CodeField(c.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.MeasurementKind(c)).format())).sorted()
+                        .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll)),
+
         INTERHARMONIC_NUMERATOR(ReadingTypeFilter.ReadingTypeFields.INTERHARMONIC_NUMERATOR.getName(),
                 (thesaurus) -> Stream.of(0, 1, 2, 3, 4, 5, 6, 7)
-                        .collect(Collectors.<Integer, Integer, String>toMap(Function.identity(), String::valueOf))),
+                        .collect(LinkedHashMap::new, (map, element) -> map.put(element, String.valueOf(element)), Map::putAll)),
+
         INTERHARMONIC_DENOMINATOR(ReadingTypeFilter.ReadingTypeFields.INTERHARMONIC_DENOMINATOR.getName(),
                 (thesaurus) -> Stream.of(0, 1, 2)
-                        .collect(Collectors.<Integer, Integer, String>toMap(Function.identity(), String::valueOf))),
+                        .collect(LinkedHashMap::new, (map, element) -> map.put(element, String.valueOf(element)), Map::putAll)),
+
         ARGUMENT_NUMERATOR(ReadingTypeFilter.ReadingTypeFields.ARGUMENT_NUMERATOR.getName(),
                 (thesaurus) -> Stream.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 30, 45, 60, 12, 155, 240, 305, 360, 480, 720)
-                        .collect(Collectors.<Integer, Integer, String>toMap(Function.identity(), String::valueOf))),
+                        .collect(LinkedHashMap::new, (map, element) -> map.put(element, String.valueOf(element)), Map::putAll)),
+
         ARGUMENT_DENOMINATOR(ReadingTypeFilter.ReadingTypeFields.ARGUMENT_DENOMINATOR.getName(),
                 (thesaurus) -> Stream.of(0, 1, 60, 120, 180, 240, 360)
-                        .collect(Collectors.<Integer, Integer, String>toMap(Function.identity(), String::valueOf))),
+                        .collect(LinkedHashMap::new, (map, element) -> map.put(element, String.valueOf(element)), Map::putAll)),
+
         TIME_OF_USE(ReadingTypeFilter.ReadingTypeFields.TIME_OF_USE.getName(),
-                (thesaurus) -> Stream.of(0, 1, 2, 3, 4, 5, 6, 7, 8).collect(Collectors.<Integer, Integer, String>toMap(Function.identity(), String::valueOf))),
+                (thesaurus) -> Stream.of(0, 1, 2, 3, 4, 5, 6, 7, 8).collect(LinkedHashMap::new, (map, element) -> map.put(element, String.valueOf(element)), Map::putAll)),
+
         CPP(ReadingTypeFilter.ReadingTypeFields.CPP.getName(),
                 (thesaurus) -> Stream.of(0, 1, 2, 3, 4, 5, 6, 7)
-                        .collect(Collectors.<Integer, Integer, String>toMap(Function.identity(), String::valueOf))),
+                        .collect(LinkedHashMap::new, (map, element) -> map.put(element, String.valueOf(element)), Map::putAll)),
+
         CONSUMPTION_TIER(ReadingTypeFilter.ReadingTypeFields.CONSUMPTION_TIER.getName(),
                 (thesaurus) -> Stream.of(0, 1, 2, 3, 4, 5, 6, 7)
-                        .collect(Collectors.<Integer, Integer, String>toMap(Function.identity(), String::valueOf))),
+                        .collect(LinkedHashMap::new, (map, element) -> map.put(element, String.valueOf(element)), Map::putAll)),
+
         PHASES(ReadingTypeFilter.ReadingTypeFields.PHASES.getName(),
                 (thesaurus) -> Arrays.stream(Phase.values()).distinct()
-                        .collect(Collectors.<Phase, Integer, String>toMap(Phase::getId, c -> thesaurus.getFormat(new ReadingTypeTranslationKeys.Phase(c)).format(), (s1, s2) -> s1))),
+                        .map(c -> new CodeField(c.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.Phase(c)).format())).sorted()
+                        .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll)),
+
         MULTIPLIER(ReadingTypeFilter.ReadingTypeFields.MULTIPLIER.getName(),
                 (thesaurus) -> Arrays.stream(MetricMultiplier.values())
-                        .collect(Collectors.<MetricMultiplier, Integer, String>toMap(MetricMultiplier::getMultiplier,
-                                c -> String.valueOf(c.getMultiplier()) + (c.getMultiplier() != 0 ? " (" + thesaurus.getFormat(new ReadingTypeTranslationKeys.Multiplier(c)).format() + ")" : "")))),
+                        .map(e -> new CodeField(e.getMultiplier(), String.valueOf(e.getMultiplier()) + (e.getMultiplier() != 0 ? " (" + thesaurus.getFormat(new ReadingTypeTranslationKeys.Multiplier(e)).format() + ")" : "")))
+                        .sorted((a,b) -> Integer.compare(a.code,b.code))
+                        .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll)),
+
         CURRENCY(ReadingTypeFilter.ReadingTypeFields.CURRENCY.getName(),
                 (thesaurus) -> Arrays.stream(ReadingTypeTranslationKeys.Currency.values())
-                        .collect(Collectors.<ReadingTypeTranslationKeys.Currency, Integer, String>toMap(ReadingTypeTranslationKeys.Currency::getCurrencyCode, c -> thesaurus.getFormat(c).format()))),
+                        .map(e -> new CodeField(e.getCurrencyCode(), thesaurus.getFormat(e).format())).sorted()
+                        .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll)),
+
         UNIT(ReadingTypeFilter.ReadingTypeFields.UNIT.getName(),
                 (thesaurus) -> Arrays.stream(ReadingTypeUnit.values())
-                        .collect(Collectors.<ReadingTypeUnit, Integer, String>toMap(ReadingTypeUnit::getId, c -> thesaurus.getFormat(new ReadingTypeTranslationKeys.Unit(c)).format())));
+                        .map(e -> new CodeField(e.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.Unit(e)).format())).sorted()
+                        .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll));
 
         private final String name;
         private final Function<Thesaurus, Map<Integer, String>> values;
@@ -105,6 +138,24 @@ public class ReadingTypeLocalizedFieldsFactory implements ReadingTypeFieldsFacto
 
         public Map<Integer, String> getCodeInfo(Thesaurus thesaurus) {
             return values.apply(thesaurus);
+        }
+    }
+
+    private static class CodeField implements Comparable<CodeField> {
+        int code;
+        String displayName;
+
+        public CodeField(int code, String displayName) {
+            this.code = code;
+            this.displayName = displayName;
+        }
+
+        @Override
+        public int compareTo(CodeField o) {
+            if(code==0 || o.code==0){
+                return Integer.compare(code,o.code);
+            }
+            return displayName.compareTo(o.displayName);
         }
     }
 }
