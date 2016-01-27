@@ -64,7 +64,9 @@ public class ConnectionTaskResource {
     }
 
     /**
+     * Fetch a list of all known connection tasks of a device
      *
+     * @summary Fetch all known connection tasks of a device
      * @param mrid
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
@@ -86,6 +88,15 @@ public class ConnectionTaskResource {
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
+    /**
+     * Fetch a uniquely identified connection task
+     *
+     * @summary Get single connection task
+     *
+     * @param mrid mRID of the device the connection task was defined for
+     * @param id Id of the connection task
+     * @return Connection task (AKA connection method) as identified
+     */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{connectionTaskId}")
@@ -104,6 +115,14 @@ public class ConnectionTaskResource {
     }
 
     /**
+     * Allows you to define how to communicate with the device. Some devices support multiple types of connection methods
+     * (GPRS, optical, SMS, etc.)
+     * <br> There are two types of connections: outbound and inbound. With an outbound connection it can be defined how
+     * and when the collection system contacts the device. Using an inbound connection method the system can be set up
+     * to listen for communications from a device. In this case the collection system is not aware of when the device will
+     * contact the system.
+     *
+     * @summary Create connection task
      *
      * @return url to newly created connection task
      * @responseheader location href to newly created connection task
@@ -138,6 +157,15 @@ public class ConnectionTaskResource {
         return Response.created(uri).build();
     }
 
+    /**
+     * Updates an existing connection task
+     *
+     * @summary Update connection task
+     * @param mrid mRID of the device the connection task was defined for
+     * @param connectionTaskId Id of the connection task
+     * @param connectionTaskInfo New values for all connection task fields
+     * @return Updated connection task
+     */
     @PUT @Transactional
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
