@@ -12,11 +12,15 @@ Ext.define('Uni.view.search.field.internal.DateTimeField', {
     removable: false,
 
     setValue: function(value) {
-        var date = new Date(value);
-        if (date) {
-            this.down('#date').setValue(date);
-            this.down('#hours').setValue(date.getHours());
-            this.down('#minutes').setValue(date.getMinutes());
+        if (value) {
+            var date = new Date(value);
+            if (date) {
+                this.down('#hours').setValue(date.getHours());
+                this.down('#minutes').setValue(date.getMinutes());
+                this.down('#date').setValue(date);
+            }
+        } else {
+            this.reset();
         }
     },
 

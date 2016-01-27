@@ -4,7 +4,7 @@
 Ext.define('Uni.model.search.Property', {
     extend: 'Ext.data.Model',
     idProperty: 'name',
-
+    isCached: false,
     fields: [
         {name: 'name', type: 'string'},
         {name: 'displayValue', type: 'string'},
@@ -39,6 +39,53 @@ Ext.define('Uni.model.search.Property', {
             return result;
         }
         },
-        {name: 'constraints', type: 'auto'}
-    ]
+        {name: 'constraints', type: 'auto'},
+        {name: 'values', type: 'auto'},
+        {name: 'disabled', type: 'boolean', persist: false, defaultValue : false}
+    ],
+
+    hasMany: {
+        model: 'Uni.model.search.PropertyValue',
+        name: 'values',
+        associationKey: 'values',
+        storeConfig: {
+            remoteFilter: true,
+            proxy: {
+                type: 'ajax',
+                pageParam: undefined,
+                startParam: undefined,
+                limitParam: undefined,
+                url: '',
+                reader: {
+                    type: 'json',
+                    root: 'values'
+                }
+            }
+        }
+    },
+
+    refresh: function(callback) {
+        var me = this,
+            store = me.values(),
+            filters = store.filters.getRange(),
+            options = {
+                action: 'read',
+                filters: filters,
+                records: [me]
+            },
+            operation = new Ext.data.Operation(options);
+
+        me.getProxy().url = me.get('linkHref');
+        me.getProxy().doRequest(operation, function() {
+            store.removeAll(true);
+
+            if (me.get('exhaustive')) {
+                store.getProxy().url = me.get('linkHref');
+                store.loadRawData(me.get('values'));
+            }
+
+            me.isCached = true;
+            callback ? callback() : null;
+        });
+    }
 });

@@ -43,7 +43,7 @@ Ext.define('Uni.view.search.field.internal.Adapter', {
 
         me.callParent(arguments);
 
-        me.widget.on('destroy', function(){
+        me.down('uni-search-internal-button').on('destroy', function(){
             me.destroy();
         });
 
