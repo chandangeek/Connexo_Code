@@ -46,7 +46,7 @@ Ext.define('Uni.property.view.property.Reference', {
                             return value == item.id;
                         });
                     }
-                    result = Ext.isObject(result) ? result.name : value;
+                    result = Ext.isObject(result) ? result.name : Ext.String.htmlEncode(value);
                 }
 
                 return result || me.emptyText;
