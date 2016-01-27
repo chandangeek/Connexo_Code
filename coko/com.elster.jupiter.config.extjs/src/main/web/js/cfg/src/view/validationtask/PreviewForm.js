@@ -50,7 +50,7 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                     Ext.apply({
                         xtype: 'displayfield',
                         renderer: function (value) {
-                            return value && value.name ? value.name : '-';
+                            return value && value.name ? Ext.String.htmlEncode(value.name) : '-';
                         }
                     }, groupFieldConfig)
                 ]
