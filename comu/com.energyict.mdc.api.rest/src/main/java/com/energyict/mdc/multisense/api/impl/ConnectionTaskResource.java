@@ -123,7 +123,8 @@ public class ConnectionTaskResource {
      * contact the system.
      *
      * @summary Create connection task
-     *
+     * @param mrid mRID of device fow which a connection task will be created
+     * @param connectionTaskInfo Values for the to-be-created connection task
      * @return url to newly created connection task
      * @responseheader location href to newly created connection task
      */
