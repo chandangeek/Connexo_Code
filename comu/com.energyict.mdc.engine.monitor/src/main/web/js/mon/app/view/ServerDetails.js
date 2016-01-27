@@ -42,20 +42,11 @@ Ext.define('CSMonitor.view.ServerDetails', {
     ],
 
     setServerDetails: function(serverDetails) {
-
         var comServerText = "Communication server",
             serverName = serverDetails.get('serverName');
-        //    startedText = "Started",
-        //    currentTimeText = "Date of this information",
-        //    serverName = serverDetails.get('serverName'),
-        //    startedInfo = serverDetails.get('started'),
-        //    duration = serverDetails.get('duration'),
-        //    currentInfo = serverDetails.get('currentDate');
-        //
+
         this.down('#serverDetailsTitle').update('<h1>' + comServerText + ' ' + serverName + '</h1>');
         this.down('form').loadRecord(serverDetails);
-        //this.down('#started').update(startedText + ': <b>' + startedInfo + '</b>');
-        //this.down('#currentTime').update(currentTimeText + ': <b>' +  currentInfo + '</b>');
     },
 
     setUnselectable: function() {

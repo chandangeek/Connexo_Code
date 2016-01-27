@@ -8,19 +8,10 @@ Ext.define('CSMonitor.view.status.GeneralInformation', {
         align: 'stretch'
     },
 
-    config: {
-        oneMinuteText : "1 minute",
-        twoMinutesText : "2 minutes",
-        fiveMinutesText : "5 minutes",
-        tenMinutesText : "10 minutes"
-    },
-
     items: [
         {
             xtype: 'container',
             margins: '0 0 0 10',
-            html: '<h2>General information</h2>',
-
             height: 52,
             layout: {
                 type: 'hbox',
@@ -29,7 +20,7 @@ Ext.define('CSMonitor.view.status.GeneralInformation', {
             items: [
                 {
                     xtype: 'component',
-                    html: '<h2>General information</h2>'
+                    html: '<h2>General polling information</h2>'
                 },
                 {
                     xtype: 'component',
@@ -52,17 +43,18 @@ Ext.define('CSMonitor.view.status.GeneralInformation', {
                     xtype: 'combobox',
                     margins: '0 10 0 0',
                     store : {
-                        fields: ['rate'],
+                        fields: ['rate', 'seconds'],
                         data : [
-                            {"rate": "1 minute"},
-                            {"rate": "2 minutes"},
-                            {"rate": "5 minutes"},
-                            {"rate": "10 minutes"}
+                            {"rate": "1 minute", "seconds": 60},
+                            {"rate": "2 minutes", "seconds": 120},
+                            {"rate": "5 minutes", "seconds": 300},
+                            {"rate": "10 minutes", "seconds": 600}
                         ]
                     },
-                    value: "5 minutes",
-                    queryMode: 'local',
                     displayField: 'rate',
+                    valueField: 'seconds',
+                    value: 300,
+                    queryMode: 'local',
                     editable: false,
                     itemId: 'refreshRateCombo'
                 },
@@ -75,49 +67,45 @@ Ext.define('CSMonitor.view.status.GeneralInformation', {
             ]
         },
         {
-            xtype: 'component',
-            itemId: 'changeDetectionFrequency',
+            xtype: 'form',
+            border: false,
             margins: '2 0 2 20',
-            html: 'Change detection frequency:'
-        },
-        {
-            xtype: 'component',
-            itemId: 'pollingFrequency',
-            margins: '2 0 2 20',
-            html: 'Polling frequency:'
+            defaultType: 'textfield',
+            items: [{
+                fieldLabel: 'Changes inter poll delay',
+                name: 'changeDetectionFrequency',
+                labelWidth: 200,
+                width: 600,
+                fieldCls: 'no-border-field'
+            },
+            {
+                fieldLabel: 'Scheduling inter poll delay',
+                name: 'pollingFrequency',
+                labelWidth: 200,
+                width: 600,
+                fieldCls: 'no-border-field'
+            }]
         }
     ],
 
     setGeneralInformation: function(generalInfo) {
-        var changeDetectionFrequencyText = "Changes inter poll delay",
-            pollingFrequencyText = "Scheduling inter poll delay",
+        var form = this.down('form'),
             nextRunText = "Next run",
             changeDetectionFrequency = generalInfo.get('changeDetectionFrequency'),
             nextRunDate = generalInfo.get('changeDetectionNextRun'),
-            pollingFrequency =  generalInfo.get('pollingFrequency');
-
-        this.down('#changeDetectionFrequency').update(
-            changeDetectionFrequencyText + ': <b>' + changeDetectionFrequency['count'] + ' ' + changeDetectionFrequency['time-unit']
-                + '</b> (' + nextRunText + ': ' + nextRunDate + ')'
-        );
-        this.down('#pollingFrequency').update(
-            pollingFrequencyText + ': <b>' + pollingFrequency['count'] + ' ' + pollingFrequency['time-unit'] + '</b>'
+            pollingFrequency =  generalInfo.get('pollingFrequency'),
+            changeDetectionExpression = changeDetectionFrequency['count'] + ' ' + changeDetectionFrequency['time-unit']
+        if (nextRunDate){
+            changeDetectionExpression =  changeDetectionExpression  + ' (' + nextRunText + ': ' + nextRunDate + ')'
+        }
+        form.getForm().findField('changeDetectionFrequency').setValue(changeDetectionExpression);
+        form.getForm().findField('pollingFrequency').setValue(
+              pollingFrequency['count'] + ' ' + pollingFrequency['time-unit']
         );
     },
 
     getRefreshRateInSeconds: function() {
-        var currentRateText = this.down('#refreshRateCombo').getValue();
-        switch (currentRateText) {
-        case this.getOneMinuteText():
-            return 60;
-        case this.getTwoMinutesText():
-            return 120;
-        case this.getFiveMinutesText():
-            return 300;
-        case this.getTenMinutesText():
-        default:
-            return 600;
-        }
+        return this.down('#refreshRateCombo').getSubmitValue();
     },
 
     setWaitInfo: function(secondsToWait, refreshRateInSeconds, text) {

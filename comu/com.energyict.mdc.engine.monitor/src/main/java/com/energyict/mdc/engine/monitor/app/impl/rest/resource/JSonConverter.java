@@ -115,9 +115,14 @@ public class JSonConverter {
         TimeDuration changesInterPollDelay = operationalStatistics.getChangesInterPollDelay();
         Date lastCheckForChanges = operationalStatistics.getLastCheckForChangesTimestamp().orElse(null);
         if (changesInterPollDelay != null) {
+            int numberOf = changesInterPollDelay.getCount();
+            String unit = changesInterPollDelay.getTimeUnit().getDescription();
+            if (numberOf == 1){
+                unit = unit.substring(0, unit.length() - 1);
+            }
             JSONObject jsDuration = new JSONObject();
-            jsDuration.put("count", changesInterPollDelay.getCount());
-            jsDuration.put("time-unit", changesInterPollDelay.getTimeUnit());
+            jsDuration.put("count", numberOf);
+            jsDuration.put("time-unit", unit);
             result.put("changeDetectionFrequency", jsDuration);
             if (lastCheckForChanges != null){
                 result.put("changeDetectionNextRun", format(lastCheckForChanges.toInstant().plusSeconds(changesInterPollDelay.getSeconds()),FormatKey.LONG_DATETIME));
@@ -126,9 +131,14 @@ public class JSonConverter {
         if (comServer != null) {
             TimeDuration schedulingInterPollDelay = comServer.getSchedulingInterPollDelay();
             if (schedulingInterPollDelay != null) {
+                int numberOf = schedulingInterPollDelay.getCount();
+                String unit = schedulingInterPollDelay.getTimeUnit().getDescription();
+                if (numberOf == 1){
+                    unit = unit.substring(0, unit.length() - 1);
+                }
                 JSONObject jsDuration = new JSONObject();
-                jsDuration.put("count", schedulingInterPollDelay.getCount());
-                jsDuration.put("time-unit", schedulingInterPollDelay.getTimeUnit());
+                jsDuration.put("count", numberOf);
+                jsDuration.put("time-unit", unit);
                 result.put("pollingFrequency", jsDuration);
             }
         }

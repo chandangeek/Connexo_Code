@@ -11,13 +11,7 @@ Ext.define('CSMonitor.view.status.ports.Active', {
     initComponent: function() {
         this.columns = [
             {
-                header: '<b>Id</b>',
-                dataIndex: 'id',
-                sortable: true,
-                flex: 1
-            },
-            {
-                header: '<b>Ports in action</b>',
+                header: '<b>Ports in use</b>',
                 dataIndex: 'name',
                 sortable: true,
                 flex: 8,

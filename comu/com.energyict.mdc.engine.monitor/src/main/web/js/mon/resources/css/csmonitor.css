@@ -20,7 +20,11 @@
     font-weight: bold;
     border: none;
 }
-
+.no-border-field
+{
+  border: none;
+  font-weight: bold;
+}
 .logviewer
 {
     border-color: #EFEFEF;

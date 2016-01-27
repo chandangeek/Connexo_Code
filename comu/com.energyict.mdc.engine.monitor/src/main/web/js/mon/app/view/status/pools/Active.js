@@ -11,7 +11,7 @@ Ext.define('CSMonitor.view.status.pools.Active', {
     initComponent: function() {
         this.columns = [
             {
-                header: '<b>Pools in action</b>',
+                header: '<b>Pools in use</b>',
                 flex: 1,
                 dataIndex: 'name',
                 sortable: true,
