@@ -1497,7 +1497,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code()) &&
                         value.getCalculated().get().getMRID().equals(getForwardBulkPrimaryEnergyReadingType().period(MacroPeriod.MONTHLY).code()) &&
-                        value.getOverflowValue().getAsLong() == overflow.longValue() &&
+                        (value.getOverflowValue().isPresent() && value.getOverflowValue().get().compareTo(overflow) == 0 )&&
                         value.getNumberOfFractionDigits().getAsInt() == nbrOfFractionDigits;
             }
         });
@@ -1506,7 +1506,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(getReverseSecondaryBulkReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code()) &&
                         !value.getCalculated().isPresent() &&
-                        value.getOverflowValue().getAsLong() == overflow.longValue() &&
+                        (value.getOverflowValue().isPresent() && value.getOverflowValue().get().compareTo(overflow) == 0 )&&
                         value.getNumberOfFractionDigits().getAsInt() == nbrOfFractionDigits;
             }
         });
@@ -1563,7 +1563,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code()) &&
                         !value.getCalculated().isPresent() &&
-                        value.getOverflowValue().getAsLong() == overflow.longValue() &&
+                        (value.getOverflowValue().isPresent() && value.getOverflowValue().get().compareTo(overflow) == 0 )&&
                         value.getNumberOfFractionDigits().getAsInt() == nbrOfFractionDigits;
             }
         });
@@ -1572,7 +1572,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(getReverseSecondaryBulkReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code()) &&
                         !value.getCalculated().isPresent() &&
-                        value.getOverflowValue().getAsLong() == overflow.longValue() &&
+                        (value.getOverflowValue().isPresent() && value.getOverflowValue().get().compareTo(overflow) == 0 )&&
                         value.getNumberOfFractionDigits().getAsInt() == nbrOfFractionDigits;
             }
         });

@@ -383,7 +383,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = meterConfigurationBuilder
                     .configureReadingType(channelSpec.getReadingType())
                     .withNumberOfFractionDigits(channelSpec.getNbrOfFractionDigits())
-                    .withOverflowValue(channelSpec.getOverflow().longValue());
+                    .withOverflowValue(channelSpec.getOverflow());
             if (addCalculatedReadingType && channelSpec.isUseMultiplier()) {
                 meterReadingTypeConfigurationBuilder
                         .withMultiplierOfType(defaultMultiplierType)
@@ -398,7 +398,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = meterConfigurationBuilder
                     .configureReadingType(registerSpec.getReadingType())
                     .withNumberOfFractionDigits(registerSpec.getNumberOfFractionDigits())
-                    .withOverflowValue(registerSpec.getOverflowValue().longValue());
+                    .withOverflowValue(registerSpec.getOverflowValue());
             if (addCalculatedReadingType && registerSpec.isUseMultiplier()) {
                 meterReadingTypeConfigurationBuilder
                         .withMultiplierOfType(defaultMultiplierType)
