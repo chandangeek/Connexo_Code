@@ -1701,6 +1701,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     route: '{channelId}',
                                     controller: 'Mdc.controller.setup.DeviceChannelData',
                                     privileges: Mdc.privileges.Device.viewDeviceCommunication,
+                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                                     action: 'showSpecifications',
                                     callback: function (route) {
                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {

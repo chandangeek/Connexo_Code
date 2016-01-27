@@ -64,7 +64,6 @@ Ext.define('Mdc.controller.Search', {
 
     init: function () {
         var me = this,
-            searchResults = Ext.getStore('Uni.store.search.Results'),
             router = me.getController('Uni.controller.history.Router');
 
         me.service = Ext.create('Mdc.service.Search', {
@@ -99,17 +98,12 @@ Ext.define('Mdc.controller.Search', {
                 }
             }
         });
-
-        searchResults.on('load', function (store, items) {
-            var grid = me.getResultsGrid();
-            var btn = grid.down('#search-bulk-actions-button');
-            btn.setDisabled(!(me.service.searchDomain && me.service.searchDomain.getId() === "com.energyict.mdc.device.data.Device" && items && items.length));
-        });
     },
 
     showOverview: function () {
         var me = this,
             searchDomains = Ext.getStore('Uni.store.search.Domains'),
+            searchResults = Ext.getStore('Uni.store.search.Results'),
             router = this.getController('Uni.controller.history.Router'),
             widget = Ext.widget('uni-view-search-overview', {
                 service: me.service
@@ -160,9 +154,22 @@ Ext.define('Mdc.controller.Search', {
         });
 
         Ext.resumeLayouts(true);
-        me.service.on('change', me.availableClearAll, me);
+
+        var listeners = me.service.on({
+            change: me.availableClearAll,
+            reset: me.availableClearAll,
+            scope: me,
+            destroyable: true
+        });
+
+        var storeListeners = searchResults.on('load', function (store, items) {
+            var btn = grid.down('#search-bulk-actions-button');
+            btn.setDisabled(!(me.service.searchDomain && me.service.searchDomain.getId() === "com.energyict.mdc.device.data.Device" && items && items.length));
+        }, this, {destroyable: true});
+
         widget.on('destroy', function () {
-            me.service.un('change', me.availableClearAll, me);
+            listeners.destroy();
+            storeListeners.destroy();
         }, me)
     },
 
