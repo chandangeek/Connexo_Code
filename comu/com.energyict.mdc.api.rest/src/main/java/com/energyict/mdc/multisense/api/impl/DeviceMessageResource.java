@@ -6,7 +6,6 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -64,6 +63,13 @@ public class DeviceMessageResource {
         this.deviceMessageService = deviceMessageService;
     }
 
+    /**
+     * @summary Retrieve a single device message
+     *
+     * @param mRID The device's mRID
+     * @param messageId The device message identifier
+     * @return
+     */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{messageId}")
@@ -79,6 +85,13 @@ public class DeviceMessageResource {
     }
 
 
+    /**
+     * @summary Retrieve all known device messages for a certain device
+     *
+     * @param mRID The device's mRID
+     * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
+     * field-param was provided. The list will be sorted according to db order.
+     */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
@@ -97,11 +110,17 @@ public class DeviceMessageResource {
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
+    /**
+     * @summary Create a new device message for a device
+     *
+     * @param mRID The device's mRID
+     * @return
+     */
     @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
-    public Response createDeviceMessage(@PathParam("mrid") String mrid, DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
+    public Response createDeviceMessage(@PathParam("mrid") String mRID, DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
         if (deviceMessageInfo.device==null || deviceMessageInfo.device.version==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "device.version");
         }
@@ -112,7 +131,7 @@ public class DeviceMessageResource {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EXPECTED_RELEASE_DATE);
         }
 
-        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, deviceMessageInfo.device.version)
+        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mRID, deviceMessageInfo.device.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
         DeviceMessageId deviceMessageId = DeviceMessageId.havingId(deviceMessageInfo.messageSpecification.id);
         Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(deviceMessageId).setReleaseDate(deviceMessageInfo.releaseDate);
@@ -140,12 +159,21 @@ public class DeviceMessageResource {
         return Response.created(uri).build();
     }
 
+    /**
+     * Currently only protocol information and release date can be changed. All other fields will be ignored.
+     *
+     * @summary Update and exiting device message.
+     *
+     * @param mRID The device's mRID
+     * @param messageId The device message identifier
+     * @return
+     */
     @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     @Path("/{messageId}")
-    public Response updateDeviceMessage(@PathParam("mrid") String mrid, @PathParam("messageId") long messageId,
+    public Response updateDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long messageId,
                                         DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
         if (deviceMessageInfo.version==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "version");
@@ -162,7 +190,7 @@ public class DeviceMessageResource {
         if (deviceMessageInfo.protocolInfo==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EXPECTED_PROTOCOL_INFO);
         }
-        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, deviceMessageInfo.device.version)
+        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mRID, deviceMessageInfo.device.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
         DeviceMessage deviceMessage = deviceMessageService.findAndLockDeviceMessageByIdAndVersion(messageId, deviceMessageInfo.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE_MESSAGE));
@@ -179,14 +207,22 @@ public class DeviceMessageResource {
         return Response.ok().entity(deviceMessageInfoFactory.from(reloadedDeviceMessage, uriInfo, Collections.emptyList())).build();
     }
 
+
+    /**
+     * @summary Revokes a specific device message
+     *
+     * @param mRID The device's mRID
+     * @param messageId The device message identifier
+     * @return Revoked device message
+     */
     @DELETE @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     @Path("/{messageId}")
-    public Response deleteDeviceMessage(@PathParam("mrid") String mrid, @PathParam("messageId") long messageId,
+    public Response deleteDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long messageId,
                                         DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
-        Device device = deviceService.findByUniqueMrid(mrid)
+        Device device = deviceService.findByUniqueMrid(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == messageId).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE));

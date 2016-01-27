@@ -71,6 +71,13 @@ public class DeviceMessageEnablementResource {
         return deviceMessageEnablement;
     }
 
+    /**
+     *
+     * @param deviceTypeId
+     * @param deviceConfigId
+     * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
+     * field-param was provided. The list will be sorted according to db order.
+     */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
