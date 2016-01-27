@@ -30,7 +30,7 @@ public class EnermetE70X extends EnermetBase {
 
     @Override
     public String getProtocolDescription() {
-        return "Enernet E7xx IEC1107 VDEW";
+        return "Enernet E7xx IEC1107 (VDEW)";
     }
 
     RegisterConfig regs = new EDPRegisterConfig(); // we should use an infotype property to determine the registerset
