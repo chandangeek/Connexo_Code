@@ -1,11 +1,9 @@
 package com.energyict.mdc.device.topology.impl;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -13,9 +11,9 @@ import java.util.logging.Logger;
 
 /**
  * Listens for events of {@link ConnectionTask}s against
- * master {@link com.energyict.mdc.device.data.Device}s
- * that are marked to be the new default and will set that
- * default ConnectionTask on all {@link ComTaskExecution}s
+ * master {@link com.energyict.mdc.device.data.Device}s; in
+ * case the {@link ConnectionTask} is marked as the new default connection,
+ * it will be set as default on all {@link ComTaskExecution}s
  * that relate to the master's slave Devices.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -48,21 +46,14 @@ public class SetDefaultConnectionTaskEventHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         ConnectionTask<?, ?> connectionTask = (ConnectionTask<?, ?>) localEvent.getSource();
-        if (connectionTask instanceof ScheduledConnectionTask) {
-            ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
-            this.handle(scheduledConnectionTask);
-        }
-        else {
-            LOGGER.fine(() -> "Ignoring update event since it is not for a ScheduledConnectionTask but for a" + connectionTask.getClass().getName());
-        }
+        this.handle(connectionTask);
     }
 
-    private void handle(ScheduledConnectionTask scheduledConnectionTask) {
-        if (scheduledConnectionTask.isDefault()) {
-            this.topologyService.setOrUpdateDefaultConnectionTaskOnComTasksInDeviceTopology(scheduledConnectionTask.getDevice(), scheduledConnectionTask);
-        }
-        else {
-            LOGGER.fine("Ignoring update event since the ScheduledConnectionTask is not the default");
+    private void handle(ConnectionTask connectionTask) {
+        if (connectionTask.isDefault()) {
+            this.topologyService.setOrUpdateDefaultConnectionTaskOnComTasksInDeviceTopology(connectionTask.getDevice(), connectionTask);
+        } else {
+            LOGGER.fine("Ignoring update event since the ConnectionTask is not the default");
         }
     }
 
