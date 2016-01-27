@@ -37,6 +37,8 @@ import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -247,6 +249,24 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         verify(registerDataUpdater).editReading(any());
         verify(registerDataUpdater).complete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testPutRegisterDataExceedsOverflow() throws IOException {
+        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(numericalRegisterSpec.getId()).thenReturn(1L);
+        when(numericalRegisterSpec.getOverflowValue()).thenReturn(BigDecimal.ONE);
+        when(device.getId()).thenReturn(1L);
+        when(readingType.getMRID()).thenReturn("mRID");
+
+        NumericalReadingInfo numericalReadingInfo = new NumericalReadingInfo();
+        numericalReadingInfo.value = BigDecimal.TEN;
+        numericalReadingInfo.timeStamp = READING_TIMESTAMP;
+
+        Response response = target("devices/1/registers/1/data/1").request().put(Entity.json(numericalReadingInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<String>get("$.error")).isEqualTo("ValueMayNotExceedOverflowValue");
     }
 
     @Test

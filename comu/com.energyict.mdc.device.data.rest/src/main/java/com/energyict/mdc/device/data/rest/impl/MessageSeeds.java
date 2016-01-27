@@ -86,7 +86,7 @@ public enum MessageSeeds implements MessageSeed {
     CHANGE_DEVICE_CONFIG_CONFLICT(269, "ChangeDeviceConfigConflict" , "Found change device configuration conflict with id {0}"),
     NO_SUCH_LOAD_PROFILE_TYPE(270, "NoSuchLoadProfileType" , "Load profile type does not exist with that id"),
     NO_SUCH_REGISTER_TYPE(271, "NoSuchRegisterType" , "Register type does not exist with that id"),
-    ;
+    VALUE_MAY_NOT_EXCEED_OVERFLOW_VALUE(272, "ValueMayNotExceedOverflowValue", "The value {0} may not exceed the configured overflow value {1}");
     private final int number;
     private final String key;
     private final String format;
