@@ -101,7 +101,7 @@ public class ReadingTypeResource {
                 .map(c -> meteringService.getReadingTypeFieldCodesFactory()
                         .getCodeFields(c.getFieldName()).entrySet()
                         .stream().map(e -> new ReadingTypeCodeInfo(e.getKey(), e.getValue())))
-                .flatMap(Function.identity()).sorted((a, b) -> Integer.compare(a.code, b.code)).collect(Collectors.toList());
+                .flatMap(Function.identity()).collect(Collectors.toList());
         return PagedInfoList.fromCompleteList(field + "Codes", infoList, queryParameters);
     }
 
