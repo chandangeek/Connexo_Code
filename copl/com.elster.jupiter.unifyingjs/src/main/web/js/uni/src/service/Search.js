@@ -265,6 +265,7 @@ Ext.define('Uni.service.Search', {
 
         me.criteria.add(property);
         me.fireEvent('add', me.criteria, property);
+
         return property;
     },
 
@@ -282,9 +283,15 @@ Ext.define('Uni.service.Search', {
         if (removed) {
             me.fireEvent('remove', me.criteria, property);
         }
+
         if (filter) {
             filter.value = null;
             me.fireEvent('change', me.filters, filter);
+
+            if (property.get('affectsAvailableDomainProperties')
+                && !me.isStateLoad) {
+                me.storeReload(me.getSearchPropertiesStore());
+            }
         }
     },
 
