@@ -200,7 +200,14 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                 {
                                     xtype: 'displayfield',
                                     name: 'scheduleName',
-                                    fieldLabel: Uni.I18n.translate('deviceCommunicationTask.scheduleName', 'MDC', 'Schedule name')
+                                    fieldLabel: Uni.I18n.translate('deviceCommunicationTask.scheduleName', 'MDC', 'Schedule name'),
+                                    renderer: function (value) {
+                                        if (value) {
+                                            return Ext.String.htmlEncode(value);
+                                        } else {
+                                            return '-';
+                                        }
+                                    }
                                 },
                                 {
                                     xtype: 'displayfield',
