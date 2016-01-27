@@ -70,6 +70,8 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                     route: 'states',
                                     controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
                                     action: 'showDeviceLifeCycleStates',
+                                    dynamicPrivilegeStores: Dlc.dynamicprivileges.Stores.deviceLifeCycleStore,
+                                    dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable,
                                     items: {
                                         add: {
                                             title: Uni.I18n.translate('deviceLifeCycleStates.add', 'DLC', 'Add state'),
