@@ -289,10 +289,14 @@ public class FiniteStateMachineIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.AT_LEAST_ONE_STATE + "}", strict = false)
     @Test
     public void stateMachineMustHaveAtLeastOneState() {
-        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine("stateMachineMustHaveAtLeastOneState");
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine("stateMachineMustHaveExactlyOnInitialState");
+        State state = builder.newCustomState("SingleButNotInitial").complete();
 
-        // Business method
-        builder.complete();
+        FiniteStateMachine finiteStateMachine = builder.complete(state);
+
+        finiteStateMachine.startUpdate()
+                .removeState(state)
+                .complete();
 
         // Asserts: see expected constraint violation rule
     }
@@ -302,13 +306,17 @@ public class FiniteStateMachineIT {
     @Test
     public void stateMachineMustHaveExactlyOnInitialState() {
         FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine("stateMachineMustHaveExactlyOnInitialState");
-        builder.newCustomState("SingleButNotInitial");
+        State initialState = builder.newCustomState("Initial").complete();
+        State finalState = builder.newCustomState("Final").complete();
 
-        // Business method
-        builder.complete();
+        FiniteStateMachine finiteStateMachine = builder
+                .complete(initialState);
 
-        // Asserts: see expected constraint violation rule
+        finiteStateMachine.startUpdate()
+                .removeState(initialState)
+                .complete();
     }
+
 
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNIQUE_FINITE_STATE_MACHINE_NAME + "}")

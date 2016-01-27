@@ -34,15 +34,6 @@ public interface FiniteStateMachineBuilder {
     public StateBuilder newStandardState(String symbolicName);
 
     /**
-     * Completes the building process, returning the {@link FiniteStateMachine}
-     * that was built from the instructions.
-     * Note that you are responsible for saving the FiniteStateMachine.
-     *
-     * @return The FiniteStateMachine
-     */
-    public FiniteStateMachine complete();
-
-    /**
      * Completes the building process, marking the specified {@link State}
      * as the initial State and returning the {@link FiniteStateMachine}
      * that was built from the instructions.
