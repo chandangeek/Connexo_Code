@@ -10,6 +10,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
         me.filters = [
             {
                 type: 'combobox',
+                itemId: 'issue-status-filter',
                 dataIndex: 'status',
                 emptyText: Uni.I18n.translate('general.status', 'ISU', 'Status'),
                 multiSelect: true,
@@ -19,6 +20,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
             },
             {
                 type: 'combobox',
+                itemId: 'issue-assignee-filter',
                 dataIndex: 'assignee',
                 emptyText: Uni.I18n.translate('general.assignee', 'ISU', 'Assignee'),
                 store: 'Isu.store.IssueAssignees',
@@ -41,6 +43,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
             },
             {
                 type: 'combobox',
+                itemId: 'issue-reason-filter',
                 dataIndex: 'reason',
                 emptyText: Uni.I18n.translate('general.reason', 'ISU', 'Reason'),
                 displayField: 'name',
@@ -54,6 +57,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
             },
             {
                 type: 'combobox',
+                itemId: 'issue-meter-filter',
                 dataIndex: 'meter',
                 emptyText: Uni.I18n.translate('general.title.device', 'ISU', 'Device'),
                 displayField: 'name',
