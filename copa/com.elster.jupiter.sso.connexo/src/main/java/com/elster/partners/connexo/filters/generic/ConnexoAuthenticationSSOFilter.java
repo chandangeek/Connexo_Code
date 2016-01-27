@@ -6,6 +6,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 
@@ -41,8 +42,13 @@ public class ConnexoAuthenticationSSOFilter extends ConnexoAbstractSSOFilter {
                 updateToken(response, null, 0); // clear out token
             }
 
+            HttpSession session = request.getSession();
+            if(session != null){
+                session.invalidate();
+            }
+
             if(shouldUnauthorize(request)){
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             }
             else {
                 redirectToLogin(request, response);
