@@ -203,7 +203,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var me = this,
             customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets'),
             calculatedReadingTypeField = widget.down('#calculatedReadingType'),
-            multiplierField = widget.down('#mdc-channel-preview-multiplier');
+            multiplierField = widget.down('#mdc-channel-preview-multiplier'),
+            menu = widget.down('#deviceLoadProfileChannelsActionMenu');
 
         customAttributesStore.getProxy().setUrl(device.get('mRID'), channel.get('id'));
         widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(channel);
@@ -222,7 +223,13 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
         });
         me.fromSpecification = true;
-        widget.down('#deviceLoadProfileChannelsActionMenu').record = channel;
+        if (menu) {
+            menu.record = channel;
+            var validateNowChannel = menu.down('#validateNowChannel');
+            if (validateNowChannel) {
+                validateNowChannel.setVisible(channel.get('validationInfo').validationActive);
+            }
+        }
     },
 
     setupReadingsTab: function (device, channel) {

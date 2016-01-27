@@ -68,9 +68,9 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         form.updateRecord();
         form.getRecord().save({
             backUrl: me.getLandingUrl(),
-            success: function () {
+            success: function (record) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAttributes.saved', 'MDC', 'Device attributes saved'));
-                me.goToAttributesLanding();
+                me.goToAttributesLanding(record);
             },
             callback: function () {
                 editView.setLoading(false);
@@ -103,12 +103,11 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         editPage.setLoading(true);
         updatedRecord = me.getUpdatedRecord(attributesRecord);
         editForm.getForm().clearInvalid();
-
         updatedRecord.save({
             backUrl: me.getLandingUrl(),
-            success: function () {
+            success: function (record) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAttributes.saved', 'MDC', 'Device attributes saved'));
-                me.goToAttributesLanding();
+                me.goToAttributesLanding(record);
             },
             failure: function (record, operation) {
                 if (operation && operation.response && operation.response.status === 400) {
@@ -137,6 +136,9 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         var editForm = this.getDeviceAttributesEditForm();
 
         if (editForm) {
+            if(key === 'mRID'){
+                key = 'mrid';
+            }
             return editForm.down('#' + key + 'Edit');
         } else {
             return null
@@ -153,8 +155,8 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         }
     },
 
-    goToAttributesLanding: function () {
-        this.getController('Uni.controller.history.Router').getRoute('devices/device/attributes').forward();
+    goToAttributesLanding: function (record) {
+        this.getController('Uni.controller.history.Router').getRoute('devices/device/attributes').forward({mRID:record.get('mrid').displayValue});
     },
 
     getLandingUrl: function () {

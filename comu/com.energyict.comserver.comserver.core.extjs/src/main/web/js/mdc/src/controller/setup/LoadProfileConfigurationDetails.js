@@ -471,6 +471,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
 
     showDeviceConfigurationLoadProfilesConfigurationChannelsAddView: function (deviceTypeId, deviceConfigurationId, loadProfileConfigurationId) {
         var me = this;
+        me.channelConfigurationBeingEdited = null;
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
         me.loadProfileConfigurationId = loadProfileConfigurationId;
@@ -676,10 +677,12 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             collectedReadingTypeField = form.down('#mdc-channel-config-collected-readingType-field'),
             calculatedReadingTypeField = form.down('#mdc-channel-config-calculated-readingType-field'),
             calculatedReadingTypeCombo = form.down('#mdc-channel-config-calculated-readingType-combo'),
+            overflowField = form.down('#mdc-lpcfg-detailForm-overflow-value-field'),
             collectedReadingType = dataContainer.get('collectedReadingType'),
             calculatedReadingType = dataContainer.get('calculatedReadingType'),
             multipliedCalculatedReadingType = dataContainer.get('multipliedCalculatedReadingType'),
-            possibleCalculatedReadingTypes = dataContainer.get('possibleCalculatedReadingTypes');
+            possibleCalculatedReadingTypes = dataContainer.get('possibleCalculatedReadingTypes'),
+            isCumulative = dataContainer.get('isCumulative');
 
         if (collectedReadingType && collectedReadingType !== '') {
             collectedReadingTypeField.setValue(collectedReadingType);
@@ -720,6 +723,20 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                 calculatedReadingTypeField.setVisible(false);
             }
             calculatedReadingTypeCombo.setVisible(false);
+        }
+
+        if (me.channelConfigurationBeingEdited === null) {
+            overflowField.setValue(isCumulative ? 99999999 : null);
+            overflowField.required = isCumulative;
+            overflowField.allowBlank = !isCumulative;
+            // Geert: I find the following lines of code not so neat. If anyone finds another way to make (dis)appear
+            //        the label's little red star indicating the field is (not) required, please tell me.
+            if (isCumulative && !overflowField.labelEl.dom.classList.contains('uni-form-item-label-required')) {
+                overflowField.labelEl.dom.classList.add('uni-form-item-label-required');
+            } else if (!isCumulative && overflowField.labelEl.dom.classList.contains('uni-form-item-label-required')) {
+                overflowField.labelEl.dom.classList.remove('uni-form-item-label-required');
+            }
+            overflowField.labelEl.repaint();
         }
     },
 

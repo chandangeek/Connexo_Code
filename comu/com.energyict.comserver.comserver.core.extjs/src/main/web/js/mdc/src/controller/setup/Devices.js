@@ -149,7 +149,7 @@ Ext.define('Mdc.controller.setup.Devices', {
 
         Ext.Ajax.request({
             method: 'PUT',
-            url: '/api/ddr/devices/{mRID}/comtasks/activate'.replace('{mRID}', encodeURIComponent(router.arguments.mRID)),
+            url: '/api/ddr/devices/{mRID}/comtasks/activate'.replace('{mRID}', router.arguments.mRID),
             isNotEdit: true,
             jsonData: {
                 device: _.pick(me.getDevice().getRecordData(), 'mRID', 'version', 'parent')
@@ -169,7 +169,7 @@ Ext.define('Mdc.controller.setup.Devices', {
 
         Ext.Ajax.request({
             method: 'PUT',
-            url: '/api/ddr/devices/{mRID}/comtasks/deactivate'.replace('{mRID}', encodeURIComponent(router.arguments.mRID)),
+            url: '/api/ddr/devices/{mRID}/comtasks/deactivate'.replace('{mRID}', router.arguments.mRID),
             isNotEdit: true,
             jsonData: {
                 device: _.pick(me.getDevice().getRecordData(), 'mRID', 'version', 'parent')

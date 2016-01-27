@@ -91,8 +91,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                                 renderer: function (value) {
                                     var record = this.up('form').getRecord();
                                     if (record && value) {
-                                        var me = this.up('form').up('#deviceregisterreportpreview');
-                                        return Uni.Number.formatNumber(value, -1) + ' ' + me.unitOfMeasureCalculated;
+                                        var unit = record.get('calculatedUnit');
+                                        return Uni.Number.formatNumber(value, -1) + ' ' + (unit ? unit : '');
                                     } else {
                                         return '-'
                                     }
@@ -110,9 +110,10 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                         renderer: function (value) {
                             var record = this.up('form').getRecord();
                             if (record && value) {
-                                var me = this.up('form').up('#deviceregisterreportpreview');
+                                var me = this.up('form').up('#deviceregisterreportpreview'),
+                                    calculatedUnit = record.get('calculatedUnit');
                                 return Uni.Number.formatNumber(value, -1) + ' ' +
-                                    (me.unitOfMeasureCalculated !== '' ? me.unitOfMeasureCalculated : me.unitOfMeasureCollected);
+                                    (calculatedUnit !== '' ? calculatedUnit : me.unitOfMeasureCollected);
                             } else {
                                 return '-'
                             }
@@ -121,9 +122,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                     {
                         fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
                         itemId: 'mdc-register-preview-numerical-multiplier',
-                        renderer: function () {
-                            return this.up('form').up('#deviceregisterreportpreview').multiplier;
-                        }
+                        name: 'multiplier'
                     }
                 ]
             },

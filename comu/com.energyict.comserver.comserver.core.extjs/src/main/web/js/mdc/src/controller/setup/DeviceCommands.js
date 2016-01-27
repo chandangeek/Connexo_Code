@@ -273,12 +273,12 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
 
     navigateAdd: function (btn) {
         var router = this.getController('Uni.controller.history.Router');
-        router.getRoute('devices/device/commands/add').forward({mRID: btn.mRID});
+        router.getRoute('devices/device/commands/add').forward({mRID: encodeURIComponent(btn.mRID)});
     },
 
     cancelClick: function (btn) {
         var router = this.getController('Uni.controller.history.Router');
-        router.getRoute('devices/device/commands').forward({mRID: btn.mRID});
+        router.getRoute('devices/device/commands').forward({mRID: encodeURIComponent(btn.mRID)});
     },
 
     selectCommand: function (grid, selected) {
