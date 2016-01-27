@@ -69,7 +69,7 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
 
     @Override
     public String getProtocolDescription() {
-        return "L&G/Siemens ZxD IEC1107 VDEW";
+        return "L&G/Siemens ZxD IEC1107 (VDEW)";
     }
 
     private static final ObisCode BILLING_COUNTER = ObisCode.fromString("1.1.0.1.0.255");
