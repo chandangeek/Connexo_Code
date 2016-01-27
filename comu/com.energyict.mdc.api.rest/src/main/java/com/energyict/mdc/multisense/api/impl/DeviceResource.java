@@ -41,6 +41,7 @@ import static com.elster.jupiter.util.Checks.is;
 import static java.util.stream.Collectors.toList;
 
 /**
+ * @title A device represents a physical element in the grid. This can be e.g. a meter, gateway, controller, in home display, concentrator, etc.
  * @servicetag Device
  * @author bvn
  */
@@ -67,7 +68,8 @@ public class DeviceResource {
     }
 
     /**
-     * View the contents of a uniquely identified device
+     * View the contents of a uniquely identified device. A device represents a physical element in the grid.
+     * This can be e.g. a meter, gateway, controller, in home display, concentrator, etc.
      *
      * @summary View device identified by mRID
      *

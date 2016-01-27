@@ -8,7 +8,6 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
-import com.energyict.mdc.multisense.api.impl.utils.doc.PagingParametersJson;
 import com.energyict.mdc.multisense.api.security.Privileges;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -44,6 +43,9 @@ public class AuthenticationDeviceAccessLevelResource {
     }
 
     /**
+     * The authentication is identified by both the id of the pluggable class and the applicable authentication access level id
+     *
+     * @summary Get a certain authentication access level.
      *
      * @param deviceProtocolPluggableClassId
      * @param authenticationDeviceAccessLevelId
@@ -69,11 +71,12 @@ public class AuthenticationDeviceAccessLevelResource {
     }
 
     /**
+     * Get a list of al known authentication access levels for a certain device protocol. The device protocol is
+     * identified through the pluggable class that wraps it.
+     *
+     * @summary Get a list of all known authentication access levels.
      *
      * @param deviceProtocolPluggableClassId The ID of the device protocol pluggable class
-     * @param queryParameters
-     * @param fieldSelection
-     * @param uriInfo
      * @return List of authentication access levels. Paged if paging parameters were provided in the call.
      */
     @GET @Transactional

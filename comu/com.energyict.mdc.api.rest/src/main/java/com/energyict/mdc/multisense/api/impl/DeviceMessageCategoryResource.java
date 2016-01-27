@@ -58,7 +58,7 @@ public class DeviceMessageCategoryResource {
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public PagedInfoList<DeviceMessageCategoryInfo> getDeviceMessageCategories(@PathParam("comTaskId") long comTaskId,
+    public PagedInfoList<DeviceMessageCategoryInfo> getDeviceMessageCategories(
                                   @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo,
                                   @BeanParam JsonQueryParameters queryParameters) {
         List<DeviceMessageCategoryInfo> infos = ListPager.of(deviceMessageSpecificationService.allCategories(), (cat1, cat2) -> cat1.getName().compareToIgnoreCase(cat2.getName()))
@@ -73,8 +73,7 @@ public class DeviceMessageCategoryResource {
 
     /**
      * List the fields available on this entity.
-     * <br>E.g.
-     * <br>[
+     * <br>E.g. [
      * <br> "id",
      * <br> "name",
      * <br> "actions",
