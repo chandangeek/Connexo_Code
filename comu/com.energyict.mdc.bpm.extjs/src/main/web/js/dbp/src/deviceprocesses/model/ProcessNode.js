@@ -2,11 +2,11 @@ Ext.define('Dbp.deviceprocesses.model.ProcessNode', {
     extend: 'Ext.data.Model',
     fields: [
         {
-            name: 'nodeName',
+            name: 'name',
             type: 'string'
         },
         {
-            name: 'nodeType',
+            name: 'type',
             type: 'string'
         },
         {
@@ -27,6 +27,16 @@ Ext.define('Dbp.deviceprocesses.model.ProcessNode', {
         {
             name: 'nodeInstanceId',
             type: 'number'
+        },
+        {
+            name: 'processInstanceVariables'
+        },
+        {
+            type: 'hasMany',
+            model: 'Dbp.deviceprocesses.model.ProcessNodeVariable',
+            associationKey: 'processInstanceVariables',
+            name: 'processInstanceVariables'
         }
+
     ]
 });

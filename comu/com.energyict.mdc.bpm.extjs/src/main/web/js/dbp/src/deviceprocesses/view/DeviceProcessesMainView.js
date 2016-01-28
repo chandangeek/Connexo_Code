@@ -68,6 +68,7 @@ Ext.define('Dbp.deviceprocesses.view.DeviceProcessesMainView', {
             },
             {
                 xtype: 'tabpanel',
+                deferredRender : false,
                 ui: 'large',
                 itemId: 'tab-process-preview',
                 activeTab: 0,
