@@ -111,7 +111,7 @@ Ext.define('Mdc.view.setup.devicegroup.Wizard', {
         if (!updatedRecord.get('dynamic')) {
             staticGrid = me.down('static-group-devices-grid');
             if (staticGrid.isAllSelected()) {
-                updatedRecord.set('devices', !me.service.getSearchResultsStore().filters.getCount() ? [] : null);
+                updatedRecord.set('devices', !me.service.getFilters().length ? [] : null);
             } else if (staticGrid.devices) {
                 updatedRecord.set('devices', staticGrid.devices);
             } else {
@@ -129,6 +129,6 @@ Ext.define('Mdc.view.setup.devicegroup.Wizard', {
         var me = this,
             store = me.service.getSearchResultsStore();
 
-        return store.getProxy().encodeFilters(store.filters.getRange());
+        return store.getProxy().encodeFilters(me.service.getFilters());
     }
 });
