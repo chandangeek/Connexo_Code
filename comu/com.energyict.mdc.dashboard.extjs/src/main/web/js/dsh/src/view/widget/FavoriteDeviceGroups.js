@@ -12,7 +12,7 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
         var me = this,
             store = Ext.getStore(me.store);
 
-        me.setTitle('');
+        me.setTitle(' ');
         store.load({
             callback: function () {
                 me.add([
