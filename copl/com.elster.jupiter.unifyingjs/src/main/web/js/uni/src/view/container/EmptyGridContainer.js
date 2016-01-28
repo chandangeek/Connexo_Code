@@ -98,7 +98,12 @@ Ext.define('Uni.view.container.EmptyGridContainer', {
     },
 
     onBeforeLoad: function () {
-        var me = this;
+        var me = this,
+            activeIndex = me.items.indexOf(me.getLayout().getActiveItem());
+
+        if (activeIndex !== 1) {
+            me.getLayout().setActiveItem(1);
+        }
     },
 
     onLoad: function (store, records, successful) {
