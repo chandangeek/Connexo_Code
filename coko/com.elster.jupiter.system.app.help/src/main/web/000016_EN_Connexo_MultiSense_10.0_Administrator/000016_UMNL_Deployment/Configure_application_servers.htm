@@ -168,34 +168,98 @@ gTopicId = "4.1.0_3";
 </tr>
   <tr style=" height : 34.00pt;" class="t2Row">
   <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody">Connexo Facts search</p>
+  <p class="FM_CellBody" style="text-align  : left;">Calculate connection and communication KPIs</p>
 </td>
   <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">Required for the integration of <uservariable x-value="Facts" x-showvalue="TRUE" name="Reporter_App" x-format="Reporter_App">Facts</uservariable>&#160;with the other Connexo application.</p>
+  <p class="FM_CellBody">Calculates the communication and connection KPIs on the time points specified in the configuration.</p>
 </td>
 </tr>
-  <tr style=" height : 34.00pt;" class="t1Row">
+  <tr style=" height : 47.00pt;" class="t1Row">
   <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody">Connexo Flow handler</p>
+  <p class="FM_CellBody">Create data collection issues</p>
 </td>
   <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">Required for the integration of <uservariable x-value="Flow" x-showvalue="TRUE" name="ProcDesign_App" x-format="ProcDesign_App">Flow</uservariable>&#160;with the other Connexo application.</p>
+  <p class="FM_CellBody">Picks up events created by the data collection engine and creates issues based on the configured issue creation rules.</p>
+</td>
+</tr>
+  <tr style=" height : 47.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Create data validation issues</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Picks up events created by the data validation engine and creates issues based on the configured issue creation rules.</p>
+</td>
+</tr>
+  <tr style=" height : 47.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Handle bulk actions for device configuration changes</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Executes the change of device configuration of the devices selected using the device search and using the Bulk action option.</p>
 </td>
 </tr>
   <tr style=" height : 60.00pt;" class="t2Row">
   <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody" style="text-align  : left;">Handle obsolete communication schedules</p>
+  <p class="FM_CellBody" style="text-align  : left;">Handle communication schedule addition/removal to/from device</p>
 </td>
   <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">This service will handle inactivating all communication schedules of devices that use a communication task configuration of the device configuration that has been set on inactive.</p>
+  <p class="FM_CellBody">Performs the bulk action of adding or removing the selected shared communication schedule to every single device defined by the selected filters on the device search page.</p>
 </td>
 </tr>
-  <tr style=" height : 60.00pt;" class="t1Row">
+  <tr style=" height : 47.00pt;" class="t1Row">
   <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody">Recalculate communication schedules</p>
+  <p class="FM_CellBody" style="text-align  : left;">Handle communication task rescheduling</p>
 </td>
   <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">When the schedule of a shared communication schedule is adjusted, this service will calculate the next run of the communication tasks of all devices that use this shared communication schedule.</p>
+  <p class="FM_CellBody">Performs the bulk action “<span class="FM_UIRef">Run</span>” for every single item of the selection made on <span class="FM_UIRef">Workspace</span>&#160;&gt; <span class="FM_UIRef">Data communication</span>&#160;&gt; <span class="FM_UIRef">Communications</span>.</p>
+</td>
+</tr>
+  <tr style=" height : 47.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Handle connection attribute updates</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Performs the bulk action of changing the connection attributes for every single item selected on <span class="FM_UIRef">Workspace</span>&#160;&gt; <span class="FM_UIRef">Data communication</span>&#160;&gt; <span class="FM_UIRef">Connections</span>.</p>
+</td>
+</tr>
+  <tr style=" height : 47.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody" style="text-align  : left;">Handle connection rescheduling</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Performs the bulk action “<span class="FM_UIRef">Run</span>” or “<span class="FM_UIRef">Run now</span>” for every single item of the selection made on <span class="FM_UIRef">Workspace</span>&#160;&gt; <span class="FM_UIRef">Data communication</span>&#160;&gt; <span class="FM_UIRef">Connections</span>.</p>
+</td>
+</tr>
+  <tr style=" height : 73.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody" style="text-align  : left;">Handle connection updates on communication task configuration</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">When changing the connection method of a communication task configuration on a device configuration, this service will change the connection method of every device using this device configuration.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Handle Connexo Facts search</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Required for the integration of <uservariable x-value="Facts" x-showvalue="TRUE" name="Reporter_App" x-format="Reporter_App">Facts</uservariable>&#160;with the other Connexo applications.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Handle Connexo Flow </p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Required for the integration of <uservariable x-value="Flow" x-showvalue="TRUE" name="ProcDesign_App" x-format="ProcDesign_App">Flow</uservariable>&#160;with the other Connexo applications.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Handle data estimation</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Executes data estimation tasks.</p>
 </td>
 </tr>
   <tr style=" height : 34.00pt;" class="t2Row">
@@ -206,17 +270,17 @@ gTopicId = "4.1.0_3";
   <p class="FM_CellBody">Executes data export tasks, triggered manually or automatically.</p>
 </td>
 </tr>
-  <tr style=" height : 34.00pt;" class="t1Row">
+  <tr style=" height : 60.00pt;" class="t1Row">
   <td style="width : 155.906pt; vertical-align : top;">
   <p class="FM_CellBody">Handle data import</p>
 </td>
   <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">Handles all events from the import services, except those of the usage point importer.</p>
+  <p class="FM_CellBody">Handles all events from the import services and thus executing the actual import action. Usage point importer events are not handled by this message service.</p>
 </td>
 </tr>
   <tr style=" height : 21.00pt;" class="t2Row">
   <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody">Purge data</p>
+  <p class="FM_CellBody">Handle data purge</p>
 </td>
   <td style="width : 260.787pt; vertical-align : top;">
   <p class="FM_CellBody">Executes data purging in the background.</p>
@@ -224,18 +288,34 @@ gTopicId = "4.1.0_3";
 </tr>
   <tr style=" height : 21.00pt;" class="t1Row">
   <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody">Data Validation</p>
+  <p class="FM_CellBody">Handle Data Validation</p>
 </td>
   <td style="width : 260.787pt; vertical-align : top;">
   <p class="FM_CellBody">Executes data validation tasks.</p>
 </td>
 </tr>
-  <tr style=" height : 21.00pt;" class="t2Row">
+  <tr style=" height : 60.00pt;" class="t2Row">
   <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody">Handle estimation</p>
+  <p class="FM_CellBody">Handle device state change</p>
 </td>
   <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">Executes data estimation tasks.</p>
+  <p class="FM_CellBody">When altering the device life cycle of a device type, this service will change the device state of all devices of this device type into the corresponding state of the new device life cycle.</p>
+</td>
+</tr>
+  <tr style=" height : 99.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Handle firmware campaign</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">This service will which devices of the selected device group have the specified device type and will subsequently upload the desired firmware. Because it can take some time to calculate the amount of devices in the firmware campaign, the firmware campaign progress is not always shown immediately on the firmware campaign page.</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody" style="text-align  : left;">Handle obsolete communication schedules</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">This service will handle inactivating all communication schedules of devices that use a communication task configuration of the device configuration that has been set on inactive.</p>
 </td>
 </tr>
   <tr style=" height : 34.00pt;" class="t1Row">
@@ -246,84 +326,68 @@ gTopicId = "4.1.0_3";
   <p class="FM_CellBody">Checks whether issues are overdue and if they are, perform the action specified in the issue creation rule.</p>
 </td>
 </tr>
-  <tr style=" height : 73.00pt;" class="t2Row">
+  <tr style=" height : 60.00pt;" class="t2Row">
   <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody">Itemize communications from filter</p>
-</td>
-  <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">Converts specified filter criteria on the communications page (Workspace &gt; Data communication &gt; Communications) into single items and performs the bulk action “Run” or “Run now” for every single item.</p>
-</td>
-</tr>
-  <tr style=" height : 60.00pt;" class="t1Row">
-  <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody" style="text-align  : left;">Itemize connection rescheduling from filter</p>
-</td>
-  <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">Converts specified filter criteria on the connections page (Workspace &gt;&#160;Data communication &gt; Connections) into single items and performs the bulk action “Run” for every single item.</p>
-</td>
-</tr>
-  <tr style=" height : 73.00pt;" class="t2Row">
-  <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody">Itemize connection property updates from filter</p>
-</td>
-  <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">Converts specified filter criteria on the connections page (Workspace &gt;&#160;Data communication &gt; Connections) into single items and performs the bulk action of changing the connection attributes for every single item.</p>
-</td>
-</tr>
-  <tr style=" height : 60.00pt;" class="t1Row">
-  <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody" style="text-align  : left;">Itemize com schedule addition/removal to/from device</p>
-</td>
-  <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">Converts specified filter criteria on the device search page into single items and performs the bulk action of adding the selected shared communication schedule to every single device.</p>
-</td>
-</tr>
-  <tr style=" height : 73.00pt;" class="t2Row">
-  <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody">Handle connection updates on comtask enablement</p>
-</td>
-  <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">When changing the connection method of a communication task configuration on a device configuration, this service will change the connection method of every device using this device configuration.</p>
-</td>
-</tr>
-  <tr style=" height : 60.00pt;" class="t1Row">
-  <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody">Handle priority updates on comtask enablement</p>
+  <p class="FM_CellBody" style="text-align  : left;">Handle priority updates on communication task configuration</p>
 </td>
   <td style="width : 260.787pt; vertical-align : top;">
   <p class="FM_CellBody">When changing the urgency of a communication task configuration on a device configuration, this service will change the urgency of every device using this device configuration.</p>
 </td>
 </tr>
-  <tr style=" height : 60.00pt;" class="t2Row">
+  <tr style=" height : 60.00pt;" class="t1Row">
   <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody" style="text-align  : left;">Handle status updates on comtask enablement</p>
+  <p class="FM_CellBody" style="text-align  : left;">Handle status updates on communication task configuration</p>
 </td>
   <td style="width : 260.787pt; vertical-align : top;">
   <p class="FM_CellBody">When changing the status of a communication task configuration on a device configuration, this service will change the status of the communication task on every device using this device configuration.</p>
 </td>
 </tr>
-  <tr style=" height : 99.00pt;" class="t1Row">
+  <tr style=" height : 21.00pt;" class="t2Row">
   <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody">Process firmware campaign</p>
+  <p class="FM_CellBody">Handle usage point import</p>
 </td>
   <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">This service will which devices of the selected device group have the specified device type and will subsequently upload the desired firmware. Because it can take some time to calculate the amount of devices in the firmware campaign, the firmware campaign progress is not always shown immediately on the firmware campaign page.</p>
+  <p class="FM_CellBody">Handles all events from the usage point importer.</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody" style="text-align  : left;">Itemize communication schedule addition/removal to/from device</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Converts specified filter criteria on the device search page into single items and puts them on the queue to be handled by “Handle addition/removal of a communication schedule” message service.</p>
+</td>
+</tr>
+  <tr style=" height : 86.00pt;" class="t2Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Itemize communications from filter</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Converts specified filter criteria on the communications page (Workspace &gt; Data communication &gt; Communications) into single items and puts them on the queue to be handled by the “Reschedule communication rescheduling” message service.</p>
+</td>
+</tr>
+  <tr style=" height : 73.00pt;" class="t1Row">
+  <td style="width : 155.906pt; vertical-align : top;">
+  <p class="FM_CellBody">Itemize connection attribute updates from filter</p>
+</td>
+  <td style="width : 260.787pt; vertical-align : top;">
+  <p class="FM_CellBody">Converts specified filter criteria on the connections page (Workspace &gt;&#160;Data communication &gt; Connections) into single items and puts them on the queue to be handled by the “Handle connection property updates” message service.</p>
 </td>
 </tr>
   <tr style=" height : 47.00pt;" class="t2Row">
   <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody">Create data collection issues</p>
+  <p class="FM_CellBody" style="text-align  : left;">Itemize connection rescheduling from filter</p>
 </td>
   <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">Picks up events created by the data collection engine and creates issues based on the configured issue creation rules.</p>
+  <p class="FM_CellBody">Converts specified filter criteria on the connections page (Workspace &gt;&#160;Data communication &gt; Connections) into single items and .</p>
 </td>
 </tr>
-  <tr style=" height : 47.00pt;" class="t1Row">
+  <tr style=" height : 60.00pt;" class="t1Row">
   <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody">Create data validation issues</p>
+  <p class="FM_CellBody">Recalculate communication schedules</p>
 </td>
   <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">Picks up events created by the data validation engine and creates issues based on the configured issue creation rules.</p>
+  <p class="FM_CellBody">When the schedule of a shared communication schedule is adjusted, this service will calculate the next run of the communication tasks of all devices that use this shared communication schedule.</p>
 </td>
 </tr>
   <tr style=" height : 73.00pt;" class="t2Row">
@@ -332,62 +396,6 @@ gTopicId = "4.1.0_3";
 </td>
   <td style="width : 260.787pt; vertical-align : top;">
   <p class="FM_CellBody">When removing one of connection details of the connection method configuration on a device configuration, this service will change the status of every device that inherited these connection details to “Incomplete”</p>
-</td>
-</tr>
-  <tr style=" height : 34.00pt;" class="t1Row">
-  <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody" style="text-align  : left;">Calculate connection and communication KPIs</p>
-</td>
-  <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">Calculates the communication and connection KPIs on the time points specified in the configuration.</p>
-</td>
-</tr>
-  <tr style=" height : 34.00pt;" class="t2Row">
-  <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody">Handle connection property updates</p>
-</td>
-  <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">&nbsp;</p>
-</td>
-</tr>
-  <tr style=" height : 34.00pt;" class="t1Row">
-  <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody" style="text-align  : left;">Reschedule communication message handler</p>
-</td>
-  <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">&nbsp;</p>
-</td>
-</tr>
-  <tr style=" height : 34.00pt;" class="t2Row">
-  <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody" style="text-align  : left;">Handle connection rescheduling</p>
-</td>
-  <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">&nbsp;</p>
-</td>
-</tr>
-  <tr style=" height : 34.00pt;" class="t1Row">
-  <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody">Reschedule communication message handler</p>
-</td>
-  <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">&nbsp;</p>
-</td>
-</tr>
-  <tr style=" height : 60.00pt;" class="t2Row">
-  <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody">Change device state</p>
-</td>
-  <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">When altering the device life cycle of a device type, this service will change the device state of all devices of this device type into the corresponding state of the new device life cycle.</p>
-</td>
-</tr>
-  <tr style=" height : 21.00pt;" class="t1Row">
-  <td style="width : 155.906pt; vertical-align : top;">
-  <p class="FM_CellBody">Usage Point File Import</p>
-</td>
-  <td style="width : 260.787pt; vertical-align : top;">
-  <p class="FM_CellBody">Handles all events from the usage point importer.</p>
 </td>
 </tr>
  </table>

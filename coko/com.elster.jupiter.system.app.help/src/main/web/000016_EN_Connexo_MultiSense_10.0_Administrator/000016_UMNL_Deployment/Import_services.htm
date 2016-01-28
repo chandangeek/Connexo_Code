@@ -54,9 +54,9 @@ p.WebHelpNavBar { text-align:right; }
 <script type="text/javascript" >
 gRootRelPath = "../..";
 gCommonRootRelPath = "../..";
-gTopicId = "4.4";
+gTopicId = "4.2";
 </script>
- <meta name="brsprev" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Manage_relative_periods.htm">
+ <meta name="brsprev" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Monitor_application_servers1.htm">
  <meta name="brsnext" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Deployment/Configure_import_services.htm">
 </head>
 
@@ -65,7 +65,7 @@ gTopicId = "4.4";
 
  <p class="FM_H2Section">Import services</p>
  <p class="FM_H4Topic">Understand import services</p>
- <p class="FM_Body">Import services are configured in <uservariable x-value="Admin" x-showvalue="TRUE" name="SystemAdmin_App" x-format="SystemAdmin_App">Admin</uservariable>&#160;and used in the other Connexo applications. When creating new import services Connexo offers different default file importers that allow the import of different types of data to perform different actions. During configuration you need to specify the location where files that will be imported have to located. Next to the import folder you will also specify the folder for in progress files and files of successful and failed import. All this information is also visible in the applications using the import services when you look at the import service details.</p>
- <p class="FM_Body">Before import services can be used in the different Connexo applications, they need to be added to an application server. This application server can then pick up the import task and execute it.</p>
+ <p class="FM_Body">Import services are configured in <uservariable x-value="Admin" x-showvalue="TRUE" name="SystemAdmin_App" x-format="SystemAdmin_App">Admin</uservariable>&#160;and used in the other Connexo applications. When creating new import services Connexo offers different default file importers that allow the import of different types of data to perform different actions. During configuration you need to specify the location of the files that need to be imported. Next to the import folder you will also specify the folder for in progress files and files of successful and failed imports. All this information is also visible in the applications using the import services when you look at the import service details.</p>
+ <p class="FM_Body">The import service will take the file that needs to be imported and move it to the In progress folder and subsequently put it on the queue. The actual import is handled by a message service. This means that for import to be successful import service as well as message service need to be configured and added to the application server.</p>
  </body>
 </html>

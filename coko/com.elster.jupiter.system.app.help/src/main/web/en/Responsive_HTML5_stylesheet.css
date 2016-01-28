@@ -44,6 +44,15 @@
     url("fonts/OpenSans-CondLight.svg#OpenSans-CondLight") format("svg");
 }
 
+@font-face {
+  font-family: "Marvel Bold";
+  src:url("fonts/Marvel-Bold.eot");
+  src:url("fonts/Marvel-Bold.eot?#iefix") format("embedded-opentype"),
+    url("fonts/Marvel-Bold.woff") format("woff"),
+    url("fonts/Marvel-Bold.ttf") format("truetype"),
+    url("fonts/Marvel-Bold.svg#OpenSans-CondLight") format("svg");
+}
+
 caption {
       background-color:#ffffff;
 	  margin-left: 20.000pt;
