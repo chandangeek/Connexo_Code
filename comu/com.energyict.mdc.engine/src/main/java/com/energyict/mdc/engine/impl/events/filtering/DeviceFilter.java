@@ -35,7 +35,7 @@ public class DeviceFilter implements EventFilterCriterion {
     public boolean matches (ComServerEvent event) {
         if (event.isDeviceRelated()) {
             DeviceRelatedEvent connectionEvent = (DeviceRelatedEvent) event;
-            return !this.devices.contains(connectionEvent.getDevice());
+            return !this.devices.stream().anyMatch(device -> device.getId() == connectionEvent.getDevice().getId());
         }
         else {
             return false;

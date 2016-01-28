@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.events.filtering;
 
+import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.events.ComPortPoolRelatedEvent;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.config.ComPortPool;
 
 import java.util.List;
 
@@ -35,7 +35,7 @@ public class ComPortPoolFilter implements EventFilterCriterion {
     public boolean matches (ComServerEvent event) {
         if (event.isComPortPoolRelated()) {
             ComPortPoolRelatedEvent comPortPoolEvent = (ComPortPoolRelatedEvent) event;
-            return !this.comPortPools.contains(comPortPoolEvent.getComPortPool());
+            return !this.comPortPools.stream().anyMatch(comPortPool -> comPortPool.getId() == comPortPoolEvent.getComPortPool().getId());
         }
         else {
             return false;

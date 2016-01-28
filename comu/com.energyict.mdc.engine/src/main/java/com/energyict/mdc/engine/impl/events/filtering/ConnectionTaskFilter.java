@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.events.filtering;
 
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.events.ConnectionTaskRelatedEvent;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 
 import java.util.List;
 
@@ -35,7 +35,7 @@ public class ConnectionTaskFilter implements EventFilterCriterion {
     public boolean matches (ComServerEvent event) {
         if (event.isConnectionTaskRelated()) {
             ConnectionTaskRelatedEvent connectionTaskEvent = (ConnectionTaskRelatedEvent) event;
-            return !this.connectionTasks.contains(connectionTaskEvent.getConnectionTask());
+            return !this.connectionTasks.stream().anyMatch(connectionTask -> connectionTask.getId() == connectionTaskEvent.getConnectionTask().getId());
         }
         else {
             return false;
