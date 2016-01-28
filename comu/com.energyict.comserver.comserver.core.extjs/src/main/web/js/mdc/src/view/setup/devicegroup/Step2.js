@@ -23,6 +23,7 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
     config: {
         service: null
     },
+    isPrepared: false,
 
     initComponent: function () {
         var me = this,

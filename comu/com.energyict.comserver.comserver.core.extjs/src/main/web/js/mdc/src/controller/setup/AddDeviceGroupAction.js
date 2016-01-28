@@ -62,7 +62,10 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         me.control({
             '#add-devicegroup-browse #staticDynamicRadioButton': {
                 change: function(f, val) {
+                    var step2 = me.getAddDeviceGroupWizard().down('device-group-wizard-step2');
+
                     this.isDynamic = val.dynamic;
+                    step2.isPrepared = false;
                 }
             },
             '#add-devicegroup-browse adddevicegroup-wizard button[navigationBtn=true]': {
@@ -344,6 +347,10 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             devices = me.getStore('Mdc.store.DevicesOfDeviceGroupWithoutPagination'),
             store = me.getStore(isDynamic ? 'Mdc.store.DynamicGroupDevices' : 'Mdc.store.StaticGroupDevices');
 
+        if (step2.isPrepared) {
+            return
+        }
+
         step2.getLayout().setActiveItem(isDynamic ? 1 : 0);
         me.service.setSearchResultsStore(store);
         me.setColumnPicker(isDynamic);
@@ -398,6 +405,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 }
             });
         }
+        step2.isPrepared = true;
     },
 
     setColumnPicker: function (isDynamic) {
