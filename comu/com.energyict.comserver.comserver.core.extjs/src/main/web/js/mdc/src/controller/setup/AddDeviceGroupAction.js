@@ -498,7 +498,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     countNumberOfSearchCriteria: function () {
         var me = this;
 
-        return me.service.getSearchResultsStore().filters.getCount();
+        return me.service.getFilters().length;
     },
 
     prepareStep4: function (wizard, finishBtn, navigationMenu) {
