@@ -9,6 +9,23 @@ public class TaskInfo {
     public String priority;
     public String name;
     public String processName = "";
+
+    public String getDeploymentId() {
+        return deploymentId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDeploymentId(String deploymentId) {
+        this.deploymentId = deploymentId;
+    }
+
     public String deploymentId;
     public String status;
     public String dueDate;
