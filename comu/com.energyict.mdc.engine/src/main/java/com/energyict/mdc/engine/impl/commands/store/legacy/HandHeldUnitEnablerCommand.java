@@ -35,8 +35,7 @@ public class HandHeldUnitEnablerCommand extends SimpleComCommand {
     @Override
     public void doExecute (DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         if (this.comChannelPlaceHolder.getComPortRelatedComChannel().getActualComChannel() instanceof SerialComChannel) {
-            SerialComChannel comChannel = (SerialComChannel) this.comChannelPlaceHolder.getComPortRelatedComChannel().getActualComChannel();
-            SerialCommunicationChannelAdapter serialCommunicationChannel = new SerialCommunicationChannelAdapter(comChannel);
+            SerialCommunicationChannelAdapter serialCommunicationChannel = new SerialCommunicationChannelAdapter(this.comChannelPlaceHolder.getComPortRelatedComChannel());
             try {
                 if (deviceProtocol instanceof DeviceProtocolAdapter) {
                     if (executionContext.getConnectionTask().getConnectionType() instanceof OpticalDriver) {
