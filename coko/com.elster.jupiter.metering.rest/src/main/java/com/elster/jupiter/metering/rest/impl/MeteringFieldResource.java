@@ -8,8 +8,10 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.ListPager;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.KorePagedInfoList;
+import com.elster.jupiter.rest.util.ListPager;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.util.streams.DecoratedStream;
 
@@ -25,18 +27,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
 
 @Path("/fields")
-public class ReadingTypeFieldResource {
+public class MeteringFieldResource {
 
     private final MeteringService meteringService;
     private final Thesaurus thesaurus;
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
 
     @Inject
-    public ReadingTypeFieldResource(MeteringService meteringService, Thesaurus thesaurus, ReadingTypeInfoFactory readingTypeInfoFactory) {
+    public MeteringFieldResource(MeteringService meteringService, Thesaurus thesaurus, ReadingTypeInfoFactory readingTypeInfoFactory) {
         this.meteringService = meteringService;
         this.thesaurus = thesaurus;
         this.readingTypeInfoFactory = readingTypeInfoFactory;
@@ -45,23 +48,22 @@ public class ReadingTypeFieldResource {
     @GET
     @Path("/unitsofmeasure")
     @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response getUnitsOfMeasure(@BeanParam QueryParameters queryParameters) {
-        return Response.ok(KorePagedInfoList.asJson(
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getUnitsOfMeasure(@BeanParam JsonQueryParameters queryParameters) {
+        return PagedInfoList.fromCompleteList(
                 "unitsOfMeasure",
-                DecoratedStream.decorate(
-                        meteringService.getAvailableReadingTypes().
-                                stream()).
-                        map(rt -> new UnitOfMeasureFieldInfo(rt.getMultiplier(), rt.getUnit())).
-                        distinct(i -> i.name).
-                        sorted((c1, c2) -> c1.name.compareToIgnoreCase(c2.name)).collect(toList()),
-                queryParameters)).build();
+                DecoratedStream.decorate(meteringService.getAvailableReadingTypes().stream())
+                        .map(rt -> new UnitOfMeasureFieldInfo(rt.getMultiplier(), rt.getUnit()))
+                        .distinct(i -> i.name)
+                        .sorted((c1, c2) -> c1.name.compareToIgnoreCase(c2.name))
+                        .collect(toList()),
+                queryParameters);
     }
 
     @GET
     @Path("/intervals")
     @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public IntervalFieldInfos getIntervals() {
         IntervalFieldInfos intervalFieldInfos = new IntervalFieldInfos();
         Set<TimeAttribute> timeAttributes = meteringService.getAvailableReadingTypes().stream()
@@ -78,9 +80,12 @@ public class ReadingTypeFieldResource {
     @GET
     @Path("/timeofuse")
     @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public TimeOfUseFieldInfos getTou() {
-        return new TimeOfUseFieldInfos();
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getTou(@BeanParam JsonQueryParameters queryParameters) {
+        List<TimeOfUseFieldInfo> touList = IntStream.rangeClosed(0, 8)
+                .mapToObj(tou -> new TimeOfUseFieldInfo(tou))
+                .collect(toList());
+        return PagedInfoList.fromCompleteList("timeOfUse", touList, queryParameters);
     }
 
     @GET
@@ -88,39 +93,40 @@ public class ReadingTypeFieldResource {
     @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getReadingTypes(@BeanParam JsonQueryFilter queryFilter, @BeanParam QueryParameters queryParameters) {
-        List<ReadingType> readingTypes = meteringService.getAvailableReadingTypes();
-        final Predicate<ReadingType> filter = getReadingTypeFilterPredicate(queryFilter);
-        readingTypes = readingTypes.stream().filter(filter).sorted((c1,c2)->(c1.getFullAliasName().compareToIgnoreCase(c2.getFullAliasName()))).collect(Collectors.<ReadingType>toList());
+        List<ReadingType> readingTypes = meteringService.getAvailableReadingTypes().stream()
+                .filter(getReadingTypeFilterPredicate(queryFilter))
+                .sorted((c1,c2)->(c1.getFullAliasName().compareToIgnoreCase(c2.getFullAliasName())))
+                .collect(Collectors.<ReadingType>toList());
         List<ReadingTypeInfo> pagedReadingTypes = ListPager.of(readingTypes).from(queryParameters).find().stream().map(readingTypeInfoFactory::from).collect(toList());
         return Response.ok(KorePagedInfoList.asJson("readingTypes", pagedReadingTypes, queryParameters, readingTypes.size())).build();
     }
 
     private Predicate<ReadingType> getReadingTypeFilterPredicate(JsonQueryFilter queryFilter) {
-        Predicate<ReadingType> filter = rt->true; // unfiltered
+        Predicate<ReadingType> filter = rt -> true; // unfiltered
         if (queryFilter.hasFilters()) {
             if (queryFilter.hasProperty("mRID")) {
-                filter=filter.and(rt->rt.getMRID().toLowerCase().contains(queryFilter.getString("mRID").toLowerCase()));
+                filter = filter.and(rt -> rt.getMRID().toLowerCase().contains(queryFilter.getString("mRID").toLowerCase()));
             }
             if (queryFilter.hasProperty("name")) {
-                filter=filter.and(rt -> rt.getFullAliasName().toLowerCase().contains(queryFilter.getString("name").toLowerCase()));
+                filter = filter.and(rt -> rt.getFullAliasName().toLowerCase().contains(queryFilter.getString("name").toLowerCase()));
             }
             if (queryFilter.hasProperty("tou")) {
-                filter=filter.and(rt->rt.getTou() == queryFilter.getInteger("tou"));
+                filter = filter.and(rt -> rt.getTou() == queryFilter.getInteger("tou"));
             }
             if (queryFilter.hasProperty("unitOfMeasure")) {
-                filter=filter.and(rt->rt.getUnit().getId() == queryFilter.getLong("unitOfMeasure"));
+                filter = filter.and(rt -> rt.getUnit().getId() == queryFilter.getLong("unitOfMeasure"));
             }
             if (queryFilter.hasProperty("time")) {
-                filter=filter.and(rt->rt.getMeasuringPeriod().getId() == queryFilter.getInteger("time"));
+                filter = filter.and(rt -> rt.getMeasuringPeriod().getId() == queryFilter.getInteger("time"));
             }
             if (queryFilter.hasProperty("macro")) {
                 filter = filter.and(rt -> rt.getMacroPeriod().getId() == queryFilter.getInteger("macro"));
             }
             if (queryFilter.hasProperty("multiplier")) {
-                filter=filter.and(rt->rt.getMultiplier().getMultiplier()==queryFilter.getInteger("multiplier"));
+                filter = filter.and(rt -> rt.getMultiplier().getMultiplier() == queryFilter.getInteger("multiplier"));
             }
             if (queryFilter.hasProperty("selectedReadings")) {
-                filter=filter.and(rt->!queryFilter.getStringList("selectedReadings").contains(rt.getMRID().toLowerCase()));
+                filter = filter.and(rt -> !queryFilter.getStringList("selectedReadings").contains(rt.getMRID().toLowerCase()));
             }
         }
         return filter;

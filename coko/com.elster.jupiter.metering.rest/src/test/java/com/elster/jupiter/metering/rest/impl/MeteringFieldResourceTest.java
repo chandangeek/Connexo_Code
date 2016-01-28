@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 /**
  * Created by bvn on 2/13/15.
  */
-public class ReadingTypeFieldResourceTest extends MeteringApplicationJerseyTest {
+public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
 
     @Test
     public void testGetReadingTypesUnpaged() throws Exception {
