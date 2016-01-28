@@ -266,6 +266,9 @@ class ReadingStorerImpl implements ReadingStorer {
     }
 
     private Object[] getPreviousValues(ChannelContract channel, Instant timestamp) {
+        if (!channel.isRegular()) {
+            return null;
+        }
         Instant previousDateTime = channel.getPreviousDateTime(timestamp);
         return previousReadings.get(Pair.of(channel, previousDateTime));
     }
