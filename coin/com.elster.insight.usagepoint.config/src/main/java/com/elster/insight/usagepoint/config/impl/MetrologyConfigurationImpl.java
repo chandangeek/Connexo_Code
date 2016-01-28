@@ -169,15 +169,17 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
 
     @Override
     public void addCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet) {
-        MetrologyConfigurationCustomPropertySetUsagesImpl newCpsUsage = getDataModel().getInstance(MetrologyConfigurationCustomPropertySetUsagesImpl.class)
-                .init(this, registeredCustomPropertySet);
-        this.customPropertySets.add(newCpsUsage);
+        if (this.customPropertySets.stream()
+                .noneMatch(cpsUsage -> cpsUsage.getRegisteredCustomPropertySet().getId() == registeredCustomPropertySet.getId())){
+            MetrologyConfigurationCustomPropertySetUsagesImpl newCpsUsage = getDataModel().getInstance(MetrologyConfigurationCustomPropertySetUsagesImpl.class)
+                    .init(this, registeredCustomPropertySet);
+            this.customPropertySets.add(newCpsUsage);
+        }
     }
 
     @Override
     public void removeCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet) {
         this.customPropertySets.stream()
-                .filter(cpsUsage -> cpsUsage.getMetrologyConfiguration().getId() == this.getId())
                 .filter(cpsUsage -> cpsUsage.getRegisteredCustomPropertySet().getId() == registeredCustomPropertySet.getId())
                 .findAny()
                 .ifPresent(cpsUsage -> this.customPropertySets.remove(cpsUsage));

@@ -1,29 +1,18 @@
 package com.elster.insight.usagepoint.config.impl;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.MetrologyConfigurationValidationRuleSetUsage;
 import com.elster.insight.usagepoint.config.Privileges;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -34,6 +23,20 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.parties", service = {UsagePointConfigurationService.class, InstallService.class, PrivilegesProvider.class}, property = {"name=" + UsagePointConfigurationService.COMPONENTNAME}, immediate = true)
 public class UsagePointConfigurationServiceImpl implements UsagePointConfigurationService, InstallService, PrivilegesProvider {
@@ -43,18 +46,23 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     private volatile EventService eventService;
     private volatile ValidationService validationService;
     private volatile UserService userService;
+    private volatile CustomPropertySetService customPropertySetService;
+    private volatile Thesaurus thesaurus;
     
     public UsagePointConfigurationServiceImpl() {
     }
 
     @Inject
     public UsagePointConfigurationServiceImpl(Clock clock, OrmService ormService, EventService eventService, UserService userService,
-            MeteringService meteringService, ValidationService validationService) {
+                                              MeteringService meteringService, ValidationService validationService, NlsService nlsService,
+                                              CustomPropertySetService customPropertySetService) {
         setClock(clock);
         setOrmService(ormService);
         setEventService(eventService);
         setUserService(userService);
         setValidationService(validationService);
+        setCustomPropertySetService(customPropertySetService);
+        setNlsService(nlsService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -70,6 +78,9 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 bind(Clock.class).toInstance(clock);
                 bind(ValidationService.class).toInstance(validationService);
                 bind(UserService.class).toInstance(userService);
+                bind(CustomPropertySetService.class).toInstance(customPropertySetService);
+                bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
             }
         };
     }
@@ -86,7 +97,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "EVT", "MTR", "VAL");
+        return Arrays.asList("ORM", "EVT", "MTR", "VAL", NlsService.COMPONENTNAME, CustomPropertySetService.COMPONENT_NAME);
     }
 
     @Reference
@@ -116,7 +127,17 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
     }
-    
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService){
+        this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService){
+        this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
+    }
+
     DataModel getDataModel() {
         return dataModel;
     }
