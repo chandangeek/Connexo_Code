@@ -408,7 +408,7 @@ public class JbpmTaskResource {
         Query query = em.createNativeQuery(queryString);
         query.setParameter("processInstanceId", processInstanceId);
         List<Object[]> nodes = query.getResultList();
-        queryString = "select * from variableinstancelog v WHERE v.PROCESSINSTANCEID = :processInstanceId";
+        queryString = "select * from variableinstancelog v WHERE v.PROCESSINSTANCEID = :processInstanceId ORDER BY v.VARIABLEID ASC";
         query = em.createNativeQuery(queryString);
         query.setParameter("processInstanceId", processInstanceId);
         List<Object[]> processVariables = query.getResultList();
