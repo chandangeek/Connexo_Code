@@ -2,11 +2,15 @@ package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.KorePagedInfoList;
@@ -23,6 +27,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -91,11 +97,11 @@ public class MeteringFieldResource {
     @GET
     @Path("/readingtypes")
     @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response getReadingTypes(@BeanParam JsonQueryFilter queryFilter, @BeanParam QueryParameters queryParameters) {
         List<ReadingType> readingTypes = meteringService.getAvailableReadingTypes().stream()
                 .filter(getReadingTypeFilterPredicate(queryFilter))
-                .sorted((c1,c2)->(c1.getFullAliasName().compareToIgnoreCase(c2.getFullAliasName())))
+                .sorted((c1, c2) -> (c1.getFullAliasName().compareToIgnoreCase(c2.getFullAliasName())))
                 .collect(Collectors.<ReadingType>toList());
         List<ReadingTypeInfo> pagedReadingTypes = ListPager.of(readingTypes).from(queryParameters).find().stream().map(readingTypeInfoFactory::from).collect(toList());
         return Response.ok(KorePagedInfoList.asJson("readingTypes", pagedReadingTypes, queryParameters, readingTypes.size())).build();
@@ -130,5 +136,41 @@ public class MeteringFieldResource {
             }
         }
         return filter;
+    }
+
+    @GET
+    @Path("/connectionstates")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getConnectionStates(@BeanParam JsonQueryParameters queryParameters) {
+        List<IdWithDisplayValueInfo<String>> connectionStates = Arrays.stream(UsagePointConnectedKind.values())
+                .map(connectionKind -> new IdWithDisplayValueInfo<>(connectionKind.name(), connectionKind.getDisplayName(this.thesaurus)))
+                .sorted(Comparator.comparing(ck -> ck.displayValue))
+                .collect(toList());
+        return PagedInfoList.fromCompleteList("connectionStates", connectionStates, queryParameters);
+    }
+
+    @GET
+    @Path("/amibilling")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getAmiBillings(@BeanParam JsonQueryParameters queryParameters) {
+        List<IdWithDisplayValueInfo<String>> billings = Arrays.stream(AmiBillingReadyKind.values())
+                .map(billingKind -> new IdWithDisplayValueInfo<>(billingKind.name(), billingKind.getDisplayName(this.thesaurus)))
+                .sorted(Comparator.comparing(bk -> bk.displayValue))
+                .collect(toList());
+        return PagedInfoList.fromCompleteList("amiBillings", billings, queryParameters);
+    }
+
+    @GET
+    @Path("/servicecategory")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getServiceCategories(@BeanParam JsonQueryParameters queryParameters) {
+        List<IdWithDisplayValueInfo<String>> categories = Arrays.stream(ServiceKind.values())
+                .map(serviceKind -> new IdWithDisplayValueInfo<>(serviceKind.name(), serviceKind.getDisplayName(this.thesaurus)))
+                .sorted(Comparator.comparing(sk -> sk.displayValue))
+                .collect(toList());
+        return PagedInfoList.fromCompleteList("categories", categories, queryParameters);
     }
 }

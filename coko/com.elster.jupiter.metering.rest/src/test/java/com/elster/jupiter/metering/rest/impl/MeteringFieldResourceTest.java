@@ -12,25 +12,27 @@ import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by bvn on 2/13/15.
- */
 public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
 
     @Test
@@ -41,7 +43,7 @@ public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
         when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
         Response response = target("/fields/readingtypes").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(31);
         assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(31);
     }
@@ -54,7 +56,7 @@ public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
         when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
         Response response = target("/fields/readingtypes").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<List>get("$.readingTypes[*].fullAliasName")).isSorted();
     }
 
@@ -65,9 +67,9 @@ public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
 
         when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
         Response response = target("/fields/readingtypes")
-            .queryParam("filter", ExtjsFilter.filter().property("tou", 0L).create()).request().get();
+                .queryParam("filter", ExtjsFilter.filter().property("tou", 0L).create()).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(31);
         assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(31);
     }
@@ -79,9 +81,9 @@ public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
 
         when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
         Response response = target("/fields/readingtypes")
-            .queryParam("filter", ExtjsFilter.filter().property("mRID", "30").create()).request().get();
+                .queryParam("filter", ExtjsFilter.filter().property("mRID", "30").create()).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(1);
     }
@@ -94,7 +96,7 @@ public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
         when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
         Response response = target("/fields/readingtypes").queryParam("start", 0).queryParam("limit", 10).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(30);
         assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(10);
     }
@@ -107,7 +109,7 @@ public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
         when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
         Response response = target("/fields/readingtypes").queryParam("start", 10).queryParam("limit", 10).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(30);
         assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(10);
     }
@@ -119,7 +121,7 @@ public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
 
         when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
         Response response = target("/fields/readingtypes")
-            .queryParam("filter", ExtjsFilter.filter().property("name", "A+").create()).request().get();
+                .queryParam("filter", ExtjsFilter.filter().property("name", "A+").create()).request().get();
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<List>get("$.readingTypes[*].aliasName")).hasSize(16);
     }
@@ -131,7 +133,7 @@ public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
 
         when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
         Response response = target("/fields/readingtypes")
-            .queryParam("filter", ExtjsFilter.filter().property("name", "bulK").create()).request().get();
+                .queryParam("filter", ExtjsFilter.filter().property("name", "bulK").create()).request().get();
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<List>get("$.readingTypes[*].aliasName")).hasSize(31);
     }
@@ -143,7 +145,7 @@ public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
 
         when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
         Response response = target("/fields/readingtypes")
-            .queryParam("filter", ExtjsFilter.filter().property("tou", 21L).create()).request().get();
+                .queryParam("filter", ExtjsFilter.filter().property("tou", 21L).create()).request().get();
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<List>get("$.readingTypes[*].tou")).containsOnly(21).hasSize(1);
     }
@@ -155,7 +157,7 @@ public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
         IntStream.range(0, 31).forEach(i -> collect.add(mockReadingTypeWithUnitOfMeasure("power " + i, ReadingTypeUnit.values()[i])));
         when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
         Response response = target("/fields/readingtypes")
-            .queryParam("filter", ExtjsFilter.filter().property("unitOfMeasure", (long) ReadingTypeUnit.AMPERE.getId()).create()).request().get();
+                .queryParam("filter", ExtjsFilter.filter().property("unitOfMeasure", (long) ReadingTypeUnit.AMPERE.getId()).create()).request().get();
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(1);
     }
@@ -167,7 +169,7 @@ public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
         IntStream.range(0, 31).forEach(i -> collect.add(mockReadingTypeWithTime("power " + i, i < 10 ? TimeAttribute.FIXEDBLOCK10MIN : TimeAttribute.FIXEDBLOCK15MIN)));
         when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
         Response response = target("/fields/readingtypes")
-            .queryParam("filter", ExtjsFilter.filter().property("time", (long) TimeAttribute.FIXEDBLOCK10MIN.getId()).create()).request().get();
+                .queryParam("filter", ExtjsFilter.filter().property("time", (long) TimeAttribute.FIXEDBLOCK10MIN.getId()).create()).request().get();
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(10);
     }
@@ -179,7 +181,7 @@ public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
         IntStream.range(0, 31).forEach(i -> collect.add(mockReadingTypeWithMultiplier("power " + i, i < 10 ? MetricMultiplier.KILO : MetricMultiplier.GIGA)));
         when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
         Response response = target("/fields/readingtypes")
-            .queryParam("filter", ExtjsFilter.filter().property("time", (long) TimeAttribute.FIXEDBLOCK15MIN.getId()).property("multiplier", (long) MetricMultiplier.KILO.getMultiplier()).create()).request().get();
+                .queryParam("filter", ExtjsFilter.filter().property("time", (long) TimeAttribute.FIXEDBLOCK15MIN.getId()).property("multiplier", (long) MetricMultiplier.KILO.getMultiplier()).create()).request().get();
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(10);
     }
@@ -191,11 +193,11 @@ public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
         IntStream.range(0, 31).forEach(i -> collect.add(mockReadingTypeWithMultiplier("power " + i, i < 10 ? MetricMultiplier.KILO : MetricMultiplier.GIGA)));
         when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
         Response response = target("/fields/readingtypes")
-            .queryParam("filter", ExtjsFilter.filter().
-                    property("time", (long) TimeAttribute.FIXEDBLOCK15MIN.getId()).
-                    property("multiplier", (long) MetricMultiplier.KILO.getMultiplier()).
-                    property("tou", 666L).create()).
-                    request().get();
+                .queryParam("filter", ExtjsFilter.filter().
+                        property("time", (long) TimeAttribute.FIXEDBLOCK15MIN.getId()).
+                        property("multiplier", (long) MetricMultiplier.KILO.getMultiplier()).
+                        property("tou", 666L).create()).
+                        request().get();
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<List>get("$.readingTypes")).isEmpty();
     }
@@ -207,7 +209,7 @@ public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
         IntStream.range(0, 31).forEach(i -> collect.add(mockReadingTypeWithMultiplier("power " + i, i < 10 ? MetricMultiplier.KILO : MetricMultiplier.GIGA)));
         when(meteringService.getAvailableReadingTypes()).thenReturn(collect);
         Response response = target("/fields/readingtypes")
-            .queryParam("filter", ExtjsFilter.filter().property("multiplier", (long) MetricMultiplier.KILO.getMultiplier()).create()).request().get();
+                .queryParam("filter", ExtjsFilter.filter().property("multiplier", (long) MetricMultiplier.KILO.getMultiplier()).create()).request().get();
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(10);
     }
@@ -300,7 +302,7 @@ public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
         Phase phasea = Phase.PHASEA;
         when(readingType.getName()).thenReturn(name);
         when(readingType.getAliasName()).thenReturn(aliasName);
-        when(readingType.getMRID()).thenReturn("mrid+"+name);
+        when(readingType.getMRID()).thenReturn("mrid+" + name);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
         when(readingType.getAggregate()).thenReturn(Aggregate.AVERAGE);
         when(readingType.getAccumulation()).thenReturn(Accumulation.CUMULATIVE);
@@ -319,8 +321,48 @@ public class MeteringFieldResourceTest extends MeteringApplicationJerseyTest {
         when(readingType.getTou()).thenReturn(tou);
         when(readingType.getUnit()).thenReturn(unit);
         when(readingType.getVersion()).thenReturn(1L);
-        when(readingType.getFullAliasName()).thenReturn("["+timeAttribute+"]"+aliasName+" "+unit+" "+phasea+" "+tou);
+        when(readingType.getFullAliasName()).thenReturn("[" + timeAttribute + "]" + aliasName + " " + unit + " " + phasea + " " + tou);
         when(readingType.isActive()).thenReturn(true);
         return readingType;
+    }
+
+    private <T> Collector<T, List<T>, T[]> toArray() {
+        return Collector.of(() -> new ArrayList<>(), (list, obj) -> list.add(obj), (list1, list2) -> {
+            list1.addAll(list2);
+            return list1;
+        }, list -> (T[]) list.toArray());
+    }
+
+    @Test
+    public void testGetConnectionStates() throws Exception {
+        Response response = target("/fields/connectionstates").request().get();
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(UsagePointConnectedKind.values().length);
+        assertThat(jsonModel.<List>get("$.connectionStates[*].id"))
+                .containsOnly(Arrays.stream(UsagePointConnectedKind.values()).map(connectionKind -> connectionKind.name()).collect(toArray()));
+        assertThat(jsonModel.<List>get("$.connectionStates[*].displayValue"))
+                .containsOnly(Arrays.stream(UsagePointConnectedKind.values()).map(connectionKind -> connectionKind.getDefaultFormat()).collect(toArray()));
+    }
+
+    @Test
+    public void testGetAmiBillings() throws Exception {
+        Response response = target("/fields/amibilling").request().get();
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(AmiBillingReadyKind.values().length);
+        assertThat(jsonModel.<List>get("$.amiBillings[*].id"))
+                .containsOnly(Arrays.stream(AmiBillingReadyKind.values()).map(billingKind -> billingKind.name()).collect(toArray()));
+        assertThat(jsonModel.<List>get("$.amiBillings[*].displayValue"))
+                .containsOnly(Arrays.stream(AmiBillingReadyKind.values()).map(billingKind -> billingKind.getDefaultFormat()).collect(toArray()));
+    }
+
+    @Test
+    public void testGetServiceCategories() throws Exception {
+        Response response = target("/fields/servicecategory").request().get();
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(ServiceKind.values().length);
+        assertThat(jsonModel.<List>get("$.categories[*].id"))
+                .containsOnly(Arrays.stream(ServiceKind.values()).map(serviceKind -> serviceKind.name()).collect(toArray()));
+        assertThat(jsonModel.<List>get("$.categories[*].displayValue"))
+                .containsOnly(Arrays.stream(ServiceKind.values()).map(serviceKind -> serviceKind.getDefaultFormat()).collect(toArray()));
     }
 }
