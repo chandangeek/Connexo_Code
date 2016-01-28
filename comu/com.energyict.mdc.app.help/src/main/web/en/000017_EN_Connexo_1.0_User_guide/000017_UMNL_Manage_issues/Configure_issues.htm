@@ -54,7 +54,7 @@ p.WebHelpNavBar { text-align:right; }
 <script type="text/javascript" >
 gRootRelPath = "../..";
 gCommonRootRelPath = "../..";
-gTopicId = "6.1";
+gTopicId = "7.1";
 </script>
  <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Manage_issues/Understand_issues.htm">
  <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Manage_issues/Fix_issues.htm">
@@ -70,6 +70,61 @@ gTopicId = "6.1";
  <p class="FM_Body"><uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;offers the possibility the configure issue creation rules. This option limits the time you spend managing issues because you create rules to define which events will automatically trigger an issue. You can also define when the issue needs to be solved as well as what needs to be done with the issue such as assigning it to a specific user.</p>
  <p class="FM_Body">Different parameters are required to complete the configuration of a creation rule. First you will have to indicate the type of issue, this can be for example a data collection issue. Next you need to select a rule template to define the parameters of the rule. </p>
  <p class="FM_Body">A rule template is a collection of parameters that are specific for a certain rule. The exact values of the parameters are defined in the rule itself. An examples of such a template is the template to create an issue when a slope is detected. All parameters will be shown, but then you will have to complete the reading type, the trend period and the threshold.</p>
+ <p class="FM_Body" style="color   : #a0a0a0;"><span style="font-family : Lato; font-weight : bold; color   : #686868; ">&nbsp;</span></p>
+ <p class="FM_H4Topic">Available rule templates</p>
+ <p class="FM_Body">In <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;different rule templates are available by default, below you can find a description of these rule templates and when to use them:</p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 161.575pt; vertical-align : top;">
+  <p class="FM_CellHeading">Rule template</p>
+</td>
+  <td style="width : 255.118pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 161.575pt; vertical-align : top;">
+  <p class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_Bold">Data collection issues</span></p>
+</td>
+  <td style="width : 255.118pt; vertical-align : top;">
+  <p class="FM_CellBody">&nbsp;</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 161.575pt; vertical-align : top;">
+  <p class="FM_CellBody">Events from meters of concentrators</p>
+</td>
+  <td style="width : 255.118pt; vertical-align : top;">
+  <p class="FM_CellBody">This rule template is designed to create an issue when multiple events that are related occur.</p>
+</td>
+</tr>
+  <tr style=" height : 47.00pt;" class="t2Row">
+  <td style="width : 161.575pt; vertical-align : top;">
+  <p class="FM_CellBody">Create issue when specific event occurs</p>
+</td>
+  <td style="width : 255.118pt; vertical-align : top;">
+  <p class="FM_CellBody">Is a rule template designed to create issues for simple events such as a lost connection or a communication failure.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 161.575pt; vertical-align : top;">
+  <p class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_Bold">Data validation issues</span></p>
+</td>
+  <td style="width : 255.118pt; vertical-align : top;">
+  <p class="FM_CellBody">&nbsp;</p>
+</td>
+</tr>
+  <tr style=" height : 47.00pt;" class="t2Row">
+  <td style="width : 161.575pt; vertical-align : top;">
+  <p class="FM_CellBody">Create issue when suspects cannot be estimated</p>
+</td>
+  <td style="width : 255.118pt; vertical-align : top;">
+  <p class="FM_CellBody">An issue is created when the data cannot be estimated by the estimation rules used by the configured estimation task.</p>
+</td>
+</tr>
+ </table>
+
  <p class="FM_H4Topic"><a name="XREF_96938_Configure_issue"></a>Add data collection issue creation rules</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>

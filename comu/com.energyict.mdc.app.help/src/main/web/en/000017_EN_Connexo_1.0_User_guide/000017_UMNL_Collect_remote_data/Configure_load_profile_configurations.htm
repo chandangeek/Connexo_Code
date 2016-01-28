@@ -83,14 +83,14 @@ gTopicId = "2.2.0_5";
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management </span>&gt;<span class="FM_UIRef">&#160;</span>click <span class="FM_UIRef">Device type </span>&gt;&#160;select a device type &gt; click <span class="FM_UIRef">Configurations</span>&#160;&gt;&#160;select a configuration &gt; click <span class="FM_UIRef">Load profile configurations</span>&#160;in the menu on the left. </p>
- <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00016.png" style=" margin-bottom:0.000pt; width:100%; max-width:21px;" id="image26" src="masterActions00016.png" />&#160;and select <span class="FM_UIRef">Edit</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00016.png" style=" margin-bottom:0.000pt; width:100%; max-width:21px;" id="image27" src="masterActions00016.png" />&#160;and select <span class="FM_UIRef">Edit</span>.</p>
  <p class="FM_ListNumber1">3. &#160; Change the load profile configuration parameters. </p>
  <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Save</span>.</p>
  <p class="FM_H4Topic">Remove load profile configuration</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management </span>&gt;<span class="FM_UIRef">&#160;</span>click <span class="FM_UIRef">Device type </span>&gt;&#160;select a device type &gt; click <span class="FM_UIRef">Configurations</span>&#160;&gt;&#160;select a configuration &gt; click <span class="FM_UIRef">Load profile configurations</span>&#160;in the menu on the left. </p>
- <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00017.png" style=" margin-bottom:0.000pt; width:100%; max-width:21px;" id="image27" src="masterActions00017.png" />&#160;and select <span class="FM_UIRef">Remove</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00017.png" style=" margin-bottom:0.000pt; width:100%; max-width:21px;" id="image28" src="masterActions00017.png" />&#160;and select <span class="FM_UIRef">Remove</span>.</p>
  <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Remove</span>. If the device configuration is active, load profile configuration can not be removed.</p>
  <p class="FM_H4Topic"><a name="XREF_34579_Configure_channels"></a>Add channels</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
@@ -109,26 +109,26 @@ gTopicId = "2.2.0_5";
 </tr>
   <tr style=" height : 47.00pt;" class="t2Row">
   <td style="width : 117.880pt; vertical-align : top;">
-  <p class="FM_CellBody">Reading type</p>
+  <p class="FM_CellBody">Register type</p>
 </td>
   <td style="width : 298.812pt; vertical-align : top;">
-  <p class="FM_CellBody">Select the data of which you want to see interval readings. Only register types that have not been used for other <a title="A channel contains the energy consumption data collected by a device.">channel</a>s are available</p>
+  <p class="FM_CellBody">Select the data of which you want to see interval readings. Only reading types that have not been used for other <a title="A channel is a representation of metered data (a single series of data), where each value is an exact amount of time apart from its neighbouring value. (e.g. 15 minutes).">channel</a>s are available</p>
 </td>
 </tr>
-  <tr style=" height : 21.00pt;" class="t1Row">
+  <tr style=" height : 47.00pt;" class="t1Row">
   <td style="width : 117.880pt; vertical-align : top;">
-  <p class="FM_CellBody">Overruled <a title="OBIS stands for Object Identification System. OBIS provides standard identifiers for all data within the metering equipment, both measurement values and abstract values. OBIS uses six value groups in a hierarchical structure.">OBIS code</a></p>
+  <p class="FM_CellBody">&#160;<a title="OBIS stands for Object Identification System, provides standard identifiers for all data originating from the metering devices based on the DLMS standard. An OBIS code will always map to a reading type, but a reading type will not always map to an OBIS code. OBIS codes describes the data that originates from the device and will not be used for further processing.">OBIS code</a></p>
 </td>
   <td style="width : 298.812pt; vertical-align : top;">
-  <p class="FM_CellBody">Overrule the OBIS code of the register type.</p>
+  <p class="FM_CellBody">OBIS code linked to register type. Overrule the OBIS code if the OBIS code of the configuration would be different that the one of the device type.</p>
 </td>
 </tr>
-  <tr style=" height : 60.00pt;" class="t2Row">
+  <tr style=" height : 34.00pt;" class="t2Row">
   <td style="width : 117.880pt; vertical-align : top;">
   <p class="FM_CellBody">Overflow value</p>
 </td>
   <td style="width : 298.812pt; vertical-align : top;">
-  <p class="FM_CellBody">When the arithmetic operation attempts to create a numeric value that is too large to be represented within the available storage space, virtual space is created to accurately calculate usage.</p>
+  <p class="FM_CellBody">The overflow value defines the maximum value that can be stored.</p>
 </td>
 </tr>
   <tr style=" height : 34.00pt;" class="t1Row">
@@ -171,14 +171,14 @@ gTopicId = "2.2.0_5";
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Click a load profile configuration.</p>
- <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00018.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image28" src="masterActions00018.png" />&#160;and select <span class="FM_UIRef">Edit</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00018.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image29" src="masterActions00018.png" />&#160;and select <span class="FM_UIRef">Edit</span>.</p>
  <p class="FM_ListNumber1">3. &#160; Change the channel parameters</p>
  <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Save</span>.</p>
  <p class="FM_H4Topic">Remove channels</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Click a load profile configuration.</p>
- <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00019.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image29" src="masterActions00019.png" />&#160;and select <span class="FM_UIRef">Remove</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00019.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image30" src="masterActions00019.png" />&#160;and select <span class="FM_UIRef">Remove</span>.</p>
  <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Remove</span>.</p>
  </body>
 </html>

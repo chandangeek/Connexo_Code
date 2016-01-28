@@ -91,12 +91,12 @@ gTopicId = "11.2";
   <p class="FM_CellBody">Also shows the status of the export task and the reason of the task failed.</p>
 </td>
 </tr>
-  <tr style=" height : 47.00pt;" class="t1Row">
+  <tr style=" height : 21.00pt;" class="t1Row">
   <td style="width : 146.852pt; vertical-align : top;">
   <p class="FM_CellBody">Data selection</p>
 </td>
   <td style="width : 269.841pt; vertical-align : top;">
-  <p class="FM_CellBody">Describes what data from which devices (device groups) will be exported together with the period that will be exported.</p>
+  <p class="FM_CellBody">Describes which data will be exported.</p>
 </td>
 </tr>
   <tr style=" height : 21.00pt;" class="t2Row">
@@ -119,6 +119,7 @@ gTopicId = "11.2";
 
  <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">History</span> in the menu on the to see the history of the selected export task.</p>
  <p class="FM_H4Topic">View an export task’s data sources</p>
+ <p class="FM_Body">This option is only available for device reading data export tasks.</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Data export</span>&#160;&gt; <span class="FM_UIRef">Data export tasks</span>.</p>
@@ -214,7 +215,7 @@ gTopicId = "11.2";
   <td style="width : 318.002pt; vertical-align : top;">
   <p class="FM_CellBody">Select this option if you want to export data that has been changed since a previous export. </p>
   <p class="FM_CellBody">Select the time window of the updated data and whether you want to export adjacent data as well.</p>
-  <p class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_Bold">Beware to specify the update identifier to tag the updated data!</span></p>
+  <p class="FM_CellBody" style="font-family : Lato; font-weight : bold;"><span class="FM_Bold">Keep in mind to specify the update identifier to tag the updated data!</span></p>
 </td>
 </tr>
   <tr style=" height : 47.00pt;" class="t1Row">
@@ -260,15 +261,16 @@ gTopicId = "11.2";
   <p class="FM_CellBody">Identifier</p>
 </td>
   <td style="width : 318.002pt; vertical-align : top;">
-  <p class="FM_CellBody">Custom tag to add to all exported files.</p>
+  <p class="FM_CellBody">Custom tag to add to the file name of all exported files.</p>
 </td>
 </tr>
-  <tr style=" height : 21.00pt;" class="t2Row">
+  <tr style=" height : 73.00pt;" class="t2Row">
   <td style="width : 98.691pt; vertical-align : top;">
   <p class="FM_CellBody">Update identifier</p>
 </td>
   <td style="width : 318.002pt; vertical-align : top;">
-  <p class="FM_CellBody">Custom tag to show that this concerns updated data.</p>
+  <p class="FM_CellBody">Custom tag to show that this concerns updated data. Define a value different from the identifier described above to create separate export files containing updated data.</p>
+  <p class="FM_CellBody">Identical values for Identifier and Update identifier will result in updates being included in the regular export file.</p>
 </td>
 </tr>
   <tr style=" height : 34.00pt;" class="t1Row">
@@ -294,24 +296,24 @@ gTopicId = "11.2";
   <p class="FM_CellHeading">Parameters</p>
 </td>
 </tr>
-  <tr style=" height : 109.00pt;" class="t2Row">
+  <tr style=" height : 161.00pt;" class="t2Row">
   <td style="width : 70.866pt; vertical-align : top;">
   <p class="FM_CellBody">Save file</p>
 </td>
   <td style="width : 308.976pt; ">
   <ul type="disc">
    <li>
-   <p class="FM_ListBullet1">File name: the name of the file. Add tags to give more information to the file. If you are exporting updated data add the tag &lt;identifier&gt;, then separate files will be created.</p>
+   <p class="FM_ListBullet1">File name: the name of the file. Add tags to give more information to the file. If you are exporting updated data add the tag &lt;identifier&gt;, then separate files will be created based on the Update identifier and Identifier specified in the output format parameters.</p>
 </li>
    <li>
    <p class="FM_ListBullet1">File extension: the extension of the file eg. CSV.</p>
 </li>
    <li>
-   <p class="FM_ListBullet1">File location: specify the location to store the exported data. Tags can be added. If the &lt;identifier&gt; tag is added, updated data will be stored in a different location.</p>
+   <p class="FM_ListBullet1">File location: specify the location to store the exported data. Tags can be added. If the &lt;identifier&gt; tag is added, updated data will be stored in a different folder with the name defined by the file location parameter and the Update identifier defined in the output format parameters.</p>
 </li>
   </ul></td>
 </tr>
-  <tr style=" height : 101.00pt;" class="t1Row">
+  <tr style=" height : 127.00pt;" class="t1Row">
   <td style="width : 70.866pt; vertical-align : top;">
   <p class="FM_CellBody">Mail</p>
 </td>
@@ -324,14 +326,14 @@ gTopicId = "11.2";
    <p class="FM_ListBullet1">Subject</p>
 </li>
    <li>
-   <p class="FM_ListBullet1">Attachment name: name of the file. Add tags to give more information to the file. If you are exporting updated data add the tag &lt;identifier&gt;, then separate files will be created.</p>
+   <p class="FM_ListBullet1">Attachment name: name of the file. Add tags to give more information to the file. If you are exporting updated data add the tag &lt;identifier&gt;, then separate files will be created based on the Update identifier and Identifier specified in the output format parameters</p>
 </li>
    <li>
    <p class="FM_ListBullet1">Attachment extension: extension of the file.</p>
 </li>
   </ul></td>
 </tr>
-  <tr style=" height : 127.00pt;" class="t2Row">
+  <tr style=" height : 179.00pt;" class="t2Row">
   <td style="width : 70.866pt; vertical-align : top;">
   <p class="FM_CellBody">FTP</p>
 </td>
@@ -341,13 +343,13 @@ gTopicId = "11.2";
    <p class="FM_ListBullet1">FTP details: details of the file server.</p>
 </li>
    <li>
-   <p class="FM_ListBullet1">File name: name of the file. Add tags to give more information to the file. If you are exporting updated data add the tag &lt;identifier&gt;, then separate files will be created.</p>
+   <p class="FM_ListBullet1">File name: the name of the file. Add tags to give more information to the file. If you are exporting updated data add the tag &lt;identifier&gt;, then separate files will be created based on the Update identifier and Identifier specified in the output format parameters.</p>
 </li>
    <li>
    <p class="FM_ListBullet1">File extension</p>
 </li>
    <li>
-   <p class="FM_ListBullet1">File location: specify the location to store the exported data. Tags can be added. If the &lt;identifier&gt; tag is added, updated data will be stored in a different location.</p>
+   <p class="FM_ListBullet1">File location: specify the location to store the exported data. Tags can be added. If the &lt;identifier&gt; tag is added, updated data will be stored in a different folder with the name defined by the file location parameter and the Update identifier defined in the output format parameters.</p>
 </li>
   </ul></td>
 </tr>
@@ -363,7 +365,10 @@ gTopicId = "11.2";
 
  <p class="FM_ListNumber2" style="font-family : Lato Light; font-weight : normal; color   : #686868;">c. <span style='word-spacing:normal; font:6.0pt "Times New Roman"'>&nbsp;</span>Click <span class="FM_UIRef">Add</span>.</p>
  <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Add</span>.</p>
- <p class="FM_H4Topic">Add export task for device events</p>
+ <p class="FM_PNote"><span class="FM_Icons">3</span></p>
+ <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+ <p class="FM_BodyGrey">It is recommended to always add the &lt;identifier&gt; tag to either the file name or file location and it is required to do so when exporting updates to a different file or folder.</p>
+ <p class="FM_H4Topic"><a name="XREF_40732_Add_export_task"></a>Add export task for device events</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Data export</span>&#160;&gt; <span class="FM_UIRef">Data export tasks</span>.</p>

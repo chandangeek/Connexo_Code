@@ -3,7 +3,7 @@
 <head>
 
  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
- <title>Default estimation rules</title>
+ <title>Default estimators</title>
 
  <meta name="generator" content="Adobe FrameMaker 12" />
  <meta name="Originator" content="ImportMif" />
@@ -54,7 +54,7 @@ p.WebHelpNavBar { text-align:right; }
 <script type="text/javascript" >
 gRootRelPath = "../..";
 gCommonRootRelPath = "../..";
-gTopicId = "4.1.0_2";
+gTopicId = "5.1.0_2";
 </script>
  <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Estimate_data/Configure_data_estimation.htm">
  <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Estimate_data/Configure_estimation_rules.htm">
@@ -63,12 +63,12 @@ gTopicId = "4.1.0_2";
 <body>
 <script type="text/javascript" src="../../ehlpdhtm.js"></script>
 
- <p class="FM_H3SectionTopic"><a name="XREF_71003_Default_estimation"></a>Default estimation rules</p>
+ <p class="FM_H3SectionTopic"><a name="XREF_71003_Default_estimation"></a>Default estimators</p>
  <p class="FM_H4Topic">Estimate using average with samples</p>
  <p class="FM_PImportant"><span class="FM_Icons">1</span></p>
  <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
  <p class="FM_Body" style="font-family : Lato; font-weight : bold;"><span class="FM_Bold">You need delta values for this estimation rule.</span></p>
- <p class="FM_Body">With this rule every suspect channel delta value is estimated by calculating the average of reading values from this channel or other reading types at the same time and day in the past. For this rule you need to configure the following parameters:</p>
+ <p class="FM_Body">With this rule every suspect channel delta value is estimated by calculating the average of reading values from this channel or other reading types from the same time and day in the past. For this rule you need to configure the following parameters:</p>
 
  <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
   <tr style=" height : 25.00pt;" class="t1st">
@@ -87,12 +87,12 @@ gTopicId = "4.1.0_2";
   <p class="FM_CellBody">The data that will be estimated.</p>
 </td>
 </tr>
-  <tr style=" height : 47.00pt;" class="t1Row">
+  <tr style=" height : 60.00pt;" class="t1Row">
   <td style="width : 98.691pt; vertical-align : top;">
   <p class="FM_CellBody">Max number of consecutive suspects</p>
 </td>
   <td style="width : 318.002pt; vertical-align : top;">
-  <p class="FM_CellBody">The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be manually edited or estimated.</p>
+  <p class="FM_CellBody">The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated with this rule, but can be estimated with the next estimation rule in the set or manually edited or estimated.</p>
 </td>
 </tr>
   <tr style=" height : 34.00pt;" class="t2Row">
@@ -103,16 +103,16 @@ gTopicId = "4.1.0_2";
   <p class="FM_CellBody">Indicates that negative values can be used to estimate data.</p>
 </td>
 </tr>
-  <tr style=" height : 98.00pt;" class="t1Row">
+  <tr style=" height : 111.00pt;" class="t1Row">
   <td style="width : 98.691pt; vertical-align : top;">
   <p class="FM_CellBody" style="text-align  : left;">Use advance readings</p>
 </td>
   <td style="width : 318.002pt; vertical-align : top;">
-  <p class="FM_CellBody">Select this when you want to use other data than the channel’s own delta values to estimate suspect data.</p>
+  <p class="FM_CellBody">Select this when you want to scale the estimated values using the values that are adjacent to the estimation interval. You can choose to use the channel’s own values or use another reading type.</p>
   <p class="FM_ListBulletTable"><span class="FM_BulletA">o<span style='word-spacing:normal; font:6.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;</span></span><span class="FM_UIRef">Bulk reading</span>: use the channel’s bulk reading for estimation.</p>
   <ul type="disc">
    <li>
-   <p class="FM_ListBullet1"><span class="FM_UIRef">Reading type</span>: select another reading type for estimation. This reading type needs to have readings at exactly the same time points as the suspect data.</p>
+   <p class="FM_ListBullet1"><span class="FM_UIRef">Reading type</span>: select another reading type for estimation. This reading type needs to have readings at exactly the same day and time as the suspect data and the same type of data.</p>
 </li>
   </ul></td>
 </tr>
@@ -173,22 +173,22 @@ gTopicId = "4.1.0_2";
   <p class="FM_CellBody">The data that will be estimated.</p>
 </td>
 </tr>
-  <tr style=" height : 47.00pt;" class="t1Row">
+  <tr style=" height : 60.00pt;" class="t1Row">
   <td style="width : 98.691pt; vertical-align : top;">
   <p class="FM_CellBody">Max number of consecutive suspects</p>
 </td>
   <td style="width : 318.002pt; vertical-align : top;">
-  <p class="FM_CellBody">The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be manually edited or estimated.</p>
+  <p class="FM_CellBody">The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be estimated with the next estimation rule in the set or manually edited or estimated.</p>
 </td>
 </tr>
-  <tr style=" height : 87.00pt;" class="t2Row">
+  <tr style=" height : 113.00pt;" class="t2Row">
   <td style="width : 98.691pt; vertical-align : top;">
   <p class="FM_CellBody" style="text-align  : left;">Use advance readings</p>
 </td>
   <td style="width : 318.002pt; vertical-align : top;">
-  <p class="FM_CellBody">Select which you want to use to estimate the suspect data.</p>
+  <p class="FM_CellBody">Select this when you want to scale the estimated values using the values that are adjacent to the estimation interval. You can choose to use the channel’s own values or use another reading type.</p>
   <p class="FM_ListBulletTable"><span class="FM_BulletA">o<span style='word-spacing:normal; font:6.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;</span></span><span class="FM_UIRef">Bulk reading</span>: use the channel’s bulk reading for estimation.</p>
-  <p class="FM_ListBulletTable"><span class="FM_BulletA">o<span style='word-spacing:normal; font:6.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;</span></span><span class="FM_UIRef">Reading type</span>: select another reading type for estimation. This reading type needs to have readings at exactly the same time points as the suspect data.</p>
+  <p class="FM_ListBulletTable"><span class="FM_BulletA">o<span style='word-spacing:normal; font:6.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;</span></span><span class="FM_UIRef">Reading type</span>: select another reading type for estimation. This reading type needs to have readings at exactly the same day and time as the suspect data and the same type of data.</p>
 </td>
 </tr>
  </table>
@@ -197,7 +197,7 @@ gTopicId = "4.1.0_2";
  <p class="FM_PImportant"><span class="FM_Icons">1</span></p>
  <p class="FM_PImportant2"><span class="FM_Bold">Important</span></p>
  <p class="FM_Body" style="font-family : Lato; font-weight : bold;"><span class="FM_Bold">Bulk readings are required to be able to estimate suspect values with this estimation rule. This rule only works with bulk readings.</span></p>
- <p class="FM_Body">With this rule <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;will estimate the suspect bulk readings. The delta values are then calculated based on these bulk readings. To estimate the bulk readings <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;calculates the difference between the bulk reading after the estimation interval and the bulk reading before the interval and divides this difference by the amount of samples in the interval plus one.</p>
+ <p class="FM_Body">With this rule <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;will estimate the suspect bulk readings. The delta values are then calculated based on these bulk readings (the difference between two consecutive bulk readings). To estimate the bulk readings <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;calculates the difference between the bulk reading after the estimation interval and the bulk reading before the interval and divides this difference by the amount of samples in the interval plus one.</p>
  <p class="FM_Body">In the second step <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;adds this difference to the bulk reading before the estimation interval to calculate the first suspect reading. The second estimated suspect reading will be the previous estimated reading plus the calculated difference from the first step. <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;repeats these steps until all suspect readings are estimated.</p>
  <p class="FM_Body">You need to configure the following parameters for this rule:</p>
 
@@ -218,12 +218,12 @@ gTopicId = "4.1.0_2";
   <p class="FM_CellBody">The data that will be estimated.</p>
 </td>
 </tr>
-  <tr style=" height : 47.00pt;" class="t1Row">
+  <tr style=" height : 60.00pt;" class="t1Row">
   <td style="width : 98.691pt; vertical-align : top;">
   <p class="FM_CellBody">Max number of consecutive suspects</p>
 </td>
   <td style="width : 318.002pt; vertical-align : top;">
-  <p class="FM_CellBody">The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be manually edited or estimated.</p>
+  <p class="FM_CellBody">The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be estimated with the next estimation rule in the set or manually edited or estimated.</p>
 </td>
 </tr>
  </table>
@@ -251,12 +251,12 @@ gTopicId = "4.1.0_2";
   <p class="FM_CellBody">The data that will be estimated.</p>
 </td>
 </tr>
-  <tr style=" height : 47.00pt;" class="t1Row">
+  <tr style=" height : 60.00pt;" class="t1Row">
   <td style="width : 98.691pt; vertical-align : top;">
   <p class="FM_CellBody">Max number of consecutive suspects</p>
 </td>
   <td style="width : 318.002pt; vertical-align : top;">
-  <p class="FM_CellBody">The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be manually edited or estimated.</p>
+  <p class="FM_CellBody">The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be estimated with the next estimation rule in the set or manually edited or estimated.</p>
 </td>
 </tr>
  </table>
@@ -281,12 +281,12 @@ gTopicId = "4.1.0_2";
   <p class="FM_CellBody">The data that will be estimated.</p>
 </td>
 </tr>
-  <tr style=" height : 47.00pt;" class="t1Row">
+  <tr style=" height : 60.00pt;" class="t1Row">
   <td style="width : 98.691pt; vertical-align : top;">
   <p class="FM_CellBody">Max number of consecutive suspects</p>
 </td>
   <td style="width : 318.002pt; vertical-align : top;">
-  <p class="FM_CellBody">The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be manually edited or estimated.</p>
+  <p class="FM_CellBody">The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be estimated with the next estimation rule in the set or manually edited or estimated.</p>
 </td>
 </tr>
   <tr style=" height : 21.00pt;" class="t2Row">

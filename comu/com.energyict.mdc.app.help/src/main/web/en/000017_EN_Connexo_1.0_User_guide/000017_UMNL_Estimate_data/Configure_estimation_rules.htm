@@ -54,9 +54,9 @@ p.WebHelpNavBar { text-align:right; }
 <script type="text/javascript" >
 gRootRelPath = "../..";
 gCommonRootRelPath = "../..";
-gTopicId = "4.1.0_3";
+gTopicId = "5.1.0_3";
 </script>
- <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Estimate_data/Default_estimation_rules.htm">
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Estimate_data/Default_estimators.htm">
  <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Estimate_data/Manage_data_estimation_on_a_device.htm">
 </head>
 
@@ -139,7 +139,7 @@ gTopicId = "4.1.0_3";
   <p class="FM_CellBody">Estimator</p>
 </td>
   <td style="width : 318.002pt; vertical-align : top;">
-  <p class="FM_CellBody">Select the estimator this parameter defines how estimation will be performed. Depending on the estimator you select you may need to configure more parameters. See <a href="Default_estimation_rules.htm#XREF_71003_Default_estimation"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Default estimation rules”</span></a>&#160;for more information.</p>
+  <p class="FM_CellBody">Select the estimator this parameter defines how estimation will be performed. Depending on the estimator you select you may need to configure more parameters. See <a href="Default_estimators.htm#XREF_71003_Default_estimation"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Default estimators”</span></a>&#160;for more information.</p>
 </td>
 </tr>
   <tr style=" height : 47.00pt;" class="t2Row">
@@ -148,14 +148,6 @@ gTopicId = "4.1.0_3";
 </td>
   <td style="width : 318.002pt; vertical-align : top;">
   <p class="FM_CellBody">Select the reading types to define the type of data that will be estimated. Reading types provide the link with device configurations.</p>
-</td>
-</tr>
-  <tr style=" height : 47.00pt;" class="t1Row">
-  <td style="width : 98.691pt; vertical-align : top;">
-  <p class="FM_CellBody">Max number of consecutive zeros</p>
-</td>
-  <td style="width : 318.002pt; vertical-align : top;">
-  <p class="FM_CellBody">The maximum number of consecutive zeros that is allowed. If this amount is exceeded in the estimation interval, estimation will result in an error.</p>
 </td>
 </tr>
  </table>
@@ -174,6 +166,7 @@ gTopicId = "4.1.0_3";
  <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00004.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image5" src="masterActions00004.png" />&#160;and select <span class="FM_UIRef">Remove</span>.</p>
  <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Remove</span>.</p>
  <p class="FM_H4Topic">Change the order of estimation rules in an estimation rule set</p>
+ <p class="FM_Body">It is important to set the order of the estimation rules in the set because suspect values can only be estimated using one estimation rule. This is why the estimation rule that results in the most realistic values should be put on top in the set.</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Data estimation</span>&#160;&gt; <span class="FM_UIRef">Estimation rule sets</span>. &gt; click an estimation rule set &gt; click <span class="FM_UIRef">Estimation rules</span> in the menu on the left.</p>

@@ -1343,42 +1343,6 @@ p.FM_PProcedure {
                  display:inline;
 
 }
-p.FM_PDefinitionIcon {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      22.000pt;
-        margin-bottom:   13.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #a0a0a0;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-caption.FM_PDefinitionIcon {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      22.000pt;
-        margin-bottom:   13.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #a0a0a0;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
 p.FM_PCaution {
         margin-left:     39.685pt;
         margin-right:    0.000pt;
@@ -1469,61 +1433,6 @@ caption.FM_Level1IOM {
         text-decoration:  none  ;
 		letter-spacing:  0.00em;
         
-}
-p.FM_H4TopicOverview {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     0.000pt;
-        margin-top:      27.000pt;
-        margin-bottom:   7.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.5pt;
-        color:           #1f7e9e;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-caption.FM_H4TopicOverview {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     0.000pt;
-        margin-top:      27.000pt;
-        margin-bottom:   7.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.5pt;
-        color:           #1f7e9e;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-p.FM_H4TopicOverview {
-        
-                      margin-left:0.000pt;
-                      margin-right:0.000pt;
-                      text-align:left;
-                      text-indent:0.000pt;
-                      margin-top:27.000pt;
-                      margin-bottom:7.000pt;
-                      word-spacing:0.250em;
-                      font-family:Lato;
-                      font-style:normal;
-                      font-weight:bold;
-                      font-size:11.5pt;
-                      color:#1f7e9e;
-                      background-color:none;
-                      text-decoration:none;
-                      letter-spacing:0.00em;
-
 }
 p.FM_TOCHC3SectionTopic {
         margin-left:     0.000pt;
@@ -1672,78 +1581,6 @@ p.FM_Note {
            letter-spacing:0.00em;
            background:#686868 url("bulb.png")  no-repeat left;
 
-}
-p.FM_IconNote {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     8.504pt;
-        margin-top:      13.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-caption.FM_IconNote {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     8.504pt;
-        margin-top:      13.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-p.FM_IconNoteBullet {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     0.000pt;
-        margin-top:      0.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-caption.FM_IconNoteBullet {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     0.000pt;
-        margin-top:      0.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
 }
 p.FM_H5Overview {
         margin-left:     0.000pt;
@@ -2037,61 +1874,6 @@ caption.FM_COApplication {
 		letter-spacing:  0.00em;
         
 }
-p.FM_CellBodyParameter {
-        margin-left:     8.504pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      0.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-caption.FM_CellBodyParameter {
-        margin-left:     8.504pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      0.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-p.FM_CellBodyParameter {
-        
-                        margin-left:8.504pt;
-                        margin-right:0.000pt;
-                        text-align:justify;
-                        text-indent:0.000pt;
-                        margin-top:0.000pt;
-                        margin-bottom:0.000pt;
-                        word-spacing:0.250em;
-                        font-family:Lato Light;
-                        font-style:normal;
-                        font-weight:normal;
-                        font-size:11.0pt;
-                        color:#686868;
-                        background-color:none;
-                        text-decoration:none;
-                        letter-spacing:0.00em;
-
-}
 p.FM_User {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -2329,42 +2111,6 @@ caption.FM_TOCHB2Section {
 		letter-spacing:  0.00em;
         
 }
-p.FM_PImportantIcon {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      22.000pt;
-        margin-bottom:   22.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #eb5642;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-caption.FM_PImportantIcon {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      22.000pt;
-        margin-bottom:   22.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #eb5642;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
 p.FM_H3SectionTopicTOC {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -2519,42 +2265,6 @@ caption.FM_PNoteIconBullet {
         margin-bottom:   4.000pt;
         word-spacing:    0.250em;
         font-family:     Lato;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #a0a0a0;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-p.FM_PNoteIcon {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      22.000pt;
-        margin-bottom:   13.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       11.0pt;
-        color:           #a0a0a0;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-caption.FM_PNoteIcon {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      22.000pt;
-        margin-bottom:   13.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
@@ -3742,42 +3452,6 @@ caption.FM_ListBullet4 {
 		letter-spacing:  0.00em;
         
 }
-p.FM_IconProcedure {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     8.504pt;
-        margin-top:      0.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-caption.FM_IconProcedure {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     8.504pt;
-        margin-top:      0.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
 p.FM_H1Chapter {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -4106,42 +3780,6 @@ caption.FM_TOCHB1Chapter {
 		letter-spacing:  0.00em;
         
 }
-p.FM_PProcedureIcon {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      0.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       2.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-caption.FM_PProcedureIcon {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      0.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato Light;
-        font-style:      normal;
-        font-weight:     normal;
-        font-size:       2.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
 p.FM_PDefinition2 {
         margin-left:     59.528pt;
         margin-right:    0.000pt;
@@ -4310,61 +3948,6 @@ p.FM_ListBullet2 {
                   letter-spacing:0.00em;
 
 }
-p.FM_IconImportant {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     8.504pt;
-        margin-top:      0.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-caption.FM_IconImportant {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     8.504pt;
-        margin-top:      0.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-p.FM_IconImportant {
-        
-                    margin-left:0.000pt;
-                    margin-right:0.000pt;
-                    text-align:left;
-                    text-indent:8.504pt;
-                    margin-top:0.000pt;
-                    margin-bottom:0.000pt;
-                    word-spacing:0.250em;
-                    font-family:Lato;
-                    font-style:normal;
-                    font-weight:bold;
-                    font-size:11.0pt;
-                    color:#686868;
-                    background-color:none;
-                    text-decoration:none;
-                    letter-spacing:0.00em;
-
-}
 p.FM_COCode {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -4418,61 +4001,6 @@ p.FM_COCode {
              background-color:none;
              text-decoration:none;
              letter-spacing:0.00em;
-
-}
-p.FM_BoldTopic {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      4.000pt;
-        margin-bottom:   4.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #000000;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-caption.FM_BoldTopic {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      justify;
-        text-indent:     0.000pt;
-        margin-top:      4.000pt;
-        margin-bottom:   4.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #000000;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-p.FM_BoldTopic {
-        
-                margin-left:0.000pt;
-                margin-right:0.000pt;
-                text-align:justify;
-                text-indent:0.000pt;
-                margin-top:4.000pt;
-                margin-bottom:4.000pt;
-                word-spacing:0.250em;
-                font-family:Lato;
-                font-style:normal;
-                font-weight:bold;
-                font-size:11.0pt;
-                color:#000000;
-                background-color:none;
-                text-decoration:none;
-                letter-spacing:0.00em;
 
 }
 p.FM_ProcListNumber0 {
@@ -4620,42 +4148,6 @@ p.FM_Landscape {
                 text-decoration:none;
                 letter-spacing:0.00em;
 
-}
-p.FM_IconDefinition {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     5.669pt;
-        margin-top:      13.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
-}
-caption.FM_IconDefinition {
-        margin-left:     0.000pt;
-        margin-right:    0.000pt;
-        text-align:      left;
-        text-indent:     5.669pt;
-        margin-top:      13.000pt;
-        margin-bottom:   0.000pt;
-        word-spacing:    0.250em;
-        font-family:     Lato;
-        font-style:      normal;
-        font-weight:     bold;
-        font-size:       11.0pt;
-        color:           #686868;
-        background-color: none;
-        text-decoration:  none  ;
-		letter-spacing:  0.00em;
-        
 }
 p.FM_ListLetters0 {
         margin-left:     11.339pt;

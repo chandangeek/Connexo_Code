@@ -54,7 +54,7 @@ p.WebHelpNavBar { text-align:right; }
 <script type="text/javascript" >
 gRootRelPath = "../..";
 gCommonRootRelPath = "../..";
-gTopicId = "4.0_1";
+gTopicId = "5.0_1";
 </script>
  <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Estimate_data/Estimate_data.htm">
  <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Estimate_data/Configure_data_estimation.htm">
@@ -68,8 +68,8 @@ gTopicId = "4.0_1";
  <p class="FM_Body">Data estimation corrects suspect values, detected by the validation process, using &#160;‘predefined’ algorithms. With data estimation you can estimate the data based on valid collected data or using custom values.</p>
  <p class="FM_Body">In some cases data cannot be estimated and needs to be edited, see <a href="../000017_UMNL_Get_data_valid/Edit_data.htm#XREF_76175_4_Get_data_valid"><span class="FM_blue_crossreference">“Edit data”</span></a>&#160;for more information.</p>
  <p class="FM_H4Topic">Data estimation in <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable></p>
- <p class="FM_Body">The configuration of data estimation is similar to that of data validation. Estimation rules are grouped in estimation rule sets. Within the rule set you define the order of the rules to select which estimation rule will be used first. Typically the rules that result in the most realistic values are put on top of the list.</p>
- <p class="FM_Body">In <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;different default estimation rules are already available upon installation. These estimation rules cover all basic needs. You can find a more detailed description of these estimation rules in the topic <a href="Default_estimation_rules.htm#XREF_71003_Default_estimation"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Default estimation rules”</span></a>. </p>
+ <p class="FM_Body">The configuration of data estimation is similar to that of data validation. Estimation rules are grouped in estimation rule sets. Within the rule set you define the order of the rules to select which estimation rule will be used first. Typically the rules that result in the most realistic values are put on top of the list. Once the value is estimated with one of the rules this value is no longer available for estimation by the other estimation rules in the set.</p>
+ <p class="FM_Body">In <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;different default estimators are already available upon installation, these estimators still need to be configured further in the estimation rule. The estimators cover all basic needs. You can find a more detailed description of these estimators in the topic <a href="Default_estimators.htm#XREF_71003_Default_estimation"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Default estimators”</span></a>. </p>
 
  <table style=" border-spacing:0; float:alignleft; margin-top:12.00pt; margin-left:14.17pt; width:100%; max-width:351.50pt;" cellspacing="0">
   <caption class="FM_CGraphic" align="bottom">Figure: How estimation works in Connexo.</caption>
