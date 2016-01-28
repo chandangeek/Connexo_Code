@@ -98,6 +98,7 @@ Ext.define('Dsh.view.widget.Summary', {
 
         view.total = total || 0;
         view.record = record;
+        me.setTitle(' ');
 
         record.counters().each(function (item) {
             if (item.get('id')) {
