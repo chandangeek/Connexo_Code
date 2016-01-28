@@ -24,10 +24,10 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
         {ref: 'runningProcessesGrid', selector: '#running-processes-grid'},
         {ref: 'openTasksDisplay', selector: '#dbp-preview-running-process-open-tasks'},
         {ref: 'taskNodesDisplay', selector: '#dbp-preview-task-nodes'},
-        {ref: 'taskNodesForm', selector: '#frm-node-variable-preview'},
-        {ref: 'processNodesGrid', selector: '#process-nodes-grid'},
-        {ref: 'nodeVariablesPreviewPanel', selector: '#node-variables-preview-panel'}
-
+        {ref: 'runningProcessNodesGrid', selector: '#running-process-status-preview #process-nodes-grid'},
+        {ref: 'historyProcessNodesGrid', selector: '#history-process-status-preview #process-nodes-grid'},
+        {ref: 'runningVariablesPreviewPanel', selector: '#running-process-status-preview #node-variables-preview-panel'},
+        {ref: 'historyVariablesPreviewPanel', selector: '#history-process-status-preview #node-variables-preview-panel'}
     ],
     mRID: null,
 
@@ -43,8 +43,11 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
             '#tab-processes': {
                 tabChange: this.changeTab
             },
-            'dbp-status-process-preview #process-nodes-grid': {
-                select: this.showVariablesPreview
+            '#running-process-status-preview #process-nodes-grid': {
+                select: this.showVariablesPreviewForRunning
+            },
+            '#history-process-status-preview #process-nodes-grid': {
+                select: this.showVariablesPreviewForHistory
             }
         });
     },
@@ -80,7 +83,6 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
                 viewport.setLoading(false);
             }
         });
-
     },
 
     showRunningPreview: function (selectionModel, record) {
@@ -93,8 +95,6 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
             openTasksValue = "";
 
         Ext.suspendLayouts();
-        previewRunningDetails.setVisible(true);
-        previewHistoryDetails.setVisible(false);
         previewRunningDetails.setTitle(record.get('name'));
         previewRunningDetailsForm.loadRecord(record);
 
@@ -118,7 +118,7 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
         });
 
         me.getOpenTasksDisplay().setValue((openTasksValue.length > 0) ? openTasksValue : Uni.I18n.translate('dbp.process.noOpenTasks', 'DBP', 'None'));
-        me.showNodesDetails(record);
+        me.showNodesDetails(record, me.getRunningProcessNodesGrid());
         Ext.resumeLayouts();
     },
 
@@ -130,16 +130,14 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
             previewHistoryDetailsForm = mainPage.down('#frm-preview-history-process');
 
         Ext.suspendLayouts();
-        previewRunningDetails.setVisible(false);
-        previewHistoryDetails.setVisible(true);
         previewHistoryDetails.setTitle(record.get('name'));
         previewHistoryDetailsForm.loadRecord(record);
-        me.showNodesDetails(record);
+        me.showNodesDetails(record, me.getHistoryProcessNodesGrid());
 
         Ext.resumeLayouts();
     },
 
-    showNodesDetails: function (deviceProcessRecord) {
+    showNodesDetails: function (deviceProcessRecord, grid) {
         var me = this,
             mainPage = me.getMainPage(),
             previewStatusProcess = mainPage.down('#status-process-preview');
@@ -156,19 +154,28 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
                     resultSet = reader.readRecords(response),
                     record = resultSet.records[0];
 
-                me.getProcessNodesGrid().reconfigure(record.processInstanceNodes());
-                me.getProcessNodesGrid().getSelectionModel().select(0);
+                grid.reconfigure(record.processInstanceNodes());
+                grid.getSelectionModel().select(0);
             }
         })
-
     },
 
-    showVariablesPreview: function (selectionModel, record) {
+    showVariablesPreviewForRunning: function (selectionModel, record) {
+        var me = this;
+        return me.showVariablesPreview(me.getRunningVariablesPreviewPanel(), record);
+    },
+
+    showVariablesPreviewForHistory: function (selectionModel, record) {
+        var me = this;
+        return me.showVariablesPreview(me.getHistoryVariablesPreviewPanel(), record);
+    },
+
+    showVariablesPreview: function (panel, record) {
         var me = this,
-            nodeVariablesPreviewPanel = me.getNodeVariablesPreviewPanel();
+            form = panel.down('form');
 
         //    Ext.suspendLayouts();
-        nodeVariablesPreviewPanel.setTitle(Ext.String.format(Uni.I18n.translate('dbp.process.node.variablesTitle', 'MDC', '{0} ({1}) variables'),
+        panel.setTitle(Ext.String.format(Uni.I18n.translate('dbp.process.node.variablesTitle', 'MDC', '{0} ({1}) variables'),
             record.get('name'), record.get('type')));
 
         var formItems = new Ext.util.MixedCollection();
@@ -184,13 +191,10 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
             ))
         });
 
-        me.getTaskNodesForm().removeAll();
-        me.getTaskNodesForm().items = formItems;
-        me.getTaskNodesForm().doLayout();
-
+        form.removeAll();
+        form.items = formItems;
+        form.doLayout();
         //   Ext.resumeLayouts();
-
-
     },
 
     showNodesDetails2: function (deviceProcessRecord) {
@@ -249,10 +253,7 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
                 me.getTaskNodesForm().removeAll();
                 me.getTaskNodesForm().items = formItems;
                 me.getTaskNodesForm().doLayout();
-
                 //previewStatusProcess.setLoading();
-
-
             }
         })
 

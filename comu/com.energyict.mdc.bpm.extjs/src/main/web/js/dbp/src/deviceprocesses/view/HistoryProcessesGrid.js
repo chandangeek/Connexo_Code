@@ -23,7 +23,7 @@ Ext.define('Dbp.deviceprocesses.view.HistoryProcessesGrid', {
                 flex: 2
             },
             {
-                header: Uni.I18n.translate('dbp.process.startedOn', 'DBP', 'Sterted on'),
+                header: Uni.I18n.translate('dbp.process.startedOn', 'DBP', 'Started on'),
                 dataIndex: 'startDateDisplay',
                 flex: 2
             },
@@ -34,7 +34,6 @@ Ext.define('Dbp.deviceprocesses.view.HistoryProcessesGrid', {
                 textAlign: 'center',
                 flex: 1
             },
-
             {
                 header: Uni.I18n.translate('dbp.process.status', 'DBP', 'Status'),
                 dataIndex: 'statusDisplay',

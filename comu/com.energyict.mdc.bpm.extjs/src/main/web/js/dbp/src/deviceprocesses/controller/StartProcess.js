@@ -17,8 +17,7 @@ Ext.define('Dbp.deviceprocesses.controller.StartProcess', {
         {ref: 'openTasksDisplay', selector: '#dbp-preview-running-process-open-tasks'},
         {ref: 'startProcess', selector: 'dbp-start-processes'},
         {ref: 'startProcessForm', selector: 'dbp-start-processes #process-start-form'},
-
-        {ref: 'processStartContent',selector: 'dbp-start-processes #process-start-content'},
+        {ref: 'processStartContent',selector: 'dbp-start-processes #process-start-content'}
     ],
     mRID: null,
     processRecord: null,

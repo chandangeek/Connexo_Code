@@ -31,11 +31,40 @@ Ext.define('Dbp.deviceprocesses.view.HistoryProcesses', {
                             Uni.I18n.translate('dbp.process.empty.historylist.item2', 'DBP', 'Processes exist, but you do not have permission to view them.'),
                             Uni.I18n.translate('dbp.process.empty.historylist.item3', 'DBP', 'The filter criteria are too narrow.')
                         ]
-                    }/*,
+                    },
                     previewComponent: {
-                        xtype: 'dbp-history-process-preview',
-                        itemId: 'history-process-preview'
-                    }*/
+
+                        xtype: 'tabpanel',
+                        deferredRender: false,
+                        ui: 'large',
+                        itemId: 'tab-process-preview',
+                        activeTab: 0,
+                        items: [
+                            {
+                                margin: '10 0 0 0',
+                                title: Uni.I18n.translate('processes.processDetails.title', 'DBP', 'Details'),
+                                itemId: 'details-process-tab',
+                                items: [
+                                    {
+                                        xtype: 'dbp-history-process-preview',
+                                        itemId: 'history-process-preview'
+                                    }
+                                ]
+                            },
+                            {
+                                margin: '10 0 0 0',
+                                title: Uni.I18n.translate('processes.processStatus.title', 'DBP', 'Status overview'),
+                                itemId: 'status-process-tab',
+                                items: [
+                                    {
+                                        xtype: 'dbp-status-process-preview',
+                                        itemId: 'history-process-status-preview'
+                                    }
+                                ]
+                            }
+                        ]
+
+                    }
                 }
             ],
             dockedItems: [
