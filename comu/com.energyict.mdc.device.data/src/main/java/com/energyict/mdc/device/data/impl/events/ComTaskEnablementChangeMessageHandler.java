@@ -22,6 +22,10 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
+ * Handles events that are being sent when a ComTaskEnablement
+ * has been added to a DeviceConfiguration or when an existing ComTaskEnablement
+ * was updated.
+ *
  * @author sva
  * @since 25/01/2016 - 12:11
  */
@@ -29,7 +33,7 @@ public class ComTaskEnablementChangeMessageHandler implements MessageHandler {
 
     public static final String COMTASK_ENABLEMENT_QUEUE_DESTINATION = "ComTaskEnablementQD";
     public static final String COMTASK_ENABLEMENT_QUEUE_SUBSCRIBER = "ComTaskEnablementSubscriber";
-    public static final String COMTASK_ENABLEMENT_QUEUE_SUBSCRIBER_DISPLAY_NAME = "Handles changes regarding comtask enablements";
+    public static final String COMTASK_ENABLEMENT_QUEUE_SUBSCRIBER_DISPLAY_NAME = "Handle inbound setting on communication task configuration";
 
     public static String COMTASK_ENABLEMENT_ACTION = "comtaskenablement/ACTION";
     public static String COMTASK_ENABLEMENT_MESSAGE_VALUE = "ComTaskEnablementMessageValue";
