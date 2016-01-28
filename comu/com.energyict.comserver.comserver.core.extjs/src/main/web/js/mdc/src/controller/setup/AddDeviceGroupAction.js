@@ -340,6 +340,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         var me = this,
             wizard = me.getAddDeviceGroupWizard(),
             step2 = wizard.down('device-group-wizard-step2'),
+            searchBtn = step2.down('#search-button'),
             domainsStore = me.service.getSearchDomainsStore(),
             staticGrid,
             isDynamic = me.isDynamic,
@@ -356,6 +357,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         me.setColumnPicker(isDynamic);
 
         if (!isDynamic) {
+            searchBtn.setText(Uni.I18n.translate('general.apply', 'MDC', 'Apply'));
             me.service.excludedCriteria = undefined;
             staticGrid = step2.down('static-group-devices-grid');
             staticGrid.setVisible(false);
@@ -371,6 +373,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 staticGrid.getSelectionGroupType().setValue(selectionGroupType);
             }
         } else {
+            searchBtn.setText(Uni.I18n.translate('general.preview', 'MDC', 'Preview'));
             staticGrid = step2.down('dynamic-group-devices-grid');
             staticGrid.down('pagingtoolbartop').resetPaging();
             staticGrid.down('pagingtoolbarbottom').resetPaging();
