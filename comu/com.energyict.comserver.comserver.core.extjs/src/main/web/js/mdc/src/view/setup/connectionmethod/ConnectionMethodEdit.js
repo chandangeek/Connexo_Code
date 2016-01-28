@@ -17,19 +17,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
         return this.edit;
     },
 
-//    setEdit: function (edit, returnLink) {
-//        if (edit) {
-//            this.edit = edit;
-//            this.down('#addEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
-//            this.down('#addEditButton').action = 'editConnectionMethod';
-//        } else {
-//            this.edit = edit;
-//            this.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
-//            this.down('#addEditButton').action = 'addConnectionMethod';
-//        }
-//        this.down('#cancelLink').href = returnLink;
-//    },
-
     initComponent: function () {
         this.content = [
             {
@@ -262,29 +249,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                     }
                                 ]
                             },
-//                                    {
-//                                        xtype: 'radiogroup',
-//                                        fieldLabel: 'isDefault',
-//                                        itemId: 'isDefault',
-//                                        allowBlank: false,
-//                                        horizontal: true,
-//                                        columns: 2,
-//                                        items: [
-//                                            {
-//                                                boxLabel: 'yes',
-//                                                name: 'isDefault',
-//                                                inputValue: true,
-//                                                margin: '0 10 5 0'
-//                                            },
-//                                            {
-//                                                boxLabel: 'no',
-//                                                name: 'isDefault',
-//                                                checked: true,
-//                                                inputValue: false,
-//                                                margin: '0 10 5 0'
-//                                            }
-//                                        ]
-//                                    },
                             {
                                 xtype: 'radiogroup',
                                 fieldLabel: Uni.I18n.translate('connectionmethod.allowSimultaneousConnections', 'MDC', 'Allow simultaneous connections'),
@@ -397,8 +361,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                 this.down('#rescheduleRetryDelayFieldContainer').setVisible(false);
                 this.down('#allowSimultaneousConnections').setVisible(false);
                 this.down('#comWindowField').setVisible(false);
-
-//                this.down('#isDefault').setVisible(false);
             }
         } else {
             this.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
@@ -422,7 +384,6 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                 this.down('#rescheduleRetryDelayFieldContainer').setVisible(false);
                 this.down('#allowSimultaneousConnections').setVisible(false);
                 this.down('#comWindowField').setVisible(false);
-//                this.down('#isDefault').setVisible(false);
             }
         }
         this.down('#cancelLink').href = this.returnLink;
