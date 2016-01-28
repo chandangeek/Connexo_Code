@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
@@ -103,6 +104,14 @@ public class MetrologyInMemoryBootstrapModule {
 
     public ValidationService getValidationService() {
         return injector.getInstance(ValidationService.class);
+    }
+
+    public PropertySpecService getPropertySpecService() {
+        return injector.getInstance(PropertySpecService.class);
+    }
+
+    public CustomPropertySetService getCustomPropertySetService() {
+        return injector.getInstance(CustomPropertySetService.class);
     }
 
     private static class MockModule extends AbstractModule {
