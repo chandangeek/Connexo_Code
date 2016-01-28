@@ -16,7 +16,7 @@ Ext.define('Est.estimationrules.view.EditForm', {
     initComponent: function () {
         var me = this;
 
-        me.title = me.edit ? '&nbsp;' : Uni.I18n.translate('estimationrules.addEstimationRule', 'EST', 'Add estimation rule');
+        me.title = me.edit ? ' ' : Uni.I18n.translate('estimationrules.addEstimationRule', 'EST', 'Add estimation rule');
 
         me.items = [
             {

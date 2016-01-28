@@ -33,7 +33,7 @@ Ext.define('Est.estimationrulesets.view.RuleSetsSetup', {
                                 xtype: 'estimation-rules-grid',
                                 style: 'padding-left: 0; padding-right: 0',
                                 ui: 'medium',
-                                title: '&nbsp;',
+                                title: ' ',
                                 showButtons: false,
                                 store: me.rulesStore,
                                 router: me.router,
