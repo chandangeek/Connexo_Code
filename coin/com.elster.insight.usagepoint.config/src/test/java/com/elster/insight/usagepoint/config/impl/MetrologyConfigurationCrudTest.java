@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import javax.validation.ConstraintViolationException;
 
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -53,59 +54,50 @@ import com.google.inject.Injector;
 @RunWith(MockitoJUnitRunner.class)
 public class MetrologyConfigurationCrudTest {
 
+    private static final boolean printSql = false;
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
-    private static class MockModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(BundleContext.class).toInstance(mock(BundleContext.class));
-            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-            bind(SearchService.class).toInstance(mock(SearchService.class));
-        }
-    }
-
-    private static final boolean printSql = false;
 
     @BeforeClass
     public static void setUp() {
         injector = Guice.createInjector(
-        			new MockModule(),
-        			inMemoryBootstrapModule,
-        			new UsagePointConfigModule(),
-                    new IdsModule(),
-                    new MeteringModule(),
-                    new PartyModule(),
-                    new FiniteStateMachineModule(),
-        			new UserModule(),
-        			new EventsModule(),
-        			new InMemoryMessagingModule(),
-        			new DomainUtilModule(),
-        			new OrmModule(),
-        			new UtilModule(),
-        			new ThreadSecurityModule(),
-        			new DataVaultModule(),
-        			new PubSubModule(),
-        			new TransactionModule(printSql),
-                    new NlsModule(),
-                    new ValidationModule(),
-                    new MeteringGroupsModule(),
-                    new TaskModule(),
-                    new BasicPropertiesModule(),
-                    new TimeModule()
-                );
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+                new MockModule(),
+                inMemoryBootstrapModule,
+                new UsagePointConfigModule(),
+                new IdsModule(),
+                new MeteringModule(),
+                new PartyModule(),
+                new FiniteStateMachineModule(),
+                new UserModule(),
+                new EventsModule(),
+                new InMemoryMessagingModule(),
+                new DomainUtilModule(),
+                new OrmModule(),
+                new UtilModule(),
+                new ThreadSecurityModule(),
+                new DataVaultModule(),
+                new PubSubModule(),
+                new TransactionModule(printSql),
+                new NlsModule(),
+                new ValidationModule(),
+                new MeteringGroupsModule(),
+                new TaskModule(),
+                new BasicPropertiesModule(),
+                new TimeModule(),
+                new CustomPropertySetsModule()
+        );
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(ValidationService.class);
-        	injector.getInstance(UsagePointConfigurationService.class);
-        	ctx.commit();
+            injector.getInstance(UsagePointConfigurationService.class);
+            ctx.commit();
         }
     }
 
     @AfterClass
     public static void tearDown() throws SQLException {
-    	inMemoryBootstrapModule.deactivate();
+        inMemoryBootstrapModule.deactivate();
     }
 
     private UsagePointConfigurationService getUsagePointConfigurationService() {
@@ -117,23 +109,23 @@ public class MetrologyConfigurationCrudTest {
     }
 
     @Test
-    public void testCrud()  {
+    public void testCrud() {
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
             MetrologyConfiguration mc1 = upcService.newMetrologyConfiguration("Residenshull");
             assertThat(mc1.getName()).isEqualTo("Residenshull");
             MetrologyConfiguration mc2 = upcService.newMetrologyConfiguration("Commercial 1");
             assertThat(mc2.getName()).isEqualTo("Commercial 1");
-        	context.commit();
+            context.commit();
         }
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-        	Optional<MetrologyConfiguration> mc1 = upcService.findMetrologyConfiguration(1);
-        	assertThat(mc1).isPresent();
-        	assertThat(mc1.get().getName()).isEqualTo("Residenshull");
+            Optional<MetrologyConfiguration> mc1 = upcService.findMetrologyConfiguration(1);
+            assertThat(mc1).isPresent();
+            assertThat(mc1.get().getName()).isEqualTo("Residenshull");
             Optional<MetrologyConfiguration> mc2 = getUsagePointConfigurationService().findMetrologyConfiguration(2);
             assertThat(mc2.isPresent());
-            assertThat(mc2.get().getName()).isEqualTo("Commercial 1");    
+            assertThat(mc2.get().getName()).isEqualTo("Commercial 1");
             List<MetrologyConfiguration> all = upcService.findAllMetrologyConfigurations();
             assertThat(all.size()).isEqualTo(2);
             context.commit();
@@ -144,10 +136,10 @@ public class MetrologyConfigurationCrudTest {
             assertThat(mc1).isPresent();
             assertThat(mc1.get().getName()).isEqualTo("Residenshull");
             mc1.get().updateName("Residential");
-            mc1 = upcService.findMetrologyConfiguration(1);            
+            mc1 = upcService.findMetrologyConfiguration(1);
             assertThat(mc1).isPresent();
             assertThat(mc1.get().getName()).isEqualTo("Residential");
-            mc1 = upcService.findMetrologyConfiguration("Residential");            
+            mc1 = upcService.findMetrologyConfiguration("Residential");
             assertThat(mc1).isPresent();
             assertThat(mc1.get().getName()).isEqualTo("Residential");
             context.commit();
@@ -155,10 +147,10 @@ public class MetrologyConfigurationCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
             List<MetrologyConfiguration> all = upcService.findAllMetrologyConfigurations();
-        	for (MetrologyConfiguration mc : all) {
-        		mc.delete();
-        	}
-        	context.commit();
+            for (MetrologyConfiguration mc : all) {
+                mc.delete();
+            }
+            context.commit();
         }
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
@@ -167,25 +159,25 @@ public class MetrologyConfigurationCrudTest {
             context.commit();
         }
     }
-    
+
     @Test(expected = ConstraintViolationException.class)
-    public void testEmptyName()  {
+    public void testEmptyName() {
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
             upcService.newMetrologyConfiguration("");
             context.commit();
         }
     }
-    
+
     @Test(expected = ConstraintViolationException.class)
-    public void testNullName()  {
+    public void testNullName() {
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
             upcService.newMetrologyConfiguration(null);
             context.commit();
         }
-    }    
-    
+    }
+
     @Test(expected = ConstraintViolationException.class)
     public void testDuplicateNameCreate() {
         try (TransactionContext context = getTransactionService().getContext()) {
@@ -195,7 +187,7 @@ public class MetrologyConfigurationCrudTest {
             context.commit();
         }
     }
-    
+
     @Test(expected = ConstraintViolationException.class)
     public void testDuplicateNameRename() {
         try (TransactionContext context = getTransactionService().getContext()) {
@@ -204,6 +196,15 @@ public class MetrologyConfigurationCrudTest {
             MetrologyConfiguration x = upcService.newMetrologyConfiguration("x");
             x.updateName("dup2");
             context.commit();
+        }
+    }
+
+    private static class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
+            bind(SearchService.class).toInstance(mock(SearchService.class));
         }
     }
 }

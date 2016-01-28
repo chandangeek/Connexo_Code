@@ -1,23 +1,9 @@
 package com.elster.insight.usagepoint.config.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -53,63 +39,68 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LinkTest {
+    private static final boolean printSql = false;
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
-    private static class MockModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(BundleContext.class).toInstance(mock(BundleContext.class));
-            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-            bind(SearchService.class).toInstance(mock(SearchService.class));
-        }
-    }
-
-    private static final boolean printSql = false;
 
     @BeforeClass
     public static void setUp() {
         injector = Guice.createInjector(
-        			new MockModule(),
-        			inMemoryBootstrapModule,
-        			new UsagePointConfigModule(),
-                    new IdsModule(),
-                    new MeteringModule(),
-                    new PartyModule(),
-        			new UserModule(),
-        			new EventsModule(),
-        			new InMemoryMessagingModule(),
-        			new DomainUtilModule(),
-        			new OrmModule(),
-        			new UtilModule(),
-        			new ThreadSecurityModule(),
-        			new DataVaultModule(),
-        			new PubSubModule(),
-        			new ValidationModule(),
-        			new MeteringGroupsModule(),
-        			new TaskModule(),
-        			new BasicPropertiesModule(),
-        			new TimeModule(),
-        			new TransactionModule(printSql),
-                    new FiniteStateMachineModule(),
-                    new NlsModule()
-                );
-        
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+                new MockModule(),
+                inMemoryBootstrapModule,
+                new UsagePointConfigModule(),
+                new IdsModule(),
+                new MeteringModule(),
+                new PartyModule(),
+                new UserModule(),
+                new EventsModule(),
+                new InMemoryMessagingModule(),
+                new DomainUtilModule(),
+                new OrmModule(),
+                new UtilModule(),
+                new ThreadSecurityModule(),
+                new DataVaultModule(),
+                new PubSubModule(),
+                new ValidationModule(),
+                new MeteringGroupsModule(),
+                new TaskModule(),
+                new BasicPropertiesModule(),
+                new TimeModule(),
+                new TransactionModule(printSql),
+                new FiniteStateMachineModule(),
+                new NlsModule(),
+                new CustomPropertySetsModule()
+        );
+
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(ValidationService.class);
             injector.getInstance(UsagePointConfigurationService.class);
-        	ctx.commit();
+            ctx.commit();
         }
     }
 
     @AfterClass
     public static void tearDown() throws SQLException {
-    	inMemoryBootstrapModule.deactivate();
+        inMemoryBootstrapModule.deactivate();
     }
 
     private UsagePointConfigurationService getUsagePointConfigurationService() {
@@ -119,17 +110,17 @@ public class LinkTest {
     private TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
     }
-    
+
     private ServerMeteringService getMeteringService() {
         return injector.getInstance(ServerMeteringService.class);
     }
-    
+
     private ValidationService getValidationService() {
         return injector.getInstance(ValidationService.class);
     }
-    
+
     @Test
-    public void testLinkUPtoMC()  {
+    public void testLinkUPtoMC() {
         long upId;
         UsagePoint up;
         long mcId;
@@ -142,26 +133,26 @@ public class LinkTest {
             upId = up.getId();
             MetrologyConfiguration mc = upcService.newMetrologyConfiguration("Residential");
             mcId = mc.getId();
-        	context.commit();
+            context.commit();
         }
         try (TransactionContext context = getTransactionService().getContext()) {
             MeteringService mtrService = getMeteringService();
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
             Optional<UsagePoint> up2 = mtrService.findUsagePoint(upId);
-        	Optional<MetrologyConfiguration> mc = upcService.findMetrologyConfiguration(mcId);
-        	assertThat(up2).isPresent();
-        	assertThat(mc).isPresent();
-        	assertThat(mc.get().getName()).isEqualTo("Residential");
-        	assertThat(up2.get().getMRID()).isEqualTo("mrID");
-        	upcService.link(up2.get(),  mc.get());
-        	context.commit();
+            Optional<MetrologyConfiguration> mc = upcService.findMetrologyConfiguration(mcId);
+            assertThat(up2).isPresent();
+            assertThat(mc).isPresent();
+            assertThat(mc.get().getName()).isEqualTo("Residential");
+            assertThat(up2.get().getMRID()).isEqualTo("mrID");
+            upcService.link(up2.get(), mc.get());
+            context.commit();
         }
         UsagePointConfigurationService upcService = getUsagePointConfigurationService();
         Optional<MetrologyConfiguration> mc = upcService.findMetrologyConfigurationForUsagePoint(up);
         assertThat(mc).isPresent();
         assertThat(mc.get().getName()).isEqualTo("Residential");
     }
-    
+
     @Test
     public void testUpdateUPtoMCLink() {
         UsagePoint up;
@@ -179,7 +170,7 @@ public class LinkTest {
         }
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            upcService.link(up,  mc1);
+            upcService.link(up, mc1);
             context.commit();
             Optional<MetrologyConfiguration> mcx = upcService.findMetrologyConfigurationForUsagePoint(up);
             assertThat(mcx).isPresent();
@@ -187,14 +178,14 @@ public class LinkTest {
         }
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            upcService.link(up,  mc2);
+            upcService.link(up, mc2);
             context.commit();
             Optional<MetrologyConfiguration> mcx = upcService.findMetrologyConfigurationForUsagePoint(up);
             assertThat(mcx).isPresent();
-            assertThat(mcx.get().getName()).isEqualTo("Second");            
+            assertThat(mcx.get().getName()).isEqualTo("Second");
         }
     }
-    
+
     @Test
     public void testMutlipleUPforMC() {
         UsagePoint up1;
@@ -221,7 +212,7 @@ public class LinkTest {
             context.commit();
         }
     }
-    
+
     @Test
     public void testMCValRuleSetLink() {
         MetrologyConfiguration mc;
@@ -239,7 +230,7 @@ public class LinkTest {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
             Optional<MetrologyConfiguration> mc2 = upcService.findMetrologyConfiguration(mc.getId());
             assertThat(mc2).isPresent();
-            assertThat(mc2.get().getValidationRuleSets().size()).isEqualTo(1);  
+            assertThat(mc2.get().getValidationRuleSets().size()).isEqualTo(1);
             context.commit();
         }
         try (TransactionContext context = getTransactionService().getContext()) {
@@ -250,22 +241,31 @@ public class LinkTest {
             mc.addValidationRuleSet(vrs2);
             Optional<MetrologyConfiguration> mc2 = upcService.findMetrologyConfiguration(mc.getId());
             assertThat(mc2).isPresent();
-            assertThat(mc2.get().getValidationRuleSets().size()).isEqualTo(2);  
+            assertThat(mc2.get().getValidationRuleSets().size()).isEqualTo(2);
             context.commit();
         }
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
             Optional<MetrologyConfiguration> mc2 = upcService.findMetrologyConfiguration(mc.getId());
             assertThat(mc2).isPresent();
-            mc2.get().removeValidationRuleSet(vrs1);  
+            mc2.get().removeValidationRuleSet(vrs1);
             context.commit();
         }
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
             Optional<MetrologyConfiguration> mc2 = upcService.findMetrologyConfiguration(mc.getId());
             assertThat(mc2).isPresent();
-            assertThat(mc2.get().getValidationRuleSets().size()).isEqualTo(1); 
+            assertThat(mc2.get().getValidationRuleSets().size()).isEqualTo(1);
             context.commit();
+        }
+    }
+
+    private static class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
+            bind(SearchService.class).toInstance(mock(SearchService.class));
         }
     }
 }
