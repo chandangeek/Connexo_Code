@@ -40,6 +40,8 @@ public abstract class AbstractDynamicSearchablePropertyTest {
     SearchablePropertyGroup group;
     @Mock
     PropertySpec propertySpec;
+    @Mock
+    SearchableProperty searchableProperty;
 
     protected Thesaurus getThesaurus() {
         return thesaurus;
@@ -152,14 +154,14 @@ public abstract class AbstractDynamicSearchablePropertyTest {
     }
 
     @Test
-    public void testPropertyHasNoConstraints() {
+    public void testPropertyHasConstraints() {
         SearchableProperty property = this.getTestInstance();
 
         // Business method
         List<SearchableProperty> constraints = property.getConstraints();
 
         // Asserts
-        assertThat(constraints).isEmpty();
+        assertThat(constraints).hasSize(1);
     }
 
     protected abstract SearchableProperty getTestInstance();

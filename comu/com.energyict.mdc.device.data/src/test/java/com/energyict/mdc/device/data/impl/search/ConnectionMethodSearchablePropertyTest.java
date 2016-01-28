@@ -142,8 +142,8 @@ public class ConnectionMethodSearchablePropertyTest {
 
         // Asserts
         assertThat(specification).isNotNull();
-        assertThat(specification.isReference()).isTrue();
-        assertThat(specification.getValueFactory().getValueType()).isEqualTo(ConnectionTypePluggableClass.class);
+        assertThat(specification.isReference()).isFalse();
+        assertThat(specification.getValueFactory().getValueType()).isEqualTo(ConnectionMethodSearchableProperty.ConnectionMethodInfo.class);
     }
 
     @Test
@@ -187,7 +187,7 @@ public class ConnectionMethodSearchablePropertyTest {
         when(connectionTypePluggableClass.getName()).thenReturn("EIWEB");
 
         // Business method
-        String displayValue = property.toDisplay(connectionTypePluggableClass);
+        String displayValue = property.toDisplay(new ConnectionMethodSearchableProperty.ConnectionMethodInfo(connectionTypePluggableClass));
 
         // Asserts
         assertThat(displayValue).isEqualTo("EIWEB");

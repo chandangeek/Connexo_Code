@@ -114,6 +114,7 @@ public class DeviceImplSecurityPropertiesTest {
         when(meter.getLifecycleDates()).thenReturn(lifeCycleDates);
         mockDataModelWithNoValidationIssues();
         when(meteringService.findAmrSystem(anyLong())).thenReturn(Optional.of(amrSystem));
+        when(amrSystem.findMeter(anyString())).thenReturn(Optional.of(meter));
     }
 
     private DeviceImpl setId(DeviceImpl entity, long id) {
@@ -189,7 +190,8 @@ public class DeviceImplSecurityPropertiesTest {
         properties.setProperty("One", BigDecimal.TEN);
         properties.setProperty("Two", "just a string");
         setId(device, 1000L); // fake the device as an already persisted device
-
+        Meter koreMeter = mock(Meter.class);
+        when(amrSystem.findMeter("1000")).thenReturn(Optional.of(koreMeter));
         // Business method
         device.setSecurityProperties(this.securityPropertySet, properties);
         device.save();

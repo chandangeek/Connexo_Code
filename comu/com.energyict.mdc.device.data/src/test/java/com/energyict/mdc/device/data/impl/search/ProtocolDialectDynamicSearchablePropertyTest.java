@@ -20,7 +20,7 @@ public class ProtocolDialectDynamicSearchablePropertyTest extends AbstractDynami
 
     protected SearchableProperty getTestInstance() {
         return new ProtocolDialectDynamicSearchableProperty(this.getThesaurus())
-                .init(this.domain, this.group, this.propertySpec, this.protocolDialect, "some_table");
+                .init(this.domain, this.group, this.propertySpec, this.searchableProperty, this.protocolDialect, "some_table");
     }
 
     @Override

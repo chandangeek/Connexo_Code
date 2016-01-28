@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -23,8 +24,9 @@ public class GeneralAttributeDynamicSearchableProperty extends AbstractDynamicSe
         super(GeneralAttributeDynamicSearchableProperty.class, thesaurus);
     }
 
-    public GeneralAttributeDynamicSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group, PropertySpec propertySpec, DeviceProtocolPluggableClass pluggableClass) {
-        super.init(domain, group, propertySpec);
+    public GeneralAttributeDynamicSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group, PropertySpec propertySpec,
+                                                          SearchableProperty constraintProperty, DeviceProtocolPluggableClass pluggableClass) {
+        super.init(domain, group, propertySpec, constraintProperty);
         this.pluggableClass = pluggableClass;
         return this;
     }
