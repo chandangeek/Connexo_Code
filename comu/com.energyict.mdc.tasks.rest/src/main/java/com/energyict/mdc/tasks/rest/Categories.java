@@ -379,7 +379,7 @@ public enum Categories {
                             clockTaskBuilder.maximumClockDifference(timeDuration);
                             break;
                         case ComTaskInfo.MAX_CLOCK_SHIFT:
-                            if (protocolTaskInfo.action.equals(ComTaskInfo.CLOCK_SYNCHRONIZE_TYPE)) {
+                            if (protocolTaskInfo.action.toLowerCase().equals(ComTaskInfo.CLOCK_SYNCHRONIZE_TYPE)) {
                                 clockTaskBuilder.maximumClockShift(timeDuration);
                             }
                     }
