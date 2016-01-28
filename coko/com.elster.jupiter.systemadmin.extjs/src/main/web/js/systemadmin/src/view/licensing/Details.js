@@ -5,7 +5,7 @@ Ext.define('Sam.view.licensing.Details', {
     ],
     alias: 'widget.licensing-details',
     frame: true,
-    title: '&nbsp;',
+    title: ' ',
     items: [
         {
             layout: 'column',
