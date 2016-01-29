@@ -20,15 +20,17 @@ Ext.define('Imt.customattributesets.view.DetailForm', {
                             + Uni.I18n.translate('general.required', 'IMT', 'Required')
                             + '"></span>';
 
-                    Ext.Array.each(value, function (attribute, index) {
-                        result += (index
-                                ? '<br/><br/>'
-                                : '')
-                            + Ext.String.htmlEncode(attribute.name)
-                            + (attribute.required
-                                ? + requiredIcon
-                                : '');
-                    });
+                    if (Ext.isArray(value)) {
+                        Ext.Array.each(value, function (attribute, index) {
+                            result += (index
+                                    ? '<br/><br/>'
+                                    : '')
+                                + Ext.String.htmlEncode(attribute.name)
+                                + (attribute.required
+                                    ? + requiredIcon
+                                    : '');
+                        });
+                    }
 
                     return result;
                 }
