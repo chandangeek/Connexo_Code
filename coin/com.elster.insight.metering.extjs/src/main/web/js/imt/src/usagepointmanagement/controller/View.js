@@ -8,6 +8,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
     ],
     stores: [
         'Imt.usagepointmanagement.store.MeterActivations',
+        'Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets',
         'Imt.metrologyconfiguration.store.MetrologyConfiguration'
     ],
     views: [
@@ -33,10 +34,12 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
             router = me.getController('Uni.controller.history.Router'),
             usagePointModel = me.getModel('Imt.usagepointmanagement.model.UsagePoint'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            customAttributesStore = me.getStore('Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets'),
             actualModel,
             actualForm;
        
         pageMainContent.setLoading(true);
+        customAttributesStore.getProxy().setUrl(mRID);
 
         usagePointModel.load(mRID, {
             success: function (record) {
@@ -57,10 +60,18 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                     }
                 }
 
+                Ext.suspendLayouts();
+
+
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getOverviewLink().setText(actualModel.get('mRID'));
                 me.getAttributesPanel().add(actualForm);
                 actualForm.getForm().loadRecord(actualModel);
+                customAttributesStore.load(function () {
+                    widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(this);
+                });
+
+                Ext.resumeLayouts(true);
 
                 var associatedMetrologyConfiguration = me.getAssociatedMetrologyConfiguration();
                 associatedMetrologyConfiguration.down('#associatedMetrologyConfiguration').removeAll();
@@ -133,8 +144,14 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                         pageMainContent.setLoading(false);
                     }
                 });
+
+
             }
         });
+
+
+
+
     },
     showMetrologyConfiguration: function (mRID, id) {
         var me = this,

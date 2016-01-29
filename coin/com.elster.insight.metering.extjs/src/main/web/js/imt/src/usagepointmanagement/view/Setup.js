@@ -7,6 +7,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         'Imt.usagepointmanagement.view.AssociatedMetrologyConfiguration',
         'Imt.usagepointmanagement.view.UsagePointSideMenu',
         'Imt.usagepointmanagement.view.UsagePointAttributesFormMain',
+        'Imt.usagepointmanagement.view.SetupActionMenu'
     ],
     router: null,
     content: [
@@ -17,7 +18,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
             layout: {
                 type: 'fit',
                 align: 'stretch'
-            },
+            }
         }
     ],
 
@@ -26,26 +27,30 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
             panel = me.content[0];
         panel.title = me.router.getRoute().getTitle();
         panel.tools = [
-           {
-               xtype: 'toolbar',
-               margin: '0 100 0 0',
-               items: [
-                       {
-                           xtype: 'button',
-                           itemId: 'edit-attribute-btn',
-                           style: {
-                               'background-color': '#71adc7'
-                           },
-                           privileges: Imt.privileges.UsagePoint.admin,
-                           text: Uni.I18n.translate('usagepoint.general.edit.attributes', 'IMT', 'Edit attributes'),
-                           href: me.router.getRoute('usagepoints/view/edit').buildUrl({mRID: me.mRID})
-                       }, 
-                 ]
-           }
+            {
+                xtype: 'toolbar',
+                margin: '0 20 0 0',
+                items: [
+                    {
+                        xtype: 'button',
+                        itemId: 'usage-point-setup-actions-btn',
+                        //iconCls: 'x-uni-action-iconD',
+                        style: {
+                            'background-color': '#71adc7'
+                        },
+                        text: Uni.I18n.translate('usagepoint.general.setup.actions', 'IMT', 'Actions'),
+                        menu: {
+                            xtype: 'usage-point-setup-action-menu',
+                            itemId: 'usage-point-setup-action-menu-id',
+                            router: me.router
+                        }
+
+                    }
+                ]
+            }
         ];
-        
-        
-        
+
+
         me.side = [
             {
                 xtype: 'panel',
@@ -61,66 +66,60 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
             }
         ];
         this.callParent(arguments);
- 
+
         me.down('#usagePointSetupPanel').add(
             {
                 xtype: 'panel',
                 layout: {
-                    type: 'hbox'
+                    type: 'hbox',
+
                 },
                 defaults: {
-                    style: {
-//                        marginRight: '20px',
-//                        padding: '20px'
-                    },
                     flex: 1
                 },
                 items: [
                     {
-                    	  xtype: 'panel',
-                          layout: {
-                              type: 'vbox'
-                          },
-                          defaults: {
-                              style: {
-//                                  marginRight: '20px',
-//                                  padding: '20px'
-                              },
-                              flex: 1
-                          },
-                          items: [
-                               {
-                            	   xtype: 'associated-devices',
-                            	   router: me.router,
-                            	   width: 400,
-                               },
-                               {
-                            	   xtype: 'associated-metrology-configuration',
-                            	   router: me.router,
-                            	   width: 400,
-                               },
-                          ]
+                        xtype: 'panel',
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
+                        defaults: {
+                            flex: 1
+                        },
+                        items: [
+                            {
+                                xtype: 'associated-devices',
+                                router: me.router
+                            },
+                            {
+                                xtype: 'associated-metrology-configuration',
+                                router: me.router
+                            }
+                        ]
                     },
                     {
-                    	  xtype: 'panel',
-                          layout: {
-                              type: 'vbox'
-                          },
-                          defaults: {
-                              flex: 1
-                          },
-                          items: [
-                               {
-                            	   xtype: 'panel',
-                            	   title: Uni.I18n.translate('usagepoint.attributes', 'IMT', 'Usage Point Attributes'),
-                            	   ui: 'tile',
-                            	   itemId: 'usage-point-attributes-panel',
-                            	   router: me.router,
-                            	   width: 400,
-                            	   align: 'right',
-                               },
-                          ]
-                    	
+                        xtype: 'panel',
+                        ui: 'tile',
+                        style: {
+                            marginRight: '20px',
+                            padding: '20px'
+                        },
+                        items: [
+                            {
+                                xtype: 'panel',
+                                itemId: 'usage-point-attributes-panel',
+                                router: me.router
+                            },
+                            {
+                                xtype: 'custom-attribute-sets-placeholder-form',
+                                inline: true,
+                                itemId: 'custom-attribute-sets-placeholder-form-id',
+                                actionMenuXtype: 'usage-point-setup-action-menu',
+                                attributeSetType: 'device',
+                                router: me.router
+                            }
+                        ]
                     }
                 ]
             }

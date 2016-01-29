@@ -21,16 +21,22 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormTechnicalElect
             {xtype: 'usagePointAttributesFormMain'},
             {
                 xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('usagepoint.technical.information', 'IMT', 'Technical information'),
+                //fieldLabel: Uni.I18n.translate('usagepoint.technical.information', 'IMT', 'Technical information'),
                 itemId: 'usagePointTechnicalAttributes',
                 labelAlign: 'top',
                 layout: 'vbox',
                 margin: '0',
                 defaults: {
                     xtype: 'displayfield',
-                    labelWidth: 150
+                    labelWidth: 250,
+                    width: 600
                 },
                 items: [
+                    {
+                        xtype: 'title-with-edit-button',
+                        parentContainerId: 'usagePointTechnicalAttributes',
+                        title: Uni.I18n.translate('usagepoint.technical.information', 'IMT', 'Technical information')
+                    },
                     {
                         name: 'grounded',
                         itemId: 'fld-up-grounded',
