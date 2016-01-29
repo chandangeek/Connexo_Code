@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MetrologyConfigurationCPSUsageTestIT {
+    public static final String METROLOGY_CONFIG_NAME = "Test metrology configuration";
     private static MetrologyInMemoryBootstrapModule inMemoryBootstrapModule = new MetrologyInMemoryBootstrapModule();
     private static MetrologyTestCustomPropertySet customPropertySet;
 
@@ -44,7 +45,12 @@ public class MetrologyConfigurationCPSUsageTestIT {
     }
 
     private MetrologyConfiguration getMetrologyConfiguration() {
-        return inMemoryBootstrapModule.getUsagePointConfigurationService().newMetrologyConfiguration("Test metrology configuration");
+        return findMetrologyConfiguration()
+                .orElseGet(() -> inMemoryBootstrapModule.getUsagePointConfigurationService().newMetrologyConfiguration(METROLOGY_CONFIG_NAME));
+    }
+
+    private Optional<MetrologyConfiguration> findMetrologyConfiguration() {
+        return inMemoryBootstrapModule.getUsagePointConfigurationService().findMetrologyConfiguration(METROLOGY_CONFIG_NAME);
     }
 
     @Test
@@ -63,11 +69,13 @@ public class MetrologyConfigurationCPSUsageTestIT {
         inTransaction(ctx -> {
             MetrologyConfiguration metrologyConfiguration = getMetrologyConfiguration();
             metrologyConfiguration.addCustomPropertySet(getRegisteredCPS());
-
-            assertThat(metrologyConfiguration.getCustomPropertySets()).hasSize(1);
-            assertThat(metrologyConfiguration.getCustomPropertySets().get(0).getCustomPropertySet().getId())
-                    .isEqualTo(customPropertySet.getId());
+            ctx.commit();
         });
+
+        MetrologyConfiguration metrologyConfiguration = findMetrologyConfiguration().get();
+        assertThat(metrologyConfiguration.getCustomPropertySets()).hasSize(1);
+        assertThat(metrologyConfiguration.getCustomPropertySets().get(0).getCustomPropertySet().getId())
+                .isEqualTo(customPropertySet.getId());
     }
 
     @Test
@@ -76,10 +84,22 @@ public class MetrologyConfigurationCPSUsageTestIT {
             MetrologyConfiguration metrologyConfiguration = getMetrologyConfiguration();
             metrologyConfiguration.addCustomPropertySet(getRegisteredCPS());
             metrologyConfiguration.addCustomPropertySet(getRegisteredCPS());
+            ctx.commit();
+        });
 
-            assertThat(metrologyConfiguration.getCustomPropertySets()).hasSize(1);
-            assertThat(metrologyConfiguration.getCustomPropertySets().get(0).getCustomPropertySet().getId())
-                    .isEqualTo(customPropertySet.getId());
+        MetrologyConfiguration metrologyConfiguration = findMetrologyConfiguration().get();
+        assertThat(metrologyConfiguration.getCustomPropertySets()).hasSize(1);
+        assertThat(metrologyConfiguration.getCustomPropertySets().get(0).getCustomPropertySet().getId())
+                .isEqualTo(customPropertySet.getId());
+    }
+
+    @Test
+    public void testAddCPSIncreasesMetrologyConfigVersion() {
+        inTransaction(ctx -> {
+            MetrologyConfiguration metrologyConfiguration = getMetrologyConfiguration();
+            long version = metrologyConfiguration.getVersion();
+            metrologyConfiguration.addCustomPropertySet(getRegisteredCPS());
+            assertThat(metrologyConfiguration.getVersion()).isEqualTo(version + 1);
         });
     }
 
@@ -88,10 +108,12 @@ public class MetrologyConfigurationCPSUsageTestIT {
         inTransaction(ctx -> {
             MetrologyConfiguration metrologyConfiguration = getMetrologyConfiguration();
             metrologyConfiguration.removeCustomPropertySet(getRegisteredCPS());
-
-            assertThat(metrologyConfiguration.getCustomPropertySets()).hasSize(0);
-            // plus we expect no exceptions
+            ctx.commit();
         });
+
+        MetrologyConfiguration metrologyConfiguration = findMetrologyConfiguration().get();
+        assertThat(metrologyConfiguration.getCustomPropertySets()).hasSize(0);
+        // plus we expect no exceptions
     }
 
     @Test
@@ -101,9 +123,11 @@ public class MetrologyConfigurationCPSUsageTestIT {
             RegisteredCustomPropertySet registeredCPS = getRegisteredCPS();
             metrologyConfiguration.addCustomPropertySet(registeredCPS);
             metrologyConfiguration.removeCustomPropertySet(registeredCPS);
-
-            assertThat(metrologyConfiguration.getCustomPropertySets()).hasSize(0);
+            ctx.commit();
         });
+
+        MetrologyConfiguration metrologyConfiguration = findMetrologyConfiguration().get();
+        assertThat(metrologyConfiguration.getCustomPropertySets()).hasSize(0);
     }
 
     @Test
@@ -114,9 +138,22 @@ public class MetrologyConfigurationCPSUsageTestIT {
             metrologyConfiguration.addCustomPropertySet(registeredCPS);
             metrologyConfiguration.removeCustomPropertySet(registeredCPS);
             metrologyConfiguration.removeCustomPropertySet(registeredCPS);
+            ctx.commit();
+        });
 
-            assertThat(metrologyConfiguration.getCustomPropertySets()).hasSize(0);
-            // plus we expect no exceptions
+        MetrologyConfiguration metrologyConfiguration = findMetrologyConfiguration().get();
+        assertThat(metrologyConfiguration.getCustomPropertySets()).hasSize(0);
+        // plus we expect no exceptions
+    }
+
+    @Test
+    public void testRemoveCPSIncreasesMetrologyConfigVersion() {
+        inTransaction(ctx -> {
+            MetrologyConfiguration metrologyConfiguration = getMetrologyConfiguration();
+            long version = metrologyConfiguration.getVersion();
+            metrologyConfiguration.addCustomPropertySet(getRegisteredCPS());
+            metrologyConfiguration.removeCustomPropertySet(getRegisteredCPS());
+            assertThat(metrologyConfiguration.getVersion()).isEqualTo(version + 2);
         });
     }
 }

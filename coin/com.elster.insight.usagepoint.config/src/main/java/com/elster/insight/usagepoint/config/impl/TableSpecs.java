@@ -1,5 +1,6 @@
 package com.elster.insight.usagepoint.config.impl;
 
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
@@ -105,13 +106,15 @@ public enum TableSpecs {
             table.map(MetrologyConfigurationCustomPropertySetUsagesImpl.class);
             Column metrologyConfig = table.column(MetrologyConfigurationCustomPropertySetUsagesImpl.Fields.METROLOGY_CONFIG.name()).number().notNull().add();
             Column customPropertySet = table.column(MetrologyConfigurationCustomPropertySetUsagesImpl.Fields.CUSTOM_PROPERTY_SET.name()).number().notNull().add();
+            table.column(MetrologyConfigurationCustomPropertySetUsagesImpl.Fields.POSITION.name()).number().notNull().conversion(NUMBER2INT).map(MetrologyConfigurationCustomPropertySetUsagesImpl.Fields.POSITION.fieldName()).add();
             table.primaryKey("PK_M_CONFIG_CPS_USAGE").on(metrologyConfig, customPropertySet).add();
             table.foreignKey("FK_MCPS_USAGE_TO_CONFIG")
                     .references(UPC_METROLOGYCONFIG.name())
                     .on(metrologyConfig)
                     .onDelete(CASCADE)
                     .map(MetrologyConfigurationCustomPropertySetUsagesImpl.Fields.METROLOGY_CONFIG.fieldName())
-                    .reverseMapOrder(MetrologyConfigurationImpl.Fields.CUSTOM_PROPERTY_SETS.fieldName())
+                    .reverseMap(MetrologyConfigurationImpl.Fields.CUSTOM_PROPERTY_SETS.fieldName())
+                    .reverseMapOrder(MetrologyConfigurationCustomPropertySetUsagesImpl.Fields.POSITION.fieldName())
                     .composition()
                     .add();
             table.foreignKey("FK_MCAS_USAGE_TO_CPS")

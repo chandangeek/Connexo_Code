@@ -174,6 +174,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
             MetrologyConfigurationCustomPropertySetUsagesImpl newCpsUsage = getDataModel().getInstance(MetrologyConfigurationCustomPropertySetUsagesImpl.class)
                     .init(this, registeredCustomPropertySet);
             this.customPropertySets.add(newCpsUsage);
+            this.dataModel.touch(this);
         }
     }
 
@@ -182,7 +183,11 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
         this.customPropertySets.stream()
                 .filter(cpsUsage -> cpsUsage.getRegisteredCustomPropertySet().getId() == registeredCustomPropertySet.getId())
                 .findAny()
-                .ifPresent(cpsUsage -> this.customPropertySets.remove(cpsUsage));
+                .ifPresent(cpsUsage -> {
+                    customPropertySets.remove(cpsUsage);
+                    dataModel.touch(MetrologyConfigurationImpl.this);
+                });
+
     }
 
     public void update() {

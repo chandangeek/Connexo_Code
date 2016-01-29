@@ -14,7 +14,8 @@ public class MetrologyConfigurationCustomPropertySetUsagesImpl implements Metrol
 
     public enum Fields {
         METROLOGY_CONFIG("metrologyConfiguration"),
-        CUSTOM_PROPERTY_SET("registeredCustomPropertySet");
+        CUSTOM_PROPERTY_SET("registeredCustomPropertySet"),
+        POSITION("position");
 
         private final String javaFieldName;
 
@@ -31,6 +32,8 @@ public class MetrologyConfigurationCustomPropertySetUsagesImpl implements Metrol
     private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
     @IsPresent
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = ValueReference.absent();
+    private int position;
+
     @Inject
     public MetrologyConfigurationCustomPropertySetUsagesImpl() {
     }
