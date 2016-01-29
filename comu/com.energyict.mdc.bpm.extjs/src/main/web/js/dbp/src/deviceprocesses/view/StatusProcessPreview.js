@@ -11,6 +11,7 @@ Ext.define('Dbp.deviceprocesses.view.StatusProcessPreview', {
     items: [
         {
             xtype: 'gridpanel',
+            maxHeight: 400,
             itemId: 'process-nodes-grid',
             columnWidth: 0.55,
             columns: {
@@ -35,7 +36,7 @@ Ext.define('Dbp.deviceprocesses.view.StatusProcessPreview', {
                                     break;
                             }
                             return template;
-                        },
+                        }
                     },
                     {
                         header: Uni.I18n.translate('dbp.process.node.node', 'MDC', ' Node'),
