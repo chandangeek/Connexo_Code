@@ -171,14 +171,18 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
 
     @Override
     public void activate() {
-        this.active = true;
-        update();
+        if (!this.active) {
+            this.active = true;
+            update();
+        }
     }
 
     @Override
     public void deactivate() {
-        this.active = false;
-        update();
+        if (this.active) {
+            this.active = false;
+            update();
+        }
     }
 
     @Override
