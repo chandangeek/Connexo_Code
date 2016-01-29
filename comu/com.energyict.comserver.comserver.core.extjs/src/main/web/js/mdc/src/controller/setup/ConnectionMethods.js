@@ -318,57 +318,63 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             propertyForm = me.getConnectionMethodEditView().down('property-form'),
             backUrl = '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/connectionmethods';
 
-        me.getConnectionMethodEditForm().getForm().clearInvalid();
-        me.hideErrorPanel();
-        if (record) {
-            if (propertyForm.down('#connectionTimeoutnumberfield')) {
-                propertyForm.down('#connectionTimeoutnumberfield').clearInvalid();
-                propertyForm.down('#connectionTimeoutcombobox').clearInvalid();
-            }
-            record.beginEdit();
-            record.set(values);
-            if (values.connectionStrategy === 'AS_SOON_AS_POSSIBLE') {
-                record.set('temporalExpression', null);
-            }
-            if (!values.hasOwnProperty('comWindowStart')) {
-                record.set('comWindowStart', 0);
-                record.set('comWindowEnd', 0);
-            }
-            propertyForm.updateRecord(record);
-            if (typeof propertyForm.getRecord() !== 'undefined') {
-                record.propertiesStore = propertyForm.getRecord().properties();
-            }
-            record.endEdit();
-            record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
-            record.save({
-                backUrl: backUrl,
-                success: function (record) {
-                    location.href = backUrl;
-                    if (isNewRecord === true) {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowlegment.add', 'MDC', 'Connection method added'));
-                    } else {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowlegment.save', 'MDC', 'Connection method saved'));
-                    }
-                    // me.showConnectionMethods(me.deviceTypeId, me.deviceConfigurationId);
-                },
-                failure: function (record, operation) {
-                    var json = Ext.decode(operation.response.responseText);
-                    if (json && json.errors && operation.response.status != 409) {
-                        me.getConnectionMethodEditForm().getForm().markInvalid(json.errors);
-                        me.showErrorPanel();
-                        propertyForm.getForm().markInvalid(json.errors);
-                        Ext.Array.each(json.errors, function (item) {
-                            if (item.id.indexOf("timeCount") !== -1) {
-                                propertyForm.down('#connectionTimeoutnumberfield').markInvalid(item.msg);
-                            }
-                            if (item.id.indexOf("timeUnit") !== -1) {
-                                propertyForm.down('#connectionTimeoutcombobox').markInvalid(item.msg);
-                            }
-                        });
-                    }
-                }
-            });
+        me.getConnectionMethodEditForm().down('#connectionStrategyComboBox').allowBlank = (values.direction === 'Inbound');
 
+        if (me.getConnectionMethodEditForm().isValid()) {
+            me.getConnectionMethodEditForm().getForm().clearInvalid();
+            me.hideErrorPanel();
+            if (record) {
+                if (propertyForm.down('#connectionTimeoutnumberfield')) {
+                    propertyForm.down('#connectionTimeoutnumberfield').clearInvalid();
+                    propertyForm.down('#connectionTimeoutcombobox').clearInvalid();
+                }
+                record.beginEdit();
+                record.set(values);
+                if (values.connectionStrategy === 'AS_SOON_AS_POSSIBLE') {
+                    record.set('temporalExpression', null);
+                }
+                if (!values.hasOwnProperty('comWindowStart')) {
+                    record.set('comWindowStart', 0);
+                    record.set('comWindowEnd', 0);
+                }
+                propertyForm.updateRecord(record);
+                if (typeof propertyForm.getRecord() !== 'undefined') {
+                    record.propertiesStore = propertyForm.getRecord().properties();
+                }
+                record.endEdit();
+                record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
+                record.save({
+                    backUrl: backUrl,
+                    success: function (record) {
+                        location.href = backUrl;
+                        if (isNewRecord === true) {
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowlegment.add', 'MDC', 'Connection method added'));
+                        } else {
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowlegment.save', 'MDC', 'Connection method saved'));
+                        }
+                        // me.showConnectionMethods(me.deviceTypeId, me.deviceConfigurationId);
+                    },
+                    failure: function (record, operation) {
+                        var json = Ext.decode(operation.response.responseText);
+                        if (json && json.errors && operation.response.status != 409) {
+                            me.getConnectionMethodEditForm().getForm().markInvalid(json.errors);
+                            me.showErrorPanel();
+                            propertyForm.getForm().markInvalid(json.errors);
+                            Ext.Array.each(json.errors, function (item) {
+                                if (item.id.indexOf("timeCount") !== -1) {
+                                    propertyForm.down('#connectionTimeoutnumberfield').markInvalid(item.msg);
+                                }
+                                if (item.id.indexOf("timeUnit") !== -1) {
+                                    propertyForm.down('#connectionTimeoutcombobox').markInvalid(item.msg);
+                                }
+                            });
+                        }
+                    }
+                });
+
+            }
+        } else {
+            me.showErrorPanel();
         }
     },
 
