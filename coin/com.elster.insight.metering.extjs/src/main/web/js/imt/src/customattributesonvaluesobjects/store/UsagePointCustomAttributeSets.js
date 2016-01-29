@@ -1,9 +1,9 @@
 Ext.define('Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets', {
     extend: 'Ext.data.Store',
     requires: [
-        'Imt.customattributesonvaluesobjects.model.AttributeSetOnObject'
+        'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'
     ],
-    model: 'Imt.customattributesonvaluesobjects.model.AttributeSetOnObject',
+    model: 'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint',
 
     proxy: {
         type: 'rest',

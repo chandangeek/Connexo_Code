@@ -5,7 +5,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormMain', {
 
     requires: [
         'Uni.form.field.Duration',
-        'Imt.usagepointmanagement.util.TitleWithEditButton'
+        'Imt.util.TitleWithEditButton'
     ],
     layout: {
         type: 'vbox',
@@ -15,6 +15,16 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormMain', {
     initComponent: function () {
         var me = this;
         me.items = [
+            {
+                xtype: 'title-with-edit-button',
+                title: Uni.I18n.translate('usagepoint.general.attributes', 'IMT', 'General'),
+                editHandler: function(){
+                    me.down('#usage-point-general-attributes').hide();
+                    me.down('#editable-form-general').show();
+                    me.down('#bottom-buttons-general').show();
+                }
+
+            },
             {
                 xtype: 'fieldcontainer',
                 //fieldLabel: Uni.I18n.translate('usagepoint.general.attributes', 'IMT', 'General'),
@@ -27,11 +37,6 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormMain', {
                     width: 600
                 },
                 items: [
-                    {
-                        xtype: 'title-with-edit-button',
-                        parentContainerId: 'usage-point-general-attributes',
-                        title: Uni.I18n.translate('usagepoint.general.attributes', 'IMT', 'General')
-                    },
 
                     {
                         name: 'mRID',
@@ -168,6 +173,91 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormMain', {
                     //        return value ? value : '-';
                     //    }
                     //}
+                ]
+            },
+            {
+                xtype: 'form',
+                itemId: 'editable-form-general',
+                hidden: true,
+                defaults: {
+                    //xtype: 'displayfield',
+                    labelWidth: 250,
+                    //width: 600
+                },
+                items: [
+                    {
+                        xtype: 'combobox',
+                        fieldLabel: 'ad'
+                    }
+                ]
+            },
+            {
+                xtype: 'container',
+                hidden: true,
+                itemId: 'bottom-buttons-general',
+                dock: 'bottom',
+                margin: '20 0 0 265',
+                layout: {
+                    type: 'hbox',
+                    align: 'stretch'
+                },
+
+                items: [
+                    {
+                        xtype: 'button',
+                        itemId: 'channelCustomAttributesSaveBtn',
+                        ui: 'action',
+                        text: Uni.I18n.translate('general.save', 'IMT', 'Save'),
+                        //handler: function () {
+                        //    me.down('property-form').updateRecord();
+                        //
+                        //    me.record.save({
+                        //        callback: function(record, response, success){
+                        //            if(success){
+                        //                me.down('property-form').makeNotEditable(me.record);
+                        //                me.down('#bottom-buttons').hide();
+                        //            } else {
+                        //                var responseText = Ext.decode(response.response.responseText, true);
+                        //                if (responseText && Ext.isArray(responseText.errors)) {
+                        //                    me.down('property-form').markInvalid(responseText.errors);
+                        //                }
+                        //            }
+                        //
+                        //        }
+                        //        //failure: function(record, response){
+                        //        //
+                        //        //        var responseText = Ext.decode(response.response.responseText, true);
+                        //        //    console.log(responseText);
+                        //        //
+                        //        //        if (responseText && Ext.isArray(responseText.errors)) {
+                        //        //            me.down('property-form').markInvalid(responseText.errors);
+                        //        //
+                        //        //        }
+                        //        //    //me.down('property-form').markInvalid(errors);
+                        //        //}
+                        //    });
+                        //}
+                    },
+                    //{
+                    //    xtype: 'button',
+                    //    text: Uni.I18n.translate('general.restoretodefaults', 'IMT', 'Restore to defaults'),
+                    //    icon: '../sky/build/resources/images/form/restore.png',
+                    //    //handler: function () {
+                    //    //    me.down('property-form').restoreAll();
+                    //    //}
+                    //    //itemId: 'channelCustomAttributesRestoreBtn'
+                    //},
+                    {
+                        xtype: 'button',
+                        ui: 'link',
+                        //itemId: 'channelCustomAttributesCancelBtn',
+                        text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
+                        handler: function () {
+                            me.down('#usage-point-general-attributes').show();
+                            me.down('#editable-form-general').hide();
+                            me.down('#bottom-buttons-general').hide();
+                        }
+                    }
                 ]
             }
         ];

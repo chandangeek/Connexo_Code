@@ -34,12 +34,19 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
             router = me.getController('Uni.controller.history.Router'),
             usagePointModel = me.getModel('Imt.usagepointmanagement.model.UsagePoint'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            customAttributesStore = me.getStore('Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets'),
+            customAttributesStoreUsagePoint = me.getStore('Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets'),
+            customAttributesModelUsagePoint = me.getStore('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
+            customAttributesStoreMetrology = me.getStore('Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets'),
+            customAttributesModelMetrology = me.getStore('Imt.customattributesonvaluesobjects.model.AttributeSetOnMetrologyConfiguration'),
             actualModel,
             actualForm;
        
         pageMainContent.setLoading(true);
-        customAttributesStore.getProxy().setUrl(mRID);
+
+        customAttributesStoreUsagePoint.getProxy().setUrl(mRID);
+        customAttributesModelUsagePoint.getProxy().setUrl(mRID);
+        customAttributesStoreMetrology.getProxy().setUrl(mRID); //TODO Put metrology id
+        customAttributesModelMetrology.getProxy().setUrl(mRID); //TODO Put metrology id
 
         usagePointModel.load(mRID, {
             success: function (record) {
@@ -67,7 +74,10 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                 me.getOverviewLink().setText(actualModel.get('mRID'));
                 me.getAttributesPanel().add(actualForm);
                 actualForm.getForm().loadRecord(actualModel);
-                customAttributesStore.load(function () {
+                customAttributesStoreMetrology.load(function () {
+                    widget.down('#metrology-custom-attribute-sets-placeholder-form-id').loadStore(this);
+                });
+                customAttributesStoreUsagePoint.load(function () {
                     widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(this);
                 });
 

@@ -1,8 +1,9 @@
-Ext.define('Imt.usagepointmanagement.util.TitleWithEditButton', {
+Ext.define('Imt.util.TitleWithEditButton', {
     extend: 'Ext.toolbar.Toolbar',
     alias: 'widget.title-with-edit-button',
     title: null,
-    parentContainerId: null,
+    editHandler:null,
+    record: null,
     items: [],
 
     initComponent: function() {
@@ -18,10 +19,10 @@ Ext.define('Imt.usagepointmanagement.util.TitleWithEditButton', {
                     display: 'inline-block',
                     textDecoration: 'none !important',
                     position: 'absolute',
-                    top: '8px',
+                    top: '8px'
                 },
                 scope: me,
-                handler: me.toEditMode,
+                handler: me.editHandler,
                 //listeners: {
                 //    click: me.toEditMode
                 //}
@@ -30,8 +31,4 @@ Ext.define('Imt.usagepointmanagement.util.TitleWithEditButton', {
         me.callParent(arguments);
     },
 
-    toEditMode: function(){
-        var me = this;
-        console.log(me.parentContainerId);
-    }
 });

@@ -7,6 +7,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         'Imt.usagepointmanagement.view.AssociatedMetrologyConfiguration',
         'Imt.usagepointmanagement.view.UsagePointSideMenu',
         'Imt.usagepointmanagement.view.UsagePointAttributesFormMain',
+        'Imt.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm',
         'Imt.usagepointmanagement.view.SetupActionMenu'
     ],
     router: null,
@@ -111,6 +112,11 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                                 itemId: 'usage-point-attributes-panel',
                                 router: me.router
                             },
+                            //{
+                            //    xtype: 'inline-editable-property-form',
+                            //    //itemId: 'usage-point-attributes-panel',
+                            //    //router: me.router
+                            //},
                             {
                                 xtype: 'custom-attribute-sets-placeholder-form',
                                 inline: true,
@@ -118,7 +124,12 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                                 actionMenuXtype: 'usage-point-setup-action-menu',
                                 attributeSetType: 'device',
                                 router: me.router
-                            }
+                            },
+                            //{
+                            //    xtype: 'inline-editable-property-form',
+                            //    //itemId: 'usage-point-attributes-panel',
+                            //    //router: me.router
+                            //}
                         ]
                     }
                 ]
