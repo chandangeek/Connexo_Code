@@ -8,7 +8,6 @@ import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -48,13 +47,13 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     private volatile UserService userService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile Thesaurus thesaurus;
-    
+
     public UsagePointConfigurationServiceImpl() {
     }
 
     @Inject
     public UsagePointConfigurationServiceImpl(Clock clock, OrmService ormService, EventService eventService, UserService userService,
-                                              MeteringService meteringService, ValidationService validationService, NlsService nlsService,
+                                              ValidationService validationService, NlsService nlsService,
                                               CustomPropertySetService customPropertySetService) {
         setClock(clock);
         setOrmService(ormService);
@@ -104,12 +103,12 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     public void setClock(Clock clock) {
         this.clock = clock;
     }
-    
+
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
     }
-    
+
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
@@ -129,12 +128,12 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Reference
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService){
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
     }
 
     @Reference
-    public void setNlsService(NlsService nlsService){
+    public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
@@ -158,7 +157,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     public Optional<MetrologyConfiguration> findMetrologyConfiguration(String name) {
         return dataModel.mapper(MetrologyConfiguration.class).getUnique("name", name);
     }
-    
+
     @Override
     public List<MetrologyConfiguration> findAllMetrologyConfigurations() {
         return DefaultFinder.of(MetrologyConfiguration.class, this.getDataModel()).defaultSortColumn("lower(name)").find();
@@ -168,7 +167,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     public UsagePointMetrologyConfiguration link(UsagePoint up, MetrologyConfiguration mc) {
         Optional<UsagePointMetrologyConfiguration> link = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(where("usagePoint").isEqualTo(up)).stream().findFirst();
         if (link.isPresent()) {
-            link.get().updateMetrologyConfiguration(mc);          
+            link.get().updateMetrologyConfiguration(mc);
             return link.get();
         }
         UsagePointMetrologyConfigurationImpl candidate = dataModel.getInstance(UsagePointMetrologyConfigurationImpl.class);
@@ -176,7 +175,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         candidate.update();
         return candidate;
     }
-    
+
     @Override
     public Boolean unlink(UsagePoint up, MetrologyConfiguration mc) {
         Boolean result = false;
@@ -187,7 +186,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         }
         return result;
     }
-    
+
     @Override
     public Optional<MetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint up) {
         Optional<UsagePointMetrologyConfiguration> obj = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(where("usagePoint").isEqualTo(up)).stream().findFirst();
@@ -199,8 +198,12 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public List<UsagePoint> findUsagePointsForMetrologyConfiguration(MetrologyConfiguration mc) {
-        List<UsagePointMetrologyConfiguration> list = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(where("metrologyConfiguration").isEqualTo(mc));
-        return list.stream().map(each -> each.getUsagePoint()).collect(Collectors.toList());
+        return this.getDataModel()
+                .query(UsagePointMetrologyConfiguration.class)
+                .select(where("metrologyConfiguration").isEqualTo(mc))
+                .stream()
+                .map(UsagePointMetrologyConfiguration::getUsagePoint)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -208,7 +211,9 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         return this.getDataModel()
                 .query(MetrologyConfigurationValidationRuleSetUsage.class)
                 .select(where("validationRuleSet").isEqualTo(rs))
-                .stream().map(each -> each.getMetrologyConfiguration()).collect(Collectors.toList());
+                .stream()
+                .map(MetrologyConfigurationValidationRuleSetUsage::getMetrologyConfiguration)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -216,17 +221,20 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         return dataModel.mapper(MetrologyConfiguration.class).lockObjectIfVersion(version, id);
     }
 
-	@Override
-	public String getModuleName() {
-	    return UsagePointConfigurationService.COMPONENTNAME;
-	}
+    @Override
+    public String getModuleName() {
+        return UsagePointConfigurationService.COMPONENTNAME;
+    }
 
-	@Override
-	public List<ResourceDefinition> getModuleResources() {
-	    List<ResourceDefinition> resources = new ArrayList<>();
-	    resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-	    		"usagePoint.metrologyConfiguration", "usagePoint.metrologyConfiguration.description",
-	            Arrays.asList(Privileges.Constants.ADMIN_ANY_METROLOGY_CONFIG, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG)));
-	    return resources;
-	}
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
+                Privileges.RESOURCE_METROLOGY_CONFIG.getKey(), Privileges.RESOURCE_METROLOGY_CONFIG_DESCR.getKey(),
+                Arrays.asList(Privileges.Constants.ADMIN_ANY_METROLOGY_CONFIG, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG)));
+        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
+                Privileges.RESOURCE_METROLOGY_CONFIG_CPS.getKey(), Privileges.RESOURCE_METROLOGY_CONFIG_CPS_DESCR.getKey(),
+                Arrays.asList(Privileges.Constants.METROLOGY_CPS_VIEW, Privileges.Constants.METROLOGY_CPS_ADMIN)));
+        return resources;
+    }
 }

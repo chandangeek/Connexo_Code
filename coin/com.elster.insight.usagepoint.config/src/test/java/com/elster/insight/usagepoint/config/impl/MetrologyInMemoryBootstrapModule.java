@@ -80,6 +80,7 @@ public class MetrologyInMemoryBootstrapModule {
             injector.getInstance(ThreadPrincipalService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(ValidationService.class);
+            injector.getInstance(PropertySpecService.class);
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(UsagePointConfigurationService.class);
             ctx.commit();
