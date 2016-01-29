@@ -155,7 +155,7 @@ public class ReadingTypeLocalizedFieldsFactory implements ReadingTypeFieldsFacto
             if(code==0 || o.code==0){
                 return Integer.compare(code,o.code);
             }
-            return displayName.compareTo(o.displayName);
+            return displayName.compareToIgnoreCase(o.displayName);
         }
     }
 }
