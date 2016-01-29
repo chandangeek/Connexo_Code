@@ -16,7 +16,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
 
     handler: function (value, name) {
         var widget = Ext.widget('readingTypeDetails');
-        widget.setTitle('<span style="margin: 10px 0 0 10px">' + name + '</span>');
+        widget.setTitle('<span style="margin: 10px 0 0 10px">' + Ext.String.htmlEncode(name) + '</span>');
         var tpl = new Ext.XTemplate(
             '<table style="width: 100%; margin: 30px 10px">',
             '<tr>',
@@ -24,7 +24,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
             '<table style="width: 100%; margin-bottom: 30px">',
             '<tr>',
                 '<td style="width: 30%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.name', 'UNI', 'Reading type name') + '</td>',
-                '<td style="width: 70%; text-align: left; padding-bottom: 10px">' + name + '</td>',
+                '<td style="width: 70%; text-align: left; padding-bottom: 10px">' + Ext.String.htmlEncode(name) + '</td>',
             '</tr>',
             '<tr>',
                 '<td style="width: 30%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.cimCode', 'UNI', 'CIM code') + '</td>',
@@ -133,19 +133,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
 
         var me = this,
             assembledName = value.fullAliasName,
-            //alias = value.aliasName ? (' ' + value.aliasName) : '',
             icon = '<span class="uni-icon-info-small" style="cursor: pointer; display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Uni.I18n.translate('readingType.tooltip', 'UNI', 'Click for more information') + '"></span>';
-
-        /*if (value.names && Ext.isObject(value.names)) {
-            assembledName +=
-                    ((value.names.timeAttribute && me.showTimeAttribute) ? ('[' + value.names.timeAttribute + ']') : '')
-                    + alias
-                    + (value.names.unitOfMeasure ? (' (' + value.names.unitOfMeasure + ')') : '')
-                    + (value.names.phase ? (' ' + value.names.phase ) : '')
-                    + (value.names.timeOfUse ? (' ' + value.names.timeOfUse) : '');
-        } else {
-            assembledName += alias;
-        }*/
 
         setTimeout(function () {
             var parent,
