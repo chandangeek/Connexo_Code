@@ -27,7 +27,7 @@ Ext.define('Imt.customattributesets.view.DetailForm', {
                                     : '')
                                 + Ext.String.htmlEncode(attribute.name)
                                 + (attribute.required
-                                    ? + requiredIcon
+                                    ? requiredIcon
                                     : '');
                         });
                     }
