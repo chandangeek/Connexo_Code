@@ -45,8 +45,7 @@ public class UsagePointConfigurationApplication extends Application implements T
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                MetrologyConfigurationResource.class,
-                RestValidationExceptionMapper.class
+                MetrologyConfigurationResource.class
         );
     }
 
@@ -128,6 +127,7 @@ public class UsagePointConfigurationApplication extends Application implements T
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
+            bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
         }
     }
 }
