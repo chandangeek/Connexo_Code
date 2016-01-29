@@ -46,7 +46,6 @@ public class UsagePointConfigurationApplication extends Application implements T
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
                 MetrologyConfigurationResource.class,
-                ResourceHelper.class,
                 RestValidationExceptionMapper.class
         );
     }

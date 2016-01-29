@@ -249,6 +249,7 @@ public class MetrologyConfigurationResource {
                     .filter(cps -> !assignedCPSIds.contains(cps.getCustomPropertySet().getId()));
         }
         List<?> infos = customPropertySets
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .map(customPropertySetInfoFactory::from)
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("customPropertySets", infos, queryParameters);
