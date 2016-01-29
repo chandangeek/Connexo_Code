@@ -2,17 +2,24 @@ package com.elster.insight.usagepoint.config.rest.impl;
 
 import java.time.Clock;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -21,8 +28,14 @@ import javax.ws.rs.core.SecurityContext;
 
 import com.elster.insight.common.services.ListPager;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
+import com.elster.insight.usagepoint.config.Privileges;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -36,17 +49,26 @@ import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
 @Path("/metrologyconfigurations")
 public class MetrologyConfigurationResource {
 
+    private final ResourceHelper resourceHelper;
     private final TransactionService transactionService;
     private final ValidationService validationService;
     private final UsagePointConfigurationService usagePointConfigurationService;
+    private final CustomPropertySetService customPropertySetService;
+    private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
     private final Clock clock;
+    
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public MetrologyConfigurationResource(TransactionService transactionService, Clock clock, UsagePointConfigurationService usagePointConfigurationService, ValidationService validationService) {
+    public MetrologyConfigurationResource(ResourceHelper resourceHelper, TransactionService transactionService, Clock clock, UsagePointConfigurationService usagePointConfigurationService, ValidationService validationService, CustomPropertySetService customPropertySetService, CustomPropertySetInfoFactory customPropertySetInfoFactory, ConcurrentModificationExceptionFactory conflictFactory) {
+        this.resourceHelper = resourceHelper;
         this.transactionService = transactionService;
         this.clock = clock;
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.validationService = validationService;
+        this.customPropertySetService = customPropertySetService;
+        this.customPropertySetInfoFactory = customPropertySetInfoFactory;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -99,6 +121,46 @@ public class MetrologyConfigurationResource {
         });
 
         return Response.status(Response.Status.CREATED).entity(new MetrologyConfigurationInfo(updatedMetrologyConfiguration)).build();
+    }
+    
+    @DELETE
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+//    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response deleteMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info) {
+        info.id = id;
+        transactionService.execute(() -> {
+            MetrologyConfiguration mc = findAndLockMetrologyConfiguration(info);
+            if (checkIfInUse(mc)) {
+                throw new WebApplicationException(Response.Status.FORBIDDEN);
+            }
+            mc.delete();
+            return null;
+        });
+        return Response.status(Response.Status.NO_CONTENT).build();
+    }
+    
+    private Boolean checkIfInUse(MetrologyConfiguration mc) {
+        return !usagePointConfigurationService.findUsagePointsForMetrologyConfiguration(mc).isEmpty();
+        
+    }
+
+    private MetrologyConfiguration findAndLockMetrologyConfiguration(MetrologyConfigurationInfo info) {
+        return getLockedMetrologyConfiguration(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> getCurrentMetrologyConfigurationVersion(info.id))
+                        .supplier());
+    }
+    
+    private Long getCurrentMetrologyConfigurationVersion(long id) {      
+        Optional<MetrologyConfiguration> mc = usagePointConfigurationService.findMetrologyConfiguration(id);
+        if (mc.isPresent())
+            return mc.get().getVersion();
+        return null;
+    }
+
+    private Optional<MetrologyConfiguration> getLockedMetrologyConfiguration(long id, long version) {
+        return usagePointConfigurationService.findAndLockMetrologyConfiguration(id, version);
     }
 
     @GET
@@ -168,4 +230,27 @@ public class MetrologyConfigurationResource {
         return PagedInfoList.fromPagedList("assignablevalidationrulesets", validationRuleSetsInfos, queryParameters);
     }
 
+    @GET
+    @Path("/{id}/custompropertysets")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG, Privileges.Constants.METROLOGY_CPS_VIEW})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getMetrologyConfigCustomPropertySets(@PathParam("id") long id,
+                                                              @QueryParam("linked") @DefaultValue("true") boolean linked,
+                                                              @BeanParam JsonQueryParameters queryParameters){
+        MetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
+        Stream<RegisteredCustomPropertySet> customPropertySets = metrologyConfiguration.getCustomPropertySets().stream();
+        if (!linked) {
+            Set<String> assignedCPSIds = customPropertySets
+                    .map(RegisteredCustomPropertySet::getCustomPropertySet)
+                    .map(CustomPropertySet::getId)
+                    .collect(Collectors.toSet());
+            customPropertySets = customPropertySetService.findActiveCustomPropertySets(MetrologyConfiguration.class)
+                    .stream()
+                    .filter(cps -> !assignedCPSIds.contains(cps.getCustomPropertySet().getId()));
+        }
+        List<?> infos = customPropertySets
+                .map(customPropertySetInfoFactory::from)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("customPropertySets", infos, queryParameters);
+    }
 }
