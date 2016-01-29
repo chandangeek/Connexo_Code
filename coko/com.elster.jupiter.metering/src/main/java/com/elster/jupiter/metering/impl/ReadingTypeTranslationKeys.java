@@ -223,14 +223,9 @@ public final class ReadingTypeTranslationKeys {
         }
 
         public static Stream<TranslationKey> allKeys() {
-            return allTranslatableReadingTypeUnits()
-                    .stream()
+            return Arrays.stream(ReadingTypeUnit.values())
                     .map(UnitFields::new)
                     .map(UnitFields::asTranslationKey);
-        }
-
-        private static EnumSet<ReadingTypeUnit> allTranslatableReadingTypeUnits() {
-            return EnumSet.complementOf(EnumSet.of(ReadingTypeUnit.NOTAPPLICABLE));
         }
 
         private TranslationKey asTranslationKey() {
