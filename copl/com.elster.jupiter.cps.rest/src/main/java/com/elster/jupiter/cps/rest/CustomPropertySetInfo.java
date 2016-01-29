@@ -14,6 +14,7 @@ import java.util.Set;
 public class CustomPropertySetInfo {
 
     public long id;
+    public String cpsId;
     public String name;
     public String domainName;
     public boolean isActive;
@@ -31,6 +32,7 @@ public class CustomPropertySetInfo {
     public CustomPropertySetInfo(RegisteredCustomPropertySet registeredCustomPropertySet,
                                  List<CustomPropertySetAttributeInfo> attributes, String domainName) {
         this.id = registeredCustomPropertySet.getId();
+        this.cpsId = registeredCustomPropertySet.getCustomPropertySet().getId();
         this.name = registeredCustomPropertySet.getCustomPropertySet().getName();
         this.domainName = domainName;
         this.isActive = true;
