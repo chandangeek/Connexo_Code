@@ -1,11 +1,24 @@
 package com.elster.insight.usagepoint.config.rest.impl;
 
-import java.time.Clock;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import com.elster.insight.common.services.ListPager;
+import com.elster.insight.usagepoint.config.MetrologyConfiguration;
+import com.elster.insight.usagepoint.config.Privileges;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
+import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -25,26 +38,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-
-import com.elster.insight.common.services.ListPager;
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.Privileges;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
-import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
+import java.time.Clock;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/metrologyconfigurations")
 public class MetrologyConfigurationResource {
@@ -56,11 +54,9 @@ public class MetrologyConfigurationResource {
     private final CustomPropertySetService customPropertySetService;
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
     private final Clock clock;
-    
-    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public MetrologyConfigurationResource(ResourceHelper resourceHelper, TransactionService transactionService, Clock clock, UsagePointConfigurationService usagePointConfigurationService, ValidationService validationService, CustomPropertySetService customPropertySetService, CustomPropertySetInfoFactory customPropertySetInfoFactory, ConcurrentModificationExceptionFactory conflictFactory) {
+    public MetrologyConfigurationResource(ResourceHelper resourceHelper, TransactionService transactionService, Clock clock, UsagePointConfigurationService usagePointConfigurationService, ValidationService validationService, CustomPropertySetService customPropertySetService, CustomPropertySetInfoFactory customPropertySetInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.transactionService = transactionService;
         this.clock = clock;
@@ -68,7 +64,6 @@ public class MetrologyConfigurationResource {
         this.validationService = validationService;
         this.customPropertySetService = customPropertySetService;
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
-        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -122,45 +117,25 @@ public class MetrologyConfigurationResource {
 
         return Response.status(Response.Status.CREATED).entity(new MetrologyConfigurationInfo(updatedMetrologyConfiguration)).build();
     }
-    
+
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 //    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @Transactional
     public Response deleteMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info) {
         info.id = id;
-        transactionService.execute(() -> {
-            MetrologyConfiguration mc = findAndLockMetrologyConfiguration(info);
-            if (checkIfInUse(mc)) {
-                throw new WebApplicationException(Response.Status.FORBIDDEN);
-            }
-            mc.delete();
-            return null;
-        });
+        MetrologyConfiguration mc = resourceHelper.findAndLockMetrologyConfiguration(info);
+        if (checkIfInUse(mc)) {
+            throw new WebApplicationException(Response.Status.FORBIDDEN);
+        }
+        mc.delete();
         return Response.status(Response.Status.NO_CONTENT).build();
     }
-    
+
     private Boolean checkIfInUse(MetrologyConfiguration mc) {
         return !usagePointConfigurationService.findUsagePointsForMetrologyConfiguration(mc).isEmpty();
-        
-    }
 
-    private MetrologyConfiguration findAndLockMetrologyConfiguration(MetrologyConfigurationInfo info) {
-        return getLockedMetrologyConfiguration(info.id, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                        .withActualVersion(() -> getCurrentMetrologyConfigurationVersion(info.id))
-                        .supplier());
-    }
-    
-    private Long getCurrentMetrologyConfigurationVersion(long id) {      
-        Optional<MetrologyConfiguration> mc = usagePointConfigurationService.findMetrologyConfiguration(id);
-        if (mc.isPresent())
-            return mc.get().getVersion();
-        return null;
-    }
-
-    private Optional<MetrologyConfiguration> getLockedMetrologyConfiguration(long id, long version) {
-        return usagePointConfigurationService.findAndLockMetrologyConfiguration(id, version);
     }
 
     @GET
@@ -168,9 +143,9 @@ public class MetrologyConfigurationResource {
     @Path("/{id}/assignedvalidationrulesets")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getAssignedValidationRuleSetsForMetrologyConfiguration(@PathParam("id") long id,
-            @Context SecurityContext securityContext,
-            @BeanParam JsonQueryParameters queryParameters,
-            @BeanParam JsonQueryFilter filter) {
+                                                                                @Context SecurityContext securityContext,
+                                                                                @BeanParam JsonQueryParameters queryParameters,
+                                                                                @BeanParam JsonQueryFilter filter) {
         MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         List<ValidationRuleSetInfo> validationRuleSetsInfos = ListPager.of(metrologyConfiguration.getValidationRuleSets()).from(queryParameters).stream().map(vrs -> new ValidationRuleSetInfo(vrs))
                 .collect(Collectors.toList());
@@ -182,10 +157,10 @@ public class MetrologyConfigurationResource {
     @Path("/{id}/assignedvalidationrulesets")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response setAssignedValidationRuleSetsForMetrologyConfiguration(@PathParam("id") long id,
-            ValidationRuleSetInfos validationRuleSetInfos,
-            @Context SecurityContext securityContext,
-            @BeanParam JsonQueryParameters queryParameters,
-            @BeanParam JsonQueryFilter filter) {
+                                                                           ValidationRuleSetInfos validationRuleSetInfos,
+                                                                           @Context SecurityContext securityContext,
+                                                                           @BeanParam JsonQueryParameters queryParameters,
+                                                                           @BeanParam JsonQueryFilter filter) {
         MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
 
         List<ValidationRuleSet> currentRules = metrologyConfiguration.getValidationRuleSets();
@@ -218,9 +193,9 @@ public class MetrologyConfigurationResource {
     @Path("/{id}/assignablevalidationrulesets")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getAssignableValidationRuleSetsForMetrologyConfiguration(@PathParam("id") long id,
-            @Context SecurityContext securityContext,
-            @BeanParam JsonQueryParameters queryParameters,
-            @BeanParam JsonQueryFilter filter) {
+                                                                                  @Context SecurityContext securityContext,
+                                                                                  @BeanParam JsonQueryParameters queryParameters,
+                                                                                  @BeanParam JsonQueryFilter filter) {
         MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         List<ValidationRuleSet> assigned = metrologyConfiguration.getValidationRuleSets();
         List<ValidationRuleSet> assignableValidationRuleSets = validationService.getValidationRuleSets().stream().filter(vrs -> !assigned.contains(vrs)).collect(Collectors.toList());
@@ -236,7 +211,7 @@ public class MetrologyConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getMetrologyConfigCustomPropertySets(@PathParam("id") long id,
                                                               @QueryParam("linked") @DefaultValue("true") boolean linked,
-                                                              @BeanParam JsonQueryParameters queryParameters){
+                                                              @BeanParam JsonQueryParameters queryParameters) {
         MetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
         Stream<RegisteredCustomPropertySet> customPropertySets = metrologyConfiguration.getCustomPropertySets().stream();
         if (!linked) {
@@ -249,6 +224,31 @@ public class MetrologyConfigurationResource {
                     .filter(cps -> !assignedCPSIds.contains(cps.getCustomPropertySet().getId()));
         }
         List<?> infos = customPropertySets
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .map(customPropertySetInfoFactory::from)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("customPropertySets", infos, queryParameters);
+    }
+
+    @PUT
+    @Path("/{id}/custompropertysets")
+    @RolesAllowed({Privileges.Constants.ADMIN_ANY_METROLOGY_CONFIG, Privileges.Constants.METROLOGY_CPS_ADMIN})
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public PagedInfoList addCustomPropertySetToMetrologyConfiguration(@PathParam("id") long id,
+                                                                      @BeanParam JsonQueryParameters queryParameters,
+                                                                      MetrologyConfigurationInfo info){
+        info.id = id;
+        MetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info);
+        if (info.customPropertySets != null){
+            info.customPropertySets
+                    .stream()
+                    .map(cpsInfo -> resourceHelper.getRegisteredCustomPropertySetOrThrowException(cpsInfo.cpsId))
+                    .forEach(metrologyConfiguration::addCustomPropertySet);
+        }
+        List<?> infos = metrologyConfiguration.getCustomPropertySets()
+                .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .map(customPropertySetInfoFactory::from)
                 .collect(Collectors.toList());

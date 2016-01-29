@@ -1,18 +1,21 @@
 package com.elster.insight.usagepoint.config.rest;
 
 import java.time.Instant;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 
 @XmlRootElement
 public class MetrologyConfigurationInfo {
 
     public long id;
-    public long version;
     public String name;
+    public List<CustomPropertySetInfo> customPropertySets;
 
+    public long version;
     public Instant createTime;
     public Instant modTime;
     public String userName;
