@@ -8,6 +8,7 @@ import java.util.Currency;
 
 import javax.ws.rs.core.Application;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import org.mockito.Mock;
 
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
@@ -42,6 +43,8 @@ public class UsagePointConfigurationRestApplicationJerseyTest extends FelixRestA
     ValidationService validationService;
     @Mock
     UsagePointConfigurationService usagePointConfigurationService;
+    @Mock
+    CustomPropertySetService customPropertySetService;
 
     @Override
     protected Application getApplication() {
@@ -52,6 +55,7 @@ public class UsagePointConfigurationRestApplicationJerseyTest extends FelixRestA
         application.setValidationService(validationService);
         application.setClockService(clock);
         application.setUsagePointConfigurationService(usagePointConfigurationService);
+        application.setCustomPropertySetService(customPropertySetService);
         return application;
     }
 
