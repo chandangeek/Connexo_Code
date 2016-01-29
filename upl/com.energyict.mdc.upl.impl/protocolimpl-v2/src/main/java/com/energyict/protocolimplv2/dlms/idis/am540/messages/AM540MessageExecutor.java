@@ -13,9 +13,15 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130MessageExecutor;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.DSMR50ActivitiyCalendarController;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.monitorInstanceAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.thresholdInAmpereAttributeName;
 
 /**
  * @author sva
@@ -43,7 +49,10 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         } else { // if it was not a PLC message
             if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.VerifyAndActivateFirmware)) {
                 collectedMessage = verifyAndActivateFirmware(pendingMessage, collectedMessage);
-            } else {
+            }  else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.UPDATE_SUPERVISION_MONITOR)) {
+                collectedMessage = updateSupervisionMonitor(collectedMessage, pendingMessage);
+            }
+            else {
                 collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
             }
         }
@@ -110,4 +119,10 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
              return false;
          }
      }
+
+    private CollectedMessage updateSupervisionMonitor(CollectedMessage collectedMessage, OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+        int monitorInstance = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, monitorInstanceAttributeName).getDeviceMessageAttributeValue()).intValue();
+        long threshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, thresholdInAmpereAttributeName).getDeviceMessageAttributeValue()).longValue();
+        return updateThresholds(collectedMessage, offlineDeviceMessage, monitorInstance, threshold);
+    }
 }

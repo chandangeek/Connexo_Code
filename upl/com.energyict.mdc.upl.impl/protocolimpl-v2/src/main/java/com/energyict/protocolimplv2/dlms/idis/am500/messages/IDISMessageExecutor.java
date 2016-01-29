@@ -230,7 +230,10 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
     private CollectedMessage superVision(CollectedMessage collectedMessage, OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         int phase = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, phaseAttributeName).getDeviceMessageAttributeValue()).intValue();
         long threshold = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, thresholdInAmpereAttributeName).getDeviceMessageAttributeValue()).longValue();
+        return updateThresholds(collectedMessage, offlineDeviceMessage, phase, threshold);
+    }
 
+    protected CollectedMessage updateThresholds(CollectedMessage collectedMessage, OfflineDeviceMessage offlineDeviceMessage, int phase, long threshold) throws IOException {
         if (threshold > SUPERVISION_MAXIMUM_THRESHOLD_VALUE) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             String msg = "Invalid threshold value, should be smaller than 4294967296";
