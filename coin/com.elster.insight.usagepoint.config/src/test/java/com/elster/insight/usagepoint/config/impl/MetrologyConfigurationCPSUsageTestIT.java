@@ -1,8 +1,10 @@
 package com.elster.insight.usagepoint.config.impl;
 
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
+import com.elster.insight.usagepoint.config.impl.errors.CannotManageCPSOnActiveMetrologyConfig;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.transaction.TransactionContext;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -26,6 +28,7 @@ public class MetrologyConfigurationCPSUsageTestIT {
     public static void setUp() {
         inMemoryBootstrapModule.activate();
         customPropertySet = new MetrologyTestCustomPropertySet(inMemoryBootstrapModule.getPropertySpecService());
+        inMemoryBootstrapModule.getCustomPropertySetService().addCustomPropertySet(customPropertySet);
     }
 
     @AfterClass
@@ -33,9 +36,12 @@ public class MetrologyConfigurationCPSUsageTestIT {
         inMemoryBootstrapModule.deactivate();
     }
 
-    @Before
-    public void beforeTest() {
-        inMemoryBootstrapModule.getCustomPropertySetService().addCustomPropertySet(customPropertySet);
+    @After
+    public void afterTest(){
+        inTransaction(ctx -> {
+            findMetrologyConfiguration().ifPresent(mc -> mc.delete());
+            ctx.commit();
+        });
     }
 
     private void inTransaction(Consumer<TransactionContext> worker) {
@@ -103,6 +109,16 @@ public class MetrologyConfigurationCPSUsageTestIT {
         });
     }
 
+    @Test(expected = CannotManageCPSOnActiveMetrologyConfig.class)
+    public void testAddCPSToActiveMetrologyConfig() {
+        inTransaction(ctx -> {
+            MetrologyConfiguration metrologyConfiguration = getMetrologyConfiguration();
+            metrologyConfiguration.activate();
+            metrologyConfiguration.addCustomPropertySet(getRegisteredCPS());
+            ctx.commit();
+        });
+    }
+
     @Test
     public void testRemoveNotAddedCPS() {
         inTransaction(ctx -> {
@@ -154,6 +170,18 @@ public class MetrologyConfigurationCPSUsageTestIT {
             metrologyConfiguration.addCustomPropertySet(getRegisteredCPS());
             metrologyConfiguration.removeCustomPropertySet(getRegisteredCPS());
             assertThat(metrologyConfiguration.getVersion()).isEqualTo(version + 2);
+        });
+    }
+
+    @Test(expected = CannotManageCPSOnActiveMetrologyConfig.class)
+    public void testRemoveCPSFromActiveMetrologyConfig() {
+        inTransaction(ctx -> {
+            MetrologyConfiguration metrologyConfiguration = getMetrologyConfiguration();
+            RegisteredCustomPropertySet registeredCPS = getRegisteredCPS();
+            metrologyConfiguration.addCustomPropertySet(registeredCPS);
+            metrologyConfiguration.activate();
+            metrologyConfiguration.addCustomPropertySet(getRegisteredCPS());
+            ctx.commit();
         });
     }
 }

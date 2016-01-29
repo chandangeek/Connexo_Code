@@ -5,11 +5,13 @@ import com.elster.insight.usagepoint.config.MetrologyConfigurationValidationRule
 import com.elster.insight.usagepoint.config.Privileges;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
+import com.elster.insight.usagepoint.config.impl.errors.MessageSeeds;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -18,6 +20,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.inject.AbstractModule;
@@ -37,8 +40,12 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "com.elster.jupiter.parties", service = {UsagePointConfigurationService.class, InstallService.class, PrivilegesProvider.class}, property = {"name=" + UsagePointConfigurationService.COMPONENTNAME}, immediate = true)
-public class UsagePointConfigurationServiceImpl implements UsagePointConfigurationService, InstallService, PrivilegesProvider {
+@Component(
+        name = "com.elster.insight.usagepoint.config.impl.UsagePointConfigurationServiceImpl",
+        service = {UsagePointConfigurationService.class, InstallService.class, PrivilegesProvider.class, MessageSeedProvider.class},
+        property = {"name=" + UsagePointConfigurationService.COMPONENTNAME},
+        immediate = true)
+public class UsagePointConfigurationServiceImpl implements UsagePointConfigurationService, InstallService, PrivilegesProvider, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile Clock clock;
@@ -48,6 +55,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     private volatile CustomPropertySetService customPropertySetService;
     private volatile Thesaurus thesaurus;
 
+    @SuppressWarnings("unused")
     public UsagePointConfigurationServiceImpl() {
     }
 
@@ -80,6 +88,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(UsagePointConfigurationService.class).toInstance(UsagePointConfigurationServiceImpl.this);
             }
         };
     }
@@ -236,5 +245,15 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 Privileges.RESOURCE_METROLOGY_CONFIG_CPS.getKey(), Privileges.RESOURCE_METROLOGY_CONFIG_CPS_DESCR.getKey(),
                 Arrays.asList(Privileges.Constants.METROLOGY_CPS_VIEW, Privileges.Constants.METROLOGY_CPS_ADMIN)));
         return resources;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 }

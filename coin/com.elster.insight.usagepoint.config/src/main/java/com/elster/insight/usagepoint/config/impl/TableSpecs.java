@@ -23,7 +23,8 @@ public enum TableSpecs {
             Table<MetrologyConfiguration> table = dataModel.addTable(name(), MetrologyConfiguration.class);
             table.map(MetrologyConfigurationImpl.class);
             Column id = table.addAutoIdColumn();
-            Column name = table.column("NAME").varChar().notNull().map(MetrologyConfigurationImpl.Fields.NAME.fieldName()).add();
+            Column name = table.column(MetrologyConfigurationImpl.Fields.NAME.name()).varChar().notNull().map(MetrologyConfigurationImpl.Fields.NAME.fieldName()).add();
+            table.column(MetrologyConfigurationImpl.Fields.ACTIVE.name()).bool().map(MetrologyConfigurationImpl.Fields.ACTIVE.fieldName()).notNull().add();
             table.addAuditColumns();
             table.unique("UPC_UK_METROLOGYCONFIGURATION").on(name).add();
             table.primaryKey("UPC_PK_METROLOGYCONFIGURATION").on(id).add();

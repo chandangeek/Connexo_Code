@@ -31,6 +31,12 @@ public interface MetrologyConfiguration {
 
     String getUserName();
 
+    boolean isActive();
+
+    void activate();
+
+    void deactivate();
+
     List<RegisteredCustomPropertySet> getCustomPropertySets();
 
     void addCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet);
