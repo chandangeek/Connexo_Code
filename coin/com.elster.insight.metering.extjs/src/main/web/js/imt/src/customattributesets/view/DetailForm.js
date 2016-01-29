@@ -1,0 +1,40 @@
+Ext.define('Imt.customattributesets.view.DetailForm', {
+    extend: 'Ext.form.Panel',
+    alias: 'widget.cas-detail-form',
+    layout: 'form',
+    defaults: {
+        xtype: 'displayfield',
+        labelWidth: 200
+    },
+
+    initComponent: function () {
+        var me = this;
+
+        me.items = [
+            {
+                fieldLabel: Uni.I18n.translate('general.attributes', 'IMT', 'Attributes'),
+                name: 'attributes',
+                renderer: function (value) {
+                    var result = '',
+                        requiredIcon = '<span class="uni-form-item-label-required" style="display: inline-block; width: 16px; height: 16px; margin-left: 10px" data-qtip="'
+                            + Uni.I18n.translate('general.required', 'IMT', 'Required')
+                            + '"></span>';
+
+                    Ext.Array.each(value, function (attribute, index) {
+                        result += (index
+                                ? '<br/><br/>'
+                                : '')
+                            + Ext.String.htmlEncode(attribute.name)
+                            + (attribute.required
+                                ? + requiredIcon
+                                : '');
+                    });
+
+                    return result;
+                }
+            }
+        ];
+
+        me.callParent(arguments);
+    }
+});
