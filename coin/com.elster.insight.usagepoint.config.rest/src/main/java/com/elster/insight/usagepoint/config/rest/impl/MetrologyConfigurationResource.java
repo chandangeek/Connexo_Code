@@ -118,6 +118,30 @@ public class MetrologyConfigurationResource {
         return Response.status(Response.Status.CREATED).entity(new MetrologyConfigurationInfo(updatedMetrologyConfiguration)).build();
     }
 
+    @PUT
+    @RolesAllowed({Privileges.Constants.ADMIN_ANY_METROLOGY_CONFIG, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG})
+    @Path("/{id}/activate")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public MetrologyConfigurationInfo activateMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info) {
+        info.id = id;
+        MetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info);
+        metrologyConfiguration.activate();
+        return new MetrologyConfigurationInfo(metrologyConfiguration);
+    }
+
+    @PUT
+    @RolesAllowed({Privileges.Constants.ADMIN_ANY_METROLOGY_CONFIG, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG})
+    @Path("/{id}/deactivate")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public MetrologyConfigurationInfo deactivateMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info) {
+        info.id = id;
+        MetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info);
+        metrologyConfiguration.deactivate();
+        return new MetrologyConfigurationInfo(metrologyConfiguration);
+    }
+
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -247,6 +271,28 @@ public class MetrologyConfigurationResource {
                     .map(cpsInfo -> resourceHelper.getRegisteredCustomPropertySetOrThrowException(cpsInfo.cpsId))
                     .forEach(metrologyConfiguration::addCustomPropertySet);
         }
+        List<?> infos = metrologyConfiguration.getCustomPropertySets()
+                .stream()
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .map(customPropertySetInfoFactory::from)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("customPropertySets", infos, queryParameters);
+    }
+
+    @DELETE
+    @Path("/{id}/custompropertysets/{cpsId}")
+    @RolesAllowed({Privileges.Constants.ADMIN_ANY_METROLOGY_CONFIG, Privileges.Constants.METROLOGY_CPS_ADMIN})
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public PagedInfoList removeCustomPropertySetFromMetrologyConfiguration(@PathParam("id") long id,
+                                                                      @PathParam("cpsId") String cpsId,
+                                                                      @BeanParam JsonQueryParameters queryParameters,
+                                                                      MetrologyConfigurationInfo info){
+        info.id = id;
+        MetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info);
+        RegisteredCustomPropertySet customPropertySet = resourceHelper.getRegisteredCustomPropertySetOrThrowException(cpsId);
+        metrologyConfiguration.removeCustomPropertySet(customPropertySet);
         List<?> infos = metrologyConfiguration.getCustomPropertySets()
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)

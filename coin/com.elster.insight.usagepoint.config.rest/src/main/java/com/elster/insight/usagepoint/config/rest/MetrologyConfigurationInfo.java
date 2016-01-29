@@ -13,6 +13,7 @@ public class MetrologyConfigurationInfo {
 
     public long id;
     public String name;
+    public boolean active;
     public List<CustomPropertySetInfo> customPropertySets;
 
     public long version;
@@ -25,8 +26,9 @@ public class MetrologyConfigurationInfo {
 
     public MetrologyConfigurationInfo(MetrologyConfiguration metrologyConfiguration) {
         this.id = metrologyConfiguration.getId();
-        this.version = metrologyConfiguration.getVersion();
+        this.active = metrologyConfiguration.isActive();
         this.name = metrologyConfiguration.getName();
+        this.version = metrologyConfiguration.getVersion();
         this.createTime = metrologyConfiguration.getCreateTime();
         this.modTime = metrologyConfiguration.getModTime();
         this.userName = metrologyConfiguration.getUserName();
