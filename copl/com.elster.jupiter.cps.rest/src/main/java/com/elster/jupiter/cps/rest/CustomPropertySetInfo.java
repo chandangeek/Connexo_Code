@@ -1,4 +1,4 @@
-package com.elster.jupiter.cps.rest.impl;
+package com.elster.jupiter.cps.rest;
 
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;

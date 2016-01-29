@@ -1,4 +1,4 @@
-package com.elster.jupiter.cps.rest.impl;
+package com.elster.jupiter.cps.rest;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;

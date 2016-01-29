@@ -1,4 +1,4 @@
-package com.elster.jupiter.cps.rest.impl;
+package com.elster.jupiter.cps.rest;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
