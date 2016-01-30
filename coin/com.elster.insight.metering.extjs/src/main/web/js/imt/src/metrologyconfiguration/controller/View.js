@@ -17,10 +17,11 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
     ],
     views: [
         'Imt.metrologyconfiguration.view.Setup',
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm'
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm',
+        'Imt.metrologyconfiguration.view.CustomAttributeSets'
     ],
     refs: [
-        {ref: 'attributesPanel', selector: '#metrology-configuration-attributes-panel'},
+        {ref: 'attributesPanel', selector: '#metrology-configuration-attributes-panel'}
     ],
 
     init: function () {
@@ -64,9 +65,26 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
 
             }
         });
-        
-        
-        
     },
+
+    showCustomAttributeSets: function (id) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            metrologyConfigurationModel = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration'),
+            store = me.getStore('Imt.metrologyconfiguration.store.CustomAttributeSets'),
+            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+
+        pageMainContent.setLoading(true);
+        metrologyConfigurationModel.load(id, {
+            success: function (record) {
+                me.getApplication().fireEvent('metrologyConfigurationLoaded', record);
+                var widget = Ext.widget('custom-attribute-sets', {router: router});
+                me.getApplication().fireEvent('changecontentevent', widget);
+                store.getProxy().extraParams.id = id;
+                store.load();
+                pageMainContent.setLoading(false);
+            }
+        });
+    }
 });
 
