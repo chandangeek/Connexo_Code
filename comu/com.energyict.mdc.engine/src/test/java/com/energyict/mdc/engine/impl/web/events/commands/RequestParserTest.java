@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -40,12 +41,16 @@ public class RequestParserTest {
 
     private static final long DEVICE1_ID = 1;
     private static final long DEVICE2_ID = DEVICE1_ID + 1;
+    private static final String DEVICE1_MRID = "MRID_"+DEVICE1_ID;
+    private static final String DEVICE2_MRID = "MRID_"+DEVICE2_ID;
     private static final long CONNECTION_TASK1_ID = DEVICE2_ID + 1;
     private static final long CONNECTION_TASK2_ID = CONNECTION_TASK1_ID + 1;
     private static final long COM_TASK_EXECUTION1_ID = CONNECTION_TASK2_ID + 1;
     private static final long COM_TASK_EXECUTION2_ID = COM_TASK_EXECUTION1_ID + 1;
     private static final long COM_PORT1_ID = COM_TASK_EXECUTION2_ID + 1;
     private static final long COM_PORT2_ID = COM_PORT1_ID + 1;
+    private static final String COM_PORT1_NAME = "Comport_" + COM_PORT1_ID;
+    private static final String COM_PORT2_NAME = "Comport_" + COM_PORT2_ID;
     private static final long COM_PORT_POOL1_ID = COM_PORT2_ID + 1;
     private static final long COM_PORT_POOL2_ID = COM_PORT_POOL1_ID + 1;
     private static final long NON_EXISTING_DEVICE_ID = 999;
@@ -272,6 +277,35 @@ public class RequestParserTest {
     }
 
     @Test
+    public void testOneDeviceWithMRID() throws RequestParseException {
+        this.mockDevices();
+        RequestParser parser = new RequestParser(serviceProvider);
+
+        //Business method
+        Request request = parser.parse("Register request for device: " + DEVICE1_MRID);
+
+        // Asserts
+        assertThat(request).isInstanceOf(DeviceRequest.class);
+        DeviceRequest deviceRequest = (DeviceRequest) request;
+        assertThat(deviceRequest.getBusinessObjectIds()).containsOnly(DEVICE1_ID);
+    }
+
+    @Test(expected = CanNotFindForIdentifier.class)
+    public void testOneDeviceWithMRIDAndUnknown() throws RequestParseException {
+        doThrow(CanNotFindForIdentifier.class).when(this.identificationService).createDeviceIdentifierByMRID(anyString());
+        this.mockDevices();
+        RequestParser parser = new RequestParser(serviceProvider);
+
+        //Business method
+        Request request = parser.parse("Register request for device: unknown");
+
+        // Asserts
+        assertThat(request).isInstanceOf(DeviceRequest.class);
+        DeviceRequest deviceRequest = (DeviceRequest) request;
+        assertThat(deviceRequest.getBusinessObjectIds()).isEmpty();
+    }
+
+    @Test
     public void testMultipleDeviceIds() throws RequestParseException {
         this.mockDevices();
         RequestParser parser = new RequestParser(serviceProvider);
@@ -285,6 +319,50 @@ public class RequestParserTest {
         assertThat(deviceRequest.getBusinessObjectIds()).containsOnly(DEVICE1_ID, DEVICE2_ID);
     }
 
+    @Test
+    public void testMultipleDeviceWithMRID() throws RequestParseException {
+        this.mockDevices();
+        RequestParser parser = new RequestParser(serviceProvider);
+
+        //Business method
+        Request request = parser.parse("Register request for device: " + DEVICE1_MRID + ","+DEVICE2_MRID);
+
+        // Asserts
+        assertThat(request).isInstanceOf(DeviceRequest.class);
+        DeviceRequest deviceRequest = (DeviceRequest) request;
+        assertThat(deviceRequest.getBusinessObjectIds()).containsOnly(DEVICE1_ID, DEVICE2_ID);
+    }
+
+    @Test
+    public void testMultipleDeviceWithMRIDAndSpaces() throws RequestParseException {
+        this.mockDevices();
+        RequestParser parser = new RequestParser(serviceProvider);
+
+        //Business method
+        Request request = parser.parse("Register request for device: " + DEVICE1_MRID + ", "+DEVICE2_MRID);
+
+        // Asserts
+        assertThat(request).isInstanceOf(DeviceRequest.class);
+        DeviceRequest deviceRequest = (DeviceRequest) request;
+        assertThat(deviceRequest.getBusinessObjectIds()).containsOnly(DEVICE1_ID, DEVICE2_ID);
+    }
+
+    @Test(expected = CanNotFindForIdentifier.class)
+    public void testMultipleDeviceWithMRIDAndUnknown() throws RequestParseException {
+        doThrow(CanNotFindForIdentifier.class).when(this.identificationService).createDeviceIdentifierByMRID("unknown");
+        this.mockDevices();
+        RequestParser parser = new RequestParser(serviceProvider);
+
+        //Business method
+        Request request = parser.parse("Register request for device: " + DEVICE1_MRID + ", "+DEVICE2_MRID + ", unknown");
+
+        // Asserts
+        assertThat(request).isInstanceOf(DeviceRequest.class);
+        DeviceRequest deviceRequest = (DeviceRequest) request;
+        assertThat(deviceRequest.getBusinessObjectIds()).containsOnly(DEVICE1_ID, DEVICE2_ID);
+    }
+
+
     @Test(expected = BusinessObjectIdParseException.class)
     public void testNonExistingDevice() throws RequestParseException {
         doThrow(CanNotFindForIdentifier.class).when(this.identificationService).createDeviceIdentifierByDatabaseId(NON_EXISTING_DEVICE_ID);
@@ -297,8 +375,9 @@ public class RequestParserTest {
         // Expected BusinessObjectIdParseException because the device request does not exist
     }
 
-    @Test(expected = BusinessObjectIdParseException.class)
+    @Test(expected = CanNotFindForIdentifier.class)
     public void testNonNumericalDeviceId() throws RequestParseException {
+        doThrow(CanNotFindForIdentifier.class).when(this.identificationService).createDeviceIdentifierByMRID(anyString());
         this.mockDevices();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -489,12 +568,38 @@ public class RequestParserTest {
     }
 
     @Test
+    public void testNoComPortRedundantSeparator() throws RequestParseException {
+        this.mockComPorts();
+        RequestParser parser = new RequestParser(serviceProvider);
+
+        //Business method
+        Request request = parser.parse("Register request for comPort:, , ,");
+
+        // Asserts
+        assertThat(request).isInstanceOf(AllComPortsRequest.class);
+    }
+
+    @Test
     public void testOneComPort() throws RequestParseException {
         this.mockComPorts();
         RequestParser parser = new RequestParser(serviceProvider);
 
         //Business method
         Request request = parser.parse("Register request for comPort: " + COM_PORT1_ID);
+
+        // Asserts
+        assertThat(request).isInstanceOf(ComPortRequest.class);
+        ComPortRequest comPortRequest = (ComPortRequest) request;
+        assertThat(comPortRequest.getBusinessObjectIds()).containsOnly(COM_PORT1_ID);
+    }
+
+    @Test
+    public void testOneComPortWithName() throws RequestParseException {
+        this.mockComPorts();
+        RequestParser parser = new RequestParser(serviceProvider);
+
+        //Business method
+        Request request = parser.parse("Register request for comPort: " + COM_PORT1_NAME);
 
         // Asserts
         assertThat(request).isInstanceOf(ComPortRequest.class);
@@ -516,7 +621,49 @@ public class RequestParserTest {
         assertThat(comPortRequest.getBusinessObjectIds()).containsOnly(COM_PORT1_ID, COM_PORT2_ID);
     }
 
-    @Test(expected = RequestParseException.class)
+    @Test
+    public void testMultipleComPortIdsWithSpaces() throws RequestParseException {
+        this.mockComPorts();
+        RequestParser parser = new RequestParser(serviceProvider);
+
+        //Business method
+        Request request = parser.parse("Register request for comPort: " + COM_PORT1_ID + ", " + COM_PORT2_ID);
+
+        // Asserts
+        assertThat(request).isInstanceOf(ComPortRequest.class);
+        ComPortRequest comPortRequest = (ComPortRequest) request;
+        assertThat(comPortRequest.getBusinessObjectIds()).containsOnly(COM_PORT1_ID, COM_PORT2_ID);
+    }
+
+    @Test
+    public void testMultipleComPortWithName() throws RequestParseException {
+        this.mockComPorts();
+        RequestParser parser = new RequestParser(serviceProvider);
+
+        //Business method
+        Request request = parser.parse("Register request for comPort: " + COM_PORT1_NAME + "," + COM_PORT2_NAME);
+
+        // Asserts
+        assertThat(request).isInstanceOf(ComPortRequest.class);
+        ComPortRequest comPortRequest = (ComPortRequest) request;
+        assertThat(comPortRequest.getBusinessObjectIds()).containsOnly(COM_PORT1_ID, COM_PORT2_ID);
+    }
+
+    @Test
+    public void testMultipleComPortWithNameAndSpaces() throws RequestParseException {
+        this.mockComPorts();
+        RequestParser parser = new RequestParser(serviceProvider);
+
+        //Business method
+        Request request = parser.parse("Register request for comPort: " + COM_PORT1_NAME + " , " + COM_PORT2_NAME + ", ,,");
+
+        // Asserts
+        assertThat(request).isInstanceOf(ComPortRequest.class);
+        ComPortRequest comPortRequest = (ComPortRequest) request;
+        assertThat(comPortRequest.getBusinessObjectIds()).containsOnly(COM_PORT1_ID, COM_PORT2_ID);
+    }
+
+    @Test(expected = BusinessObjectIdParseException.class)
     public void testNonExistingComPort() throws RequestParseException {
         this.mockComPorts();
         RequestParser parser = new RequestParser(serviceProvider);
@@ -524,11 +671,13 @@ public class RequestParserTest {
         //Business method
         parser.parse("Register request for comPort: " + NON_EXISTING_COMPORT_ID);
 
-        // Expected RequestParseException because the comPort request accepts only 1 comPort id
+        // Expected BusinessObjectIdParseException because the comPort request accepts only 1 comPort id
     }
 
     @Test(expected = BusinessObjectIdParseException.class)
     public void testNonNumericalComPortId() throws RequestParseException {
+        doReturn(Optional.empty()).when(this.engineConfigurationService).findComPortByName(anyString());
+
         this.mockComPorts();
         RequestParser parser = new RequestParser(serviceProvider);
 
@@ -642,6 +791,7 @@ public class RequestParserTest {
         when(deviceIdentifier.getDeviceIdentifierType()).thenReturn(DeviceIdentifierType.ActualDevice);
         when(deviceIdentifier.getIdentifier()).thenReturn(String.valueOf(deviceId));
         when(this.identificationService.createDeviceIdentifierByDatabaseId(deviceId)).thenReturn(deviceIdentifier);
+        when(this.identificationService.createDeviceIdentifierByMRID("MRID_"+deviceId)).thenReturn(deviceIdentifier);
     }
 
     private void mockConnectionTasks() {
@@ -669,14 +819,16 @@ public class RequestParserTest {
         when(comPort2.getId()).thenReturn(COM_PORT2_ID);
         doReturn(Optional.of(comPort1)).when(this.engineConfigurationService).findComPort(COM_PORT1_ID);
         doReturn(Optional.of(comPort2)).when(this.engineConfigurationService).findComPort(COM_PORT2_ID);
+        doReturn(Optional.of(comPort1)).when(this.engineConfigurationService).findComPortByName(COM_PORT1_NAME);
+        doReturn(Optional.of(comPort2)).when(this.engineConfigurationService).findComPortByName(COM_PORT2_NAME);
         doReturn(Optional.empty()).when(this.engineConfigurationService).findComPort(NON_EXISTING_COMPORT_ID);
     }
 
     private void mockComPortPools() {
         ComPortPool comPortPool1 = mock(ComPortPool.class);
-        when(comPortPool1.getId()).thenReturn(Long.valueOf(COM_PORT_POOL1_ID));
+        when(comPortPool1.getId()).thenReturn(COM_PORT_POOL1_ID);
         ComPortPool comPortPool2 = mock(ComPortPool.class);
-        when(comPortPool2.getId()).thenReturn(Long.valueOf(COM_PORT_POOL2_ID));
+        when(comPortPool2.getId()).thenReturn(COM_PORT_POOL2_ID);
         doReturn(Optional.of(comPortPool1)).when(this.engineConfigurationService).findComPortPool(COM_PORT_POOL1_ID);
         doReturn(Optional.of(comPortPool2)).when(this.engineConfigurationService).findComPortPool(COM_PORT_POOL2_ID);
         doReturn(Optional.empty()).when(this.engineConfigurationService).findComPortPool(NON_EXISTING_COMPORT_POOL_ID);
