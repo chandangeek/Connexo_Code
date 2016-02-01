@@ -406,7 +406,7 @@ public class JbpmTaskResource {
         EntityManager em = emf.createEntityManager();
 //        String queryString = "select n.NODENAME, n.NODETYPE, MAX(n.TYPE), MIN(n.LOG_DATE), n.NODEINSTANCEID from NODEINSTANCELOG n where n.PROCESSINSTANCEID =:processInstanceId group by n.NODENAME, n.NODETYPE, n.NODEINSTANCEID order by MIN(n.LOG_DATE) DESC";
         String queryString = "select * from(select n.NODENAME, n.NODETYPE, n.log_date,n.NODEINSTANCEID, n.NODEID from NODEINSTANCELOG n " +
-                "where n.PROCESSINSTANCEID = :processInstanceId and type= (select min(type) from NODEINSTANCELOG where processinstanceid = :processInstanceId and nodeid = n.nodeid) order by n.log_date desc)t1 " +
+                "where n.PROCESSINSTANCEID = :processInstanceId and type= (select min(type) from NODEINSTANCELOG where processinstanceid = :processInstanceId and nodeid = n.nodeid) order by n.ID desc)t1 " +
                 "join(select p.NODEID as NODEIDNOTUSED, max(p.TYPE) from NODEINSTANCELOG p where processinstanceid = :processInstanceId group by p.NODEID)t2 on t1.nodeid = t2.NODEIDNOTUSED";
         Query query = em.createNativeQuery(queryString);
         query.setParameter("processInstanceId", processInstanceId);
