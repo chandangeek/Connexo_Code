@@ -30,9 +30,10 @@ Ext.define('CSMonitor.controller.logging.Text', {
         if (protocol == 'https'){
             socketProtocol = 'wss';
         }
-        // this.setWebSocket(new WebSocket(socketProtocol + '://' + hostName + '/events/registration'));
-        //TODO: hardcoded websocket URL !!!
-        this.setWebSocket(new WebSocket(socketProtocol + '://hostName:8888/events/registration'));
+        if (hostName.indexOf(':') >= 0){
+            hostName = hostName.substr(0, hostName.indexOf(':')).trim();
+        }
+        this.setWebSocket(new WebSocket(socketProtocol + '://' + hostName + ':8888/events/registration'));
         this.getWebSocket().onopen = function(evt) { me.onOpen(evt); };
         this.getWebSocket().onclose = function(evt) { me.onClose(evt); };
         this.getWebSocket().onmessage = function(evt) { me.onMessage(evt); };
