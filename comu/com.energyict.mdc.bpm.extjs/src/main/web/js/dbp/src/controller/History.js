@@ -30,7 +30,7 @@ Ext.define('Dbp.controller.History', {
         'devices/device/processstart': {
             title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
             route: 'devices/{mRID}/processes/start',
-            controller: 'Dbp.deviceprocesses.controller.StartProcess',
+            controller: 'Dbp.startprocess.controller.StartProcess',
             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
             action: 'showStartProcess'
         },
