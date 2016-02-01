@@ -1,0 +1,136 @@
+Ext.define('Bpm.startprocess.controller.StartProcess', {
+    extend: 'Ext.app.Controller',
+    requires: [
+        'Bpm.startprocess.view.StartProcess'
+    ],
+    stores: [
+    ],
+    models: [
+        'Bpm.startprocess.model.ProcessContent'
+    ],
+    views: [
+        'Bpm.startprocess.view.StartProcess'
+    ],
+    refs: [
+        {ref: 'startProcessPanel', selector: 'bpm-start-processes-panel'},
+        {ref: 'startProcessForm', selector: 'bpm-start-processes-panel #process-start-form'},
+        {ref: 'processStartContent',selector: 'bpm-start-processes-panel #process-start-content'}
+    ],
+
+    init: function () {
+        var me = this;
+        me.control({
+            '#process-start-content button[action=cancelStartProcess]': {
+                click: this.cancelStartProcess
+            },
+            '#process-start-content button[action=startProcess]': {
+                click: this.startProcess
+            },
+            'combobox[itemId=processes-definition-combo]':
+            {
+                select: this.processComboChange
+            }
+        });
+    },
+
+    loadJbpmForm: function (processRecord) {
+        var me = this,
+            processStartContent = me.getProcessStartContent(),
+            processContent = me.getModel('Bpm.startprocess.model.ProcessContent'),
+            propertyForm;
+
+        if (processStartContent == undefined){
+            return;
+        }
+        propertyForm = processStartContent.down('property-form');
+        processStartContent.setLoading();
+
+        me.processRecord = processRecord.lastSelection[0].data;
+        processContent.getProxy().setUrl(me.processRecord.id);
+        processContent.load(me.processRecord.deploymentId,{
+            success: function (startProcessRecord) {
+
+                processStartContent.startProcessRecord = startProcessRecord;
+                if (startProcessRecord && startProcessRecord.properties() && startProcessRecord.properties().count()) {
+                    propertyForm.loadRecord(startProcessRecord);
+                    propertyForm.show();
+                } else {
+                    propertyForm.hide();
+                }
+                processStartContent.setLoading(false);
+                propertyForm.up('#process-start-content').doLayout();
+            },
+            failure: function (record, operation) {
+                propertyForm.hide();
+                propertyForm.up('#process-start-content').doLayout();
+            }
+        });
+
+    },
+
+    processComboChange: function (record) {
+        var me = this,
+            widget = me.getStartProcessPanel(),
+            form = widget.down('#start-process-form'),
+            formErrorsPanel = form.down('#form-errors');
+
+        if (!formErrorsPanel.isHidden()) {
+            formErrorsPanel.hide();
+        }
+        me.loadJbpmForm(record);
+    },
+
+    cancelStartProcess: function (btn) {
+        var me = this,
+            startProcessPanel = me.getStartProcessPanel(),
+            route = startProcessPanel.properties.cancelLink,
+            router = me.getController('Uni.controller.history.Router');
+
+        router.getRoute(route).forward();
+    },
+
+    startProcess: function (button) {
+        var me=this,
+            startProcessPanel = me.getStartProcessPanel(),
+            route = startProcessPanel.properties.successLink,
+            extraParams = startProcessPanel.properties.extraParams,
+            startProcessForm = me.getStartProcessForm(),
+            processStartContent = me.getProcessStartContent(),
+            startProcessRecord = processStartContent.startProcessRecord,
+            propertyForm = processStartContent.down('property-form'),
+            form = startProcessPanel.down('#start-process-form'),
+            formErrorsPanel = form.down('#form-errors');
+
+        if (form.isValid()) {
+            if (!formErrorsPanel.isHidden()) {
+                formErrorsPanel.hide();
+            }
+
+            propertyForm.updateRecord();
+
+            startProcessRecord.beginEdit();
+            Ext.Array.each(extraParams, function(param) {
+                startProcessRecord.set(param.name, param.value);
+            });
+            startProcessRecord.set('deploymentId', me.processRecord.deploymentId);
+            startProcessRecord.set('id', me.processRecord.deploymentId);
+            startProcessRecord.save({
+                success: function () {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.startprocess.started', 'BPM', 'Process started.'));
+                    me.getController('Uni.controller.history.Router').getRoute(route).forward();
+                },
+                failure: function (record, operation) {
+                    if (operation.response.status == 400) {
+                        var json = Ext.decode(operation.response.responseText, true);
+                        if (json && json.errors) {
+                            startProcessForm.getForm().markInvalid(json.errors);
+                        }
+                    }
+                }
+            })
+        }
+        else {
+            formErrorsPanel.show();
+        }
+    }
+});
