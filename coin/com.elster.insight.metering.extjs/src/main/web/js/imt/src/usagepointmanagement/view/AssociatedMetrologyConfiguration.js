@@ -8,9 +8,9 @@ Ext.define('Imt.usagepointmanagement.view.AssociatedMetrologyConfiguration', {
         'Imt.usagepointmanagement.view.SetupActionMenu'
     ],
 
-    title: Uni.I18n.translate('usagepoint.linked-metrologyconfiguration', 'IMT', 'Associated Metrology configuration'),
+    //title: Uni.I18n.translate('usagepoint.linked-metrologyconfiguration', 'IMT', 'Associated Metrology configuration'),
     router: null,
-    ui: 'tile',
+    //ui: 'tile',
 
     initComponent: function () {
         var me = this;
@@ -33,7 +33,7 @@ Ext.define('Imt.usagepointmanagement.view.AssociatedMetrologyConfiguration', {
                 inline: true,
                 itemId: 'metrology-custom-attribute-sets-placeholder-form-id',
                 actionMenuXtype: 'usage-point-setup-action-menu',
-                attributeSetType: 'device',
+                attributeSetType: 'up',
                 router: me.router
             }
         ];

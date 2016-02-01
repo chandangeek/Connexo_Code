@@ -81,6 +81,8 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                 items: [
                     {
                         xtype: 'panel',
+                        ui: 'tile',
+                        title: Uni.I18n.translate('usagepoint.metrologyconfiguration', 'IMT', 'Metrology configuration'),
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
@@ -122,7 +124,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                                 inline: true,
                                 itemId: 'custom-attribute-sets-placeholder-form-id',
                                 actionMenuXtype: 'usage-point-setup-action-menu',
-                                attributeSetType: 'device',
+                                attributeSetType: 'up',
                                 router: me.router
                             },
                             //{

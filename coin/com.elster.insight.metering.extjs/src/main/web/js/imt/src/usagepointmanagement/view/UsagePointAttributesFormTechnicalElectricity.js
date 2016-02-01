@@ -26,11 +26,11 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormTechnicalElect
                     me.down('#usagePointTechnicalAttributes').hide();
                     me.down('#editable-form-electricity').show();
                     me.down('#bottom-buttons-electricity').show();
+                    Imt.customattributesonvaluesobjects.service.ActionMenuManager.setdisabledAllEditBtns(true);
                 }
             },
             {
                 xtype: 'fieldcontainer',
-                //fieldLabel: Uni.I18n.translate('usagepoint.technical.information', 'IMT', 'Technical information'),
                 itemId: 'usagePointTechnicalAttributes',
                 labelAlign: 'top',
                 layout: 'vbox',
@@ -172,6 +172,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormTechnicalElect
                             me.down('#usagePointTechnicalAttributes').show();
                             me.down('#editable-form-electricity').hide();
                             me.down('#bottom-buttons-electricity').hide();
+                            Imt.customattributesonvaluesobjects.service.ActionMenuManager.setdisabledAllEditBtns(false);
                         }
                     }
                 ]

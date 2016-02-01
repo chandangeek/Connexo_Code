@@ -37,5 +37,22 @@ Ext.define('Imt.customattributesonvaluesobjects.service.ActionMenuManager', {
         Ext.each(actionMenuItems, function (item) {
             item.destroy();
         });
+    },
+
+    viewEditMode: function(){
+
+    },
+
+    setdisabledAllEditBtns: function (disabled) {
+        //var actionMenuItems = Ext.ComponentQuery.query(xtype + ' menuitem[menuItemClass=inlineEditableCustomAttributeSet]');
+        var actionMenuItems = Ext.ComponentQuery.query('[menuItemClass=inlineEditableCustomAttributeSet]');
+
+        Ext.each(actionMenuItems, function (item) {
+            item.setDisabled(disabled);
+        });
+        var pencilBtns = Ext.ComponentQuery.query('#pencil-btn');
+        Ext.each(pencilBtns, function(btn){
+            btn.setDisabled(disabled);
+        });
     }
 });

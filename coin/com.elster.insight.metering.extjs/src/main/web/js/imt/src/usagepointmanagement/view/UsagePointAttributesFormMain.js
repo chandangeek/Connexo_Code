@@ -22,6 +22,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormMain', {
                     me.down('#usage-point-general-attributes').hide();
                     me.down('#editable-form-general').show();
                     me.down('#bottom-buttons-general').show();
+                    Imt.customattributesonvaluesobjects.service.ActionMenuManager.setdisabledAllEditBtns(false);
                 }
 
             },
@@ -256,6 +257,8 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormMain', {
                             me.down('#usage-point-general-attributes').show();
                             me.down('#editable-form-general').hide();
                             me.down('#bottom-buttons-general').hide();
+                            Imt.customattributesonvaluesobjects.service.ActionMenuManager.setdisabledAllEditBtns(false);
+
                         }
                     }
                 ]

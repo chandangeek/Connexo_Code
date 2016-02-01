@@ -22,16 +22,26 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
 
     initComponent: function () {
         var me = this,
-            versionsContainer;
+            versionsContainer,
+            pencilBtns,
+            action,
+            actionMenusArray = Ext.ComponentQuery.query(me.actionMenuXtype);
+
         me.items = [
             {
                 xtype: 'title-with-edit-button',
                 record: me.record,
                 title: me.record.get('name'),
+                //hiddenBtn: me.record.get('timesliced') && !me.record.get('isActive'),
+                hiddenBtn: me.record.get('timesliced') && !me.record.get('isActive'),
                 editHandler: function () {
+                    Imt.customattributesonvaluesobjects.service.ActionMenuManager.setdisabledAllEditBtns(true);
+
                     //me.down('#time-sliced-versions-container').hide();
                     me.down('property-form').makeEditable(me.record);
                     me.down('#bottom-buttons').show();
+                    //actionMenu.down(me.actionId).hide();
+                    action.hide();
                 }
             },
             {
@@ -72,13 +82,20 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                     ui: 'action',
                     text: Uni.I18n.translate('general.save', 'IMT', 'Save'),
                     handler: function () {
+
                         me.down('property-form').updateRecord();
 
                         me.record.save({
-                            callback: function(record, response, success){
-                                if(success){
-                                    me.down('property-form').makeNotEditable(me.record);
-                                    me.down('#bottom-buttons').hide();
+                            callback: function (record, response, success) {
+                                if (success) {
+                                    me.router.getRoute().forward();
+                                    //pencilBtns = Ext.ComponentQuery.query('#pencil-btn');
+                                    //Ext.each(pencilBtns, function(btn){
+                                    //    btn.setDisabled(false);
+                                    //});
+                                    //me.down('property-form').makeNotEditable(me.record);
+                                    //me.down('#bottom-buttons').hide();
+                                    //action.show();
                                 } else {
                                     var responseText = Ext.decode(response.response.responseText, true);
                                     if (responseText && Ext.isArray(responseText.errors)) {
@@ -116,8 +133,16 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                     //itemId: 'channelCustomAttributesCancelBtn',
                     text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
                     handler: function () {
+                        //pencilBtns = Ext.ComponentQuery.query('#pencil-btn');
+                        //Ext.each(pencilBtns, function(btn){
+                        //    btn.setDisabled(false);
+                        //});
+                        Imt.customattributesonvaluesobjects.service.ActionMenuManager.setdisabledAllEditBtns(false);
                         me.down('property-form').makeNotEditable(me.record);
                         me.down('#bottom-buttons').hide();
+                        //actionMenu.down(me.actionId).show();
+                        action.show();
+
                     }
                 }
             ]
@@ -134,7 +159,33 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
             me.down('#property-info-container').loadRecord(me.record);
         }
         if (me.actionMenuXtype && me.record.get('editable')) {
-            Imt.customattributesonvaluesobjects.service.ActionMenuManager.addAction(me.actionMenuXtype, me.record, me.router, me.attributeSetType);
+            //Imt.customattributesonvaluesobjects.service.ActionMenuManager.addAction(me.actionMenuXtype, me.record, me.router, me.attributeSetType);
+
+            action = Ext.create('Ext.menu.Item',{
+                itemId: 'action-menu-custom-attribute' + me.record.get('id'),
+                menuItemClass: 'inlineEditableCustomAttributeSet',
+//                    privileges: Imt.privileges.Device.administrateDeviceData,
+                text: Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [Ext.String.htmlEncode(me.record.get('name'))]),
+                handler: function () {
+                    Imt.customattributesonvaluesobjects.service.ActionMenuManager.setdisabledAllEditBtns(true);
+
+                    me.down('property-form').makeEditable(me.record);
+                    me.down('#bottom-buttons').show();
+                    this.hide();
+
+
+                }
+
+
+            });
+
+
+            if (!(me.record.get('timesliced') && !me.record.get('isActive'))) {
+                Ext.each(actionMenusArray, function (menu) {
+                    menu.add(action);
+                });
+            }
+
         }
     }
 });

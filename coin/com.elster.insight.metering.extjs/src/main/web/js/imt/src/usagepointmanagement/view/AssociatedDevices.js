@@ -2,9 +2,9 @@ Ext.define('Imt.usagepointmanagement.view.AssociatedDevices', {
     extend: 'Ext.form.Panel',
     alias: 'widget.associated-devices',
     itemId: 'associated-devices',
-    title: Uni.I18n.translate('usagepoint.associateddevices', 'IMT', 'Associated devices'),
+    //title: Uni.I18n.translate('usagepoint.associateddevices', 'IMT', 'Associated devices'),
     router: null,
-    ui: 'tile',
+    //ui: 'tile',
 
     initComponent: function () {
         var me = this;
