@@ -181,6 +181,14 @@ public interface EngineConfigurationService {
     public Optional<InboundComPortPool> findInboundComPortPoolByName(String name);
 
     /**
+     * Finds the {@link ComPort} with the specified unique name.
+     *
+     * @param name The unique name
+     * @return The ComPort or <code>null</code> if no such ComPort exists
+     */
+    public Optional<? extends ComPort> findComPortByName(String name);
+
+    /**
      * Finds all the {@link InboundComPortPool}s that are using the specified.
      *
      * @param pluggableClass The discovery protocol pluggable class

@@ -366,6 +366,11 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
+    public Optional<? extends ComPort> findComPortByName(String name) {
+        return this.findComPortByName(name, getComPortDataMapper());
+    }
+
+    @Override
     public Optional<OutboundComPortPool> findOutboundComPortPoolByName(String name) {
         return this.findComPortPoolByName(name, dataModel.mapper(OutboundComPortPool.class));
     }
@@ -376,6 +381,11 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     private <T extends ComPortPool> Optional<T> findComPortPoolByName(String name, DataMapper<T> mapper) {
+        Condition condition = this.findComPortPoolByNameCondition(name);
+        return unique(mapper.select(condition));
+    }
+
+    private <T extends ComPort> Optional<T> findComPortByName(String name, DataMapper<T> mapper) {
         Condition condition = this.findComPortPoolByNameCondition(name);
         return unique(mapper.select(condition));
     }
