@@ -12,12 +12,12 @@ public class ProcessInstanceNodeInfo {
     public String type;
     public String nodeId;
     public Date logDate;
-    public String nodeInstanceId;
+    public long nodeInstanceId;
 
     public ProcessInstanceNodeInfo(Object[] obj, String processInstanceStatus){
         this.nodeName = obj[0] == null ? "" :(String) obj[0];
         this.nodeType = obj[1] == null ? "" :(String) obj[1];
-        long typeValue = obj[6] == null ? -1 :((BigDecimal) obj[6]).longValue();
+        long typeValue = obj[7] == null ? -1 :((BigDecimal) obj[7]).longValue();
         if(typeValue == 0 && !nodeType.equals("FaultNode")){
             if(processInstanceStatus.toLowerCase().equals("active")){
                 this.type = "ACTIVE";
@@ -30,7 +30,7 @@ public class ProcessInstanceNodeInfo {
             this.type = "COMPLETED";
         }
         this.logDate = obj[2] == null ? null : (Timestamp) obj[2];
-        this.nodeInstanceId = obj[3] == null ? "" :(String) obj[3];
+        this.nodeInstanceId = obj[5] == null ? 0 :((BigDecimal) obj[5]).longValue();
         this.nodeId = obj[4] == null ? "" :(String) obj[4];
     }
 

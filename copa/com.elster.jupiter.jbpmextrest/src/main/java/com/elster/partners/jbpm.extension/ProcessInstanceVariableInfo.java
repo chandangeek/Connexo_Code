@@ -10,7 +10,7 @@ public class ProcessInstanceVariableInfo {
     public String value;
     public String oldValue;
     public Date logDate;
-    public String nodeInstanceId = "";
+    public long nodeInstanceId = -1;
 
     public ProcessInstanceVariableInfo(Object[] obj){
         this.variableName = obj[7] == null ? "" : (String) obj[7];
@@ -31,8 +31,8 @@ public class ProcessInstanceVariableInfo {
                     i = nodes.size();
                 }
             }
-            if(nodeInstanceId.equals("")){
-                nodeInstanceId = "0";
+            if(nodeInstanceId < 0){
+                nodeInstanceId = nodes.get(nodes.size() - 1).nodeInstanceId;
             }
         }
     }
