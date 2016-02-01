@@ -63,7 +63,7 @@ Ext.define('Imt.customattributesets.view.Grid', {
                 dockedTop.items = [
                     {
                         text: Uni.I18n.translate('customattributesets.addattributesets', 'IMT', 'Add custom attribute sets'),
-                        itemId: 'device-type-custom-attribute-sets-add-button',
+                        itemId: 'add-custom-attribute-set',
                         //privileges: Mdc.privileges.DeviceType.admin,
                         xtype: 'button',
                         action: 'addAttributeSets'
@@ -79,6 +79,7 @@ Ext.define('Imt.customattributesets.view.Grid', {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 dock: 'bottom',
+                deferLoading: true,
                 itemsPerPageMsg: Uni.I18n.translate('customattributesets.pagingtoolbarbottom.itemsPerPage', 'IMT', 'Custom attribute sets per page')
             });
         }

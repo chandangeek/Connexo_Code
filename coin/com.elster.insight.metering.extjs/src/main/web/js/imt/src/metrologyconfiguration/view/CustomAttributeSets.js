@@ -13,7 +13,8 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
 
     initComponent: function () {
         var me = this,
-            router = me.router;
+            router = me.router,
+            casAddRoute = router.getRoute('administration/metrologyconfiguration/view/customAttributeSets/add');
 
         me.content = {
             xtype: 'panel',
@@ -23,24 +24,28 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
                 xtype: 'preview-container',
                 grid: {
                     xtype: 'cas-grid',
-                    store: 'Imt.metrologyconfiguration.store.CustomAttributeSets'
+                    store: 'Imt.metrologyconfiguration.store.CustomAttributeSets',
+                    dockedConfig: {
+                        showAddBtn: true
+                    }
                 },
                 emptyComponent: {
                     xtype: 'no-items-found-panel',
                     itemId: 'ctr-no-comservers',
-                    title: Uni.I18n.translate('comserver.empty.title', 'MDC', 'No communication servers found'),
+                    title: Uni.I18n.translate('Imt.metrologyconfiguration.empty.title', 'MDC', 'No custom attribute sets found'),
                     reasons: [
-                        Uni.I18n.translate('comserver.empty.list.item1', 'MDC', 'No communication servers created yet')
+                        Uni.I18n.translate('Imt.metrologyconfiguration.empty.list.item1', 'MDC', 'No custom attribute sets added yet'),
+                        Uni.I18n.translate('Imt.metrologyconfiguration.empty.list.item2', 'MDC', 'No custom attribute sets defined yet')
+                    ],
+                    stepItems: [
+                        {
+                            text: casAddRoute.getTitle(),
+                            itemId: 'add-custom-attribute-set',
+                            //privileges: Mdc.privileges.Communication.admin,
+                            action: 'addCustomAttributeSet',
+                            href: casAddRoute.buildUrl()
+                        }
                     ]
-                    //stepItems: [
-                    //    {
-                    //        text: Uni.I18n.translate('comServer.addOnline', 'MDC', 'Add online communication server'),
-                    //        itemId: 'btn-no-items-add-online-communication-server',
-                    //        //privileges: Mdc.privileges.Communication.admin,
-                    //        action: 'addOnlineComServer',
-                    //        href: '#/administration/comservers/add/online'
-                    //    }
-                    //]
                 },
                 previewComponent: {
                     xtype: 'cas-detail-form'
