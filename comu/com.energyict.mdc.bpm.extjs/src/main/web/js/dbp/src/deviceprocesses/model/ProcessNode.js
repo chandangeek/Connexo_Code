@@ -21,7 +21,7 @@ Ext.define('Dbp.deviceprocesses.model.ProcessNode', {
             name: 'logDateDisplay',
             type: 'string',
             convert: function (value, record) {
-                return record.get('logDate') ? Uni.DateTime.formatDateTimeShort(new Date(record.get('logDate'))) : '-';
+                return record.get('logDate') ? Uni.DateTime.formatDateTimeLong(new Date(record.get('logDate'))) : '-';
             }
         },
         {

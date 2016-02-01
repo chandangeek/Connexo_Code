@@ -26,7 +26,10 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
         {ref: 'taskNodesDisplay', selector: '#dbp-preview-task-nodes'},
         {ref: 'runningProcessNodesGrid', selector: '#running-process-status-preview #process-nodes-grid'},
         {ref: 'historyProcessNodesGrid', selector: '#history-process-status-preview #process-nodes-grid'},
-        {ref: 'runningVariablesPreviewPanel', selector: '#running-process-status-preview #node-variables-preview-panel'},
+        {
+            ref: 'runningVariablesPreviewPanel',
+            selector: '#running-process-status-preview #node-variables-preview-panel'
+        },
         {ref: 'historyVariablesPreviewPanel', selector: '#history-process-status-preview #node-variables-preview-panel'}
     ],
     mRID: null,
@@ -179,17 +182,35 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
             record.get('name'), record.get('type')));
 
         var formItems = new Ext.util.MixedCollection();
-        Ext.Array.each(record.get('processInstanceVariables'), function (variable) {
 
-            formItems.add(Ext.create("Ext.form.field.Display", {
-                    fieldLabel: variable.variableName,
-                    flex: 1,
-                    labelWidth: 150,
-                    width: '20%',
-                    value: variable.value
+        if (record.get('processInstanceVariables').length > 0) {
+            Ext.Array.each(record.get('processInstanceVariables'), function (variable) {
+
+                formItems.add(Ext.create("Ext.form.field.Display", {
+                        fieldLabel: variable.variableName,
+                        style: '{word-break: break-word; word-wrap: break-word;}',
+                        flex: 1,
+                        labelWidth: 150,
+                        value: variable.value
+                    }
+                ))
+            });
+        }
+        else {
+            formItems.add(Ext.create("Ext.Component", {
+                    cls: 'x-form-display-field',
+                    autoEl: {
+                        html: Uni.I18n.translate('dbp.process.node.noVariables', 'MDC', 'No variable change during the node execution'),
+                        tag: 'span',
+                        style: {
+                            top: '2em !important',
+                            fontStyle: 'italic',
+                            color: '#999'
+                        }
+                    }
                 }
             ))
-        });
+        }
 
         form.removeAll();
         form.items = formItems;
