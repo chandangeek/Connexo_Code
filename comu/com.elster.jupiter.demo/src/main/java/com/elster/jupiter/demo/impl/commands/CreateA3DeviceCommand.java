@@ -203,7 +203,7 @@ public class CreateA3DeviceCommand {
         if (names != null) {
             for (ComTaskTpl comTaskTpl : names) {
                 configuration.enableComTask(comTasks.get(comTaskTpl), configuration.getSecurityPropertySets().get(0), configuration.getProtocolDialectConfigurationPropertiesList().get(0))
-                        .setIgnoreNextExecutionSpecsForInbound(true)
+                        .setIgnoreNextExecutionSpecsForInbound(false)
                         .setPriority(100).add().save();
             }
         }

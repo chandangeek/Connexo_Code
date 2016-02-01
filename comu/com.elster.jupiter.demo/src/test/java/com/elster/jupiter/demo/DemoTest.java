@@ -456,7 +456,7 @@ public class DemoTest {
         assertThat(enablement.getComTask().getName()).isEqualTo(ComTaskTpl.TOPOLOGY_UPDATE.getName());
         assertThat(enablement.getSecurityPropertySet().getId()).isEqualTo(securityPropertySet.getId());
         assertThat(enablement.usesDefaultConnectionTask()).isTrue();
-        assertThat(enablement.isIgnoreNextExecutionSpecsForInbound()).isTrue();
+        assertThat(enablement.isIgnoreNextExecutionSpecsForInbound()).isFalse();
         assertThat(enablement.getPriority()).isEqualTo(100);
         assertThat(gateway.getConnectionTasks()).hasSize(1);
         ConnectionTask connTask = gateway.getConnectionTasks().get(0);
@@ -560,7 +560,7 @@ public class DemoTest {
                  ComTaskTpl.READ_REGISTER_DATA.getName().equals(enablement.getComTask().getName()) ) {
                 assertThat(enablement.getSecurityPropertySet().getId()).isEqualTo(securityPropertySet.getId());
                 assertThat(enablement.usesDefaultConnectionTask()).isTrue();
-                assertThat(enablement.isIgnoreNextExecutionSpecsForInbound()).isTrue();
+                assertThat(enablement.isIgnoreNextExecutionSpecsForInbound()).isFalse();
                 assertThat(enablement.getPriority()==100).isTrue();
             } else {
                 fail("The device type of device with MRID = "+ mridDevice +" contains an unwanted com task configuration : " + enablement.getComTask().getName());

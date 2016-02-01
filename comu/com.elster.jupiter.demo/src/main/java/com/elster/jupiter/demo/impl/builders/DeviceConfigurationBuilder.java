@@ -145,7 +145,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
             }
             for (ComTask comTask : comTasks) {
                 configuration.enableComTask(comTask, configuration.getSecurityPropertySets().get(0), getProtocolDialectConfigurationProperties(configuration))
-                        .setIgnoreNextExecutionSpecsForInbound(true)
+                        .setIgnoreNextExecutionSpecsForInbound(false)
                         .setPriority(100).add().save();
             }
         }
