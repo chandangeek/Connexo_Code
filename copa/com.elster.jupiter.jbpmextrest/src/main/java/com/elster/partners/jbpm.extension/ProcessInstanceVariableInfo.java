@@ -26,7 +26,7 @@ public class ProcessInstanceVariableInfo {
         this.oldValue = obj[3] == null ? "" : (String) obj[3];
         if(logDate != null) {
             for (int i=0; i< nodes.size();i++) {
-                if(logDate.after(nodes.get(i).logDate)) {
+                if(logDate.getTime() >= nodes.get(i).logDate.getTime()) {
                     this.nodeInstanceId = nodes.get(i).nodeInstanceId;
                     i = nodes.size();
                 }

@@ -18,8 +18,14 @@ public class ProcessInstanceNodeInfo {
         this.nodeName = obj[0] == null ? "" :(String) obj[0];
         this.nodeType = obj[1] == null ? "" :(String) obj[1];
         typeValue = obj[2] == null ? -1 :((BigDecimal) obj[2]).longValue();
-        if(typeValue == 0){
-            this.type = processInstanceStatus.toLowerCase().equals("active") ?"ACTIVE":"ABORTED";
+        if(typeValue == 0 && !nodeType.equals("FaultNode")){
+            if(processInstanceStatus.toLowerCase().equals("active")){
+                this.type = "ACTIVE";
+            }else if(processInstanceStatus.toLowerCase().equals("completed")){
+                this.type = "COMPLETED";
+            }else{
+                this.type = "ABORTED";
+            }
         }else{
             this.type = "COMPLETED";
         }

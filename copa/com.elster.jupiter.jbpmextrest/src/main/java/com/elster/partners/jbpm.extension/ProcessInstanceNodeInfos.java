@@ -30,7 +30,9 @@ public class ProcessInstanceNodeInfos {
 
     public ProcessInstanceNodeInfo addNode(Object[] object){
         ProcessInstanceNodeInfo processHistoryInfo = new ProcessInstanceNodeInfo(object, processInstanceStatus);
-        processInstanceNodes.add(processHistoryInfo);
+        if(!processHistoryInfo.nodeType.equals("BoundaryEventNode")) {
+            processInstanceNodes.add(processHistoryInfo);
+        }
         return processHistoryInfo;
     }
 
