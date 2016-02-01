@@ -1,76 +1,67 @@
 Ext.define('CSMonitor.view.logging.Communication', {
-    extend: 'Ext.panel.Panel',
+    extend: 'Ext.container.Container',
     xtype: 'communication',
-    border: false,
     layout: {
         type: 'vbox',
-        align: 'stretch'
+        align: 'stretch',
+        pack: 'center',
     },
-    items: [
-        {
-            xtype: 'component',
-            margins: '0 0 0 10',
-            html: '<h2>Communication logging</h2>'
-        },
-        {
+    items: [ {
             xtype: 'container',
-            layout: {
-                type: 'hbox',
-                align: 'stretch'
+            itemId: 'communicationLoggingContainer',
+            listeners: {
+                el: {
+                    mouseover: function(event, target) {
+                        target.style.cursor = 'pointer';
+                    },
+                    mouseenter: function(event, target) {
+                        target.style.backgroundColor = '#f9f9f9';
+                    },
+                    mouseleave: function(event, target) {
+                        target.style.backgroundColor = '#ffffff';
+                    }
+                }
             },
-            defaults: { flex: 1, margins: '5, 15, 15, 15' }, // top, left, bottom, right
+            style: {
+                backgroundColor: '#ffffff'
+            },
+            layout: {
+                type: 'vbox',
+                align: 'stretch',
+                pack: 'center'
+            },
             items: [
                 {
                     xtype: 'container',
-                    itemId: 'communicationLoggingContainer',
-                    listeners: {
-                        el: {
-                            mouseover: function(event, target) {
-                                target.style.cursor = 'pointer';
-                            },
-                            mouseenter: function(event, target) {
-                                target.style.backgroundColor = '#f9f9f9';
-                            },
-                            mouseleave: function(event, target) {
-                                target.style.backgroundColor = '#ffffff';
-                            }
+                    layout: {
+                        type: 'hbox',
+                        pack: 'center',
+                        align: 'middle'
+                    },
+                    items: [
+                        {
+                            xtype: 'image',
+                            src: 'resources/images/inbound.png',
+                            margins: '5,0,0,5',
+                            width: 48,
+                            height: 48
+                        },
+                        {
+                            xtype: 'image',
+                            src: 'resources/images/outbound.png',
+                            margins: '5,0,0,0',
+                            width: 48,
+                            height: 48
                         }
-                    },
-                    style: {
-                        backgroundColor: '#ffffff'
-                    },
+                    ]
+                },
+                {
+                    xtype: 'container',
                     layout: {
                         type: 'vbox',
                         align: 'center'
                     },
                     items: [
-                        {
-                            xtype: 'container',
-                            layout: {
-                                type: 'hbox',
-                                align: 'stretch'
-                            },
-                            items: [
-                                {
-                                    xtype: 'image',
-                                    src: 'resources/images/inbound.png',
-                                    margins: '5,0,0,0',
-                                    width: 48,
-                                    height: 48
-                                },
-                                {
-                                    xtype: 'container',
-                                    width: 5
-                                },
-                                {
-                                    xtype: 'image',
-                                    src: 'resources/images/outbound.png',
-                                    margins: '5,0,0,0',
-                                    width: 48,
-                                    height: 48
-                                }
-                            ]
-                        },
                         {
                             xtype: 'component',
                             html: '<b>Inbound/outbound communication <sup>*</sup></b>'
@@ -81,19 +72,19 @@ Ext.define('CSMonitor.view.logging.Communication', {
                             style: {
                                 color: '#000000'
                             },
-                            html: '(<sup>*</sup> Define at least one criterion beneath)'
+                            html: '<sup>*</sup> Define at least one criterion beneath)'
                         },
                         {
                             xtype: 'component',
-                            margins: '15,0,0,0',
                             html: 'Opens a new browser tab containing logging about:<ul><li>Scheduler</li><li>Inbound/outbound connections</li><li>Communication tasks</li></ul>'
                         }
                     ]
-                },
-                {
-                    xtype: 'container'
                 }
             ]
+        },
+        {
+            xtype: 'criteria',
+            bodyStyle: 'background:transparent;'
         }
     ],
 

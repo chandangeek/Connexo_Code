@@ -2,9 +2,6 @@ Ext.define('CSMonitor.controller.logging.Text', {
     extend: 'Ext.app.Controller',
     requires: ['CSMonitor.decorators.logging.EventDecoratorFactory'],
     config: {
-        deviceId: '',
-        portId: '',
-        connectionId: '',
         isConnected : false,
         isPaused : false,
         webSocket : null,
@@ -26,15 +23,16 @@ Ext.define('CSMonitor.controller.logging.Text', {
 
     subscribe: function() {
         var me = this,
-            hostName = window.location.host
-            protocol = window.location.protocol;
+            hostName = window.location.host,
+            protocol = window.location.protocol,
+            port = window.location.port;
         var socketProtocol = 'ws' ;
         if (protocol == 'https'){
             socketProtocol = 'wss';
         }
         // this.setWebSocket(new WebSocket(socketProtocol + '://' + hostName + '/events/registration'));
         //TODO: hardcoded websocket URL !!!
-        this.setWebSocket(new WebSocket(socketProtocol + '://PasquienD:8888/events/registration'));
+        this.setWebSocket(new WebSocket(socketProtocol + '://hostName:8888/events/registration'));
         this.getWebSocket().onopen = function(evt) { me.onOpen(evt); };
         this.getWebSocket().onclose = function(evt) { me.onClose(evt); };
         this.getWebSocket().onmessage = function(evt) { me.onMessage(evt); };

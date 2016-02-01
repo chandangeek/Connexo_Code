@@ -8,7 +8,7 @@ Ext.define('CSMonitor.view.ServerDetails', {
     },
     border: false,
     defaults: {
-        cls: ['server-details'],
+        cls: 'server-details',
     },
     items: [
         {
@@ -19,24 +19,23 @@ Ext.define('CSMonitor.view.ServerDetails', {
         {
             xtype: 'form',
             defaultType: 'textfield',
+            defaults:{
+                disabled: true,
+                labelCls: 'server-details',
+                emptyCls: 'server-details-field',
+                fieldCls: 'server-details-field',
+                disabledCls: 'server-details-field',
+                labelWidth: 180,
+                width: 500
+            },
             baseCls: 'server-details',
             items: [{
                 fieldLabel: 'Started',
-                name: 'started',
-                labelWidth: 150,
-                width: 500,
-                labelCls: 'server-details',
-                emptyCls: 'server-details-field',
-                fieldCls: 'server-details-field'
+                name: 'started'
             },
             {
                 fieldLabel: 'Date of this information',
-                name: 'currentDate',
-                labelWidth: 150,
-                width: 500,
-                labelCls: 'server-details',
-                emptyCls: 'server-details-field',
-                fieldCls: 'server-details-field'
+                name: 'currentDate'
             }]
         }
     ],

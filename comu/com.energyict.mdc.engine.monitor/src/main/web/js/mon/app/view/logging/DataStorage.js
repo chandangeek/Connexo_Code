@@ -1,6 +1,6 @@
-Ext.define('CSMonitor.view.logging.ComServer', {
+Ext.define('CSMonitor.view.logging.DataStorage', {
     extend: 'Ext.container.Container',
-    xtype: 'comServer',
+    xtype: 'dataStorage',
     layout: {
         type: 'hbox',
         align: 'stretch'
@@ -9,7 +9,7 @@ Ext.define('CSMonitor.view.logging.ComServer', {
     items: [
         {
             xtype: 'container',
-            itemId: 'generalLoggingContainer',
+            itemId: 'storageLoggingContainer',
             listeners: {
                 el: {
                     mouseover: function(event, target) {
@@ -22,7 +22,7 @@ Ext.define('CSMonitor.view.logging.ComServer', {
                         target.style.backgroundColor = '#ffffff';
                     },
                     click: function(event, target) {
-                        window.open('#/logging/general');
+                        window.open('#/logging/data');
                     }
                 }
             },
@@ -36,19 +36,19 @@ Ext.define('CSMonitor.view.logging.ComServer', {
             items: [
                 {
                     xtype: 'image',
-                    src: 'resources/images/general.png',
+                    src: 'resources/images/datastorage.png',
                     margins: '5,0,0,0',
                     width: 48,
                     height: 48
                 },
                 {
                     xtype: 'component',
-                    html: '<b>General</b>'
+                    html: '<b>Data storage</b>'
                 },
                 {
                     xtype: 'component',
                     margins: '15,0,0,0',
-                    html: 'Opens a new browser tab containing logging about:<ul><li>Communication server changes (eg. a port was added/removed)</li><li>Database</li><li>Network</li></ul>'
+                    html: 'Opens a new browser tab containing logging about:<ul><li>Data storage</li></ul>'
                 }
             ]
         }

@@ -6,6 +6,10 @@ Ext.define('CSMonitor.controller.logging.communication.Text', {
     ],
 
     views: ['logging.communication.Text', 'logging.communication.BytesViewer'],
+    config: {
+        deviceMRIDs: '',
+        portNames: '',
+    },
 
     refs: [
         {
@@ -51,7 +55,7 @@ Ext.define('CSMonitor.controller.logging.communication.Text', {
         this.getViewPanel().setTitle('<h2>Communication logging</h2>');
         this.getViewPanel().addLogPanel('Protocol logging');
         this.getViewPanel().setUnselectable();
-        this.getViewPanel().setSaveLogBtnVisible(document.createElement('a').hasOwnProperty('download'));
+  //      this.getViewPanel().setSaveLogBtnVisible(document.createElement('a').hasOwnProperty('download'));
 
         this.setPingTask(Ext.TaskManager.newTask({
             interval: this.getSecondsForNextPing() * 1000,
@@ -64,23 +68,18 @@ Ext.define('CSMonitor.controller.logging.communication.Text', {
         var criteriaInfo = '',
             addDelimiter = false;
 
-        if (this.getDeviceId().length > 0) {
-            criteriaInfo += ('Device id = ' + this.getDeviceId());
+        if (this.getDeviceMRIDs()) {
+            criteriaInfo += ('Device MRID = ' + this.getDeviceMRIDs());
             addDelimiter = true;
         }
-        if (this.getPortId().length > 0) {
+        if (this.getPortNames().length > 0) {
             if (addDelimiter) {
                 criteriaInfo += ' - ';
             }
-            criteriaInfo += ('Com port id = ' + this.getPortId());
+            criteriaInfo += ('Communication port name = ' + this.getPortNames());
             addDelimiter = true;
         }
-        if (this.getConnectionId().length > 0) {
-            if (addDelimiter) {
-                criteriaInfo += ' - ';
-            }
-            criteriaInfo += ('Connection id = ' + this.getConnectionId());
-        }
+
         this.getViewPanel().setSelectionCriteria(criteriaInfo);
     },
 
@@ -90,15 +89,11 @@ Ext.define('CSMonitor.controller.logging.communication.Text', {
 
     registerForLogging: function() {
         if (this.getDeviceId().length > 0) {
-            this.getWebSocket().send('register request for device: ' + this.getDeviceId());
+            this.getWebSocket().send('register request for device: ' + this.getDeviceMRIDs());
         }
 
         if (this.getPortId().length > 0) {
-            this.getWebSocket().send('register request for comPort: ' + this.getPortId());
-        }
-
-        if (this.getConnectionId().length > 0) {
-            this.getWebSocket().send('register request for connectionTask: ' + this.getConnectionId());
+            this.getWebSocket().send('register request for comPort: ' + this.getPortNames());
         }
     },
 
@@ -119,11 +114,9 @@ Ext.define('CSMonitor.controller.logging.communication.Text', {
             for (index = 0; index < criteria.length; index += 1) {
                 nameValuePair = criteria[index].split('=');
                 if (nameValuePair[0] === 'devid') {
-                    this.setDeviceId(nameValuePair[1]);
+                    this.setDeviceMRIDs(nameValuePair[1]);
                 } else if (nameValuePair[0] === 'portid') {
-                    this.setPortId(nameValuePair[1]);
-                } else if (nameValuePair[0] === 'connid') {
-                    this.setConnectionId(nameValuePair[1]);
+                    this.setPortNames(nameValuePair[1]);
                 }
             }
             this.getMainContainer().addCenterPanel('communicationLoggingText');

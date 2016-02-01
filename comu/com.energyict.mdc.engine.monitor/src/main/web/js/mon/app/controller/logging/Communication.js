@@ -1,13 +1,12 @@
 Ext.define('CSMonitor.controller.logging.Communication', {
     extend: 'Ext.app.Controller',
 
-    views: ['logging.Communication', 'logging.Criteria'],
+    views: ['logging.Communication', 'logging.Criteria' ],
+    requires: [Ext.String],
 
     config: {
-        deviceId : '',
-        comportId : '',
-        connectionId: '',
-        notDefined : ''
+        deviceMRID: '',
+        comportName: ''
     },
 
     refs: [
@@ -26,16 +25,12 @@ Ext.define('CSMonitor.controller.logging.Communication', {
             'communication': {
                 afterrender: this.onAfterRender
             },
-            'criteria textfield[name="deviceId"]': {
-                change: this.onChangeDeviceId,
+            'criteria textfield[name="deviceMRID"]': {
+                change: this.onChangeDeviceMRID,
                 specialkey: this.onSpecialKey
             },
-            'criteria textfield[name="comportId"]': {
-                change: this.onChangeComportId,
-                specialkey: this.onSpecialKey
-            },
-            'criteria textfield[name="connectionId"]': {
-                change: this.onChangeConnectionId,
+            'criteria textfield[name="comportName"]': {
+                change: this.onChangeComportName,
                 specialkey: this.onSpecialKey
             }
         });
@@ -49,9 +44,7 @@ Ext.define('CSMonitor.controller.logging.Communication', {
     },
 
     onCommunicationClicked: function(event, element) {
-        if (this.getDeviceId() === this.getNotDefined() &&
-                this.getComportId() === this.getNotDefined() &&
-                this.getConnectionId() === this.getNotDefined()) {
+        if (!this.getDeviceMRID() && !this.getComportName()) {
             // No criteria defined, so warn/guide the user
             this.getViewPanel().warnForEmptyCriteria();
             this.getCriteriaPanel().warnForEmptyCriteria();
@@ -61,70 +54,42 @@ Ext.define('CSMonitor.controller.logging.Communication', {
     },
 
     constructUrl: function(mode) {
-        var url = '#logging/comm',
-            appendAnd = false,
-            deviceId = this.getNotDefined(),
-            portId = this.getNotDefined(),
-            connectionId = this.getNotDefined();
+        var url = '#logging/comm/',
+            appendAnd = false;
 
-        url += '/';
-
-        if (this.getDeviceId() !== this.getNotDefined()) {
-            deviceId = this.getDeviceId();
-            url += ('devid=' + deviceId.toString());
+        if (this.getDeviceMRID()) {
+            url += ('devid=' + Ext.String.htmlEncode(this.getDeviceMRID()));
             appendAnd = true;
         }
-        if (this.getComportId() !== this.getNotDefined()) {
-            portId = this.getComportId();
+        if (this.getComportName()) {
             if (appendAnd) {
                 url += '&';
             }
-            url += ('portid=' + portId.toString());
-            appendAnd = true;
-        }
-        if (this.getConnectionId() !== this.getNotDefined()) {
-            connectionId = this.getConnectionId();
-            if (appendAnd) {
-                url += '&';
-            }
-            url += ('connid=' + connectionId.toString());
+            url += ('portid=' +  Ext.String.htmlEncode(this.getComportName()));
         }
         return url;
     },
 
-    onChangeDeviceId: function(field, newValue, oldValue) {
-//        console.log('Device id: old = ' + oldValue + ' - new = ' + newValue);
-        var strippedValue = this.stripInvalidCharacters(newValue);
-        this.setDeviceId(strippedValue);
-        field.value = strippedValue;
+    onChangeDeviceMRID: function(field, newValue, oldValue) {
+        this.setDeviceMRID(newValue);
     },
 
-    onChangeComportId: function(field, newValue, oldValue) {
-//        console.log('Comport id: old = ' + oldValue + ' - new = ' + newValue);
-        var strippedValue = this.stripInvalidCharacters(newValue);
-        this.setComportId(strippedValue);
-        field.value = strippedValue;
-    },
-
-    onChangeConnectionId: function(field, newValue, oldValue) {
-//        console.log('Connection id: old = ' + oldValue + ' - new = ' + newValue);
-        var strippedValue = this.stripInvalidCharacters(newValue);
-        this.setConnectionId(strippedValue);
-        field.value = strippedValue;
+    onChangeComportName: function(field, newValue, oldValue) {
+        this.setComportName(newValue);
     },
 
     onSpecialKey: function(field, event) {
         if (event.getKey() === event.ENTER) {
             this.onCommunicationClicked();
         }
-    },
-
-    stripInvalidCharacters: function(originalValue) {
-        var pattern = new RegExp('[^0-9,]', 'gi');
-        if (pattern.test(originalValue)) {
-            return originalValue.replace(pattern, '');
-        }
-        return originalValue;
     }
+
+    //stripInvalidCharacters: function(originalValue) {
+    //    var pattern = new RegExp('[^0-9,]', 'gi');
+    //    if (pattern.test(originalValue)) {
+    //        return originalValue.replace(pattern, '');
+    //    }
+    //    return originalValue;
+    //}
 
 });

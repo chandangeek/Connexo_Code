@@ -145,7 +145,7 @@ Ext.define('CSMonitor.view.logging.Text', {
     },
 
     setSelectionCriteria: function(selectionCriteria) {
-        this.down('#selectionCriteriaInfo').update('Selection criteria: ' + selectionCriteria);
+        this.down('#selectionCriteriaInfo').update('Filter criteria: ' + selectionCriteria);
     },
 
     setTitle: function(title) {
