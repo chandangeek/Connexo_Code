@@ -18,7 +18,8 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
     views: [
         'Imt.metrologyconfiguration.view.Setup',
         'Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm',
-        'Imt.metrologyconfiguration.view.CustomAttributeSets'
+        'Imt.metrologyconfiguration.view.CustomAttributeSets',
+        'Imt.metrologyconfiguration.view.CustomAttributeSetsAdd'
     ],
     refs: [
         {ref: 'attributesPanel', selector: '#metrology-configuration-attributes-panel'}
@@ -81,6 +82,7 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
                 var widget = Ext.widget('custom-attribute-sets', {router: router});
                 me.getApplication().fireEvent('changecontentevent', widget);
                 store.getProxy().extraParams.id = id;
+                store.getProxy().extraParams.linked = null;
                 store.load();
                 pageMainContent.setLoading(false);
             }
@@ -98,12 +100,39 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
         metrologyConfigurationModel.load(id, {
             success: function (record) {
                 me.getApplication().fireEvent('metrologyConfigurationLoaded', record);
-                var widget = Ext.widget('custom-attribute-sets', {router: router});
+                var widget = Ext.widget('custom-attribute-sets-add', {router: router});
                 me.getApplication().fireEvent('changecontentevent', widget);
                 store.getProxy().extraParams.id = id;
                 store.getProxy().extraParams.linked = false;
                 store.load();
                 pageMainContent.setLoading(false);
+
+                widget.getAddButton().on('click', function() {
+                    var records = widget.down('cas-selection-grid').getSelectionModel().getSelection();
+                    me.addCAStoMetrologyConfiguration(record, records);
+                });
+                widget.getCancelButton().on('click', function() {
+                    router.getRoute('administration/metrologyconfiguration/view/customAttributeSets').forward();
+                });
+            }
+        });
+    },
+
+    addCAStoMetrologyConfiguration: function (mc, records) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        mc.set('customPropertySets', _.map(records, function(r) {return _.pick(r.getData(), 'customPropertySetId')}));
+        mc.save({
+            failure: function(record, operation) {
+                debugger;
+                // do something if the load failed
+            },
+            success: function(record, operation) {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.label.CAS.added', 'IMT', 'Custom attribute sets added'));
+            },
+            callback: function(record, operation, success) {
+                router.getRoute('administration/metrologyconfiguration/view/customAttributeSets').forward();
             }
         });
     }

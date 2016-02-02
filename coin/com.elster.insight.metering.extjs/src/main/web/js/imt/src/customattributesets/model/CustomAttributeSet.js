@@ -12,6 +12,7 @@ Ext.define('Imt.customattributesets.model.CustomAttributeSet', {
         {name: 'viewPrivileges', type: 'auto'},
         {name: 'editPrivileges', type: 'auto'},
         {name: 'attributes', type: 'auto'},
+        {name: 'customPropertySetId', type: 'string'},
         {
             name: 'viewPrivilegesString',
             persist: false,

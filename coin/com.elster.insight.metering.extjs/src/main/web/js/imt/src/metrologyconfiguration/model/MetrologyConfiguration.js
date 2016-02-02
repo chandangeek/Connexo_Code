@@ -3,7 +3,8 @@ Ext.define('Imt.metrologyconfiguration.model.MetrologyConfiguration', {
     fields: [
         {name: 'id', type: 'number', useNull: true},
         {name: 'name', type: 'string'},
-        {name: 'version', type: 'number'},        
+        {name: 'version', type: 'number'},
+        {name: 'customPropertySets', type: 'auto'},
         {
             name: 'created',
             persist: false,
