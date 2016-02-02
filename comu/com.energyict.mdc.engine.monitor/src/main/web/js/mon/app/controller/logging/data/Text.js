@@ -39,7 +39,7 @@ Ext.define('CSMonitor.controller.logging.data.Text', {
         this.getViewPanel().setTitle('<h2>Data storage logging</h2>');
         this.getViewPanel().setUnselectable(); // Set everything unselectable except:
         this.getViewPanel().addLogPanelWithoutTitle();
-        this.getViewPanel().setSaveLogBtnVisible(document.createElement('a').hasOwnProperty('download'));
+     //   this.getViewPanel().setSaveLogBtnVisible(document.createElement('a').hasOwnProperty('download'));
 
         this.setPingTask(Ext.TaskManager.newTask({
             interval: this.getSecondsForNextPing() * 1000,

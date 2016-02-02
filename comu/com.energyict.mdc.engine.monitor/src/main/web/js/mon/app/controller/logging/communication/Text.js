@@ -17,6 +17,10 @@ Ext.define('CSMonitor.controller.logging.communication.Text', {
             selector: 'communicationLoggingText'
         },
         {
+            ref: 'generalLoggingText button#hrefForDownload',
+            selector: 'hrefForDownload'
+        },
+        {
             ref: 'bytesViewPanel',
             selector: 'bytesViewer'
         },

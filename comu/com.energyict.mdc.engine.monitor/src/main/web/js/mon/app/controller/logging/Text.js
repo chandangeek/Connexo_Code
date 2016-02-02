@@ -202,6 +202,8 @@ Ext.define('CSMonitor.controller.logging.Text', {
     },
 
     doSaveLogging: function(fileName) {
+        var bb = new Blob([this.getViewPanel().getLogging()], {type: mime_type});
+        var mime_type = 'text/plain;charset=utf-8';
         var anchor = document.createElement('a');
 //        if ( !('download' in anchor) ) {
 //            console.log("Saving to a local file is currently not supported in (this version of) your browser [1]");
@@ -213,10 +215,17 @@ Ext.define('CSMonitor.controller.logging.Text', {
 //            console.log("Saving to a local file is currently not supported in (this version of) your browser [3]");
 //        }
 
-        if (anchor.hasOwnProperty('download')) {
-            anchor.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURI(this.getViewPanel().getLogging()));
-            anchor.setAttribute("download", fileName);
+//        if (anchor.hasOwnProperty('download')) {
+
+            anchor.style.display = "none";
+            anchor.href = window.URL.createObjectURL(bb);
+            anchor.download =  fileName;
+            anchor.dataset.downloadurl = [mime_type, anchor.download, anchor.href].join(':');
+            // Firefox requires the link to be added to the DOM
+      		// before it can be clicked.
+            document.body.appendChild(anchor);
             anchor.click();
-        }
+            document.body.removeChild(anchor);
+ //       }
     }
 });

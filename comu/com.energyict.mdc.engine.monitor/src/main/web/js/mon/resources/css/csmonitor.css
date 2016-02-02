@@ -25,6 +25,10 @@
   border: none;
   font-weight: bold;
 }
+.disabled_field_label
+{
+    color:black;
+}
 .logviewer
 {
     border-color: #EFEFEF;

@@ -175,7 +175,7 @@ Ext.define('CSMonitor.view.logging.Text', {
     },
 
     getLogging: function() {
-        return this.getLogWindowBody().dom.firstChild.firstChild.innerText;
+        return this.getLogWindowBody().dom.firstChild.firstChild.textContent;
     },
 
     getLogWindowBody: function() {

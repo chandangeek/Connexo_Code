@@ -16,6 +16,10 @@ Ext.define('CSMonitor.view.logging.Criteria', {
                 borderColor: 'white',
                 borderStyle: 'solid'
             },
+            defaults: {
+                labelWidth: 200,
+                width:800
+            },
             items: [
                 {
                     name: 'deviceMRID',

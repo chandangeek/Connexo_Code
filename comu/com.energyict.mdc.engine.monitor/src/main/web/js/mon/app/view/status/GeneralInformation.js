@@ -71,19 +71,20 @@ Ext.define('CSMonitor.view.status.GeneralInformation', {
             border: false,
             margins: '2 0 2 20',
             defaultType: 'textfield',
-            items: [{
-                fieldLabel: 'Changes inter poll delay',
-                name: 'changeDetectionFrequency',
+            defaults:{
+                disabled: true,
+                fieldCls: 'no-border-field',
+                labelCls: 'disabled_field_label',
                 labelWidth: 200,
                 width: 600,
-                fieldCls: 'no-border-field'
+            },
+            items: [{
+                fieldLabel: 'Changes inter poll delay',
+                name: 'changeDetectionFrequency'
             },
             {
                 fieldLabel: 'Scheduling inter poll delay',
-                name: 'pollingFrequency',
-                labelWidth: 200,
-                width: 600,
-                fieldCls: 'no-border-field'
+                name: 'pollingFrequency'
             }]
         }
     ],
