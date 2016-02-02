@@ -4,7 +4,8 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
     models: [
         'Mdc.model.ComPortPool',
         'Mdc.model.ComServerComPort',
-        'Mdc.model.ComPort'
+        'Mdc.model.ComPort',
+        'Mdc.model.ComPortPoolComPort'
     ],
 
     views: [
@@ -14,7 +15,8 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
     ],
 
     stores: [
-        'Mdc.store.ComPortPoolComports'
+        'Mdc.store.ComPortPoolComports',
+        'Mdc.store.ComPortPools'
     ],
 
     required: [
@@ -121,50 +123,58 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
 
     showAddComPortView: function (id) {
         var me = this,
-            widget = Ext.widget('addComportToComportPoolView',{
-                poolId: id
-            }),
             comPortPoolModel = me.getModel('Mdc.model.ComPortPool'),
             directionParams = {},
             recordData,
             existedRecordsArray,
-            jsonValues;
+            jsonValues,
+            portPoolsStore = Ext.getStore('Mdc.store.ComPortPools');
 
-        me.getApplication().fireEvent('changecontentevent', widget);
+        portPoolsStore.load(function() {
 
-        comPortPoolModel.load(id, {
-            success: function (record) {
-                widget.down('comportpoolsidemenu #comportpoolLink').setText(record.get('name'));
-                recordData = record.getData();
-                switch (recordData.direction) {
-                    case 'Inbound':
-                        existedRecordsArray = recordData.inboundComPorts;
-                        break;
-                    case 'Outbound':
-                        existedRecordsArray = recordData.outboundComPorts;
-                        break;
-                }
-                directionParams['property'] = 'direction';
-                directionParams['value'] = me.lowerFirstLetter(recordData.direction);
-                jsonValues = Ext.JSON.encode(directionParams);
-                me.comPortsStoreToAdd.load(
-                    {
-                        params: {filter: '[' + jsonValues + ']'},
-                        callback: function () {
-                            me.comPortsStoreToAdd.sortByType(record.get('comPortType'));
-                            me.comPortsStoreToAdd.sortByExisted(existedRecordsArray);
-                            if (me.comPortsStoreToAdd.getCount() === 0){
-                                widget.noItemsAvailable();
-                            }else{
-                                widget.down('grid').reconfigure(me.comPortsStoreToAdd);
+            var widget = Ext.widget('addComportToComportPoolView', {
+                    poolId: id,
+                    comportPoolStore: portPoolsStore
+                });
+
+            me.getApplication().fireEvent('changecontentevent', widget);
+
+            comPortPoolModel.load(id, {
+                success: function (record) {
+                    widget.down('comportpoolsidemenu #comportpoolLink').setText(record.get('name'));
+                    recordData = record.getData();
+                    switch (recordData.direction) {
+                        case 'Inbound':
+                            existedRecordsArray = recordData.inboundComPorts;
+                            widget.showPoolColumn();
+                            break;
+                        case 'Outbound':
+                            existedRecordsArray = recordData.outboundComPorts;
+                            break;
+                    }
+                    directionParams['property'] = 'direction';
+                    directionParams['value'] = me.lowerFirstLetter(recordData.direction);
+                    jsonValues = Ext.JSON.encode(directionParams);
+                    me.comPortsStoreToAdd.load(
+                        {
+                            params: {filter: '[' + jsonValues + ']'},
+                            callback: function () {
+                                me.comPortsStoreToAdd.sortByType(record.get('comPortType'));
+                                me.comPortsStoreToAdd.sortByExisted(existedRecordsArray);
+                                if (me.comPortsStoreToAdd.getCount() === 0){
+                                    widget.noItemsAvailable();
+                                }else{
+                                    widget.down('grid').reconfigure(me.comPortsStoreToAdd);
+                                }
+                                widget.setLoading(false);
                             }
-                            widget.setLoading(false);
-                        }
-                    });
-            },
-            failure: function(record){
-                widget.setLoading(false);
-            }
+                        });
+                },
+                failure: function(record){
+                    widget.setLoading(false);
+                }
+            });
+
         });
     },
 

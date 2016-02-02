@@ -4,12 +4,17 @@ Ext.define('Mdc.view.setup.comportpoolcomports.AddComPortGrid', {
     requires: [
         'Uni.view.container.EmptyGridContainer',
         'Uni.view.grid.SelectionGrid',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.notifications.NoItemsFoundPanel',
+
+    ],
+    stores: [
+        'Mdc.store.ComPortPools'
     ],
     config: {
         selectionListeners: undefined
     },
     itemId: 'addComportToComportPoolGrid',
+    comportPoolStore: undefined,
 
     grid: {
         xtype: 'selection-grid',
@@ -34,13 +39,26 @@ Ext.define('Mdc.view.setup.comportpoolcomports.AddComPortGrid', {
             {
                 header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                 dataIndex: 'active',
-                flex: 3,
+                flex: 2,
                 renderer: function (value) {
                     if (value === true) {
                         return Uni.I18n.translate('general.active', 'MDC', 'Active');
                     } else {
                         return Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                     }
+                }
+            },
+            {
+                header: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool'),
+                dataIndex: 'comPortPool_id',
+                itemId: 'mdc-comport-selection-grid-pool-column',
+                flex: 3,
+                hidden: true,
+                renderer: function (value) {
+                    if (value === null) return ' ';
+                    var poolsStore = this.up('comport-selection-grid').comportPoolStore,
+                        comPortPool = poolsStore.getById(value.id);
+                    return comPortPool ? Ext.String.htmlEncode(comPortPool.get('name')) : ' ';
                 }
             }
         ]
@@ -64,5 +82,9 @@ Ext.define('Mdc.view.setup.comportpoolcomports.AddComPortGrid', {
     },
     getSelection: function(){
         return this.down('grid').view.getSelectionModel().getSelection();
+    },
+
+    showPoolColumn: function() {
+        this.down('#mdc-comport-selection-grid-pool-column').show();
     }
 });
