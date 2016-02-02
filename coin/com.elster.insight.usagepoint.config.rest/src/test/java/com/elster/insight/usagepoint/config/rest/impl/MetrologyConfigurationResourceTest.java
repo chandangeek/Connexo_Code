@@ -217,7 +217,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Number>get("$.total")).isEqualTo(1);
         assertThat(model.<List>get("$.customPropertySets")).hasSize(1);
-        assertThat(model.<String>get("$.customPropertySets[0].cpsId")).isEqualTo(cpsId);
+        assertThat(model.<String>get("$.customPropertySets[0].customPropertySetId")).isEqualTo(cpsId);
         verify(mConfig).getCustomPropertySets();
         verify(rcps, atLeastOnce()).isViewableByCurrentUser();
     }
@@ -258,7 +258,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         assertThat(model.<Number>get("$.total")).isEqualTo(1);
         assertThat(model.<List>get("$.customPropertySets")).hasSize(1);
         assertThat(model.<Number>get("$.customPropertySets[0].id")).isEqualTo(789);
-        assertThat(model.<String>get("$.customPropertySets[0].cpsId")).isEqualTo("AnotherCPS");
+        assertThat(model.<String>get("$.customPropertySets[0].customPropertySetId")).isEqualTo("AnotherCPS");
         verify(mConfig).getCustomPropertySets();
         verify(rcps2, atLeastOnce()).isViewableByCurrentUser();
     }
@@ -271,7 +271,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         info.id = mConfigId;
         info.version = 1;
         info.customPropertySets = Collections.singletonList(new CustomPropertySetInfo());
-        info.customPropertySets.get(0).cpsId = "TestSPCId";
+        info.customPropertySets.get(0).customPropertySetId = "TestSPCId";
 
         CustomPropertySet cps = mock(CustomPropertySet.class);
         when(cps.getId()).thenReturn("TestSPCId");
@@ -294,7 +294,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets").request().put(Entity.json(info));
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(model.<List>get("$.customPropertySets")).hasSize(1);
-        assertThat(model.<String>get("$.customPropertySets[0].cpsId")).isEqualTo("TestSPCId");
+        assertThat(model.<String>get("$.customPropertySets[0].customPropertySetId")).isEqualTo("TestSPCId");
         verify(mConfig).addCustomPropertySet(rcps);
         verify(mConfig).getCustomPropertySets();
         verify(rcps, atLeastOnce()).isViewableByCurrentUser();
@@ -308,7 +308,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         info.id = mConfigId;
         info.version = 1;
         info.customPropertySets = Collections.singletonList(new CustomPropertySetInfo());
-        info.customPropertySets.get(0).cpsId = "TestSPCId";
+        info.customPropertySets.get(0).customPropertySetId = "TestSPCId";
 
         when(usagePointConfigurationService.findMetrologyConfiguration(mConfigId)).thenReturn(Optional.empty());
         when(usagePointConfigurationService.findAndLockMetrologyConfiguration(mConfigId, info.version)).thenReturn(Optional.empty());
@@ -325,7 +325,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         info.id = mConfigId;
         info.version = 1;
         info.customPropertySets = Collections.singletonList(new CustomPropertySetInfo());
-        info.customPropertySets.get(0).cpsId = "TestSPCId";
+        info.customPropertySets.get(0).customPropertySetId = "TestSPCId";
 
         CustomPropertySet cps = mock(CustomPropertySet.class);
         when(cps.getId()).thenReturn("TestSPCId");

@@ -255,7 +255,7 @@ public class MetrologyConfigurationResource {
         if (info.customPropertySets != null) {
             info.customPropertySets
                     .stream()
-                    .map(cpsInfo -> resourceHelper.getRegisteredCustomPropertySetOrThrowException(cpsInfo.cpsId))
+                    .map(cpsInfo -> resourceHelper.getRegisteredCustomPropertySetOrThrowException(cpsInfo.customPropertySetId))
                     .forEach(metrologyConfiguration::addCustomPropertySet);
         }
         return metrologyConfigurationInfoFactory.asDetailedInfo(metrologyConfiguration);
