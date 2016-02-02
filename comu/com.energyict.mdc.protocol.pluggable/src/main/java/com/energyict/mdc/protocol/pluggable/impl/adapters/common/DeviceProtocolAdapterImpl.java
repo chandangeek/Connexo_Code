@@ -6,7 +6,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.elster.jupiter.properties.TimeZoneFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -29,6 +28,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.TranslationKeys;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +43,8 @@ import java.util.stream.Collectors;
  * Time: 14:48
  */
 public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter, DeviceCachingSupport {
+
+    public static final String DEFAULT_TIMEZONE = "GMT";
 
     private final DataModel dataModel;
     private final PropertySpecService propertySpecService;
@@ -215,11 +217,14 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     }
 
     private PropertySpec deviceTimeZonePropertySpec(boolean required) {
+        TimeZone[] timeZones = Arrays.asList(TimeZone.getAvailableIDs()).stream().map(TimeZone::getTimeZone).toArray(TimeZone[]::new);
         PropertySpecBuilder<TimeZone> builder = this.propertySpecService
-                .specForValuesOf(new TimeZoneFactory())
+                .timezoneSpec()
                 .named(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName(), TranslationKeys.DEVICE_TIME_ZONE)
                 .fromThesaurus(this.thesaurus)
-                .setDefaultValue(TimeZone.getDefault());
+                .addValues(timeZones)
+                .setDefaultValue(TimeZone.getTimeZone(DEFAULT_TIMEZONE))
+                .markEditable();
         if (required) {
             builder.markRequired();
         }
