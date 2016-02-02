@@ -84,7 +84,7 @@ public class PropertyUtils {
 
         PropertySelectionMode selectionMode = possibleValues.getSelectionMode();
 
-        return new PredefinedPropertyValuesInfo<>(possibleObjects, selectionMode, propertySpec.getPossibleValues().isExhaustive());
+        return new PredefinedPropertyValuesInfo<>(possibleObjects, selectionMode, propertySpec.getPossibleValues().isExhaustive(), propertySpec.getPossibleValues().isEditable());
     }
 
     public Object findPropertyValue(PropertySpec propertySpec, List<PropertyInfo> propertyInfos) {
