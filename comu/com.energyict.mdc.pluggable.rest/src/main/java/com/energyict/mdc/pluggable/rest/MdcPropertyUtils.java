@@ -171,6 +171,7 @@ public class MdcPropertyUtils {
     private PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec propertySpec, SimplePropertyType simplePropertyType, PropertyDefaultValuesProvider valuesProvider) {
         List<?> possibleValues = null;
         boolean isExchaustive = true;
+        boolean editable = false;
         if (valuesProvider != null) {
             possibleValues = valuesProvider.getPropertyPossibleValues(propertySpec, simplePropertyType);
         }
@@ -178,6 +179,7 @@ public class MdcPropertyUtils {
         if (propertySpec.getPossibleValues() != null) {
             possibleValues = propertySpec.getPossibleValues().getAllValues();
             isExchaustive = propertySpec.getPossibleValues().isExhaustive();
+            editable = propertySpec.getPossibleValues().isEditable();
         }
 
         if (possibleValues == null || possibleValues.isEmpty()) {
@@ -193,7 +195,8 @@ public class MdcPropertyUtils {
         return new PredefinedPropertyValuesInfo<>(
                 possibleObjects,
                 selectionMode,
-                isExchaustive);
+                isExchaustive,
+                editable);
     }
 
     private <T> Object getDefaultValue(PropertySpec propertySpec) {
