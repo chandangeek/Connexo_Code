@@ -34,6 +34,18 @@ public interface PropertySpecPossibleValues {
     boolean isExhaustive();
 
     /**
+     * Returns <code>true</code> if the possible values should be editable,
+     * i.e. the user should be allowed to type in text directly into the field,
+     * after which matching possibilities are shown. This could be used in situations
+     * where i.e. a ComboBox contains a lot of possible values. In this case,
+     * it is not convenient for the user to select the value from the picker
+     * (as he has to search his desired value in a big list of possible values).
+     *
+     * @return A flag that indicates if values should be editable or not
+     */
+    boolean isEditable();
+
+    /**
      * Gets the default value that will be used for the PropertySpec.
      *
      * @return The default value

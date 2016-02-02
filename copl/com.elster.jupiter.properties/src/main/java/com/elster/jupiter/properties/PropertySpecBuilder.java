@@ -51,6 +51,14 @@ public interface PropertySpecBuilder<T> {
 
     /**
      * Marks the list of possible values of the {@link PropertySpec}
+     * as editable.
+     *
+     * @return This PropertySpecBuilder to support method chaining while constructing
+     */
+    PropertySpecBuilder<T> markEditable();
+
+    /**
+     * Marks the list of possible values of the {@link PropertySpec}
      * under construction as an exhaustive list and uses
      * the specified {@link PropertySelectionMode} as a hint
      * for the UI how to render the list of possible values.

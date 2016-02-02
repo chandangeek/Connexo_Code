@@ -85,6 +85,12 @@ class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
     }
 
     @Override
+    public PropertySpecBuilder<T> markEditable() {
+        this.propertySpecAccessor.markEditable();
+        return this;
+    }
+
+    @Override
     public PropertySpecBuilder<T> markMultiValued(String separator) {
         this.propertySpecAccessor.markMultiValued(separator);
         return this;
@@ -128,6 +134,8 @@ class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
         void markMultiValued(String separator);
 
         void markExhaustive(PropertySelectionMode selectionMode);
+
+        void markEditable();
 
     }
 
@@ -213,6 +221,19 @@ class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
                 possibleValues.setSelectionMode(selectionMode);
             }
         }
+
+        @Override
+        public void markEditable() {
+            PropertySpecPossibleValues xPossibleValues = this.propertySpec.getPossibleValues();
+            if (xPossibleValues == null) {
+                PropertySpecPossibleValuesImpl possibleValues = new PropertySpecPossibleValuesImpl(true, new ArrayList<>());
+                possibleValues.setEditable(true);
+                this.propertySpec.setPossibleValues(possibleValues);
+            } else {
+                PropertySpecPossibleValuesImpl possibleValues = (PropertySpecPossibleValuesImpl) xPossibleValues;
+                possibleValues.setEditable(true);
+            }
+        }
     }
 
     /**
@@ -271,6 +292,11 @@ class PropertySpecBuilderImpl<T> implements PropertySpecBuilder<T> {
 
         @Override
         public void markExhaustive (PropertySelectionMode selectionMode) {
+            this.notifyBuildingProcessComplete();
+        }
+
+        @Override
+        public void markEditable() {
             this.notifyBuildingProcessComplete();
         }
 

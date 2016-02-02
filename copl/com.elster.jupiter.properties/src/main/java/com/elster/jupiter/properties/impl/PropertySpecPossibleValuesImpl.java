@@ -22,6 +22,7 @@ public class PropertySpecPossibleValuesImpl implements PropertySpecPossibleValue
     private List allValues = new ArrayList<>();
     private Object defaultValue;
     private boolean exhaustive = false;
+    private boolean editable = false;
     private PropertySelectionMode selectionMode = PropertySelectionMode.UNSPECIFIED;
 
     public PropertySpecPossibleValuesImpl () {
@@ -82,6 +83,14 @@ public class PropertySpecPossibleValuesImpl implements PropertySpecPossibleValue
     // Allow friendly builder components to change the exhaustive flag after construction
     public void setExhaustive (boolean exhaustive) {
         this.exhaustive = exhaustive;
+    }
+
+    public boolean isEditable() {
+        return editable;
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
     }
 
     @Override
