@@ -6,7 +6,6 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.transaction.TransactionContext;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,12 +21,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MetrologyConfigurationCPSUsageTestIT {
     public static final String METROLOGY_CONFIG_NAME = "Test metrology configuration";
     private static MetrologyInMemoryBootstrapModule inMemoryBootstrapModule = new MetrologyInMemoryBootstrapModule();
-    private static MetrologyTestCustomPropertySet customPropertySet;
+    private static UsagePointTestCustomPropertySet customPropertySet;
 
     @BeforeClass
     public static void setUp() {
         inMemoryBootstrapModule.activate();
-        customPropertySet = new MetrologyTestCustomPropertySet(inMemoryBootstrapModule.getPropertySpecService());
+        customPropertySet = new UsagePointTestCustomPropertySet(inMemoryBootstrapModule.getPropertySpecService());
         inMemoryBootstrapModule.getCustomPropertySetService().addCustomPropertySet(customPropertySet);
     }
 

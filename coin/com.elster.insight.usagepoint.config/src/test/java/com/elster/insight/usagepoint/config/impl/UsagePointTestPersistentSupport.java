@@ -1,7 +1,7 @@
 package com.elster.insight.usagepoint.config.impl;
 
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.jupiter.cps.PersistenceSupport;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.google.inject.Module;
@@ -10,11 +10,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class MetrologyTestPersistentSupport implements PersistenceSupport<MetrologyConfiguration, MetrologyTestPersistentDomainExtension> {
+public class UsagePointTestPersistentSupport implements PersistenceSupport<UsagePoint, UsagePointTestPersistentDomainExtension> {
 
     @Override
     public String componentName() {
-        return "MC1";
+        return "UP1";
     }
 
     @Override
@@ -24,17 +24,17 @@ public class MetrologyTestPersistentSupport implements PersistenceSupport<Metrol
 
     @Override
     public String domainFieldName() {
-        return MetrologyTestPersistentDomainExtension.Fields.METROLOGY_CONFIG.javaName();
+        return UsagePointTestPersistentDomainExtension.Fields.METROLOGY_CONFIG.javaName();
     }
 
     @Override
     public String domainForeignKeyName() {
-        return componentName() + "FK_TO_M_CONFIG";
+        return componentName() + "FK_TO_USAGE_POINT";
     }
 
     @Override
-    public Class<MetrologyTestPersistentDomainExtension> persistenceClass() {
-        return MetrologyTestPersistentDomainExtension.class;
+    public Class<UsagePointTestPersistentDomainExtension> persistenceClass() {
+        return UsagePointTestPersistentDomainExtension.class;
     }
 
     @Override
@@ -49,14 +49,14 @@ public class MetrologyTestPersistentSupport implements PersistenceSupport<Metrol
 
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-        table.column(MetrologyTestPersistentDomainExtension.Fields.NAME.databaseName())
+        table.column(UsagePointTestPersistentDomainExtension.Fields.NAME.databaseName())
                 .varChar(Table.NAME_LENGTH)
-                .map(MetrologyTestPersistentDomainExtension.Fields.NAME.javaName())
+                .map(UsagePointTestPersistentDomainExtension.Fields.NAME.javaName())
                 .notNull()
                 .add();
-        table.column(MetrologyTestPersistentDomainExtension.Fields.ENHANCED_SUPPORT.databaseName())
+        table.column(UsagePointTestPersistentDomainExtension.Fields.ENHANCED_SUPPORT.databaseName())
                 .bool()
-                .map(MetrologyTestPersistentDomainExtension.Fields.ENHANCED_SUPPORT.javaName())
+                .map(UsagePointTestPersistentDomainExtension.Fields.ENHANCED_SUPPORT.javaName())
                 .add();
     }
 }

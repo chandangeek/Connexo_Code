@@ -1,10 +1,10 @@
 package com.elster.insight.usagepoint.config.impl;
 
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
@@ -13,19 +13,19 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-public class MetrologyTestCustomPropertySet implements CustomPropertySet<MetrologyConfiguration, MetrologyTestPersistentDomainExtension> {
+public class UsagePointTestCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointTestPersistentDomainExtension> {
 
     private final PropertySpecService propertySpecService;
-    private final PersistenceSupport<MetrologyConfiguration, MetrologyTestPersistentDomainExtension> persistentSupport;
+    private final PersistenceSupport<UsagePoint, UsagePointTestPersistentDomainExtension> persistentSupport;
 
-    public MetrologyTestCustomPropertySet(PropertySpecService propertySpecService) {
+    public UsagePointTestCustomPropertySet(PropertySpecService propertySpecService) {
         super();
         this.propertySpecService = propertySpecService;
-        this.persistentSupport = new MetrologyTestPersistentSupport();
+        this.persistentSupport = new UsagePointTestPersistentSupport();
     }
 
     @Override
-    public PersistenceSupport<MetrologyConfiguration, MetrologyTestPersistentDomainExtension> getPersistenceSupport() {
+    public PersistenceSupport<UsagePoint, UsagePointTestPersistentDomainExtension> getPersistenceSupport() {
         return this.persistentSupport;
     }
 
@@ -51,29 +51,29 @@ public class MetrologyTestCustomPropertySet implements CustomPropertySet<Metrolo
 
     @Override
     public String getId() {
-        return MetrologyTestCustomPropertySet.class.getName();
+        return UsagePointTestCustomPropertySet.class.getName();
     }
 
     @Override
     public String getName() {
-        return MetrologyTestCustomPropertySet.class.getSimpleName();
+        return UsagePointTestCustomPropertySet.class.getSimpleName();
     }
 
     @Override
-    public Class<MetrologyConfiguration> getDomainClass() {
-        return MetrologyConfiguration.class;
+    public Class<UsagePoint> getDomainClass() {
+        return UsagePoint.class;
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         PropertySpec nameSpec = this.propertySpecService.stringSpec()
-                .named(MetrologyTestPersistentDomainExtension.Fields.NAME.javaName(), MetrologyTestPersistentDomainExtension.Fields.NAME.javaName())
-                .describedAs(MetrologyTestPersistentDomainExtension.Fields.NAME.javaName())
+                .named(UsagePointTestPersistentDomainExtension.Fields.NAME.javaName(), UsagePointTestPersistentDomainExtension.Fields.NAME.javaName())
+                .describedAs(UsagePointTestPersistentDomainExtension.Fields.NAME.javaName())
                 .markRequired()
                 .finish();
         PropertySpec enhancedSupportSpec = this.propertySpecService.booleanSpec()
-                .named(MetrologyTestPersistentDomainExtension.Fields.ENHANCED_SUPPORT.javaName(), MetrologyTestPersistentDomainExtension.Fields.ENHANCED_SUPPORT.javaName())
-                .describedAs(MetrologyTestPersistentDomainExtension.Fields.ENHANCED_SUPPORT.javaName())
+                .named(UsagePointTestPersistentDomainExtension.Fields.ENHANCED_SUPPORT.javaName(), UsagePointTestPersistentDomainExtension.Fields.ENHANCED_SUPPORT.javaName())
+                .describedAs(UsagePointTestPersistentDomainExtension.Fields.ENHANCED_SUPPORT.javaName())
                 .finish();
         return Arrays.asList(nameSpec, enhancedSupportSpec);
     }

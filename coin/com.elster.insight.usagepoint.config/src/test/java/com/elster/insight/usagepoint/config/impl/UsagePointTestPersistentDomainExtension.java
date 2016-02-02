@@ -1,15 +1,15 @@
 package com.elster.insight.usagepoint.config.impl;
 
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
-public class MetrologyTestPersistentDomainExtension implements PersistentDomainExtension<MetrologyConfiguration> {
+public class UsagePointTestPersistentDomainExtension implements PersistentDomainExtension<UsagePoint> {
     public enum Fields {
         METROLOGY_CONFIG {
             @Override
@@ -39,7 +39,7 @@ public class MetrologyTestPersistentDomainExtension implements PersistentDomainE
     }
 
     @IsPresent
-    private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
+    private Reference<UsagePoint> metrologyConfiguration = ValueReference.absent();
     @IsPresent
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
     @NotEmpty
@@ -47,7 +47,7 @@ public class MetrologyTestPersistentDomainExtension implements PersistentDomainE
     private boolean enhancedSupport;
 
     @Override
-    public void copyFrom(MetrologyConfiguration domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
+    public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.metrologyConfiguration.set(domainInstance);
         this.name = (String) propertyValues.getProperty(Fields.NAME.javaName());
         this.enhancedSupport = (Boolean) propertyValues.getProperty(Fields.ENHANCED_SUPPORT.javaName());
