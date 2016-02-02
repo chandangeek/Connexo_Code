@@ -12,7 +12,8 @@ public class TaskContentInfos {
     public String status;
     public String action;
     public String id;
-    public String mrid;
+//    public String mrid;
+    public BusinessObject businessObject;
     public String deploymentId;
     public List<TaskContentInfo> properties = new ArrayList<>();
     public Map<String, Object> outputContent = new HashMap<>();
