@@ -9,6 +9,7 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -229,7 +230,7 @@ public class MetrologyConfigurationResource {
                     .map(RegisteredCustomPropertySet::getCustomPropertySet)
                     .map(CustomPropertySet::getId)
                     .collect(Collectors.toSet());
-            customPropertySets = customPropertySetService.findActiveCustomPropertySets(MetrologyConfiguration.class)
+            customPropertySets = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)
                     .stream()
                     .filter(cps -> !assignedCPSIds.contains(cps.getCustomPropertySet().getId()));
         }
