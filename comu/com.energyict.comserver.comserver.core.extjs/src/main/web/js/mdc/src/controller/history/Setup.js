@@ -22,6 +22,14 @@ Ext.define('Mdc.controller.history.Setup', {
                         }, {single: true});
 
                         return this;
+                    },
+                    items: {
+                        startprocess: {
+                            title: Uni.I18n.translate('usagePoint.startProcess', 'MDC', 'Start process'),
+                            route: 'processes/start',
+                            controller: 'Mdc.usagepointmanagement.controller.StartProcess',
+                            action: 'showStartProcess'
+                        }
                     }
                 }
             }

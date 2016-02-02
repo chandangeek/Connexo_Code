@@ -15,7 +15,8 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
         {ref: 'overviewLink', selector: '#usage-point-overview-link'},
         {ref: 'attributesPanel', selector: '#usage-point-attributes-panel'},
         {ref: 'usagePointTechnicalAttributesDeviceLink', selector: '#usagePointTechnicalAttributesDeviceLink'},
-        {ref: 'usagePointTechnicalAttributesDeviceDates', selector: '#usagePointTechnicalAttributesDeviceDates'}
+        {ref: 'usagePointTechnicalAttributesDeviceDates', selector: '#usagePointTechnicalAttributesDeviceDates'},
+        {ref: 'usagepointActionsMenu', selector: 'usage-point-management-setup #usagePointActionMenu'}
     ],
 
     init: function () {
@@ -52,6 +53,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
 
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getOverviewLink().setText(actualModel.get('mRID'));
+                me.getUsagepointActionsMenu().setProcessMenu(id, router);
                 me.getAttributesPanel().add(actualForm);
                 actualForm.getForm().loadRecord(actualModel);
 
