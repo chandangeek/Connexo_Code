@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
@@ -87,12 +88,15 @@ public class BasicDynamicPropertySupport implements HasDynamicProperties {
     }
 
     private PropertySpec timeZonePropertySpec() {
-        return propertySpecService
+        TimeZone[] timeZones = Arrays.asList(TimeZone.getAvailableIDs()).stream().map(TimeZone::getTimeZone).toArray(TimeZone[]::new);
+        PropertySpecBuilder<TimeZone> builder = this.propertySpecService
                 .timezoneSpec()
                 .named(TIMEZONE, CommonV2TranslationKeys.TIMEZONE)
                 .fromThesaurus(this.thesaurus)
+                .addValues(timeZones)
                 .setDefaultValue(TimeZone.getTimeZone(DEFAULT_TIMEZONE))
-                .finish();
+                .markEditable();
+        return builder.finish();
     }
 
     private PropertySpec timeOutPropertySpec() {
