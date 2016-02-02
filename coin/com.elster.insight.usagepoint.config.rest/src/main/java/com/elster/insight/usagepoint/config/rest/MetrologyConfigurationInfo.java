@@ -2,10 +2,15 @@ package com.elster.insight.usagepoint.config.rest;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
+import com.elster.insight.usagepoint.config.rest.impl.ResourceHelper;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 
 @XmlRootElement
@@ -37,5 +42,23 @@ public class MetrologyConfigurationInfo {
     public void writeTo(MetrologyConfiguration metrologyConfiguration) {
         metrologyConfiguration.updateName(this.name);
     }
-    
+
+    public void updateCustomPropertySets(MetrologyConfiguration metrologyConfiguration, Function<String, RegisteredCustomPropertySet> rcpsProvider) {
+        if (this.customPropertySets != null) {
+            Map<String, RegisteredCustomPropertySet> actualCustomPropertySets = metrologyConfiguration.getCustomPropertySets()
+                    .stream()
+                    .collect(Collectors.toMap(rcps -> rcps.getCustomPropertySet().getId(), Function.identity()));
+            this.customPropertySets
+                    .stream()
+                    .map(cpsInfo -> rcpsProvider.apply(cpsInfo.customPropertySetId))
+                    .forEach(rcps -> {
+                        if (actualCustomPropertySets.remove(rcps.getCustomPropertySet().getId()) == null){
+                            metrologyConfiguration.addCustomPropertySet(rcps);
+                        }
+                    });
+            actualCustomPropertySets.values()
+                    .stream()
+                    .forEach(metrologyConfiguration::removeCustomPropertySet);
+        }
+    }
 }

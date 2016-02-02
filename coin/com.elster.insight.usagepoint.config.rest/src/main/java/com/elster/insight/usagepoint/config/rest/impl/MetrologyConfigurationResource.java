@@ -39,7 +39,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.time.Clock;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -106,6 +108,7 @@ public class MetrologyConfigurationResource {
     public Response updateMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info, @Context SecurityContext securityContext) {
         MetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info);
         info.writeTo(metrologyConfiguration);
+        info.updateCustomPropertySets(metrologyConfiguration, key -> resourceHelper.getRegisteredCustomPropertySetOrThrowException(key));
         return Response.status(Response.Status.CREATED).entity(metrologyConfigurationInfoFactory.asDetailedInfo(metrologyConfiguration)).build();
     }
 
