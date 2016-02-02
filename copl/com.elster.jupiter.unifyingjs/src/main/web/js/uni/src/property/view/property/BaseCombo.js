@@ -46,15 +46,21 @@ Ext.define('Uni.property.view.property.BaseCombo', {
             name: this.getName(),
             store: sortedStore,
             queryMode: 'local',
+            typeAhead: true,
+            autoSelect: true,
             displayField: 'value',
             valueField: 'key',
             value: (!propertyValue ? undefined : propertyValue),
             width: me.width,
-            forceSelection: me.getProperty().getExhaustive(),
             readOnly: me.isReadOnly,
-            editable: !me.getProperty().getExhaustive(),
             allowBlank: !me.getProperty().data.required,
-            blankText: me.blankText
+            blankText: me.blankText,
+            forceSelection: this.getProperty().isEditable() || me.getProperty().getExhaustive(),
+            editable: this.getProperty().isEditable() || !me.getProperty().getExhaustive(),
+            listConfig: {
+                loadMask: true,
+                maxHeight: 300
+            }
         }
     },
 
