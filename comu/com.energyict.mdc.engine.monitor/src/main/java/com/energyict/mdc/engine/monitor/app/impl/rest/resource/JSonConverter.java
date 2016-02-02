@@ -408,7 +408,11 @@ public class JSonConverter {
             }
         }
         if (numberOfUnits < 2 && numberOfSeconds > 0) {
-            builder.append(numberOfSeconds).append(" ").append(TimeDuration.getTimeUnitDescription(Calendar.SECOND));
+            String timeUnitDescription = TimeDuration.getTimeUnitDescription(Calendar.SECOND);
+            if (numberOfSeconds == 1){
+                timeUnitDescription = timeUnitDescription.substring(0, timeUnitDescription.length() - 1);
+            }
+            builder.append(numberOfSeconds).append(" ").append(timeUnitDescription);
         }
         return builder.toString();
     }
