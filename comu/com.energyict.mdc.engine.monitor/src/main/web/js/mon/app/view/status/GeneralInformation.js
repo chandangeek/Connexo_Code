@@ -70,11 +70,8 @@ Ext.define('CSMonitor.view.status.GeneralInformation', {
             xtype: 'form',
             border: false,
             margins: '2 0 2 20',
-            defaultType: 'textfield',
             defaults:{
-                disabled: true,
-                fieldCls: 'no-border-field',
-                labelCls: 'disabled_field_label',
+                xtype: 'displayfield',
                 labelWidth: 200,
                 width: 600,
             },

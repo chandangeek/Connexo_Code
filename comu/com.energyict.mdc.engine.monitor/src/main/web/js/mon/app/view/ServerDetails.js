@@ -18,13 +18,10 @@ Ext.define('CSMonitor.view.ServerDetails', {
         },
         {
             xtype: 'form',
-            defaultType: 'textfield',
             defaults:{
-                disabled: true,
+                xtype: 'displayfield',
                 labelCls: 'server-details',
-                emptyCls: 'server-details-field',
-                fieldCls: 'server-details-field',
-                disabledCls: 'server-details-field',
+                fieldCls: 'server-details',
                 labelWidth: 180,
                 width: 500
             },
