@@ -574,9 +574,10 @@ public class BpmResource {
                 .filter(s -> activeProcesses.stream().anyMatch(a -> s.version.equals(a.getVersion())))
                 .collect(Collectors.toList());
         runningProcessInfos.processes = runningProcessesList;
-        total = runningProcessesList.size();
-        if (total > 0) {
+        if (total == Integer.valueOf(queryParameters.get("page").get(0)) * runningProcessInfos.total + 1) {
             runningProcessInfos.total = total;
+        }else{
+            runningProcessInfos.total = Integer.valueOf(queryParameters.get("page").get(0)) * 10 - 10 + runningProcessInfos.total;
         }
         return runningProcessInfos;
     }
