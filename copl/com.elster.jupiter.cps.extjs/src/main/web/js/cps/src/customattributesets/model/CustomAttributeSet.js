@@ -15,7 +15,7 @@ Ext.define('Cps.customattributesets.model.CustomAttributeSet', {
         {name: 'editPrivileges', type: 'auto'},
         {name: 'defaultViewPrivileges', type: 'auto'},
         {name: 'defaultEditPrivileges', type: 'auto'},
-        {name: 'attributes', type: 'auto'},
+        {name: 'properties', type: 'auto'},
         {
             name: 'viewPrivilegesString',
             persist: false,

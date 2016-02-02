@@ -93,7 +93,7 @@ Ext.define('Cps.customattributesets.controller.AttributeSets', {
         Ext.suspendLayouts();
         attributesGridPanel.setTitle(Uni.I18n.translate('customattributesets.attributesof', 'CPS', 'Attributes of \'{0}\'', [Ext.String.htmlEncode(record.get('name'))]));
         attributesStore.removeAll();
-        attributesStore.add(Cps.customattributesets.service.AttributeTransformer.transform(record.get('attributes')));
+        attributesStore.add(Cps.customattributesets.service.AttributeTransformer.transform(record.get('properties')));
         Ext.resumeLayouts();
     },
 
