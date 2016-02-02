@@ -8,6 +8,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         'Imt.usagepointmanagement.view.UsagePointSideMenu',
         'Imt.usagepointmanagement.view.UsagePointAttributesFormMain',
         'Imt.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm',
+        'Imt.usagepointmanagement.view.landingpage.UsagePointMainAttributesPanel',
         'Imt.usagepointmanagement.view.SetupActionMenu'
     ],
     router: null,
@@ -80,9 +81,11 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                 },
                 items: [
                     {
-                        xtype: 'panel',
+                        //xtype: 'panel',
                         ui: 'tile',
                         title: Uni.I18n.translate('usagepoint.metrologyconfiguration', 'IMT', 'Metrology configuration'),
+                        xtype: 'associated-metrology-configuration',
+                        router: me.router,
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
@@ -90,16 +93,16 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         defaults: {
                             flex: 1
                         },
-                        items: [
-                            {
-                                xtype: 'associated-devices',
-                                router: me.router
-                            },
-                            {
-                                xtype: 'associated-metrology-configuration',
-                                router: me.router
-                            }
-                        ]
+                        //items: [
+                        //    //{
+                        //    //    xtype: 'associated-devices',
+                        //    //    router: me.router
+                        //    //},
+                        //    {
+                        //        xtype: 'associated-metrology-configuration',
+                        //        router: me.router
+                        //    }
+                        //]
                     },
                     {
                         xtype: 'panel',

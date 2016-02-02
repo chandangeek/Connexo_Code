@@ -1,8 +1,8 @@
-Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormTechnicalElectricity', {
-    extend: 'Ext.form.Panel',
-    alias: 'widget.usagePointAttributesFormTechnicalElectricity',
+Ext.define('Imt.usagepointmanagement.view.landingpage.TechnicalAttributesFormElectricity', {
+    extend: 'Ext.panel.Panel',
+    alias: 'widget.technical-attributes-form-electricity',
 
-    
+
     requires: [
         'Uni.form.field.Duration'
     ],
@@ -15,29 +15,15 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormTechnicalElect
         xtype: 'displayfield'
     },
 
-    record: null,
+    //panelTitle: null,
+    //record: null,
 
     initComponent: function () {
         var me = this;
         me.items = [
-            //{xtype: 'usagePointAttributesFormMain'},
-            {
-                xtype: 'title-with-edit-button',
-                title: Uni.I18n.translate('usagepoint.technical.information', 'IMT', 'Technical information'),
-                editHandler: function(){
-                    me.down('#editable-form-electricity').loadRecord(me.record);
-                    me.down('#usagePointTechnicalAttributes').hide();
-                    me.down('#editable-form-electricity').show();
-                    me.down('#bottom-buttons-electricity').show();
-                    Imt.customattributesonvaluesobjects.service.ActionMenuManager.setdisabledAllEditBtns(true);
-                }
-            },
             {
                 xtype: 'form',
-                itemId: 'usagePointTechnicalAttributes',
-                //labelAlign: 'top',
-                //layout: 'vbox',
-                //margin: '0',
+                itemId: 'view-form',
                 defaults: {
                     xtype: 'displayfield',
                     labelWidth: 250,
@@ -96,10 +82,10 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormTechnicalElect
             },
             {
                 xtype: 'form',
-                itemId: 'editable-form-electricity',
+                itemId: 'edit-form',
                 hidden: true,
                 defaults: {
-                    xtype: 'combobox',
+                    xtype: 'textfield',
                     labelWidth: 250,
                     //width: 600
                 },
@@ -153,99 +139,17 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormTechnicalElect
                         //}
                     }
                 ]
-            },
-            {
-                xtype: 'container',
-                hidden: true,
-                itemId: 'bottom-buttons-electricity',
-                dock: 'bottom',
-                margin: '20 0 0 265',
-                layout: {
-                    type: 'hbox',
-                    align: 'stretch'
-                },
-
-                items: [
-                    {
-                        xtype: 'button',
-                        //itemId: 'channelCustomAttributesSaveBtn',
-                        ui: 'action',
-                        text: Uni.I18n.translate('general.save', 'IMT', 'Save'),
-                        action: 'save',
-                        handler: function(){
-                            var record =me.down('#editable-form-electricity').getRecord();
-                            record.save({
-                                success: function(){
-                                    console.log('success');
-                                },
-                                failure: function(){
-                                    console.log('failure');
-                                }
-                            })
-                        }
-                        //handler: function () {
-                        //    me.down('property-form').updateRecord();
-                        //
-                        //    me.record.save({
-                        //        callback: function(record, response, success){
-                        //            if(success){
-                        //                me.down('property-form').makeNotEditable(me.record);
-                        //                me.down('#bottom-buttons').hide();
-                        //            } else {
-                        //                var responseText = Ext.decode(response.response.responseText, true);
-                        //                if (responseText && Ext.isArray(responseText.errors)) {
-                        //                    me.down('property-form').markInvalid(responseText.errors);
-                        //                }
-                        //            }
-                        //
-                        //        }
-                        //        //failure: function(record, response){
-                        //        //
-                        //        //        var responseText = Ext.decode(response.response.responseText, true);
-                        //        //    console.log(responseText);
-                        //        //
-                        //        //        if (responseText && Ext.isArray(responseText.errors)) {
-                        //        //            me.down('property-form').markInvalid(responseText.errors);
-                        //        //
-                        //        //        }
-                        //        //    //me.down('property-form').markInvalid(errors);
-                        //        //}
-                        //    });
-                        //}
-                    },
-                    //{
-                    //    xtype: 'button',
-                    //    text: Uni.I18n.translate('general.restoretodefaults', 'IMT', 'Restore to defaults'),
-                    //    icon: '../sky/build/resources/images/form/restore.png',
-                    //    //handler: function () {
-                    //    //    me.down('property-form').restoreAll();
-                    //    //}
-                    //    //itemId: 'channelCustomAttributesRestoreBtn'
-                    //},
-                    {
-                        xtype: 'button',
-                        ui: 'link',
-                        //itemId: 'channelCustomAttributesCancelBtn',
-                        text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
-                        handler: function () {
-                            me.down('#usagePointTechnicalAttributes').show();
-                            me.down('#editable-form-electricity').hide();
-                            me.down('#bottom-buttons-electricity').hide();
-                            Imt.customattributesonvaluesobjects.service.ActionMenuManager.setdisabledAllEditBtns(false);
-                        }
-                    }
-                ]
             }
         ];
         me.callParent();
     },
     renderValue: function (data) {
-        if (data) {
-            if (data.multiplier == 0)
-                return data.value + ' ' + data.unit;
-            else
-                return data.value + '*10<sup style="vertical-align: top; position: relative; top: -0.5em;">' + data.multiplier + '</sup> ' + data.unit;
+    if (data) {
+        if (data.multiplier == 0)
+            return data.value + ' ' + data.unit;
+        else
+            return data.value + '*10<sup style="vertical-align: top; position: relative; top: -0.5em;">' + data.multiplier + '</sup> ' + data.unit;
 
-        } else return '-';
-    }
+    } else return '-';
+}
 });

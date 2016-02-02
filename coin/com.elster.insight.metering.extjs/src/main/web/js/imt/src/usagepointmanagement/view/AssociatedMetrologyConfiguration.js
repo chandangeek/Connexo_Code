@@ -19,7 +19,7 @@ Ext.define('Imt.usagepointmanagement.view.AssociatedMetrologyConfiguration', {
                 labelAlign: 'right',
                 xtype: 'fieldcontainer',
                 labelWidth: 175,
-                fieldLabel: Uni.I18n.translate('usagepoint.metrologyconfiguration', 'IMT', 'Metrology configuration'),
+                //fieldLabel: Uni.I18n.translate('usagepoint.metrologyconfiguration', 'IMT', 'Metrology configuration'),
                 layout: {
                     type: 'vbox'
                 },

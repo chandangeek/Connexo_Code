@@ -11,34 +11,35 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormMain', {
         type: 'vbox',
         align: 'stretch'
     },
+    c: null,
 
     initComponent: function () {
-        var me = this;
+        var me = this, record;
         me.items = [
             {
                 xtype: 'title-with-edit-button',
                 title: Uni.I18n.translate('usagepoint.general.attributes', 'IMT', 'General'),
                 editHandler: function(){
+                    //record = me.down('#usage-point-general-attributes').getRecord();
+                    //console.log(me.record);
+                    me.down('#editable-form-general').loadRecord(me.record);
                     me.down('#usage-point-general-attributes').hide();
                     me.down('#editable-form-general').show();
                     me.down('#bottom-buttons-general').show();
-                    Imt.customattributesonvaluesobjects.service.ActionMenuManager.setdisabledAllEditBtns(false);
+                    Imt.customattributesonvaluesobjects.service.ActionMenuManager.setdisabledAllEditBtns(true);
                 }
 
             },
             {
-                xtype: 'fieldcontainer',
-                //fieldLabel: Uni.I18n.translate('usagepoint.general.attributes', 'IMT', 'General'),
+                xtype: 'form',
                 itemId: 'usage-point-general-attributes',
-                labelAlign: 'top',
-                layout: 'vbox',
+                //hidden: true,
                 defaults: {
                     xtype: 'displayfield',
                     labelWidth: 250,
-                    width: 600
+                    //width: 600
                 },
                 items: [
-
                     {
                         name: 'mRID',
                         itemId: 'fld-up-mRID',
@@ -76,22 +77,22 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormMain', {
                         itemId: 'fld-up-serviceCategory',
                         fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category')
                     },
-                    {
-                        name: 'isSdp',
-                        itemId: 'fld-up-sdp',
-                        fieldLabel: Uni.I18n.translate('general.label.sdp', 'IMT', 'SDP'),
-                        renderer: function (value) {
-                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
-                        }
-                    },
-                    {
-                        name: 'isVirtual',
-                        itemId: 'fld-up-virtual',
-                        fieldLabel: Uni.I18n.translate('general.label.virtual', 'IMT', 'Virtual'),
-                        renderer: function (value) {
-                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
-                        }
-                    },
+                    //{
+                    //    name: 'isSdp',
+                    //    itemId: 'fld-up-sdp',
+                    //    fieldLabel: Uni.I18n.translate('general.label.sdp', 'IMT', 'SDP'),
+                    //    renderer: function (value) {
+                    //        return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
+                    //    }
+                    //},
+                    //{
+                    //    name: 'isVirtual',
+                    //    itemId: 'fld-up-virtual',
+                    //    fieldLabel: Uni.I18n.translate('general.label.virtual', 'IMT', 'Virtual'),
+                    //    renderer: function (value) {
+                    //        return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
+                    //    }
+                    //},
                     //{
                     //    name: 'version',
                     //    itemId: 'fld-up-version',
@@ -187,9 +188,49 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormMain', {
                 },
                 items: [
                     {
+                        xtype: 'textfield',
+                        disabled: true,
+                        name: 'mRID',
+                        //itemId: 'fld-up-mRID',
+                        fieldLabel: Uni.I18n.translate('general.label.mRID', 'IMT', 'MRID'),
+                        //renderer: function (value) {
+                        //    return value ? value : '-';
+                        //}
+                    },
+                    {
+                        xtype: 'textfield',
+                        name: 'name',
+                        itemId: 'fld-up-name',
+                        fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
+                        //renderer: function (value) {
+                        //    return value ? value : '-';
+                        //}
+                    },
+                    {
                         xtype: 'combobox',
-                        fieldLabel: 'ad'
-                    }
+                        disabled: true,
+                        name: 'serviceCategory',
+                        itemId: 'fld-up-serviceCategory',
+                        fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category')
+                    },
+                    //{
+                    //    name: 'isSdp',
+                    //    itemId: 'fld-up-sdp',
+                    //    fieldLabel: Uni.I18n.translate('general.label.sdp', 'IMT', 'SDP'),
+                    //    renderer: function (value) {
+                    //        return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
+                    //    }
+                    //},
+                    {
+                        xtype: 'combobox',
+                        disabled: true,
+                        name: 'connectionState',
+                        itemId: 'fld-up-connectionState',
+                        fieldLabel: Uni.I18n.translate('general.label.connectionState', 'IMT', 'Connection state'),
+                        //renderer: function (value) {
+                        //    return value ? value : '-';
+                        //}
+                    },
                 ]
             },
             {
@@ -209,6 +250,18 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormMain', {
                         itemId: 'channelCustomAttributesSaveBtn',
                         ui: 'action',
                         text: Uni.I18n.translate('general.save', 'IMT', 'Save'),
+                        action: 'save',
+                        handler: function(){
+                            var record =me.down('#editable-form-general').getRecord();
+                            record.save({
+                                success: function(){
+                                    console.log('success');
+                                },
+                                failure: function(){
+                                    console.log('failure');
+                                }
+                            })
+                        }
                         //handler: function () {
                         //    me.down('property-form').updateRecord();
                         //
@@ -254,6 +307,8 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormMain', {
                         //itemId: 'channelCustomAttributesCancelBtn',
                         text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
                         handler: function () {
+                            //me.down('#usage-point-general-attributes').show();
+                            //me.down('#editable-form-general').hide();
                             me.down('#usage-point-general-attributes').show();
                             me.down('#editable-form-general').hide();
                             me.down('#bottom-buttons-general').hide();

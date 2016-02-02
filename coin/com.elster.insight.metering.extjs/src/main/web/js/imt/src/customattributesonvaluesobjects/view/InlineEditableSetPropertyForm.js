@@ -172,10 +172,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                     me.down('property-form').makeEditable(me.record);
                     me.down('#bottom-buttons').show();
                     this.hide();
-
-
                 }
-
 
             });
 

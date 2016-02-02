@@ -13,7 +13,9 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
     ],
     views: [
         'Imt.usagepointmanagement.view.Setup',
-        'Imt.usagepointmanagement.view.MetrologyConfigurationSetup'
+        'Imt.usagepointmanagement.view.MetrologyConfigurationSetup',
+        'Imt.usagepointmanagement.view.UsagePointAttributesFormMain',
+        'Imt.usagepointmanagement.view.UsagePointAttributesFormTechnicalElectricity'
     ],
     refs: [
         {ref: 'associatedDevices', selector: 'associated-devices'},
@@ -22,10 +24,17 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         {ref: 'attributesPanel', selector: '#usage-point-attributes-panel'},
         {ref: 'usagePointTechnicalAttributesDeviceLink', selector: '#usagePointTechnicalAttributesDeviceLink'},
         {ref: 'usagePointTechnicalAttributesDeviceDates', selector: '#usagePointTechnicalAttributesDeviceDates'},
-        {ref: 'mcAttributesPanel', selector: '#up-metrology-configuration-attributes-panel'}
+        {ref: 'mcAttributesPanel', selector: '#up-metrology-configuration-attributes-panel'},
+        {ref: 'generalForm', selector: '#editable-form-general'},
+        {ref: 'overview', selector: 'usage-point-management-setup'}
     ],
 
     init: function () {
+        //this.control({
+        //    '#usage-point-attributes-panel button[action=save]': {
+        //        click: this.saveUsagePointAttributes
+        //    }
+        //});
     },
 
     showUsagePoint: function (mRID) {
@@ -34,135 +43,139 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
             router = me.getController('Uni.controller.history.Router'),
             usagePointModel = me.getModel('Imt.usagepointmanagement.model.UsagePoint'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            customAttributesStoreUsagePoint = me.getStore('Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets'),
-            customAttributesModelUsagePoint = me.getStore('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
-            customAttributesStoreMetrology = me.getStore('Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets'),
-            customAttributesModelMetrology = me.getStore('Imt.customattributesonvaluesobjects.model.AttributeSetOnMetrologyConfiguration'),
             actualModel,
             actualForm;
        
         pageMainContent.setLoading(true);
-
-        customAttributesStoreUsagePoint.getProxy().setUrl(mRID);
-        customAttributesModelUsagePoint.getProxy().setUrl(mRID);
-        customAttributesStoreMetrology.getProxy().setUrl(mRID); //TODO Put metrology id
-        customAttributesModelMetrology.getProxy().setUrl(mRID); //TODO Put metrology id
 
         usagePointModel.load(mRID, {
             success: function (record) {
                 me.getApplication().fireEvent('usagePointLoaded', record);
                 var widget = Ext.widget('usage-point-management-setup', {router: router});
 
-                actualModel = Ext.create('Imt.usagepointmanagement.model.UsagePoint', record.data);
-
-                switch (record.get('serviceCategory')) {
-                    case('ELECTRICITY'):
-                    {
-                        actualForm = Ext.create('Imt.usagepointmanagement.view.UsagePointAttributesFormTechnicalElectricity');
-                    }
-                        break;
-                    default:
-                    {
-                        actualForm = Ext.create('Imt.usagepointmanagement.view.UsagePointAttributesFormMain');
-                    }
-                }
-
-                Ext.suspendLayouts();
-
 
                 me.getApplication().fireEvent('changecontentevent', widget);
-                me.getOverviewLink().setText(actualModel.get('mRID'));
-                me.getAttributesPanel().add(actualForm);
-                actualForm.getForm().loadRecord(actualModel);
-                customAttributesStoreMetrology.load(function () {
-                    widget.down('#metrology-custom-attribute-sets-placeholder-form-id').loadStore(this);
-                });
-                customAttributesStoreUsagePoint.load(function () {
-                    widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(this);
-                });
+                me.initAttributes(record);
+                //me.getOverviewLink().setText(actualModel.get('mRID'));
+                //me.getAttributesPanel().add(actualForm);
+                //generalForm.getForm().loadRecord(actualModel);
+                //actualForm.getForm().loadRecord(actualModel);
+                //me.getGeneralForm().loadRecord(me.record);
 
-                Ext.resumeLayouts(true);
 
-                var associatedMetrologyConfiguration = me.getAssociatedMetrologyConfiguration();
-                associatedMetrologyConfiguration.down('#associatedMetrologyConfiguration').removeAll();
 
-                if (  record.get('metrologyConfiguration') === null ||  record.get('metrologyConfiguration') === "" ) {
-                	associatedMetrologyConfiguration.down('#associatedMetrologyConfiguration').add(
-                            {
-                                xtype: 'component',
-                                cls: 'x-form-display-field',
-                                html: '-'
-                            });
-                } else {
-                	associatedMetrologyConfiguration.down('#associatedMetrologyConfiguration').add(
-                    {
-                        xtype: 'component',
-                        cls: 'x-form-display-field',
-                        autoEl: {
-                            tag: 'a',
-//                            href: router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl({mRID: mRID, mcid: record.get('metrologyConfiguration').id}),
-                            href: router.getRoute('administration/metrologyconfiguration/view').buildUrl({mcid: record.get('metrologyConfiguration').id}),
-                            html: record.get('metrologyConfiguration').name
-                        }
-                    });
-                }
+
+
+                //var associatedMetrologyConfiguration = me.getAssociatedMetrologyConfiguration();
+                //associatedMetrologyConfiguration.down('#associatedMetrologyConfiguration').removeAll();
+
+//                if (  record.get('metrologyConfiguration') === null ||  record.get('metrologyConfiguration') === "" ) {
+//                	associatedMetrologyConfiguration.down('#associatedMetrologyConfiguration').add(
+//                            {
+//                                xtype: 'component',
+//                                cls: 'x-form-display-field',
+//                                html: '-'
+//                            });
+//                } else {
+//                	associatedMetrologyConfiguration.down('#associatedMetrologyConfiguration').add(
+//                    {
+//                        xtype: 'component',
+//                        cls: 'x-form-display-field',
+//                        autoEl: {
+//                            tag: 'a',
+////                            href: router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl({mRID: mRID, mcid: record.get('metrologyConfiguration').id}),
+//                            href: router.getRoute('administration/metrologyconfiguration/view').buildUrl({mcid: record.get('metrologyConfiguration').id}),
+//                            html: record.get('metrologyConfiguration').name
+//                        }
+//                    });
+//                }
                 
-                var store = me.getStore('Imt.usagepointmanagement.store.MeterActivations'),
-                		associatedDevices = me.getAssociatedDevices();
-                store.getProxy().setExtraParam('usagePointMRID', mRID);
-                store.load({
-                    callback: function () {
-                        store.each(function (item) {
-                            if (!item.get('end')) {
-                            	associatedDevices.down('#associatedDevicesLinked').removeAll();
-                            	associatedDevices.down('#associatedDevicesLinked').add(
-                                    {
-                                        xtype: 'component',
-                                        cls: 'x-form-display-field',
-                                        autoEl: {
-                                            tag: 'a',
-                                            href: router.getRoute('usagepoints/view/device').buildUrl({mRID: mRID, deviceMRID: item.get('meter').mRID}),
-                                            html: item.get('meter').mRID
-                                        }
-                                    },
-                                    {
-                                        xtype: 'displayfield',
-                                        value: 'from ' + Uni.DateTime.formatDateTimeShort(new Date(item.get('start')))
-                                    }
-                                );
-                            } else {
-                            	associatedDevices.down('#associatedDevicesHistory').show();
-                            	associatedDevices.down('#associatedDevicesSeparator').show();
-                            	associatedDevices.down('#associatedDevicesHistory').add(0,
-
-                                    {
-                                        xtype: 'component',
-                                        cls: 'x-form-display-field',
-                                        autoEl: {
-                                            tag: 'a',
-                                            href: router.getRoute('usagepoints/view/device').buildUrl({mRID: mRID, deviceMRID: item.get('meter').mRID}),
-                                            html: item.get('meter').mRID
-                                        }
-                                    },
-                                    {
-                                        xtype: 'displayfield',
-                                        value: 'from ' + Uni.DateTime.formatDateTimeShort(new Date(item.get('start'))) + ' to ' + Uni.DateTime.formatDateTimeShort(new Date(item.get('end')))
-                                    }
-                                );
-                            }
-                        });
-                        pageMainContent.setLoading(false);
-                    }
-                });
-
-
+                //var store = me.getStore('Imt.usagepointmanagement.store.MeterActivations'),
+                //		associatedDevices = me.getAssociatedDevices();
+                //store.getProxy().setExtraParam('usagePointMRID', mRID);
+                //store.load({
+                //    callback: function () {
+                //        store.each(function (item) {
+                //            if (!item.get('end')) {
+                //            	associatedDevices.down('#associatedDevicesLinked').removeAll();
+                //            	associatedDevices.down('#associatedDevicesLinked').add(
+                //                    {
+                //                        xtype: 'component',
+                //                        cls: 'x-form-display-field',
+                //                        autoEl: {
+                //                            tag: 'a',
+                //                            href: router.getRoute('usagepoints/view/device').buildUrl({mRID: mRID, deviceMRID: item.get('meter').mRID}),
+                //                            html: item.get('meter').mRID
+                //                        }
+                //                    },
+                //                    {
+                //                        xtype: 'displayfield',
+                //                        value: 'from ' + Uni.DateTime.formatDateTimeShort(new Date(item.get('start')))
+                //                    }
+                //                );
+                //            } else {
+                //            	associatedDevices.down('#associatedDevicesHistory').show();
+                //            	associatedDevices.down('#associatedDevicesSeparator').show();
+                //            	associatedDevices.down('#associatedDevicesHistory').add(0,
+                //
+                //                    {
+                //                        xtype: 'component',
+                //                        cls: 'x-form-display-field',
+                //                        autoEl: {
+                //                            tag: 'a',
+                //                            href: router.getRoute('usagepoints/view/device').buildUrl({mRID: mRID, deviceMRID: item.get('meter').mRID}),
+                //                            html: item.get('meter').mRID
+                //                        }
+                //                    },
+                //                    {
+                //                        xtype: 'displayfield',
+                //                        value: 'from ' + Uni.DateTime.formatDateTimeShort(new Date(item.get('start'))) + ' to ' + Uni.DateTime.formatDateTimeShort(new Date(item.get('end')))
+                //                    }
+                //                );
+                //            }
+                //        });
+                //        pageMainContent.setLoading(false);
+                //    }
+                //});
+                pageMainContent.setLoading(false);
             }
         });
-
-
-
-
     },
+
+    initAttributes: function(record){
+        var me = this,
+            customAttributesStoreUsagePoint = me.getStore('Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets'),
+            customAttributesModelUsagePoint = me.getStore('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
+            customAttributesStoreMetrology = me.getStore('Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets'),
+            customAttributesModelMetrology = me.getStore('Imt.customattributesonvaluesobjects.model.AttributeSetOnMetrologyConfiguration');
+
+
+        customAttributesStoreUsagePoint.getProxy().setUrl(record.get('mRID'));
+        customAttributesModelUsagePoint.getProxy().setUrl(record.get('mRID'));
+        customAttributesStoreMetrology.getProxy().setUrl(record.get('mRID')); //TODO Put metrology id
+        customAttributesModelMetrology.getProxy().setUrl(record.get('mRID')); //TODO Put metrology id
+
+        Ext.suspendLayouts();
+        me.getAttributesPanel().add({
+            xtype: 'usage-point-main-attributes-panel',
+            record: record
+        });
+        me.getAttributesPanel().add({
+            xtype: 'usage-point-main-attributes-panel',
+            record: record,
+            category: record.get('serviceCategory')
+        });
+
+        customAttributesStoreMetrology.load(function () {
+            me.getOverview().down('#metrology-custom-attribute-sets-placeholder-form-id').loadStore(this);
+        });
+        customAttributesStoreUsagePoint.load(function () {
+            me.getOverview().down('#custom-attribute-sets-placeholder-form-id').loadStore(this);
+        });
+
+        Ext.resumeLayouts(true);
+    },
+
     showMetrologyConfiguration: function (mRID, id) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
@@ -196,5 +209,28 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
             }
         });
     },
+
+    //saveUsagePointAttributes: function(){
+    //    var me = this,
+    //        router = me.getController('Uni.controller.history.Router'),
+    //        usagePointModel = me.getModel('Imt.usagepointmanagement.model.UsagePoint');
+    //    var widget = Ext.widget('usage-point-management-setup', {router: router});
+    //    //console.log(me.record);
+    //    //me.getGeneralForm().updateRecord(me.record);
+    //    //console.log(me.getGeneralForm().getRecord());
+    //    //var pencilBtns = Ext.ComponentQuery.query('#edit-field');
+    //    //Ext.each(pencilBtns, function(btn){
+    //    //    //btn.setDisabled(disabled);
+    //    //    console.log(btn.getValue());
+    //    //    console.log(btn);
+    //    //});
+    //    //var record = me.getGeneralForm().getValues();
+    //    //me.record.set(record);
+    //    me.getGeneralForm().getRecord().save();
+    //
+    //    //console.log(widget.down('usagePointAttributesFormMain'));
+    //    //me.record.save();
+    //
+    //}
 });
 
