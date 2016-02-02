@@ -8,6 +8,20 @@ Ext.define('Isu.controller.history.Administration', {
     currentPath: null,
 
     routeConfig: {
+        workspace: {
+            title: Uni.I18n.translate('general.workspace', 'ISU', 'Workspace'),
+            route: 'workspace',
+            disabled: true,
+            items: {
+                issues: {
+                    title: Uni.I18n.translate('workspace.issues.title', 'ISU', 'Issues'),
+                    route: 'issues',
+                    controller: 'Isu.controller.IssuesOverview',
+                    action: 'showOverview',
+                    privileges: Isu.privileges.Issue.viewAdminDevice
+                }
+            }
+        },
         administration : {
             title: Uni.I18n.translate('route.administration', 'ISU', 'Administration'),
             route: 'administration',

@@ -79,5 +79,13 @@ Ext.define('Isu.model.Issue', {
             associationKey: 'actions',
             name: 'actions'
         }
-    ]
+    ],
+    proxy: {
+        type: 'rest',
+        url: '/api/idc/issues',
+        reader: {
+            type: 'json',
+            root: 'data'
+        }
+    }
 });
