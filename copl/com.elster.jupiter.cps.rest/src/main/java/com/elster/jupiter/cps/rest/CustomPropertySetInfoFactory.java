@@ -79,7 +79,7 @@ public class CustomPropertySetInfoFactory {
         }
         Object[] possibleObjects = new Object[possibleValues.getAllValues().size()];
         for (int i = 0; i < possibleValues.getAllValues().size(); i++) {
-            //TODO No conversion for now!
+            //TODO No conversion for now! https://jira.eict.vpdc/browse/COMU-3291
             possibleObjects[i] = possibleValues.getAllValues().get(i);
         }
         PropertySelectionMode selectionMode = propertySpec.getPossibleValues().getSelectionMode();
@@ -96,7 +96,7 @@ public class CustomPropertySetInfoFactory {
         if (values == null) {
             return null;
         }
-        //TODO No conversion for now!
+        //TODO No conversion for now! https://jira.eict.vpdc/browse/COMU-3291
         return values.get(propertySpec.getName());
     }
 
@@ -105,7 +105,7 @@ public class CustomPropertySetInfoFactory {
         if (possibleValues == null) {
             return null;
         }
-        //TODO No conversion for now!
+        //TODO No conversion for now! https://jira.eict.vpdc/browse/COMU-3291
         return possibleValues.getDefault();
     }
 }
