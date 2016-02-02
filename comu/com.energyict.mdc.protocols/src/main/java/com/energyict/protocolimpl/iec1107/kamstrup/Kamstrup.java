@@ -63,7 +63,7 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
 
     @Override
     public String getProtocolDescription() {
-        return "L&G/Siemens ZxD IEC1107 (VDEW)";
+        return "Kamstrup EVHI IEC1107 (VDEW)";
     }
 
     private static final int KAMSTRUP_NR_OF_CHANNELS = 6;
