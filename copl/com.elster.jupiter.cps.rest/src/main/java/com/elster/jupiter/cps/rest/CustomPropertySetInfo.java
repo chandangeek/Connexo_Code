@@ -1,7 +1,6 @@
 package com.elster.jupiter.cps.rest;
 
 import com.elster.jupiter.cps.EditPrivilege;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -12,9 +11,8 @@ import java.util.Set;
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CustomPropertySetInfo {
-
     public long id;
-    public String cpsId;
+    public String customPropertySetId;
     public String name;
     public String domainName;
     public boolean isActive;
@@ -24,24 +22,5 @@ public class CustomPropertySetInfo {
     public Set<EditPrivilege> editPrivileges;
     public Set<ViewPrivilege> defaultViewPrivileges;
     public Set<EditPrivilege> defaultEditPrivileges;
-    public List<CustomPropertySetAttributeInfo> attributes;
-
-    public CustomPropertySetInfo() {
-    }
-
-    public CustomPropertySetInfo(RegisteredCustomPropertySet registeredCustomPropertySet,
-                                 List<CustomPropertySetAttributeInfo> attributes, String domainName) {
-        this.id = registeredCustomPropertySet.getId();
-        this.cpsId = registeredCustomPropertySet.getCustomPropertySet().getId();
-        this.name = registeredCustomPropertySet.getCustomPropertySet().getName();
-        this.domainName = domainName;
-        this.isActive = true;
-        this.isRequired = registeredCustomPropertySet.getCustomPropertySet().isRequired();
-        this.isVersioned = registeredCustomPropertySet.getCustomPropertySet().isVersioned();
-        this.attributes = attributes;
-        this.viewPrivileges = registeredCustomPropertySet.getViewPrivileges();
-        this.editPrivileges = registeredCustomPropertySet.getEditPrivileges();
-        this.defaultViewPrivileges = registeredCustomPropertySet.getCustomPropertySet().defaultViewPrivileges();
-        this.defaultEditPrivileges = registeredCustomPropertySet.getCustomPropertySet().defaultEditPrivileges();
-    }
+    public List<CustomPropertySetAttributeInfo> properties;
 }

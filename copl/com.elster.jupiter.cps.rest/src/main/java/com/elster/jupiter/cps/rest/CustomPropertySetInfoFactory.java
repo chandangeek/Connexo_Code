@@ -1,15 +1,18 @@
 package com.elster.jupiter.cps.rest;
 
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.rest.impl.SimplePropertyType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecPossibleValues;
+import com.elster.jupiter.rest.util.properties.PredefinedPropertyValuesInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public class CustomPropertySetInfoFactory {
 
@@ -20,27 +23,89 @@ public class CustomPropertySetInfoFactory {
         this.thesaurus = thesaurus;
     }
 
-    public List<CustomPropertySetInfo> from(Iterable<? extends RegisteredCustomPropertySet> registeredCustomPropertySets) {
-        return StreamSupport.stream(registeredCustomPropertySets.spliterator(), false)
-                .map(this::from)
-                .collect(Collectors.toList());
+    public CustomPropertySetInfo from(RegisteredCustomPropertySet rcps) {
+        CustomPropertySetInfo info = new CustomPropertySetInfo();
+        if (rcps != null) {
+            CustomPropertySet<?, ?> cps = rcps.getCustomPropertySet();
+            info.id = rcps.getId();
+            info.viewPrivileges = rcps.getViewPrivileges();
+            info.editPrivileges = rcps.getEditPrivileges();
+
+            info.customPropertySetId = cps.getId();
+            info.name = cps.getName();
+            String domainNameUntranslated = cps.getDomainClass().getName();
+            info.domainName = thesaurus.getStringBeyondComponent(domainNameUntranslated, domainNameUntranslated);
+            info.isActive = true;
+            info.isRequired = cps.isRequired();
+            info.isVersioned = cps.isVersioned();
+            info.defaultViewPrivileges = cps.defaultViewPrivileges();
+            info.defaultEditPrivileges = cps.defaultEditPrivileges();
+            info.properties = cps.getPropertySpecs()
+                    .stream()
+                    .map(this::getPropertyInfo)
+                    .collect(Collectors.toList());
+        }
+        return info;
     }
 
-    public CustomPropertySetInfo from(RegisteredCustomPropertySet registeredCustomPropertySet){
-        return new CustomPropertySetInfo(registeredCustomPropertySet,
-                getAttributes(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs()),
-                thesaurus.getStringBeyondComponent(registeredCustomPropertySet.getCustomPropertySet().getDomainClass().getName(),
-                        registeredCustomPropertySet.getCustomPropertySet().getDomainClass().getName()));
+    public CustomPropertySetAttributeInfo getPropertyInfo(PropertySpec propertySpec) {
+        CustomPropertySetAttributeInfo info = new CustomPropertySetAttributeInfo();
+        if (propertySpec != null) {
+            info.key = propertySpec.getName();
+            info.name = propertySpec.getDisplayName();
+            info.required = propertySpec.isRequired();
+            info.propertyTypeInfo = getPropertyTypeInfo(propertySpec);
+            info.propertyValueInfo = getPropertyValueInfo(propertySpec, null);
+            info.description = propertySpec.getDescription();
+        }
+        return info;
     }
 
-    public List<CustomPropertySetDomainExtensionNameInfo> from(Set<String> domainExtensions) {
-        return domainExtensions.stream().map(domainExtension -> new CustomPropertySetDomainExtensionNameInfo(domainExtension,
-                thesaurus.getStringBeyondComponent(domainExtension, domainExtension))).collect(Collectors.toList());
+    public CustomPropertySetAttributeTypeInfo getPropertyTypeInfo(PropertySpec propertySpec) {
+        CustomPropertySetAttributeTypeInfo info = new CustomPropertySetAttributeTypeInfo();
+        if (propertySpec != null) {
+            info.type = propertySpec.getValueFactory().getValueType().getName();
+            info.typeSimpleName = thesaurus.getString(info.type, info.type);
+            info.simplePropertyType = SimplePropertyType.getTypeFrom(propertySpec.getValueFactory());
+            info.predefinedPropertyValuesInfo = getPredefinedPropertyValueInfo(propertySpec);
+        }
+        return info;
     }
 
-    private List<CustomPropertySetAttributeInfo> getAttributes(List<PropertySpec> propertySpecs) {
-        List<CustomPropertySetAttributeInfo> customPropertySetAttributeInfos = new ArrayList<>();
-        propertySpecs.stream().forEach(attribute -> customPropertySetAttributeInfos.add(new CustomPropertySetAttributeInfo(attribute, thesaurus)));
-        return customPropertySetAttributeInfos;
+    public PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec propertySpec) {
+        PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
+        if (possibleValues == null || possibleValues.getAllValues().isEmpty()) {
+            return null;
+        }
+        Object[] possibleObjects = new Object[possibleValues.getAllValues().size()];
+        for (int i = 0; i < possibleValues.getAllValues().size(); i++) {
+            //TODO No conversion for now!
+            possibleObjects[i] = possibleValues.getAllValues().get(i);
+        }
+        PropertySelectionMode selectionMode = propertySpec.getPossibleValues().getSelectionMode();
+        return new PredefinedPropertyValuesInfo<>(possibleObjects, selectionMode, propertySpec.getPossibleValues().isExhaustive());
+    }
+
+    public PropertyValueInfo<?> getPropertyValueInfo(PropertySpec propertySpec, Map<String, Object> values) {
+        Object propertyValue = getPropertyValue(propertySpec, values);
+        Object defaultValue = getDefaultValue(propertySpec);
+        return new PropertyValueInfo<>(propertyValue, defaultValue);
+    }
+
+    private Object getPropertyValue(PropertySpec propertySpec, Map<String, Object> values) {
+        if (values == null) {
+            return null;
+        }
+        //TODO No conversion for now!
+        return values.get(propertySpec.getName());
+    }
+
+    private Object getDefaultValue(PropertySpec propertySpec) {
+        PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
+        if (possibleValues == null) {
+            return null;
+        }
+        //TODO No conversion for now!
+        return possibleValues.getDefault();
     }
 }
