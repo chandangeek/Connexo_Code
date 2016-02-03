@@ -175,5 +175,13 @@ Ext.define('Uni.property.model.Property', {
             ? values.get('exhaustive')
             : null
             ;
+    },
+
+    isEditable: function () {
+        var values = this.getPredefinedPropertyValues();
+        return values
+                ? values.get('editable')
+                : null
+                ;
     }
 });
