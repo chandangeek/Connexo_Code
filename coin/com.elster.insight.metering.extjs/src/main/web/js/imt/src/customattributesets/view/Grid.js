@@ -57,7 +57,8 @@ Ext.define('Imt.customattributesets.view.Grid', {
                 displayMsg: Uni.I18n.translate('customattributesets.pagingtoolbartop.displayMsg', 'IMT', '{0} - {1} of {2} custom attribute sets'),
                 displayMoreMsg: Uni.I18n.translate('customattributesets.pagingtoolbartop.displayMoreMsg', 'IMT', '{0} - {1} of more than {2} custom attribute sets'),
                 emptyMsg: Uni.I18n.translate('customattributesets.pagingtoolbartop.emptyMsg', 'IMT', 'There are no custom attribute sets to display'),
-                noBottomPaging: !me.dockedConfig.showBottom
+                noBottomPaging: !me.dockedConfig.showBottom,
+                usesExactCount: !me.dockedConfig.showBottom
             };
 
             if (me.dockedConfig.showAddBtn) {
