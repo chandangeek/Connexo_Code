@@ -114,17 +114,7 @@ Ext.define('Est.estimationrules.view.EditForm', {
                             }
                         ],
                         height: 220,
-                        width: 670,
-                        /*dockedItems: [
-                            {
-                                xtype: 'component',
-                                dock: 'bottom',
-                                cls: 'x-form-invalid-under',
-                                itemId: 'reading-types-grid-error',
-                                height: 52,
-                                hidden: true
-                            }
-                        ]*/
+                        width: 670
                     },
                     {
                         xtype: 'button',
@@ -237,7 +227,6 @@ Ext.define('Est.estimationrules.view.EditForm', {
         var me = this,
             baseForm = me.getForm(),
             errorsPanel = me.down('uni-form-error-message'),
-            //readingTypesField = me.down('#reading-types-grid'),
             readingTypesFieldError = me.down('#reading-types-grid-error'),
             readingTypesError;
 
@@ -246,7 +235,6 @@ Ext.define('Est.estimationrules.view.EditForm', {
             readingTypesError = Ext.Array.findBy(errors, function (item) {return item.id === 'readingTypesInRule'});
             errorsPanel.show();
             if (readingTypesError) {
-                //readingTypesField.addCls('error-border');
                 readingTypesFieldError.update(readingTypesError.msg);
                 readingTypesFieldError.show();
             }
@@ -254,7 +242,6 @@ Ext.define('Est.estimationrules.view.EditForm', {
             me.down('property-form').markInvalid(errors);
         } else {
             errorsPanel.hide();
-            //readingTypesField.removeCls('error-border');
             readingTypesFieldError.hide();
             baseForm.clearInvalid();
             me.down('property-form').clearInvalid(errors);
