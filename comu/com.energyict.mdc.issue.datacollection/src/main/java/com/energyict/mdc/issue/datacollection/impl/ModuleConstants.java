@@ -12,6 +12,10 @@ public final class ModuleConstants {
     public static final String REASON_POWER_OUTAGE = "reason.power.outage";
     public static final String REASON_TYME_SYNC_FAILED = "reason.tyme.sync.failed";
 
+    public static final String ACTION_CLASS_RETRY_COMMUNICATION = "com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskAction";
+    public static final String ACTION_CLASS_RETRY_COMMUNICATION_NOW = "com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskNowAction";
+    public static final String ACTION_CLASS_RETRY_CONNECTION = "com.energyict.mdc.issue.datacollection.impl.actions.RetryConnectionTaskAction";
+
     public static final String AQ_DATA_COLLECTION_EVENT_SUBSC = "IssueCreationDC";
     public static final String AQ_DATA_COLLECTION_EVENT_DISPLAYNAME = "Create data collection issues";
 
