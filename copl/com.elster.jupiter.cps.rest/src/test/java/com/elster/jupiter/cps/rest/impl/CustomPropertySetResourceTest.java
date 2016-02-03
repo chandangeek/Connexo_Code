@@ -57,10 +57,11 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
         assertThat(jsonDefaultViewPrivileges.get(0)).isEqualTo("LEVEL_3");
         List jsonDefaultEditPrivileges = (List) jsonCustomAttributeSets.get("defaultEditPrivileges");
         assertThat(jsonDefaultEditPrivileges.get(0)).isEqualTo("LEVEL_4");
-        Map jsonCustomAttributes = (Map) ((List) jsonCustomAttributeSets.get("attributes")).get(0);
-        assertThat(jsonCustomAttributes.get("name")).isEqualTo("customAttribute");
-        assertThat(jsonCustomAttributes.get("type")).isEqualTo("com.elster.jupiter.properties.BigDecimalFactory");
-        assertThat(jsonCustomAttributes.get("typeSimpleName")).isEqualTo("com.elster.jupiter.properties.BigDecimalFactory");
+        Map jsonCustomAttributes = (Map) ((List) jsonCustomAttributeSets.get("properties")).get(0);
+        assertThat(jsonCustomAttributes.get("key")).isEqualTo("customAttribute");
+        Map propertyTypeInfo = (Map) jsonCustomAttributes.get("propertyTypeInfo");
+        assertThat(propertyTypeInfo.get("type")).isEqualTo("com.elster.jupiter.properties.BigDecimalFactory");
+        assertThat(propertyTypeInfo.get("typeSimpleName")).isEqualTo("com.elster.jupiter.properties.BigDecimalFactory");
         assertThat(jsonCustomAttributes.get("required")).isEqualTo(true);
     }
 
@@ -69,7 +70,7 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
         Map<String, Object> map = target("/custompropertysets/domains").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(1);
         Map jsonDomains = (Map) ((List) map.get("domainExtensions")).get(0);
-        assertThat(jsonDomains.get("value")).isEqualTo("com.elster.jupiter.properties.BigDecimalFactory");
+        assertThat(jsonDomains.get("id")).isEqualTo("com.elster.jupiter.properties.BigDecimalFactory");
     }
 
     @Test
