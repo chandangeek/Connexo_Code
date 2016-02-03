@@ -1,5 +1,6 @@
 package com.elster.jupiter.issue.rest.impl.resource;
 
+import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
 import com.elster.jupiter.issue.rest.response.IssueAssigneeInfoAdapter;
@@ -7,6 +8,7 @@ import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueGroupFilter;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -30,16 +32,17 @@ public class IssueResource extends BaseResource {
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getGroupedList(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         IssueGroupFilter groupFilter = new IssueGroupFilter();
-        IssueAssigneeInfo issueAssigneeInfo = filter.getProperty("assignee", new IssueAssigneeInfoAdapter());
+        //IssueAssigneeInfo issueAssigneeInfo = filter.getProperty("assignee", new IssueAssigneeInfoAdapter());
         groupFilter.using(getQueryApiClass(filter)) // Issues, Historical Issues or Both
               .onlyGroupWithKey(filter.getString("reason"))  // Reason id
-              .withIssueType(filter.getString("issueType")) // Reasons only with specific issue type
+              .withIssueTypes(filter.getStringList("issueType")) // Reasons only with specific issue type
               .withStatuses(filter.getStringList("status")) // All selected statuses
-              .withAssignee(issueAssigneeInfo.getId(), issueAssigneeInfo.getType())
+             // .withAssignee(issueAssigneeInfo.getId(), issueAssigneeInfo.getType())
               .withMeterMrid(filter.getString("meter")) // Filter by meter MRID
               .groupBy(filter.getString("field")) // Main grouping column
               .setAscOrder(false) // Sorting (descending direction)
               .from(params.getFrom()).to(params.getTo()); // Pagination
+        getAssignees(filter).stream().forEach(ai -> groupFilter.withAssignee(ai.getId(), ai.getType()));
         List<IssueGroup> resultList = getIssueService().getIssueGroupList(groupFilter);
         List<IssueGroupInfo> infos = resultList.stream().map(IssueGroupInfo::new).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("issueGroups", infos, queryParameters);
@@ -59,5 +62,16 @@ public class IssueResource extends BaseResource {
             return HistoricalIssue.class;
         }
         return Issue.class;
+    }
+
+    private List<IssueAssigneeInfo> getAssignees(JsonQueryFilter filter) {
+        IssueAssigneeInfoAdapter issueAssigneeInfoAdapter = new IssueAssigneeInfoAdapter();
+        return filter.getStringList("assignee").stream().map(ai -> {
+            try {
+                return issueAssigneeInfoAdapter.unmarshal(ai);
+            } catch (Exception ex){
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter");
+            }
+        }).collect(Collectors.toList());
     }
 }
