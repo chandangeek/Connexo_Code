@@ -148,6 +148,9 @@ public final class DatabaseConst {
 
     public static final String RULE_ACTION_PROPS_PK_NAME = "ISU_PK_RULE_ACTION_PROPS";
     public static final String RULE_ACTION_PROPS_FK_TO_ACTION_RULE = "RULE_ACT_PROPS_FK_TO_ACT_RULE";
+
+// General
+    public static final String UNASSIGNED = "UNASSIGNED";
 }
 
 

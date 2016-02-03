@@ -16,8 +16,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -78,7 +77,7 @@ public class IssueServiceImplTest extends BaseTest {
         IssueGroupFilter builder = new IssueGroupFilter();
         builder.using(Issue.class)
                 .onlyGroupWithKey(ISSUE_DEFAULT_REASON)
-                .withIssueType(ISSUE_DEFAULT_TYPE_UUID)
+                .withIssueTypes(Arrays.asList(ISSUE_DEFAULT_TYPE_UUID))
                 .groupBy("reason")
                 .from(0).to(10);
         List<IssueGroup> resultList = getIssueService().getIssueGroupList(builder);

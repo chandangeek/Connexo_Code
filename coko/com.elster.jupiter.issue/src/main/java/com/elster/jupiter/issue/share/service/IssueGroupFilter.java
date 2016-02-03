@@ -1,8 +1,6 @@
 package com.elster.jupiter.issue.share.service;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public final class IssueGroupFilter {
     private Object key;
@@ -12,10 +10,37 @@ public final class IssueGroupFilter {
     private Class<?> sourceClass;
     private Set<String> statuses;
     private String groupBy;
-    private String assigneeType;
-    private long assigneeId;
+    //private String assigneeType;
+    //private long assigneeId;
+    private List<AssigneeDetails> assignees;
     private String mrid;
-    private String issueType;
+    private Set<String> issueTypes;
+
+    public class AssigneeDetails {
+        private long assigneeId;
+        private String assigneeType;
+
+        public AssigneeDetails(long assigneeId, String assigneeType) {
+            this.assigneeId = assigneeId;
+            this.assigneeType = assigneeType;
+        }
+
+        public String getAssigneeType() {
+            return assigneeType;
+        }
+
+        public void setAssigneeType(String assigneeType) {
+            this.assigneeType = assigneeType;
+        }
+
+        public long getAssigneeId() {
+            return assigneeId;
+        }
+
+        public void setAssigneeId(long assigneeId) {
+            this.assigneeId = assigneeId;
+        }
+    }
 
     public Object getGroupKey() {
         return key;
@@ -95,22 +120,33 @@ public final class IssueGroupFilter {
     public IssueGroupFilter withStatuses(Collection<String> statuses) {
         if (statuses != null) {
             this.statuses = new HashSet<>();
-            for (String status : statuses) {
+            statuses.stream().forEach(st -> this.statuses.add(getSafeString(st)));
+/*            for (String status : statuses) {
                 this.statuses.add(getSafeString(status));
-            }
+            }*/
         }
         return this;
     }
 
-    public String getAssigneeType() {
+/*    public String getAssigneeType() {
         return assigneeType;
-    }
+    }*/
 
     public IssueGroupFilter withAssignee(long id, String type) {
-       return withAssigneeId(id).withAssigneeType(type);
+        if (this.assignees == null) {
+            this.assignees = new ArrayList<>();
+        }
+        this.assignees.add(new IssueGroupFilter.AssigneeDetails(id, type));
+        return this;
+
+       //return withAssigneeId(id).withAssigneeType(type);
     }
 
-    public IssueGroupFilter withAssigneeType(String type) {
+    public List<AssigneeDetails> getAssignees() {
+        return this.assignees;
+    }
+
+/*    public IssueGroupFilter withAssigneeType(String type) {
         this.assigneeType = getSafeString(type);
         return this;
     }
@@ -122,7 +158,7 @@ public final class IssueGroupFilter {
     public IssueGroupFilter withAssigneeId(long id) {
         this.assigneeId = id;
         return this;
-    }
+    }*/
 
     public String getMeterMrid() {
         return mrid;
@@ -133,13 +169,16 @@ public final class IssueGroupFilter {
         return this;
     }
 
-    public IssueGroupFilter withIssueType(String issueType) {
-        this.issueType = getSafeString(issueType);
+    public IssueGroupFilter withIssueTypes(Collection<String> issueTypes) {
+        if (issueTypes != null) {
+            this.issueTypes = new HashSet<>();
+            issueTypes.stream().forEach(it -> this.issueTypes.add(getSafeString(it)));
+        }
         return this;
     }
 
-    public String getIssueType() {
-        return issueType;
+    public Collection<String> getIssueTypes() {
+        return issueTypes;
     }
 
     private String getSafeString(String in){

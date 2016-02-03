@@ -1,7 +1,9 @@
 package com.elster.jupiter.issue.impl.database.groups;
 
+import com.elster.jupiter.issue.impl.database.DatabaseConst;
+import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.records.IssueGroupImpl;
-import com.elster.jupiter.issue.share.entity.IssueGroup;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueGroupFilter;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -35,11 +37,11 @@ public abstract class IssuesGroupOperation {
         if (filter == null){
             throw new IllegalArgumentException("You must specify the correct filter instance");
         }
-        Optional<IssueGroupRealization> groupByRealizatioRef = IssueGroupRealization.of(filter.getGroupBy());
-        if (!groupByRealizatioRef.isPresent()){
+        Optional<IssueGroupRealization> groupByRealizationRef = IssueGroupRealization.of(filter.getGroupBy());
+        if (!groupByRealizationRef.isPresent()){
             throw new IllegalArgumentException("We can't group issues by this column: " + filter.getGroupBy());
         }
-        IssuesGroupOperation operation = groupByRealizatioRef.get().getOperation(dataModel, thesaurus);
+        IssuesGroupOperation operation = groupByRealizationRef.get().getOperation(dataModel, thesaurus);
         operation.setFilter(filter);
         return operation;
     }
@@ -57,7 +59,7 @@ public abstract class IssuesGroupOperation {
         this.filter = filter;
     }
 
-    public List<IssueGroup> execute(){
+    public List<IssueGroup> execute() {
         List<IssueGroup> groups = new LinkedList<>();
         SqlBuilder sql = buildSQL();
         try (Connection conn = dataModel.getConnection(false)) {
@@ -86,7 +88,105 @@ public abstract class IssuesGroupOperation {
         return statement;
     }
 
-    protected abstract String getTableName();
+    protected String getTableName() {
+        if (getFilter().getSourceClass().equals(Issue.class)) {
+            return TableSpecs.ISU_ISSUE_ALL.name();
+        }
+        if (getFilter().getSourceClass().equals(OpenIssue.class)) {
+            return TableSpecs.ISU_ISSUE_OPEN.name();
+        }
+        if (getFilter().getSourceClass().equals(HistoricalIssue.class)) {
+            return TableSpecs.ISU_ISSUE_HISTORY.name();
+        }
+        return TableSpecs.ISU_ISSUE_ALL.name();
+    }
+
+    protected String getIssueTypeCondition(){
+        if (getFilter().getIssueTypes() != null){
+            StringBuilder builder = new StringBuilder();
+            for (String issueType : getFilter().getIssueTypes()) {
+                if (builder.length() != 0){
+                    builder.append(" OR ");
+                }
+                builder.append("reason." + DatabaseConst.ISSUE_REASON_COLUMN_TYPE).append(" = '").append(issueType).append("'");
+            }
+            if (builder.length() != 0){
+                builder.insert(0, " AND (").append(") ");
+                return builder.toString();
+            }
+
+
+/*            SqlBuilder builder = new SqlBuilder(" AND r." + DatabaseConst.ISSUE_REASON_COLUMN_TYPE);
+            builder.append(" = '" + getFilter().getIssueType() + "'");
+            return builder.toString();*/
+        }
+        return  "";
+    }
+
+    protected String getStatusCondition(){
+        if (getFilter().getStatuses() != null) {
+            StringBuilder builder = new StringBuilder();
+            for (String status : getFilter().getStatuses()) {
+                if (builder.length() != 0){
+                    builder.append(" OR ");
+                }
+                builder.append("isu." + DatabaseConst.ISSUE_COLUMN_STATUS_ID).append(" = '").append(status).append("'");
+            }
+            if (builder.length() != 0){
+                builder.insert(0, " AND (").append(") ");
+                return builder.toString();
+            }
+        }
+        return "";
+    }
+
+    protected String getMeterCondition() {
+        if (getFilter().getMeterMrid() != null){
+            StringBuilder builder = new StringBuilder();
+            builder.append("device.MRID = '").append(getFilter().getMeterMrid()).append("'");
+            builder.insert(0, " AND (").append(") ");
+            return builder.toString();
+        }
+        return "";
+    }
+
+    protected String getAssigneeCondition(){
+        if (getFilter().getAssignees() != null) {
+            StringBuilder builder = new StringBuilder();
+            for (IssueGroupFilter.AssigneeDetails assigneeDetails : getFilter().getAssignees()) {
+                if (builder.length() != 0){
+                    builder.append(" OR ");
+                }
+                //builder.append("isu." + DatabaseConst.ISSUE_COLUMN_STATUS_ID).append(" = '").append(status).append("'");
+                AssigneeType type = AssigneeType.fromString(assigneeDetails.getAssigneeType());
+                if (type != null) {
+                    builder.append(DatabaseConst.ISSUE_COLUMN_ASSIGNEE_TYPE + " = " + type.ordinal());
+                    builder.append(" AND isu.");
+                    builder.append(type.getColumnName());
+                    builder.append(" = " + assigneeDetails.getAssigneeId());
+                } else if (assigneeDetails.getAssigneeId() == -1L) {
+                    builder.append(DatabaseConst.ISSUE_COLUMN_ASSIGNEE_TYPE + " IS NULL AND isu.ASSIGNEE_USER_ID IS NULL");
+                }
+            }
+            if (builder.length() != 0){
+                builder.insert(0, " AND (").append(") ");
+                return builder.toString();
+            }
+        }
+
+
+
+/*        AssigneeType type = AssigneeType.fromString(getFilter().getAssigneeType());
+        if (type != null){
+            SqlBuilder builder = new SqlBuilder(" AND isu.");
+            builder.append(DatabaseConst.ISSUE_COLUMN_ASSIGNEE_TYPE + " = " + type.ordinal());
+            builder.append(" AND isu.");
+            builder.append(type.getColumnName());
+            builder.append(" = " + getFilter().getAssigneeId());
+            return builder.toString();
+        }*/
+        return "";
+    }
 
     protected DataModel getDataModel() {
         return dataModel;
