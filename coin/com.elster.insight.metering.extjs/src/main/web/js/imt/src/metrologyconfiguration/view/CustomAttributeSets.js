@@ -7,7 +7,8 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
         'Uni.view.container.PreviewContainer',
         'Imt.customattributesets.view.Grid',
         'Imt.customattributesets.view.DetailForm',
-        'Imt.metrologyconfiguration.store.CustomAttributeSets'
+        'Imt.metrologyconfiguration.store.CustomAttributeSets',
+        'Imt.metrologyconfiguration.view.CustomAttributeSetsActions'
     ],
     router: null,
 
@@ -25,7 +26,17 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
                 grid: {
                     xtype: 'cas-grid',
                     store: 'Imt.metrologyconfiguration.store.CustomAttributeSets',
+                    actionColumnConfig: {
+                        //privileges: Imt.privileges.MetrologyConfig.admin,
+                        xtype: 'uni-actioncolumn',
+                        menu: {
+                            //privileges: Imt.privileges.MetrologyConfig.admin,
+                            xtype: 'custom-attribute-sets-actions'
+                        }
+                    },
                     dockedConfig: {
+                        showTop: true,
+                        showBottom: true,
                         showAddBtn: true
                     }
                 },
@@ -48,7 +59,23 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
                     ]
                 },
                 previewComponent: {
-                    xtype: 'cas-detail-form'
+                    xtype: 'panel',
+                    frame: true,
+                    items: {
+                        xtype: 'cas-detail-form'
+                    },
+                    tools: [
+                        {
+                            xtype: 'button',
+                            text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
+                            itemId: 'actionButton',
+                            iconCls: 'x-uni-action-iconD',
+                            menu: {
+                                xtype: 'custom-attribute-sets-actions',
+                                record: me.record
+                            }
+                        }
+                    ]
                 }
             }
         };
@@ -72,6 +99,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
             }
         ];
 
-        this.callParent(arguments);
+        me.callParent(arguments);
+        me.down('button[action="addAttributeSets"]').on('click', function() {casAddRoute.forward()});
     }
 });
