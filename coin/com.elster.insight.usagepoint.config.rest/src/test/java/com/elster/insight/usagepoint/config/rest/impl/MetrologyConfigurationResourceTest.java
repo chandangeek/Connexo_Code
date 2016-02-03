@@ -5,6 +5,7 @@ import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
@@ -237,7 +238,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
 
         CustomPropertySet cps2 = mock(CustomPropertySet.class);
         when(cps2.getId()).thenReturn("AnotherCPS");
-        when(cps2.getDomainClass()).thenReturn(MetrologyConfiguration.class);
+        when(cps2.getDomainClass()).thenReturn(UsagePoint.class);
 
         RegisteredCustomPropertySet rcps2 = mock(RegisteredCustomPropertySet.class);
         when(rcps2.getId()).thenReturn(789L);
@@ -251,7 +252,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(mConfig.getCustomPropertySets()).thenReturn(Arrays.asList(rcps1));
 
         when(usagePointConfigurationService.findMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
-        when(customPropertySetService.findActiveCustomPropertySets(MetrologyConfiguration.class)).thenReturn(Arrays.asList(rcps1, rcps2));
+        when(customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)).thenReturn(Arrays.asList(rcps1, rcps2));
 
         Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets").queryParam("linked", false).request().get();
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
