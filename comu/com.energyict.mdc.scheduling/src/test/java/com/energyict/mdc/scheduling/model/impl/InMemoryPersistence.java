@@ -1,5 +1,7 @@
 package com.energyict.mdc.scheduling.model.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -101,7 +103,9 @@ public class InMemoryPersistence {
                 new MdcDynamicModule(),
                 new ProtocolApiModule(),
                 new TasksModule(),
-                new SchedulingModule());
+                new SchedulingModule(),
+                new CustomPropertySetsModule()
+        );
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(OrmService.class);
@@ -110,6 +114,7 @@ public class InMemoryPersistence {
             this.eventService = (EventServiceImpl) injector.getInstance(EventService.class);
             injector.getInstance(Publisher.class);
             injector.getInstance(NlsService.class);
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringService.class);
             injector.getInstance(MasterDataService.class);
