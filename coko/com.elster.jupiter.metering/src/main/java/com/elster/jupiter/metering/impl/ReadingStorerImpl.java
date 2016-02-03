@@ -41,6 +41,7 @@ class ReadingStorerImpl implements ReadingStorer {
     private final Map<Pair<ChannelContract, Instant>, BaseReading> readings = new HashMap<>();
     private final StorerProcess storerProcess;
     private final IdsService idsService;
+    private final Behaviours updateBehaviour;
     private Map<Pair<ChannelContract, Instant>, Object[]> previousReadings;
     private Map<ChannelContract, List<Derivation>> deltaDerivations;
     private Map<ChannelContract, List<Derivation>> multipliedDerivations;
@@ -76,11 +77,12 @@ class ReadingStorerImpl implements ReadingStorer {
 
     }
 
-    private ReadingStorerImpl(IdsService idsService, EventService eventService, UpdateBehaviour updateBehaviour, StorerProcess storerProcess) {
+    private ReadingStorerImpl(IdsService idsService, EventService eventService, Behaviours updateBehaviour, StorerProcess storerProcess) {
         this.idsService = idsService;
         this.eventService = eventService;
         this.storer = updateBehaviour.createTimeSeriesStorer(idsService);
         this.storerProcess = storerProcess;
+        this.updateBehaviour = updateBehaviour;
     }
 
     static ReadingStorer createNonOverrulingStorer(IdsService idsService, EventService eventService) {
@@ -123,7 +125,22 @@ class ReadingStorerImpl implements ReadingStorer {
             public TimeSeriesDataStorer createTimeSeriesStorer(IdsService idsService) {
                 return idsService.createUpdatingStorer();
             }
+
+            @Override
+            Set<Pair<ChannelContract, Instant>> determineNeed(Map<Pair<ChannelContract, Instant>, Object[]> valuesView) {
+                HashSet<Pair<ChannelContract, Instant>> needed = new HashSet<>(valuesView.keySet());
+                needed.addAll(super.determineNeed(valuesView));
+                return needed;
+            }
         };
+
+        Set<Pair<ChannelContract, Instant>> determineNeed(Map<Pair<ChannelContract, Instant>, Object[]> valuesView) {
+            return valuesView.keySet()
+                    .stream()
+                    .map(pair -> Pair.of(pair.getFirst(), pair.getFirst().getPreviousDateTime(pair.getLast())))
+                    .collect(Collectors.toSet());
+        }
+
     }
 
     @Override
@@ -198,10 +215,7 @@ class ReadingStorerImpl implements ReadingStorer {
                 ));
 
         previousReadings = new HashMap<>();
-        Set<Pair<ChannelContract, Instant>> needed = valuesView.keySet()
-                .stream()
-                .map(pair -> Pair.of(pair.getFirst(), pair.getFirst().getPreviousDateTime(pair.getLast())))
-                .collect(Collectors.toSet());
+        Set<Pair<ChannelContract, Instant>> needed = determineNeed(valuesView);
         previousReadings.putAll(Maps.filterKeys(valuesView, needed::contains));
         previousReadings.putAll(readFromDb(needed));
 
@@ -214,6 +228,10 @@ class ReadingStorerImpl implements ReadingStorer {
                 .forEach(this::calculateDelta);
 
         updateExistingRecords(valuesView);
+    }
+
+    private Set<Pair<ChannelContract, Instant>> determineNeed(Map<Pair<ChannelContract, Instant>, Object[]> valuesView) {
+        return updateBehaviour.determineNeed(valuesView);
     }
 
     private List<Derivation> getDerivations(ChannelContract channel) {
@@ -371,16 +389,30 @@ class ReadingStorerImpl implements ReadingStorer {
                 .stream()
                 .filter(entry -> entry.getKey().getFirst().equals(channel))
                 .forEach(entry -> {
-                    if (Objects.equals(entry.getValue()[slotOffset + derivation.index], storer.doNotUpdateMarker())) {
+                    Object[] consolidatedEntry = entry.getValue();
+                    if (Objects.equals(consolidatedEntry[slotOffset + derivation.index], storer.doNotUpdateMarker())) {
                         Object[] previousReading = previousReadings.get(entry.getKey().withLast(Channel::getPreviousDateTime));
-                        if (previousReading != null) {
-                            int bulkIndex = slotOffset + derivation.index + 1;
-                            BigDecimal previous = (BigDecimal) previousReading[bulkIndex];
-                            BigDecimal current = (BigDecimal) entry.getValue()[bulkIndex];
-                            entry.getValue()[slotOffset + derivation.index] = delta(previous, current);
-                        }
+                        Object[] currentReading = previousReadings.get(entry.getKey());
+                        int bulkIndex = slotOffset + derivation.index + 1;
+                        getValue(previousReading, null, bulkIndex)
+                                .ifPresent(previous -> {
+                                    getValue(consolidatedEntry, currentReading, bulkIndex)
+                                            .ifPresent(current -> {
+                                                consolidatedEntry[slotOffset + derivation.index] = delta(previous, current);
+                                            });
+                                });
                     }
                 });
+    }
+
+    private Optional<BigDecimal> getValue(Object[] consolidatedEntry, Object[] currentEntry, int index) {
+        if (consolidatedEntry != null && consolidatedEntry[index] instanceof BigDecimal) {
+            return Optional.of((BigDecimal) consolidatedEntry[index]);
+        }
+        if (currentEntry != null && currentEntry[index] instanceof BigDecimal) {
+            return Optional.of((BigDecimal) currentEntry[index]);
+        }
+        return Optional.empty();
     }
 
     private BigDecimal delta(BigDecimal previous, BigDecimal current) {
