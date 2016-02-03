@@ -1,4 +1,4 @@
-Ext.define('Imt.usagepointmanagement.view.landingpage.TechnicalAttributesFormElectricity', {
+Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttributesFormElectricity', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.technical-attributes-form-electricity',
 

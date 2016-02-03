@@ -1,4 +1,4 @@
-Ext.define('Imt.usagepointmanagement.view.landingpage.GeneralAttributesForm', {
+Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttributesForm', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.general-attributes-form',
 
@@ -15,10 +15,9 @@ Ext.define('Imt.usagepointmanagement.view.landingpage.GeneralAttributesForm', {
         xtype: 'displayfield'
     },
 
-    //panelTitle: null,
-    //record: null,
-
-    items : [
+    initComponent: function () {
+        var me = this;
+        me.items = [
             {
                 xtype: 'form',
                 itemId: 'view-form',
@@ -49,7 +48,11 @@ Ext.define('Imt.usagepointmanagement.view.landingpage.GeneralAttributesForm', {
                     {
                         name: 'serviceCategory',
                         itemId: 'fld-up-serviceCategory',
-                        fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category')
+                        fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category'),
+                        renderer: function (value) {
+                            var icon = Imt.usagepointmanagement.service.AttributesMaps.getServiceIcon(value);
+                            return value + icon;
+                        }
                     },
 
                     {
@@ -58,9 +61,9 @@ Ext.define('Imt.usagepointmanagement.view.landingpage.GeneralAttributesForm', {
                         fieldLabel: Uni.I18n.translate('general.label.connectionState', 'IMT', 'Connection state'),
                         renderer: function (value) {
                             return value ? value : '-';
+                            //return value;
                         }
-                    },
-
+                    }
                 ]
             },
             {
@@ -111,6 +114,8 @@ Ext.define('Imt.usagepointmanagement.view.landingpage.GeneralAttributesForm', {
                         //}
                     },
                 ]
-            },
-        ]
+            }
+        ];
+        me.callParent();
+    }
 });

@@ -29,7 +29,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormTechnicalElect
                     me.down('#usagePointTechnicalAttributes').hide();
                     me.down('#editable-form-electricity').show();
                     me.down('#bottom-buttons-electricity').show();
-                    Imt.customattributesonvaluesobjects.service.ActionMenuManager.setdisabledAllEditBtns(true);
+                    Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(true);
                 }
             },
             {
@@ -231,7 +231,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormTechnicalElect
                             me.down('#usagePointTechnicalAttributes').show();
                             me.down('#editable-form-electricity').hide();
                             me.down('#bottom-buttons-electricity').hide();
-                            Imt.customattributesonvaluesobjects.service.ActionMenuManager.setdisabledAllEditBtns(false);
+                            Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(false);
                         }
                     }
                 ]

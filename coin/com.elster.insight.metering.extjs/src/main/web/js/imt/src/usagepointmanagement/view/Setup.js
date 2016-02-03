@@ -6,9 +6,9 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         'Imt.usagepointmanagement.view.AssociatedDevices',
         'Imt.usagepointmanagement.view.AssociatedMetrologyConfiguration',
         'Imt.usagepointmanagement.view.UsagePointSideMenu',
-        'Imt.usagepointmanagement.view.UsagePointAttributesFormMain',
+        //'Imt.usagepointmanagement.view.UsagePointAttributesFormMain',
         'Imt.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm',
-        'Imt.usagepointmanagement.view.landingpage.UsagePointMainAttributesPanel',
+        'Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAttributesPanel',
         'Imt.usagepointmanagement.view.SetupActionMenu'
     ],
     router: null,
@@ -92,17 +92,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         },
                         defaults: {
                             flex: 1
-                        },
-                        //items: [
-                        //    //{
-                        //    //    xtype: 'associated-devices',
-                        //    //    router: me.router
-                        //    //},
-                        //    {
-                        //        xtype: 'associated-metrology-configuration',
-                        //        router: me.router
-                        //    }
-                        //]
+                        }
                     },
                     {
                         xtype: 'panel',
@@ -117,11 +107,6 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                                 itemId: 'usage-point-attributes-panel',
                                 router: me.router
                             },
-                            //{
-                            //    xtype: 'inline-editable-property-form',
-                            //    //itemId: 'usage-point-attributes-panel',
-                            //    //router: me.router
-                            //},
                             {
                                 xtype: 'custom-attribute-sets-placeholder-form',
                                 inline: true,
@@ -129,12 +114,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                                 actionMenuXtype: 'usage-point-setup-action-menu',
                                 attributeSetType: 'up',
                                 router: me.router
-                            },
-                            //{
-                            //    xtype: 'inline-editable-property-form',
-                            //    //itemId: 'usage-point-attributes-panel',
-                            //    //router: me.router
-                            //}
+                            }
                         ]
                     }
                 ]

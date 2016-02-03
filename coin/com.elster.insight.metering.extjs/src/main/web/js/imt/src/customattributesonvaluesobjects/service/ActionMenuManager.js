@@ -39,13 +39,8 @@ Ext.define('Imt.customattributesonvaluesobjects.service.ActionMenuManager', {
         });
     },
 
-    viewEditMode: function(){
-
-    },
-
-    setdisabledAllEditBtns: function (disabled) {
-        //var actionMenuItems = Ext.ComponentQuery.query(xtype + ' menuitem[menuItemClass=inlineEditableCustomAttributeSet]');
-        var actionMenuItems = Ext.ComponentQuery.query('[menuItemClass=inlineEditableCustomAttributeSet]');
+    setDisabledAllEditBtns: function (disabled) {
+        var actionMenuItems = Ext.ComponentQuery.query('[menuItemClass=inlineEditableAttributeSet]');
 
         Ext.each(actionMenuItems, function (item) {
             item.setDisabled(disabled);
