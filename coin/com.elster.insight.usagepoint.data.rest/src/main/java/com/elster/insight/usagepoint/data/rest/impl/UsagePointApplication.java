@@ -35,12 +35,13 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.google.common.collect.ImmutableSet;
 
-@Component(name = "com.elster.insight.udr.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/udr", "app=INS", "name=" + UsagePointApplication.COMPONENT_NAME})
+@Component(name = "com.elster.insight.udr.rest",
+        service = {Application.class, TranslationKeyProvider.class},
+        immediate = true,
+        property = {"alias=/udr", "app=INS", "name=" + UsagePointApplication.COMPONENT_NAME})
 public class UsagePointApplication extends Application implements TranslationKeyProvider {
-
     private final Logger logger = Logger.getLogger(UsagePointApplication.class.getName());
 
-    public static final String APP_KEY = "INS";
     public static final String COMPONENT_NAME = "UDR";
 
 
@@ -66,7 +67,8 @@ public class UsagePointApplication extends Application implements TranslationKey
                         DeviceResource.class, 
                         UsagePointGroupResource.class,
                         UsagePointValidationResource.class,
-                        RegisterDataResource.class
+                        RegisterDataResource.class,
+                        UsagePointCustomPropertySetResource.class
         );
     }
 
