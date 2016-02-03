@@ -22,6 +22,7 @@ public class TaskSummary {
     private String actualOwner;
     private long processInstanceId;
 
+    public TaskSummary(){}
 
     public TaskSummary(long id, String name, String processName, String deploymentId, Date dueDate, Date createdOn, int priority, Status status, String actualOwner, long processInstanceId) {
         this.id = id;
