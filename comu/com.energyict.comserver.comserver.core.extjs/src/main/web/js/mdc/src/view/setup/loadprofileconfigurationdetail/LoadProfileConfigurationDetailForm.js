@@ -144,10 +144,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     {
                         xtype: 'reading-type-combo',
                         itemId: 'mdc-channel-config-calculated-readingType-combo',
-                        tpl: null,
-                        displayTpl: null,
                         fieldLabel: Uni.I18n.translate('general.calculatedReadingType', 'MDC', 'Calculated reading type'),
-                        displayField: 'fullAliasName',
                         required: true,
                         width: 650,
                         hidden: true,
