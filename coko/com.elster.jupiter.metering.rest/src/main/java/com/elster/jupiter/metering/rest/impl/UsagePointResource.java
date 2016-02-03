@@ -1,10 +1,13 @@
 package com.elster.jupiter.metering.rest.impl;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
@@ -40,11 +43,13 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Path("/usagepoints")
@@ -195,6 +200,26 @@ public class UsagePointResource {
         }
         Range<Instant> range = Range.openClosed(Instant.ofEpochMilli(from), Instant.ofEpochMilli(to));
         return doGetReadingTypeReadings(id, mRID, range, securityContext);
+    }
+
+    @GET
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @Path("/servicecategory")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public ServiceCategoryInfos getServiceCategories(@Context SecurityContext securityContext) {
+        List<ServiceCategory> categories = Arrays.stream(ServiceKind.values())
+                .map(meteringService::getServiceCategory).flatMap(sc -> sc.isPresent() ? Stream.of(sc.get()) : Stream.empty()).collect(Collectors.toList());
+        return new ServiceCategoryInfos(categories);
+    }
+
+    @GET
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @Path("/servicecategory/{kind}/custompropertysets")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getServiceCategories(@PathParam("kind") String kind, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
+        ServiceKind serviceKind = Arrays.stream(ServiceKind.values()).filter(sk -> sk.name().equalsIgnoreCase(kind)).findFirst().orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        ServiceCategory category = meteringService.getServiceCategory(serviceKind).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return PagedInfoList.fromCompleteList("serviceCategoryCustomPropertySets", UsagePointCustomPropertySetInfo.from(category.getCustomPropertySets()), queryParameters);
     }
 
     private ReadingInfos doGetReadingTypeReadings(long id, String mRID, Range<Instant> range, SecurityContext securityContext) {
