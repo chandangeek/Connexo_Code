@@ -364,7 +364,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             if(wizard.isEdit) {
                 staticGrid.setLoading(true);
             }
-            if(!devices.getRange()){
+            if(!devices.getRange().length){
                 selectionGroupType = {};
                 staticGrid.getSelectionModel().deselectAll(true); // fix the ExtJS error: "getById called for ID that is not present in local cache"
                 staticGrid.setDevices([]);
