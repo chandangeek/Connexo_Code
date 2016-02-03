@@ -1,5 +1,7 @@
 package com.elster.insight.app.impl;
 
+import com.elster.insight.usagepoint.config.security.Privileges;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,10 +31,10 @@ class InsightAppPrivileges {
                 com.elster.jupiter.cps.Privileges.Constants.VIEW_PRIVILEGES,
 
                 //metrology configuration
-                com.elster.insight.usagepoint.config.Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG,
-                com.elster.insight.usagepoint.config.Privileges.Constants.ADMIN_ANY_METROLOGY_CONFIG,
-                com.elster.insight.usagepoint.config.Privileges.Constants.METROLOGY_CPS_ADMIN,
-                com.elster.insight.usagepoint.config.Privileges.Constants.METROLOGY_CPS_VIEW);
+                Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION,
+                Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION,
+                Privileges.Constants.ADMINISTER_CPS_ON_METROLOGY_CONFIGURATION,
+                Privileges.Constants.VIEW_CPS_ON_METROLOGY_CONFIGURATION);
     }
 
     static List<String> getApplicationViewPrivileges() {  // Add these privileges to 'Insight data operator' role
@@ -53,8 +55,8 @@ class InsightAppPrivileges {
                 com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION,
 
                 //metrology configuration
-                com.elster.insight.usagepoint.config.Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG,
-                com.elster.insight.usagepoint.config.Privileges.Constants.METROLOGY_CPS_VIEW);
+                Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION,
+                Privileges.Constants.VIEW_CPS_ON_METROLOGY_CONFIGURATION);
     }
 
     static List<String> getAdminApplicationAllPrivileges() {  // Add these privileges to 'Insight data expert' role
