@@ -1,11 +1,22 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
-import java.time.Clock;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.elster.insight.common.services.ListPager;
+import com.elster.insight.usagepoint.config.MetrologyConfiguration;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.rest.ReadingTypeInfos;
+import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.users.User;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -24,52 +35,34 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-
-import com.elster.insight.common.services.ListPager;
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.rest.ReadingTypeInfos;
-import com.elster.jupiter.metering.security.Privileges;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.User;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
+import java.time.Clock;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Path("/usagepoints")
 public class UsagePointResource {
 
     private final RestQueryService queryService;
     private final MeteringService meteringService;
-    private final TransactionService transactionService;
     private final UsagePointConfigurationService usagePointConfigurationService;
     private final Clock clock;
-    
+
     private final Provider<ChannelResource> channelsOnUsagePointResourceProvider;
     private final Provider<RegisterResource> registersOnUsagePointResourceProvider;
     private final Provider<UsagePointValidationResource> usagePointValidationResourceProvider;
 
     @Inject
-    public UsagePointResource(RestQueryService queryService, MeteringService meteringService, 
-            TransactionService transactionService, Clock clock, 
-            Provider<ChannelResource> channelsOnUsagePointResourceProvider, 
-            Provider<RegisterResource> registersOnUsagePointResourceProvider, 
-            UsagePointConfigurationService usagePointConfigurationService, 
-            Provider<UsagePointValidationResource> usagePointValidationResourceProvider) {
+    public UsagePointResource(RestQueryService queryService, MeteringService meteringService,
+                              Clock clock,
+                              Provider<ChannelResource> channelsOnUsagePointResourceProvider,
+                              Provider<RegisterResource> registersOnUsagePointResourceProvider,
+                              UsagePointConfigurationService usagePointConfigurationService,
+                              Provider<UsagePointValidationResource> usagePointValidationResourceProvider) {
         this.queryService = queryService;
         this.meteringService = meteringService;
-        this.transactionService = transactionService;
         this.clock = clock;
         this.channelsOnUsagePointResourceProvider = channelsOnUsagePointResourceProvider;
         this.registersOnUsagePointResourceProvider = registersOnUsagePointResourceProvider;
@@ -78,23 +71,20 @@ public class UsagePointResource {
     }
 
     @GET
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getUsagePoints(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter, @Context UriInfo uriInfo, @Context SecurityContext securityContext) {
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    public PagedInfoList getUsagePoints(@BeanParam JsonQueryParameters queryParameters,
+                                        @BeanParam JsonQueryFilter filter,
+                                        @Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<UsagePoint> list = queryUsagePoints(true, params);
-        
-        for (UsagePoint up : list) {
-            Optional<MetrologyConfiguration> mc = usagePointConfigurationService.findMetrologyConfigurationForUsagePoint(up);
-            
-        }
-        
-        
-        List<UsagePointInfo> usagePointInfos = ListPager.of(list).from(queryParameters).stream().map(m -> new UsagePointInfo(m, clock, usagePointConfigurationService))
+
+        List<UsagePointInfo> usagePointInfos = ListPager.of(list)
+                .from(queryParameters)
+                .stream()
+                .map(m -> new UsagePointInfo(m, clock, usagePointConfigurationService))
                 .collect(Collectors.toList());
-        
-        
-        
+
         return PagedInfoList.fromPagedList("usagePoints", usagePointInfos, queryParameters);
     }
 
@@ -108,54 +98,40 @@ public class UsagePointResource {
     }
 
     @PUT
-    @RolesAllowed({Privileges.Constants.ADMIN_OWN, Privileges.Constants.ADMIN_ANY})
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMIN_OWN, Privileges.Constants.ADMIN_ANY})
+    @Transactional
     public Response updateUsagePoint(@PathParam("id") String id, UsagePointInfo info, @Context SecurityContext securityContext) {
+        UsagePoint usagePoint = new UpdateUsagePointTransaction(info, securityContext, meteringService, clock).perform();
+
         MetrologyConfiguration metrologyConfiguration = null;
-        if(info.metrologyConfiguration != null) {
+        if (info.metrologyConfiguration != null) {
             metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(info.metrologyConfiguration.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         }
-        UsagePoint usagePoint = transactionService.execute(new UpdateUsagePointTransaction(info, securityContext, meteringService, clock));
-        
+
         Optional<MetrologyConfiguration> currentMC = usagePointConfigurationService.findMetrologyConfigurationForUsagePoint(usagePoint);
         if (currentMC.isPresent() && info.metrologyConfiguration != null) {
             //check for update
-            if (currentMC.get().getId()!=info.metrologyConfiguration.id) {
-                link(usagePoint, metrologyConfiguration);
+            if (currentMC.get().getId() != info.metrologyConfiguration.id) {
+                usagePointConfigurationService.link(usagePoint, metrologyConfiguration);
             }
         } else if (currentMC.isPresent() && info.metrologyConfiguration == null) {
             //unlink
-            final MetrologyConfiguration mc = metrologyConfiguration;
-            transactionService.execute(new Transaction<Boolean>() {
-                @Override
-                public Boolean perform() {
-                    return usagePointConfigurationService.unlink(usagePoint, mc);
-                }
-            });
+            usagePointConfigurationService.unlink(usagePoint, metrologyConfiguration);
         } else {
             //new link
-            if(info.metrologyConfiguration != null) {
-                link(usagePoint, metrologyConfiguration);
+            if (info.metrologyConfiguration != null) {
+                usagePointConfigurationService.link(usagePoint, metrologyConfiguration);
             }
         }
         return Response.status(Response.Status.CREATED).entity(getUsagePoint(info.mRID, securityContext)).build();
     }
 
-    private void link(UsagePoint usagePoint, MetrologyConfiguration metrologyConfiguration) {
-        final MetrologyConfiguration mc = metrologyConfiguration;
-        transactionService.execute(new Transaction<UsagePointMetrologyConfiguration>() {
-            @Override
-            public UsagePointMetrologyConfiguration perform() {
-                return usagePointConfigurationService.link(usagePoint, mc);
-            }
-        });
-    }
-
     @GET
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     @Path("/{mrid}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     public UsagePointInfo getUsagePoint(@PathParam("mrid") String mRid, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(mRid, securityContext);
         UsagePointInfo result = new UsagePointInfo(usagePoint, clock, usagePointConfigurationService);
@@ -164,32 +140,24 @@ public class UsagePointResource {
     }
 
     @POST
-    @RolesAllowed({Privileges.Constants.ADMIN_ANY})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMIN_ANY})
+    @Transactional
     public Response createUsagePoint(UsagePointInfo info) {
-        MetrologyConfiguration metrologyConfiguration = null;
-        if(info.metrologyConfiguration != null) {
-            metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(info.metrologyConfiguration.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        }
-        UsagePoint usagePoint = transactionService.execute(new CreateUsagePointTransaction(info, meteringService, clock));
-        if (metrologyConfiguration!=null) {
-            final MetrologyConfiguration mc = metrologyConfiguration;
-            transactionService.execute(new Transaction<UsagePointMetrologyConfiguration>() {
-                @Override
-                public UsagePointMetrologyConfiguration perform() {
-                    return usagePointConfigurationService.link(usagePoint, mc);
-                }
-            });
+        UsagePoint usagePoint = new CreateUsagePointTransaction(info, meteringService, clock).perform();
+        if (info.metrologyConfiguration != null) {
+            MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(info.metrologyConfiguration.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+            usagePointConfigurationService.link(usagePoint, metrologyConfiguration);
         }
         UsagePointInfo result = new UsagePointInfo(usagePoint, clock, usagePointConfigurationService);
         return Response.status(Response.Status.CREATED).entity(result).build();
     }
 
     @GET
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     @Path("/{mrid}/meteractivations")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     public MeterActivationInfos getMeterActivations(@PathParam("mrid") String mRid, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(mRid, securityContext);
         return new MeterActivationInfos(usagePoint.getMeterActivations());
@@ -197,9 +165,9 @@ public class UsagePointResource {
 
 
     @GET
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     @Path("/{id}/readingtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     public ReadingTypeInfos getReadingTypes(@PathParam("id") long id, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
         return new ReadingTypeInfos(collectReadingTypes(usagePoint));
@@ -209,21 +177,17 @@ public class UsagePointResource {
     public ChannelResource getChannelResource() {
         return channelsOnUsagePointResourceProvider.get();
     }
-    
+
     @Path("/{mrid}/registers")
     public RegisterResource getRegisterResource() {
         return registersOnUsagePointResourceProvider.get();
     }
-    
+
     @Path("/{mrid}/validationrulesets")
     public UsagePointValidationResource getUsagePointValidationResource() {
         return usagePointValidationResourceProvider.get();
     }
 
-    private FluentIterable<? extends MeterActivation> meterActivationsForReadingTypeWithMRID(long id, String mRID, SecurityContext securityContext) {
-        UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
-        return FluentIterable.from(usagePoint.getMeterActivations()).filter(new HasReadingType(mRID));
-    }
 
     private Set<ReadingType> collectReadingTypes(UsagePoint usagePoint) {
         Set<ReadingType> readingTypes = new LinkedHashSet<>();
@@ -238,7 +202,7 @@ public class UsagePointResource {
         Optional<UsagePoint> found = meteringService.findUsagePoint(id);
         UsagePoint usagePoint = found.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal())
-                && !((User) securityContext.getUserPrincipal()).hasPrivilege("INS",Privileges.Constants.BROWSE_ANY)) {
+                && !((User) securityContext.getUserPrincipal()).hasPrivilege("INS", Privileges.Constants.BROWSE_ANY)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
         return usagePoint;
@@ -248,35 +212,9 @@ public class UsagePointResource {
         Optional<UsagePoint> found = meteringService.findUsagePoint(mRid);
         UsagePoint usagePoint = found.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal())
-                && !((User) securityContext.getUserPrincipal()).hasPrivilege("INS",Privileges.Constants.BROWSE_ANY)) {
+                && !((User) securityContext.getUserPrincipal()).hasPrivilege("INS", Privileges.Constants.BROWSE_ANY)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
         return usagePoint;
-    }
-
-    private static class HasReadingType implements Predicate<MeterActivation> {
-        private final MRIDMatcher mridMatcher;
-
-        public HasReadingType(String mRID) {
-            mridMatcher = new MRIDMatcher(mRID);
-        }
-
-        @Override
-        public boolean apply(MeterActivation input) {
-            return input != null && FluentIterable.from(input.getReadingTypes()).anyMatch(mridMatcher);
-        }
-    }
-
-    private static class MRIDMatcher implements Predicate<ReadingType> {
-        private final String mRID;
-
-        private MRIDMatcher(String mRID) {
-            this.mRID = mRID;
-        }
-
-        @Override
-        public boolean apply(ReadingType input) {
-            return input.getMRID().equals(mRID);
-        }
     }
 }
