@@ -59,7 +59,6 @@ public final class ProtocolTools {
         }
     }
 
-    //TODO JUnit tests
     public static byte[] aesUnwrap(byte[] wrappedKey, byte[] kek) {
         try {
             final Cipher aesWrap = Cipher.getInstance("AESWrap");
