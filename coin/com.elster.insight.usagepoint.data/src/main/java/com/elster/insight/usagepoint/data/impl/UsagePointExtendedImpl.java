@@ -1,7 +1,11 @@
 package com.elster.insight.usagepoint.data.impl;
 
+import com.elster.insight.usagepoint.config.MetrologyConfiguration;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.data.UsagePointExtended;
 import com.elster.jupiter.cbo.MarketRoleKind;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -26,35 +30,81 @@ import com.elster.jupiter.users.User;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 public class UsagePointExtendedImpl implements UsagePointExtended {
+    private final Clock clock;
+    private final UsagePointConfigurationService usagePointConfigurationService;
+    private final CustomPropertySetService customPropertySetService;
 
     private UsagePoint delegate;
 
     @Inject
-    public UsagePointExtendedImpl() {
-
+    public UsagePointExtendedImpl(Clock clock, UsagePointConfigurationService usagePointConfigurationService, CustomPropertySetService customPropertySetService) {
+        this.clock = clock;
+        this.usagePointConfigurationService = usagePointConfigurationService;
+        this.customPropertySetService = customPropertySetService;
     }
 
-    public UsagePointExtendedImpl init(UsagePoint usagePoint){
+    public UsagePointExtendedImpl init(UsagePoint usagePoint) {
         this.delegate = usagePoint;
         return this;
     }
 
     @Override
     public Map<RegisteredCustomPropertySet, CustomPropertySetValues> getMetrologyCustomPropertySetValues() {
-        return null;
+        return this.getMetrologyCustomPropertySetValues(this.clock.instant());
     }
 
     @Override
     public Map<RegisteredCustomPropertySet, CustomPropertySetValues> getMetrologyCustomPropertySetValues(Instant effectiveTimeStamp) {
-        return null;
+        Optional<MetrologyConfiguration> metrologyConfiguration = this.usagePointConfigurationService.findMetrologyConfigurationForUsagePoint(this.delegate);
+        if (metrologyConfiguration.isPresent()) {
+            List<RegisteredCustomPropertySet> customPropertySets = metrologyConfiguration.get().getCustomPropertySets();
+            Map<RegisteredCustomPropertySet, CustomPropertySetValues> values = new HashMap<>(customPropertySets.size());
+            for (RegisteredCustomPropertySet rcps : customPropertySets) {
+                if (!rcps.isViewableByCurrentUser()) {
+                    continue;
+                }
+                if (rcps.getCustomPropertySet().isVersioned()) {
+                    values.put(rcps, this.customPropertySetService
+                            .getUniqueValuesFor(rcps.getCustomPropertySet(), this.delegate, effectiveTimeStamp));
+                } else {
+                    values.put(rcps, this.customPropertySetService
+                            .getUniqueValuesFor(rcps.getCustomPropertySet(), this.delegate));
+                }
+            }
+            return values;
+        }
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public void setMetrologyCustomPropertySetValue(CustomPropertySet customPropertySet, CustomPropertySetValues customPropertySetValue) {
+        Optional<MetrologyConfiguration> metrologyConfiguration = this.usagePointConfigurationService.findMetrologyConfigurationForUsagePoint(this.delegate);
+        if (metrologyConfiguration.isPresent()) {
+            RegisteredCustomPropertySet registeredCustomPropertySet = metrologyConfiguration.get().getCustomPropertySets()
+                    .stream()
+                    .filter(rcps -> rcps.getCustomPropertySet().getId().equals(customPropertySet.getId()))
+                    .findAny()
+                    .orElseThrow(() -> new IllegalStateException("not found")); // TODO replace by correct exception
+            if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
+                throw new IllegalStateException("not editable"); // TODO replace by correct exception
+            }
+            if (customPropertySet.isVersioned()) {
+                throw new UnsupportedOperationException();
+            } else {
+                this.customPropertySetService.setValuesFor(customPropertySet, this.delegate, customPropertySetValue);
+            }
+        }
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -72,8 +122,18 @@ public class UsagePointExtendedImpl implements UsagePointExtended {
     }
 
     @Override
+    public void setSdp(boolean isSdp) {
+        delegate.setSdp(isSdp);
+    }
+
+    @Override
     public boolean isVirtual() {
         return delegate.isVirtual();
+    }
+
+    @Override
+    public void setVirtual(boolean isVirtual) {
+        delegate.setVirtual(isVirtual);
     }
 
     @Override
@@ -82,8 +142,18 @@ public class UsagePointExtendedImpl implements UsagePointExtended {
     }
 
     @Override
+    public void setOutageRegion(String outageRegion) {
+        delegate.setOutageRegion(outageRegion);
+    }
+
+    @Override
     public String getReadCycle() {
         return delegate.getReadCycle();
+    }
+
+    @Override
+    public void setReadCycle(String readCycle) {
+        delegate.setReadCycle(readCycle);
     }
 
     @Override
@@ -92,8 +162,18 @@ public class UsagePointExtendedImpl implements UsagePointExtended {
     }
 
     @Override
+    public void setReadRoute(String readRoute) {
+        delegate.setReadRoute(readRoute);
+    }
+
+    @Override
     public String getServicePriority() {
         return delegate.getServicePriority();
+    }
+
+    @Override
+    public void setServicePriority(String servicePriority) {
+        delegate.setServicePriority(servicePriority);
     }
 
     @Override
@@ -117,63 +197,13 @@ public class UsagePointExtendedImpl implements UsagePointExtended {
     }
 
     @Override
-    public ServiceCategory getServiceCategory() {
-        return delegate.getServiceCategory();
-    }
-
-    @Override
     public void setServiceLocation(ServiceLocation serviceLocation) {
         delegate.setServiceLocation(serviceLocation);
     }
 
     @Override
-    public void setServicePriority(String servicePriority) {
-        delegate.setServicePriority(servicePriority);
-    }
-
-    @Override
-    public void setReadRoute(String readRoute) {
-        delegate.setReadRoute(readRoute);
-    }
-
-    @Override
-    public void setReadCycle(String readCycle) {
-        delegate.setReadCycle(readCycle);
-    }
-
-    @Override
-    public void setOutageRegion(String outageRegion) {
-        delegate.setOutageRegion(outageRegion);
-    }
-
-    @Override
-    public void setVirtual(boolean isVirtual) {
-        delegate.setVirtual(isVirtual);
-    }
-
-    @Override
-    public void setSdp(boolean isSdp) {
-        delegate.setSdp(isSdp);
-    }
-
-    @Override
-    public void setName(String name) {
-        delegate.setName(name);
-    }
-
-    @Override
-    public void setMRID(String mRID) {
-        delegate.setMRID(mRID);
-    }
-
-    @Override
-    public void setDescription(String description) {
-        delegate.setDescription(description);
-    }
-
-    @Override
-    public void setAliasName(String aliasName) {
-        delegate.setAliasName(aliasName);
+    public ServiceCategory getServiceCategory() {
+        return delegate.getServiceCategory();
     }
 
     @Override
@@ -296,8 +326,18 @@ public class UsagePointExtendedImpl implements UsagePointExtended {
     }
 
     @Override
+    public void setAliasName(String aliasName) {
+        delegate.setAliasName(aliasName);
+    }
+
+    @Override
     public String getDescription() {
         return delegate.getDescription();
+    }
+
+    @Override
+    public void setDescription(String description) {
+        delegate.setDescription(description);
     }
 
     @Override
@@ -306,8 +346,18 @@ public class UsagePointExtendedImpl implements UsagePointExtended {
     }
 
     @Override
+    public void setMRID(String mRID) {
+        delegate.setMRID(mRID);
+    }
+
+    @Override
     public String getName() {
         return delegate.getName();
+    }
+
+    @Override
+    public void setName(String name) {
+        delegate.setName(name);
     }
 
     @Override

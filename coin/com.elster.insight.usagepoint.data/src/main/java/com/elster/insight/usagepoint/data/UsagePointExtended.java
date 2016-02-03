@@ -1,5 +1,6 @@
 package com.elster.insight.usagepoint.data;
 
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.UsagePoint;
@@ -28,8 +29,17 @@ public interface UsagePointExtended extends UsagePoint {
      * Returns an unmodifiable map with values for custom properties sets inherited from linked metrology configuration.
      * If the usage point has no linked metrology configuration, the empty map will be returned.
      *
-     * @param effectiveTimeStamp The point in time for time-sliced custom property sets values
+     * @param effectiveTimeStamp The point in time for time-sliced custom property sets values.
      * @return Values for custom properties sets inherited from linked metrology configuration.
      */
     Map<RegisteredCustomPropertySet, CustomPropertySetValues> getMetrologyCustomPropertySetValues(Instant effectiveTimeStamp);
+
+    /**
+     * Sets values for custom property sets which was inherited from linked metrology configuration.
+     *
+     * @param customPropertySet      custom property sets whose values we want to save.
+     * @param customPropertySetValue filled values for a custom properties set.
+     * @throws
+     */
+    void setMetrologyCustomPropertySetValue(CustomPropertySet customPropertySet, CustomPropertySetValues customPropertySetValue);
 }

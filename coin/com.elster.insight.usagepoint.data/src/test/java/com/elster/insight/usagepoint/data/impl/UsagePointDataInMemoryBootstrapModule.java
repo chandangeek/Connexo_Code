@@ -18,11 +18,14 @@ import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -65,7 +68,8 @@ public class UsagePointDataInMemoryBootstrapModule {
                 new UsagePointConfigModule(),
                 new ValidationModule(),
                 new MeteringGroupsModule(),
-                new UsagePointDataModule()
+                new UsagePointDataModule(),
+                new BasicPropertiesModule()
 
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
@@ -79,7 +83,7 @@ public class UsagePointDataInMemoryBootstrapModule {
         inMemoryBootstrapModule.deactivate();
     }
 
-    public TransactionService getTransactionService(){
+    public TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
     }
 
@@ -99,12 +103,21 @@ public class UsagePointDataInMemoryBootstrapModule {
         return injector.getInstance(UsagePointDataService.class);
     }
 
+    public PropertySpecService getPropertySpecService() {
+        return injector.getInstance(PropertySpecService.class);
+    }
+
+    public ThreadPrincipalService getThreadPrincipalService() {
+        return injector.getInstance(ThreadPrincipalService.class);
+    }
+
     private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(TimeService.class).toInstance(mock(TimeService.class));
         }
     }
 }

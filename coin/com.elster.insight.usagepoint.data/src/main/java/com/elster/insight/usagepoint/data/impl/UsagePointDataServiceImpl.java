@@ -1,5 +1,6 @@
 package com.elster.insight.usagepoint.data.impl;
 
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.data.UsagePointDataService;
 import com.elster.insight.usagepoint.data.UsagePointExtended;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -36,6 +37,7 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     private volatile Thesaurus thesaurus;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile MeteringService meteringService;
+    private volatile UsagePointConfigurationService usagePointConfigurationService;
 
     @SuppressWarnings("unused")
     public UsagePointDataServiceImpl() {
@@ -47,12 +49,14 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
                                      OrmService ormService,
                                      MeteringService meteringService,
                                      NlsService nlsService,
-                                     CustomPropertySetService customPropertySetService) {
+                                     CustomPropertySetService customPropertySetService,
+                                     UsagePointConfigurationService usagePointConfigurationService) {
         setClock(clock);
         setOrmService(ormService);
         setMeteringService(meteringService);
         setNlsService(nlsService);
         setCustomPropertySetService(customPropertySetService);
+        setUsagePointConfigurationService(usagePointConfigurationService);
         activate();
     }
 
@@ -67,6 +71,7 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UsagePointDataService.class).toInstance(UsagePointDataServiceImpl.this);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(UsagePointConfigurationService.class).toInstance(usagePointConfigurationService);
             }
         };
     }
@@ -99,6 +104,11 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setUsagePointConfigurationService(UsagePointConfigurationService usagePointConfigurationService) {
+        this.usagePointConfigurationService = usagePointConfigurationService;
     }
 
     @Override
