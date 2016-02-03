@@ -729,7 +729,7 @@ public class BpmResource {
             return Response.status(400).entity(new LocalizedFieldException(err)).build();
         }
         if(taskContentInfos.deploymentId != null && taskContentInfos.businessObject.id != null && taskContentInfos.businessObject.value != null) {
-            expectedParams.put(taskContentInfos.businessObject.type, taskContentInfos.businessObject.value);
+            expectedParams.put(taskContentInfos.businessObject.id, taskContentInfos.businessObject.value);
             bpmService.startProcess(taskContentInfos.deploymentId, id, expectedParams, auth);
         }
         return Response.ok().build();

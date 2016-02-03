@@ -7,5 +7,9 @@ public class BusinessObject {
     public String id;
     public String value;
 
+    public BusinessObject(){
+
+    }
+
 
 }
