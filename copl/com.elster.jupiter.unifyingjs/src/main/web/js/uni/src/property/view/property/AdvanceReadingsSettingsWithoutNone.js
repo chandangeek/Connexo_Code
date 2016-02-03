@@ -5,7 +5,6 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
     ],
     getEditCmp: function () {
         var me = this;
-
         return [
             {
                 xtype: 'container',
@@ -18,7 +17,6 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
                         width: me.width,
                         columns: 1,
                         vertical: true,
-                        msgTarget: 'under',
                         readOnly: me.isReadOnly,
                         fieldLabel: me.boxLabel ? me.boxLabel : '',
                         items: [
@@ -30,12 +28,12 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
                         itemId: 'readingTypeCombo',
                         xtype: 'reading-type-combo',
                         name: 'readingTypeCombo',
+                        msgTarget: 'under',
                         fieldLabel: '',
                         width: me.width,
-                        displayField: 'fullAliasName',
                         valueField: 'mRID',
                         forceSelection: true,
-                        store: this.readingTypes, //'Uni.property.store.PropertyReadingTypes',
+                        store: this.readingTypes,
 
                         listConfig: {
                             cls: 'isu-combo-color-list',
@@ -49,7 +47,6 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
                         minChars: 1,
                         editable:true,
                         typeAhead:true,
-                        // anchor: '100%',
                         emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'UNI', 'Start typing to select a reading type...')
                     }
 
@@ -60,21 +57,21 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
 
     initListeners: function () {
         var me = this;
-        if (this.down('combobox')) {
-            this.down('combobox').on('change', function () {
+        if (me.down('#readingTypeCombo')) {
+            me.down('#readingTypeCombo').on('change', function () {
                 me.getProperty().set('isInheritedOrDefaultValue', false);
                 me.updateResetButton();
             });
         }
-        this.callParent(arguments);
+        me.callParent(arguments);
     },
 
     customHandlerLogic: function(){
         var field = this.getField();
         if(field.getValue().advanceRb==='2'){
-            this.down('combobox').setDisabled(true);
+            this.down('#readingTypeCombo').setDisabled(true);
         } else {
-            this.down('combobox').setDisabled(false);
+            this.down('#readingTypeCombo').setDisabled(false);
         }
     },
 
@@ -89,15 +86,14 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
         } else {
             if (value.bulk) {
                 me.down('radiogroup').setValue({advanceRb:2});
-                me.down('combobox').setDisabled(true);
+                me.down('#readingTypeCombo').setDisabled(true);
             } else {
                 me.down('radiogroup').setValue({advanceRb:3});
                 var readingTypeStore = me.down('#readingTypeCombo').getStore();
                 readingTypeStore.load({
-                    params: {like: value.readingType && value.readingType.aliasName},
+                    params: {like: value.readingType && value.readingType.fullAliasName},
                     callback: function () {
-                        var model = Ext.create('Mdc.model.ReadingType',value.readingType);
-                        me.down('#readingTypeCombo').setValue(model);
+                        me.down('#readingTypeCombo').setValue(value.readingType && value.readingType.mrid);
                     }
                 });
             }
@@ -120,8 +116,6 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
                 readingType: readingType
             }
         }
-
-
     },
 
     getDisplayCmp: function () {
@@ -148,10 +142,10 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
         if (this.getField()) {
             if (enable) {
                 this.getField().enable();
-                this.down('reading-type-combo').enable();
+                this.customHandlerLogic();
             } else {
                 this.getField().disable();
-                this.down('reading-type-combo').disable();
+                this.down('#readingTypeCombo').disable();
             }
         }
     },
@@ -161,10 +155,18 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
             if (value.bulk) {
                 return Uni.I18n.translate('advanceReadingProperty.bulkReading', this.translationKey, 'Bulk reading');
             } else {
-                return value.readingType.aliasName;
+                return value.readingType.fullAliasName;
             }
         }
         return this.callParent(arguments);
+    },
+
+    markInvalid: function(errorMsg) {
+        this.down('#readingTypeCombo').markInvalid(errorMsg);
+    },
+
+    clearInvalid: function() {
+        this.down('#readingTypeCombo').clearInvalid();
     }
 
 });

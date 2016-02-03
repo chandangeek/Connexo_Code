@@ -18,7 +18,6 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
                         width: me.width,
                         columns: 1,
                         vertical: true,
-                        msgTarget: 'under',
                         readOnly: me.isReadOnly,
                         fieldLabel: me.boxLabel ? me.boxLabel : '',
                         items: [
@@ -31,12 +30,12 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
                         itemId: 'readingTypeCombo',
                         xtype: 'reading-type-combo',
                         name: 'readingTypeCombo',
+                        msgTarget: 'under',
                         fieldLabel: '',
                         width: me.width,
-                        displayField: 'fullAliasName',
                         valueField: 'mRID',
                         forceSelection: true,
-                        store: this.readingTypes,//'Uni.property.store.PropertyReadingTypes',
+                        store: this.readingTypes,
                         listConfig: {
                             cls: 'isu-combo-color-list',
                             emptyText: Uni.I18n.translate('general.readingtype.noreadingtypefound', 'UNI', 'No reading types found')
@@ -49,7 +48,6 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
                         minChars: 1,
                         editable:true,
                         typeAhead:true,
-                        // anchor: '100%',
                         emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'UNI', 'Start typing to select a reading type...')
                     }
 
@@ -60,8 +58,8 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
 
     initListeners: function () {
         var me = this;
-        if (this.down('combobox')) {
-            this.down('combobox').on('change', function () {
+        if (this.down('#readingTypeCombo')) {
+            this.down('#readingTypeCombo').on('change', function () {
                 me.getProperty().set('isInheritedOrDefaultValue', false);
                 me.updateResetButton();
             });
@@ -72,9 +70,9 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
     customHandlerLogic: function(){
         var field = this.getField();
         if(field.getValue().advanceRb==='1' || field.getValue().advanceRb==='2'){
-            this.down('combobox').setDisabled(true);
+            this.down('#readingTypeCombo').setDisabled(true);
         } else {
-            this.down('combobox').setDisabled(false);
+            this.down('#readingTypeCombo').setDisabled(false);
         }
     },
 
@@ -90,16 +88,18 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
         } else {
             if(value.none){
                 me.down('radiogroup').setValue({advanceRb:1});
-                me.down('combobox').setDisabled(true);
+                me.down('#readingTypeCombo').setDisabled(true);
             } else if (value.bulk) {
                 me.down('radiogroup').setValue({advanceRb:2});
-                me.down('combobox').setDisabled(true);
+                me.down('#readingTypeCombo').setDisabled(true);
             } else {
                 me.down('radiogroup').setValue({advanceRb:3});
                 me.down('#readingTypeCombo').getStore().load({
-                    params: {like: value.readingType && value.readingType.aliasName}
+                    params: {like: value.readingType && value.readingType.fullAliasName},
+                    callback: function () {
+                        me.down('#readingTypeCombo').setValue(value.readingType && value.readingType.mrid);
+                    }
                 });
-                me.down('#readingTypeCombo').setValue(value.readingType && value.readingType.mrid);
             }
         }
     },
@@ -157,12 +157,12 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
         return null;
     },
 
-    markInvalid: function (error) {
-        this.down('combobox').markInvalid(error);
+    markInvalid: function(error) {
+        this.down('#readingTypeCombo').markInvalid(error);
     },
 
-    clearInvalid: function (error) {
-        this.down('combobox').clearInvalid();
+    clearInvalid: function() {
+        this.down('#readingTypeCombo').clearInvalid();
     },
 
     getValueAsDisplayString: function (value) {
@@ -172,7 +172,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
             } else if (value.bulk){
                 return Uni.I18n.translate('advanceReadingProperty.bulkReading', 'UNI', 'Bulk reading');
             } else {
-                return value.readingType.aliasName;
+                return value.readingType.fullAliasName;
             }
         }
         return this.callParent(arguments);
