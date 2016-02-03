@@ -28,4 +28,8 @@ public class ProcessHistoryInfo {
         duration = obj[7] == null ? -1 : ((BigDecimal) obj[7]).longValue();
     }
 
+    public ProcessHistoryInfo(){
+
+    }
+
 }

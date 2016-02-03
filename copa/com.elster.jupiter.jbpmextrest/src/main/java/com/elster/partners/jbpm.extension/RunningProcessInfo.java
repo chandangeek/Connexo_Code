@@ -26,4 +26,7 @@ public class RunningProcessInfo {
         startDate = obj[5] == null ? null : (Timestamp) obj[5];
         processInstanceId = obj[6] == null ? -1 :((BigDecimal) obj[6]).longValue();
     }
+     public RunningProcessInfo(){
+
+     }
 }

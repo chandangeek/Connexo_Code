@@ -24,6 +24,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import javax.persistence.Query;
+import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -32,9 +33,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by dragos on 1/29/2016.
- */
 @RunWith(MockitoJUnitRunner.class)
 public class JbpmTaskResourceTest {
     private static int port;
@@ -160,11 +158,79 @@ public class JbpmTaskResourceTest {
         assertEquals(100L, response.getEntity().getProcessInstanceId());
     }
 
+    @Test
+    public void testGetRunningProcesses() throws Exception{
+        Calendar calendar = new GregorianCalendar(2016, 1, 1, 10, 30, 0);
+        EntityManager em = mock(EntityManager.class);
+        when(emf.createEntityManager()).thenReturn(em);
+        Query query = mock(Query.class);
+        when(em.createNativeQuery(anyString())).thenReturn(query);
+        Object[] obj = new Object[7];
+        obj[0] = new BigDecimal(1);
+        obj[1] = "TestProcessID";
+        obj[2] = "TestProcessName";
+        obj[3] = "1.0";
+        obj[4] = "TestUser";
+        obj[5] = new java.sql.Timestamp(calendar.getTime().getTime());
+        obj[6] = new BigDecimal(-1);
+        List<Object[]> records = new ArrayList<>();
+        records.add(obj);
+        when(query.getResultList()).thenReturn(records);
+        ClientRequest request = new ClientRequest(baseUri + "/runningprocesses");
+        request.queryParameter("variableid", "mrid");
+        request.queryParameter("variablevalue", "device01");
+
+        ClientResponse<RunningProcessInfos> response = request.get(RunningProcessInfos.class);
+
+        assertEquals(1L, response.getEntity().processInstances.get(0).status);
+        assertEquals("TestProcessID", response.getEntity().processInstances.get(0).processId);
+        assertEquals("TestProcessName", response.getEntity().processInstances.get(0).processName);
+        assertEquals("1.0", response.getEntity().processInstances.get(0).processVersion);
+        assertEquals("TestUser", response.getEntity().processInstances.get(0).userIdentity);
+        assertEquals(calendar.getTime(), response.getEntity().processInstances.get(0).startDate);
+        assertEquals(-1L, response.getEntity().processInstances.get(0).processInstanceId);
+
+    }
+
+    @Test
+    public  void testGetHistoryProcesses() throws Exception{
+        Calendar calendar = new GregorianCalendar(2016, 1, 1, 10, 30, 0);
+        EntityManager em = mock(EntityManager.class);
+        when(emf.createEntityManager()).thenReturn(em);
+        Query query = mock(Query.class);
+        when(em.createNativeQuery(anyString())).thenReturn(query);
+        Object[] obj = new Object[8];
+        obj[0] = new BigDecimal(1);
+        obj[1] = new BigDecimal(1);
+        obj[2] = "TestProcessName";
+        obj[3] = "1.0";
+        obj[4] = "TestUser";
+        obj[5] = new java.sql.Timestamp(calendar.getTime().getTime());
+        obj[6] = new java.sql.Timestamp(calendar.getTime().getTime());
+        obj[7] = new BigDecimal(0);
+        List<Object[]> records = new ArrayList<>();
+        records.add(obj);
+        when(query.getResultList()).thenReturn(records);
+        ClientRequest request = new ClientRequest(baseUri + "/process/history");
+        request.queryParameter("variableid", "mrid");
+        request.queryParameter("variablevalue", "device01");
+        
+        ClientResponse<ProcessHistoryInfos> response = request.get(ProcessHistoryInfos.class);
+
+        assertEquals(1L, response.getEntity().processHistories.get(0).status);
+        assertEquals(1L, response.getEntity().processHistories.get(0).processInstanceId);
+        assertEquals("TestProcessName", response.getEntity().processHistories.get(0).processName);
+        assertEquals("1.0", response.getEntity().processHistories.get(0).processVersion);
+        assertEquals("TestUser", response.getEntity().processHistories.get(0).userIdentity);
+        assertEquals(calendar.getTime(), response.getEntity().processHistories.get(0).startDate);
+        assertEquals(calendar.getTime(), response.getEntity().processHistories.get(0).endDate);
+        assertEquals(0L, response.getEntity().processHistories.get(0).duration);
+
+    }
+
     // testAssignTask
     // testSetDueDateAndPriority
     // testGetProc
-    // testGetRunningProcesses
-    // testGetProcessHistory
     // testGetTaskContent
     // testGetProcessForm
     // testGetTaskContents
