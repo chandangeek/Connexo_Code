@@ -1,5 +1,7 @@
 package com.energyict.mdc.issue.datacollection.rest.resource;
 
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
@@ -15,26 +17,27 @@ import com.elster.jupiter.issue.rest.response.IssueAssigneeInfoAdapter;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueAssignee;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.device.data.QueueMessage;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionQueueMessage;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.RescheduleConnectionTaskQueueMessage;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
+import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
+import com.energyict.mdc.issue.datacollection.rest.i18n.DataCollectionIssueTranslationKeys;
 import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
 
@@ -53,9 +56,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -69,20 +70,29 @@ public class IssueResource extends BaseResource {
     private final IssueService issueService;
     private final MeteringService meteringService;
     private final UserService userService;
+    private final MessageService messageService;
+    private final AppService appService;
+    private final JsonService jsonService;
     private final IssueDataCollectionService issueDataCollectionService;
     private final DataCollectionIssueInfoFactory issuesInfoFactory;
     private final IssueResourceHelper issueResourceHelper;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final ExceptionFactory exceptionFactory;
+
 
     @Inject
-    public IssueResource(IssueService issueService, MeteringService meteringService, UserService userService, IssueDataCollectionService issueDataCollectionService, DataCollectionIssueInfoFactory dataCollectionIssuesInfoFactory, IssueResourceHelper issueResourceHelper, ConcurrentModificationExceptionFactory conflictFactory) {
+    public IssueResource(IssueService issueService, MeteringService meteringService, UserService userService, MessageService messageService, AppService appService, JsonService jsonService, IssueDataCollectionService issueDataCollectionService, DataCollectionIssueInfoFactory dataCollectionIssuesInfoFactory, IssueResourceHelper issueResourceHelper, ConcurrentModificationExceptionFactory conflictFactory, ExceptionFactory exceptionFactory) {
         this.issueService = issueService;
         this.meteringService = meteringService;
         this.userService = userService;
+        this.messageService = messageService;
         this.issueDataCollectionService = issueDataCollectionService;
         this.issuesInfoFactory = dataCollectionIssuesInfoFactory;
         this.issueResourceHelper = issueResourceHelper;
         this.conflictFactory = conflictFactory;
+        this.exceptionFactory = exceptionFactory;
+        this.appService = appService;
+        this.jsonService = jsonService;
     }
 
     @GET @Transactional
@@ -177,6 +187,107 @@ public class IssueResource extends BaseResource {
         return Response.ok(issueResourceHelper.performIssueAction(issue, request)).build();
     }
 
+    @PUT @Transactional
+    @Path("/retrycomm")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
+    @Deprecated
+    public Response retryCommunicationIssues(BulkIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) throws Exception {
+          /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
+        if (!verifyAppServerExists(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION)) {
+            throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
+        }
+        ActionInfo response = new ActionInfo();
+        return queueCommunicationOrConnectionBulkAction(getIssueProvider(request, filter).apply(response), "scheduleNow", response, true);
+    }
+
+    @PUT @Transactional
+    @Path("/retrycommnow")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
+    @Deprecated
+    public Response retryCommunicationNowIssues(BulkIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) throws Exception {
+       /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
+        if (!verifyAppServerExists(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION)) {
+            throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
+        }
+        ActionInfo response = new ActionInfo();
+        return queueCommunicationOrConnectionBulkAction(getIssueProvider(request, filter).apply(response), "runNow", response, true);
+    }
+
+    @PUT @Transactional
+    @Path("/retryconn")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
+    @Deprecated
+    public Response retryConnectionIssues(BulkIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) throws Exception {
+        /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
+        if (!verifyAppServerExists(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION)) {
+            throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
+        }
+        ActionInfo response = new ActionInfo();
+        return queueCommunicationOrConnectionBulkAction(getIssueProvider(request, filter).apply(response), "scheduleNow", response, false);
+    }
+
+    private Function<ActionInfo, List<? extends IssueDataCollection>> getIssueProvider(BulkIssueRequest request, JsonQueryFilter filter) {
+        Function<ActionInfo, List<? extends IssueDataCollection>> issueProvider;
+        if (request.allIssues) {
+            issueProvider = bulkResults -> getIssuesForBulk(filter);
+        } else {
+            issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult, true);
+        }
+        return issueProvider;
+    }
+
+    private Response queueCommunicationOrConnectionBulkAction(List<? extends IssueDataCollection> issues, String action, ActionInfo response,  boolean isRetryComm) throws Exception {
+        Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec
+                (isRetryComm ? CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION : ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION);
+        if (destinationSpec.isPresent()) {
+            issues.stream().filter(is -> isActionApplicable(is, action, response, isRetryComm))
+                    .map(isRetryComm ? IssueDataCollection::getCommunicationTask : IssueDataCollection::getConnectionTask)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .forEach(t -> processMessagePost(isRetryComm ? new ComTaskExecutionQueueMessage(t.getId(), action) : new RescheduleConnectionTaskQueueMessage(t.getId(), action), destinationSpec.get()));
+            return entity(response).build();
+        } else {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
+        }
+    }
+
+    private boolean isActionApplicable(Issue issue, String action, ActionInfo response, boolean isRetryComm) {
+        String actionClassName = isRetryComm ?
+                ("runNow".equals(action) ? ModuleConstants.ACTION_CLASS_RETRY_COMMUNICATION_NOW : ModuleConstants.ACTION_CLASS_RETRY_COMMUNICATION ) :
+                ModuleConstants.ACTION_CLASS_RETRY_CONNECTION;
+
+        if (issueResourceHelper.getListOfAvailableIssueActionsTypes(issue).stream()
+                .map(IssueActionType::getClassName)
+                .filter(s -> s.equals(actionClassName))
+                .findFirst().isPresent()) {
+            response.addSuccess(issue.getId());
+            return true;
+        }
+        response.addFail(getThesaurus().getFormat(DataCollectionIssueTranslationKeys.RETRY_NOT_SUPPORTED).format(), issue.getId(), issue.getTitle());
+        return false;
+    }
+
+    private void processMessagePost(QueueMessage message, DestinationSpec destinationSpec) {
+        String json = jsonService.serialize(message);
+        destinationSpec.message(json).send();
+    }
+
+    private boolean verifyAppServerExists(String destinationName) {
+        return appService.findAppServers().stream().
+                filter(AppServer::isActive).
+                flatMap(server->server.getSubscriberExecutionSpecs().stream()).
+                map(execSpec->execSpec.getSubscriberSpec().getDestination()).
+                filter(DestinationSpec::isActive).
+                filter(spec -> !spec.getSubscribers().isEmpty()).
+                anyMatch(spec -> destinationName.equals(spec.getName()));
+    }
+
     @PUT
     @Path("/assign")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -190,21 +301,22 @@ public class IssueResource extends BaseResource {
         if (request.allIssues) {
             issueProvider = bulkResults -> getIssuesForBulk(filter);
         } else {
-            issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
+            issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult, false);
         }
         ActionInfo info = getTransactionService().execute(new AssignIssueTransaction(request, performer, issueProvider));
         return entity(info).build();
     }
 
-    private List<? extends Issue> getUserSelectedIssues(BulkIssueRequest request, ActionInfo bulkResult) {
-        List<Issue> issuesForBulk = new ArrayList<>(request.issues.size());
+    private List<? extends IssueDataCollection> getUserSelectedIssues(BulkIssueRequest request, ActionInfo bulkResult, boolean isBulkRetry) {
+        List<IssueDataCollection> issuesForBulk = new ArrayList<>(request.issues.size());
         for (EntityReference issueRef : request.issues) {
-            Issue issue = getIssueDataCollectionService().findOpenIssue(issueRef.getId()).orElse(null);
+            IssueDataCollection issue = getIssueDataCollectionService().findOpenIssue(issueRef.getId()).orElse(null);
             if (issue == null) {
                 issue = getIssueDataCollectionService().findHistoricalIssue(issueRef.getId()).orElse(null);
             }
             if (issue == null) {
-                bulkResult.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_DOES_NOT_EXIST).format(), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
+                bulkResult.addFail(isBulkRetry ? getThesaurus().getFormat(DataCollectionIssueTranslationKeys.RETRY_NOT_SUPPORTED).format() :
+                  getThesaurus().getFormat(DataCollectionIssueTranslationKeys.ISSUE_DOES_NOT_EXIST).format(), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
             } else {
                 issuesForBulk.add(issue);
             }
@@ -225,7 +337,7 @@ public class IssueResource extends BaseResource {
         if (request.allIssues) {
             issueProvider = bulkResults -> getIssuesForBulk(filter);
         } else {
-            issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
+            issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult, false);
         }
         return entity(doBulkClose(request, performer, issueProvider)).build();
     }
@@ -236,7 +348,7 @@ public class IssueResource extends BaseResource {
         if (status.isPresent() && status.get().isHistorical()) {
             for (Issue issue : issueProvider.apply(response)) {
                 if (issue.getStatus().isHistorical()) {
-                    response.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_ALREADY_CLOSED).format(), issue.getId(), issue.getTitle());
+                    response.addFail(getThesaurus().getFormat(DataCollectionIssueTranslationKeys.ISSUE_ALREADY_CLOSED).format(), issue.getId(), issue.getTitle());
                 } else {
                     issue.addComment(request.comment, performer);
                     if (issue instanceof OpenIssue) {

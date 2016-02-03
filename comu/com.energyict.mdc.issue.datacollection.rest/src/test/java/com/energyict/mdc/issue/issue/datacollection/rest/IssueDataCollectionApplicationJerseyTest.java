@@ -1,5 +1,8 @@
 package com.energyict.mdc.issue.issue.datacollection.rest;
 
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
@@ -58,6 +61,12 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
     MeteringService meteringService;
     @Mock
     DeviceService deviceService;
+    @Mock
+    MessageService messageService;
+    @Mock
+    AppService appService;
+    @Mock
+    JsonService jsonService;
 
     @Override
     protected Application getApplication() {
@@ -72,6 +81,9 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         application.setNlsService(nlsService);
         when(nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.REST)).thenReturn(thesaurus);
         application.setDeviceService(deviceService);
+        application.setMessageService(messageService);
+        application.setAppService(appService);
+        application.setJsonService(jsonService);
         return application;
     }
 

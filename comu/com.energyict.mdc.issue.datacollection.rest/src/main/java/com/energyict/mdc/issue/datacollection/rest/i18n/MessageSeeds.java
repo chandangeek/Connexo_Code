@@ -9,8 +9,8 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    ISSUE_DOES_NOT_EXIST(1, "IssueDoesNotExist", "Issue doesn't exist"),
-    ISSUE_ALREADY_CLOSED(2, "IssueAlreadyClosed", "Issue already closed"),
+    NO_APPSERVER(4, "NoAppServer", "There is no active application server that can handle this request"),
+    NO_SUCH_MESSAGE_QUEUE(6, "NoSuchMessageQueue", "Unable to queue command: no message queue was found"),
     ;
 
     private final int number;
