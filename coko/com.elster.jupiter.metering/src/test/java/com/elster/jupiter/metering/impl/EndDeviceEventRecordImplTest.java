@@ -7,6 +7,8 @@ import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceEventTypeCodeBuilder;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.LocalEvent;
@@ -123,9 +125,11 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 new TransactionModule(),
                 new BpmModule(),
                 new FiniteStateMachineModule(),
-                new NlsModule());
+                new NlsModule(),
+                new CustomPropertySetsModule());
         when(principal.getName()).thenReturn("Test");
         injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringService.class);
             return null;
