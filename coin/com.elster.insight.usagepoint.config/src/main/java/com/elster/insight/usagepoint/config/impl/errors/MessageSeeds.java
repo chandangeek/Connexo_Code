@@ -6,8 +6,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
-    FAIL_MANAGE_CPS_ON_ACTIVE_M_CONFIG(1, Keys.FAIL_MANAGE_CPS_ON_ACTIVE_M_CONFIG, "You cannot manage custom attribute sets because metrology configuration is active."),
-    OBJ_MUST_HAVE_UNIQUE_NAME(2, Keys.OBJ_MUST_HAVE_UNIQUE_NAME, "Name must be unique")
+    FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION(1, Keys.FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION, "You cannot manage custom attribute sets because metrology configuration is active."),
+    OBJECT_MUST_HAVE_UNIQUE_NAME(2, Keys.OBJECT_MUST_HAVE_UNIQUE_NAME, "Name must be unique")
     ;
 
     private int number;
@@ -48,7 +48,7 @@ public enum MessageSeeds implements MessageSeed {
     public static class Keys {
         private Keys() {}
 
-        public static final String FAIL_MANAGE_CPS_ON_ACTIVE_M_CONFIG = "fail.manage.cps.on.active.m.config";
-        public static final String OBJ_MUST_HAVE_UNIQUE_NAME = "name.must.be.unique";
+        public static final String FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION = "fail.manage.cps.on.active.metrology.configuration";
+        public static final String OBJECT_MUST_HAVE_UNIQUE_NAME = "name.must.be.unique";
     }
 }

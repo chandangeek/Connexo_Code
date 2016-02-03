@@ -1,11 +1,10 @@
 package com.elster.insight.usagepoint.config.impl;
 
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.MetrologyConfigurationValidationRuleSetUsage;
-import com.elster.insight.usagepoint.config.Privileges;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
 import com.elster.insight.usagepoint.config.impl.errors.MessageSeeds;
+import com.elster.insight.usagepoint.config.security.Privileges;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.events.EventService;
@@ -239,11 +238,11 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                Privileges.RESOURCE_METROLOGY_CONFIG.getKey(), Privileges.RESOURCE_METROLOGY_CONFIG_DESCR.getKey(),
-                Arrays.asList(Privileges.Constants.ADMIN_ANY_METROLOGY_CONFIG, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG)));
+                Privileges.RESOURCE_METROLOGY_CONFIG.getKey(), Privileges.RESOURCE_METROLOGY_CONFIGURATION_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION)));
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                Privileges.RESOURCE_METROLOGY_CONFIG_CPS.getKey(), Privileges.RESOURCE_METROLOGY_CONFIG_CPS_DESCR.getKey(),
-                Arrays.asList(Privileges.Constants.METROLOGY_CPS_VIEW, Privileges.Constants.METROLOGY_CPS_ADMIN)));
+                Privileges.RESOURCE_METROLOGY_CONFIG_CPS.getKey(), Privileges.RESOURCE_METROLOGY_CONFIGURATION_CPS_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.ADMINISTER_CPS_ON_METROLOGY_CONFIGURATION, Privileges.Constants.VIEW_CPS_ON_METROLOGY_CONFIGURATION)));
         return resources;
     }
 

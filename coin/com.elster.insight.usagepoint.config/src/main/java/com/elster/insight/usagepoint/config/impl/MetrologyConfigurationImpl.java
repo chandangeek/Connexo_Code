@@ -1,10 +1,8 @@
 package com.elster.insight.usagepoint.config.impl;
 
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.MetrologyConfigurationCustomPropertySetUsages;
-import com.elster.insight.usagepoint.config.MetrologyConfigurationValidationRuleSetUsage;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.insight.usagepoint.config.impl.errors.CannotManageCPSOnActiveMetrologyConfig;
+import com.elster.insight.usagepoint.config.impl.errors.CannotManageCustomPropertySetOnActiveMetrologyConfiguration;
 import com.elster.insight.usagepoint.config.impl.errors.MessageSeeds;
 import com.elster.insight.usagepoint.config.impl.validation.HasUniqueName;
 import com.elster.insight.usagepoint.config.impl.validation.UniqueName;
@@ -30,7 +28,7 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.domain.util.Save.action;
 import static com.google.common.base.MoreObjects.toStringHelper;
 
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.OBJ_MUST_HAVE_UNIQUE_NAME + "}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
 public final class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUniqueName {
     public enum Fields {
         NAME("name"),
@@ -61,7 +59,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
     private String name;
     private boolean active;
     private List<MetrologyConfigurationValidationRuleSetUsage> metrologyConfValidationRuleSetUsages = new ArrayList<>();
-    private List<MetrologyConfigurationCustomPropertySetUsages> customPropertySets = new ArrayList<>();
+    private List<MetrologyConfigurationCustomPropertySetUsage> customPropertySets = new ArrayList<>();
 
     private long version;
     private Instant createTime;
@@ -115,12 +113,11 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
     }
 
     @Override
-    public MetrologyConfigurationValidationRuleSetUsage addValidationRuleSet(ValidationRuleSet validationRuleSet) {
+    public void addValidationRuleSet(ValidationRuleSet validationRuleSet) {
         MetrologyConfigurationValidationRuleSetUsageImpl usage = new MetrologyConfigurationValidationRuleSetUsageImpl(dataModel, eventService, validationService);
         usage.init(this, validationRuleSet);
         metrologyConfValidationRuleSetUsages.add(usage);
         getDataModel().touch(this);
-        return usage;
     }
 
     protected MetrologyConfigurationValidationRuleSetUsage getUsage(ValidationRuleSet validationRuleSet) {
@@ -189,13 +186,13 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
     public List<RegisteredCustomPropertySet> getCustomPropertySets() {
         return customPropertySets
                 .stream()
-                .map(MetrologyConfigurationCustomPropertySetUsages::getRegisteredCustomPropertySet)
+                .map(MetrologyConfigurationCustomPropertySetUsage::getRegisteredCustomPropertySet)
                 .collect(Collectors.toList());
     }
 
     private void checkCanManageCps() {
         if (isActive()) {
-            throw new CannotManageCPSOnActiveMetrologyConfig(this.thesaurus);
+            throw new CannotManageCustomPropertySetOnActiveMetrologyConfiguration(this.thesaurus);
         }
     }
 
@@ -204,7 +201,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
         checkCanManageCps();
         if (this.customPropertySets.stream()
                 .noneMatch(cpsUsage -> cpsUsage.getRegisteredCustomPropertySet().getId() == registeredCustomPropertySet.getId())) {
-            MetrologyConfigurationCustomPropertySetUsagesImpl newCpsUsage = getDataModel().getInstance(MetrologyConfigurationCustomPropertySetUsagesImpl.class)
+            MetrologyConfigurationCustomPropertySetUsageImpl newCpsUsage = getDataModel().getInstance(MetrologyConfigurationCustomPropertySetUsageImpl.class)
                     .init(this, registeredCustomPropertySet);
             this.customPropertySets.add(newCpsUsage);
             this.dataModel.touch(this);

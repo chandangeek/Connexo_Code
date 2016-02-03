@@ -1,7 +1,6 @@
 package com.elster.insight.usagepoint.config.impl;
 
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.MetrologyConfigurationCustomPropertySetUsages;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -10,7 +9,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import javax.inject.Inject;
 import java.util.Objects;
 
-public class MetrologyConfigurationCustomPropertySetUsagesImpl implements MetrologyConfigurationCustomPropertySetUsages {
+public class MetrologyConfigurationCustomPropertySetUsageImpl implements MetrologyConfigurationCustomPropertySetUsage {
 
     public enum Fields {
         METROLOGY_CONFIG("metrologyConfiguration"),
@@ -35,10 +34,10 @@ public class MetrologyConfigurationCustomPropertySetUsagesImpl implements Metrol
     private int position;
 
     @Inject
-    public MetrologyConfigurationCustomPropertySetUsagesImpl() {
+    public MetrologyConfigurationCustomPropertySetUsageImpl() {
     }
 
-    MetrologyConfigurationCustomPropertySetUsagesImpl init(MetrologyConfiguration metrologyConfiguration, RegisteredCustomPropertySet registeredCustomPropertySet) {
+    MetrologyConfigurationCustomPropertySetUsageImpl init(MetrologyConfiguration metrologyConfiguration, RegisteredCustomPropertySet registeredCustomPropertySet) {
         this.metrologyConfiguration.set(metrologyConfiguration);
         this.registeredCustomPropertySet.set(registeredCustomPropertySet);
         return this;
@@ -62,7 +61,7 @@ public class MetrologyConfigurationCustomPropertySetUsagesImpl implements Metrol
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        MetrologyConfigurationCustomPropertySetUsagesImpl that = (MetrologyConfigurationCustomPropertySetUsagesImpl) o;
+        MetrologyConfigurationCustomPropertySetUsageImpl that = (MetrologyConfigurationCustomPropertySetUsageImpl) o;
         return this.getMetrologyConfiguration().getId() == that.getMetrologyConfiguration().getId() &&
                 this.getRegisteredCustomPropertySet().getId() == that.getRegisteredCustomPropertySet().getId();
     }

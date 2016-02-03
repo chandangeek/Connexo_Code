@@ -5,8 +5,6 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
-import com.elster.insight.usagepoint.config.MetrologyConfigurationCustomPropertySetUsages;
-import com.elster.insight.usagepoint.config.MetrologyConfigurationValidationRuleSetUsage;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -103,26 +101,26 @@ public enum TableSpecs {
     UPC_M_CONFIG_CPS_USAGES {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<MetrologyConfigurationCustomPropertySetUsages> table = dataModel.addTable(name(), MetrologyConfigurationCustomPropertySetUsages.class);
-            table.map(MetrologyConfigurationCustomPropertySetUsagesImpl.class);
-            Column metrologyConfig = table.column(MetrologyConfigurationCustomPropertySetUsagesImpl.Fields.METROLOGY_CONFIG.name()).number().notNull().add();
-            Column customPropertySet = table.column(MetrologyConfigurationCustomPropertySetUsagesImpl.Fields.CUSTOM_PROPERTY_SET.name()).number().notNull().add();
-            table.column(MetrologyConfigurationCustomPropertySetUsagesImpl.Fields.POSITION.name()).number().notNull().conversion(NUMBER2INT).map(MetrologyConfigurationCustomPropertySetUsagesImpl.Fields.POSITION.fieldName()).add();
+            Table<MetrologyConfigurationCustomPropertySetUsage> table = dataModel.addTable(name(), MetrologyConfigurationCustomPropertySetUsage.class);
+            table.map(MetrologyConfigurationCustomPropertySetUsageImpl.class);
+            Column metrologyConfig = table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.METROLOGY_CONFIG.name()).number().notNull().add();
+            Column customPropertySet = table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.CUSTOM_PROPERTY_SET.name()).number().notNull().add();
+            table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.POSITION.name()).number().notNull().conversion(NUMBER2INT).map(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.POSITION.fieldName()).add();
             table.primaryKey("PK_M_CONFIG_CPS_USAGE").on(metrologyConfig, customPropertySet).add();
             table.foreignKey("FK_MCPS_USAGE_TO_CONFIG")
                     .references(UPC_METROLOGYCONFIG.name())
                     .on(metrologyConfig)
                     .onDelete(CASCADE)
-                    .map(MetrologyConfigurationCustomPropertySetUsagesImpl.Fields.METROLOGY_CONFIG.fieldName())
+                    .map(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.METROLOGY_CONFIG.fieldName())
                     .reverseMap(MetrologyConfigurationImpl.Fields.CUSTOM_PROPERTY_SETS.fieldName())
-                    .reverseMapOrder(MetrologyConfigurationCustomPropertySetUsagesImpl.Fields.POSITION.fieldName())
+                    .reverseMapOrder(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.POSITION.fieldName())
                     .composition()
                     .add();
             table.foreignKey("FK_MCAS_USAGE_TO_CPS")
                     .references(RegisteredCustomPropertySet.class)
                     .on(customPropertySet)
                     .onDelete(CASCADE)
-                    .map(MetrologyConfigurationCustomPropertySetUsagesImpl.Fields.CUSTOM_PROPERTY_SET.fieldName())
+                    .map(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.CUSTOM_PROPERTY_SET.fieldName())
                     .add();
         }
     },

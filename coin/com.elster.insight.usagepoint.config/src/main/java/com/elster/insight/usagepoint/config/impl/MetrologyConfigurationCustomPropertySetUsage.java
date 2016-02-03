@@ -1,10 +1,9 @@
-package com.elster.insight.usagepoint.config;
+package com.elster.insight.usagepoint.config.impl;
 
-import aQute.bnd.annotation.ProviderType;
+import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 
-@ProviderType
-public interface MetrologyConfigurationCustomPropertySetUsages {
+public interface MetrologyConfigurationCustomPropertySetUsage {
 
     MetrologyConfiguration getMetrologyConfiguration();
 

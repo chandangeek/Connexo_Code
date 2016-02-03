@@ -1,7 +1,7 @@
 package com.elster.insight.usagepoint.config.impl;
 
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.impl.errors.CannotManageCPSOnActiveMetrologyConfig;
+import com.elster.insight.usagepoint.config.impl.errors.CannotManageCustomPropertySetOnActiveMetrologyConfiguration;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.transaction.TransactionContext;
 import org.junit.After;
@@ -108,7 +108,7 @@ public class MetrologyConfigurationCPSUsageTestIT {
         });
     }
 
-    @Test(expected = CannotManageCPSOnActiveMetrologyConfig.class)
+    @Test(expected = CannotManageCustomPropertySetOnActiveMetrologyConfiguration.class)
     public void testAddCPSToActiveMetrologyConfig() {
         inTransaction(ctx -> {
             MetrologyConfiguration metrologyConfiguration = getMetrologyConfiguration();
@@ -172,7 +172,7 @@ public class MetrologyConfigurationCPSUsageTestIT {
         });
     }
 
-    @Test(expected = CannotManageCPSOnActiveMetrologyConfig.class)
+    @Test(expected = CannotManageCustomPropertySetOnActiveMetrologyConfiguration.class)
     public void testRemoveCPSFromActiveMetrologyConfig() {
         inTransaction(ctx -> {
             MetrologyConfiguration metrologyConfiguration = getMetrologyConfiguration();
