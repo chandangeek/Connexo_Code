@@ -2,9 +2,9 @@ package com.elster.insight.usagepoint.config.rest.impl;
 
 import com.elster.insight.common.services.ListPager;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.Privileges;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
+import com.elster.insight.usagepoint.config.security.Privileges;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -37,11 +37,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import java.time.Clock;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -54,12 +51,10 @@ public class MetrologyConfigurationResource {
     private final CustomPropertySetService customPropertySetService;
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
     private final MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory;
-    private final Clock clock;
 
     @Inject
-    public MetrologyConfigurationResource(ResourceHelper resourceHelper, Clock clock, UsagePointConfigurationService usagePointConfigurationService, ValidationService validationService, CustomPropertySetService customPropertySetService, CustomPropertySetInfoFactory customPropertySetInfoFactory, MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory) {
+    public MetrologyConfigurationResource(ResourceHelper resourceHelper, UsagePointConfigurationService usagePointConfigurationService, ValidationService validationService, CustomPropertySetService customPropertySetService, CustomPropertySetInfoFactory customPropertySetInfoFactory, MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory) {
         this.resourceHelper = resourceHelper;
-        this.clock = clock;
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.validationService = validationService;
         this.customPropertySetService = customPropertySetService;
@@ -82,7 +77,7 @@ public class MetrologyConfigurationResource {
 
     @GET
     @Path("/{id}")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG})
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public MetrologyConfigurationInfo getMeterologyConfiguration(@PathParam("id") long id) {
         MetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
@@ -92,7 +87,7 @@ public class MetrologyConfigurationResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG, Privileges.Constants.ADMIN_ANY_METROLOGY_CONFIG})
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION})
     @Transactional
     public Response createMetrologyConfiguration(MetrologyConfigurationInfo metrologyConfigurationInfo) {
         MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.newMetrologyConfiguration(metrologyConfigurationInfo.name);
@@ -103,18 +98,18 @@ public class MetrologyConfigurationResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG, Privileges.Constants.ADMIN_ANY_METROLOGY_CONFIG})
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION})
     @Transactional
     public Response updateMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info, @Context SecurityContext securityContext) {
         MetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info);
         info.writeTo(metrologyConfiguration);
-        info.updateCustomPropertySets(metrologyConfiguration, key -> resourceHelper.getRegisteredCustomPropertySetOrThrowException(key));
+        info.updateCustomPropertySets(metrologyConfiguration, resourceHelper::getRegisteredCustomPropertySetOrThrowException);
         return Response.status(Response.Status.CREATED).entity(metrologyConfigurationInfoFactory.asDetailedInfo(metrologyConfiguration)).build();
     }
 
     @PUT
     @Path("/{id}/activate")
-    @RolesAllowed({Privileges.Constants.ADMIN_ANY_METROLOGY_CONFIG, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public MetrologyConfigurationInfo activateMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info) {
@@ -126,7 +121,7 @@ public class MetrologyConfigurationResource {
 
     @PUT
     @Path("/{id}/deactivate")
-    @RolesAllowed({Privileges.Constants.ADMIN_ANY_METROLOGY_CONFIG, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public MetrologyConfigurationInfo deactivateMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info) {
@@ -139,7 +134,7 @@ public class MetrologyConfigurationResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMIN_ANY_METROLOGY_CONFIG, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
     @Transactional
     public Response deleteMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info) {
         info.id = id;
@@ -158,7 +153,7 @@ public class MetrologyConfigurationResource {
 
     @GET
     @Path("/{id}/assignedvalidationrulesets")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG})
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getAssignedValidationRuleSetsForMetrologyConfiguration(@PathParam("id") long id,
                                                                                 @Context SecurityContext securityContext,
@@ -175,7 +170,7 @@ public class MetrologyConfigurationResource {
 
     @POST
     @Path("/{id}/assignedvalidationrulesets")
-    @RolesAllowed({Privileges.Constants.ADMIN_ANY_METROLOGY_CONFIG, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public Response setAssignedValidationRuleSetsForMetrologyConfiguration(@PathParam("id") long id,
@@ -202,7 +197,7 @@ public class MetrologyConfigurationResource {
 
     @GET
     @Path("/{id}/assignablevalidationrulesets")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG})
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getAssignableValidationRuleSetsForMetrologyConfiguration(@PathParam("id") long id,
                                                                                   @BeanParam JsonQueryParameters queryParameters,
@@ -221,7 +216,7 @@ public class MetrologyConfigurationResource {
 
     @GET
     @Path("/{id}/custompropertysets")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG, Privileges.Constants.METROLOGY_CPS_VIEW})
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.VIEW_CPS_ON_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getMetrologyConfigCustomPropertySets(@PathParam("id") long id,
                                                               @QueryParam("linked") @DefaultValue("true") boolean linked,
@@ -246,7 +241,7 @@ public class MetrologyConfigurationResource {
 
     @PUT
     @Path("/{id}/custompropertysets")
-    @RolesAllowed({Privileges.Constants.ADMIN_ANY_METROLOGY_CONFIG, Privileges.Constants.METROLOGY_CPS_ADMIN})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_CPS_ON_METROLOGY_CONFIGURATION})
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
@@ -266,9 +261,9 @@ public class MetrologyConfigurationResource {
 
     @DELETE
     @Path("/{id}/custompropertysets/{cpsId}")
-    @RolesAllowed({Privileges.Constants.ADMIN_ANY_METROLOGY_CONFIG, Privileges.Constants.METROLOGY_CPS_ADMIN})
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_CPS_ON_METROLOGY_CONFIGURATION})
     @Transactional
     public MetrologyConfigurationInfo removeCustomPropertySetFromMetrologyConfiguration(@PathParam("id") long id,
                                                                                         @PathParam("cpsId") String cpsId,
