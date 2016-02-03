@@ -1,0 +1,110 @@
+package com.elster.insight.usagepoint.data.impl;
+
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.insight.usagepoint.config.impl.UsagePointConfigModule;
+import com.elster.insight.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.impl.ValidationModule;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import static org.mockito.Mockito.mock;
+
+public class UsagePointDataInMemoryBootstrapModule {
+    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private Injector injector;
+
+    public void activate() {
+        injector = Guice.createInjector(
+                new MockModule(),
+                inMemoryBootstrapModule,
+                new OrmModule(),
+                new DataVaultModule(),
+                new DomainUtilModule(),
+                new NlsModule(),
+                new UserModule(),
+                new UtilModule(),
+                new ThreadSecurityModule(),
+                new PubSubModule(),
+                new TransactionModule(false),
+                new InMemoryMessagingModule(),
+                new TaskModule(),
+                new IdsModule(),
+                new EventsModule(),
+                new PartyModule(),
+                new FiniteStateMachineModule(),
+                new MeteringModule(),
+                new CustomPropertySetsModule(),
+                new UsagePointConfigModule(),
+                new ValidationModule(),
+                new MeteringGroupsModule(),
+                new UsagePointDataModule()
+
+        );
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            injector.getInstance(UsagePointConfigurationService.class);
+            injector.getInstance(UsagePointDataService.class);
+            ctx.commit();
+        }
+    }
+
+    public void deactivate() {
+        inMemoryBootstrapModule.deactivate();
+    }
+
+    public TransactionService getTransactionService(){
+        return injector.getInstance(TransactionService.class);
+    }
+
+    public UsagePointConfigurationService getUsagePointConfigurationService() {
+        return injector.getInstance(UsagePointConfigurationService.class);
+    }
+
+    public ServerMeteringService getMeteringService() {
+        return injector.getInstance(ServerMeteringService.class);
+    }
+
+    public CustomPropertySetService getCustomPropertySetService() {
+        return injector.getInstance(CustomPropertySetService.class);
+    }
+
+    public UsagePointDataService getUsagePointDataService() {
+        return injector.getInstance(UsagePointDataService.class);
+    }
+
+    private static class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
+            bind(SearchService.class).toInstance(mock(SearchService.class));
+        }
+    }
+}

@@ -1,7 +1,7 @@
 package com.elster.insight.usagepoint.data.impl;
 
 
-import com.elster.insight.usagepoint.data.UsagePointDataServices;
+import com.elster.insight.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
@@ -55,7 +55,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return UsagePointDataServices.COMPONENT_NAME;
+        return UsagePointDataService.COMPONENT_NAME;
     }
 
     public static class Keys {
