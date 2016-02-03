@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -8,12 +9,16 @@ import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ServiceCategoryImpl implements ServiceCategory {
 	//persistent fields
@@ -105,6 +110,38 @@ public class ServiceCategoryImpl implements ServiceCategory {
         } else {
             return DefaultDetailImpl.from(dataModel, usagePoint, interval);
         }
+    }
+
+    @Override
+    public List<RegisteredCustomPropertySet> getCustomPropertySets() {
+        return getServiceCategoryCustomPropertySetUsages()
+                .stream()
+                .map(ServiceCategoryCustomPropertySetUsage::getRegisteredCustomPropertySet)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void addCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet) {
+        if(!getServiceCategoryCustomPropertySetUsages().stream().filter(e -> e.getRegisteredCustomPropertySet().getId()==registeredCustomPropertySet.getId()).findFirst().isPresent()) {
+            ServiceCategoryCustomPropertySetUsage serviceCategoryCustomPropertySetUsage = this.dataModel.getInstance(ServiceCategoryCustomPropertySetUsage.class).initialize(this, registeredCustomPropertySet);
+            dataModel.persist(serviceCategoryCustomPropertySetUsage);
+        }
+    }
+
+    @SuppressWarnings("SuspiciousMethodCalls")
+    @Override
+    public void removeCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet) {
+        Optional<ServiceCategoryCustomPropertySetUsage> serviceCategoryCustomPropertySetUsage = getServiceCategoryCustomPropertySetUsages().stream()
+                .filter(f -> f.getServiceCategory().getId() == this.getId())
+                .filter(f -> f.getRegisteredCustomPropertySet().getId() == registeredCustomPropertySet.getId())
+                .findAny();
+        if (serviceCategoryCustomPropertySetUsage.isPresent()) {
+            dataModel.remove(serviceCategoryCustomPropertySetUsage);
+        }
+    }
+
+    private List<ServiceCategoryCustomPropertySetUsage> getServiceCategoryCustomPropertySetUsages(){
+        return dataModel.query(ServiceCategoryCustomPropertySetUsage.class).select(Where.where(ServiceCategoryCustomPropertySetUsage.Fields.SERVICECATEGORY.fieldName()).isEqualTo(this));
     }
 
     @Override
