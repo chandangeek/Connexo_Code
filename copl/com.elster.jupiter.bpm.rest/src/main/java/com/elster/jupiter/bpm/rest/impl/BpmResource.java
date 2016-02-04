@@ -280,6 +280,7 @@ public class BpmResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
     public ProcessDefinitionInfos getProcesses(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth) {
+        MultivaluedMap<String, String> filterProperties = uriInfo.getQueryParameters();
         String jsonContent;
         JSONArray arr = null;
         try {
@@ -294,15 +295,27 @@ public class BpmResource {
         } catch (RuntimeException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
         }
-        List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
-        ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos(arr);
-        processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
-                .filter(s -> activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name)&&a.getVersion().equals(s.version)))
-                .collect(Collectors.toList());
-        processDefinitionInfos.processes.stream()
-                .forEach(s -> s.id = s.id + " (" + s.deploymentId+ ") ");
-        processDefinitionInfos.total = processDefinitionInfos.processes.size();
-        return processDefinitionInfos;
+        if(filterProperties.get("type") != null) {
+            List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
+            ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos(arr);
+            processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
+                    .filter(s -> activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version) && a.getAssociation().toLowerCase().equals(filterProperties.get("type").get(0).toLowerCase())))
+                    .collect(Collectors.toList());
+            processDefinitionInfos.processes.stream()
+                    .forEach(s -> s.id = s.id + " (" + s.deploymentId + ") ");
+            processDefinitionInfos.total = processDefinitionInfos.processes.size();
+            return processDefinitionInfos;
+        }else{
+            List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
+            ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos(arr);
+            processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
+                    .filter(s -> activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version)))
+                    .collect(Collectors.toList());
+            processDefinitionInfos.processes.stream()
+                    .forEach(s -> s.id = s.id + " (" + s.deploymentId + ") ");
+            processDefinitionInfos.total = processDefinitionInfos.processes.size();
+            return processDefinitionInfos;
+        }
     }
 
     @GET
