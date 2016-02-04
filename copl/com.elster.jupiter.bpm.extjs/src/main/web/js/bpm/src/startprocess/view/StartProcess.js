@@ -1,7 +1,9 @@
 Ext.define('Bpm.startprocess.view.StartProcess', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.bpm-start-processes-panel',
-
+    requires: [
+        'Bpm.startprocess.store.AvailableProcesses'
+    ],
     items: [
         {
             xtype: 'panel',
@@ -111,18 +113,21 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
     ],
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            availableStore;
 
         me.callParent(arguments);
 
-        me.properties.processesStore.load(function (records) {
+        availableStore = Ext.create('Bpm.startprocess.store.AvailableProcesses');
+        availableStore.getProxy().extraParams = me.properties.activeProcessesParams;
+        availableStore.load(function (records) {
             var visible = Ext.isEmpty(records);
 
             Ext.getBody().unmask();
             me.down('#processes-panel').setVisible(!visible);
             me.down('#no-items-found-panel').setVisible(visible);
             if (!visible) {
-                me.down('combobox[name=startProcessCombo]').bindStore(me.properties.processesStore);
+                me.down('combobox[name=startProcessCombo]').bindStore(availableStore);
             }
         });
 

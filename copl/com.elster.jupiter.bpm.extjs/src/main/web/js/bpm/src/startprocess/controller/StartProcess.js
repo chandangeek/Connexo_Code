@@ -4,6 +4,7 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
         'Bpm.startprocess.view.StartProcess'
     ],
     stores: [
+
     ],
     models: [
         'Bpm.startprocess.model.ProcessContent'
@@ -83,23 +84,22 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
     cancelStartProcess: function (btn) {
         var me = this,
             startProcessPanel = me.getStartProcessPanel(),
-            route = startProcessPanel.properties.cancelLink,
-            router = me.getController('Uni.controller.history.Router');
-
-        router.getRoute(route).forward();
+            url = startProcessPanel.properties.cancelLink;
+        window.location.assign(url);
     },
 
     startProcess: function (button) {
         var me=this,
             startProcessPanel = me.getStartProcessPanel(),
-            route = startProcessPanel.properties.successLink,
-            extraParams = startProcessPanel.properties.extraParams,
+            url = startProcessPanel.properties.successLink,
+            extraParams = startProcessPanel.properties.startProcessParams,
             startProcessForm = me.getStartProcessForm(),
             processStartContent = me.getProcessStartContent(),
             startProcessRecord = processStartContent.startProcessRecord,
             propertyForm = processStartContent.down('property-form'),
             form = startProcessPanel.down('#start-process-form'),
-            formErrorsPanel = form.down('#form-errors');
+            formErrorsPanel = form.down('#form-errors'),
+            businessObject = {};
 
         if (form.isValid()) {
             if (!formErrorsPanel.isHidden()) {
@@ -109,15 +109,18 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
             propertyForm.updateRecord();
 
             startProcessRecord.beginEdit();
+
             Ext.Array.each(extraParams, function(param) {
-                startProcessRecord.set(param.name, param.value);
+                businessObject[param.name] = param.value;
             });
+
+            startProcessRecord.set('businessObject', businessObject);
             startProcessRecord.set('deploymentId', me.processRecord.deploymentId);
             startProcessRecord.set('id', me.processRecord.deploymentId);
             startProcessRecord.save({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.startprocess.started', 'BPM', 'Process started.'));
-                    me.getController('Uni.controller.history.Router').getRoute(route).forward();
+                    window.location.assign(url);
                 },
                 failure: function (record, operation) {
                     if (operation.response.status == 400) {
