@@ -192,14 +192,12 @@ public class IssueResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
-    @Deprecated
     public Response retryCommunicationIssues(BulkIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) throws Exception {
-          /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
         if (!verifyAppServerExists(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
         ActionInfo response = new ActionInfo();
-        return queueCommunicationOrConnectionBulkAction(getIssueProvider(request, filter).apply(response), "scheduleNow", response, true);
+        return queueCommunicationBulkAction(getIssueProvider(request, filter).apply(response), ModuleConstants.ACTION_CLASS_RETRY_COMMUNICATION, response);
     }
 
     @PUT @Transactional
@@ -207,14 +205,12 @@ public class IssueResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
-    @Deprecated
     public Response retryCommunicationNowIssues(BulkIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) throws Exception {
-       /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
         if (!verifyAppServerExists(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
         ActionInfo response = new ActionInfo();
-        return queueCommunicationOrConnectionBulkAction(getIssueProvider(request, filter).apply(response), "runNow", response, true);
+        return queueCommunicationBulkAction(getIssueProvider(request, filter).apply(response), ModuleConstants.ACTION_CLASS_RETRY_COMMUNICATION_NOW, response);
     }
 
     @PUT @Transactional
@@ -222,14 +218,12 @@ public class IssueResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
-    @Deprecated
     public Response retryConnectionIssues(BulkIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) throws Exception {
-        /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
         if (!verifyAppServerExists(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
         ActionInfo response = new ActionInfo();
-        return queueCommunicationOrConnectionBulkAction(getIssueProvider(request, filter).apply(response), "scheduleNow", response, false);
+        return queueConnectionBulkAction(getIssueProvider(request, filter).apply(response), response);
     }
 
     private Function<ActionInfo, List<? extends IssueDataCollection>> getIssueProvider(BulkIssueRequest request, JsonQueryFilter filter) {
@@ -242,26 +236,36 @@ public class IssueResource extends BaseResource {
         return issueProvider;
     }
 
-    private Response queueCommunicationOrConnectionBulkAction(List<? extends IssueDataCollection> issues, String action, ActionInfo response,  boolean isRetryComm) throws Exception {
-        Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec
-                (isRetryComm ? CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION : ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION);
+    private Response queueConnectionBulkAction(List<? extends IssueDataCollection> issues, ActionInfo response) throws Exception {
+        Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION);
         if (destinationSpec.isPresent()) {
-            issues.stream().filter(is -> isActionApplicable(is, action, response, isRetryComm))
-                    .map(isRetryComm ? IssueDataCollection::getCommunicationTask : IssueDataCollection::getConnectionTask)
+            issues.stream().filter(is -> isActionApplicable(is, response, ModuleConstants.ACTION_CLASS_RETRY_CONNECTION))
+                    .map(IssueDataCollection::getConnectionTask)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
-                    .forEach(t -> processMessagePost(isRetryComm ? new ComTaskExecutionQueueMessage(t.getId(), action) : new RescheduleConnectionTaskQueueMessage(t.getId(), action), destinationSpec.get()));
+                    .forEach(t -> processMessagePost(new RescheduleConnectionTaskQueueMessage(t.getId(), "scheduleNow"), destinationSpec.get()));
             return entity(response).build();
         } else {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
         }
     }
 
-    private boolean isActionApplicable(Issue issue, String action, ActionInfo response, boolean isRetryComm) {
-        String actionClassName = isRetryComm ?
-                ("runNow".equals(action) ? ModuleConstants.ACTION_CLASS_RETRY_COMMUNICATION_NOW : ModuleConstants.ACTION_CLASS_RETRY_COMMUNICATION ) :
-                ModuleConstants.ACTION_CLASS_RETRY_CONNECTION;
+    private Response queueCommunicationBulkAction(List<? extends IssueDataCollection> issues, String actionClassName, ActionInfo response) throws Exception {
+        Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION);
+        if (destinationSpec.isPresent()) {
+            issues.stream().filter(is -> isActionApplicable(is, response, actionClassName))
+                    .map(IssueDataCollection::getCommunicationTask)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .forEach(t -> processMessagePost(new ComTaskExecutionQueueMessage
+                            (t.getId(), ModuleConstants.ACTION_CLASS_RETRY_COMMUNICATION.equals(actionClassName) ? "scheduleNow" : "runNow"), destinationSpec.get()));
+            return entity(response).build();
+        } else {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
+        }
+    }
 
+    private boolean isActionApplicable(Issue issue, ActionInfo response, String actionClassName) {
         if (issueResourceHelper.getListOfAvailableIssueActionsTypes(issue).stream()
                 .map(IssueActionType::getClassName)
                 .filter(s -> s.equals(actionClassName))
