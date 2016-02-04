@@ -85,8 +85,16 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
                 store.getProxy().extraParams.linked = true;
                 store.load();
                 pageMainContent.setLoading(false);
+                widget.down('cas-grid').on('select', me.showCasPreview.bind(me, widget.down('cas-detail-form')));
             }
         });
+    },
+
+    showCasPreview: function (preview, selModel, record) {
+        Ext.suspendLayouts();
+        preview.setTitle(record.get('name'));
+        preview.loadRecord(record);
+        Ext.resumeLayouts(true);
     },
 
     showAddCustomAttributeSets: function(id) {

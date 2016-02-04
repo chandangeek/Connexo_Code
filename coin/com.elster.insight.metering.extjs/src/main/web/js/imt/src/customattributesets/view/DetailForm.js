@@ -13,7 +13,7 @@ Ext.define('Imt.customattributesets.view.DetailForm', {
         me.items = [
             {
                 fieldLabel: Uni.I18n.translate('general.attributes', 'IMT', 'Attributes'),
-                name: 'attributes',
+                name: 'properties',
                 renderer: function (value) {
                     var result = '',
                         requiredIcon = '<span class="uni-form-item-label-required" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'

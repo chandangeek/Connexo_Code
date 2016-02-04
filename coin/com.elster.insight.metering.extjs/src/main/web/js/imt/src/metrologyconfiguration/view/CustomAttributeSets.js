@@ -59,11 +59,8 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
                     ]
                 },
                 previewComponent: {
-                    xtype: 'panel',
+                    xtype: 'cas-detail-form',
                     frame: true,
-                    items: {
-                        xtype: 'cas-detail-form'
-                    },
                     tools: [
                         {
                             xtype: 'button',
