@@ -94,11 +94,6 @@ public class IssueResourceHelper {
         return issueActionService.executeAction(action, issue, properties);
     }
 
-    public IssueActionResult performRetryAction(Issue issue, IssueActionType action) {
-        Map<String, Object> properties = new HashMap<>();
-        return issueActionService.executeAction(action, issue, properties);
-    }
-
     public List<IssueCommentInfo> getIssueComments(Issue issue) {
         Condition condition = where("issueId").isEqualTo(issue.getId());
         Query<IssueComment> query = issueService.query(IssueComment.class, User.class);
