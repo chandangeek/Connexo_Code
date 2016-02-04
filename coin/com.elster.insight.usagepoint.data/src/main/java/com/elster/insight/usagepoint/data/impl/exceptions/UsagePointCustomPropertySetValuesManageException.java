@@ -1,5 +1,6 @@
 package com.elster.insight.usagepoint.data.impl.exceptions;
 
+import com.elster.insight.usagepoint.data.exceptions.MessageSeeds;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;

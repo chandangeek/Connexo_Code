@@ -1,4 +1,4 @@
-package com.elster.insight.usagepoint.data.impl.exceptions;
+package com.elster.insight.usagepoint.data.exceptions;
 
 
 import com.elster.insight.usagepoint.data.UsagePointDataService;

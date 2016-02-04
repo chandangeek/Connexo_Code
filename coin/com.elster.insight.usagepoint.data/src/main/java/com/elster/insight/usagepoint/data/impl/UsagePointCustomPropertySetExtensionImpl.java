@@ -2,7 +2,7 @@ package com.elster.insight.usagepoint.data.impl;
 
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.insight.usagepoint.data.UsagePointPropertySetValuesExtension;
+import com.elster.insight.usagepoint.data.UsagePointCustomPropertySetExtension;
 import com.elster.insight.usagepoint.data.impl.exceptions.UsagePointCustomPropertySetValuesManageException;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class UsagePointPropertySetValuesExtensionImpl implements UsagePointPropertySetValuesExtension {
+public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomPropertySetExtension {
     private final Clock clock;
     private final UsagePointConfigurationService usagePointConfigurationService;
     private final CustomPropertySetService customPropertySetService;
@@ -29,7 +29,7 @@ public class UsagePointPropertySetValuesExtensionImpl implements UsagePointPrope
     private UsagePoint usagePoint;
 
     @Inject
-    public UsagePointPropertySetValuesExtensionImpl(Clock clock,
+    public UsagePointCustomPropertySetExtensionImpl(Clock clock,
                                                     UsagePointConfigurationService usagePointConfigurationService,
                                                     CustomPropertySetService customPropertySetService,
                                                     Thesaurus thesaurus) {
@@ -39,7 +39,7 @@ public class UsagePointPropertySetValuesExtensionImpl implements UsagePointPrope
         this.thesaurus = thesaurus;
     }
 
-    public UsagePointPropertySetValuesExtensionImpl init(UsagePoint usagePoint) {
+    public UsagePointCustomPropertySetExtensionImpl init(UsagePoint usagePoint) {
         this.usagePoint = usagePoint;
         return this;
     }
@@ -49,6 +49,19 @@ public class UsagePointPropertySetValuesExtensionImpl implements UsagePointPrope
         return this.usagePoint;
     }
 
+    private Optional<MetrologyConfiguration> getMetrologyConfiguration() {
+        return this.usagePointConfigurationService.findMetrologyConfigurationForUsagePoint(getUsagePoint());
+    }
+
+    @Override
+    public List<RegisteredCustomPropertySet> getMetrologyCustomPropertySets() {
+        Optional<MetrologyConfiguration> metrologyConfiguration = getMetrologyConfiguration();
+        if (metrologyConfiguration.isPresent()) {
+            return metrologyConfiguration.get().getCustomPropertySets();
+        }
+        return Collections.emptyList();
+    }
+
     @Override
     public Map<RegisteredCustomPropertySet, CustomPropertySetValues> getMetrologyCustomPropertySetValues() {
         return this.getMetrologyCustomPropertySetValues(this.clock.instant());
@@ -56,8 +69,7 @@ public class UsagePointPropertySetValuesExtensionImpl implements UsagePointPrope
 
     @Override
     public Map<RegisteredCustomPropertySet, CustomPropertySetValues> getMetrologyCustomPropertySetValues(Instant effectiveTimeStamp) {
-        Optional<MetrologyConfiguration> metrologyConfiguration = this.usagePointConfigurationService
-                .findMetrologyConfigurationForUsagePoint(getUsagePoint());
+        Optional<MetrologyConfiguration> metrologyConfiguration = getMetrologyConfiguration();
         if (metrologyConfiguration.isPresent()) {
             List<RegisteredCustomPropertySet> customPropertySets = metrologyConfiguration.get().getCustomPropertySets();
             Map<RegisteredCustomPropertySet, CustomPropertySetValues> values = new HashMap<>(customPropertySets.size());
@@ -80,8 +92,7 @@ public class UsagePointPropertySetValuesExtensionImpl implements UsagePointPrope
 
     @Override
     public void setMetrologyCustomPropertySetValue(CustomPropertySet customPropertySet, CustomPropertySetValues customPropertySetValue) {
-        Optional<MetrologyConfiguration> metrologyConfiguration = this.usagePointConfigurationService
-                .findMetrologyConfigurationForUsagePoint(getUsagePoint());
+        Optional<MetrologyConfiguration> metrologyConfiguration = getMetrologyConfiguration();
         if (metrologyConfiguration.isPresent()) {
             RegisteredCustomPropertySet registeredCustomPropertySet = metrologyConfiguration.get().getCustomPropertySets()
                     .stream()

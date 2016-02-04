@@ -8,18 +8,25 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.UsagePoint;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 /**
- * This interface provides functionality for custom property set values management on usage points.
+ * This interface provides functionality for custom property set management on usage points.
  */
 @ProviderType
-public interface UsagePointPropertySetValuesExtension {
+public interface UsagePointCustomPropertySetExtension {
 
     /**
      * @return The usage point instance.
      */
     UsagePoint getUsagePoint();
+
+    /**
+     * @return List of all registered custom property sets for linked metrology configuration,
+     * on an empty list if there is no linked metrology configuration
+     */
+    List<RegisteredCustomPropertySet> getMetrologyCustomPropertySets();
 
     /**
      * Returns an unmodifiable map with values for custom properties sets inherited from linked metrology configuration.

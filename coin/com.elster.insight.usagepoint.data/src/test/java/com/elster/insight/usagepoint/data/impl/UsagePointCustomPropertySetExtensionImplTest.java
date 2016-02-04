@@ -1,7 +1,7 @@
 package com.elster.insight.usagepoint.data.impl;
 
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.data.UsagePointPropertySetValuesExtension;
+import com.elster.insight.usagepoint.data.UsagePointCustomPropertySetExtension;
 import com.elster.insight.usagepoint.data.impl.cps.CustomPropertySetAttributes;
 import com.elster.insight.usagepoint.data.impl.cps.UsagePointTestCustomPropertySet;
 import com.elster.insight.usagepoint.data.impl.exceptions.UsagePointCustomPropertySetValuesManageException;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UsagePointPropertiesSetExtensionImplTest {
+public class UsagePointCustomPropertySetExtensionImplTest {
     private static UsagePointDataInMemoryBootstrapModule inMemoryBootstrapModule = new UsagePointDataInMemoryBootstrapModule();
     private static UsagePointTestCustomPropertySet customPropertySet;
     private static String USAGE_POINT_MRID = "usagePoint";
@@ -125,8 +125,8 @@ public class UsagePointPropertiesSetExtensionImplTest {
         getCurrentPrivileges().add(editPrivilege);
     }
 
-    private UsagePointPropertySetValuesExtension storeDefaultCustomPropertySetValues() {
-        UsagePointPropertySetValuesExtension valuesExtension = inMemoryBootstrapModule.getUsagePointDataService()
+    private UsagePointCustomPropertySetExtension storeDefaultCustomPropertySetValues() {
+        UsagePointCustomPropertySetExtension valuesExtension = inMemoryBootstrapModule.getUsagePointDataService()
                 .findUsagePointExtensionByMrid(USAGE_POINT_MRID).get();
         CustomPropertySetValues values = CustomPropertySetValues.empty();
         values.setProperty(CustomPropertySetAttributes.NAME.propertyKey(), "Name");
@@ -187,7 +187,7 @@ public class UsagePointPropertiesSetExtensionImplTest {
         addCustomPropertySetToTestMetrologyConfiguration();
         grantViewPrivilegesForCurrentUser();
 
-        UsagePointPropertySetValuesExtension valuesExtension = inMemoryBootstrapModule.getUsagePointDataService().findUsagePointExtensionByMrid(USAGE_POINT_MRID).get();
+        UsagePointCustomPropertySetExtension valuesExtension = inMemoryBootstrapModule.getUsagePointDataService().findUsagePointExtensionByMrid(USAGE_POINT_MRID).get();
         Map<RegisteredCustomPropertySet, CustomPropertySetValues> customPropertySetValues = valuesExtension.getMetrologyCustomPropertySetValues();
 
         assertThat(customPropertySetValues).isEmpty(); // no values and no exception
@@ -201,7 +201,7 @@ public class UsagePointPropertiesSetExtensionImplTest {
         linkTestUsagePointToTestMetrologyConfiguration();
         grantViewPrivilegesForCurrentUser();
 
-        UsagePointPropertySetValuesExtension valuesExtension = inMemoryBootstrapModule.getUsagePointDataService().findUsagePointExtensionByMrid(USAGE_POINT_MRID).get();
+        UsagePointCustomPropertySetExtension valuesExtension = inMemoryBootstrapModule.getUsagePointDataService().findUsagePointExtensionByMrid(USAGE_POINT_MRID).get();
         Map<RegisteredCustomPropertySet, CustomPropertySetValues> customPropertySetValues = valuesExtension.getMetrologyCustomPropertySetValues();
 
         assertThat(customPropertySetValues).isEmpty(); // no values and no exception
@@ -218,7 +218,7 @@ public class UsagePointPropertiesSetExtensionImplTest {
         grantEditPrivilegesForCurrentUser();
 
         // Store values
-        UsagePointPropertySetValuesExtension valuesExtension = storeDefaultCustomPropertySetValues();
+        UsagePointCustomPropertySetExtension valuesExtension = storeDefaultCustomPropertySetValues();
 
         // Read values
         Map<RegisteredCustomPropertySet, CustomPropertySetValues> storedValues = valuesExtension.getMetrologyCustomPropertySetValues();
