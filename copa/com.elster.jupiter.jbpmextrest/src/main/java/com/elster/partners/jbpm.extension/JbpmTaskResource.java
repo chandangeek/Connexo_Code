@@ -5,17 +5,10 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jbpm.kie.services.api.RuntimeDataService;
 import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
-import org.jbpm.kie.services.impl.model.VariableStateDesc;
-import org.jbpm.services.task.impl.TaskContentRegistry;
 import org.jbpm.services.task.impl.model.TaskImpl;
-import org.jbpm.services.task.impl.model.UserImpl;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
-import org.kie.api.task.TaskService;
 import org.kie.api.task.model.*;
-import org.kie.internal.task.api.ContentMarshallerContext;
 import org.kie.internal.task.api.InternalTaskService;
-import org.kie.internal.task.api.TaskModelProvider;
-import org.kie.internal.task.api.TaskPersistenceContext;
 import org.kie.internal.task.api.model.*;
 
 import javax.inject.Inject;
