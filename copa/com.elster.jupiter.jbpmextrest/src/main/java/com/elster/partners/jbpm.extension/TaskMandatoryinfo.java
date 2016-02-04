@@ -5,7 +5,7 @@ import java.util.List;
 
 public class TaskMandatoryInfo {
 
-    public String name;
+    public String namsde;
     public String processName;
     public String version;
     public List<Long> taskIds = new ArrayList<>();
