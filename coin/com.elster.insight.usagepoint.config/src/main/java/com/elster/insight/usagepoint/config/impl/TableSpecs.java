@@ -16,7 +16,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 public enum TableSpecs {
-    UPC_METROLOGYCONFIG() {
+    UPC_METROLOGYCONFIG {
         void addTo(DataModel dataModel) {
             Table<MetrologyConfiguration> table = dataModel.addTable(name(), MetrologyConfiguration.class);
             table.map(MetrologyConfigurationImpl.class);
@@ -28,7 +28,7 @@ public enum TableSpecs {
             table.primaryKey("UPC_PK_METROLOGYCONFIGURATION").on(id).add();
         }
     },
-    UPC_UPMC() {
+    UPC_UPMC {
         void addTo(DataModel dataModel) {
             Table<UsagePointMetrologyConfiguration> table = dataModel
                     .addTable(name(), UsagePointMetrologyConfiguration.class);
@@ -63,7 +63,7 @@ public enum TableSpecs {
                     .add();
         }
     },
-    UPC_MCVALRULESETUSAGE() {
+    UPC_MCVALRULESETUSAGE {
         void addTo(DataModel dataModel) {
             Table<MetrologyConfigurationValidationRuleSetUsage> table = dataModel
                     .addTable(name(), MetrologyConfigurationValidationRuleSetUsage.class);
