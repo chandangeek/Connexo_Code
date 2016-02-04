@@ -624,8 +624,8 @@ public class JbpmTaskResource {
     @GET
     @Produces("application/json")
     @Path("/mandatory")
-    public TaskMandatoryInfos checkMandatoryTask(@Context UriInfo uriInfo){
-        List<TaskMandatoryInfo> taskGroups = new ArrayList<>();
+    public TaskGroupsInfos checkMandatoryTask(@Context UriInfo uriInfo){
+        List<TaskGroupsInfo> taskGroups = new ArrayList<>();
         List<Long> taskIds = taskIdList(getQueryValue(uriInfo, "tasks"));
         Map<ProcessAssetDesc, List<Task>> groupedTasks = new HashMap<>();
         for(Long id: taskIds){
@@ -651,9 +651,9 @@ public class JbpmTaskResource {
             for(Task each : entry.getValue()){
                 ids.add(each.getId());
             }
-            taskGroups.add(new TaskMandatoryInfo(entry.getValue().get(0).getName(), entry.getKey().getName(), entry.getKey().getVersion(), ids, hasFormMandatoryFields(form), form));
+            taskGroups.add(new TaskGroupsInfo(entry.getValue().get(0).getName(), entry.getKey().getName(), entry.getKey().getVersion(), ids, hasFormMandatoryFields(form), form));
         }
-        return new TaskMandatoryInfos(taskGroups);
+        return new TaskGroupsInfos(taskGroups);
     }
 
     private boolean hasFormMandatoryFields(ConnexoForm form){
