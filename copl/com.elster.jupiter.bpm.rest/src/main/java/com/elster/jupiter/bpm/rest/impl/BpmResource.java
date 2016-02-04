@@ -789,8 +789,8 @@ public class BpmResource {
         if(!err.isEmpty()){
             return Response.status(400).entity(new LocalizedFieldException(err)).build();
         }
-        if(taskContentInfos.deploymentId != null && taskContentInfos.mrid != null) {
-            expectedParams.put("mrid", taskContentInfos.mrid);
+        if(taskContentInfos.deploymentId != null && taskContentInfos.businessObject.id != null && taskContentInfos.businessObject.value != null) {
+            expectedParams.put(taskContentInfos.businessObject.id, taskContentInfos.businessObject.value);
             bpmService.startProcess(taskContentInfos.deploymentId, id, expectedParams, auth);
         }
         return Response.ok().build();
