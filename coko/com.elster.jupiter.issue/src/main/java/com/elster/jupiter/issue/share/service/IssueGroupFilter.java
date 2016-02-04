@@ -10,11 +10,10 @@ public final class IssueGroupFilter {
     private Class<?> sourceClass;
     private Set<String> statuses;
     private String groupBy;
-    //private String assigneeType;
-    //private long assigneeId;
     private List<AssigneeDetails> assignees;
     private String mrid;
     private Set<String> issueTypes;
+    private List<DueDateRange> dueDates;
 
     public class AssigneeDetails {
         private long assigneeId;
@@ -39,6 +38,32 @@ public final class IssueGroupFilter {
 
         public void setAssigneeId(long assigneeId) {
             this.assigneeId = assigneeId;
+        }
+    }
+
+    public class DueDateRange {
+        private long startTime;
+        private long endTime;
+
+        public DueDateRange(long startTime, long endTime) {
+            this.startTime = startTime;
+            this.endTime = endTime;
+        }
+
+        public long getStartTime() {
+            return startTime;
+        }
+
+        public void setStartTime(long startTime) {
+            this.startTime = startTime;
+        }
+
+        public long getEndTime() {
+            return endTime;
+        }
+
+        public void setEndTime(long endTime) {
+            this.endTime = endTime;
         }
     }
 
@@ -121,16 +146,9 @@ public final class IssueGroupFilter {
         if (statuses != null) {
             this.statuses = new HashSet<>();
             statuses.stream().forEach(st -> this.statuses.add(getSafeString(st)));
-/*            for (String status : statuses) {
-                this.statuses.add(getSafeString(status));
-            }*/
         }
         return this;
     }
-
-/*    public String getAssigneeType() {
-        return assigneeType;
-    }*/
 
     public IssueGroupFilter withAssignee(long id, String type) {
         if (this.assignees == null) {
@@ -138,27 +156,15 @@ public final class IssueGroupFilter {
         }
         this.assignees.add(new IssueGroupFilter.AssigneeDetails(id, type));
         return this;
-
-       //return withAssigneeId(id).withAssigneeType(type);
     }
 
     public List<AssigneeDetails> getAssignees() {
         return this.assignees;
     }
 
-/*    public IssueGroupFilter withAssigneeType(String type) {
-        this.assigneeType = getSafeString(type);
-        return this;
+    public List<DueDateRange> getDueDates() {
+        return this.dueDates;
     }
-
-    public long getAssigneeId() {
-        return assigneeId;
-    }
-
-    public IssueGroupFilter withAssigneeId(long id) {
-        this.assigneeId = id;
-        return this;
-    }*/
 
     public String getMeterMrid() {
         return mrid;
@@ -174,6 +180,14 @@ public final class IssueGroupFilter {
             this.issueTypes = new HashSet<>();
             issueTypes.stream().forEach(it -> this.issueTypes.add(getSafeString(it)));
         }
+        return this;
+    }
+
+    public IssueGroupFilter withDueDate(long startTime, long endTime) {
+        if (this.dueDates == null) {
+            this.dueDates = new ArrayList<>();
+        }
+        this.dueDates.add(new IssueGroupFilter.DueDateRange(startTime, endTime));
         return this;
     }
 

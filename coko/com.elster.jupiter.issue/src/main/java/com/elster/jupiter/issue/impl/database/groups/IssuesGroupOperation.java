@@ -114,11 +114,6 @@ public abstract class IssuesGroupOperation {
                 builder.insert(0, " AND (").append(") ");
                 return builder.toString();
             }
-
-
-/*            SqlBuilder builder = new SqlBuilder(" AND r." + DatabaseConst.ISSUE_REASON_COLUMN_TYPE);
-            builder.append(" = '" + getFilter().getIssueType() + "'");
-            return builder.toString();*/
         }
         return  "";
     }
@@ -157,13 +152,12 @@ public abstract class IssuesGroupOperation {
                 if (builder.length() != 0){
                     builder.append(" OR ");
                 }
-                //builder.append("isu." + DatabaseConst.ISSUE_COLUMN_STATUS_ID).append(" = '").append(status).append("'");
                 AssigneeType type = AssigneeType.fromString(assigneeDetails.getAssigneeType());
                 if (type != null) {
-                    builder.append(DatabaseConst.ISSUE_COLUMN_ASSIGNEE_TYPE + " = " + type.ordinal());
+                    builder.append(DatabaseConst.ISSUE_COLUMN_ASSIGNEE_TYPE).append(" = ").append(type.ordinal());
                     builder.append(" AND isu.");
                     builder.append(type.getColumnName());
-                    builder.append(" = " + assigneeDetails.getAssigneeId());
+                    builder.append(" = ").append(assigneeDetails.getAssigneeId());
                 } else if (assigneeDetails.getAssigneeId() == -1L) {
                     builder.append(DatabaseConst.ISSUE_COLUMN_ASSIGNEE_TYPE + " IS NULL AND isu.ASSIGNEE_USER_ID IS NULL");
                 }
@@ -173,18 +167,28 @@ public abstract class IssuesGroupOperation {
                 return builder.toString();
             }
         }
+        return "";
+    }
 
-
-
-/*        AssigneeType type = AssigneeType.fromString(getFilter().getAssigneeType());
-        if (type != null){
-            SqlBuilder builder = new SqlBuilder(" AND isu.");
-            builder.append(DatabaseConst.ISSUE_COLUMN_ASSIGNEE_TYPE + " = " + type.ordinal());
-            builder.append(" AND isu.");
-            builder.append(type.getColumnName());
-            builder.append(" = " + getFilter().getAssigneeId());
-            return builder.toString();
-        }*/
+    protected String getDueDateCondition() {
+        if (getFilter().getDueDates() != null) {
+            StringBuilder builder = new StringBuilder();
+            for (IssueGroupFilter.DueDateRange dueDateRange : getFilter().getDueDates()) {
+                if (builder.length() != 0){
+                    builder.append(" OR ");
+                }
+                builder.append("isu.");
+                builder.append(DatabaseConst.ISSUE_COLUMN_DUE_DATE);
+                builder.append(" >= ").append(dueDateRange.getStartTime());
+                builder.append(" AND isu.");
+                builder.append(DatabaseConst.ISSUE_COLUMN_DUE_DATE);
+                builder.append(" < ").append(dueDateRange.getEndTime());
+            }
+            if (builder.length() != 0){
+                builder.insert(0, " AND (").append(") ");
+                return builder.toString();
+            }
+        }
         return "";
     }
 
