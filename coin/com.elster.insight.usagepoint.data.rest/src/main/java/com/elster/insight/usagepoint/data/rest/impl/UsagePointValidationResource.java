@@ -26,8 +26,6 @@ import com.elster.insight.common.rest.ExceptionFactory;
 import com.elster.insight.common.services.ListPager;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.insight.usagepoint.data.UsagePointValidation;
-import com.elster.insight.usagepoint.data.UsagePointValidationImpl;
 import com.elster.insight.usagepoint.data.exceptions.InvalidLastCheckedException;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.Channel;

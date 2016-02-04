@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import com.elster.insight.common.rest.IdWithNameInfo;
-import com.elster.insight.usagepoint.data.UsagePointValidation;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.BaseReadingRecord;
