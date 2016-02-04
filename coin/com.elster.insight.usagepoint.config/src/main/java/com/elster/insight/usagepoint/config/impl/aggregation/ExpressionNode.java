@@ -33,4 +33,18 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
  * @since 2016-02-04 (15:08)
  */
 public interface ExpressionNode {
+
+    interface Visitor {
+        void visitConstant(ExpressionNode constant);
+        void visitRequirement(ExpressionNode requirement);
+        void visitDeliverable(ExpressionNode deliverable);
+        void visitVariable(ExpressionNode variable);
+        void visitIdentifier(ExpressionNode identifier);
+        void visitOperator(ExpressionNode operatorNode);
+        void visitFunctionCall(ExpressionNode functionCall);
+        void visitArgumentList(ExpressionNode argumentList);
+    }
+
+    void accept(Visitor visitor);
+
 }
