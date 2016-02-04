@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -235,5 +236,22 @@ public class RegisteredCustomPropertySetImpl implements RegisteredCustomProperty
 
     void delete() {
         this.dataModel.remove(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || o.getClass() != getClass()) {
+            return false;
+        }
+        RegisteredCustomPropertySetImpl that = (RegisteredCustomPropertySetImpl) o;
+        return id == that.getId() && logicalId.equals(that.logicalId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, logicalId);
     }
 }
