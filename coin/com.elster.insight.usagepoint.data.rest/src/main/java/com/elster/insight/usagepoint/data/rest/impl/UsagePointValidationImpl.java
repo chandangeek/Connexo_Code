@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.data.exceptions.InvalidLastCheckedException;
-import com.elster.insight.usagepoint.data.impl.exceptions.MessageSeeds;
+import com.elster.insight.usagepoint.data.exceptions.MessageSeeds;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
