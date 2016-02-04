@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum DataCollectionIssueTranslationKeys  implements TranslationKey {
 
-    RETRY_NOT_SUPPORTED("RetryNotSupported", "This action is not supported by these issues"),
+    RETRY_NOT_SUPPORTED("RetryNotSupported", "This action is not supported for these issues"),
     ISSUE_DOES_NOT_EXIST("IssueDoesNotExist", "Issue doesn't exist"),
     ISSUE_ALREADY_CLOSED("IssueAlreadyClosed", "Issue already closed")
     ;
