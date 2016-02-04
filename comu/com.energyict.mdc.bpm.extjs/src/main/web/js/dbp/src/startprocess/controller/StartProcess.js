@@ -7,7 +7,6 @@ Ext.define('Dbp.startprocess.controller.StartProcess', {
         'Bpm.startprocess.controller.StartProcess'
     ],
     stores: [
-        'Dbp.startprocess.store.AvailableProcesses'
     ],
     views: [
         'Dbp.startprocess.view.StartProcess'
@@ -21,7 +20,8 @@ Ext.define('Dbp.startprocess.controller.StartProcess', {
     showStartProcess: function (mRID) {
         var me = this,
             processesStore = Ext.getStore('Dbp.startprocess.store.AvailableProcesses'),
-            viewport = Ext.ComponentQuery.query('viewport')[0];
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            router = me.getController('Uni.controller.history.Router');
 
         viewport.setLoading();
 
@@ -31,17 +31,30 @@ Ext.define('Dbp.startprocess.controller.StartProcess', {
 
                 me.getApplication().fireEvent('loadDevice', device);
                 viewport.setLoading(false);
-
-                processesStore.getProxy().setUrl(device.data.state.id);
-                processesStore.getProxy().extraParams = {privileges: Ext.encode(me.getPrivileges())};
-
                 widget = Ext.widget('dbp-start-process-view', {
                     device: device,
                     properties: {
-                        processesStore: processesStore,
-                        extraParams: [{name: 'mrid', value: mRID}],
-                        successLink: 'devices/device/processes',
-                        cancelLink: 'devices/device'
+                        activeProcessesParams: {
+                            type: 'device',
+                            devicestateid: device.data.state.id,
+                            privileges: Ext.encode(me.getPrivileges())
+                        },
+                        startProcessParams: [
+                            {
+                                name: 'type',
+                                value: 'device'
+                            },
+                            {
+                                name: 'id',
+                                value: 'mrid'
+                            },
+                            {
+                                name: 'value',
+                                value: mRID
+                            }
+                        ],
+                        successLink: router.getRoute('devices/device/processes').buildUrl({mRID: mRID}),
+                        cancelLink: router.getRoute('devices/device').buildUrl({mRID: mRID})
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
