@@ -24,7 +24,7 @@ public class CustomPropertySetInfoFactory {
     }
 
     public CustomPropertySetInfo from(RegisteredCustomPropertySet rcps) {
-        CustomPropertySetInfo info = new CustomPropertySetInfo();
+        CustomPropertySetInfo info = getGeneralInfo(rcps);
         if (rcps != null) {
             CustomPropertySet<?, ?> cps = rcps.getCustomPropertySet();
             info.properties = cps.getPropertySpecs()
