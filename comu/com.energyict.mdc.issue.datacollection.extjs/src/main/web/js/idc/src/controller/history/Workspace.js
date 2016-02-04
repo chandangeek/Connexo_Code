@@ -51,6 +51,13 @@ Ext.define('Idc.controller.history.Workspace', {
                                         }, {single: true});
                                         return this;
                                     }
+                                },
+                                startProcess: {
+                                    title: Uni.I18n.translate('general.startProcess','ISU','Start process'),
+                                    route: 'startProcess',
+                                    controller: 'Isu.controller.StartProcess',
+                                    action: 'showStartProcess',
+                                    privileges: Isu.privileges.Issue.viewProcesses && Isu.privileges.Issue.executeProcesses
                                 }
                             }
                         }
