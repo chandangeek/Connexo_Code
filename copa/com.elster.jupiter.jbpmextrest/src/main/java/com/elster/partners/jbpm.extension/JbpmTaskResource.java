@@ -481,7 +481,12 @@ public class JbpmTaskResource {
                     if (formName != null && !formName.equals("")) {
                         lookupName = formName;
                     } else {
-                        lookupName = ((I18NText) task.getNames().get(0)).getText();
+                        if(((I18NText) task.getNames().get(0)).getText() != null) {
+                            lookupName = ((I18NText) task.getNames().get(0)).getText();
+                        }else{
+                            lookupName = "";
+                        }
+
                     }
 
                     if (process.getForms().containsKey(lookupName)) {
