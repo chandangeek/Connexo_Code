@@ -46,7 +46,7 @@ Ext.define('Dbp.startprocess.controller.StartProcess', {
                             },
                             {
                                 name: 'id',
-                                value: 'mrid'
+                                value: 'deviceId'
                             },
                             {
                                 name: 'value',
