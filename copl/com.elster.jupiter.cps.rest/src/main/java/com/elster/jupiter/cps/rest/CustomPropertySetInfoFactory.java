@@ -11,7 +11,7 @@ import com.elster.jupiter.rest.util.properties.PredefinedPropertyValuesInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 
 import javax.inject.Inject;
-import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class CustomPropertySetInfoFactory {
@@ -24,6 +24,18 @@ public class CustomPropertySetInfoFactory {
     }
 
     public CustomPropertySetInfo from(RegisteredCustomPropertySet rcps) {
+        CustomPropertySetInfo info = new CustomPropertySetInfo();
+        if (rcps != null) {
+            CustomPropertySet<?, ?> cps = rcps.getCustomPropertySet();
+            info.properties = cps.getPropertySpecs()
+                    .stream()
+                    .map(this::getPropertyInfo)
+                    .collect(Collectors.toList());
+        }
+        return info;
+    }
+
+    public CustomPropertySetInfo getGeneralInfo(RegisteredCustomPropertySet rcps) {
         CustomPropertySetInfo info = new CustomPropertySetInfo();
         if (rcps != null) {
             CustomPropertySet<?, ?> cps = rcps.getCustomPropertySet();
@@ -40,22 +52,22 @@ public class CustomPropertySetInfoFactory {
             info.isVersioned = cps.isVersioned();
             info.defaultViewPrivileges = cps.defaultViewPrivileges();
             info.defaultEditPrivileges = cps.defaultEditPrivileges();
-            info.properties = cps.getPropertySpecs()
-                    .stream()
-                    .map(this::getPropertyInfo)
-                    .collect(Collectors.toList());
         }
         return info;
     }
 
     public CustomPropertySetAttributeInfo getPropertyInfo(PropertySpec propertySpec) {
+        return getPropertyInfo(propertySpec, null);
+    }
+
+    public CustomPropertySetAttributeInfo getPropertyInfo(PropertySpec propertySpec, Function<String, Object> propertyValueProvider) {
         CustomPropertySetAttributeInfo info = new CustomPropertySetAttributeInfo();
         if (propertySpec != null) {
             info.key = propertySpec.getName();
             info.name = propertySpec.getDisplayName();
             info.required = propertySpec.isRequired();
             info.propertyTypeInfo = getPropertyTypeInfo(propertySpec);
-            info.propertyValueInfo = getPropertyValueInfo(propertySpec, null);
+            info.propertyValueInfo = getPropertyValueInfo(propertySpec, propertyValueProvider);
             info.description = propertySpec.getDescription();
         }
         return info;
@@ -86,18 +98,18 @@ public class CustomPropertySetInfoFactory {
         return new PredefinedPropertyValuesInfo<>(possibleObjects, selectionMode, propertySpec.getPossibleValues().isExhaustive());
     }
 
-    public PropertyValueInfo<?> getPropertyValueInfo(PropertySpec propertySpec, Map<String, Object> values) {
-        Object propertyValue = getPropertyValue(propertySpec, values);
+    public PropertyValueInfo<?> getPropertyValueInfo(PropertySpec propertySpec, Function<String, Object> propertyValueProvider) {
+        Object propertyValue = getPropertyValue(propertySpec, propertyValueProvider);
         Object defaultValue = getDefaultValue(propertySpec);
         return new PropertyValueInfo<>(propertyValue, defaultValue);
     }
 
-    private Object getPropertyValue(PropertySpec propertySpec, Map<String, Object> values) {
-        if (values == null) {
+    private Object getPropertyValue(PropertySpec propertySpec, Function<String, Object> valueProvider) {
+        if (valueProvider == null) {
             return null;
         }
         //TODO No conversion for now! https://jira.eict.vpdc/browse/COMU-3291
-        return values.get(propertySpec.getName());
+        return valueProvider.apply(propertySpec.getName());
     }
 
     private Object getDefaultValue(PropertySpec propertySpec) {
