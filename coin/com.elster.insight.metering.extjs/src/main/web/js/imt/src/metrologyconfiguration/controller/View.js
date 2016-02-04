@@ -95,7 +95,10 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
                 store.getProxy().extraParams.linked = true;
                 store.load();
                 pageMainContent.setLoading(false);
+
                 widget.down('cas-grid').on('select', me.showCasPreview.bind(me, widget.down('cas-detail-form')));
+                widget.down('pagingtoolbartop').resetPaging();
+                widget.down('pagingtoolbarbottom').resetPaging();
             }
         });
     },
@@ -138,9 +141,10 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
 
     addCAStoMetrologyConfiguration: function (mc, records) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            sets = _.map(records, function(r) {return _.pick(r.getData(), 'customPropertySetId')});
 
-        mc.set('customPropertySets', _.map(records, function(r) {return _.pick(r.getData(), 'customPropertySetId')}));
+        mc.set('customPropertySets', mc.get('customPropertySets').concat(sets));
         mc.save({
             //failure: function(record, operation) {
             //    debugger;
