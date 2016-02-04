@@ -467,7 +467,7 @@ public class BpmResource {
                             .forEach(s -> s.id = s.id + s.deploymentId);
                     return PagedInfoList.fromCompleteList("processes", bpmProcesses, queryParameters);
                 }
-            }else if(filterProperties.get("type").get(0).toLowerCase().equals("usagepoint")){
+            }else if(filterProperties.get("type").get(0).toLowerCase().equals("usagepoint") || filterProperties.get("type").get(0).toLowerCase().equals("issue")){
                 ProcessDefinitionInfos bpmProcessDefinition = getBpmProcessDefinition(auth);
                 List<BpmProcessDefinition> connexoProcesses = bpmService.getActiveBpmProcessDefinitions();
                 List<BpmProcessDefinition> filtredConnexoProcesses = connexoProcesses.stream()
