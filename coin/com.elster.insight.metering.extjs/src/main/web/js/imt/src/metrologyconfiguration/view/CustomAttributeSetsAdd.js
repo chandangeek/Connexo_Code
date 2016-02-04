@@ -24,19 +24,6 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSetsAdd', {
                     xtype: 'cas-selection-grid',
                     store: 'Imt.metrologyconfiguration.store.CustomAttributeSets',
                     buttonAlign: 'left',
-                    buttons: [
-                        {
-                            text: Uni.I18n.translate('general.add', 'IMT', 'Add'),
-                            ui: 'action',
-                            action: 'add',
-                            disabled: true
-                        },
-                        {
-                            text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
-                            ui: 'link',
-                            action: 'cancel'
-                        }
-                    ],
                     listeners: {
                         selectionchange: function (grid) {
                             var selection = grid.view.getSelectionModel().getSelection();
@@ -53,7 +40,21 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSetsAdd', {
                         Uni.I18n.translate('Imt.metrologyconfiguration.add.empty.list.item2', 'MDC', 'No custom attribute sets defined yet')
                     ]
                 }
-            }
+            },
+            buttonAlign: 'left',
+            buttons: [
+                {
+                    text: Uni.I18n.translate('general.add', 'IMT', 'Add'),
+                    ui: 'action',
+                    action: 'add',
+                    disabled: true
+                },
+                {
+                    text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
+                    ui: 'link',
+                    action: 'cancel'
+                }
+            ]
         };
 
         me.side = [

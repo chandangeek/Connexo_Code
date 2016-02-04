@@ -3,8 +3,8 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetSetup', {
     alias: 'widget.metrologyConfigValRulesSetSetup',
     itemId: 'metrologyConfigValRulesSetSetup',
     requires: [
-        'Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetSideMenu',
-        'Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit',
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu',
+        'Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit'
     ],
     router: null,
 
@@ -31,9 +31,9 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetSetup', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'metrology-config-valrulesset-side-menu',
-                        itemId: 'metrology-config-valrulesset-side-menu',
-                        router: me.router,
+                        xtype: 'metrology-configuration-side-menu',
+                        itemId: 'metrology-configuration-side-menu',
+                        router: me.router
                     }
                 ]
             }
@@ -59,7 +59,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetSetup', {
                             ui: 'tile',
                             itemId: 'metrologyConfigValRulesSetEdit',
                             router: me.router,
-                            mcid: me.mcid,
+                            mcid: me.mcid
                         }
                     ]
                 }
