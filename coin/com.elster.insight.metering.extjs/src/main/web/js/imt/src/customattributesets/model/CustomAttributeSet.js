@@ -1,5 +1,5 @@
 Ext.define('Imt.customattributesets.model.CustomAttributeSet', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
 
     requires: [
         'Uni.util.LevelMap'
@@ -8,11 +8,11 @@ Ext.define('Imt.customattributesets.model.CustomAttributeSet', {
     fields: [
         {name: 'id', type: 'int', useNull: true},
         {name: 'name', type: 'string'},
-        {name: 'isVersioned', type: 'boolean'},
-        {name: 'viewPrivileges', type: 'auto'},
-        {name: 'editPrivileges', type: 'auto'},
-        {name: 'properties', type: 'auto'},
-        {name: 'customPropertySetId', type: 'string'},
+        {name: 'isVersioned', type: 'boolean', persist: false},
+        {name: 'viewPrivileges', type: 'auto', persist: false},
+        {name: 'editPrivileges', type: 'auto', persist: false},
+        {name: 'properties', type: 'auto', persist: false},
+        {name: 'customPropertySetId', type: 'string', persist: false},
         {
             name: 'viewPrivilegesString',
             persist: false,
@@ -27,5 +27,11 @@ Ext.define('Imt.customattributesets.model.CustomAttributeSet', {
                 return Uni.util.LevelMap.getPrivilegesString(data.editPrivileges);
             }
         }
-    ]
+    ],
+
+    proxy: {
+        type: 'rest',
+        url: '/api/ucr/metrologyconfigurations/{mcid}/custompropertysets',
+        reader: 'json'
+    }
 });

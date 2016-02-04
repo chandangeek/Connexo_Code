@@ -26,6 +26,16 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
     ],
 
     init: function () {
+        this.control({
+            '#custom-attribute-sets cas-grid actioncolumn': {
+                removeCustomAttributeSet: this.removeCustomAttributeSet
+            },
+            '#custom-attribute-sets cas-detail-form menuitem[action=removeCustomAttributeSet]': {
+                click: function(elm) {
+                    this.removeCustomAttributeSet(elm.up('cas-detail-form').getRecord());
+                }
+            }
+        });
     },
 
     showMetrologyConfiguration: function (id) {
@@ -132,15 +142,42 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
 
         mc.set('customPropertySets', _.map(records, function(r) {return _.pick(r.getData(), 'customPropertySetId')}));
         mc.save({
-            failure: function(record, operation) {
-                debugger;
-                // do something if the load failed
-            },
+            //failure: function(record, operation) {
+            //    debugger;
+            //    // do something if the load failed
+            //},
             success: function(record, operation) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.label.CAS.added', 'IMT', 'Custom attribute sets added'));
             },
             callback: function(record, operation, success) {
                 router.getRoute('administration/metrologyconfiguration/view/customAttributeSets').forward();
+            }
+        });
+    },
+
+    removeCustomAttributeSet: function (record) {
+        var me = this;
+
+        Ext.create('Uni.view.window.Confirmation').show({
+            msg: Uni.I18n.translate('metrologyconfiguration.label.CAS.removeCustomAttributeSet', 'IMT', 'This custom attribute set will no longer be available.'),
+            title: Uni.I18n.translate('metrologyconfiguration.label.CAS.removeCustomAttributeSet.title', 'IMT', "Remove '{0}'?",[record.get('name')]),
+            fn: function(btn){
+                if (btn === 'confirm') {
+                    me.destroyCustomAttributeSet(record);
+                }
+            }
+        });
+    },
+
+    destroyCustomAttributeSet: function (record) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        record.getProxy().extraParams.mcid =  router.arguments.mcid;
+        record.destroy({
+            success: function () {
+                me.getController('Uni.controller.history.Router').getRoute().forward();
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.label.CAS.removed', 'IMT', 'Custom attribute set removed'));
             }
         });
     }
