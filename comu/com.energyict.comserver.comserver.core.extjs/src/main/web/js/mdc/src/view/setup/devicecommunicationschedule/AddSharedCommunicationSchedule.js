@@ -58,11 +58,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                                     href: '#/devices/' + encodeURIComponent(this.mRID) + '/communicationplanning'
                                 }
                             ]
-                        },
-                        previewComponent: {
-                            xtype: 'addSharedCommunicationSchedulePreview'
                         }
-
                     },
                     {
                         xtype: 'component',

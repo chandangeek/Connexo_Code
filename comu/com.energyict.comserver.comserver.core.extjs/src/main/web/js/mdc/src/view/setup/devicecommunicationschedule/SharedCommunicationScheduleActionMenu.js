@@ -1,4 +1,8 @@
 Ext.define('Mdc.view.setup.devicecommunicationschedule.SharedCommunicationScheduleActionMenu', {
+    /*
+     This is an obsolete, no more used class
+     (Keep it in case it is needed later on)
+     */
     extend: 'Ext.menu.Menu',
     alias: 'widget.shared-communication-schedule-action-menu',
     plain: true,
