@@ -188,6 +188,7 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
                                           boolean adp_RLC_enabled,
                                           int adp_add_rev_link_cost) throws IOException {
 
+        Array routingArray = new Array();
         Structure routingConfiguration = new Structure();
         routingConfiguration.addDataType(new Unsigned8(adp_net_traversal_time));
         routingConfiguration.addDataType(new Unsigned16(adp_routing_table_entry_TTL));
@@ -203,8 +204,9 @@ public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
         routingConfiguration.addDataType(new BooleanObject(adp_unicast_RREQ_gen_enable));
         routingConfiguration.addDataType(new BooleanObject(adp_RLC_enabled));
         routingConfiguration.addDataType(new Unsigned8(adp_add_rev_link_cost));
+        routingArray.addDataType(routingConfiguration);
 
-        write(SixLowPanAdaptationLayerSetupAttribute.ADP_ROUTING_CONFIGURATION, routingConfiguration.getBEREncodedByteArray());
+        write(SixLowPanAdaptationLayerSetupAttribute.ADP_ROUTING_CONFIGURATION, routingArray.getBEREncodedByteArray());
     }
 
     /**
