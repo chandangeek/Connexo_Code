@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
     ],
     alias: 'widget.comServerEdit',
     itemId: 'comServerEdit',
-
+    me: this,
     edit: false,
 
     content: [
@@ -45,6 +45,14 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     required: true,
                     width: 600,
                     listeners: {
+/*                        dirtychange: {
+                            scope: me,
+                            fn: function(field, dirty , options) {
+                                if (dirty) {
+                                    this.setServerName(field.getValue());
+                                }
+                            }
+                        },         */
                         afterrender: function(field) {
                             field.focus(false, 200);
                         }
@@ -208,6 +216,36 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     width: 415
                 },
                 {
+                    xtype: 'textfield',
+                    itemId: 'txt-communication-server-server-name',
+                    fieldLabel: Uni.I18n.translate('comserver.formFieldLabel.server.serverName', 'MDC', 'Server name'),
+                    name: 'serverName',
+                    width: 600
+                },
+                {
+                    xtype: 'numberfield',
+                    itemId: 'num-monitor-port',
+                    fieldLabel: Uni.I18n.translate('comserver.formFieldLabel.monitor.port', 'MDC', 'Monitor port'),
+                    name: 'monitorPort',
+                    minValue: 0,
+                    // Remove spinner buttons, and arrow key and mouse wheel listeners
+                    hideTrigger: true,
+                    keyNavEnabled: false,
+                    mouseWheelEnabled: false,
+                    width: 415
+                },
+                {
+                    xtype: 'numberfield',
+                    itemId: 'num-event-uri-port',
+                    fieldLabel: Uni.I18n.translate('comserver.formFieldLabel.event.registration.port', 'MDC', 'Event registration port'),
+                    name: 'eventRegistrationPort',
+                    minValue: 0,
+                    hideTrigger: true,
+                    keyNavEnabled: false,
+                    mouseWheelEnabled: false,
+                    width: 415
+                },
+                {
                     xtype: 'fieldcontainer',
                     ui: 'actions',
                     fieldLabel: '&nbsp',
@@ -245,5 +283,12 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
         }
         this.down('#cancelLink').href = returnLink;
+    },
+
+    setServerName: function(name){
+        if (!this.isEdit()){
+            this.down('#comServerEditForm').getForm().findField('serverName').setValue(name);
+        }
     }
+
 });

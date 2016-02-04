@@ -22,6 +22,11 @@ Ext.define('Mdc.view.setup.comserver.ActionMenu', {
             action: 'deactivate'
         },
         {
+            itemId: 'monitor',
+            text: Uni.I18n.translate('comserver.mon itor', 'MDC', 'Monitor'),
+            action: 'monitor'
+        },
+        {
             itemId: 'remove',
             text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
             action: 'remove'

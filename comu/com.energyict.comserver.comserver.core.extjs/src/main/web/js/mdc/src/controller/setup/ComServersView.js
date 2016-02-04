@@ -92,6 +92,9 @@ Ext.define('Mdc.controller.setup.ComServersView', {
             case 'deactivate':
                 activeChange = false;
                 break;
+            case 'monitor':
+                me.openComserverMonitor(record);
+                break;
         }
 
         if (activeChange != 'notChanged') {
@@ -214,6 +217,11 @@ Ext.define('Mdc.controller.setup.ComServersView', {
                 }
             }
         });
+    },
+
+    openComserverMonitor: function (record) {
+        var monitorUri = Mdc.util.UriParser.parse(record.get('statusUri')).withPort(record.get('monitorPort')).withPath('/apps/comservermonitor/index.html').buildUrl();
+        window.open(monitorUri);
     },
 
     deleteComserver: function (record) {
