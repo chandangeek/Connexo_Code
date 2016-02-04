@@ -3,6 +3,7 @@ package com.elster.insight.usagepoint.data.exceptions;
 import java.time.Instant;
 import java.util.Date;
 
+import aQute.bnd.annotation.ProviderType;
 import org.osgi.service.device.Device;
 
 import com.elster.jupiter.metering.UsagePoint;
@@ -15,6 +16,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
  * timestamp is invalid.
  *
  */
+@ProviderType
 public class InvalidLastCheckedException extends RuntimeException {
 
     public static InvalidLastCheckedException lastCheckedCannotBeNull(UsagePoint usagePoint, Thesaurus thesaurus, MessageSeed messageSeed) {

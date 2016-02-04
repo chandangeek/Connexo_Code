@@ -1,9 +1,10 @@
 package com.elster.insight.usagepoint.data.impl;
 
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.data.UsagePointExtended;
+import com.elster.insight.usagepoint.data.UsagePointPropertySetValuesExtension;
 import com.elster.insight.usagepoint.data.impl.cps.CustomPropertySetAttributes;
 import com.elster.insight.usagepoint.data.impl.cps.UsagePointTestCustomPropertySet;
+import com.elster.insight.usagepoint.data.impl.exceptions.UsagePointCustomPropertySetValuesManageException;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -32,7 +33,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UsagePointExtendedImplTest {
+public class UsagePointPropertiesSetExtensionImplTest {
     private static UsagePointDataInMemoryBootstrapModule inMemoryBootstrapModule = new UsagePointDataInMemoryBootstrapModule();
     private static UsagePointTestCustomPropertySet customPropertySet;
     private static String USAGE_POINT_MRID = "usagePoint";
@@ -69,7 +70,7 @@ public class UsagePointExtendedImplTest {
 
     private MetrologyConfiguration getTestMetrologyConfigurationInstance() {
         return inMemoryBootstrapModule.getUsagePointConfigurationService()
-                .findMetrologyConfiguration(METROLOGY_CONFIGURATION_MRID).orElseGet(() -> createTestMetrologyConfigurationInstance());
+                .findMetrologyConfiguration(METROLOGY_CONFIGURATION_MRID).orElseGet(this::createTestMetrologyConfigurationInstance);
     }
 
     private UsagePoint createTestUsagePointInstance() {
@@ -82,7 +83,7 @@ public class UsagePointExtendedImplTest {
 
     private UsagePoint getTestUsagePointInstance() {
         return inMemoryBootstrapModule.getMeteringService()
-                .findUsagePoint(USAGE_POINT_MRID).orElseGet(() -> createTestUsagePointInstance());
+                .findUsagePoint(USAGE_POINT_MRID).orElseGet(this::createTestUsagePointInstance);
     }
 
     private void linkTestUsagePointToTestMetrologyConfiguration() {
@@ -124,9 +125,91 @@ public class UsagePointExtendedImplTest {
         getCurrentPrivileges().add(editPrivilege);
     }
 
+    private UsagePointPropertySetValuesExtension storeDefaultCustomPropertySetValues() {
+        UsagePointPropertySetValuesExtension valuesExtension = inMemoryBootstrapModule.getUsagePointDataService()
+                .findUsagePointExtensionByMrid(USAGE_POINT_MRID).get();
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        values.setProperty(CustomPropertySetAttributes.NAME.propertyKey(), "Name");
+        values.setProperty(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey(), Boolean.TRUE);
+        valuesExtension.setMetrologyCustomPropertySetValue(customPropertySet, values);
+        return valuesExtension;
+    }
+
+    @Test(expected = UsagePointCustomPropertySetValuesManageException.class)
+    @Transactional
+    public void testSetMetrologyValuesButThereIsNoCustomPropertySetsOnMetrologyConfiguration() {
+        createTestMetrologyConfigurationInstance();
+        createTestUsagePointInstance();
+        linkTestUsagePointToTestMetrologyConfiguration();
+        grantViewPrivilegesForCurrentUser();
+        grantEditPrivilegesForCurrentUser();
+
+        // Store values
+        storeDefaultCustomPropertySetValues();
+
+        // assert exception
+    }
+
+    @Test(expected = UsagePointCustomPropertySetValuesManageException.class)
+    @Transactional
+    public void testSetMetrologyValuesButThereIsNoLinkedMetrologyConfiguration() {
+        createTestUsagePointInstance();
+        createTestMetrologyConfigurationInstance();
+        addCustomPropertySetToTestMetrologyConfiguration();
+        grantViewPrivilegesForCurrentUser();
+        grantEditPrivilegesForCurrentUser();
+
+        // Store values
+        storeDefaultCustomPropertySetValues();
+
+        // assert exception
+    }
+
+    @Test(expected = UsagePointCustomPropertySetValuesManageException.class)
+    @Transactional
+    public void testSetMetrologyValuesButCurrentUserHasNoEditPrivileges() {
+        createTestUsagePointInstance();
+        createTestMetrologyConfigurationInstance();
+        addCustomPropertySetToTestMetrologyConfiguration();
+        grantViewPrivilegesForCurrentUser();
+
+        // Store values
+        storeDefaultCustomPropertySetValues();
+
+        // assert exception
+    }
+
     @Test
     @Transactional
-    public void testSetAndReadValuesForSimpleCustomPropertySetFromMetrologyConfiguration() {
+    public void testReadMetrologyValuesButThereIsNoLinkedMetrologyConfiguration() {
+        createTestUsagePointInstance();
+        createTestMetrologyConfigurationInstance();
+        addCustomPropertySetToTestMetrologyConfiguration();
+        grantViewPrivilegesForCurrentUser();
+
+        UsagePointPropertySetValuesExtension valuesExtension = inMemoryBootstrapModule.getUsagePointDataService().findUsagePointExtensionByMrid(USAGE_POINT_MRID).get();
+        Map<RegisteredCustomPropertySet, CustomPropertySetValues> customPropertySetValues = valuesExtension.getMetrologyCustomPropertySetValues();
+
+        assertThat(customPropertySetValues).isEmpty(); // no values and no exception
+    }
+
+    @Test
+    @Transactional
+    public void testReadMetrologyValuesButThereIsNoCustomPropertySetsOnMetrologyConfiguration() {
+        createTestUsagePointInstance();
+        createTestMetrologyConfigurationInstance();
+        linkTestUsagePointToTestMetrologyConfiguration();
+        grantViewPrivilegesForCurrentUser();
+
+        UsagePointPropertySetValuesExtension valuesExtension = inMemoryBootstrapModule.getUsagePointDataService().findUsagePointExtensionByMrid(USAGE_POINT_MRID).get();
+        Map<RegisteredCustomPropertySet, CustomPropertySetValues> customPropertySetValues = valuesExtension.getMetrologyCustomPropertySetValues();
+
+        assertThat(customPropertySetValues).isEmpty(); // no values and no exception
+    }
+
+    @Test
+    @Transactional
+    public void testSetAndReadMetrologyValuesForSimpleCustomPropertySet() {
         createTestMetrologyConfigurationInstance();
         addCustomPropertySetToTestMetrologyConfiguration();
         createTestUsagePointInstance();
@@ -135,14 +218,10 @@ public class UsagePointExtendedImplTest {
         grantEditPrivilegesForCurrentUser();
 
         // Store values
-        UsagePointExtended usagePointExtended = inMemoryBootstrapModule.getUsagePointDataService().findUsagePointByMrid(USAGE_POINT_MRID).get();
-        CustomPropertySetValues values = CustomPropertySetValues.empty();
-        values.setProperty(CustomPropertySetAttributes.NAME.propertyKey(), "Name");
-        values.setProperty(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey(), Boolean.TRUE);
-        usagePointExtended.setMetrologyCustomPropertySetValue(customPropertySet, values);
+        UsagePointPropertySetValuesExtension valuesExtension = storeDefaultCustomPropertySetValues();
 
         // Read values
-        Map<RegisteredCustomPropertySet, CustomPropertySetValues> storedValues = usagePointExtended.getMetrologyCustomPropertySetValues();
+        Map<RegisteredCustomPropertySet, CustomPropertySetValues> storedValues = valuesExtension.getMetrologyCustomPropertySetValues();
 
         assertThat(storedValues.size()).isEqualTo(1);
         assertThat(storedValues.keySet().iterator().next().getCustomPropertySet().getId()).isEqualTo(customPropertySet.getId());

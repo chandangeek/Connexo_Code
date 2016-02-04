@@ -1,5 +1,7 @@
 package com.elster.insight.usagepoint.data;
 
+import aQute.bnd.annotation.ProviderType;
+import com.elster.insight.usagepoint.data.impl.exceptions.UsagePointCustomPropertySetValuesManageException;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -9,12 +11,15 @@ import java.time.Instant;
 import java.util.Map;
 
 /**
- * This temporary interface extension, the sole purpose is provide functionality which relates to metrology configuration.
- * When metrology configuration will be moved to the metering bundle all this methods should be moved to the
- * {@link UsagePoint} interface.
+ * This interface provides functionality for custom property set values management on usage points.
  */
-// TODO move all functionality to the UsagePoint interface
-public interface UsagePointExtended extends UsagePoint {
+@ProviderType
+public interface UsagePointPropertySetValuesExtension {
+
+    /**
+     * @return The usage point instance.
+     */
+    UsagePoint getUsagePoint();
 
     /**
      * Returns an unmodifiable map with values for custom properties sets inherited from linked metrology configuration.
@@ -39,7 +44,10 @@ public interface UsagePointExtended extends UsagePoint {
      *
      * @param customPropertySet      custom property sets whose values we want to save.
      * @param customPropertySetValue filled values for a custom properties set.
-     * @throws
+     * @throws UsagePointCustomPropertySetValuesManageException in cases:
+     * <li>there is no linked metrology configuration</li>
+     * <li>there is no linked custom property set on metrology configuration</li>
+     * <li>current user has not sufficient privileges</li>
      */
     void setMetrologyCustomPropertySetValue(CustomPropertySet customPropertySet, CustomPropertySetValues customPropertySetValue);
 }

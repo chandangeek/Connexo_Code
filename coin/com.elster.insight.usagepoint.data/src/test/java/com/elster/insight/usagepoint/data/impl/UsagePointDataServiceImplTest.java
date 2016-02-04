@@ -1,6 +1,6 @@
 package com.elster.insight.usagepoint.data.impl;
 
-import com.elster.insight.usagepoint.data.UsagePointExtended;
+import com.elster.insight.usagepoint.data.UsagePointPropertySetValuesExtension;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.ServiceKind;
@@ -41,10 +41,10 @@ public class UsagePointDataServiceImplTest {
                 .get()
                 .newUsagePoint(usagePointMrid)
                 .create();
-        Optional<UsagePointExtended> usagePoint = inMemoryBootstrapModule.getUsagePointDataService()
-                .findUsagePointByMrid(usagePointMrid);
-        assertThat(usagePoint.isPresent()).isTrue();
-        assertThat(usagePoint.get().getMRID()).isEqualTo(usagePointMrid);
+        Optional<UsagePointPropertySetValuesExtension> valuesExtension = inMemoryBootstrapModule.getUsagePointDataService()
+                .findUsagePointExtensionByMrid(usagePointMrid);
+        assertThat(valuesExtension.isPresent()).isTrue();
+        assertThat(valuesExtension.get().getUsagePoint().getMRID()).isEqualTo(usagePointMrid);
     }
 
 }

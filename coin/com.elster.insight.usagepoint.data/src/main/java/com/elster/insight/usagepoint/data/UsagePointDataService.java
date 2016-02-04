@@ -1,16 +1,19 @@
 package com.elster.insight.usagepoint.data;
 
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.Optional;
 
+@ProviderType
 public interface UsagePointDataService {
     String COMPONENT_NAME = "UDC";
 
     /**
-     * Returns an extended usage point which supports functionality which relates to metrology configurations.
+     * Returns an utility class which allows to manage custom property sets values on usage point.
+     *
      * @param mrid usage point mrid
-     * @return A wrapped usage point.
+     * @return The utility extension or <code>Optional.empty()</code> if there is no usage point with the given mrid.
      */
-    // TODO remove when {@link MetrologyConfiguration} will be moved to the metering bundle.
-    Optional<UsagePointExtended> findUsagePointByMrid(String mrid);
+    Optional<UsagePointPropertySetValuesExtension> findUsagePointExtensionByMrid(String mrid);
 }

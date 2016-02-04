@@ -2,7 +2,8 @@ package com.elster.insight.usagepoint.data.impl;
 
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.data.UsagePointDataService;
-import com.elster.insight.usagepoint.data.UsagePointExtended;
+import com.elster.insight.usagepoint.data.UsagePointPropertySetValuesExtension;
+import com.elster.insight.usagepoint.data.impl.exceptions.MessageSeeds;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -126,9 +127,9 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     }
 
     @Override
-    public Optional<UsagePointExtended> findUsagePointByMrid(String mrid) {
+    public Optional<UsagePointPropertySetValuesExtension> findUsagePointExtensionByMrid(String mrid) {
         return this.meteringService.findUsagePoint(mrid)
-                .map(up -> getDataModel().getInstance(UsagePointExtendedImpl.class).init(up));
+                .map(up -> getDataModel().getInstance(UsagePointPropertySetValuesExtensionImpl.class).init(up));
     }
 
 }

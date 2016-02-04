@@ -1,5 +1,6 @@
 package com.elster.insight.usagepoint.data.impl;
 
+import com.elster.insight.usagepoint.data.impl.exceptions.MessageSeeds;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
