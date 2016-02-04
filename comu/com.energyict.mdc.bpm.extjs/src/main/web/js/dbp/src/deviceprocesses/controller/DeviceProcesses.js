@@ -68,8 +68,8 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
                 me.getApplication().fireEvent('loadDevice', device);
                 viewport.setLoading(false);
 
-                me.getStore('Dbp.deviceprocesses.store.RunningProcesses').getProxy().setUrl('mrid', me.mRID);
-                me.getStore('Dbp.deviceprocesses.store.HistoryProcesses').getProxy().setUrl('mrid', me.mRID);
+                me.getStore('Dbp.deviceprocesses.store.RunningProcesses').getProxy().setUrl('deviceId', me.mRID);
+                me.getStore('Dbp.deviceprocesses.store.HistoryProcesses').getProxy().setUrl('deviceId', me.mRID);
 
                 widget = Ext.widget('dbp-device-processes-main-view', {device: device});
                 me.getApplication().fireEvent('changecontentevent', widget);

@@ -10,7 +10,7 @@ Ext.define('Dbp.controller.Main', {
     controllers: [
         'Dbp.controller.History',
         'Dbp.deviceprocesses.controller.DeviceProcesses',
-        'Dbp.deviceprocesses.controller.StartProcess',
+        'Dbp.startprocess.controller.StartProcess',
         'Dbp.processes.controller.Processes'
     ],
 
@@ -66,5 +66,5 @@ Ext.define('Dbp.controller.Main', {
         if (dataCollection !== null) {
             Uni.store.PortalItems.add(dataCollection);
         }
-    },
+    }
 });
