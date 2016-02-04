@@ -480,38 +480,57 @@ public class BpmResource {
     @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.ADMINISTRATE_BPM})
     public PagedInfoList getActiveBpmProcessesDefinitions(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth) {
         MultivaluedMap<String, String> filterProperties = uriInfo.getQueryParameters();
-        if(filterProperties.get("devicestateid") !=null && filterProperties.get("privileges") != null) {
-            String jsonContent;
-            List<String> privileges = getPropertyList(filterProperties.get("privileges").get(0), "privilege");
-            JSONArray arr = null;
-            try {
-                jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes", auth);
-                if (!"".equals(jsonContent)) {
-                    JSONObject jsnobject = new JSONObject(jsonContent);
-                    arr = jsnobject.getJSONArray("processDefinitionList");
-                }
-            } catch (JSONException e) {
-                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
-            } catch (RuntimeException e) {
-                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
-            }
-            ProcessDefinitionInfos bpmProcessDefinition = new ProcessDefinitionInfos(arr);
-            long deviceStateId  = Long.valueOf(filterProperties.get("devicestateid").get(0));
-            List<String> privilegeNames = privileges.stream().collect(Collectors.toList());
-            List<BpmProcessDefinition> connexoProcesses = bpmService.getActiveBpmProcessDefinitions();
-            List<BpmProcessDefinition> filtredConnexoProcesses = connexoProcesses.stream()
-                    .filter(p -> p.getProcessDeviceStates().stream().anyMatch(s -> s.getDeviceStateId() == deviceStateId))
-                    .filter(p -> p.getPrivileges().stream().anyMatch(s -> privilegeNames.stream().anyMatch(z -> z.equals(s.getPrivilegeName()))))
-                    .collect(Collectors.toList());
+        if(filterProperties.get("type") != null) {
+            if (filterProperties.get("type").get(0).toLowerCase().equals("device")) {
+                if (filterProperties.get("devicestateid") != null && filterProperties.get("privileges") != null) {
+                    List<String> privileges = getPropertyList(filterProperties.get("privileges").get(0), "privilege");
+                    ProcessDefinitionInfos bpmProcessDefinition = getBpmProcessDefinition(auth);
+                    long deviceStateId = Long.valueOf(filterProperties.get("devicestateid").get(0));
+                    List<String> privilegeNames = privileges.stream().collect(Collectors.toList());
+                    List<BpmProcessDefinition> connexoProcesses = bpmService.getActiveBpmProcessDefinitions();
+                    List<BpmProcessDefinition> filtredConnexoProcesses = connexoProcesses.stream()
+                            .filter(p -> p.getProcessDeviceStates().stream().anyMatch(s -> s.getDeviceStateId() == deviceStateId))
+                            .filter(p -> p.getPrivileges().stream().anyMatch(s -> privilegeNames.stream().anyMatch(z -> z.equals(s.getPrivilegeName()))))
+                            .filter(p -> p.getAssociation().toLowerCase().equals(filterProperties.get("type").get(0).toLowerCase()))
+                            .collect(Collectors.toList());
 
-            List<ProcessDefinitionInfo> bpmProcesses = bpmProcessDefinition.processes.stream()
-                    .filter(s -> filtredConnexoProcesses.stream().anyMatch(x -> x.getProcessName().equals(s.name) && x.getVersion().equals(s.version)))
-                    .collect(Collectors.toList());
-            bpmProcesses.stream()
-                    .forEach(s -> s.id = s.id + s.deploymentId);
-            return PagedInfoList.fromCompleteList("processes", bpmProcesses, queryParameters);
+                    List<ProcessDefinitionInfo> bpmProcesses = bpmProcessDefinition.processes.stream()
+                            .filter(s -> filtredConnexoProcesses.stream().anyMatch(x -> x.getProcessName().equals(s.name) && x.getVersion().equals(s.version)))
+                            .collect(Collectors.toList());
+                    bpmProcesses.stream()
+                            .forEach(s -> s.id = s.id + s.deploymentId);
+                    return PagedInfoList.fromCompleteList("processes", bpmProcesses, queryParameters);
+                }
+            }else if(filterProperties.get("type").get(0).toLowerCase().equals("usagepoint") || filterProperties.get("type").get(0).toLowerCase().equals("issue")){
+                ProcessDefinitionInfos bpmProcessDefinition = getBpmProcessDefinition(auth);
+                List<BpmProcessDefinition> connexoProcesses = bpmService.getActiveBpmProcessDefinitions();
+                List<BpmProcessDefinition> filtredConnexoProcesses = connexoProcesses.stream()
+                        .filter(p -> p.getAssociation().toLowerCase().equals(filterProperties.get("type").get(0).toLowerCase()))
+                        .collect(Collectors.toList());
+                List<ProcessDefinitionInfo> bpmProcesses = bpmProcessDefinition.processes.stream()
+                        .filter(s -> filtredConnexoProcesses.stream().anyMatch(x -> x.getProcessName().equals(s.name) && x.getVersion().equals(s.version)))
+                        .collect(Collectors.toList());
+                bpmProcesses.stream()
+                        .forEach(s -> s.id = s.id + s.deploymentId);
+                return PagedInfoList.fromCompleteList("processes", bpmProcesses, queryParameters);
+            }
         }
         return null;
+    }
+
+    private ProcessDefinitionInfos getBpmProcessDefinition(String auth){
+        String jsonContent;
+        JSONArray arr = null;
+        try {
+            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes", auth);
+            if (!"".equals(jsonContent)) {
+                JSONObject jsnobject = new JSONObject(jsonContent);
+                arr = jsnobject.getJSONArray("processDefinitionList");
+            }
+        } catch (JSONException e) {
+        } catch (RuntimeException e) {
+        }
+        return new ProcessDefinitionInfos(arr);
     }
 
     @GET
