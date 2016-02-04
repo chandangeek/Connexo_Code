@@ -614,11 +614,10 @@ public class BpmResource {
     @Path("tasks/mandatory")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.EXECUTE_TASK, Privileges.Constants.ASSIGN_TASK})
-    public TasksWithMandatoryFieldsInfo getTaskContent(@HeaderParam("Authorization") String auth, @Context UriInfo uriInfo) {
+    public TaskGroupsInfos getTaskContent(@HeaderParam("Authorization") String auth, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         String jsonContent;
-        JSONObject obj = null;
-        TasksWithMandatoryFieldsInfo tasksWithMandatoryFieldsInfo = null;
+        JSONArray arr = null;
         try {
             String rest = "/rest/tasks/mandatory";
             String req = getQueryParam(queryParameters);
@@ -628,7 +627,7 @@ public class BpmResource {
             jsonContent = bpmService.getBpmServer().doGet(rest, auth);
             if (!"".equals(jsonContent)) {
                 if(!jsonContent.equals("Connection refused: connect")){
-                    obj = new JSONObject(jsonContent);
+                    arr = (new JSONObject(jsonContent)).getJSONArray("taskGroups");
                 }else {
                     throw new NoBpmConnectionException(thesaurus);
                 }
@@ -636,10 +635,7 @@ public class BpmResource {
 
         } catch (JSONException e) {
         }
-        if(obj != null) {
-            tasksWithMandatoryFieldsInfo = new TasksWithMandatoryFieldsInfo(obj);
-        }
-        return tasksWithMandatoryFieldsInfo;
+        return new TaskGroupsInfos(arr);
     }
 
     @GET
