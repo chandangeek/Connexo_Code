@@ -35,7 +35,7 @@ public class TaskGroupsInfo {
             tasksForm = new TaskContentInfos(form);
             JSONArray ids = jsonObject.getJSONArray("taskIds");
             for(int i = 0; i< ids.length(); i++){
-                taskIds.add(ids.getLong(0));
+                taskIds.add(ids.getLong(i));
             }
         } catch (JSONException e) {
             e.printStackTrace();
