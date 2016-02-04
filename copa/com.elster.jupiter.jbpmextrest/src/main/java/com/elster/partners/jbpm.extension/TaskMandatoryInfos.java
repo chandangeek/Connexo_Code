@@ -6,9 +6,9 @@ import java.util.List;
 
 public class TaskMandatoryInfos {
 
-    public List<TaskMandatoryInfo> taskGroups = new ArrayList<>();
+    public List<TaskMandatoryInfoouuuu> taskGroups = new ArrayList<>();
 
-    public TaskMandatoryInfos(List<TaskMandatoryInfo> taskGroups){
+    public TaskMandatoryInfos(List<TaskMandatoryInfoouuuu> taskGroups){
         this.taskGroups = taskGroups;
     }
 
