@@ -72,11 +72,8 @@ public class JbpmTaskResourceTest {
         server.stop();
     }
 
-    // testGetTasks
-
     @Test
     public void testGetCompletedTask() throws Exception {
-        // Given
         Calendar calendar = new GregorianCalendar(2016, 1, 1, 10, 30, 0);
 
         EntityManager entityManager = mock(EntityManager.class);
@@ -99,10 +96,8 @@ public class JbpmTaskResourceTest {
         ClientRequest request = new ClientRequest(baseUri + "/1");
         when(internalTaskService.getTaskById(1)).thenReturn(null);
 
-        // When
         ClientResponse<TaskSummary> response = request.get(TaskSummary.class);
 
-        // Then
         assertEquals(1L, response.getEntity().getId());
         assertEquals("TestTask", response.getEntity().getName());
         assertEquals("TestProcessId", response.getEntity().getProcessName());
@@ -118,7 +113,6 @@ public class JbpmTaskResourceTest {
 
     @Test
     public void testGetExistingTask() throws Exception {
-        // Given
         Task task = mock(Task.class);
         when(task.getId()).thenReturn(1L);
         when(task.getName()).thenReturn("TestTask");
@@ -141,10 +135,8 @@ public class JbpmTaskResourceTest {
         ClientRequest request = new ClientRequest(baseUri + "/1");
         when(internalTaskService.getTaskById(1)).thenReturn(task);
 
-        // When
         ClientResponse<TaskSummary> response = request.get(TaskSummary.class);
 
-        // Then
         assertEquals(1L, response.getEntity().getId());
         assertEquals("TestTask", response.getEntity().getName());
         assertEquals("TestProcessId", response.getEntity().getProcessName());
@@ -214,7 +206,7 @@ public class JbpmTaskResourceTest {
         ClientRequest request = new ClientRequest(baseUri + "/process/history");
         request.queryParameter("variableid", "mrid");
         request.queryParameter("variablevalue", "device01");
-        
+
         ClientResponse<ProcessHistoryInfos> response = request.get(ProcessHistoryInfos.class);
 
         assertEquals(1L, response.getEntity().processHistories.get(0).status);

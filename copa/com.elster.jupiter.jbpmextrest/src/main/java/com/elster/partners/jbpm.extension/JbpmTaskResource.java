@@ -404,7 +404,6 @@ public class JbpmTaskResource {
             processInstanceState = "Aborted";
         }
         EntityManager em = emf.createEntityManager();
-//        String queryString = "select n.NODENAME, n.NODETYPE, MAX(n.TYPE), MIN(n.LOG_DATE), n.NODEINSTANCEID from NODEINSTANCELOG n where n.PROCESSINSTANCEID =:processInstanceId group by n.NODENAME, n.NODETYPE, n.NODEINSTANCEID order by MIN(n.LOG_DATE) DESC";
         String queryString = "select * from(select n.NODENAME, n.NODETYPE, n.log_date,n.NODEINSTANCEID, n.NODEID, n.ID from NODEINSTANCELOG n " +
                 "where n.PROCESSINSTANCEID = :processInstanceId and type= (select min(type) from NODEINSTANCELOG where processinstanceid = :processInstanceId and nodeid = n.nodeid) order by n.ID desc)t1 " +
                 "join(select p.NODEID as NODEIDNOTUSED, max(p.TYPE) from NODEINSTANCELOG p where processinstanceid = :processInstanceId group by p.NODEID)t2 on t1.nodeid = t2.NODEIDNOTUSED";
@@ -627,80 +626,53 @@ public class JbpmTaskResource {
     @GET
     @Produces("application/json")
     @Path("/mandatory")
-    public TaskMandatory checkMandatoryTask(@Context UriInfo uriInfo){
-        TaskMandatory taskMandatory = new TaskMandatory();
-        taskMandatory.result = "NOMANDATORY";
-        if(getQueryValue(uriInfo, "tasks") != null) {
-            List<Long> taskIds = taskIdList(getQueryValue(uriInfo, "tasks"));
-            List<TaskSummary> taskSummaries = new ArrayList<>();
-            for(Long id : taskIds){
-                if(internalTaskService.getTaskById(id) != null) {
-                    taskSummaries.add(new TaskSummary(internalTaskService.getTaskById(id)));
+    public TaskMandatoryInfos checkMandatoryTask(@Context UriInfo uriInfo){
+        List<TaskMandatoryInfo> taskGroups = new ArrayList<>();
+        List<Long> taskIds = taskIdList(getQueryValue(uriInfo, "tasks"));
+        Map<ProcessAssetDesc, List<Task>> groupedTasks = new HashMap<>();
+        for(Long id: taskIds){
+            Task task = internalTaskService.getTaskById(id);
+            ProcessAssetDesc process = null;
+            Collection<ProcessAssetDesc> processesList = runtimeDataService.getProcessesByDeploymentId(task.getTaskData().getDeploymentId());
+            for (ProcessAssetDesc each : processesList) {
+                if (each.getDeploymentId().equals(task.getTaskData().getDeploymentId())) {
+                    process = each;
                 }
             }
-            List<TaskSummary> taskIdsMandatoryFields = getTaskWithMandatoryFields(taskIds);
-            if(taskIdsMandatoryFields.size() == taskSummaries.size()) {
-                if (areFormTaskTheSame(taskIds)) {
-                    taskMandatory.result = "ALLMANDATORY";
-//                    taskMandatory.taskSummaryList = new TaskSummaryList(taskIdsMandatoryFields);
-                    taskMandatory.connexoForm = getTaskContent(taskIdList(getQueryValue(uriInfo, "tasks")).get(0));
-                    taskMandatory.connexoForm.taskStatus = Status.InProgress;
-                    taskMandatory.connexoForm.content = new HashMap<>();
-                    taskMandatory.connexoForm.outContent = new HashMap<>();
-                }else if(!taskIdsMandatoryFields.isEmpty()){
-                    taskMandatory.result = "WITHMANDATORY";
-                    taskMandatory.taskSummaryList = new TaskSummaryList(taskIdsMandatoryFields);
-                }else{
-                    taskMandatory.result = "NOMANDATORY";
-                }
-            }else if(!taskIdsMandatoryFields.isEmpty()){
-                taskMandatory.result = "WITHMANDATORY";
-                taskMandatory.taskSummaryList = new TaskSummaryList(taskIdsMandatoryFields);
+            if(groupedTasks.containsKey(process)){
+                List<Task> listOfTasks = new ArrayList<>(groupedTasks.get(process));
+                listOfTasks.add(task);
+                groupedTasks.put(process, listOfTasks);
             }else{
-                taskMandatory.result = "NOMANDATORY";
+                groupedTasks.put(process,Collections.singletonList(task));
             }
         }
-        return taskMandatory;
+        for (Map.Entry<ProcessAssetDesc, List<Task>> entry : groupedTasks.entrySet()){
+            ConnexoForm form = getTaskContent(entry.getValue().get(0).getId());
+            List<Long> ids = new ArrayList<>();
+            for(Task each : entry.getValue()){
+                ids.add(each.getId());
+            }
+            taskGroups.add(new TaskMandatoryInfo(entry.getValue().get(0).getName(), entry.getKey().getName(), entry.getKey().getVersion(), ids, hasFormMandatoryFields(form), form));
+        }
+        return new TaskMandatoryInfos(taskGroups);
     }
 
-    private List<TaskSummary> getTaskWithMandatoryFields(List<Long> taskIds){
-        List<TaskSummary> taskSummaries = new ArrayList<>();
-        for(Long id : taskIds){
-            ConnexoForm form = getTaskContent(id);
-            if(form.fields != null) {
-                for (ConnexoFormField field : form.fields) {
-                    if(field.properties != null) {
-                        for (ConnexoProperty property : field.properties) {
-                            if (property.name.equals("fieldRequired")) {
-                                if (property.value.equals("true")) {
-                                    if (internalTaskService.getTaskById(id) != null) {
-                                        taskSummaries.add(new TaskSummary(internalTaskService.getTaskById(id)));
-                                    }
-                                }
+    private boolean hasFormMandatoryFields(ConnexoForm form){
+        if(form.fields != null) {
+            for (ConnexoFormField field : form.fields) {
+                if(field.properties != null) {
+                    for (ConnexoProperty property : field.properties) {
+                        if (property.name.equals("fieldRequired")) {
+                            if (property.value.equals("true")) {
+                                return true;
                             }
                         }
                     }
                 }
             }
         }
-        return taskSummaries;
-    }
-
-    private boolean areFormTaskTheSame(List<Long> taskIds){
-        boolean sameForm = true;
-        if(internalTaskService.getTaskById(taskIds.get(0)) != null) {
-            String formName = ((InternalTask) internalTaskService.getTaskById(taskIds.get(0))).getFormName();
-            for (Long id : taskIds) {
-                if(internalTaskService.getTaskById(id) != null) {
-                    if (!((InternalTask) internalTaskService.getTaskById(id)).getFormName().equals(formName)) {
-                        sameForm = false;
-                    }
-                }
-            }
-        }else{
-            return false;
-        }
-        return sameForm;
+        return false;
     }
 
     @POST
