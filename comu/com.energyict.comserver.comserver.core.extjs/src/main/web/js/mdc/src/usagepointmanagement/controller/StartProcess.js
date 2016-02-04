@@ -6,13 +6,9 @@ Ext.define('Mdc.usagepointmanagement.controller.StartProcess', {
     controllers: [
         'Bpm.startprocess.controller.StartProcess'
     ],
-    stores: [
-        'Mdc.usagepointmanagement.store.AvailableProcesses'
-    ],
     views: [
         'Mdc.usagepointmanagement.view.StartProcess'
     ],
-
     refs: [
         {ref: 'overviewLink', selector: '#usage-point-overview-link'}
     ],
@@ -24,8 +20,8 @@ Ext.define('Mdc.usagepointmanagement.controller.StartProcess', {
 
     showStartProcess: function (id) {
         var me = this,
-            processesStore = Ext.getStore('Mdc.usagepointmanagement.store.AvailableProcesses'),
-            viewport = Ext.ComponentQuery.query('viewport')[0];
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            router = me.getController('Uni.controller.history.Router');
 
         viewport.setLoading();
 
@@ -36,23 +32,34 @@ Ext.define('Mdc.usagepointmanagement.controller.StartProcess', {
                 me.getApplication().fireEvent('usagePointLoaded', usagepoint);
 
                 viewport.setLoading(false);
-
-                processesStore.getProxy().setUrl(3);
-                processesStore.getProxy().extraParams = {privileges: Ext.encode(me.getPrivileges())};
-
                 widget = Ext.widget('mdc-usage-point-start-process-view', {
                     router: me.getController('Uni.controller.history.Router'),
                     mRID: usagepoint,
                     properties: {
-                        processesStore: processesStore,
-                        extraParams: [{name: 'mrid', value: 'SPE010000010356'}],
-                        successLink: 'usagepoints/usagepoint',
-                        cancelLink: 'usagepoints/usagepoint'
+                        activeProcessesParams: {
+                            type: 'usagePoint',
+                            privileges: Ext.encode(me.getPrivileges())
+                        },
+                        startProcessParams: [
+                            {
+                                name: 'type',
+                                value: 'usagePoint'
+                            },
+                            {
+                                name: 'id',
+                                value: 'usagePointId'
+                            },
+                            {
+                                name: 'value',
+                                value: id
+                            }
+                        ],
+                        successLink: router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: id}),
+                        cancelLink: router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: id})
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getOverviewLink().setText(usagepoint.get('mRID'));
-
             },
             failure: function (response) {
                 viewport.setLoading(false);
