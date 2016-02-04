@@ -38,6 +38,21 @@ Ext.define('Imt.customattributesonvaluesobjects.service.VersionsManager', {
             },
             {
                 xtype: 'button',
+                icon: '../mdc/resources/images/pencil-12.png',
+                cls: 'uni-btn-transparent masterfield-btn',
+                width: '10px',
+                tooltip: Uni.I18n.translate('general.tooltip.editVersion', 'IMT', 'Edit version'),
+                style: {
+                    display: 'inline-block',
+                    textDecoration: 'none !important',
+                    position: 'absolute',
+                    top: '8px'
+                },
+                hidden: !record.get('isActive'),
+                //handler: me.editHandler,
+            },
+            {
+                xtype: 'button',
                 ui: 'link',
                 text: Uni.I18n.translate('customattributesets.versions', 'IMT', 'Versions'),
                 margin: '-5 0 0 5',
