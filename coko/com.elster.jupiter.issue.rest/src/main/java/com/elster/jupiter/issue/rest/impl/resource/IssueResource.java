@@ -1,6 +1,8 @@
 package com.elster.jupiter.issue.rest.impl.resource;
 
 import com.elster.jupiter.issue.rest.MessageSeeds;
+import com.elster.jupiter.issue.rest.request.IssueDueDateInfo;
+import com.elster.jupiter.issue.rest.request.IssueDueDateInfoAdapter;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
 import com.elster.jupiter.issue.rest.response.IssueAssigneeInfoAdapter;
@@ -43,6 +45,7 @@ public class IssueResource extends BaseResource {
               .setAscOrder(false) // Sorting (descending direction)
               .from(params.getFrom()).to(params.getTo()); // Pagination
         getAssignees(filter).stream().forEach(ai -> groupFilter.withAssignee(ai.getId(), ai.getType()));
+        getDueDates(filter).stream().forEach(dd -> groupFilter.withDueDate(dd.startTime, dd.endTime));
         List<IssueGroup> resultList = getIssueService().getIssueGroupList(groupFilter);
         List<IssueGroupInfo> infos = resultList.stream().map(IssueGroupInfo::new).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("issueGroups", infos, queryParameters);
@@ -69,6 +72,17 @@ public class IssueResource extends BaseResource {
         return filter.getStringList("assignee").stream().map(ai -> {
             try {
                 return issueAssigneeInfoAdapter.unmarshal(ai);
+            } catch (Exception ex){
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter");
+            }
+        }).collect(Collectors.toList());
+    }
+
+    private List<IssueDueDateInfo> getDueDates(JsonQueryFilter filter) {
+        IssueDueDateInfoAdapter issueDueDateInfoAdapter = new IssueDueDateInfoAdapter();
+        return filter.getStringList("dueDate").stream().map(dd -> {
+            try {
+                return issueDueDateInfoAdapter.unmarshal(dd);
             } catch (Exception ex){
                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter");
             }
