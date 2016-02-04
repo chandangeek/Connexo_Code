@@ -1,12 +1,19 @@
 package com.elster.insight.app.impl;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
+import com.elster.insight.app.InsightAppService;
+import com.elster.jupiter.http.whiteboard.App;
+import com.elster.jupiter.http.whiteboard.BundleResolver;
+import com.elster.jupiter.http.whiteboard.DefaultStartPage;
+import com.elster.jupiter.http.whiteboard.HttpResource;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.SimpleTranslationKey;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.users.ApplicationPrivilegesProvider;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -14,41 +21,29 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
-//import com.elster.jupiter.license.License;
-import com.elster.insight.app.InsightAppService;
-import com.elster.jupiter.http.whiteboard.App;
-import com.elster.jupiter.http.whiteboard.BundleResolver;
-import com.elster.jupiter.http.whiteboard.DefaultStartPage;
-import com.elster.jupiter.http.whiteboard.HttpResource;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.SimpleTranslationKey;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.users.ApplicationPrivilegesProvider;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 
 @Component(
         name = "com.elster.insight.app",
         service = {InsightAppService.class, ApplicationPrivilegesProvider.class, TranslationKeyProvider.class},
-//        property = "name=" + InsightAppService.COMPONENTNAME,
         immediate = true)
+@SuppressWarnings("unused")
 public class InsightAppServiceImpl implements InsightAppService, ApplicationPrivilegesProvider, TranslationKeyProvider {
+
     private static final Logger LOGGER = Logger.getLogger(InsightAppServiceImpl.class.getName());
+
     public static final String HTTP_RESOURCE_ALIAS = "/insight";
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/insight";
 
-    public static final String APP_KEY = "INS";
-    public static final String APP_NAME = "Insight";
     public static final String APP_ICON = "connexo";
 
     private volatile ServiceRegistration<App> registration;
     private volatile UserService userService;
-    //private volatile License license;
-    
+    private volatile License license;
+
     public InsightAppServiceImpl() {
     }
 
@@ -60,10 +55,9 @@ public class InsightAppServiceImpl implements InsightAppService, ApplicationPriv
 
     @Activate
     public final void activate(BundleContext context) {
-       HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APP_NAME));
-//        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/home/kurtk/Projects/git/insight/com.elster.jupiter.insight.app/src/main/web/js/insight", new FileResolver(),
-//                new DefaultStartPage(APP_NAME));
-        App app = new App(APP_KEY, APP_NAME, APP_ICON, HTTP_RESOURCE_ALIAS, resource, user -> isAllowed(user));
+        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APPLICATION_NAME));
+//        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/home/kurtk/Projects/git/insight/com.elster.jupiter.insight.app/src/main/web/js/insight", new FileResolver(), new DefaultStartPage(APPLICATION_NAME));
+        App app = new App(APPLICATION_KEY, APPLICATION_NAME, APP_ICON, HTTP_RESOURCE_ALIAS, resource, this::isAllowed);
 
         registration = context.registerService(App.class, app, null);
     }
@@ -72,58 +66,50 @@ public class InsightAppServiceImpl implements InsightAppService, ApplicationPriv
     public void stop(BundleContext context) throws Exception {
         registration.unregister();
     }
-    
+
 //    @Reference(target = "(com.elster.jupiter.license.application.key=" + APPLICATION_KEY + ")")
 //    public void setLicense(License license) {
 //        this.license = license;
 //    }
-    
+
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
 
     private boolean isAllowed(User user) {
-   //     return true;
-    	List<? super Privilege> appPrivileges = getDBApplicationPrivileges();
+        List<? super Privilege> appPrivileges = getDBApplicationPrivileges();
         return user.getPrivileges(APPLICATION_KEY).stream().anyMatch(appPrivileges::contains);
     }
-    
+
     private List<? super Privilege> getDBApplicationPrivileges() {
         return userService.getPrivileges(APPLICATION_KEY);
     }
-    
+
     @Override
     public List<String> getApplicationPrivileges() {
         return InsightAppPrivileges.getApplicationAllPrivileges();
     }
-    
-	@Override
-	public String getApplicationName() {
-		// TODO Auto-generated method stub
-		return APPLICATION_KEY;
-	}
+
+    @Override
+    public String getApplicationName() {
+        return APPLICATION_KEY;
+    }
 
     @Override
     public String getComponentName() {
-        //TODO: Change to COMPONENT_NAME after pulling the extjs stuff into a new bundle, etc.
         return APPLICATION_KEY;
     }
-    
+
     @Override
     public Layer getLayer() {
-        return Layer.REST;
-    }
-    
-    @Override
-    public List<TranslationKey> getKeys() {
-        try {
-            return SimpleTranslationKey.loadFromInputStream(this.getClass().getClassLoader().getResourceAsStream("i18n.properties"));
-        } catch (IOException e) {
-            LOGGER.severe("Failed to load translations for the '" + COMPONENTNAME + "' component bundle.");
-        }
-        return null;
-        
+        return Layer.DOMAIN;
     }
 
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> translationKeys = new ArrayList<>();
+        translationKeys.add(new SimpleTranslationKey(APPLICATION_KEY, APPLICATION_NAME));
+        return translationKeys;
+    }
 }

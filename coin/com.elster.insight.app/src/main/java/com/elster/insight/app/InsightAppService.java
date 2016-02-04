@@ -3,8 +3,8 @@ package com.elster.insight.app;
 public interface InsightAppService {
     String COMPONENTNAME = "INSAPP";
     String APPLICATION_KEY = "INS";
-    String APPLICATION_NAME = "InSight";
-    
+    String APPLICATION_NAME = "Insight";
+
     enum Roles {
         METER_EXPERT("Insight data expert", "Full data management privileges"),
         METER_OPERATOR("Insight data operator", "Data operation privileges");
