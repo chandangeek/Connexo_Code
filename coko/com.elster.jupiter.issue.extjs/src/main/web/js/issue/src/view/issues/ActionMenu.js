@@ -19,6 +19,11 @@ Ext.define('Isu.view.issues.ActionMenu', {
             text: Uni.I18n.translate('issues.actionMenu.addComment', 'ISU', 'Add comment'),
             privileges: Isu.privileges.Issue.comment,
             action: 'addComment'
+        },
+        {
+            text: Uni.I18n.translate('issues.actionMenu.startProcess', 'ISU', 'Start process'),
+            privileges: Isu.privileges.Issue.viewProcesses && Isu.privileges.Issue.executeProcesses,
+            action: 'startProcess'
         }
     ],
     listeners: {
@@ -57,7 +62,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
     },
 
     // this method overwritten to avoid firing click event twice in menu
-    onClick: function(e) {
+    onClick: function (e) {
         var me = this,
             item;
 
@@ -146,6 +151,9 @@ Ext.define('Isu.view.issues.ActionMenu', {
                 switch (menuItem.action) {
                     case 'addComment':
                         menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view').buildUrl({issueId: issueId}, {addComment: true});
+                        break;
+                    case 'startProcess':
+                        menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({issueId: issueId});
                         break;
                 }
             });

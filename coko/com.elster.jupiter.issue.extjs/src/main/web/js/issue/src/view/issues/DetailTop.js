@@ -14,7 +14,7 @@ Ext.define('Isu.view.issues.DetailTop', {
         me.items = [
             {
                 itemId: 'issue-detail-title',
-                title: Uni.I18n.translate('general.details','ISU','Details'),
+                title: Uni.I18n.translate('general.details', 'ISU', 'Details'),
                 ui: 'medium',
                 flex: 1
             },
@@ -28,7 +28,11 @@ Ext.define('Isu.view.issues.DetailTop', {
                 menu: {
                     xtype: 'issues-action-menu',
                     itemId: 'issue-detail-action-menu',
-                    predefinedItems: null,
+                    predefinedItems: [{
+                        text: Uni.I18n.translate('issues.actionMenu.startProcess', 'ISU', 'Start process'),
+                        privileges: Isu.privileges.Issue.viewProcesses && Isu.privileges.Issue.executeProcesses,
+                        action: 'startProcess'
+                    }],
                     router: me.router
                 },
                 listeners: {

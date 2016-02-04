@@ -20,7 +20,8 @@ Ext.define('Isu.controller.Main', {
         'Isu.controller.CreationRuleActionEdit',
         'Isu.controller.IssuesOverview',
         'Isu.controller.IssueDetail',
-        'Isu.controller.ApplyIssueAction'
+        'Isu.controller.ApplyIssueAction',
+        'Isu.controller.StartProcess'
     ],
 
     init: function () {
