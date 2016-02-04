@@ -40,6 +40,8 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer.OnlineCom
         this.storeTaskQueueSize = onlineComServer.getStoreTaskQueueSize();
         this.numberOfStoreTaskThreads = onlineComServer.getNumberOfStoreTaskThreads();
         this.storeTaskThreadPriority = onlineComServer.getStoreTaskThreadPriority();
+        this.statusUri = onlineComServer.getStatusUri();
+        this.usesDefaultStatusUri = onlineComServer.usesDefaultStatusUri();
     }
 
     public OnlineComServer.OnlineComServerBuilder writeTo(OnlineComServer.OnlineComServerBuilder comServerBuilder, EngineConfigurationService engineConfigurationService) {
@@ -59,6 +61,14 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer.OnlineCom
         Optional<Boolean> usesDefaultEventRegistrationUri = Optional.ofNullable(this.usesDefaultEventRegistrationUri);
         if (usesDefaultEventRegistrationUri.isPresent()) {
             comServerBuilder.usesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri.get());
+        }
+        Optional<String> statusUri = Optional.ofNullable(this.statusUri);
+        if (statusUri.isPresent()) {
+            comServerBuilder.statusUri(statusUri.get());
+        }
+        Optional<Boolean> usesDefaultStatusUri = Optional.ofNullable(this.usesDefaultStatusUri);
+        if (usesDefaultStatusUri.isPresent()) {
+            comServerBuilder.usesDefaultStatusUri(usesDefaultStatusUri.get());
         }
         comServerBuilder.storeTaskQueueSize(this.storeTaskQueueSize != null ? this.storeTaskQueueSize : 0);
         comServerBuilder.storeTaskThreadPriority(this.storeTaskThreadPriority != null ? this.storeTaskThreadPriority : 0);
@@ -82,6 +92,14 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer.OnlineCom
         Optional<Boolean> usesDefaultEventRegistrationUri = Optional.ofNullable(this.usesDefaultEventRegistrationUri);
         if (usesDefaultEventRegistrationUri.isPresent()) {
             onlineComServer.setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri.get());
+        }
+        Optional<String> statusUri = Optional.ofNullable(this.statusUri);
+        if (statusUri.isPresent()) {
+            onlineComServer.setStatusUri(statusUri.get());
+        }
+        Optional<Boolean> usesDefaultStatusUri = Optional.ofNullable(this.usesDefaultStatusUri);
+        if (usesDefaultStatusUri.isPresent()) {
+            onlineComServer.setUsesDefaultStatusUri(usesDefaultStatusUri.get());
         }
         onlineComServer.setStoreTaskQueueSize(this.storeTaskQueueSize != null ? this.storeTaskQueueSize : 0);
         onlineComServer.setStoreTaskThreadPriority(this.storeTaskThreadPriority != null ? this.storeTaskThreadPriority : 0);
