@@ -5,6 +5,9 @@ import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.records.IssueGroupImpl;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueGroupFilter;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -27,10 +30,11 @@ public abstract class IssuesGroupOperation {
     protected static final String GROUP_COUNT = "count0";
 
     private final DataModel dataModel;
+    private final MeteringGroupsService meteringGroupsService;
     private IssueGroupFilter filter;
     private Thesaurus thesaurus;
 
-    public static IssuesGroupOperation from(IssueGroupFilter filter, DataModel dataModel, Thesaurus thesaurus) {
+    public static IssuesGroupOperation from(IssueGroupFilter filter, DataModel dataModel, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus) {
         if (dataModel == null){
             throw new IllegalArgumentException("Data model can't be null");
         }
@@ -41,13 +45,14 @@ public abstract class IssuesGroupOperation {
         if (!groupByRealizationRef.isPresent()){
             throw new IllegalArgumentException("We can't group issues by this column: " + filter.getGroupBy());
         }
-        IssuesGroupOperation operation = groupByRealizationRef.get().getOperation(dataModel, thesaurus);
+        IssuesGroupOperation operation = groupByRealizationRef.get().getOperation(dataModel, thesaurus, meteringGroupsService);
         operation.setFilter(filter);
         return operation;
     }
 
-    protected IssuesGroupOperation(DataModel dataModel, Thesaurus thesaurus){
+    protected IssuesGroupOperation(DataModel dataModel, Thesaurus thesaurus, MeteringGroupsService meteringGroupsService){
         this.dataModel = dataModel;
+        this.meteringGroupsService = meteringGroupsService;
         this.thesaurus = thesaurus;
     }
 
@@ -162,7 +167,7 @@ public abstract class IssuesGroupOperation {
                     builder.append(DatabaseConst.ISSUE_COLUMN_ASSIGNEE_TYPE + " IS NULL AND isu.ASSIGNEE_USER_ID IS NULL");
                 }
             }
-            if (builder.length() != 0){
+            if (builder.length() != 0) {
                 builder.insert(0, " AND (").append(") ");
                 return builder.toString();
             }
@@ -184,10 +189,36 @@ public abstract class IssuesGroupOperation {
                 builder.append(DatabaseConst.ISSUE_COLUMN_DUE_DATE);
                 builder.append(" < ").append(dueDateRange.getEndTime());
             }
-            if (builder.length() != 0){
+            if (builder.length() != 0) {
                 builder.insert(0, " AND (").append(") ");
                 return builder.toString();
             }
+        }
+        return "";
+    }
+
+    protected String getDeviceGroupCondition() {
+        if(getFilter().getDeviceGroups() != null ) {
+            StringBuilder builder = new StringBuilder();
+            for(Long endDeviceGroupId : getFilter().getDeviceGroups()) {
+                EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElse(null);
+                if (builder.length() != 0){
+                    builder.append(" OR ");
+                }
+                builder.append("isu.DEVICE_ID IN (");
+                if (endDeviceGroup != null && endDeviceGroup.isDynamic()) {
+                    builder.append(((QueryEndDeviceGroup)endDeviceGroup).toFragment().getText()).append(") ");
+                } else {
+                    builder.append("select ENDDEVICE_ID from MTG_ENUM_ED_IN_GROUP where GROUP_ID = ");
+                    builder.append(endDeviceGroupId).append(") ");
+                }
+                if (builder.length() != 0) {
+                    builder.insert(0, " AND (").append(") ");
+                    return builder.toString();
+                }
+            }
+
+
         }
         return "";
     }

@@ -31,6 +31,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleTranslationKey;
@@ -139,6 +140,7 @@ public abstract class BaseTest {
                 new DataVaultModule(),
                 new IdsModule(),
                 new MeteringModule(),
+                new MeteringGroupsModule(),
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),

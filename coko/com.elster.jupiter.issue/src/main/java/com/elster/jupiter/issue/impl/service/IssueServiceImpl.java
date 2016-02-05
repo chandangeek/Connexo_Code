@@ -35,6 +35,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -93,6 +94,7 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     private volatile QueryService queryService;
     private volatile UserService userService;
     private volatile MeteringService meteringService;
+    private volatile MeteringGroupsService meteringGroupsService;
     private volatile MessageService messageService;
     private volatile TaskService taskService;
     private volatile TransactionService transactionService;
@@ -123,6 +125,7 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
                             NlsService nlsService,
                             MessageService messageService,
                             MeteringService meteringService,
+                            MeteringGroupsService meteringGroupsService,
                             TaskService taskService,
                             KnowledgeBuilderFactoryService knowledgeBuilderFactoryService,
                             KnowledgeBaseFactoryService knowledgeBaseFactoryService,
@@ -135,6 +138,7 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         setNlsService(nlsService);
         setMessageService(messageService);
         setMeteringService(meteringService);
+        setMeteringGroupsService(meteringGroupsService);
         setTaskService(taskService);
         setKnowledgeBuilderFactoryService(knowledgeBuilderFactoryService);
         setKnowledgeBaseFactoryService(knowledgeBaseFactoryService);
@@ -160,6 +164,7 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(MessageService.class).toInstance(messageService);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(UserService.class).toInstance(userService);
                 bind(TaskService.class).toInstance(taskService);
                 bind(KieResources.class).toInstance(resourceFactoryService);
@@ -202,6 +207,11 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @Reference
@@ -413,7 +423,7 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
 
     @Override
     public List<IssueGroup> getIssueGroupList(IssueGroupFilter filter) {
-        return IssuesGroupOperation.from(filter, this.dataModel, thesaurus).execute();
+        return IssuesGroupOperation.from(filter, this.dataModel, this.meteringGroupsService, thesaurus).execute();
     }
 
     @Override

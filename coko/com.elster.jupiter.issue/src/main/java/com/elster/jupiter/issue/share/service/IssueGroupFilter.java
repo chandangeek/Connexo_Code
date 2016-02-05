@@ -14,6 +14,7 @@ public final class IssueGroupFilter {
     private String mrid;
     private Set<String> issueTypes;
     private List<DueDateRange> dueDates;
+    private List<Long> deviceGroups;
 
     public class AssigneeDetails {
         private long assigneeId;
@@ -164,6 +165,18 @@ public final class IssueGroupFilter {
 
     public List<DueDateRange> getDueDates() {
         return this.dueDates;
+    }
+
+    public List<Long> getDeviceGroups() {
+        return deviceGroups;
+    }
+
+    public IssueGroupFilter withDeviceGroups(List<Long> deviceGroups) {
+        if (deviceGroups != null) {
+            this.deviceGroups = new ArrayList<>();
+        }
+        this.deviceGroups = deviceGroups;
+        return this;
     }
 
     public String getMeterMrid() {

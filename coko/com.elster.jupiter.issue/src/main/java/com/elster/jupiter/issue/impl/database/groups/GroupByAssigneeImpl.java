@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.impl.database.groups;
 
 import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -9,8 +10,8 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 
 public class GroupByAssigneeImpl extends IssuesGroupOperation {
 
-    protected GroupByAssigneeImpl(DataModel dataModel, Thesaurus thesaurus) {
-        super(dataModel, thesaurus);
+    protected GroupByAssigneeImpl(DataModel dataModel, Thesaurus thesaurus, MeteringGroupsService meteringGroupsService) {
+        super(dataModel, thesaurus, meteringGroupsService);
     }
 
     /**
@@ -48,6 +49,7 @@ public class GroupByAssigneeImpl extends IssuesGroupOperation {
         builder.append(getMeterCondition());
         builder.append(getAssigneeCondition());
         builder.append(getDueDateCondition());
+        builder.append(getDeviceGroupCondition());
         if (getFilter().getGroupKey() != null) {
             builder.append(" AND reason.\"KEY\" = '" + getFilter().getGroupKey() + "'");
         }
