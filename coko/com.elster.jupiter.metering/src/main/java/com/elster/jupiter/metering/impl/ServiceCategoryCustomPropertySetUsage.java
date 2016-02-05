@@ -13,7 +13,8 @@ public class ServiceCategoryCustomPropertySetUsage {
 
     public enum Fields {
         SERVICECATEGORY("serviceCategory"),
-        CUSTOMPROPERTYSET("registeredCustomPropertySet");
+        CUSTOMPROPERTYSET("registeredCustomPropertySet"),
+        POSITION("position");
 
         private final String javaFieldName;
 
@@ -30,6 +31,8 @@ public class ServiceCategoryCustomPropertySetUsage {
     private Reference<ServiceCategory> serviceCategory = ValueReference.absent();
     @IsPresent
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = ValueReference.absent();
+
+    private int position;
 
     @Inject
     public ServiceCategoryCustomPropertySetUsage() {

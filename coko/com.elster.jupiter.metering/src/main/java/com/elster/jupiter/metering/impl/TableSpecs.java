@@ -731,11 +731,15 @@ public enum TableSpecs {
             Column serviceCategory = table.column("SERVICECATEGORY").number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
             Column customPropertySet = table.column("CUSTOMPROPERTYSET").number().notNull().add();
             table.primaryKey("PK_MTR_CPSSERVICECATUSAGE").on(serviceCategory, customPropertySet).add();
+            table.column(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.name()).number().notNull().conversion(NUMBER2INT).map(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.fieldName()).add();
             table.foreignKey("FK_MTR_CPSSERVICECATEGORY")
                     .references(MTR_SERVICECATEGORY.name())
                     .on(serviceCategory)
                     .onDelete(CASCADE)
                     .map(ServiceCategoryCustomPropertySetUsage.Fields.SERVICECATEGORY.fieldName())
+                    .reverseMap(ServiceCategoryImpl.Fields.CUSTOMPROPERTYSETUSAGE.fieldName())
+                    .reverseMapOrder(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.fieldName())
+                    .composition()
                     .add();
             table.foreignKey("FK_MTR_CPSSERVICECATEGORY_CPS")
                     .references(RegisteredCustomPropertySet.class)

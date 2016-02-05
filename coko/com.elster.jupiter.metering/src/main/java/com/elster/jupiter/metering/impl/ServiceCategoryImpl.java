@@ -16,11 +16,27 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ServiceCategoryImpl implements ServiceCategory {
+
+    enum Fields {
+        CUSTOMPROPERTYSETUSAGE("serviceCategoryCustomPropertySetUsages");
+
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
+
 	//persistent fields
 	private ServiceKind kind;
 	private String aliasName;
@@ -37,7 +53,9 @@ public class ServiceCategoryImpl implements ServiceCategory {
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final Provider<UsagePointImpl> usagePointFactory;
-	
+
+    private List<ServiceCategoryCustomPropertySetUsage> serviceCategoryCustomPropertySetUsages = new ArrayList<>();
+
     @Inject
 	ServiceCategoryImpl(DataModel dataModel,Provider<UsagePointImpl> usagePointFactory, Thesaurus thesaurus) {
         this.dataModel = dataModel;
@@ -114,7 +132,7 @@ public class ServiceCategoryImpl implements ServiceCategory {
 
     @Override
     public List<RegisteredCustomPropertySet> getCustomPropertySets() {
-        return getServiceCategoryCustomPropertySetUsages()
+        return serviceCategoryCustomPropertySetUsages
                 .stream()
                 .map(ServiceCategoryCustomPropertySetUsage::getRegisteredCustomPropertySet)
                 .collect(Collectors.toList());
@@ -122,22 +140,19 @@ public class ServiceCategoryImpl implements ServiceCategory {
 
     @Override
     public void addCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet) {
-        if(!getServiceCategoryCustomPropertySetUsages().stream().filter(e -> e.getRegisteredCustomPropertySet().getId()==registeredCustomPropertySet.getId()).findFirst().isPresent()) {
+        if (!serviceCategoryCustomPropertySetUsages.stream().filter(e -> e.getRegisteredCustomPropertySet().getId() == registeredCustomPropertySet.getId()).findFirst().isPresent()) {
             ServiceCategoryCustomPropertySetUsage serviceCategoryCustomPropertySetUsage = this.dataModel.getInstance(ServiceCategoryCustomPropertySetUsage.class).initialize(this, registeredCustomPropertySet);
-            dataModel.persist(serviceCategoryCustomPropertySetUsage);
+            this.serviceCategoryCustomPropertySetUsages.add(serviceCategoryCustomPropertySetUsage);
         }
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
     @Override
     public void removeCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet) {
-        Optional<ServiceCategoryCustomPropertySetUsage> serviceCategoryCustomPropertySetUsage = getServiceCategoryCustomPropertySetUsages().stream()
+        serviceCategoryCustomPropertySetUsages.stream()
                 .filter(f -> f.getServiceCategory().getId() == this.getId())
                 .filter(f -> f.getRegisteredCustomPropertySet().getId() == registeredCustomPropertySet.getId())
-                .findAny();
-        if (serviceCategoryCustomPropertySetUsage.isPresent()) {
-            dataModel.remove(serviceCategoryCustomPropertySetUsage);
-        }
+                .findAny().ifPresent(serviceCategoryCustomPropertySetUsages::remove);
     }
 
     private List<ServiceCategoryCustomPropertySetUsage> getServiceCategoryCustomPropertySetUsages(){
