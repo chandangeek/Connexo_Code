@@ -332,6 +332,20 @@ Ext.define('Imt.controller.History', {
                                     controller: 'Imt.metrologyconfiguration.controller.Edit',
                                     action: 'manageValidationRuleSets',
                                 },
+                                customAttributeSets: {
+                                    title: Uni.I18n.translate('metrologyconfiguration.label.CAS', 'IMT', 'Custom attribute sets'),
+                                    route: 'custom-attribute-sets',
+                                    controller: 'Imt.metrologyconfiguration.controller.View',
+                                    action: 'showCustomAttributeSets',
+                                    items: {
+                                        add: {
+                                            title: Uni.I18n.translate('metrologyconfiguration.label.CAS.add', 'IMT', 'Add custom attribute sets'),
+                                            route: 'add',
+                                            controller: 'Imt.metrologyconfiguration.controller.View',
+                                            action: 'showAddCustomAttributeSets'
+                                        }
+                                    }
+                                },
                                 associatedvalidationrulesets: {
                                     title: Uni.I18n.translate('general.label.metrologyconfiguration.valruleset.associated', 'IMT', 'Linked validation rule sets'),
                                     route: 'associatedvalidationrulesets',
@@ -349,6 +363,13 @@ Ext.define('Imt.controller.History', {
                             }
                         }
                     }
+                },
+                servicecategories: {
+                    title: Uni.I18n.translate('general.serviceCategories', 'IMT', 'Service categories'),
+                    route: 'servicecategories',
+                    controller: 'Imt.servicecategories.controller.ServiceCategories',
+                    action: 'showOverview',
+                    privileges: Imt.privileges.ServiceCategory.view
                 }
             }
         },

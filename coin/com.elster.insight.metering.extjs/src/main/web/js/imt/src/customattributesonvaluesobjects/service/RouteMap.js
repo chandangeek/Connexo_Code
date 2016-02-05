@@ -4,7 +4,8 @@ Ext.define('Imt.customattributesonvaluesobjects.service.RouteMap', {
     routeMap: {
         "device": "devices/device/attributes/editcustomattributes",
         "channel": "devices/device/channels/channel/editcustomattributes",
-        "register": "devices/device/registers/register/editcustomattributes"
+        "register": "devices/device/registers/register/editcustomattributes",
+        "up": "usagepoints/view"
     },
 
     timeSlicedRouteMapEdit: {

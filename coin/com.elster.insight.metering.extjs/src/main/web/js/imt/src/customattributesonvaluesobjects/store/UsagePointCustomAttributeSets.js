@@ -1,10 +1,13 @@
 Ext.define('Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets', {
     extend: 'Ext.data.Store',
-    model: 'Imt.customattributesonvaluesobjects.model.AttributeSetOnObject',
+    requires: [
+        'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'
+    ],
+    model: 'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint',
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/udr/usagepoints/{mRID}/custompropertysets',
+        urlTpl: '/api/udr/usagepoints/{mRID}/customproperties',
         reader: {
             type: 'json',
             root: 'customproperties'

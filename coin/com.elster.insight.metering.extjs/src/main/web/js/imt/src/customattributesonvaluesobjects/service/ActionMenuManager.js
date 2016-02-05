@@ -37,5 +37,17 @@ Ext.define('Imt.customattributesonvaluesobjects.service.ActionMenuManager', {
         Ext.each(actionMenuItems, function (item) {
             item.destroy();
         });
+    },
+
+    setDisabledAllEditBtns: function (disabled) {
+        var actionMenuItems = Ext.ComponentQuery.query('[menuItemClass=inlineEditableAttributeSet]');
+
+        Ext.each(actionMenuItems, function (item) {
+            item.setDisabled(disabled);
+        });
+        var pencilBtns = Ext.ComponentQuery.query('#pencil-btn');
+        Ext.each(pencilBtns, function(btn){
+            btn.setDisabled(disabled);
+        });
     }
 });
