@@ -2,6 +2,7 @@ package com.elster.partners.jbpm.extension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class TaskGroupsInfo {
 
@@ -11,15 +12,16 @@ public class TaskGroupsInfo {
     public List<Long> taskIds = new ArrayList<>();
     public long count;
     public boolean hasMandatory;
-    public ConnexoForm form;
+    public ConnexoForm tasksForm;
+    public Map<String, Object> outputBindingContents;
 
-    public TaskGroupsInfo(String name, String processName, String version, List<Long> taskIds, boolean hasMandatory, ConnexoForm form){
+    public TaskGroupsInfo(String name, String processName, String version, List<Long> taskIds, boolean hasMandatory, ConnexoForm tasksForm){
         this.name = name;
         this.processName = processName;
         this.version = version;
         this.taskIds = taskIds;
         this.hasMandatory = hasMandatory;
-        this.form = form;
+        this.tasksForm = tasksForm;
         this.count = taskIds.size();
     }
 

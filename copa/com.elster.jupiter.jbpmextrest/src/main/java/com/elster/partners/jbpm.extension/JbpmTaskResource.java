@@ -630,19 +630,21 @@ public class JbpmTaskResource {
         Map<ProcessAssetDesc, List<Task>> groupedTasks = new HashMap<>();
         for(Long id: taskIds){
             Task task = internalTaskService.getTaskById(id);
-            ProcessAssetDesc process = null;
-            Collection<ProcessAssetDesc> processesList = runtimeDataService.getProcessesByDeploymentId(task.getTaskData().getDeploymentId());
-            for (ProcessAssetDesc each : processesList) {
-                if (each.getDeploymentId().equals(task.getTaskData().getDeploymentId())) {
-                    process = each;
+            if(task != null) {
+                ProcessAssetDesc process = null;
+                Collection<ProcessAssetDesc> processesList = runtimeDataService.getProcessesByDeploymentId(task.getTaskData().getDeploymentId());
+                for (ProcessAssetDesc each : processesList) {
+                    if (each.getDeploymentId().equals(task.getTaskData().getDeploymentId())) {
+                        process = each;
+                    }
                 }
-            }
-            if(groupedTasks.containsKey(process)){
-                List<Task> listOfTasks = new ArrayList<>(groupedTasks.get(process));
-                listOfTasks.add(task);
-                groupedTasks.put(process, listOfTasks);
-            }else{
-                groupedTasks.put(process,Collections.singletonList(task));
+                if (groupedTasks.containsKey(process)) {
+                    List<Task> listOfTasks = new ArrayList<>(groupedTasks.get(process));
+                    listOfTasks.add(task);
+                    groupedTasks.put(process, listOfTasks);
+                } else {
+                    groupedTasks.put(process, Collections.singletonList(task));
+                }
             }
         }
         for (Map.Entry<ProcessAssetDesc, List<Task>> entry : groupedTasks.entrySet()){
