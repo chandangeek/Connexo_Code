@@ -1,38 +1,38 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
-import javax.inject.Inject;
-
-
 import com.elster.insight.common.rest.ExceptionFactory;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.insight.usagepoint.data.UsagePointDataService;
 import com.elster.insight.usagepoint.data.UsagePointCustomPropertySetExtension;
+import com.elster.insight.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 
+import javax.inject.Inject;
+
 public class ResourceHelper {
 
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
-    private final UsagePointConfigurationService usagePointConfigurationService;
     private final UsagePointDataService usagePointDataService;
+    private final CustomPropertySetService customPropertySetService;
 
     @Inject
     public ResourceHelper(MeteringService meteringService,
                           ExceptionFactory exceptionFactory,
                           ConcurrentModificationExceptionFactory conflictFactory,
-                          UsagePointConfigurationService usagePointConfigurationService,
-                          UsagePointDataService usagePointDataService) {
+                          UsagePointDataService usagePointDataService,
+                          CustomPropertySetService customPropertySetService) {
         super();
         this.meteringService = meteringService;
         this.exceptionFactory = exceptionFactory;
         this.conflictFactory = conflictFactory;
-        this.usagePointConfigurationService = usagePointConfigurationService;
         this.usagePointDataService = usagePointDataService;
+        this.customPropertySetService = customPropertySetService;
     }
 
     public Meter findMeterByMrIdOrThrowException(String mRID) {
@@ -62,5 +62,11 @@ public class ResourceHelper {
     public UsagePointCustomPropertySetExtension findUsagePointExtensionByMrIdOrThrowException(String mrid) {
         return usagePointDataService.findUsagePointExtensionByMrid(mrid)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mrid));
+    }
+
+    public RegisteredCustomPropertySet getRegisteredCustomPropertySetOrThrowException(String id){
+        return customPropertySetService.findActiveCustomPropertySet(id)
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, id));
     }
 }
