@@ -13,7 +13,7 @@ import java.util.function.BiFunction;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CustomPropertySetInfo {
+public class CustomPropertySetInfo<T> {
     public static final BiFunction<String, Object, ?> RAW_VALUES_IDENTITY = (key, raw) -> raw;
 
     public long id;
@@ -29,6 +29,7 @@ public class CustomPropertySetInfo {
     public Set<ViewPrivilege> defaultViewPrivileges;
     public Set<EditPrivilege> defaultEditPrivileges;
     public List<CustomPropertySetAttributeInfo> properties;
+    public T parent;
 
     @JsonIgnore
     public CustomPropertySetValues getCustomPropertySetValues(BiFunction<String, Object, ?> rawValueConverter) {
