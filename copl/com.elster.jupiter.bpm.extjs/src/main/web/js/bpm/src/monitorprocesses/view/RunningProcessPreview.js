@@ -7,6 +7,7 @@ Ext.define('Bpm.monitorprocesses.view.RunningProcessPreview', {
     items: {
         itemId: 'frm-preview-running-process',
         xtype: 'form',
+        height: 140,
         defaults: {
             labelWidth: 250
         },
