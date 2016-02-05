@@ -70,8 +70,8 @@ Ext.define('Bpm.monitorprocesses.controller.MonitorProcesses', {
     initStores: function (properties) {
         var me = this;
 
-        me.getStore('Bpm.monitorprocesses.store.RunningProcesses').getProxy().setUrl(properties.name, properties.value);
-        me.getStore('Bpm.monitorprocesses.store.HistoryProcesses').getProxy().setUrl(properties.name, properties.value);
+        me.getStore('Bpm.monitorprocesses.store.RunningProcesses').getProxy().setUrl(properties.variableId, properties.value);
+        me.getStore('Bpm.monitorprocesses.store.HistoryProcesses').getProxy().setUrl(properties.variableId, properties.value);
         me.getStore('Bpm.monitorprocesses.store.HistoryProcessesFilterProcesses').getProxy().extraParams = {type: properties.name};
     },
 
