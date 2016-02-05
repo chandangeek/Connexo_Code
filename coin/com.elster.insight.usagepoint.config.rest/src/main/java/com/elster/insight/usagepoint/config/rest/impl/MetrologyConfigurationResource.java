@@ -8,6 +8,7 @@ import com.elster.insight.usagepoint.config.security.Privileges;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -268,9 +269,11 @@ public class MetrologyConfigurationResource {
     public MetrologyConfigurationInfo removeCustomPropertySetFromMetrologyConfiguration(@PathParam("id") long id,
                                                                                         @PathParam("cpsId") String cpsId,
                                                                                         @BeanParam JsonQueryParameters queryParameters,
-                                                                                        MetrologyConfigurationInfo info) {
-        info.id = id;
-        MetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info);
+                                                                                        CustomPropertySetInfo<MetrologyConfigurationInfo> info) {
+        if (info.parent != null){
+            info.parent.id = id;
+        }
+        MetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info.parent);
         RegisteredCustomPropertySet customPropertySet = resourceHelper.getRegisteredCustomPropertySetOrThrowException(cpsId);
         metrologyConfiguration.removeCustomPropertySet(customPropertySet);
         return metrologyConfigurationInfoFactory.asDetailedInfo(metrologyConfiguration);
