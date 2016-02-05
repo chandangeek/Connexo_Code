@@ -44,7 +44,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_DEVICE_GROUP(227, "NoSuchDeviceGroup", "No end device group with id ''{0}''"),
     NO_UPDATE_ALLOWED(228, "NoUpdateAllowed", "You are not allowed to change this field"),
     IMPOSSIBLE_TO_SET_MASTER_DEVICE(229, "ImpossibleToSetMasterDevice", "Device {0} is directly addressable. It is not possible to set master device"),
-    FIELD_CAN_NOT_BE_EMPTY(230, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can not be empty"),
+    FIELD_CAN_NOT_BE_EMPTY(230, Keys.FIELD_CAN_NOT_BE_EMPTY, "This field is required"),
     NO_SUCH_COM_TASK_EXEC(231, "NoSuchComTaskExec", "No such communication task execution exists"),
     CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK(232, "CanNotPerformActionOnSystemComTask", "You can not perform an action on a system communication task"),
     ESTIMATOR_REQUIRED(233, "EstimatorRequired", "Please select an estimator"),
