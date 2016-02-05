@@ -54,7 +54,6 @@ Ext.define('Mdc.controller.setup.DeviceGeneralAttributes', {
         editView.setLoading();
 
         form.updateRecord();
-
         if (!form.isValid()) {
             formErrorsPanel.show();
             editView.setLoading(false);
@@ -65,12 +64,23 @@ Ext.define('Mdc.controller.setup.DeviceGeneralAttributes', {
 
             form.getRecord().save({
                 backUrl: me.getController('Uni.controller.history.Router').getRoute('devices/device/generalattributes').buildUrl(),
-                callback: function (model, operation, success) {
+                success: function () {
                     editView.setLoading(false);
-                    if (success) {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('generalAttributes.saved', 'MDC', 'General attributes saved.'));
-                        me.moveToPreviousPage();
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('generalAttributes.saved', 'MDC', 'General attributes saved.'));
+                    me.moveToPreviousPage();
+
+                },
+                failure: function (record, operation) {
+                    if (operation.response.status == 400) {
+                        if (!Ext.isEmpty(operation.response.responseText)) {
+                            var json = Ext.decode(operation.response.responseText, true);
+                            if (json && json.errors) {
+                                formErrorsPanel.show();
+                                form.getForm().markInvalid(json.errors);
+                            }
+                        }
                     }
+                    editView.setLoading(false);
                 }
             });
         }
