@@ -1,6 +1,6 @@
 Ext.define('Imt.customattributesets.model.CustomAttributeSet', {
     extend: 'Uni.model.Version',
-
+    idProperty: 'customPropertySetId',
     requires: [
         'Uni.util.LevelMap'
     ],
@@ -8,11 +8,12 @@ Ext.define('Imt.customattributesets.model.CustomAttributeSet', {
     fields: [
         {name: 'id', type: 'int', useNull: true},
         {name: 'name', type: 'string'},
-        {name: 'isVersioned', type: 'boolean', persist: false},
-        {name: 'viewPrivileges', type: 'auto', persist: false},
-        {name: 'editPrivileges', type: 'auto', persist: false},
-        {name: 'properties', type: 'auto', persist: false},
-        {name: 'customPropertySetId', type: 'string', persist: false},
+        {name: 'isVersioned', type: 'boolean'},
+        {name: 'viewPrivileges', type: 'auto'},
+        {name: 'editPrivileges', type: 'auto'},
+        {name: 'properties', type: 'auto'},
+        {name: 'customPropertySetId', type: 'string'},
+        {name: 'parent', type: 'auto', useNull: true, defaultValue: null},
         {
             name: 'viewPrivilegesString',
             persist: false,

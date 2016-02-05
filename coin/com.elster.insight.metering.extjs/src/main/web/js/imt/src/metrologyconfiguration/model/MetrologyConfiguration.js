@@ -1,9 +1,8 @@
 Ext.define('Imt.metrologyconfiguration.model.MetrologyConfiguration', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     fields: [
         {name: 'id', type: 'number', useNull: true},
         {name: 'name', type: 'string'},
-        {name: 'version', type: 'number'},
         {name: 'customPropertySets', type: 'auto', defaultValue: null, useNull: true},
         {
             name: 'created',

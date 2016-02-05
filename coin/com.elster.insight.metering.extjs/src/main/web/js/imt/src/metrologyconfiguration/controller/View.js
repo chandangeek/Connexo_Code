@@ -93,7 +93,11 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 store.getProxy().extraParams.id = id;
                 store.getProxy().extraParams.linked = true;
-                store.load();
+                store.load(function(){
+                    store.each(function(r) {
+                        r.set('parent', record.getRecordData()); return record});
+                });
+                //debugger;
                 pageMainContent.setLoading(false);
 
                 widget.down('cas-grid').on('select', me.showCasPreview.bind(me, widget.down('cas-detail-form')));
