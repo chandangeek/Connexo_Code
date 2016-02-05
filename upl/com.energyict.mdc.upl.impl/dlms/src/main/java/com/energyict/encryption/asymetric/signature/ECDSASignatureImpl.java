@@ -1,6 +1,6 @@
 package com.energyict.encryption.asymetric.signature;
 
-import com.energyict.encryption.asymetric.ECCCurve;
+import com.energyict.mdw.core.ECCCurve;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerOutputStream;
 import sun.security.util.DerValue;

@@ -2,7 +2,6 @@ package com.energyict.dlms;
 
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.protocolimplv2.connection.DlmsConnection;
 import com.energyict.protocol.ProtocolUtils;
 
@@ -51,16 +50,20 @@ public class SecureConnection implements DLMSConnection {
         return getTransportConnection().getInvokeIdAndPriorityHandler();
     }
 
+    public void setInvokeIdAndPriorityHandler(InvokeIdAndPriorityHandler iiapHandler) {
+        getTransportConnection().setInvokeIdAndPriorityHandler(iiapHandler);
+    }
+
     public byte[] sendRawBytes(byte[] data) throws IOException, DLMSConnectionException {
         return getTransportConnection().sendRawBytes(data);
     }
 
-    public void setTimeout(long timeout) {
-        getTransportConnection().setTimeout(timeout);
-    }
-
     public long getTimeout() {
         return getTransportConnection().getTimeout();
+    }
+
+    public void setTimeout(long timeout) {
+        getTransportConnection().setTimeout(timeout);
     }
 
     public void setRetries(int retries) {
@@ -81,15 +84,11 @@ public class SecureConnection implements DLMSConnection {
         /* dataTransport security is only applied after we made an established association */
         if (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
 
-            /* If no security is applied, then just forward the requests and responses */
-            if (this.aso.getSecurityContext().getSecurityPolicy() == SecurityContext.SECURITYPOLICY_NONE) {
-                return getTransportConnection().sendRequest(byteRequestBuffer);
-            } else {
+            // FIXME: Strip the 3 leading bytes before encrypting -> due to old HDLC code
+            final byte[] leading = ProtocolUtils.getSubArray(byteRequestBuffer, 0, 2);
+            byte[] securedRequest = ProtocolUtils.getSubArray(byteRequestBuffer, 3);
 
-                // FIXME: Strip the 3 leading bytes before encrypting -> due to old HDLC code
-                final byte[] leading = ProtocolUtils.getSubArray(byteRequestBuffer, 0, 2);
-                byte[] securedRequest = ProtocolUtils.getSubArray(byteRequestBuffer, 3);
-
+            if (!this.aso.getSecurityContext().getSecurityPolicy().isRequestPlain()) {
                 if (!isAlreadyEncrypted) {     //Don't encrypt the request again if it's already encrypted
                     final byte tag = XdlmsApduTags.getEncryptedTag(securedRequest[0], this.aso.getSecurityContext().isGlobalCiphering());
                     securedRequest = encrypt(securedRequest);
@@ -98,13 +97,17 @@ public class SecureConnection implements DLMSConnection {
                     //No encryption, only increase the frame counter
                     aso.getSecurityContext().incFrameCounter();
                 }
+            }
 
-                // FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
-                securedRequest = ProtocolUtils.concatByteArrays(leading, securedRequest);
+            // FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
+            securedRequest = ProtocolUtils.concatByteArrays(leading, securedRequest);
 
-                // send the encrypted request to the DLMSConnection
-                final byte[] securedResponse = getTransportConnection().sendRequest(securedRequest);
+            // send the encrypted request to the DLMSConnection
+            final byte[] securedResponse = getTransportConnection().sendRequest(securedRequest);
 
+            if (this.aso.getSecurityContext().getSecurityPolicy().isResponsePlain()) {
+                return securedResponse;
+            } else {
                 // check if the response tag is know and decrypt the data if necessary
                 if (XdlmsApduTags.contains(securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG])) {
                     // FIXME: Strip the 3 leading bytes before decryption -> due to old HDLC code
@@ -143,8 +146,8 @@ public class SecureConnection implements DLMSConnection {
         /* dataTransport security is only applied after we made an established association */
         if (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
 
-            /* If no security is applied, then just forward the requests and responses */
-            if (this.aso.getSecurityContext().getSecurityPolicy() == SecurityContext.SECURITYPOLICY_NONE) {
+            /* If no security is applied, then just forward the response */
+            if (this.aso.getSecurityContext().getSecurityPolicy().isResponsePlain()) {
                 return getTransportConnection().readResponseWithRetries(retryRequest);
             } else {
 
@@ -192,7 +195,7 @@ public class SecureConnection implements DLMSConnection {
         }
     }
 
-    private byte[] encrypt(byte[] securedRequest, boolean incrementFrameCounter) throws IOException{
+    private byte[] encrypt(byte[] securedRequest, boolean incrementFrameCounter) throws IOException {
         return this.aso.getSecurityContext().dataTransportEncryption(securedRequest, incrementFrameCounter);
     }
 
@@ -210,7 +213,7 @@ public class SecureConnection implements DLMSConnection {
         if (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
 
             /* If no security is applied, then just forward the requests and responses */
-            if (this.aso.getSecurityContext().getSecurityPolicy() != SecurityContext.SECURITYPOLICY_NONE) {
+            if (!this.aso.getSecurityContext().getSecurityPolicy().isRequestPlain()) {
                 // FIXME: Strip the 3 leading bytes before encrypting -> due to old HDLC code
                 final byte[] leading = ProtocolUtils.getSubArray(byteRequestBuffer, 0, 2);
                 byte[] securedRequest = ProtocolUtils.getSubArray(byteRequestBuffer, 3);
@@ -239,10 +242,6 @@ public class SecureConnection implements DLMSConnection {
 
     public void setHHUSignOn(final HHUSignOn hhuSignOn, final String meterId, int hhuSignonBaudRateCode) {
         getTransportConnection().setHHUSignOn(hhuSignOn, meterId, hhuSignonBaudRateCode);
-    }
-
-    public void setInvokeIdAndPriorityHandler(InvokeIdAndPriorityHandler iiapHandler) {
-        getTransportConnection().setInvokeIdAndPriorityHandler(iiapHandler);
     }
 
     public void setIskraWrapper(final int type) {

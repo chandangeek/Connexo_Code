@@ -11,8 +11,11 @@ import com.energyict.dlms.protocolimplv2.connection.SecureConnection;
 import com.energyict.dlms.protocolimplv2.connection.TCPIPConnection;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -135,10 +138,39 @@ public class DlmsSession implements ProtocolLink {
      */
     protected ApplicationServiceObjectV2 buildAso() {
         if (getProperties().isNtaSimulationTool()) {
-            return new ApplicationServiceObjectV2(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), getProperties().getSerialNumber().getBytes(), null);
+            return new ApplicationServiceObjectV2(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), getProperties().getSerialNumber().getBytes(), null, null);
         } else {
-            return new ApplicationServiceObjectV2(buildXDlmsAse(), this, buildSecurityContext(), getContextId());
+            return new ApplicationServiceObjectV2(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), null, null, getCallingAEQualifier());
         }
+    }
+
+    /**
+     * We fill our (client) signing certificate in the calling-AE-qualifier field, but only
+     * if use digital signing in this session, and we don't know the server signing certificate yet.
+     * <p/>
+     * Note that this is the ASN.1 DER encoded version of the X.509 v3 certificate.
+     */
+    private byte[] getCallingAEQualifier() {
+        if (getProperties().isGeneralSigning()) {
+            if (getProperties().getSecurityProvider() instanceof GeneralCipheringSecurityProvider) {
+                GeneralCipheringSecurityProvider generalCipheringSecurityProvider = (GeneralCipheringSecurityProvider) getProperties().getSecurityProvider();
+                if (generalCipheringSecurityProvider.getServerSignatureCertificate() == null) {
+                    try {
+                        X509Certificate clientSigningCertificate = generalCipheringSecurityProvider.getClientSigningCertificate();
+                        if (clientSigningCertificate == null) {
+                            throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_SIGNING_CERTIFICATE);
+                        }
+
+                        return clientSigningCertificate.getEncoded();
+                    } catch (CertificateEncodingException e) {
+                        throw DeviceConfigurationException.invalidPropertyFormat(DlmsSessionProperties.CLIENT_SIGNING_CERTIFICATE, "x", "Should be a valid X.509 v3 certificate");
+                    }
+                }
+            } else {
+                throw CodingException.protocolImplementationError("General signing is not yet supported in the protocol you are using");
+            }
+        }
+        return null;
     }
 
     /**
@@ -188,7 +220,7 @@ public class DlmsSession implements ProtocolLink {
         return new SecurityContext(
                 getProperties().getDataTransportSecurityLevel(),
                 getProperties().getAuthenticationSecurityLevel(),
-                0,
+                getProperties().getSecuritySuite(),
                 (getProperties().getSystemIdentifier() == null) ? null : getProperties().getSystemIdentifier(),
                 getProperties().getSecurityProvider(),
                 getProperties().getCipheringType().getType(),

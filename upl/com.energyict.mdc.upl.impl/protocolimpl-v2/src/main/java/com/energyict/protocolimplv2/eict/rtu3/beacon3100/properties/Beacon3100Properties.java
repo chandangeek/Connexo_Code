@@ -30,8 +30,10 @@ public class Beacon3100Properties extends DlmsProperties {
     }
 
     private boolean isGeneralProtection() {
-        //TODO add general signing, deduce it from the security set access level: should somehow indicate that requests and/or responses use signing
-        return getCipheringType().equals(CipheringType.GENERAL_DEDICATED) || getCipheringType().equals(CipheringType.GENERAL_GLOBAL) || getCipheringType().equals(CipheringType.GENERAL_CIPHERING);
+        return isGeneralSigning() ||
+                getCipheringType().equals(CipheringType.GENERAL_DEDICATED) ||
+                getCipheringType().equals(CipheringType.GENERAL_GLOBAL) ||
+                getCipheringType().equals(CipheringType.GENERAL_CIPHERING);
     }
 
     @Override
@@ -59,5 +61,16 @@ public class Beacon3100Properties extends DlmsProperties {
     @Override
     public boolean isUsePolling() {
         return false;
+    }
+
+    @Override
+    public boolean isGeneralSigning() {
+        //TODO add general signing, deduce it from the security set access level: should somehow indicate that requests and/or responses use signing
+        return false;   //TODO find out somehow, it will probably be in the new security sets levels
+    }
+
+    @Override
+    public int getSecuritySuite() {
+        return 1;   //TODO get this from security property
     }
 }

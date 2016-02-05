@@ -1,6 +1,6 @@
 package com.energyict.encryption.asymetric.signature;
 
-import com.energyict.encryption.asymetric.ECCCurve;
+import com.energyict.mdw.core.ECCCurve;
 import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.junit.Test;
@@ -106,7 +106,7 @@ public final class ECDSASignatureImplTest {
     @Test
     public final void testVerifyP256() throws Exception {
         final DigitalSignature sig = new ECDSASignatureImpl(ECCCurve.P256_SHA256);
-        final PublicKey pubKey = KeyUtils.toECPublicKey(ECCCurve.P256_SHA256.getCurveName(), TEST_PUB_KEY_P256);
+        final PublicKey pubKey = KeyUtils.toECPublicKey(ECCCurve.P256_SHA256, TEST_PUB_KEY_P256);
 
         assertThat(sig.verify(TEST_SIGN_DATA_P256, TEST_SIGNATURE_P256, pubKey)).isTrue();
         assertThat(sig.verify(TEST_SIGN_DATA_P256, TEST_SIGNATURE_P256_INVALID, pubKey)).isFalse();
@@ -118,7 +118,7 @@ public final class ECDSASignatureImplTest {
     @Test
     public final void testVerifyP384() throws Exception {
         final DigitalSignature sig = new ECDSASignatureImpl(ECCCurve.P384_SHA384);
-        final PublicKey pubKey = KeyUtils.toECPublicKey(ECCCurve.P384_SHA384.getCurveName(), TEST_PUB_KEY_P384);
+        final PublicKey pubKey = KeyUtils.toECPublicKey(ECCCurve.P384_SHA384, TEST_PUB_KEY_P384);
 
         assertThat(sig.verify(TEST_SIGN_DATA_P384, TEST_SIGNATURE_P384, pubKey)).isTrue();
         assertThat(sig.verify(TEST_SIGN_DATA_P384, TEST_SIGNATURE_P384_INVALID, pubKey)).isFalse();
@@ -130,8 +130,8 @@ public final class ECDSASignatureImplTest {
     @Test
     public final void testSignAndVerifyP384() throws Exception {
         final DigitalSignature sig = new ECDSASignatureImpl(ECCCurve.P384_SHA384);
-        final PrivateKey privateKey = KeyUtils.toECPrivateKey(ECCCurve.P384_SHA384.getCurveName(), TEST_PRIV_KEY_P384);
-        final PublicKey pubKey = KeyUtils.toECPublicKey(ECCCurve.P384_SHA384.getCurveName(), TEST_PUB_KEY_P384);
+        final PrivateKey privateKey = KeyUtils.toECPrivateKey(ECCCurve.P384_SHA384, TEST_PRIV_KEY_P384);
+        final PublicKey pubKey = KeyUtils.toECPublicKey(ECCCurve.P384_SHA384, TEST_PUB_KEY_P384);
 
         final byte[] signature = sig.sign(TEST_SIGN_DATA_P384, privateKey);
 
@@ -144,8 +144,8 @@ public final class ECDSASignatureImplTest {
     @Test
     public final void testSignAndVerifyP256() throws Exception {
         final DigitalSignature sig = new ECDSASignatureImpl(ECCCurve.P256_SHA256);
-        final PrivateKey privateKey = KeyUtils.toECPrivateKey(ECCCurve.P256_SHA256.getCurveName(), TEST_PRIV_KEY_P256);
-        final PublicKey pubKey = KeyUtils.toECPublicKey(ECCCurve.P256_SHA256.getCurveName(), TEST_PUB_KEY_P256);
+        final PrivateKey privateKey = KeyUtils.toECPrivateKey(ECCCurve.P256_SHA256, TEST_PRIV_KEY_P256);
+        final PublicKey pubKey = KeyUtils.toECPublicKey(ECCCurve.P256_SHA256, TEST_PUB_KEY_P256);
 
         final byte[] signature = sig.sign(TEST_SIGN_DATA_P256, privateKey);
 
@@ -159,15 +159,15 @@ public final class ECDSASignatureImplTest {
     @Test
     public final void testSignAndVerifyAPublicKey() throws Exception {
         ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(ECCCurve.P256_SHA256);
-        byte[] manualSignature = ecdsaSignature.sign(ONEPASS_EPH_PUBLIC_KEY_CLIENT, KeyUtils.toECPrivateKey(ECCCurve.P256_SHA256.getCurveName(), TEST_PRIV_KEY_P256));
+        byte[] manualSignature = ecdsaSignature.sign(ONEPASS_EPH_PUBLIC_KEY_CLIENT, KeyUtils.toECPrivateKey(ECCCurve.P256_SHA256, TEST_PRIV_KEY_P256));
 
-        ecdsaSignature.verify(ONEPASS_EPH_PUBLIC_KEY_CLIENT, manualSignature, KeyUtils.toECPublicKey(ECCCurve.P256_SHA256.getCurveName(), TEST_PUB_KEY_P256));
-        ecdsaSignature.verify(ONEPASS_EPH_PUBLIC_KEY_CLIENT, GREENBOOK_SIGNATURE_CLIENT, KeyUtils.toECPublicKey(ECCCurve.P256_SHA256.getCurveName(), TEST_PUB_KEY_P256));
+        ecdsaSignature.verify(ONEPASS_EPH_PUBLIC_KEY_CLIENT, manualSignature, KeyUtils.toECPublicKey(ECCCurve.P256_SHA256, TEST_PUB_KEY_P256));
+        ecdsaSignature.verify(ONEPASS_EPH_PUBLIC_KEY_CLIENT, GREENBOOK_SIGNATURE_CLIENT, KeyUtils.toECPublicKey(ECCCurve.P256_SHA256, TEST_PUB_KEY_P256));
 
         ecdsaSignature = new ECDSASignatureImpl(ECCCurve.P256_SHA256);
-        manualSignature = ecdsaSignature.sign(EPHEMERAL_PUBLIC_KEY_SERVER2, KeyUtils.toECPrivateKey(ECCCurve.P256_SHA256.getCurveName(), PRIVATE_SIGNING_KEY_SERVER));
+        manualSignature = ecdsaSignature.sign(EPHEMERAL_PUBLIC_KEY_SERVER2, KeyUtils.toECPrivateKey(ECCCurve.P256_SHA256, PRIVATE_SIGNING_KEY_SERVER));
 
-        ecdsaSignature.verify(EPHEMERAL_PUBLIC_KEY_SERVER2, manualSignature, KeyUtils.toECPublicKey(ECCCurve.P256_SHA256.getCurveName(), PUBLIC_SIGNING_KEY_SERVER));
-        ecdsaSignature.verify(EPHEMERAL_PUBLIC_KEY_SERVER2, GREENBOOK_SIGNATURE_SERVER, KeyUtils.toECPublicKey(ECCCurve.P256_SHA256.getCurveName(), PUBLIC_SIGNING_KEY_SERVER));
+        ecdsaSignature.verify(EPHEMERAL_PUBLIC_KEY_SERVER2, manualSignature, KeyUtils.toECPublicKey(ECCCurve.P256_SHA256, PUBLIC_SIGNING_KEY_SERVER));
+        ecdsaSignature.verify(EPHEMERAL_PUBLIC_KEY_SERVER2, GREENBOOK_SIGNATURE_SERVER, KeyUtils.toECPublicKey(ECCCurve.P256_SHA256, PUBLIC_SIGNING_KEY_SERVER));
     }
 }

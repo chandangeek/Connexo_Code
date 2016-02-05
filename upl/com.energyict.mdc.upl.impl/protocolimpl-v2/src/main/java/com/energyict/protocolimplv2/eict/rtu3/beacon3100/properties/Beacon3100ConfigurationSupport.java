@@ -5,6 +5,7 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.GeneralCipheringKeyType;
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 
 import java.util.ArrayList;
@@ -30,14 +31,37 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         optionalProperties.add(dlmsKEKPropertySpec());
         optionalProperties.add(dlmsWANKEKPropertySpec());
         optionalProperties.add(pskEncryptionKeyPropertySpec());
-        optionalProperties.add(cipheringTypePropertySpec());
         optionalProperties.add(generalCipheringKeyTypePropertySpec());
+        optionalProperties.add(clientPrivateSigningKeyPropertySpec());
+        optionalProperties.add(clientPrivateKeyAgreementKeyPropertySpec());
+        optionalProperties.add(clientSigningCertificate());
         optionalProperties.remove(ntaSimulationToolPropertySpec());
         optionalProperties.remove(manufacturerPropertySpec());
         optionalProperties.remove(fixMbusHexShortIdPropertySpec());
         optionalProperties.remove(serverLowerMacAddressPropertySpec()); //Only TCP connection is supported, so no use for server lower mac address
         optionalProperties.remove(deviceId());
         return optionalProperties;
+    }
+
+    /**
+     * The private key of the client (the ComServer) used for digital signature (ECDSA)
+     */
+    private PropertySpec clientPrivateSigningKeyPropertySpec() {
+        return PropertySpecFactory.privateKeyAliasPropertySpec(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
+    }
+
+    /**
+     * The certificate that matches the private key of the client (the ComServer) used for digital signature (ECDSA)
+     */
+    private PropertySpec clientSigningCertificate() {
+        return PropertySpecFactory.certificateAliasPropertySpec(DlmsSessionProperties.CLIENT_SIGNING_CERTIFICATE);
+    }
+
+    /**
+     * The private key of the client (the ComServer) used for key agreement (ECDH)
+     */
+    private PropertySpec clientPrivateKeyAgreementKeyPropertySpec() {
+        return PropertySpecFactory.privateKeyAliasPropertySpec(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY);
     }
 
     protected PropertySpec cipheringTypePropertySpec() {

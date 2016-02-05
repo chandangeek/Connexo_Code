@@ -2,7 +2,6 @@ package com.energyict.dlms.cosem.generalblocktransfer;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.XdlmsApduTags;
-import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
 import com.energyict.dlms.cosem.AbstractCosemObject;
 import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
@@ -326,7 +325,7 @@ public class GeneralBlockTransferHandler {
             SecureConnection secureConnection = (SecureConnection) getDlmsV2Connection();
 
             /* Check if security is applied or not */
-            if (secureConnection.getAso().getSecurityContext().getSecurityPolicy() != SecurityContext.SECURITYPOLICY_NONE) {
+            if (!secureConnection.getAso().getSecurityContext().getSecurityPolicy().isResponsePlain()) {
                 byte cipheredTag = getResponseData()[LOCATION_SECURED_XDLMS_APDU_TAG];
                 if (XdlmsApduTags.contains(cipheredTag)) {
                     this.responseData = decrypt(secureConnection, getResponseData());

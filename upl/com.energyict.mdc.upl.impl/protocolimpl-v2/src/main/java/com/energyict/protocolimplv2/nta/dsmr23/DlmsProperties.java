@@ -95,6 +95,11 @@ public class DlmsProperties implements DlmsSessionProperties {
     }
 
     @Override
+    public int getSecuritySuite() {
+        return 0;
+    }
+
+    @Override
     public int getClientMacAddress() {
         return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
     }
@@ -319,5 +324,10 @@ public class DlmsProperties implements DlmsSessionProperties {
         } else {
             return keyTypeDescription == null ? null : GeneralCipheringKeyType.fromDescription(keyTypeDescription);
         }
+    }
+
+    @Override
+    public boolean isGeneralSigning() {
+        return false;
     }
 }

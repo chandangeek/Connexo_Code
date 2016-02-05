@@ -2,22 +2,34 @@ package com.energyict.dlms.aso;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.*;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.encryption.AesGcm128;
+import com.energyict.encryption.AlgorithmID;
 import com.energyict.encryption.BitVector;
+import com.energyict.encryption.asymetric.keyagreement.KeyAgreement;
+import com.energyict.encryption.asymetric.keyagreement.KeyAgreementImpl;
+import com.energyict.encryption.asymetric.signature.ECDSASignatureImpl;
+import com.energyict.encryption.asymetric.util.KeyUtils;
+import com.energyict.encryption.kdf.KDF;
+import com.energyict.encryption.kdf.NIST_SP_800_56_KDF;
+import com.energyict.mdw.core.ECCCurve;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.exceptions.CodingException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,10 +61,13 @@ public class SecurityContext {
     /**
      * Holds the securityLevel for the DataTransport.
      */
-    private final int securityPolicy;
+    private final SecurityPolicy securityPolicy;
     /**
      * Points to the encryption Method that has to be used for dataTransport.
-     * Currently only 0 (meaning AES-GCM-128) is allowed
+     * Currently 3 suites defined in the DLMS blue book:
+     * - 0 (AES-GCM-128)
+     * - 1 (ECDH-ECDSAAES-GCM-128-SHA-256)
+     * - 2 (ECDH-ECDSAAES-GCM-256-SHA-384)
      */
     private final int securitySuite;
     /**
@@ -110,7 +125,7 @@ public class SecurityContext {
                            int associationAuthenticationLevel,
                            int dataTransportEncryptionType, byte[] systemIdentifier,
                            SecurityProvider securityProvider, int cipheringType, GeneralCipheringKeyType generalCipheringKeyType) {
-        this.securityPolicy = dataTransportSecurityLevel;
+        this.securityPolicy = new SecurityPolicy(dataTransportEncryptionType, dataTransportSecurityLevel);
         this.authenticationLevel = associationAuthenticationLevel;
         this.securitySuite = dataTransportEncryptionType;
         this.securityProvider = securityProvider;
@@ -140,27 +155,11 @@ public class SecurityContext {
     }
 
     /**
-     * Get the security level for dataTransport
-     * <pre>
-     * - 0 : Security not imposed
-     * - 1 : All messages(APDU's) must be authenticated
-     * - 2 : All messages(APDU's) must be encrypted
-     * - 3 : All messages(APDU's) must be authenticated AND encrypted
-     * </pre>
-     *
-     * @return the securityPolicy
+     * Get the security level for dataTransport.
+     * This indicates if a frame (be it a request or a response is authenticated and/or encrypted.
      */
-    public int getSecurityPolicy() {
+    public SecurityPolicy getSecurityPolicy() {
         return securityPolicy;
-    }
-
-    /**
-     * Get the type of encryption used for dataTransport
-     *
-     * @return the securitySuite
-     */
-    public int getSecuritySuite() {
-        return securitySuite;
     }
 
     /**
@@ -238,56 +237,51 @@ public class SecurityContext {
      */
     public byte[] dataTransportEncryption(byte[] plainText, boolean incrementFrameCounter) throws UnsupportedException {
         try {
-            switch (this.securityPolicy) {
-                case SECURITYPOLICY_NONE: {
-                    return plainText;
-                } // no encryption/authentication
-                case SECURITYPOLICY_AUTHENTICATION: {
-                    AesGcm128 ag128 = new AesGcm128(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
+            if (securityPolicy.isRequestPlain()) {
+                return plainText;
+            } else if (securityPolicy.isRequestAuthenticatedOnly()) {
+                AesGcm128 ag128 = new AesGcm128(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
 
-                    /*
-                          * the associatedData is a concatenation of:
-                          * - the securityControlByte
-                          * - the authenticationKey
-                          * - the plainText
-                          */
-                    byte[] associatedData = new byte[plainText.length + getSecurityProvider().getAuthenticationKey().length + 1];
-                    associatedData[0] = getSecurityControlByte();
-                    System.arraycopy(getSecurityProvider().getAuthenticationKey(), 0, associatedData, 1, getSecurityProvider().getAuthenticationKey().length);
-                    System.arraycopy(plainText, 0, associatedData, 1 + getSecurityProvider().getAuthenticationKey().length, plainText.length);
+                /*
+                 * the associatedData is a concatenation of:
+                 * - the securityControlByte
+                 * - the authenticationKey
+                 * - the plainText
+                 */
+                byte[] associatedData = new byte[plainText.length + getSecurityProvider().getAuthenticationKey().length + 1];
+                associatedData[0] = getSecurityControlByte();
+                System.arraycopy(getSecurityProvider().getAuthenticationKey(), 0, associatedData, 1, getSecurityProvider().getAuthenticationKey().length);
+                System.arraycopy(plainText, 0, associatedData, 1 + getSecurityProvider().getAuthenticationKey().length, plainText.length);
 
-                    ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
-                    ag128.setInitializationVector(new BitVector(getInitializationVector()));
-                    ag128.encrypt();
-                    return createSecuredApdu(plainText, ag128.getTag().getValue());
-                } // authenticated
-                case SECURITYPOLICY_ENCRYPTION: {
-                    AesGcm128 ag128 = new AesGcm128(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
+                ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
+                ag128.setInitializationVector(new BitVector(getInitializationVector()));
+                ag128.encrypt();
+                return createSecuredApdu(plainText, ag128.getTag().getValue());
+            } else if (securityPolicy.isRequestEncryptedOnly()) {
+                AesGcm128 ag128 = new AesGcm128(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
 
-                    ag128.setInitializationVector(new BitVector(getInitializationVector()));
-                    ag128.setPlainText(new BitVector(plainText));
-                    ag128.encrypt();
-                    return createSecuredApdu(ag128.getCipherText().getValue(), null);
-                } // encrypted
-                case SECURITYPOLICY_BOTH: {
-                    AesGcm128 ag128 = new AesGcm128(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
+                ag128.setInitializationVector(new BitVector(getInitializationVector()));
+                ag128.setPlainText(new BitVector(plainText));
+                ag128.encrypt();
+                return createSecuredApdu(ag128.getCipherText().getValue(), null);
+            } else if (securityPolicy.isRequestAuthenticatedAndEncrypted()) {
+                AesGcm128 ag128 = new AesGcm128(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
 
-                    /*
-                          * the associatedData is a concatenation of:
-                          * - the securityControlByte
-                          * - the authenticationKey
-                          */
-                    byte[] associatedData = new byte[getSecurityProvider().getAuthenticationKey().length + 1];
-                    associatedData[0] = getSecurityControlByte();
-                    System.arraycopy(getSecurityProvider().getAuthenticationKey(), 0, associatedData, 1, getSecurityProvider().getAuthenticationKey().length);
-                    ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
-                    ag128.setInitializationVector(new BitVector(getInitializationVector()));
-                    ag128.setPlainText(new BitVector(plainText));
-                    ag128.encrypt();
-                    return createSecuredApdu(ag128.getCipherText().getValue(), ag128.getTag().getValue());
-                } // authenticated and encrypted
-                default:
-                    throw new UnsupportedException("Unknown securityPolicy: " + this.securityPolicy);
+                /*
+                 * the associatedData is a concatenation of:
+                 * - the securityControlByte
+                 * - the authenticationKey
+                 */
+                byte[] associatedData = new byte[getSecurityProvider().getAuthenticationKey().length + 1];
+                associatedData[0] = getSecurityControlByte();
+                System.arraycopy(getSecurityProvider().getAuthenticationKey(), 0, associatedData, 1, getSecurityProvider().getAuthenticationKey().length);
+                ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
+                ag128.setInitializationVector(new BitVector(getInitializationVector()));
+                ag128.setPlainText(new BitVector(plainText));
+                ag128.encrypt();
+                return createSecuredApdu(ag128.getCipherText().getValue(), ag128.getTag().getValue());
+            } else {
+                throw new UnsupportedException("Unknown securityPolicy: " + this.securityPolicy.getDataTransportSecurityLevel());
             }
         } finally {
             if (incrementFrameCounter) {
@@ -313,10 +307,11 @@ public class SecurityContext {
                 case IDENTIFIED_KEY:
                     return getSecurityProvider().getGlobalKey();
                 case WRAPPED_KEY:
+                    //The wrapped key is stored in the session key field of the security provider
                     return getGeneralCipheringSecurityProvider().getSessionKey();
                 case AGREED_KEY:
-                    throw new IllegalStateException("not yet implemented");
-                    //TODO implement
+                    //The agreed key is stored in the session key field of the security provider
+                    return getGeneralCipheringSecurityProvider().getSessionKey();
                 default:
                     throw DeviceConfigurationException.missingProperty(GENERAL_CIPHERING_KEY_TYPE);
             }
@@ -355,7 +350,8 @@ public class SecurityContext {
         switch (this.generalCipheringKeyType) {
             case IDENTIFIED_KEY: {
                 return ProtocolTools.concatByteArrays(
-                        createGeneralCipheringHeader(true),
+                        createGeneralCipheringHeader(),
+                        new byte[]{(byte) 0x01},    //Yes, key info is present
                         new byte[]{(byte) generalCipheringKeyType.getId()}, //key-id
                         new byte[]{(byte) GeneralCipheringKeyType.IdentifiedKeyTypes.GLOBAL_UNICAST_ENCRYPTION_KEY.getId()},
                         dataTransportEncryption(plainText)
@@ -376,7 +372,8 @@ public class SecurityContext {
                     includeGeneralCipheringKeyInformation = false;
 
                     return ProtocolTools.concatByteArrays(
-                            createGeneralCipheringHeader(true),
+                            createGeneralCipheringHeader(),
+                            new byte[]{(byte) 0x01},    //Yes, key info is present
                             new byte[]{(byte) generalCipheringKeyType.getId()}, //key-id
                             new byte[]{(byte) GeneralCipheringKeyType.WrappedKeyTypes.MASTER_KEY.getId()},
                             new byte[]{(byte) wrappedKey.length},
@@ -386,15 +383,70 @@ public class SecurityContext {
                 } else {
                     //Do not include the wrapped key information any more for the next requests
                     return ProtocolTools.concatByteArrays(
-                            createGeneralCipheringHeader(false),
+                            createGeneralCipheringHeader(),
+                            new byte[]{(byte) 0x00},    //Key info is not present
                             dataTransportEncryption(plainText)
                     );
                 }
             }
 
             case AGREED_KEY: {
-                //TODO implement
-                throw new IllegalStateException("General ciphering with agreed key is not yet implemented");
+                if (includeGeneralCipheringKeyInformation) {
+
+                    //One-Pass Diffie-Hellman C(1e, 1s, ECC CDH):
+                    //We are party U (sender), the meter is party V (receiver).
+                    //This means we generate an ephemeral keypair and use its private key combined with
+                    //the public static key agreement key of the server to derive a shared secret.
+                    //The server side will do the same, using its static key agreement private key and our ephemeral public key.
+
+                    KeyAgreement keyAgreement = new KeyAgreementImpl(ECCCurve.P256_SHA256);     //TODO suite 2 too
+                    Certificate serverKeyAgreementCertificate = getGeneralCipheringSecurityProvider().getServerKeyAgreementCertificate();
+                    if (serverKeyAgreementCertificate == null) {
+                        throw DeviceConfigurationException.missingProperty(SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
+                    }
+
+                    byte[] sharedSecretZ = keyAgreement.generateSecret(serverKeyAgreementCertificate.getPublicKey());
+                    byte[] partyUInfo = getSystemTitle();           //Party U is the sender, us, the client
+                    byte[] partyVInfo = getResponseSystemTitle();   //Party V is the receiver, the server, the meter
+                    byte[] sessionKey = NIST_SP_800_56_KDF.getInstance().derive(KDF.HashFunction.SHA256, sharedSecretZ, AlgorithmID.AES_GCM_128, partyUInfo, partyVInfo);//TODO suite 2 too
+                    getGeneralCipheringSecurityProvider().setSessionKey(sessionKey);
+
+                    PublicKey ephemeralPublicKey = keyAgreement.getEphemeralPublicKey();
+                    byte[] ephemeralPublicKeyBytes = KeyUtils.toRawData(ECCCurve.P256_SHA256, ephemeralPublicKey);//TODO suite 2 too
+
+                    ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(ECCCurve.P256_SHA256);//TODO suite 2 too
+                    PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
+                    if (clientPrivateSigningKey == null) {
+                        throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
+                    }
+
+                    byte[] signature = ecdsaSignature.sign(ephemeralPublicKeyBytes, clientPrivateSigningKey);
+
+                    //This is a newly generated session key, so reset the frame counters
+                    resetFrameCounters();
+
+                    //Only include the key information the first request
+                    includeGeneralCipheringKeyInformation = false;
+
+                    return ProtocolTools.concatByteArrays(
+                            createGeneralCipheringHeader(),
+                            new byte[]{(byte) 0x01},    //Yes, key info is present
+                            new byte[]{(byte) generalCipheringKeyType.getId()}, //key-id
+                            new byte[]{(byte) 0x01},    //Length of the AgreedKeyTypes byte is 1
+                            new byte[]{(byte) GeneralCipheringKeyType.AgreedKeyTypes.ECC_CDH_1E1S.getId()},
+                            DLMSUtils.getAXDRLengthEncoding(ephemeralPublicKeyBytes.length + signature.length),
+                            ephemeralPublicKeyBytes,
+                            signature,
+                            dataTransportEncryption(plainText)
+                    );
+                } else {
+                    //Do not include the key information any more for the next requests
+                    return ProtocolTools.concatByteArrays(
+                            createGeneralCipheringHeader(),
+                            new byte[]{(byte) 0x00},    //Key info is not present
+                            dataTransportEncryption(plainText)
+                    );
+                }
             }
 
             default:
@@ -412,7 +464,7 @@ public class SecurityContext {
     /**
      * Structure: transaction-id, client system title, server system title, date-time, other info, key-info
      */
-    private byte[] createGeneralCipheringHeader(boolean includeKeyInfo) {
+    private byte[] createGeneralCipheringHeader() {
 
         //TODO replace epoch by transaction-id and treat it as invokeid??
         int transactionIdLength = 8;
@@ -425,9 +477,8 @@ public class SecurityContext {
                 getSystemTitle(),
                 new byte[]{(byte) getResponseSystemTitle().length},
                 getResponseSystemTitle(),
-                new byte[]{(byte) 0x00},    //No datetime
-                new byte[]{(byte) 0x00},    //No other-info
-                new byte[]{includeKeyInfo ? (byte) 0x01 : 0x00}    //key-info is optional
+                new byte[]{(byte) 0x00},        //No datetime
+                new byte[]{(byte) 0x00}         //No other-info
         );
     }
 
@@ -470,24 +521,56 @@ public class SecurityContext {
                     ptr += wrappedKeyLength;
 
                     byte[] sessionKey = ProtocolTools.aesUnwrap(wrappedKey, getSecurityProvider().getMasterKey());
-
-                    if (!Arrays.equals(getGeneralCipheringSecurityProvider().getSessionKey(), sessionKey)) {
-                        getGeneralCipheringSecurityProvider().setSessionKey(sessionKey);
-
-                        //We're using a new session key (the one received from the server) from now on,
-                        //so make sure to specify it once again in the next general ciphering request
-                        includeGeneralCipheringKeyInformation = true;
-
-                        //New key in use, so start using a new frame counter
-                        resetFrameCounters();
-                    }
+                    handleReceivedSessionKey(sessionKey);
                 }
                 break;
 
+                case AGREED_KEY: {
+                    int keyParametersLength = generalCipheringAPDU[ptr++] & 0xFF;
+                    int keyParameters = generalCipheringAPDU[ptr++] & 0xFF;
 
-                case AGREED_KEY:
-                    throw new IllegalStateException("General ciphering with agreed key is not yet implemented");
-                    //TODO implement
+                    if (GeneralCipheringKeyType.AgreedKeyTypes.ECC_CDH_1E1S.getId() != keyParameters) {
+                        throw new UnsupportedException("Unsupported key agreement type: '" + keyParameters + "'. Only type 1 (1e, 1s, ECC CDH) is currently supported");
+                    }
+
+                    int keyCipheredDataLength = DLMSUtils.getAXDRLength(generalCipheringAPDU, ptr);
+                    ptr += DLMSUtils.getAXDRLengthOffset(keyCipheredDataLength);    //TODO test!
+
+                    byte[] keyCipheredData = ProtocolTools.getSubArray(generalCipheringAPDU, ptr, ptr + keyCipheredDataLength);
+                    ptr += keyCipheredDataLength;
+
+                    int keySize = KeyUtils.getKeySize(ECCCurve.P256_SHA256);    //TODO suite 2 too
+                    byte[] serverEphemeralPublicKeyBytes = ProtocolTools.getSubArray(keyCipheredData, 0, keySize);
+                    PublicKey serverEphemeralPublicKey = KeyUtils.toECPublicKey(ECCCurve.P256_SHA256, serverEphemeralPublicKeyBytes);
+                    byte[] signature = ProtocolTools.getSubArray(keyCipheredData, keySize, keyCipheredDataLength);
+
+                    ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(ECCCurve.P256_SHA256);
+                    X509Certificate serverSignatureCertificate = getGeneralCipheringSecurityProvider().getServerSignatureCertificate();
+                    if (serverSignatureCertificate == null) {
+                        throw DeviceConfigurationException.missingProperty(SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString());
+                    }
+
+                    if (!ecdsaSignature.verify(serverEphemeralPublicKeyBytes, signature, serverSignatureCertificate.getPublicKey())) {
+                        throw ConnectionCommunicationException.signatureVerificationError();
+                    }
+
+                    PrivateKey clientPrivateKeyAgreementKey = getGeneralCipheringSecurityProvider().getClientPrivateKeyAgreementKey();
+                    if (clientPrivateKeyAgreementKey == null) {
+                        throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY);
+                    }
+
+                    KeyPair keyAgreementKeyPair = new KeyPair(null, clientPrivateKeyAgreementKey);
+                    KeyAgreement keyAgreement = new KeyAgreementImpl(ECCCurve.P256_SHA256, keyAgreementKeyPair);//TODO suite 2 too
+
+                    byte[] secretZ = keyAgreement.generateSecret(serverEphemeralPublicKey);
+                    byte[] partyUInfo = getResponseSystemTitle();   //Party U is the sender, the server, the meter
+                    byte[] partyVInfo = getSystemTitle();           //Party U is the receiver, us, the client
+                    byte[] sessionKey = NIST_SP_800_56_KDF.getInstance().derive(KDF.HashFunction.SHA256, secretZ, AlgorithmID.AES_GCM_128, partyUInfo, partyVInfo);
+
+                    handleReceivedSessionKey(sessionKey);
+                }
+                break;
+
                 default:
                     throw DeviceConfigurationException.missingProperty(GENERAL_CIPHERING_KEY_TYPE);
             }
@@ -499,6 +582,19 @@ public class SecurityContext {
 
         //Decrypt the frame using the key type that we received from the meter, it can be different from the configured key type in EIServer
         return dataTransportDecryption(fullCipherFrame, serverKeyType);
+    }
+
+    private void handleReceivedSessionKey(byte[] sessionKey) {
+        if (!Arrays.equals(getGeneralCipheringSecurityProvider().getSessionKey(), sessionKey)) {
+            getGeneralCipheringSecurityProvider().setSessionKey(sessionKey);
+
+            //We're using a new session key (the one received from the server) from now on,
+            //so make sure to specify it once again in the next general ciphering request
+            includeGeneralCipheringKeyInformation = true;
+
+            //New key in use, so start using a new frame counter
+            resetFrameCounters();
+        }
     }
 
     private void resetFrameCounters() {
@@ -673,74 +769,71 @@ public class SecurityContext {
      * @throws ConnectionException when the decryption fails
      */
     public byte[] dataTransportDecryption(byte[] cipherFrame, GeneralCipheringKeyType generalCipheringKeyType) throws UnsupportedException, ConnectionException, DLMSConnectionException {
-        switch (this.securityPolicy) {
-            case SECURITYPOLICY_NONE: {
-                return cipherFrame;
+        if (securityPolicy.isResponsePlain()) {
+            return cipherFrame;
+        } else if (securityPolicy.isResponseAuthenticatedOnly()) {
+
+            AesGcm128 ag128 = new AesGcm128(getEncryptionKey(generalCipheringKeyType), DLMS_AUTH_TAG_SIZE);
+
+            byte[] aTag = getAuthenticationTag(cipherFrame);
+            byte[] apdu = getApdu(cipherFrame, true);
+            /* the associatedData is a concatenation of:
+             * - the securityControlByte
+             * - the authenticationKey
+             * - the plainText */
+            byte[] associatedData = new byte[apdu.length + getSecurityProvider().getAuthenticationKey().length + 1];
+            associatedData[0] = getSecurityControlByte();
+            System.arraycopy(getSecurityProvider().getAuthenticationKey(), 0, associatedData, 1, getSecurityProvider().getAuthenticationKey().length);
+            System.arraycopy(apdu, 0, associatedData, 1 + getSecurityProvider().getAuthenticationKey().length, apdu.length);
+
+
+            ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
+            ag128.setInitializationVector(new BitVector(getRespondingInitializationVector()));
+            ag128.setTag(new BitVector(aTag));
+
+            if (ag128.decrypt()) {
+                return apdu;
+            } else {
+                throw new ConnectionException("Received an invalid cipher frame.");
             }
-            case SECURITYPOLICY_AUTHENTICATION: {
-                AesGcm128 ag128 = new AesGcm128(getEncryptionKey(generalCipheringKeyType), DLMS_AUTH_TAG_SIZE);
+        } else if (securityPolicy.isResponseEncryptedOnly()) {
 
-                byte[] aTag = getAuthenticationTag(cipherFrame);
-                byte[] apdu = getApdu(cipherFrame, true);
-                /* the associatedData is a concatenation of:
-                 * - the securityControlByte
-                 * - the authenticationKey
-                 * - the plainText */
-                byte[] associatedData = new byte[apdu.length + getSecurityProvider().getAuthenticationKey().length + 1];
-                associatedData[0] = getSecurityControlByte();
-                System.arraycopy(getSecurityProvider().getAuthenticationKey(), 0, associatedData, 1, getSecurityProvider().getAuthenticationKey().length);
-                System.arraycopy(apdu, 0, associatedData, 1 + getSecurityProvider().getAuthenticationKey().length, apdu.length);
+            AesGcm128 ag128 = new AesGcm128(getEncryptionKey(generalCipheringKeyType), DLMS_AUTH_TAG_SIZE);
 
+            byte[] cipheredAPDU = getApdu(cipherFrame, false);
+            ag128.setInitializationVector(new BitVector(getRespondingInitializationVector()));
+            ag128.setCipherText(new BitVector(cipheredAPDU));
 
-                ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
-                ag128.setInitializationVector(new BitVector(getRespondingInitializationVector()));
-                ag128.setTag(new BitVector(aTag));
-
-                if (ag128.decrypt()) {
-                    return apdu;
-                } else {
-                    throw new ConnectionException("Received an invalid cipher frame.");
-                }
+            if (ag128.decrypt()) {
+                return ag128.getPlainText().getValue();
+            } else {
+                throw new ConnectionException("Received an invalid cipher frame.");
             }
-            case SECURITYPOLICY_ENCRYPTION: {
-                AesGcm128 ag128 = new AesGcm128(getEncryptionKey(generalCipheringKeyType), DLMS_AUTH_TAG_SIZE);
+        } else if (securityPolicy.isResponseAuthenticatedAndEncrypted()) {
 
-                byte[] cipheredAPDU = getApdu(cipherFrame, false);
-                ag128.setInitializationVector(new BitVector(getRespondingInitializationVector()));
-                ag128.setCipherText(new BitVector(cipheredAPDU));
+            AesGcm128 ag128 = new AesGcm128(getEncryptionKey(generalCipheringKeyType), DLMS_AUTH_TAG_SIZE);
 
-                if (ag128.decrypt()) {
-                    return ag128.getPlainText().getValue();
-                } else {
-                    throw new ConnectionException("Received an invalid cipher frame.");
-                }
+            byte[] aTag = getAuthenticationTag(cipherFrame);
+            byte[] cipheredAPDU = getApdu(cipherFrame, true);
+            /* the associatedData is a concatenation of:
+             * - the securityControlByte
+             * - the authenticationKey */
+            byte[] associatedData = new byte[getSecurityProvider().getAuthenticationKey().length + 1];
+            associatedData[0] = getSecurityControlByte();
+            System.arraycopy(getSecurityProvider().getAuthenticationKey(), 0, associatedData, 1, getSecurityProvider().getAuthenticationKey().length);
+
+            ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
+            ag128.setInitializationVector(new BitVector(getRespondingInitializationVector()));
+            ag128.setTag(new BitVector(aTag));
+            ag128.setCipherText(new BitVector(cipheredAPDU));
+
+            if (ag128.decrypt()) {
+                return ag128.getPlainText().getValue();
+            } else {
+                throw new ConnectionException("Received an invalid cipher frame.");
             }
-            case SECURITYPOLICY_BOTH: {
-                AesGcm128 ag128 = new AesGcm128(getEncryptionKey(generalCipheringKeyType), DLMS_AUTH_TAG_SIZE);
-
-                byte[] aTag = getAuthenticationTag(cipherFrame);
-                byte[] cipheredAPDU = getApdu(cipherFrame, true);
-                /* the associatedData is a concatenation of:
-                 * - the securityControlByte
-                 * - the authenticationKey */
-                byte[] associatedData = new byte[getSecurityProvider().getAuthenticationKey().length + 1];
-                associatedData[0] = getSecurityControlByte();
-                System.arraycopy(getSecurityProvider().getAuthenticationKey(), 0, associatedData, 1, getSecurityProvider().getAuthenticationKey().length);
-
-                ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
-                ag128.setInitializationVector(new BitVector(getRespondingInitializationVector()));
-                ag128.setTag(new BitVector(aTag));
-                ag128.setCipherText(new BitVector(cipheredAPDU));
-
-                if (ag128.decrypt()) {
-                    return ag128.getPlainText().getValue();
-                } else {
-                    throw new ConnectionException("Received an invalid cipher frame.");
-                }
-            }
-            default:
-                throw new UnsupportedException("Unknown securityPolicy: "
-                        + this.securityPolicy);
+        } else {
+            throw new UnsupportedException("Unknown securityPolicy: " + this.securityPolicy);
         }
     }
 
@@ -793,7 +886,12 @@ public class SecurityContext {
     public byte getSecurityControlByte() {
         byte scByte = 0;
         scByte |= (this.securitySuite & 0x0F); // add the securitySuite to bits 0 to 3
-        scByte |= (this.securityPolicy << 4); // set the encryption/authentication
+
+        //Bit 4 indicates authentication of our requests
+        scByte |= (((securityPolicy.isRequestAuthenticatedOnly() || securityPolicy.isRequestAuthenticatedAndEncrypted()) ? 1 : 0) << 4);
+
+        //Bit 5 indicates encryption of our requests
+        scByte |= (((securityPolicy.isRequestEncryptedOnly() || securityPolicy.isRequestAuthenticatedAndEncrypted()) ? 1 : 0) << 5);
         return scByte;
     }
 

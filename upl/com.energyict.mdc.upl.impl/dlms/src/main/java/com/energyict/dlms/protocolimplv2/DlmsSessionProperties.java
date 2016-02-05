@@ -18,6 +18,10 @@ import java.util.TimeZone;
  */
 public interface DlmsSessionProperties extends CommunicationSessionProperties {
 
+    String CLIENT_PRIVATE_KEY_AGREEMENT_KEY = "ClientPrivateKeyAgreementKey";
+    String CLIENT_SIGNING_CERTIFICATE = "ClientSigningCertificate";
+    String CLIENT_PRIVATE_SIGNING_KEY = "ClientPrivateSigningKey";
+
     /**
      * The device timezone
      */
@@ -48,6 +52,15 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
      * Getter for the data transport security level. Can be 0 (no security), 1 (authentication), 2 (encryption) or 3 (both)
      */
     int getDataTransportSecurityLevel();
+
+    /**
+     * The security suite.
+     * Currently 3 suites defined in the DLMS blue book:
+     * - 0 (AES-GCM-128)
+     * - 1 (ECDH-ECDSAAES-GCM-128-SHA-256)
+     * - 2 (ECDH-ECDSAAES-GCM-256-SHA-384)
+     */
+    int getSecuritySuite();
 
     /**
      * Indicates the manufacturer.
@@ -167,5 +180,10 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
      * Returns null if no general ciphering is used.
      */
     GeneralCipheringKeyType getGeneralCipheringKeyType();
+
+    /**
+     * Return true if digital signing is to be used (only possible for DLMS suite 1 and 2)
+     */
+    boolean isGeneralSigning();
 
 }

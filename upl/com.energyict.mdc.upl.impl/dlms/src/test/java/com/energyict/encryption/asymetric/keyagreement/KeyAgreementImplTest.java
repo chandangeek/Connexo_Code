@@ -1,7 +1,7 @@
 package com.energyict.encryption.asymetric.keyagreement;
 
 import com.energyict.encryption.AlgorithmID;
-import com.energyict.encryption.asymetric.ECCCurve;
+import com.energyict.mdw.core.ECCCurve;
 import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.encryption.kdf.KDF;
 import com.energyict.encryption.kdf.NIST_SP_800_56_KDF;
@@ -104,11 +104,11 @@ public class KeyAgreementImplTest {
      */
     @Test
     public final void testKeyAgreement() throws Exception {
-        PublicKey publicKey = KeyUtils.toECPublicKey(ECCCurve.P256_SHA256.getCurveName(), EPHEMERAL_PUBLIC_KEY_SERVER);
-        PrivateKey privateKey = KeyUtils.toECPrivateKey(ECCCurve.P256_SHA256.getCurveName(), EPHEMERAL_PRIVATE_KEY_SERVER);
+        PublicKey publicKey = KeyUtils.toECPublicKey(ECCCurve.P256_SHA256, EPHEMERAL_PUBLIC_KEY_SERVER);
+        PrivateKey privateKey = KeyUtils.toECPrivateKey(ECCCurve.P256_SHA256, EPHEMERAL_PRIVATE_KEY_SERVER);
         final KeyAgreement agreement = new KeyAgreementImpl(ECCCurve.P256_SHA256, new KeyPair(publicKey, privateKey));
 
-        final byte[] secret = agreement.generateSecret(KeyUtils.toECPublicKey(ECCCurve.P256_SHA256.getCurveName(), EPHEMERAL_PUBLIC_KEY_CLIENT));
+        final byte[] secret = agreement.generateSecret(KeyUtils.toECPublicKey(ECCCurve.P256_SHA256, EPHEMERAL_PUBLIC_KEY_CLIENT));
 
         assertThat(secret).isEqualTo(EXPECTED_SHARED_SECRET);
 
@@ -124,19 +124,19 @@ public class KeyAgreementImplTest {
      */
     @Test
     public final void testKeyAgreementFixedOnBothSides() throws Exception {
-        PublicKey publicKey = KeyUtils.toECPublicKey(ECCCurve.P256_SHA256.getCurveName(), ONEPASS_EPH_PUBLIC_KEY_CLIENT);
-        PrivateKey privateKey = KeyUtils.toECPrivateKey(ECCCurve.P256_SHA256.getCurveName(), ONEPASS_EPH_PRIVATE_KEY_CLIENT);
+        PublicKey publicKey = KeyUtils.toECPublicKey(ECCCurve.P256_SHA256, ONEPASS_EPH_PUBLIC_KEY_CLIENT);
+        PrivateKey privateKey = KeyUtils.toECPrivateKey(ECCCurve.P256_SHA256, ONEPASS_EPH_PRIVATE_KEY_CLIENT);
         KeyAgreement agreement = new KeyAgreementImpl(ECCCurve.P256_SHA256, new KeyPair(publicKey, privateKey));
 
         //Generate the secret, using our private and key and the public key of the other party
-        byte[] clientSecret = agreement.generateSecret(KeyUtils.toECPublicKey(ECCCurve.P256_SHA256.getCurveName(), EPHEMERAL_PUBLIC_KEY_SERVER));
+        byte[] clientSecret = agreement.generateSecret(KeyUtils.toECPublicKey(ECCCurve.P256_SHA256, EPHEMERAL_PUBLIC_KEY_SERVER));
 
-        publicKey = KeyUtils.toECPublicKey(ECCCurve.P256_SHA256.getCurveName(), EPHEMERAL_PUBLIC_KEY_SERVER);
-        privateKey = KeyUtils.toECPrivateKey(ECCCurve.P256_SHA256.getCurveName(), EPHEMERAL_PRIVATE_KEY_SERVER);
+        publicKey = KeyUtils.toECPublicKey(ECCCurve.P256_SHA256, EPHEMERAL_PUBLIC_KEY_SERVER);
+        privateKey = KeyUtils.toECPrivateKey(ECCCurve.P256_SHA256, EPHEMERAL_PRIVATE_KEY_SERVER);
         agreement = new KeyAgreementImpl(ECCCurve.P256_SHA256, new KeyPair(publicKey, privateKey));
 
         //Generate the secret, using our private and key and the public key of the other party
-        final byte[] serverSecret = agreement.generateSecret(KeyUtils.toECPublicKey(ECCCurve.P256_SHA256.getCurveName(), ONEPASS_EPH_PUBLIC_KEY_CLIENT));
+        final byte[] serverSecret = agreement.generateSecret(KeyUtils.toECPublicKey(ECCCurve.P256_SHA256, ONEPASS_EPH_PUBLIC_KEY_CLIENT));
 
         assertArrayEquals(clientSecret, serverSecret);
     }
@@ -151,8 +151,8 @@ public class KeyAgreementImplTest {
         KeyAgreement agreementServerSide = new KeyAgreementImpl(ECCCurve.P256_SHA256);
 
         //Generate the secret, using our private and key and the public key of the other party
-        byte[] clientSecret = agreementClientSide.generateSecret(agreementServerSide.getPublicKey());
-        byte[] serverSecret = agreementServerSide.generateSecret(agreementClientSide.getPublicKey());
+        byte[] clientSecret = agreementClientSide.generateSecret(agreementServerSide.getEphemeralPublicKey());
+        byte[] serverSecret = agreementServerSide.generateSecret(agreementClientSide.getEphemeralPublicKey());
 
         assertArrayEquals(clientSecret, serverSecret);
 
@@ -171,8 +171,8 @@ public class KeyAgreementImplTest {
         KeyAgreement agreementServerSide = new KeyAgreementImpl(ECCCurve.P384_SHA384);
 
         //Generate the secret, using our private and key and the public key of the other party
-        byte[] clientSecret = agreementClientSide.generateSecret(agreementServerSide.getPublicKey());
-        byte[] serverSecret = agreementServerSide.generateSecret(agreementClientSide.getPublicKey());
+        byte[] clientSecret = agreementClientSide.generateSecret(agreementServerSide.getEphemeralPublicKey());
+        byte[] serverSecret = agreementServerSide.generateSecret(agreementClientSide.getEphemeralPublicKey());
 
         assertArrayEquals(clientSecret, serverSecret);
 
@@ -189,11 +189,11 @@ public class KeyAgreementImplTest {
      */
     @Test
     public final void testOnePassToServer() throws Exception {
-        PublicKey publicKey = KeyUtils.toECPublicKey(ECCCurve.P256_SHA256.getCurveName(), ONEPASS_STATIC_PUBLIC_KEY_SERVER);
-        PrivateKey privateKey = KeyUtils.toECPrivateKey(ECCCurve.P256_SHA256.getCurveName(), ONEPASS_STATIC_PRIVATE_KEY_SERVER);
+        PublicKey publicKey = KeyUtils.toECPublicKey(ECCCurve.P256_SHA256, ONEPASS_STATIC_PUBLIC_KEY_SERVER);
+        PrivateKey privateKey = KeyUtils.toECPrivateKey(ECCCurve.P256_SHA256, ONEPASS_STATIC_PRIVATE_KEY_SERVER);
         final KeyAgreement agreement = new KeyAgreementImpl(ECCCurve.P256_SHA256, new KeyPair(publicKey, privateKey));
 
-        final byte[] secret = agreement.generateSecret(KeyUtils.toECPublicKey(ECCCurve.P256_SHA256.getCurveName(), ONEPASS_EPH_PUBLIC_KEY_CLIENT));
+        final byte[] secret = agreement.generateSecret(KeyUtils.toECPublicKey(ECCCurve.P256_SHA256, ONEPASS_EPH_PUBLIC_KEY_CLIENT));
         assertThat(secret).isEqualTo(ONEPASS_EXPECTED_SHARED_SECRET_SERVER);
 
         final KDF kdf = NIST_SP_800_56_KDF.getInstance();
@@ -209,11 +209,11 @@ public class KeyAgreementImplTest {
      */
     @Test
     public final void testOnePassToClient() throws Exception {
-        PublicKey publicKey = KeyUtils.toECPublicKey(ECCCurve.P256_SHA256.getCurveName(), PUBLIC_KEY_AGREEMENT_KEY_CLIENT);
-        PrivateKey privateKey = KeyUtils.toECPrivateKey(ECCCurve.P256_SHA256.getCurveName(), PRIVATE_KEY_AGREEMENT_KEY_CLIENT);
+        PublicKey publicKey = KeyUtils.toECPublicKey(ECCCurve.P256_SHA256, PUBLIC_KEY_AGREEMENT_KEY_CLIENT);
+        PrivateKey privateKey = KeyUtils.toECPrivateKey(ECCCurve.P256_SHA256, PRIVATE_KEY_AGREEMENT_KEY_CLIENT);
         KeyAgreement agreement = new KeyAgreementImpl(ECCCurve.P256_SHA256, new KeyPair(publicKey, privateKey));
 
-        byte[] secret = agreement.generateSecret(KeyUtils.toECPublicKey(ECCCurve.P256_SHA256.getCurveName(), EPHEMERAL_PUBLIC_KEY_SERVER2));
+        byte[] secret = agreement.generateSecret(KeyUtils.toECPublicKey(ECCCurve.P256_SHA256, EPHEMERAL_PUBLIC_KEY_SERVER2));
         assertThat(secret).isEqualTo(ONEPASS_EXPECTED_SHARED_SECRET_CLIENT);
 
         final KDF kdf = NIST_SP_800_56_KDF.getInstance();
