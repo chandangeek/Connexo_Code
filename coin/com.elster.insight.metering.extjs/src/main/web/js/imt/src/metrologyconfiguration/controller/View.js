@@ -89,7 +89,7 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
         metrologyConfigurationModel.load(id, {
             success: function (record) {
                 me.getApplication().fireEvent('metrologyConfigurationLoaded', record);
-                var widget = Ext.widget('custom-attribute-sets', {router: router});
+                var widget = Ext.widget('custom-attribute-sets', {router: router, metrologyConfiguration: record});
                 me.getApplication().fireEvent('changecontentevent', widget);
                 store.getProxy().extraParams.id = id;
                 store.getProxy().extraParams.linked = true;
