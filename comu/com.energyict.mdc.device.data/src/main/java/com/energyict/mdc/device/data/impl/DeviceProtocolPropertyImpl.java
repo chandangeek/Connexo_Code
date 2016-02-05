@@ -7,14 +7,16 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
+import com.energyict.mdc.device.data.impl.constraintvalidators.ValidDeviceProtocolProperties;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Optional;
 
 /**
  * Represents a <i>typed</i> property of a Device.
@@ -23,7 +25,8 @@ import java.time.Instant;
  * Date: 3/14/14
  * Time: 9:03 AM
  */
-public class DeviceProtocolPropertyImpl implements DeviceProtocolProperty, Serializable {
+@ValidDeviceProtocolProperties(groups = {Save.Create.class, Save.Update.class})
+public class DeviceProtocolPropertyImpl implements ServerDeviceProtocolPropertyForValidation, Serializable {
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
@@ -31,7 +34,8 @@ public class DeviceProtocolPropertyImpl implements DeviceProtocolProperty, Seria
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String propertyValue;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String propertySpec;
+    private String propertyName;
+    private transient Optional<PropertySpec> propertySpec = Optional.empty();
     private Reference<Device> device = ValueReference.absent();
     private String userName;
     private long version;
@@ -44,10 +48,11 @@ public class DeviceProtocolPropertyImpl implements DeviceProtocolProperty, Seria
         this.thesaurus = thesaurus;
     }
 
-    DeviceProtocolPropertyImpl initialize(Device device, String propertySpecName, String stringValue) {
+    DeviceProtocolPropertyImpl initialize(Device device, Optional<PropertySpec> propertySpec, String stringValue) {
         this.device.set(device);
-        if (propertySpecName != null) {
-            this.propertySpec = propertySpecName;
+        if (propertySpec.isPresent()) {
+            this.propertySpec = propertySpec;
+            this.propertyName = propertySpec.get().getName();
         } else {
             throw DeviceProtocolPropertyException.propertySpecTypeDoesNotExist(stringValue, thesaurus, MessageSeeds.DEVICE_PROPERTY_HAS_NO_SPEC);
         }
@@ -57,7 +62,22 @@ public class DeviceProtocolPropertyImpl implements DeviceProtocolProperty, Seria
 
     @Override
     public String getName() {
-        return propertySpec;
+        return propertyName;
+    }
+
+    @Override
+    public PropertySpec getPropertySpec() {
+        if (!propertySpec.isPresent()) {
+            propertySpec = getPropertySpecForProperty(propertyName);
+        }
+        return propertySpec.orElseThrow(() -> DeviceProtocolPropertyException.propertySpecTypeDoesNotExist(propertyName, thesaurus, MessageSeeds.DEVICE_PROPERTY_HAS_NO_SPEC));
+    }
+
+    private Optional<PropertySpec> getPropertySpecForProperty(String name) {
+        if (device.isPresent()) {
+            return this.device.get().getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs().stream().filter(spec -> spec.getName().equals(name)).findFirst();
+        }
+        return Optional.empty();
     }
 
     @Override
