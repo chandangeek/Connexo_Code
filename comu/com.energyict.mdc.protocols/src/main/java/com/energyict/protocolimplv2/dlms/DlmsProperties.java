@@ -3,12 +3,7 @@ package com.energyict.protocolimplv2.dlms;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.protocols.naming.SecurityPropertySpecName;
-
+import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
@@ -17,10 +12,15 @@ import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -385,14 +385,16 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
     }
 
     protected PropertySpec stringSpec(TranslationKeys translationKeys, String defaultValue, String... possibleValues) {
-        return getPropertySpecService()
+        PropertySpecBuilder<String> propertySpecBuilder = getPropertySpecService()
                 .stringSpec()
                 .named(translationKeys.getPropertySpecName(), translationKeys)
                 .fromThesaurus(getThesaurus())
                 .setDefaultValue(defaultValue)
-                .addValues(possibleValues)
-                .markExhaustive()
-                .finish();
+                .addValues(possibleValues);
+        if (possibleValues.length > 0) {
+            propertySpecBuilder.markExhaustive();
+        }
+        return propertySpecBuilder.finish();
     }
 
     protected PropertySpec booleanSpec(TranslationKeys translationKey, Boolean defaultValue) {
