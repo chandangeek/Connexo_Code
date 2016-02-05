@@ -150,7 +150,7 @@ public enum Unit {
     CUBIC_METER_COMPENSATED("cubic meter compensated","m\u00b3(compensated)","m3(compensated)",VOLUME),
     WATT_PER_WATT("watt per watt","W/W",DIMENSIONLESS), 
     THERM("therm", "therm", ENERGY, Constants.JOULE_PER_THERM),
-    WAVENUMBER("/m","/m",RECIPROCAL_LENGTH),
+    WAVENUMBER("wave number","/m",RECIPROCAL_LENGTH),
     CUBIC_METER_PER_KILOGRAM("cubic meter per kilogram","m\u00b3/kg","m3/kg",SPECIFIC_VOLUME),
     PASCAL_SECOND("pascal second","Pas",DYNAMIC_VISCOSITY),
     NEWTON_METER("newton meter","Nm",MOMENT_OF_FORCE),
