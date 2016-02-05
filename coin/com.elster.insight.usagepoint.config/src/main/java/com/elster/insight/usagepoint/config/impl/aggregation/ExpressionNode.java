@@ -1,5 +1,8 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
+import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
+import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
+
 /**
  * Models a node of expression that comply with the BNF below.
  * <pre><code>
@@ -24,9 +27,10 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
  * ReadingTypeDeliverableNode ::= LeafNode(ReadingTypeDeliverable)
  * VariableNode               ::= LeafNode(CustomPropertySet, PropertySpec)
  * IdentifierNode             ::= LeafNode(String)
+ * OperationNode              ::= BinaryNode(Operator, ExpressionNode, ExpressionNode)
  * Operator                   ::= + | - | * | /
  * FunctionCallNode           ::= BinaryNode(IdentifierNode, ArgumentListNode)
- * ArgumentListNode           ::= BinaryNode(ExpressionNode, ArgumentListNode)
+ * ArgumentListNode           ::= List<LeafNode>
  * </code></pre>
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -35,16 +39,16 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
 public interface ExpressionNode {
 
     interface Visitor {
-        void visitConstant(ExpressionNode constant);
-        void visitRequirement(ExpressionNode requirement);
-        void visitDeliverable(ExpressionNode deliverable);
+        void visitConstant(ConstantNode constant);
+        void visitRequirement(ReadingTypeRequirement requirement);
+        void visitDeliverable(ReadingTypeDeliverable deliverable);
         void visitVirtualRequirement(ExpressionNode requirement);
         void visitVirtualDeliverable(ExpressionNode deliverable);
-        void visitVariable(ExpressionNode variable);
-        void visitIdentifier(ExpressionNode identifier);
-        void visitOperator(ExpressionNode operatorNode);
-        void visitFunctionCall(ExpressionNode functionCall);
-        void visitArgumentList(ExpressionNode argumentList);
+        //void visitVariable(ExpressionNode variable);
+        void visitIdentifier(IdentifierNode identifier);
+        void visitOperation(OperationNode operatorNode);
+        void visitFunctionCall(FunctionCallNode functionCall);
+        void visitArgumentList(ArgumentListNode argumentList);
     }
 
     void accept(Visitor visitor);
