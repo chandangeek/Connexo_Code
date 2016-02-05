@@ -1,6 +1,7 @@
 Ext.define('Dbp.deviceprocesses.view.DeviceProcessesMainView', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.dbp-device-processes-main-view',
+    overflowY: 'auto',
     requires: [
         'Bpm.monitorprocesses.view.MonitorProcessesMainView'
     ],
