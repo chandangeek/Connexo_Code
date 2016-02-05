@@ -116,6 +116,7 @@ public class ComTaskStatusSearchableProperty extends AbstractSearchableDevicePro
                 .named(this.getNameTranslationKey())
                 .fromThesaurus(this.getThesaurus())
                 .addValues(getPossibleValues())
+                .markExhaustive()
                 .finish();
     }
 

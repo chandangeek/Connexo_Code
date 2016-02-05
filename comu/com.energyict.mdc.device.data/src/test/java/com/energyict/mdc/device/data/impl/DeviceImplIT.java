@@ -217,6 +217,26 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
+    public void testUpdateMRID() {
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+
+        DeviceImpl reloadedDevice = (DeviceImpl) getReloadedDevice(device);
+
+        reloadedDevice.setmRID("newMRID");
+        reloadedDevice.save();
+
+        reloadedDevice = (DeviceImpl) getReloadedDevice(device);
+
+        assertThat(reloadedDevice.getmRID()).isEqualTo("newMRID");
+
+        Optional<Meter> koreMeter = reloadedDevice.findKoreMeter(inMemoryPersistence.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get());
+        assertThat(koreMeter).isPresent();
+        assertThat(koreMeter.get().getMRID()).isEqualTo("newMRID");
+    }
+
+    @Test
+    @Transactional
     public void updateWithSerialNumberTest() {
         String serialNumber = "MyUpdatedSerialNumber";
         Device simpleDevice = createSimpleDevice();
@@ -1576,6 +1596,71 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                         value.getNumberOfFractionDigits().getAsInt() == nbrOfFractionDigits;
             }
         });
+    }
+
+    @Test
+    @Transactional
+    public void successfulCreateNoAdditionalComTaskExecutionsCreatedTest() {
+        DeviceConfiguration deviceConfiguration = super.deviceConfiguration;
+        ComTask comTask_1 = inMemoryPersistence.getTaskService().newComTask("Status information task");
+        comTask_1.createStatusInformationTask();
+        comTask_1.save();
+        ComTask comTask_2 = inMemoryPersistence.getTaskService().newComTask("Messages task");
+        comTask_2.createStatusInformationTask();
+        comTask_2.save();
+
+        deviceConfiguration.enableComTask(
+                comTask_1,
+                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get(),
+                deviceConfiguration.getProtocolDialectConfigurationPropertiesList().stream().findFirst().get())
+                .setIgnoreNextExecutionSpecsForInbound(false)
+                .add();
+        deviceConfiguration.enableComTask(
+                comTask_2,
+                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get(),
+                deviceConfiguration.getProtocolDialectConfigurationPropertiesList().stream().findFirst().get())
+                .setIgnoreNextExecutionSpecsForInbound(false)
+                .add();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+
+        Device reloadedDevice = getReloadedDevice(device);
+
+        assertThat(reloadedDevice.getComTaskExecutions()).isEmpty(); // I don't expect any ComTaskExecution was created
+    }
+
+    @Transactional
+    public void successfulCreateWithAdditionalComTaskExecutionsCreatedTest() {
+        DeviceConfiguration deviceConfiguration = super.deviceConfiguration;
+        ComTask comTask_1 = inMemoryPersistence.getTaskService().newComTask("Status information task");
+        comTask_1.createStatusInformationTask();
+        comTask_1.save();
+        ComTask comTask_2 = inMemoryPersistence.getTaskService().newComTask("Messages task");
+        comTask_2.createStatusInformationTask();
+        comTask_2.save();
+
+        deviceConfiguration.enableComTask(
+                comTask_1,
+                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get(),
+                deviceConfiguration.getProtocolDialectConfigurationPropertiesList().stream().findFirst().get())
+                .setIgnoreNextExecutionSpecsForInbound(false)
+                .add();
+        deviceConfiguration.enableComTask(
+                comTask_2,
+                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get(),
+                deviceConfiguration.getProtocolDialectConfigurationPropertiesList().stream().findFirst().get())
+                .setIgnoreNextExecutionSpecsForInbound(true)
+                .add();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+
+        Device reloadedDevice = getReloadedDevice(device);
+
+        assertThat(reloadedDevice.getComTaskExecutions()).isNotEmpty(); // I expect a ComTaskExecution was created for comTask_2 (which was marked as ignoreNextExecutionSpecsForInbound)
+        assertThat(reloadedDevice.getComTaskExecutions()).hasSize(1);
+        assertThat(reloadedDevice.getComTaskExecutions().get(0).getComTasks().stream().mapToLong(ComTask::getId).toArray()).containsOnly(Long.valueOf(comTask_2.getId()));
     }
 
     private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs() {

@@ -92,6 +92,7 @@ public class ConnectionCommunicationPortPoolSearchableProperty extends AbstractS
                 .named(PROPERTY_NAME, this.getNameTranslationKey())
                 .fromThesaurus(this.getThesaurus())
                 .addValues(comPortPools.toArray(new ComPortPool[comPortPools.size()]))
+                .markExhaustive()
                 .finish();
     }
 

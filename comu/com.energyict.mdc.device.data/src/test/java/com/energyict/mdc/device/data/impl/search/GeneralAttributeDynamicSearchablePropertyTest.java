@@ -21,7 +21,7 @@ public class GeneralAttributeDynamicSearchablePropertyTest extends AbstractDynam
 
     protected SearchableProperty getTestInstance() {
         return new GeneralAttributeDynamicSearchableProperty(this.getThesaurus())
-                .init(this.domain, this.group, this.propertySpec, this.pluggableClass);
+                .init(this.domain, this.group, this.propertySpec, this.searchableProperty, this.pluggableClass);
     }
 
 }

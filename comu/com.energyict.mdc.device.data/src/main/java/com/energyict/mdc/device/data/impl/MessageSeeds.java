@@ -125,6 +125,7 @@ public enum MessageSeeds implements MessageSeed {
     READING_OVERFLOW_DETECTED(2100, Keys.READING_OVERFLOW_DETECTED, "Reading of device {0} and reading type {1} overflowed at {2}, corrected value from {3} to {4}.", Level.WARNING),
     COM_TASK_ENABLEMENT_UPDATE_RESTRICTED(2101, Keys.COM_TASK_ENABLEMENT_UPDATE_RESTRICTED, "The communication task configuration is part of shared communication schedule on some devices" +
             " and all communication tasks in that shared communication schedule should have the same connection method, security set, protocol dialect and/or urgency", Level.SEVERE),
+    NO_SUCH_COMTASK_ENABLEMENT(2102, Keys.NO_SUCH_COM_TASK_ENABLEMENT, "No comtask enablement with id {0}"),
     ;
 
     private final int number;
@@ -279,5 +280,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String MULTIPLIER_VALUE_EXCEEDS_MAX_VALUE = "multiplier.exceeds.max.value";
         public static final String READING_OVERFLOW_DETECTED = "reading.overflow";
         public static final String COM_TASK_ENABLEMENT_UPDATE_RESTRICTED = "com.task.enablement.update.restricted";
+        public static final String NO_SUCH_COM_TASK_ENABLEMENT = "NoSuchComTaskEnablement";
     }
 }
