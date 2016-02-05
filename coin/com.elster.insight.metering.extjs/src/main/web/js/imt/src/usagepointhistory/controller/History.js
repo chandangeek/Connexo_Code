@@ -68,6 +68,9 @@ Ext.define('Imt.usagepointhistory.controller.History', {
     },
 
     onBeforeHistoryTabChange: function (tabPanel, newCard, oldCard) {
+        if (!newCard) {
+            return
+        }
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             versionsStore = me.getStore('Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnUsagePoint'),

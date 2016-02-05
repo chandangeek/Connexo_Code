@@ -39,7 +39,7 @@ Ext.define('Imt.controller.Main', {
         'Imt.controller.History',
         'Imt.controller.Search',
         'Imt.validation.controller.UsagePointDataValidation',
-        'Imt.servicecategories.controller.ServiceCategories'
+        'Imt.servicecategories.controller.ServiceCategories',
         'Imt.usagepointhistory.controller.History'
     ],
 
