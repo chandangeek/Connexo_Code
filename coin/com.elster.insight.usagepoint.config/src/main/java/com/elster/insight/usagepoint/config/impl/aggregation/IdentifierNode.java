@@ -5,10 +5,20 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
  */
 public class IdentifierNode implements ExpressionNode {
 
-    private String identifier;
+    private final String name;
+
+    public IdentifierNode(String name) {
+        super();
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
 
     @Override
     public void accept(Visitor visitor) {
-
+        visitor.visitIdentifier(this);
     }
+
 }

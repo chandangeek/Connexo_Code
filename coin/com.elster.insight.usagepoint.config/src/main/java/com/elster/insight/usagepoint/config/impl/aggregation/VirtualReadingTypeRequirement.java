@@ -28,4 +28,12 @@ public class VirtualReadingTypeRequirement {
     private final int meterActivationSequenceNumber;
     private Channel preferredChannel;   // Lazy from the list of matching channels and the targetReadingType
 
+    public VirtualReadingTypeRequirement(ReadingTypeRequirement requirement, List<Channel> matchingChannels, ReadingType targetReadingType, int meterActivationSequenceNumber) {
+        super();
+        this.requirement = requirement;
+        this.matchingChannels = matchingChannels;
+        this.targetReadingType = targetReadingType;
+        this.meterActivationSequenceNumber = meterActivationSequenceNumber;
+    }
+
 }

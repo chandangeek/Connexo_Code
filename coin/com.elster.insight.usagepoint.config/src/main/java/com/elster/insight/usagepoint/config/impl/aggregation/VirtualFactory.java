@@ -9,13 +9,13 @@ import java.time.temporal.TemporalAmount;
 import java.util.List;
 
 /**
- * Produces {@link VirtualReadingTypeRequirement}s and {@link VirtualDeliverableNode}s,
+ * Produces {@link VirtualReadingTypeRequirement}s and {@link VirtualReadingTypeDeliverable}s,
  * making sure that they are produced only once per {@link MeterActivation}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-05 (08:38)
  */
-interface VirtualNodeFactory {
+interface VirtualFactory {
 
     /**
      * Returns a new {@link VirtualReadingTypeRequirement} for the specified
@@ -28,7 +28,7 @@ interface VirtualNodeFactory {
      * @param intervalLength The TemporalAmount
      * @return The VirtualRequirementNode
      */
-    VirtualReadingTypeRequirement requirementNodeFor(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, TemporalAmount intervalLength);
+    VirtualReadingTypeRequirement requirementFor(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, TemporalAmount intervalLength);
 
     /**
      * Returns a new {@link VirtualDeliverableNode} for the specified
@@ -40,14 +40,21 @@ interface VirtualNodeFactory {
      * @param intervalLength The TemporalAmount
      * @return The VirtualDeliverableNode
      */
-    VirtualDeliverableNode deliverableNodeFor(ReadingTypeDeliverable deliverable, TemporalAmount intervalLength);
+    VirtualReadingTypeDeliverable deliverableFor(ReadingTypeDeliverable deliverable, TemporalAmount intervalLength);
 
     /**
      * Returns all the {@link VirtualReadingTypeRequirement}s that were produced by this factory.
      *
-     * @return The List of all VirtualRequirementNode
+     * @return The List of all VirtualReadingTypeRequirement
      */
-    List<VirtualReadingTypeRequirement> allNodes();
+    List<VirtualReadingTypeRequirement> allRequirements();
+
+    /**
+     * Returns all the {@link VirtualReadingTypeDeliverable}s that were produced by this factory.
+     *
+     * @return The List of all VirtualReadingTypeDeliverable
+     */
+    List<VirtualReadingTypeDeliverable> allDeliverables();
 
     /**
      * Notifies this VirtualNodeFactory that the processing of

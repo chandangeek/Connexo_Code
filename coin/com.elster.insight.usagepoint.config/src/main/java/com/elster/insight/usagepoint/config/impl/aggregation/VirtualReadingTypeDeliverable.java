@@ -20,16 +20,18 @@ class VirtualReadingTypeDeliverable {
     private final MeterActivation meterActivation;
     private final Range<Instant> requestedPeriod;
     private final int meterActivationSequenceNumber;
-    private final ReadingType targetReadingType;
     private ExpressionNode expressionNode;
 
-    VirtualReadingTypeDeliverable(ReadingTypeDeliverable deliverable, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber, ReadingType targetReadingType) {
+    VirtualReadingTypeDeliverable(ReadingTypeDeliverable deliverable, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber) {
         super();
         this.deliverable = deliverable;
         this.meterActivation = meterActivation;
         this.requestedPeriod = requestedPeriod;
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
-        this.targetReadingType = targetReadingType;
+    }
+
+    ReadingType getReadingType () {
+        return this.deliverable.getReadingType();
     }
 
 }

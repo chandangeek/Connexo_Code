@@ -1,5 +1,6 @@
 package com.elster.insight.usagepoint.config;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
@@ -32,5 +33,11 @@ public interface ReadingTypeDeliverable extends HasId, HasName {
      * @return The Formula
      */
     Formula getFormula();
+
+    /**
+     * Gets the {@link ReadingType} that will be delivered.
+     * @return
+     */
+    ReadingType getReadingType();
 
 }

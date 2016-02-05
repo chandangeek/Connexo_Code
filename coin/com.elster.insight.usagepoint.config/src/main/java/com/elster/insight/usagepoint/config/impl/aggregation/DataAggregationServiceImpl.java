@@ -21,7 +21,8 @@ import java.util.stream.Stream;
  */
 public class DataAggregationServiceImpl implements DataAggregationService {
 
-    private VirtualNodeFactory virtualNodeFactory;
+    private VirtualFactory virtualFactory;
+    private TemporalAmountFactory temporalAmountFactory;
 
     @Override
     public List<? extends BaseReadingRecord> calculate(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
@@ -34,14 +35,14 @@ public class DataAggregationServiceImpl implements DataAggregationService {
     }
 
     private void prepare(MeterActivation meterActivation, MetrologyContract contract, Range<Instant> period) {
-        this.virtualNodeFactory.nextMeterActivation(meterActivation);
+        this.virtualFactory.nextMeterActivation(meterActivation);
         contract.getDeliverables().stream().forEach(deliverable -> this.prepare(meterActivation, deliverable, period));
     }
 
     private void prepare(MeterActivation meterActivation, ReadingTypeDeliverable deliverable, Range<Instant> period) {
-        VirtualReadingTypeDeliverable virtualDeliverable = new VirtualReadingTypeDeliverable(deliverable, meterActivation, period, this.virtualNodeFactory.meterActivationSequenceNumber(), targetReadingType);
+        VirtualReadingTypeDeliverable virtualDeliverable = new VirtualReadingTypeDeliverable(deliverable, meterActivation, period, this.virtualFactory.meterActivationSequenceNumber());
         ServerFormula formula = (ServerFormula) deliverable.getFormula();
-        CopyAndVirtualizeReferences visitor = new CopyAndVirtualizeReferences(this.virtualNodeFactory);
+        CopyAndVirtualizeReferences visitor = new CopyAndVirtualizeReferences(this.virtualFactory, this.temporalAmountFactory, deliverable);
         formula.expressionNode().accept(visitor);
     }
 

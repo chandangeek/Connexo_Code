@@ -5,12 +5,32 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
  */
 public class OperationNode implements ExpressionNode {
 
-    private Operator operator;
-    private ExpressionNode leftExpression;
-    private ExpressionNode rightExpression;
+    private final Operator operator;
+    private final ExpressionNode left;
+    private final ExpressionNode right;
+
+    public OperationNode(Operator operator, ExpressionNode left, ExpressionNode right) {
+        super();
+        this.operator = operator;
+        this.left = left;
+        this.right = right;
+    }
+
+    public Operator getOperator() {
+        return operator;
+    }
+
+    public ExpressionNode getLeft() {
+        return left;
+    }
+
+    public ExpressionNode getRight() {
+        return right;
+    }
 
     @Override
     public void accept(Visitor visitor) {
-
+        visitor.visitOperation(this);
     }
+
 }

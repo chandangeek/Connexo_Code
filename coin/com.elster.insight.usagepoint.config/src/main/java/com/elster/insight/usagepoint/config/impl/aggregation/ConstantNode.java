@@ -7,10 +7,20 @@ import java.math.BigDecimal;
  */
 public class ConstantNode implements ExpressionNode {
 
-    private BigDecimal value;
+    private final BigDecimal value;
+
+    public ConstantNode(BigDecimal value) {
+        super();
+        this.value = value;
+    }
+
+    public BigDecimal getValue() {
+        return value;
+    }
 
     @Override
     public void accept(Visitor visitor) {
-
+        visitor.visitConstant(this);
     }
+
 }

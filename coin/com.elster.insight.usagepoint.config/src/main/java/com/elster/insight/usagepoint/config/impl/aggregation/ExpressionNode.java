@@ -6,22 +6,22 @@ import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
 /**
  * Models a node of expression that comply with the BNF below.
  * <pre><code>
- *     &lt;expression&gt;         ::= &lt;term&gt; | &lt;expression&gt; &lt;term-operator&gt; &lt;term&gt;
- *     &lt;term-operator&gt;      ::= + | -
- *     &lt;term&gt;               ::= &lt;factor&gt; | &lt;term&gt; &lt;factor-operator&gt; &lt;factor&gt;
- *     &lt;factor-operator&gt;    ::= * | /
- *     &lt;factor&gt;             ::= &lt;constant&gt; | &lt;variable&gt; | &lt;function-call&gt; | ( &lt;expression&gt; )
- *     &lt;constant&gt;           ::= &lt;digit-sequence&gt; | &lt;digit-sequence&gt; . &lt;digit-sequence&gt;
- *     &lt;digit-sequence&gt;     ::= &lt;digit&gt; | &lt;digit-sequence&gt; &lt;digit&gt;
- *     &lt;variable&gt;           ::= &lt;identifier&gt;
- *     &lt;identifier&gt;         ::= &lt;character-sequence&gt;
- *     &lt;character-sequence&gt; ::= &lt;character-sequence&gt; | &lt;character-sequence&gt; &lt;character&gt;
- *     &lt;function-call&gt;      ::= &lt;identifier&gt; ( &lt;argument-list&gt; )
- *     &lt;argument-list&gt;      ::= &lt;expression&gt; | &lt;argument-list&gt; , &lt;expression&gt;
+ * &lt;expression&gt;         ::= &lt;term&gt; | &lt;expression&gt; &lt;term-operator&gt; &lt;term&gt;
+ * &lt;term-operator&gt;      ::= + | -
+ * &lt;term&gt;               ::= &lt;factor&gt; | &lt;term&gt; &lt;factor-operator&gt; &lt;factor&gt;
+ * &lt;factor-operator&gt;    ::= * | /
+ * &lt;factor&gt;             ::= &lt;constant&gt; | &lt;variable&gt; | &lt;function-call&gt; | ( &lt;expression&gt; )
+ * &lt;constant&gt;           ::= &lt;digit-sequence&gt; | &lt;digit-sequence&gt; . &lt;digit-sequence&gt;
+ * &lt;digit-sequence&gt;     ::= &lt;digit&gt; | &lt;digit-sequence&gt; &lt;digit&gt;
+ * &lt;variable&gt;           ::= &lt;identifier&gt;
+ * &lt;identifier&gt;         ::= &lt;character-sequence&gt;
+ * &lt;character-sequence&gt; ::= &lt;character-sequence&gt; | &lt;character-sequence&gt; &lt;character&gt;
+ * &lt;function-call&gt;      ::= &lt;identifier&gt; ( &lt;argument-list&gt; )
+ * &lt;argument-list&gt;      ::= &lt;expression&gt; | &lt;argument-list&gt; , &lt;expression&gt;
  * </code></pre>
  * Or the following abstract grammer:
  * <pre><code>
- * ExpressionNode             ::= ConstantNode | ReadingTypeRequirementNode | ReadingTypeDeliverableNode | VariableNode | BinaryNode(ExpressionNode, ExpressionNode, Operator) | FunctionCallNode
+ * ExpressionNode             ::= ConstantNode | ReadingTypeRequirementNode | ReadingTypeDeliverableNode | VariableNode | OperationNode | FunctionCallNode
  * ConstantNode               ::= LeafNode(BigDecimal)
  * ReadingTypeRequirementNode ::= LeafNode(ReadingTypeRequirement)
  * ReadingTypeDeliverableNode ::= LeafNode(ReadingTypeDeliverable)
@@ -30,7 +30,7 @@ import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
  * OperationNode              ::= BinaryNode(Operator, ExpressionNode, ExpressionNode)
  * Operator                   ::= + | - | * | /
  * FunctionCallNode           ::= BinaryNode(IdentifierNode, ArgumentListNode)
- * ArgumentListNode           ::= List<LeafNode>
+ * ArgumentListNode           ::= List<ExpressionNode>
  * </code></pre>
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -42,8 +42,8 @@ public interface ExpressionNode {
         void visitConstant(ConstantNode constant);
         void visitRequirement(ReadingTypeRequirement requirement);
         void visitDeliverable(ReadingTypeDeliverable deliverable);
-        void visitVirtualRequirement(ExpressionNode requirement);
-        void visitVirtualDeliverable(ExpressionNode deliverable);
+        void visitVirtualRequirement(VirtualRequirementNode requirement);
+        void visitVirtualDeliverable(VirtualDeliverableNode deliverable);
         //void visitVariable(ExpressionNode variable);
         void visitIdentifier(IdentifierNode identifier);
         void visitOperation(OperationNode operatorNode);
