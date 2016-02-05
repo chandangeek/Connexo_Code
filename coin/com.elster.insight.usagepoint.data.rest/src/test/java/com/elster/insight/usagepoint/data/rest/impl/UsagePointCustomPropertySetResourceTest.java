@@ -5,14 +5,18 @@ import com.elster.insight.usagepoint.data.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.rest.CustomPropertySetAttributeInfo;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
@@ -23,12 +27,16 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestApplicationJerseyTest {
 
+    private static final long USAGE_POINT_ID = 128L;
     private static final String USAGE_POINT_MRID = "UsagePoint";
     private static final String CPS_ID = "cpsid";
     private static final String CPS_PROPERTY = "testProperty";
@@ -100,5 +108,65 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
         assertThat(jsonModel.<List>get("$.customPropertySets[0].properties")).hasSize(1);
         assertThat(jsonModel.<String>get("$.customPropertySets[0].properties[0].key")).isEqualTo(CPS_PROPERTY);
         assertThat(jsonModel.<String>get("$.customPropertySets[0].properties[0].propertyValueInfo.value")).isEqualTo("test value");
+    }
+
+    @Test
+    public void testSetNonVersionedCustomPropertySetValuesConcurrencyCheck() throws Exception {
+        when(usagePointDataService.findUsagePointExtensionByMrid(USAGE_POINT_MRID)).thenReturn(Optional.empty());
+        when(usagePointDataService.findAndLockUsagePointExtensionByIdAndVersion(USAGE_POINT_ID, 1L)).thenReturn(Optional.empty());
+
+        CustomPropertySetInfo<UsagePointInfo> info = new CustomPropertySetInfo<>();
+        info.parent = new UsagePointInfo();
+        info.parent.id = USAGE_POINT_ID;
+        info.parent.mRID = USAGE_POINT_MRID;
+        info.parent.version = 1L;
+        Response response = target("usagepoints/" + USAGE_POINT_MRID + "/properties/metrology/" + CPS_ID).request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void testSetNonVersionedCustomPropertySetValuesNoRegisteredCPS() throws Exception {
+        when(usagePointDataService.findAndLockUsagePointExtensionByIdAndVersion(USAGE_POINT_ID, 1L)).thenReturn(Optional.of(usagePointExtension));
+        when(customPropertySetService.findActiveCustomPropertySet(CPS_ID)).thenReturn(Optional.empty());
+
+        CustomPropertySetInfo<UsagePointInfo> info = new CustomPropertySetInfo<>();
+        info.customPropertySetId = CPS_ID;
+        info.parent = new UsagePointInfo();
+        info.parent.id = USAGE_POINT_ID;
+        info.parent.mRID = USAGE_POINT_MRID;
+        info.parent.version = 1L;
+        Response response = target("usagepoints/" + USAGE_POINT_MRID + "/properties/metrology/" + CPS_ID).request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<String>get("$.message")).contains("Custom property set with id");
+    }
+
+    @Test
+    public void testSetNonVersionedCustomPropertySetValues() throws Exception {
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        values.setProperty(CPS_PROPERTY, "test value");
+        Map<RegisteredCustomPropertySet, CustomPropertySetValues> valuesMap = new HashMap<>();
+        valuesMap.put(registeredCustomPropertySet, values);
+        when(usagePointExtension.getMetrologyConfigurationCustomPropertySetValues()).thenReturn(valuesMap);
+        when(usagePointDataService.findUsagePointExtensionByMrid(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePointExtension));
+        when(usagePointDataService.findAndLockUsagePointExtensionByIdAndVersion(USAGE_POINT_ID, 1L)).thenReturn(Optional.of(usagePointExtension));
+        when(customPropertySetService.findActiveCustomPropertySet(CPS_ID)).thenReturn(Optional.of(registeredCustomPropertySet));
+
+        CustomPropertySetInfo<UsagePointInfo> info = new CustomPropertySetInfo<>();
+        info.customPropertySetId = CPS_ID;
+        CustomPropertySetAttributeInfo propertiesInfo = new CustomPropertySetAttributeInfo();
+        propertiesInfo.propertyValueInfo = new PropertyValueInfo<>("test value", null, null);
+        propertiesInfo.key = CPS_PROPERTY;
+        info.properties = Arrays.asList(propertiesInfo);
+        info.parent = new UsagePointInfo();
+        info.parent.id = USAGE_POINT_ID;
+        info.parent.mRID = USAGE_POINT_MRID;
+        info.parent.version = 1L;
+        Response response = target("usagepoints/" + USAGE_POINT_MRID + "/properties/metrology/" + CPS_ID).request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List>get("$.customPropertySets")).hasSize(1);
+        verify(usagePointExtension).setMetrologyConfigurationCustomPropertySetValue(eq(customPropertySet), any());
     }
 }

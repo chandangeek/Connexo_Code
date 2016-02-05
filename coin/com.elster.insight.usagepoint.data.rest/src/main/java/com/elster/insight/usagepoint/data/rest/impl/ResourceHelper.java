@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 
 import javax.inject.Inject;
+import java.util.Optional;
 
 public class ResourceHelper {
 
@@ -62,6 +63,25 @@ public class ResourceHelper {
     public UsagePointCustomPropertySetExtension findUsagePointExtensionByMrIdOrThrowException(String mrid) {
         return usagePointDataService.findUsagePointExtensionByMrid(mrid)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mrid));
+    }
+
+
+    public Long getCurrentUsagePointVersion(String mrid){
+        return usagePointDataService.findUsagePointExtensionByMrid(mrid)
+                .map(UsagePointCustomPropertySetExtension::getUsagePoint)
+                .map(UsagePoint::getVersion)
+                .orElse(null);
+    }
+
+    public Optional<UsagePointCustomPropertySetExtension> getLockedUsagePointCustomPropertySetExtensionById(long id, long version) {
+        return usagePointDataService.findAndLockUsagePointExtensionByIdAndVersion(id, version);
+    }
+
+    public UsagePointCustomPropertySetExtension lockUsagePointCustomPropertySetExtensionOrThrowException(UsagePointInfo info) {
+        return getLockedUsagePointCustomPropertySetExtensionById(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> getCurrentUsagePointVersion(info.mRID))
+                        .supplier());
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySetOrThrowException(String id){
