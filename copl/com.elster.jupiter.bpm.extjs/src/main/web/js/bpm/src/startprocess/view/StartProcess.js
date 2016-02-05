@@ -32,7 +32,7 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
                             xtype: 'combobox',
                             dataIndex: 'displayname',
                             fieldLabel: Uni.I18n.translate('bpm.startProcess.process', 'BPM', 'Process'),
-                            emptyText: Uni.I18n.translate('bpm.startProcess.startTyping', 'BPM', 'Start typing for process...'),
+                            emptyText: Uni.I18n.translate('bpm.startProcess.selectProcess', 'BPM', 'Select a process'),
                             multiSelect: false,
                             displayField: 'displayname',
                             valueField: 'id',
@@ -103,11 +103,10 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
             itemId: 'no-items-found-panel',
             margin: '15 0 20 0',
             hidden: true,
-            title: Uni.I18n.translate('dbp.process.start.title', 'BPM', 'Start process'),
+            title: Uni.I18n.translate('bpm.process.start.title', 'BPM', 'Start process'),
             reasons: [
                 Uni.I18n.translate('bpm.startProcess.empty.list.item1', 'BPM', 'No processes have been defined yet.'),
-                Uni.I18n.translate('bpm.startProcess.empty.list.item2', 'BPM', 'No processes are available for the current device state.'),
-                Uni.I18n.translate('bpm.startProcesss.empty.list.item3', 'BPM', 'Processes exist, but you do not have permission to execute them.')
+                Uni.I18n.translate('bpm.startProcess.empty.list.item2', 'BPM', 'Processes exist, but you do not have permission to execute them.')
             ]
         }
     ],
@@ -115,6 +114,10 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
     initComponent: function () {
         var me = this,
             availableStore;
+
+        if (Array.isArray(me.properties.additionalReasons)) {
+            me.items[1].reasons = me.items[1].reasons.concat(me.properties.additionalReasons);
+        }
 
         me.callParent(arguments);
 
