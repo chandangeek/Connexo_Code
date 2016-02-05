@@ -33,6 +33,7 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
                 widget = Ext.widget('dbp-device-processes-main-view', {
                     device: device,
                     properties: {
+                        variableId: 'deviceId',
                         name: 'device',
                         value: mRID,
                         route: Dbp.privileges.DeviceProcesses.canAssignOrExecute()? 'workspace/tasks/performTask': null
