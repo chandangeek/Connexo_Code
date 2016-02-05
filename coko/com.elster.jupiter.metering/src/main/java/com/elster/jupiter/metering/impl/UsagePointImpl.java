@@ -384,6 +384,7 @@ public class UsagePointImpl implements UsagePoint {
         touch();
     }
 
+    @Override
     public void touch() {
         if (id != 0) {
             dataModel.touch(this);

@@ -104,6 +104,8 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
 
     Optional<UsagePointConfiguration> getConfiguration(Instant time);
 
+    void touch();
+
     interface UsagePointConfigurationBuilder {
 
         UsagePointConfigurationBuilder endingAt(Instant endTime);
