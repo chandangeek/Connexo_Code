@@ -41,6 +41,7 @@ public class IssueResource extends BaseResource {
               .withStatuses(filter.getStringList("status")) // All selected statuses
              // .withAssignee(issueAssigneeInfo.getId(), issueAssigneeInfo.getType())
               .withMeterMrid(filter.getString("meter")) // Filter by meter MRID
+              .withDeviceGroups(filter.getLongList("deviceGroup")) // Filter by device group
               .groupBy(filter.getString("field")) // Main grouping column
               .setAscOrder(false) // Sorting (descending direction)
               .from(params.getFrom()).to(params.getTo()); // Pagination
