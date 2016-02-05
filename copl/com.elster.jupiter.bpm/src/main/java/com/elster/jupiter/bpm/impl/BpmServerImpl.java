@@ -105,13 +105,13 @@ public class BpmServerImpl implements BpmServer {
     }
 
     @Override
-    public long doPost(String targetURL, String payload) {
+    public String doPost(String targetURL, String payload) {
         return doPost(targetURL, payload, basicAuthString);
     }
 
     @Override
-    public long doPost(String targetURL, String payload, String authorization) {
-        long check = 0;
+    public String doPost(String targetURL, String payload, String authorization) {
+        String check = "0";
         HttpURLConnection httpConnection = null;
         authorization = (basicAuthString != null)?basicAuthString:authorization;
         try {
@@ -130,8 +130,22 @@ public class BpmServerImpl implements BpmServer {
                 osw.close();
             }
             if (httpConnection.getResponseCode() != 200) {
-                check = -1;
+                check = "-1";
+            }else {
+
+                BufferedReader br = new BufferedReader(new InputStreamReader(
+                        (httpConnection.getInputStream())));
+
+                String output;
+                StringBuilder jsonContent = new StringBuilder();
+                while ((output = br.readLine()) != null) {
+                    jsonContent.append(output);
+                }
+                if(!jsonContent.toString().equals("")){
+                    check = jsonContent.toString();
+                }
             }
+
         } catch (IOException e) {
             throw new RuntimeException(e.getStackTrace().toString());
         } finally {
