@@ -357,6 +357,13 @@ Ext.define('Imt.controller.History', {
                             }
                         }
                     }
+                },
+                servicecategories: {
+                    title: Uni.I18n.translate('general.serviceCategories', 'IMT', 'Service categories'),
+                    route: 'servicecategories',
+                    controller: 'Imt.servicecategories.controller.ServiceCategories',
+                    action: 'showOverview',
+                    privileges: Imt.privileges.ServiceCategory.view
                 }
             }
         },
