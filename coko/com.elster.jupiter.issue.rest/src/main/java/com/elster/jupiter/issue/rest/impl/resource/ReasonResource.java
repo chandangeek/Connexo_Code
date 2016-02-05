@@ -33,17 +33,15 @@ public class ReasonResource extends BaseResource {
     /**
      * <b>API link</b>: <a href="http://confluence.eict.vpdc/display/JUPU/REST+API#RESTAPI-Getreasons">Get reasons</a><br />
      * <b>Pagination</b>: false<br />
-     * <b>Mandatory parameters</b>: '{@value com.elster.jupiter.issue.rest.request.RequestHelper#ISSUE_TYPE}'<br />
      * <b>Optional parameters</b>: '{@value com.elster.jupiter.issue.rest.request.RequestHelper#LIKE}'<br />
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE,Privileges.Constants.ASSIGN_ISSUE,Privileges.Constants.CLOSE_ISSUE,Privileges.Constants.COMMENT_ISSUE,Privileges.Constants.ACTION_ISSUE})
     public Response getReasons(@BeanParam StandardParametersBean params) {
-        validateMandatory(params, ISSUE_TYPE);
         IssueType issueType = getIssueService().findIssueType(params.getFirst(ISSUE_TYPE)).orElse(null);
         Query<IssueReason> query = getIssueService().query(IssueReason.class);
-        Condition condition = where("issueType").isEqualTo(issueType);
+        Condition condition = issueType == null ? Condition.TRUE : where("issueType").isEqualTo(issueType);
         List<IssueReason> reasons = query.select(condition);
 
         if (params.getFirst(LIKE) != null) {
