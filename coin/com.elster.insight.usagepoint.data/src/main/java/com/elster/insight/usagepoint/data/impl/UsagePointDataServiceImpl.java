@@ -132,4 +132,10 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
                 .map(up -> getDataModel().getInstance(UsagePointCustomPropertySetExtensionImpl.class).init(up));
     }
 
+    @Override
+    public Optional<UsagePointCustomPropertySetExtension> findAndLockUsagePointExtensionByIdAndVersion(long id, long version) {
+        return this.meteringService.findAndLockUsagePointByIdAndVersion(id, version)
+                .map(up -> getDataModel().getInstance(UsagePointCustomPropertySetExtensionImpl.class).init(up));
+    }
+
 }
