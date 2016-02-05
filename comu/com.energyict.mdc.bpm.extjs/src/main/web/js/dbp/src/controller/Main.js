@@ -10,6 +10,7 @@ Ext.define('Dbp.controller.Main', {
     controllers: [
         'Dbp.controller.History',
         'Dbp.startprocess.controller.StartProcess',
+        'Dbp.deviceprocesses.controller.DeviceProcesses',
         'Dbp.processes.controller.Processes'
     ],
 
