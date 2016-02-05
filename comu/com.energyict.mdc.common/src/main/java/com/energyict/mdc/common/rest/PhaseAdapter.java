@@ -23,6 +23,7 @@ public class PhaseAdapter extends MapBasedXmlAdapter<Phase> {
         register("CAN",Phase.PHASECAN );
         register("CN",Phase.PHASECN );
         register("N",Phase.PHASEN );
+        register("NN",Phase.PHASENTOGND);
         register("ABC",Phase.PHASEABC );
         register("S2",Phase.PHASES2);
         register("S2N",Phase.PHASES2N);
