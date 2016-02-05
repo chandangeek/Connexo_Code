@@ -28,6 +28,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionQueueMessage;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -193,9 +194,7 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
     public Response retryCommunicationIssues(BulkIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) throws Exception {
-        if (!verifyAppServerExists(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION)) {
-            throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
-        }
+        verifyAppServerExistsOrThrowException(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION);
         ActionInfo response = new ActionInfo();
         return queueCommunicationBulkAction(getIssueProvider(request, filter).apply(response), ModuleConstants.ACTION_CLASS_RETRY_COMMUNICATION, response);
     }
@@ -206,9 +205,7 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
     public Response retryCommunicationNowIssues(BulkIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) throws Exception {
-        if (!verifyAppServerExists(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION)) {
-            throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
-        }
+        verifyAppServerExistsOrThrowException(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION);
         ActionInfo response = new ActionInfo();
         return queueCommunicationBulkAction(getIssueProvider(request, filter).apply(response), ModuleConstants.ACTION_CLASS_RETRY_COMMUNICATION_NOW, response);
     }
@@ -219,9 +216,7 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
     public Response retryConnectionIssues(BulkIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) throws Exception {
-        if (!verifyAppServerExists(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION)) {
-            throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
-        }
+        verifyAppServerExistsOrThrowException(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION);
         ActionInfo response = new ActionInfo();
         return queueConnectionBulkAction(getIssueProvider(request, filter).apply(response), response);
     }
@@ -241,8 +236,7 @@ public class IssueResource extends BaseResource {
         if (destinationSpec.isPresent()) {
             issues.stream().filter(is -> isActionApplicable(is, response, ModuleConstants.ACTION_CLASS_RETRY_CONNECTION))
                     .map(IssueDataCollection::getConnectionTask)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
+                    .flatMap(Functions.asStream())
                     .forEach(t -> processMessagePost(new RescheduleConnectionTaskQueueMessage(t.getId(), "scheduleNow"), destinationSpec.get()));
             return entity(response).build();
         } else {
@@ -255,8 +249,7 @@ public class IssueResource extends BaseResource {
         if (destinationSpec.isPresent()) {
             issues.stream().filter(is -> isActionApplicable(is, response, actionClassName))
                     .map(IssueDataCollection::getCommunicationTask)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
+                    .flatMap(Functions.asStream())
                     .forEach(t -> processMessagePost(new ComTaskExecutionQueueMessage
                             (t.getId(), ModuleConstants.ACTION_CLASS_RETRY_COMMUNICATION.equals(actionClassName) ? "scheduleNow" : "runNow"), destinationSpec.get()));
             return entity(response).build();
@@ -280,6 +273,12 @@ public class IssueResource extends BaseResource {
     private void processMessagePost(QueueMessage message, DestinationSpec destinationSpec) {
         String json = jsonService.serialize(message);
         destinationSpec.message(json).send();
+    }
+
+    private void verifyAppServerExistsOrThrowException(String destinationName) {
+        if (!verifyAppServerExists(destinationName)) {
+            throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
+        }
     }
 
     private boolean verifyAppServerExists(String destinationName) {
