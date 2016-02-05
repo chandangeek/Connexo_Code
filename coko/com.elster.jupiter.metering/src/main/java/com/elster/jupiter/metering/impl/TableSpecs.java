@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.ids.TimeSeries;
@@ -722,6 +723,32 @@ public enum TableSpecs {
         }
     },
 
+    MTR_SERVICECATEGORY_CPS_USAGE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ServiceCategoryCustomPropertySetUsage> table = dataModel.addTable(name(), ServiceCategoryCustomPropertySetUsage.class);
+            table.map(ServiceCategoryCustomPropertySetUsage.class);
+            Column serviceCategory = table.column("SERVICECATEGORY").number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
+            Column customPropertySet = table.column("CUSTOMPROPERTYSET").number().notNull().add();
+            table.primaryKey("PK_MTR_CPSSERVICECATUSAGE").on(serviceCategory, customPropertySet).add();
+            table.column(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.name()).number().notNull().conversion(NUMBER2INT).map(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.fieldName()).add();
+            table.foreignKey("FK_MTR_CPSSERVICECATEGORY")
+                    .references(MTR_SERVICECATEGORY.name())
+                    .on(serviceCategory)
+                    .onDelete(CASCADE)
+                    .map(ServiceCategoryCustomPropertySetUsage.Fields.SERVICECATEGORY.fieldName())
+                    .reverseMap(ServiceCategoryImpl.Fields.CUSTOMPROPERTYSETUSAGE.fieldName())
+                    .reverseMapOrder(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("FK_MTR_CPSSERVICECATEGORY_CPS")
+                    .references(RegisteredCustomPropertySet.class)
+                    .on(customPropertySet)
+                    .onDelete(CASCADE)
+                    .map(ServiceCategoryCustomPropertySetUsage.Fields.CUSTOMPROPERTYSET.fieldName())
+                    .add();
+        }
+    }
     ;
 
     abstract void addTo(DataModel dataModel);

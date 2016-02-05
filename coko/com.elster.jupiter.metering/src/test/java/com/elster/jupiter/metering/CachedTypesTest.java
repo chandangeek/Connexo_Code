@@ -2,6 +2,8 @@ package com.elster.jupiter.metering;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -71,7 +73,8 @@ public class CachedTypesTest {
                 new BpmModule(),
                 new FiniteStateMachineModule(),
                 new DataVaultModule(),
-                new NlsModule());
+                new NlsModule(),
+                new CustomPropertySetsModule());
     }
 
 
@@ -79,6 +82,7 @@ public class CachedTypesTest {
     public static void setUp() {
         bootInjector = getInjector(bootMemoryBootstrapModule);
         try (TransactionContext ctx = bootInjector.getInstance(TransactionService.class).getContext()) {
+            bootInjector.getInstance(CustomPropertySetService.class);
             bootInjector.getInstance(FiniteStateMachineService.class);
             bootInjector.getInstance(MeteringService.class);
             ctx.commit();
