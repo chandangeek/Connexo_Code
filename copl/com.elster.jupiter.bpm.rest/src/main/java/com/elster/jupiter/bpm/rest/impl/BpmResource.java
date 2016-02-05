@@ -295,7 +295,7 @@ public class BpmResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
     public Response assignUser(@Context UriInfo uriInfo, @PathParam("id") long id, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
-        long response = -1;
+        String response = "-1";
         String userName = getQueryValue(uriInfo, "username");
         String rest = "/rest/tasks/";
         rest += String.valueOf(id);
@@ -306,7 +306,7 @@ public class BpmResource {
                 response = bpmService.getBpmServer().doPost(rest, null, auth);
             } catch (RuntimeException e) {
             }
-            if(response < 0){
+            if(response.equals("-1")){
                 throw new BpmResourceAssignUserException(thesaurus);
             }
             return Response.ok().build();
@@ -595,36 +595,54 @@ public class BpmResource {
     @Path("/managetasks")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.EXECUTE_TASK)
-    public Response manageTasks(@Context UriInfo uriInfo, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
+    public Response manageTasks(TaskGroupsInfos taskGroupsInfos, @Context UriInfo uriInfo, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
+        String postResult = "-1";
         try {
-            String rest = "/rest/tasks/managetasks";
-            String req = getQueryParam(queryParameters);
-            if (!req.equals("")) {
-                rest += req+"&tasks=2&currentuser=" + securityContext.getUserPrincipal().getName() ;
+            taskGroupsInfos.taskGroups.stream()
+                    .forEach(s->{
+                        s.outputBindingContents = getOutputContent(s.tasksForm,s.taskIds.get(0), null, auth);
+                        s.tasksForm = null;
+                    });
+            ObjectMapper mapper = new ObjectMapper();
+            String stringJson = null;
+            try {
+                stringJson = mapper.writeValueAsString(taskGroupsInfos);
+                String rest = "/rest/tasks/managetasks";
+                String req = getQueryParam(queryParameters);
+                if (!req.equals("")) {
+                    rest += req+"&currentuser=" + securityContext.getUserPrincipal().getName() ;
+                }else{
+                    rest += req+"?currentuser=" + securityContext.getUserPrincipal().getName() ;
+                }
+                postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth);
+            } catch (JsonProcessingException e) {
             }
-            bpmService.getBpmServer().doPost(rest, null, auth);
-
         } catch (RuntimeException e) {
+        }
+        if(postResult.equals("-1")) {
+            return Response.status(400).build();
         }
         return Response.ok().build();
     }
 
-    @GET
+    @POST
     @Path("tasks/mandatory")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.EXECUTE_TASK, Privileges.Constants.ASSIGN_TASK})
-    public TaskGroupsInfos getTaskContent(@HeaderParam("Authorization") String auth, @Context UriInfo uriInfo) {
+    public TaskGroupsInfos getTaskContent(TaskGroupsInfos taskGroupsInfos, @HeaderParam("Authorization") String auth, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
-        String jsonContent;
+        String jsonContent = null;
         JSONArray arr = null;
         try {
-            String rest = "/rest/tasks/mandatory";
-            String req = getQueryParam(queryParameters);
-            if (!req.equals("")) {
-                rest += req;
+            ObjectMapper mapper = new ObjectMapper();
+            String stringJson = null;
+            try {
+                stringJson = mapper.writeValueAsString(taskGroupsInfos);
+                String rest = "/rest/tasks/mandatory";
+                jsonContent = bpmService.getBpmServer().doPost(rest, stringJson, auth);
+            } catch (JsonProcessingException e) {
             }
-            jsonContent = bpmService.getBpmServer().doGet(rest, auth);
             if (!"".equals(jsonContent)) {
                 if(!jsonContent.equals("Connection refused: connect")){
                     arr = (new JSONObject(jsonContent)).getJSONArray("taskGroups");
@@ -767,7 +785,7 @@ public class BpmResource {
                                     @PathParam("id") long id,
                                     @Context SecurityContext securityContext,
                                     @HeaderParam("Authorization") String auth) {
-        long postResult = -1;
+        String postResult = "-1";
         List<Errors> err = new ArrayList<>();
         String userName = securityContext.getUserPrincipal().getName();
         if(!taskContentInfos.action.equals("startTask")) {
@@ -827,8 +845,8 @@ public class BpmResource {
             } catch (JsonProcessingException e) {
             }
         }
-        if(postResult == -1) {
-            return Response.status(403).build();
+        if(postResult.equals("-1")) {
+            return Response.status(400).build();
         }
         return Response.ok().build();
     }

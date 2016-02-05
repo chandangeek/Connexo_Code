@@ -21,6 +21,7 @@ public class TaskGroupsInfo {
     public long count = 0;
     public boolean hasMandatory;
     public TaskContentInfos tasksForm;
+    public Map<String, Object> outputBindingContents;
 
     public TaskGroupsInfo(){
 
@@ -31,7 +32,7 @@ public class TaskGroupsInfo {
             this.processName = jsonObject.getString("processName");
             this.version = jsonObject.getString("version");
             this.hasMandatory = jsonObject.getBoolean("hasMandatory");
-            JSONObject form = jsonObject.getJSONObject("form");
+            JSONObject form = jsonObject.getJSONObject("tasksForm");
             tasksForm = new TaskContentInfos(form);
             JSONArray ids = jsonObject.getJSONArray("taskIds");
             for(int i = 0; i< ids.length(); i++){
