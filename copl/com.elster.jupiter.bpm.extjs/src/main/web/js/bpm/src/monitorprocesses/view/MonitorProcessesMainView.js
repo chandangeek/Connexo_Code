@@ -49,11 +49,11 @@ Ext.define('Bpm.monitorprocesses.view.MonitorProcessesMainView', {
         me.fireEvent('initStores',this.properties);
         me.callParent(arguments);
 
-    }/*,
+    },
     listeners: {
         'afterrender': function () {
             this.fireEvent('initComponents', this);
 
         }
-    }*/
+    }
 });
