@@ -38,7 +38,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.metrologyconfiguration.controller.ViewList',
         'Imt.controller.History',
         'Imt.controller.Search',
-        'Imt.validation.controller.UsagePointDataValidation'
+        'Imt.validation.controller.UsagePointDataValidation',
+        'Imt.usagepointhistory.controller.History'
     ],
 
     refs: [
