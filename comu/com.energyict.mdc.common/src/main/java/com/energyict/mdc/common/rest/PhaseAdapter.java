@@ -38,6 +38,5 @@ public class PhaseAdapter extends MapBasedXmlAdapter<Phase> {
         register("4 wire HL delta",Phase.PHASEFOURWIREHLDELTA);
         register("4 wire open delta",Phase.PHASEFOURWIREOPENDELTA);
         register("Networked",Phase.PHASENETWORKED);
-        register("NN", Phase.PHASENTOGND);
     }
 }
