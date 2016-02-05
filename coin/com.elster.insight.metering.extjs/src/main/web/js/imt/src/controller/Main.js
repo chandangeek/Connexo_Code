@@ -38,7 +38,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.metrologyconfiguration.controller.ViewList',
         'Imt.controller.History',
         'Imt.controller.Search',
-        'Imt.validation.controller.UsagePointDataValidation'
+        'Imt.validation.controller.UsagePointDataValidation',
+        'Imt.servicecategories.controller.ServiceCategories'
     ],
 
     refs: [
@@ -102,5 +103,19 @@ Ext.define('Imt.controller.Main', {
         Uni.store.PortalItems.add(
             portalItem2
         );
+
+        if (Imt.privileges.ServiceCategory.canView()) {
+            Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.serviceCategories', 'IMT', 'Service categories'),
+                portal: 'administration',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.serviceCategories', 'IMT', 'Service categories'),
+                        href: '#/administration/servicecategories',
+                        itemId: 'overview-servicecategories'
+                    }
+                ]
+            }));
+        }
     }
 });
