@@ -29,7 +29,7 @@ public interface UsagePointCustomPropertySetExtension {
     List<RegisteredCustomPropertySet> getMetrologyCustomPropertySets();
 
     /**
-     * Returns an unmodifiable map with values for custom properties sets inherited from linked metrology configuration.
+     * Returns a map with values for custom properties sets inherited from linked metrology configuration.
      * For time-sliced custom property sets it returns values which are actual at this moment.
      * If the usage point has no linked metrology configuration, the empty map will be returned.
      *
@@ -38,7 +38,7 @@ public interface UsagePointCustomPropertySetExtension {
     Map<RegisteredCustomPropertySet, CustomPropertySetValues> getMetrologyConfigurationCustomPropertySetValues();
 
     /**
-     * Returns an unmodifiable map with values for custom properties sets inherited from linked metrology configuration.
+     * Returns a map with values for custom properties sets inherited from linked metrology configuration.
      * If the usage point has no linked metrology configuration, the empty map will be returned.
      *
      * @param effectiveTimeStamp The point in time for time-sliced custom property sets values.
