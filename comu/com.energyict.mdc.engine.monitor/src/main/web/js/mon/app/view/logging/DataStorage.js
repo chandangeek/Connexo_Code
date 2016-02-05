@@ -38,16 +38,19 @@ Ext.define('CSMonitor.view.logging.DataStorage', {
                     xtype: 'image',
                     src: 'resources/images/datastorage.png',
                     margins: '5,0,0,0',
+                    itemId: 'clipImage',
                     width: 48,
                     height: 48
                 },
                 {
                     xtype: 'component',
+                    itemId: 'dataStorageTxt',
                     html: '<b>Data storage</b>'
                 },
                 {
                     xtype: 'component',
                     margins: '15,0,0,0',
+                    itemId: 'dataStorageInfo',
                     html: 'Opens a new browser tab containing logging about:<ul><li>Data storage</li></ul>'
                 }
             ]

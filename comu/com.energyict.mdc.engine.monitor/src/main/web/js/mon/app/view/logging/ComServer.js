@@ -38,16 +38,19 @@ Ext.define('CSMonitor.view.logging.ComServer', {
                     xtype: 'image',
                     src: 'resources/images/general.png',
                     margins: '5,0,0,0',
+                    itemId: 'infoImage',
                     width: 48,
                     height: 48
                 },
                 {
                     xtype: 'component',
+                    itemId: 'generalTxt',
                     html: '<b>General</b>'
                 },
                 {
                     xtype: 'component',
                     margins: '15,0,0,0',
+                    itemId: 'generalInfo',
                     html: 'Opens a new browser tab containing logging about:<ul><li>Communication server changes (eg. a port was added/removed)</li><li>Database</li><li>Network</li></ul>'
                 }
             ]

@@ -17,6 +17,7 @@ Ext.define('CSMonitor.view.performance.Pools', {
         {
             xtype: 'component',
             margins: '0 0 0 10',
+            itemId : 'comPortPools',
             html: '<h2>Communication port pools</h2>'
         },
         {
@@ -37,9 +38,11 @@ Ext.define('CSMonitor.view.performance.Pools', {
                     defaults : { margins: '0 30 0 0'},
                     items: [
                         {
+                            itemId: 'poolThreadChart',
                             xtype: 'poolThreadChart'
                         },
                         {
+                            itemId: 'poolPortChart',
                             xtype: 'poolPortChart'
                         }
                     ]

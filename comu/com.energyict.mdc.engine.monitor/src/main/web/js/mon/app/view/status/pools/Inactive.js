@@ -2,6 +2,7 @@ Ext.define('CSMonitor.view.status.pools.Inactive', {
     extend: 'Ext.grid.Panel',
     xtype: 'inactivePools',
     layout: 'fit',
+    itemId: 'inactivePools',
     border: false,
     enableColumnHide: false, // no column choosing
     disableSelection: true, // no selection allowed

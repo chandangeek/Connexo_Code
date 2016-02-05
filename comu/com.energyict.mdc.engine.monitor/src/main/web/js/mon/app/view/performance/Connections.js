@@ -8,6 +8,7 @@ Ext.define('CSMonitor.view.performance.Connections', {
         {
             xtype: 'component',
             margins: '0 0 0 10',
+            itemId: 'scheduling',
             html: '<h2>Scheduling [outbound]</h2>'
         },
         {
@@ -27,6 +28,7 @@ Ext.define('CSMonitor.view.performance.Connections', {
                     ]
                 },
                 {
+                    itemId: 'threadsChart',
                     xtype: 'threadsChart'
                 }
             ]

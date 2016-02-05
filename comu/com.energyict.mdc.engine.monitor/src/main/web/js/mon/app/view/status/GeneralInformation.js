@@ -20,6 +20,7 @@ Ext.define('CSMonitor.view.status.GeneralInformation', {
             items: [
                 {
                     xtype: 'component',
+                    itemId: 'statusGeneralPollingInfo',
                     html: '<h2>General polling information</h2>'
                 },
                 {

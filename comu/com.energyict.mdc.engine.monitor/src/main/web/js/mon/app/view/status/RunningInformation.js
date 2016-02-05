@@ -8,7 +8,7 @@ Ext.define('CSMonitor.view.status.RunningInformation', {
     items: [
         {
             xtype: 'component',
-            itemId: 'runningInformationTitle',
+            itemId: 'statusRunningInfo',
             margins: '0 0 0 10',
             html: '<h2>Running information</h2>'
         },

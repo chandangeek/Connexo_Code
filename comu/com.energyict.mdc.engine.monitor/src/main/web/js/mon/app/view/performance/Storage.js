@@ -20,6 +20,7 @@ Ext.define('CSMonitor.view.performance.Storage', {
             items: [
                 {
                     xtype: 'component',
+                    itemId: 'dataStorage',
                     html: '<h2>Data storage</h2>'
                 },
                 {
@@ -51,6 +52,7 @@ Ext.define('CSMonitor.view.performance.Storage', {
             items: [
                 {
                     xtype: 'container',
+                    itemId: 'priorityContainer',
                     layout: {
                         type: 'hbox',
                         align: 'middle'
@@ -58,6 +60,7 @@ Ext.define('CSMonitor.view.performance.Storage', {
                     items: [
                         {
                             xtype: 'component',
+                            itemId: 'priorityLabel',
                             html: 'Priority:'
                         },
                         {
@@ -134,12 +137,14 @@ Ext.define('CSMonitor.view.performance.Storage', {
                         {
                             xtype: 'component',
                             margins: '2 0 2 20',
+                            itemId: 'priorityLowHigh',
                             html: '(1 = Low / 10 = High)'
                         }
                     ]
                 },
                 {
-                    xtype: 'storageChart'
+                    xtype: 'storageChart',
+                    itemId: 'storageChart'
                 }
             ]
         }

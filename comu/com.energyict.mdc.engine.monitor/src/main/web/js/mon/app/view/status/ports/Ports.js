@@ -11,6 +11,7 @@ Ext.define('CSMonitor.view.status.ports.Ports', {
         {
             xtype: 'component',
             margins: '0 0 0 10',
+            itemId: 'statusComPorts',
             html: '<h2>Communication ports</h2>'
         },
         {

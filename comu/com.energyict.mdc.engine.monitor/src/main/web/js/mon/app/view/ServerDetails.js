@@ -28,10 +28,12 @@ Ext.define('CSMonitor.view.ServerDetails', {
             baseCls: 'server-details',
             items: [{
                 fieldLabel: 'Started',
+                itemId: 'serverStarted',
                 name: 'started'
             },
             {
                 fieldLabel: 'Date of this information',
+                itemId: 'serverDateInfo',
                 name: 'currentDate'
             }]
         }

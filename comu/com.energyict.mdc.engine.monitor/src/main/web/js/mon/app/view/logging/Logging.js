@@ -21,6 +21,7 @@ Ext.define('CSMonitor.view.logging.Logging', {
         {
             xtype: 'component',
             margins: '0 0 0 10', // top, right, bottom, left
+            itemId: 'comServerLogging',
             html: '<h2>Communication server logging</h2>',
             colspan: 2
         },
@@ -35,6 +36,7 @@ Ext.define('CSMonitor.view.logging.Logging', {
         {
             xtype: 'component',
             margins: '0 0 0 10', // top, right, bottom, left
+            itemId: 'comLogging',
             html: '<h2>Communication logging</h2>',
             colspan: 2
         },
