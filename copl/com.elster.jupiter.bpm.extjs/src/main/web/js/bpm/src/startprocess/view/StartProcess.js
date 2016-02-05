@@ -104,10 +104,11 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
             margin: '15 0 20 0',
             hidden: true,
             title: Uni.I18n.translate('bpm.process.start.title', 'BPM', 'Start process'),
-            reasons: [
+            defaultReasons: [
                 Uni.I18n.translate('bpm.startProcess.empty.list.item1', 'BPM', 'No processes have been defined yet.'),
                 Uni.I18n.translate('bpm.startProcess.empty.list.item2', 'BPM', 'Processes exist, but you do not have permission to execute them.')
-            ]
+            ],
+            reasons: []
         }
     ],
 
@@ -116,7 +117,10 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
             availableStore;
 
         if (Array.isArray(me.properties.additionalReasons)) {
-            me.items[1].reasons = me.items[1].reasons.concat(me.properties.additionalReasons);
+            me.items[1].reasons = me.items[1].defaultReasons.concat(me.properties.additionalReasons);
+        }
+        else {
+            me.items[1].reasons = me.items[1].defaultReasons;
         }
 
         me.callParent(arguments);
