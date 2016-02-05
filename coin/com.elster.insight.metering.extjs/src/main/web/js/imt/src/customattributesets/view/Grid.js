@@ -62,15 +62,18 @@ Ext.define('Imt.customattributesets.view.Grid', {
             };
 
             if (me.dockedConfig.showAddBtn) {
-                dockedTop.items = [
-                    {
-                        text: Uni.I18n.translate('customattributesets.addattributesets', 'IMT', 'Add custom attribute sets'),
-                        itemId: 'add-custom-attribute-set',
-                        //privileges: Mdc.privileges.DeviceType.admin,
-                        xtype: 'button',
-                        action: 'addAttributeSets'
-                    }
-                ];
+                var addBtn = {
+                    text: Uni.I18n.translate('customattributesets.addattributesets', 'IMT', 'Add custom attribute sets'),
+                    itemId: 'add-custom-attribute-set',
+                    //privileges: Mdc.privileges.DeviceType.admin,
+                    xtype: 'button',
+                    action: 'addAttributeSets'
+                };
+
+                if (Ext.isObject(me.dockedConfig.showAddBtn)) {
+                    Ext.apply(addBtn, me.dockedConfig.showAddBtn);
+                }
+                dockedTop.items = [addBtn];
             }
 
             me.dockedItems.push(dockedTop);

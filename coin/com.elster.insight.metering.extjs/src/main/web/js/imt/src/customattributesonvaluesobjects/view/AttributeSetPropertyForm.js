@@ -42,13 +42,13 @@ Ext.define('Imt.customattributesonvaluesobjects.view.AttributeSetPropertyForm', 
         me.fieldLabel = me.record.get('name');
         me.callParent(arguments);
         versionsContainer = me.down('#time-sliced-versions-container');
-        if (me.record.get('timesliced')) {
+        if (me.record.get('isVersioned')) {
             Imt.customattributesonvaluesobjects.service.VersionsManager.addVersion(me.record, versionsContainer, me.router, me.attributeSetType, me.down('property-form'));
             versionsContainer.show();
         } else {
             me.down('property-form').loadRecord(me.record);
         }
-        if (me.actionMenuXtype && me.record.get('editable')) {
+        if (me.actionMenuXtype && me.record.get('isEditable')) {
             Imt.customattributesonvaluesobjects.service.ActionMenuManager.addAction(me.actionMenuXtype, me.record, me.router, me.attributeSetType);
         }
     }

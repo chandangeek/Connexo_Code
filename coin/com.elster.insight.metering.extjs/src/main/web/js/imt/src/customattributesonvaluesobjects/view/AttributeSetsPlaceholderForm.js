@@ -9,6 +9,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.AttributeSetsPlaceholderFor
     ],
 
     flex: 1,
+    parent: null,
     actionMenuXtype: null,
     router: null,
     inline: null,
@@ -28,6 +29,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.AttributeSetsPlaceholderFor
             me.add({
                 xtype: form,
                 record: record,
+                parent: me.parent,
                 router: me.router,
                 attributeSetType: me.attributeSetType,
                 actionMenuXtype: me.actionMenuXtype,

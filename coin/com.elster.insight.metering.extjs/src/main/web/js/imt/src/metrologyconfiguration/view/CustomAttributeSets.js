@@ -8,79 +8,87 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
         'Imt.customattributesets.view.Grid',
         'Imt.customattributesets.view.DetailForm',
         'Imt.metrologyconfiguration.store.CustomAttributeSets',
-        'Imt.metrologyconfiguration.view.CustomAttributeSetsActions'
+        'Imt.metrologyconfiguration.view.CustomAttributeSetsActions',
+        'Uni.util.FormInfoMessage',
+        'Uni.util.FormEmptyMessage'
     ],
     router: null,
+    metrologyConfiguration: null,
 
     initComponent: function () {
         var me = this,
             router = me.router,
-            casAddRoute = router.getRoute('administration/metrologyconfiguration/view/customAttributeSets/add');
+            casAddRoute = router.getRoute('administration/metrologyconfiguration/view/customAttributeSets/add'),
+            isActive = me.metrologyConfiguration.get('active');
 
         me.content = {
             xtype: 'panel',
             ui: 'large',
             title: router.getRoute().getTitle(),
-            items: {
-                xtype: 'preview-container',
-                grid: {
-                    xtype: 'cas-grid',
-                    store: 'Imt.metrologyconfiguration.store.CustomAttributeSets',
-                    actionColumnConfig: {
-                        //privileges: Imt.privileges.MetrologyConfig.admin,
-                        xtype: 'uni-actioncolumn',
-                        menu: {
+            items: [
+                {
+                    xtype: 'uni-form-empty-message',
+                    text: Uni.I18n.translate('Imt.metrologyconfiguration.error.active', 'IMT', 'You cannot add custom attribute set because the metrology configuration is active/in use'),
+                    hidden: !isActive
+                },
+                {
+                    xtype: 'preview-container',
+                    grid: {
+                        xtype: 'cas-grid',
+                        store: 'Imt.metrologyconfiguration.store.CustomAttributeSets',
+                        actionColumnConfig: {
                             //privileges: Imt.privileges.MetrologyConfig.admin,
-                            xtype: 'custom-attribute-sets-actions'
+                            xtype: 'uni-actioncolumn',
+                            disabled: isActive,
+                            menu: {
+                                //privileges: Imt.privileges.MetrologyConfig.admin,
+                                xtype: 'custom-attribute-sets-actions'
+                            }
+                        },
+                        dockedConfig: {
+                            showTop: true,
+                            showBottom: true,
+                            showAddBtn: {disabled: isActive}
                         }
                     },
-                    dockedConfig: {
-                        showTop: true,
-                        showBottom: true,
-                        showAddBtn: true
-                    }
-                },
-                emptyComponent: {
-                    xtype: 'no-items-found-panel',
-                    itemId: 'ctr-no-comservers',
-                    title: Uni.I18n.translate('Imt.metrologyconfiguration.empty.title', 'MDC', 'No custom attribute sets found'),
-                    reasons: [
-                        Uni.I18n.translate('Imt.metrologyconfiguration.empty.list.item1', 'MDC', 'No custom attribute sets added yet'),
-                        Uni.I18n.translate('Imt.metrologyconfiguration.empty.list.item2', 'MDC', 'No custom attribute sets defined yet')
-                    ],
-                    stepItems: [
-                        {
-                            text: casAddRoute.getTitle(),
-                            itemId: 'add-custom-attribute-set',
-                            //privileges: Mdc.privileges.Communication.admin,
-                            action: 'addCustomAttributeSet',
-                            href: casAddRoute.buildUrl()
-                        }
-                    ]
-                },
-                previewComponent: {
-                    xtype: 'cas-detail-form',
-                    frame: true,
-                    tools: [
-                        {
-                            xtype: 'button',
-                            text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
-                            itemId: 'actionButton',
-                            iconCls: 'x-uni-action-iconD',
-                            menu: {
-                                xtype: 'custom-attribute-sets-actions',
-                                record: me.record
+                    emptyComponent: {
+                        xtype: 'no-items-found-panel',
+                        itemId: 'ctr-no-comservers',
+                        title: Uni.I18n.translate('Imt.metrologyconfiguration.empty.title', 'IMT', 'No custom attribute sets found'),
+                        reasons: [
+                            Uni.I18n.translate('Imt.metrologyconfiguration.empty.list.item1', 'IMT', 'No custom attribute sets added yet'),
+                            Uni.I18n.translate('Imt.metrologyconfiguration.empty.list.item2', 'IMT', 'No custom attribute sets defined yet')
+                        ],
+                        stepItems: [
+                            {
+                                text: casAddRoute.getTitle(),
+                                itemId: 'add-custom-attribute-set',
+                                //privileges: Mdc.privileges.Communication.admin,
+                                action: 'addCustomAttributeSet',
+                                href: casAddRoute.buildUrl()
                             }
-                        }
-                    ]
+                        ]
+                    },
+                    previewComponent: {
+                        xtype: 'cas-detail-form',
+                        frame: true,
+                        tools: [
+                            {
+                                xtype: 'button',
+                                disabled: isActive,
+                                text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
+                                itemId: 'actionButton',
+                                iconCls: 'x-uni-action-iconD',
+                                menu: {
+                                    xtype: 'custom-attribute-sets-actions',
+                                    record: me.record
+                                }
+                            }
+                        ]
+                    }
                 }
-            }
+            ]
         };
-
-        //No custom attribute sets found
-        //This could be because:
-        //    No custom attribute sets added yet
-        //No custom attribute sets defined yet
 
         me.side = [
             {
@@ -97,6 +105,8 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
         ];
 
         me.callParent(arguments);
-        me.down('button[action="addAttributeSets"]').on('click', function() {casAddRoute.forward()});
+        me.down('button[action="addAttributeSets"]').on('click', function () {
+            casAddRoute.forward()
+        });
     }
 });

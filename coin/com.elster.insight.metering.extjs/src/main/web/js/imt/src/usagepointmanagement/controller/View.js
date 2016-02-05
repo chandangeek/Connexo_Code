@@ -45,7 +45,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         usagePointModel.load(mRID, {
             success: function (record) {
                 me.getApplication().fireEvent('usagePointLoaded', record);
-                var widget = Ext.widget('usage-point-management-setup', {router: router});
+                var widget = Ext.widget('usage-point-management-setup', {router: router, parent: record.getData()});
 
 
                 me.getApplication().fireEvent('changecontentevent', widget);
