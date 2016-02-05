@@ -28,7 +28,7 @@ public class IssueGroupImpl implements IssueGroup {
     }
 
     public String getGroupName() {
-        return thesaurus.getString(groupName, groupName);
+        return thesaurus.getStringBeyondComponent(groupName, groupName);
     }
 
     public Object getGroupKey() {

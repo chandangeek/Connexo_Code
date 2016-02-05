@@ -198,7 +198,7 @@ public abstract class IssuesGroupOperation {
     }
 
     protected String getDeviceGroupCondition() {
-        if(getFilter().getDeviceGroups() != null ) {
+        if(getFilter().getDeviceGroups() != null && !getFilter().getDeviceGroups().isEmpty() ) {
             StringBuilder builder = new StringBuilder();
             for(Long endDeviceGroupId : getFilter().getDeviceGroups()) {
                 EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElse(null);
@@ -207,7 +207,7 @@ public abstract class IssuesGroupOperation {
                 }
                 builder.append("isu.DEVICE_ID IN (");
                 if (endDeviceGroup != null && endDeviceGroup.isDynamic()) {
-                    builder.append(((QueryEndDeviceGroup)endDeviceGroup).toFragment().getText()).append(") ");
+                    builder.append(((QueryEndDeviceGroup) endDeviceGroup).toFragment().getText()).append(") ");
                 } else {
                     builder.append("select ENDDEVICE_ID from MTG_ENUM_ED_IN_GROUP where GROUP_ID = ");
                     builder.append(endDeviceGroupId).append(") ");
