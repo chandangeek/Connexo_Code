@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.servicecalls.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecalls.ServiceCallService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
@@ -24,6 +25,7 @@ import org.osgi.service.component.annotations.Reference;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by bvn on 2/4/16.
@@ -88,7 +90,7 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
 
     @Override
     public void install() {
-        new ServiceCallInstaller().install();
+        new ServiceCallInstaller(finiteStateMachineService, dataModel).install();
     }
 
     @Override
@@ -112,4 +114,8 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
         this.dataModel.register(this.getModule());
     }
 
+    @Override
+    public Optional<ServiceCallLifeCycle> getServiceCallLifeCycle(String name) {
+        return dataModel.mapper(ServiceCallLifeCycle.class).getUnique(ServiceCallLifeCycleImpl.Fields.name.fieldName(), name);
+    }
 }
