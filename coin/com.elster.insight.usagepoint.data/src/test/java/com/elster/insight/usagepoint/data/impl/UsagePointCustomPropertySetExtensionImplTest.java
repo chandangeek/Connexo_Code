@@ -131,7 +131,7 @@ public class UsagePointCustomPropertySetExtensionImplTest {
         CustomPropertySetValues values = CustomPropertySetValues.empty();
         values.setProperty(CustomPropertySetAttributes.NAME.propertyKey(), "Name");
         values.setProperty(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey(), Boolean.TRUE);
-        valuesExtension.setMetrologyCustomPropertySetValue(customPropertySet, values);
+        valuesExtension.setMetrologyConfigurationCustomPropertySetValue(customPropertySet, values);
         return valuesExtension;
     }
 
@@ -188,7 +188,7 @@ public class UsagePointCustomPropertySetExtensionImplTest {
         grantViewPrivilegesForCurrentUser();
 
         UsagePointCustomPropertySetExtension valuesExtension = inMemoryBootstrapModule.getUsagePointDataService().findUsagePointExtensionByMrid(USAGE_POINT_MRID).get();
-        Map<RegisteredCustomPropertySet, CustomPropertySetValues> customPropertySetValues = valuesExtension.getMetrologyCustomPropertySetValues();
+        Map<RegisteredCustomPropertySet, CustomPropertySetValues> customPropertySetValues = valuesExtension.getMetrologyConfigurationCustomPropertySetValues();
 
         assertThat(customPropertySetValues).isEmpty(); // no values and no exception
     }
@@ -202,7 +202,7 @@ public class UsagePointCustomPropertySetExtensionImplTest {
         grantViewPrivilegesForCurrentUser();
 
         UsagePointCustomPropertySetExtension valuesExtension = inMemoryBootstrapModule.getUsagePointDataService().findUsagePointExtensionByMrid(USAGE_POINT_MRID).get();
-        Map<RegisteredCustomPropertySet, CustomPropertySetValues> customPropertySetValues = valuesExtension.getMetrologyCustomPropertySetValues();
+        Map<RegisteredCustomPropertySet, CustomPropertySetValues> customPropertySetValues = valuesExtension.getMetrologyConfigurationCustomPropertySetValues();
 
         assertThat(customPropertySetValues).isEmpty(); // no values and no exception
     }
@@ -221,7 +221,7 @@ public class UsagePointCustomPropertySetExtensionImplTest {
         UsagePointCustomPropertySetExtension valuesExtension = storeDefaultCustomPropertySetValues();
 
         // Read values
-        Map<RegisteredCustomPropertySet, CustomPropertySetValues> storedValues = valuesExtension.getMetrologyCustomPropertySetValues();
+        Map<RegisteredCustomPropertySet, CustomPropertySetValues> storedValues = valuesExtension.getMetrologyConfigurationCustomPropertySetValues();
 
         assertThat(storedValues.size()).isEqualTo(1);
         assertThat(storedValues.keySet().iterator().next().getCustomPropertySet().getId()).isEqualTo(customPropertySet.getId());

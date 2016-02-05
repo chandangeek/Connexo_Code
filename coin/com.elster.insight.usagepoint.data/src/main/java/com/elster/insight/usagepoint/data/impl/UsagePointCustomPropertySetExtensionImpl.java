@@ -15,10 +15,11 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomPropertySetExtension {
     private final Clock clock;
@@ -53,6 +54,22 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
         return this.usagePointConfigurationService.findMetrologyConfigurationForUsagePoint(getUsagePoint());
     }
 
+    private CustomPropertySetValues getCustomPropertySetValuesWithoutChecks(RegisteredCustomPropertySet rcps, Instant effectiveTimeStamp) {
+        if (rcps.getCustomPropertySet().isVersioned()) {
+            return this.customPropertySetService.getUniqueValuesFor(rcps.getCustomPropertySet(), getUsagePoint(), effectiveTimeStamp);
+        }
+        return this.customPropertySetService.getUniqueValuesFor(rcps.getCustomPropertySet(), getUsagePoint());
+    }
+
+    private void setCustomPropertySetValuesWithoutChecks(CustomPropertySet customPropertySet, CustomPropertySetValues customPropertySetValue) {
+        if (customPropertySet.isVersioned()) {
+            throw new UnsupportedOperationException();
+        } else {
+            this.customPropertySetService.setValuesFor(customPropertySet, getUsagePoint(), customPropertySetValue);
+        }
+        getUsagePoint().touch();
+    }
+
     @Override
     public List<RegisteredCustomPropertySet> getMetrologyCustomPropertySets() {
         Optional<MetrologyConfiguration> metrologyConfiguration = getMetrologyConfiguration();
@@ -63,35 +80,20 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
     }
 
     @Override
-    public Map<RegisteredCustomPropertySet, CustomPropertySetValues> getMetrologyCustomPropertySetValues() {
-        return this.getMetrologyCustomPropertySetValues(this.clock.instant());
+    public Map<RegisteredCustomPropertySet, CustomPropertySetValues> getMetrologyConfigurationCustomPropertySetValues() {
+        return this.getMetrologyConfigurationCustomPropertySetValues(this.clock.instant());
     }
 
     @Override
-    public Map<RegisteredCustomPropertySet, CustomPropertySetValues> getMetrologyCustomPropertySetValues(Instant effectiveTimeStamp) {
-        Optional<MetrologyConfiguration> metrologyConfiguration = getMetrologyConfiguration();
-        if (metrologyConfiguration.isPresent()) {
-            List<RegisteredCustomPropertySet> customPropertySets = metrologyConfiguration.get().getCustomPropertySets();
-            Map<RegisteredCustomPropertySet, CustomPropertySetValues> values = new HashMap<>(customPropertySets.size());
-            for (RegisteredCustomPropertySet rcps : customPropertySets) {
-                if (!rcps.isViewableByCurrentUser()) {
-                    continue;
-                }
-                if (rcps.getCustomPropertySet().isVersioned()) {
-                    values.put(rcps, this.customPropertySetService
-                            .getUniqueValuesFor(rcps.getCustomPropertySet(), getUsagePoint(), effectiveTimeStamp));
-                } else {
-                    values.put(rcps, this.customPropertySetService
-                            .getUniqueValuesFor(rcps.getCustomPropertySet(), getUsagePoint()));
-                }
-            }
-            return values;
-        }
-        return Collections.emptyMap();
+    public Map<RegisteredCustomPropertySet, CustomPropertySetValues> getMetrologyConfigurationCustomPropertySetValues(Instant effectiveTimeStamp) {
+        return getMetrologyCustomPropertySets()
+                .stream()
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .collect(Collectors.toMap(Function.identity(), rcps -> getCustomPropertySetValuesWithoutChecks(rcps, effectiveTimeStamp)));
     }
 
     @Override
-    public void setMetrologyCustomPropertySetValue(CustomPropertySet customPropertySet, CustomPropertySetValues customPropertySetValue) {
+    public void setMetrologyConfigurationCustomPropertySetValue(CustomPropertySet customPropertySet, CustomPropertySetValues customPropertySetValue) {
         Optional<MetrologyConfiguration> metrologyConfiguration = getMetrologyConfiguration();
         if (metrologyConfiguration.isPresent()) {
             RegisteredCustomPropertySet registeredCustomPropertySet = metrologyConfiguration.get().getCustomPropertySets()
@@ -104,11 +106,7 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
                 throw UsagePointCustomPropertySetValuesManageException
                         .customPropertySetIsNotEditableByUser(this.thesaurus, customPropertySet.getName(), metrologyConfiguration.get().getName());
             }
-            if (customPropertySet.isVersioned()) {
-                throw new UnsupportedOperationException();
-            } else {
-                this.customPropertySetService.setValuesFor(customPropertySet, getUsagePoint(), customPropertySetValue);
-            }
+            setCustomPropertySetValuesWithoutChecks(customPropertySet, customPropertySetValue);
         } else {
             throw UsagePointCustomPropertySetValuesManageException
                     .noLinkedMetrologyConfiguration(this.thesaurus, getUsagePoint().getName());
