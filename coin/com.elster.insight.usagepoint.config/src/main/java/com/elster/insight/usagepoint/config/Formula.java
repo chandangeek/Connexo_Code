@@ -13,6 +13,28 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface Formula extends HasId {
 
+    enum Mode {
+        /**
+         * Switches on type, unit and time based aggregation of
+         * values calculated by a Formula and disables usage
+         * of complex functions at the same time as those
+         * will cause errors when combined with the auto mechanism.
+         */
+        AUTO,
+
+        /**
+         * Enables the usage of complex functions and disables
+         * automatic type, unit and time based aggregation of
+         * values. If any of those are needed then the user
+         * will have to do those manually by using the appropriate
+         * complex functions on the elements of the formula
+         * that need type, unit or time based aggregation.
+         */
+        EXPERT;
+    }
+
+    Mode getMode();
+
     /**
      * Gets the human readable version of the formula.
      * This is a temporary feature that is used to
