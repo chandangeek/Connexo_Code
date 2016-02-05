@@ -10,6 +10,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Base64;
+import java.util.Optional;
 
 public class BpmServerImpl implements BpmServer {
 
@@ -105,13 +106,12 @@ public class BpmServerImpl implements BpmServer {
     }
 
     @Override
-    public String doPost(String targetURL, String payload) {
+    public Optional<String> doPost(String targetURL, String payload) {
         return doPost(targetURL, payload, basicAuthString);
     }
 
     @Override
-    public String doPost(String targetURL, String payload, String authorization) {
-        String check = "0";
+    public Optional<String> doPost(String targetURL, String payload, String authorization) {
         HttpURLConnection httpConnection = null;
         authorization = (basicAuthString != null)?basicAuthString:authorization;
         try {
@@ -130,19 +130,17 @@ public class BpmServerImpl implements BpmServer {
                 osw.close();
             }
             if (httpConnection.getResponseCode() != 200) {
-                check = "-1";
+                return Optional.empty();
             }else {
-
                 BufferedReader br = new BufferedReader(new InputStreamReader(
                         (httpConnection.getInputStream())));
-
                 String output;
                 StringBuilder jsonContent = new StringBuilder();
                 while ((output = br.readLine()) != null) {
                     jsonContent.append(output);
                 }
                 if(!jsonContent.toString().equals("")){
-                    check = jsonContent.toString();
+                    return Optional.of(jsonContent.toString());
                 }
             }
 
@@ -152,8 +150,8 @@ public class BpmServerImpl implements BpmServer {
             if (httpConnection != null) {
                 httpConnection.disconnect();
             }
-            return check;
         }
+        return Optional.empty();
     }
 
 }

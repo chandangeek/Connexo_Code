@@ -1,6 +1,7 @@
 package com.elster.jupiter.bpm;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -11,9 +12,9 @@ public interface BpmServer {
 
     String getUrl();
 
-    String doPost(String resourceURL, String payload);
+    Optional<String> doPost(String resourceURL, String payload);
 
-    String doPost(String resourceURL, String payload, String authorization);
+    Optional<String> doPost(String resourceURL, String payload, String authorization);
 
     String doGet(String resourceURL);
 
