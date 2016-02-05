@@ -1,24 +1,10 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
-import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Logger;
-
-import javax.ws.rs.core.Application;
-
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import com.elster.insight.common.rest.ExceptionFactory;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.rest.PropertyUtils;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -34,15 +20,24 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.google.common.collect.ImmutableSet;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.ws.rs.core.Application;
+import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component(name = "com.elster.insight.udr.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/udr", "app=INS", "name=" + UsagePointApplication.COMPONENT_NAME})
 public class UsagePointApplication extends Application implements TranslationKeyProvider {
 
-    private final Logger logger = Logger.getLogger(UsagePointApplication.class.getName());
-
     public static final String APP_KEY = "INS";
     public static final String COMPONENT_NAME = "UDR";
-
 
     private volatile TransactionService transactionService;
     private volatile NlsService nlsService;
@@ -56,17 +51,18 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile UsagePointConfigurationService usagePointConfigurationService;
     private volatile ValidationService validationService;
     private volatile EstimationService estimationService;
+    private volatile License license;
 
     @Override
     public Set<Class<?>> getClasses() {
-                return ImmutableSet.of(
-                        ChannelResource.class,
-                        UsagePointResource.class,
-                        RegisterResource.class,
-                        DeviceResource.class, 
-                        UsagePointGroupResource.class,
-                        UsagePointValidationResource.class,
-                        RegisterDataResource.class
+        return ImmutableSet.of(
+                ChannelResource.class,
+                UsagePointResource.class,
+                RegisterResource.class,
+                DeviceResource.class,
+                UsagePointGroupResource.class,
+                UsagePointValidationResource.class,
+                RegisterDataResource.class
         );
     }
 
@@ -111,7 +107,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
-    
+
     @Reference
     public void setMeteringGroupService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
@@ -132,25 +128,30 @@ public class UsagePointApplication extends Application implements TranslationKey
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
     }
-    
+
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
-    
+
     @Reference
     public void setUsagePointConfigurationService(UsagePointConfigurationService usagePointConfigurationService) {
         this.usagePointConfigurationService = usagePointConfigurationService;
     }
-    
+
     @Reference
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
     }
-    
+
     @Reference
     public void setEstimationService(EstimationService estimationService) {
         this.estimationService = estimationService;
+    }
+
+    @Reference(target = "(com.elster.jupiter.license.application.key=" + APP_KEY + ")")
+    public void setLicense(License license) {
+        this.license = license;
     }
 
     class HK2Binder extends AbstractBinder {
