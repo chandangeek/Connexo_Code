@@ -48,7 +48,7 @@ Ext.define('Imt.usagepointhistory.view.Overview', {
         Ext.getStore(me.store).each(function (cas) {
             var id;
 
-            if (cas.get('timesliced')) {
+            if (cas.get('isVersioned')) {
                 id = cas.get('id');
                 cfg.items.push(
                     {
