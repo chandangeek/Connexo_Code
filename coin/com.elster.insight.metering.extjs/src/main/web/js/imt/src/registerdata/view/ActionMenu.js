@@ -14,7 +14,7 @@ Ext.define('Imt.registerdata.view.ActionMenu', {
         {
             itemId: 'validateNowRegister',
             text: Uni.I18n.translate('registerdata.menu.validate', 'IMT', 'Validate now'),
-            privileges: Cfg.privileges.Validation.validateManual,
+            //privileges: Cfg.privileges.Validation.validateManual,
             action: 'validateNow'
         }
     ]

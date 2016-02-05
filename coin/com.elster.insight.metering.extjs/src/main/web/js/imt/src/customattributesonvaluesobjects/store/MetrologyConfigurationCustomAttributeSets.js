@@ -7,16 +7,16 @@ Ext.define('Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCust
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/udr/metrologyonfiguration/{id}/customproperties',
+        urlTpl: '/api/udr/usagepoints/{mRID}/properties/metrology',
         reader: {
             type: 'json',
-            root: 'customproperties'
+            root: 'customPropertySets'
         },
         pageParam: false,
         startParam: false,
         limitParam: false,
         setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{id}', encodeURIComponent(mRID));
+            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         }
     }
 });

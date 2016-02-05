@@ -6,9 +6,11 @@ Ext.define('Imt.customattributesonvaluesobjects.model.AttributeSetOnObject', {
 
     fields: [
         {name: 'id', type: 'integer'},
+        {name: 'customPropertySetId', type: 'string'},
+        {name: 'parent', type: 'auto'},
         {name: 'name', type: 'string'},
-        {name: 'editable', type: 'boolean'},
-        {name: 'timesliced', type: 'boolean'},
+        {name: 'isEditable', type: 'boolean'},
+        {name: 'isVersioned', type: 'boolean'},
         {name: 'isActive', type: 'boolean'},
         {name: 'startTime', dateFormat: 'time', type: 'date'},
         {name: 'endTime', dateFormat: 'time', type: 'date'},

@@ -6,10 +6,10 @@ Ext.define('Imt.customattributesonvaluesobjects.model.AttributeSetOnMetrologyCon
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/udr/metrologyonfiguration/{id}/customproperties',
+        urlTpl: '/api/udr/usagepoints/{mRID}/properties/metrology',
 
         setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{id}', encodeURIComponent(mRID));
+            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         }
     }
 });

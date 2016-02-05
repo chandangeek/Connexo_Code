@@ -11,6 +11,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         'Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAttributesPanel',
         'Imt.usagepointmanagement.view.SetupActionMenu'
     ],
+    parent: null,
     router: null,
     content: [
         {
@@ -32,6 +33,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
             {
                 xtype: 'toolbar',
                 margin: '0 20 0 0',
+                //minWidth: 1200,
                 items: [
                     {
                         xtype: 'button',
@@ -74,15 +76,20 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                 xtype: 'panel',
                 layout: {
                     type: 'hbox',
-
                 },
                 defaults: {
+                    //minWidth: 600,
                     flex: 1
                 },
                 items: [
                     {
                         //xtype: 'panel',
                         ui: 'tile',
+                        style: {
+                            marginRight: '20px',
+                            padding: '20px'
+                        },
+                        parent: me.parent,
                         title: Uni.I18n.translate('usagepoint.metrologyconfiguration', 'IMT', 'Metrology configuration'),
                         xtype: 'associated-metrology-configuration',
                         router: me.router,
@@ -110,6 +117,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                             {
                                 xtype: 'custom-attribute-sets-placeholder-form',
                                 inline: true,
+                                parent: me.parent,
                                 itemId: 'custom-attribute-sets-placeholder-form-id',
                                 actionMenuXtype: 'usage-point-setup-action-menu',
                                 attributeSetType: 'up',
