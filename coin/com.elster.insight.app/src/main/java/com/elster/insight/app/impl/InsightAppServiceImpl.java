@@ -67,10 +67,10 @@ public class InsightAppServiceImpl implements InsightAppService, ApplicationPriv
         registration.unregister();
     }
 
-//    @Reference(target = "(com.elster.jupiter.license.application.key=" + APPLICATION_KEY + ")")
-//    public void setLicense(License license) {
-//        this.license = license;
-//    }
+    @Reference(target = "(com.elster.jupiter.license.application.key=" + APPLICATION_KEY + ")")
+    public void setLicense(License license) {
+        this.license = license;
+    }
 
     @Reference
     public void setUserService(UserService userService) {
