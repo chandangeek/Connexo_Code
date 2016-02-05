@@ -38,6 +38,8 @@ public interface ExpressionNode {
         void visitConstant(ExpressionNode constant);
         void visitRequirement(ExpressionNode requirement);
         void visitDeliverable(ExpressionNode deliverable);
+        void visitVirtualRequirement(ExpressionNode requirement);
+        void visitVirtualDeliverable(ExpressionNode deliverable);
         void visitVariable(ExpressionNode variable);
         void visitIdentifier(ExpressionNode identifier);
         void visitOperator(ExpressionNode operatorNode);

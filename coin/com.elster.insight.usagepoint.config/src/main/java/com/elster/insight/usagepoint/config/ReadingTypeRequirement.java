@@ -3,6 +3,8 @@ package com.elster.insight.usagepoint.config;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Models a requirement that a Meter should provide measurement
  * data for a {@link com.elster.jupiter.metering.ReadingType}.
@@ -20,6 +22,7 @@ import com.elster.jupiter.util.HasName;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-04 (08:53)
  */
+@ProviderType
 public interface ReadingTypeRequirement extends HasId, HasName {
 
     /**

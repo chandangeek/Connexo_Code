@@ -3,6 +3,8 @@ package com.elster.insight.usagepoint.config;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Specifies details of a {@link com.elster.jupiter.metering.ReadingType}
  * that will be delivered from the {@link ReadingTypeRequirement}s.
@@ -12,6 +14,7 @@ import com.elster.jupiter.util.HasName;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-04 (09:02)
  */
+@ProviderType
 public interface ReadingTypeDeliverable extends HasId, HasName {
 
     /**
@@ -21,5 +24,13 @@ public interface ReadingTypeDeliverable extends HasId, HasName {
      * @return The MetrologyConfiguration
      */
     MetrologyConfiguration getMetrologyConfiguration();
+
+    /**
+     * Returns the {@link Formula} that defines
+     * how to calculate this ReadingTypeDeliverable.
+     *
+     * @return The Formula
+     */
+    Formula getFormula();
 
 }

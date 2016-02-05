@@ -1,5 +1,9 @@
 package com.elster.insight.usagepoint.config;
 
+import aQute.bnd.annotation.ProviderType;
+
+import java.util.List;
+
 /**
  * Models an API for measurement data that is calculated from
  * measurement data that is being collected by meters that
@@ -11,6 +15,7 @@ package com.elster.insight.usagepoint.config;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-04 (11:46)
  */
+@ProviderType
 public interface MetrologyContract {
 
     /**
@@ -20,5 +25,12 @@ public interface MetrologyContract {
      * @return The MetrologyConfiguration
      */
     MetrologyConfiguration getMetrologyConfiguration();
+
+    /**
+     * Returns the List of {@link ReadingTypeDeliverable} that is being used by this MetrologyContract.
+     *
+     * @return The List of ReadingTypeDeliverable
+     */
+    List<ReadingTypeDeliverable> getDeliverables();
 
 }
