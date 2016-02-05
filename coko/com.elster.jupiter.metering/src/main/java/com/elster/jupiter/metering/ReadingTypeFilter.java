@@ -98,7 +98,7 @@ public class ReadingTypeFilter {
         public Condition getRegexpCondition(List<String> values){
             Condition condition = Condition.TRUE;
             if (!values.isEmpty()) {
-                condition = condition.and(where("mRID").matches("^(\\d+\\.){" + offset + "}(" + String.join("|", values) + (offset < CIM_CODE_SIZE - 1 ? ")\\." : ")$"), ""));
+                condition = condition.and(where("mRID").matches("^(\\-?[0-9]+\\.){" + offset + "}(" + String.join("|", values) + (offset < CIM_CODE_SIZE - 1 ? ")\\." : ")$"), ""));
             }
             return condition;
         }

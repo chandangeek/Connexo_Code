@@ -191,6 +191,49 @@ public final class ReadingTypeTranslationKeys {
 
     }
 
+    public static class UnitFields implements TranslationKey {
+        private final ReadingTypeUnit unit;
+
+        public UnitFields(ReadingTypeUnit unit) {
+            super();
+            this.unit = unit;
+        }
+
+        @Override
+        public String getKey() {
+            return "readingType.unit." + this.unit.name() + ".name";
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            switch (this.unit) {
+                case NOTAPPLICABLE: {
+                    return "Not applicable";
+                }
+                default: {
+                    String unitName = this.unit.getUnit().getName();
+                    if (is(unitName).emptyOrOnlyWhiteSpace()) {
+                        return this.unit.name();
+                    }
+                    else {
+                        return unitName;
+                    }
+                }
+            }
+        }
+
+        public static Stream<TranslationKey> allKeys() {
+            return Arrays.stream(ReadingTypeUnit.values())
+                    .map(UnitFields::new)
+                    .map(UnitFields::asTranslationKey);
+        }
+
+        private TranslationKey asTranslationKey() {
+            return new SimpleTranslationKey(this.getKey(), this.getDefaultFormat());
+        }
+
+    }
+
     public static class UnitWithMultiplier {
 
         public static String getFullAliasNameElement(MetricMultiplier multiplier, ReadingTypeUnit unit, Thesaurus thesaurus) {
@@ -512,6 +555,7 @@ public final class ReadingTypeTranslationKeys {
         Phase.allKeys().forEach(allKeys::add);
         Multiplier.allKeys().forEach(allKeys::add);
         Unit.allKeys().forEach(allKeys::add);
+        UnitFields.allKeys().forEach(allKeys::add);
         Aggregate.allKeys().forEach(allKeys::add);
         Collections.addAll(allKeys, Accumulation.values());
         FlowDirection.allKeys().forEach(allKeys::add);
