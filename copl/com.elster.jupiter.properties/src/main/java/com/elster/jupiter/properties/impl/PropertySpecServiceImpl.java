@@ -13,7 +13,6 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.beans.BeanService;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -91,7 +90,9 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     @Override
     public PropertySpecBuilderWizard.NlsOptions<TimeZone> timezoneSpec() {
-        return this.specForValuesOf(new TimeZoneFactory());
+        return new PartiallyInitializedPropertySpecBuilderNlsOptions<>(
+                new TimeZoneFactory(),
+                new TimeZonePropertySpecImpl());
     }
 
     @Override

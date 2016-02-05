@@ -1,5 +1,8 @@
 package com.elster.jupiter.properties;
 
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 /**
@@ -35,9 +38,13 @@ public class TimeZoneFactory extends AbstractValueFactory<TimeZone> {
     public TimeZone fromStringValue (String stringValue) {
         if (stringValue == null) {
             return null;
-        }
-        else {
-            return TimeZone.getTimeZone(stringValue);
+        } else {
+            List<String> availableTimeZoneIDs = Arrays.asList(TimeZone.getAvailableIDs());
+            if (availableTimeZoneIDs.contains(stringValue)) {
+                return TimeZone.getTimeZone(stringValue);
+            } else {
+                return new InvalidTimeZone(stringValue);
+            }
         }
     }
 
@@ -46,4 +53,48 @@ public class TimeZoneFactory extends AbstractValueFactory<TimeZone> {
         return timeZone.getID();
     }
 
+    /**
+     * InvalidTimeZone extends from TimeZone<br/>
+     * It should be used in cases where the received stringValue
+     * could not be converted to a proper TimeZone; Validation should
+     * check for this type of TimeZone and throw an error when encountering
+     * such instances.
+     */
+    public class InvalidTimeZone extends TimeZone {
+
+        private String invalidID;
+
+        public InvalidTimeZone(String invalidID) {
+            this.invalidID = invalidID;
+        }
+
+        @Override
+        public String getID() {
+            return invalidID;
+        }
+
+        @Override
+        public int getOffset(int era, int year, int month, int day, int dayOfWeek, int milliseconds) {
+            return 0;
+        }
+
+        @Override
+        public void setRawOffset(int offsetMillis) {
+        }
+
+        @Override
+        public int getRawOffset() {
+            return 0;
+        }
+
+        @Override
+        public boolean useDaylightTime() {
+            return false;
+        }
+
+        @Override
+        public boolean inDaylightTime(Date date) {
+            return false;
+        }
+    }
 }
