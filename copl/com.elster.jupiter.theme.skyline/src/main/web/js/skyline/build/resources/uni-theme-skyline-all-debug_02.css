@@ -1,3 +1,7 @@
+.icon-inprogress:before {
+    content: "\e4aa";
+}
+
 /* line 848, ../../sass/src/fonts/Icomoon.scss */
 .icon-cart-remove2:before {
   content: "\e0cd";
