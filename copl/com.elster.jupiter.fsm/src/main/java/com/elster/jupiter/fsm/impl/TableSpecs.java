@@ -27,7 +27,6 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<FiniteStateMachine> table = dataModel.addTable(this.name(), FiniteStateMachine.class);
             table.map(FiniteStateMachineImpl.class);
-            table.cache();
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map(FiniteStateMachineImpl.Fields.NAME.fieldName()).add();
