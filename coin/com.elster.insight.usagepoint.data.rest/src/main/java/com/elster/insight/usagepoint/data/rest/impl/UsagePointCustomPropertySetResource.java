@@ -7,6 +7,7 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -67,9 +68,9 @@ public class UsagePointCustomPropertySetResource {
     @RolesAllowed({Privileges.Constants.VIEW_CPS_ON_METROLOGY_CONFIGURATION, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList setMetrologyConfigurationCustomPropertySetsWithValues(@PathParam("mrid") String usagePointMrid,
+    public PagedInfoList setMetrologyConfigurationCustomPropertySetValues(@PathParam("mrid") String usagePointMrid,
                                                                                @BeanParam JsonQueryParameters queryParameters,
-                                                                               CustomPropertySetInfo info) {
+                                                                               CustomPropertySetInfo<UsagePointInfo> info) {
         // TODO lock UP! Concurrency check!
         UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper.findUsagePointExtensionByMrIdOrThrowException(usagePointMrid);
         RegisteredCustomPropertySet registeredCustomPropertySet = resourceHelper.getRegisteredCustomPropertySetOrThrowException(info.customPropertySetId);
