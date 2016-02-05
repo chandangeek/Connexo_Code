@@ -273,7 +273,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         this.getDeviceConnectionMethodEditForm().down('#deviceConnectionMethodComboBox').clearInvalid();
         var connectionMethod = comboBox.findRecordByValue(comboBox.getValue());
         this.comPortPoolStore.clearFilter(true);
-        var connectionTypesStore = Ext.StoreManager.get('ConnectionTypes');
         this.comPortPoolStore.getProxy().extraParams = ({compatibleWithConnectionTask: connectionMethod.get('id')});
         this.comPortPoolStore.load();
         this.getDeviceConnectionMethodEditView().down('#communicationPortPoolComboBox').setDisabled(false);
@@ -540,7 +539,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                         connectionMethodsStore.load({
                             callback: function () {
                                 me.comPortPoolStore.clearFilter(true);
-                                var connectionTypesStore = Ext.StoreManager.get('ConnectionTypes');
                                 me.comPortPoolStore.getProxy().extraParams = ({compatibleWithConnectionTask: connectionMethodsStore.findRecord('name', connectionMethod.get('name')).get('id')});
                                 me.comPortPoolStore.load({
                                     callback: function () {
