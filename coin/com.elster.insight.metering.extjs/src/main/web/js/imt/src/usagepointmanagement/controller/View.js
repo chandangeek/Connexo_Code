@@ -51,6 +51,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.initAttributes(record);
                 me.getOverviewLink().setText(record.get('mRID'));
+                widget.down('#fld-mc-name').setValue(record.get('metrologyConfiguration').name);
                 //me.getAttributesPanel().add(actualForm);
                 //generalForm.getForm().loadRecord(actualModel);
                 //actualForm.getForm().loadRecord(actualModel);
@@ -175,9 +176,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
             router = me.getController('Uni.controller.history.Router'),
             metrologyConfigurationModel = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration'),
             linkedStore = Ext.getStore('Imt.metrologyconfiguration.store.LinkedValidationRulesSet'),
-            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            actualModel,
-            actualForm;
+            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
         linkedStore.getProxy().setUrl(id);
     	linkedStore.load(function () {
