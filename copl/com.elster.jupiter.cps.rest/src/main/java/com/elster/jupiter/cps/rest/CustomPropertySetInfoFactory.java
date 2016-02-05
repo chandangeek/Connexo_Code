@@ -42,6 +42,7 @@ public class CustomPropertySetInfoFactory {
             info.id = rcps.getId();
             info.viewPrivileges = rcps.getViewPrivileges();
             info.editPrivileges = rcps.getEditPrivileges();
+            info.isEditable = rcps.isEditableByCurrentUser();
 
             info.customPropertySetId = cps.getId();
             info.name = cps.getName();
