@@ -107,7 +107,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         return deviceInfo;
     }
 
-    private static Optional<? extends IssueDataValidation> getOpenDataValidationIssue(Device device, MeteringService meteringService, IssueService issueService, IssueDataValidationService issueDataValidationService) {
+    static Optional<? extends IssueDataValidation> getOpenDataValidationIssue(Device device, MeteringService meteringService, IssueService issueService, IssueDataValidationService issueDataValidationService) {
         Optional<AmrSystem> amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
         Optional<Meter> meter = amrSystem.get().findMeter(String.valueOf(device.getId()));
         DataValidationIssueFilter filter = new DataValidationIssueFilter();
