@@ -5,7 +5,7 @@ Ext.define('Imt.customattributesonvaluesobjects.service.VersionsManager', {
         'Imt.customattributesonvaluesobjects.service.RouteMap'
     ],
 
-    addVersion: function (record, container, router, attributeSetType, propertyForm) {
+    addVersion: function (record, container, router, attributeSetType, propertyForm, inline) {
         var htmlString = '',
             versionRoute = Imt.customattributesonvaluesobjects.service.RouteMap.getRoute(attributeSetType, true, 'version'),
             routeArguments = router.arguments,
@@ -30,13 +30,14 @@ Ext.define('Imt.customattributesonvaluesobjects.service.VersionsManager', {
         }
 
         Ext.suspendLayouts();
-        container.add([
-            {
+        container.add({
                 xtype: 'container',
                 html: '<span style="font-family: Lato, helvetica, arial, verdana, sans-serif; font-style: normal; color: #686868;">' + htmlString + '</span>'
 
-            },
-            {
+            });
+
+        if (inline) {
+            container.add({
                 xtype: 'button',
                 icon: '../mdc/resources/images/pencil-12.png',
                 cls: 'uni-btn-transparent masterfield-btn',
@@ -48,25 +49,26 @@ Ext.define('Imt.customattributesonvaluesobjects.service.VersionsManager', {
                     position: 'absolute',
                     top: '8px'
                 },
-                hidden: !(record.get('isEditable') && record.get('isActive')),
-                //handler: me.editHandler,
-            },
-            {
-                xtype: 'button',
-                ui: 'link',
-                text: Uni.I18n.translate('customattributesets.versions', 'IMT', 'Versions'),
-                margin: '-5 0 0 5',
-                handler: function () {
-                    if (attributeSetType === 'device') {
-                        routeQueryParams.customAttributeSetId = record.get('id');
-                    } else {
-                        routeArguments.customAttributeSetId = record.get('id');
-                    }
+                hidden: !(record.get('isEditable') && record.get('isActive'))
+            });
+        }
 
-                    router.getRoute(versionRoute).forward(routeArguments, routeQueryParams);
+        container.add({
+            xtype: 'button',
+            ui: 'link',
+            text: Uni.I18n.translate('customattributesets.versions', 'IMT', 'Versions'),
+            margin: '-5 0 0 5',
+            handler: function () {
+                if (attributeSetType === 'device') {
+                    routeQueryParams.customAttributeSetId = record.get('id');
+                } else {
+                    routeArguments.customAttributeSetId = record.get('id');
                 }
+
+                router.getRoute(versionRoute).forward(routeArguments, routeQueryParams);
             }
-        ]);
+        });
+
         Ext.resumeLayouts(true);
     }
 });
