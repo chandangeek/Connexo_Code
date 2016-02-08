@@ -41,6 +41,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -83,7 +84,7 @@ public class ServiceCallIT {
 
     @Before
     public void setUp() {
-        clock = new ProgrammableClock(TimeZoneNeutral.getMcMurdo(), now);
+        clock = new ProgrammableClock(ZoneId.of("UTC"), now);
         try {
             injector = Guice.createInjector(
                     new MockModule(),
