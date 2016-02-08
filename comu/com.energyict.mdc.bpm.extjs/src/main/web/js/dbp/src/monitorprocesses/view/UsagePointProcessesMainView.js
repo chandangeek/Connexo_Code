@@ -1,11 +1,12 @@
-Ext.define('Dbp.deviceprocesses.view.DeviceProcessesMainView', {
+Ext.define('Dbp.monitorprocesses.view.UsagePointProcessesMainView', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.dbp-device-processes-main-view',
+    alias: 'widget.dbp-usage-point-processes-main-view',
     overflowY: 'auto',
     requires: [
         'Bpm.monitorprocesses.view.MonitorProcessesMainView'
     ],
-    device: null,
+    router: null,
+    mRID: null,
     properties: null,
     initComponent: function () {
         var me = this;
@@ -21,10 +22,10 @@ Ext.define('Dbp.deviceprocesses.view.DeviceProcessesMainView', {
                         ui: 'medium',
                         items: [
                             {
-                                xtype: 'deviceMenu',
-                                itemId: 'steps-Menu',
-                                device: me.device,
-                                toggleId: 'processesLink'
+                                xtype: 'usage-point-management-side-menu',
+                                itemId: 'usage-point-management-side-menu',
+                                router: me.router,
+                                mRID: me.mRID
                             }
                         ]
                     }
@@ -35,7 +36,7 @@ Ext.define('Dbp.deviceprocesses.view.DeviceProcessesMainView', {
             {
                 xtype: 'bpm-monitor-processes-main-view',
                 ui: 'large',
-                itemId: 'device-monitor-processes-panel',
+                itemId: 'usage-point-monitor-processes-panel',
                 properties: me.properties
             }
         ];

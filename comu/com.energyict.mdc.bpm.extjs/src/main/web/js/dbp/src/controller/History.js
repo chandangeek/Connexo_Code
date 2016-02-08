@@ -5,26 +5,48 @@ Ext.define('Dbp.controller.History', {
     currentPath: null,
     requires: [],
     routeConfig: {
+        'usagepoints/usagepoint/processes': {
+            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+            route: 'usagepoints/{usagePointId}/processes',
+            controller: 'Dbp.monitorprocesses.controller.MonitorProcesses',
+            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+            action: 'showUsagePointProcesses'
+        },
+        'usagepoints/usagepoint/processesrunning': {
+            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+            route: 'usagepoints/{usagePointId}/processes/running',
+            controller: 'Dbp.monitorprocesses.controller.MonitorProcesses',
+            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+            action: 'showUsagePointProcesses'
+        },
+        'usagepoints/usagepoint/processeshistory': {
+            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+            route: 'usagepoints/{usagePointId}/processes/history',
+            controller: 'Dbp.monitorprocesses.controller.MonitorProcesses',
+            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+            filter: 'Bpm.monitorprocesses.model.HistoryProcessesFilter',
+            action: 'showUsagePointProcesses'
+        },
         'devices/device/processes': {
             title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
             route: 'devices/{mRID}/processes',
-            controller: 'Dbp.deviceprocesses.controller.DeviceProcesses',
+            controller: 'Dbp.monitorprocesses.controller.MonitorProcesses',
             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
             action: 'showDeviceProcesses'
         },
         'devices/device/processesrunning': {
             title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
             route: 'devices/{mRID}/processes/running',
-            controller: 'Dbp.deviceprocesses.controller.DeviceProcesses',
+            controller: 'Dbp.monitorprocesses.controller.MonitorProcesses',
             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
             action: 'showDeviceProcesses'
         },
         'devices/device/processeshistory': {
             title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
             route: 'devices/{mRID}/processes/history',
-            controller: 'Dbp.deviceprocesses.controller.DeviceProcesses',
+            controller: 'Dbp.monitorprocesses.controller.MonitorProcesses',
             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-            filter: 'Dbp.deviceprocesses.model.HistoryProcessesFilter',
+            filter: 'Bpm.monitorprocesses.model.HistoryProcessesFilter',
             action: 'showDeviceProcesses'
         },
         'devices/device/processstart': {
