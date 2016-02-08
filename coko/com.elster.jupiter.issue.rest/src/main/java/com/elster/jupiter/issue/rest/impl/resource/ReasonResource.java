@@ -39,9 +39,12 @@ public class ReasonResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE,Privileges.Constants.ASSIGN_ISSUE,Privileges.Constants.CLOSE_ISSUE,Privileges.Constants.COMMENT_ISSUE,Privileges.Constants.ACTION_ISSUE})
     public Response getReasons(@BeanParam StandardParametersBean params) {
-        IssueType issueType = getIssueService().findIssueType(params.getFirst(ISSUE_TYPE)).orElse(null);
+        Condition condition = Condition.TRUE;
+        if (params.getFirst(ISSUE_TYPE) != null) {
+            IssueType issueType = getIssueService().findIssueType(params.getFirst(ISSUE_TYPE)).orElse(null);
+            condition = where("issueType").isEqualTo(issueType);
+        }
         Query<IssueReason> query = getIssueService().query(IssueReason.class);
-        Condition condition = issueType == null ? Condition.TRUE : where("issueType").isEqualTo(issueType);
         List<IssueReason> reasons = query.select(condition);
 
         if (params.getFirst(LIKE) != null) {

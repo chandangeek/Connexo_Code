@@ -23,8 +23,11 @@ public class ReasonResourceTest extends IssueRestApplicationJerseyTest {
 
     @Test
     public void testGetReasonsWithoutParams(){
+        Query<IssueReason> query = mock(Query.class);
+        when(issueService.query(IssueReason.class)).thenReturn(query);
+        when(issueService.findIssueType(Matchers.<String>anyObject())).thenReturn(Optional.empty());
         Response response = target("/reasons").request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test

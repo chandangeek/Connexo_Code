@@ -34,12 +34,10 @@ public class IssueResource extends BaseResource {
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getGroupedList(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         IssueGroupFilter groupFilter = new IssueGroupFilter();
-        //IssueAssigneeInfo issueAssigneeInfo = filter.getProperty("assignee", new IssueAssigneeInfoAdapter());
         groupFilter.using(getQueryApiClass(filter)) // Issues, Historical Issues or Both
               .onlyGroupWithKey(filter.getString("reason"))  // Reason id
               .withIssueTypes(filter.getStringList("issueType")) // Reasons only with specific issue type
               .withStatuses(filter.getStringList("status")) // All selected statuses
-             // .withAssignee(issueAssigneeInfo.getId(), issueAssigneeInfo.getType())
               .withMeterMrid(filter.getString("meter")) // Filter by meter MRID
               .withDeviceGroups(filter.getLongList("deviceGroup")) // Filter by device group
               .groupBy(filter.getString("field")) // Main grouping column

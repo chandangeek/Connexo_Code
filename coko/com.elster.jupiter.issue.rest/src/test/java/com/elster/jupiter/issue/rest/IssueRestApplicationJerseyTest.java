@@ -19,6 +19,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
@@ -64,6 +65,8 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     @Mock
     MeteringService meteringService;
     @Mock
+    MeteringGroupsService meteringGroupsService;
+    @Mock
     UserService userService;
     @Mock
     NlsService nlsService;
@@ -101,6 +104,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(thesaurus);
         application.setIssueService(issueService);
         application.setMeteringService(meteringService);
+        application.setMeteringGroupsService(meteringGroupsService);
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setRestQueryService(restQueryService);

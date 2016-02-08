@@ -30,7 +30,7 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         TransactionContext context = mock(TransactionContext.class);
         when(transactionService.getContext()).thenReturn(context);
 
-        String filter = URLEncoder.encode("[{\"property\":\"field\",\"value\":\"reason\"},{\"property\":\"issueType\",\"value\":\"datacollection\"}]");
+        String filter = URLEncoder.encode("[{\"property\":\"field\",\"value\":\"reason\"},{\"property\":\"issueType\",\"value\":[\"datacollection\"]}]");
 
         Map<?, ?> map = target("issues/groupedlist")
                 .queryParam("start", 0).queryParam("limit", 1).queryParam("filter", filter).request().get(Map.class);
@@ -42,7 +42,7 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
 
         Map<?, ?> groupMap = (Map<?, ?>) groups.get(0);
         assertThat(groupMap.get("id")).isEqualTo(1);
-        assertThat(groupMap.get("reason")).isEqualTo("Reason 1");
+        assertThat(groupMap.get("description")).isEqualTo("Reason 1");
         assertThat(groupMap.get("number")).isEqualTo(5);
     }
 }
