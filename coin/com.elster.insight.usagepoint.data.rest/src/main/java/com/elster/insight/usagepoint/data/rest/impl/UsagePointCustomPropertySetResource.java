@@ -62,10 +62,7 @@ public class UsagePointCustomPropertySetResource {
     private void setCustomPropertySetValues(CustomPropertySetInfo<UsagePointInfo> info, BiConsumer<CustomPropertySet<?, ?>, CustomPropertySetValues> customPropertySetValuesConsumer) {
         RegisteredCustomPropertySet registeredCustomPropertySet = resourceHelper.getRegisteredCustomPropertySetOrThrowException(info.customPropertySetId);
         CustomPropertySet<?, ?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
-        Map<String, PropertySpec> propertySpecMap = customPropertySet.getPropertySpecs()
-                .stream()
-                .collect(Collectors.toMap(propertySpec -> propertySpec.getName(), Function.identity()));
-        CustomPropertySetValues customPropertySetValues = info.getCustomPropertySetValues((key, value) -> propertySpecMap.get(key).getValueFactory().fromStringValue(value.toString()));
+        CustomPropertySetValues customPropertySetValues = customPropertySetInfoFactory.getCustomPropertySetValues(info, customPropertySet.getPropertySpecs());
         customPropertySetValuesConsumer.accept(customPropertySet, customPropertySetValues);
     }
 
