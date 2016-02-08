@@ -305,6 +305,7 @@ Ext.define('Imt.controller.History', {
                             route: '{mcid}',
                             controller: 'Imt.metrologyconfiguration.controller.View',
                             action: 'showMetrologyConfiguration',
+                            privileges: Imt.privileges.MetrologyConfig.view,
                             callback: function (route) {
                                 this.getApplication().on('metrologyConfigurationLoaded', function (record) {
                                     route.setTitle(record.get('name'));

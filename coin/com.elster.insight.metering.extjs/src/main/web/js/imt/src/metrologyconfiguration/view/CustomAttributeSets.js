@@ -109,8 +109,11 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
         ];
 
         me.callParent(arguments);
-        me.down('button[action="addAttributeSets"]').on('click', function () {
-            casAddRoute.forward()
-        });
+        var btn = me.down('button[action="addAttributeSets"]');
+        if (btn) {
+            btn.on('click', function () {
+                casAddRoute.forward()
+            });
+        }
     }
 });
