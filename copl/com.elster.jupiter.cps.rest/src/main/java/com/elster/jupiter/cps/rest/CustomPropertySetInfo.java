@@ -30,17 +30,4 @@ public class CustomPropertySetInfo<T> {
     public Set<EditPrivilege> defaultEditPrivileges;
     public List<CustomPropertySetAttributeInfo> properties;
     public T parent;
-
-    @JsonIgnore
-    public CustomPropertySetValues getCustomPropertySetValues(BiFunction<String, Object, ?> rawValueConverter) {
-        CustomPropertySetValues values = CustomPropertySetValues.empty();
-        if (properties != null) {
-            for (CustomPropertySetAttributeInfo property : properties) {
-                if (property.propertyValueInfo != null && property.propertyValueInfo.value != null) {
-                    values.setProperty(property.key, rawValueConverter.apply(property.key, property.propertyValueInfo.value));
-                }
-            }
-        }
-        return values;
-    }
 }

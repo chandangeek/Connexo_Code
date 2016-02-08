@@ -1,26 +1,35 @@
 package com.elster.jupiter.cps.rest;
 
 import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.impl.SimplePropertyType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.rest.util.properties.PredefinedPropertyValuesInfo;
+import com.elster.jupiter.rest.util.properties.PropertyType;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 
 import javax.inject.Inject;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class CustomPropertySetInfoFactory {
 
     private final Thesaurus thesaurus;
+    private final PropertyValueInfoService propertyValueInfoService;
 
     @Inject
     public CustomPropertySetInfoFactory(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
+        this.propertyValueInfoService = new PropertyValueInfoService();
+        this.propertyValueInfoService.addPropertyValueInfoConverter(new BooleanPropertyValueConverter());
     }
 
     public CustomPropertySetInfo from(RegisteredCustomPropertySet rcps) {
@@ -90,10 +99,10 @@ public class CustomPropertySetInfoFactory {
         if (possibleValues == null || possibleValues.getAllValues().isEmpty()) {
             return null;
         }
+        PropertyValueInfoConverter converter = this.propertyValueInfoService.getConverter(propertySpec);
         Object[] possibleObjects = new Object[possibleValues.getAllValues().size()];
         for (int i = 0; i < possibleValues.getAllValues().size(); i++) {
-            //TODO No conversion for now! https://jira.eict.vpdc/browse/COMU-3291
-            possibleObjects[i] = propertySpec.getValueFactory().toStringValue(possibleValues.getAllValues().get(i));
+            possibleObjects[i] = converter.convertValueToInfo(possibleValues.getAllValues().get(i), propertySpec);
         }
         PropertySelectionMode selectionMode = propertySpec.getPossibleValues().getSelectionMode();
         PredefinedPropertyValuesInfo<Object> predefinedPropertyValuesInfo = new PredefinedPropertyValuesInfo<>();
@@ -113,8 +122,7 @@ public class CustomPropertySetInfoFactory {
         if (valueProvider == null) {
             return null;
         }
-        //TODO No conversion for now! https://jira.eict.vpdc/browse/COMU-3291
-        return propertySpec.getValueFactory().toStringValue(valueProvider.apply(propertySpec.getName()));
+        return this.propertyValueInfoService.getConverter(propertySpec).convertValueToInfo(valueProvider.apply(propertySpec.getName()), propertySpec);
     }
 
     private Object getDefaultValue(PropertySpec propertySpec) {
@@ -122,7 +130,104 @@ public class CustomPropertySetInfoFactory {
         if (possibleValues == null) {
             return null;
         }
-        //TODO No conversion for now! https://jira.eict.vpdc/browse/COMU-3291
-        return propertySpec.getValueFactory().toStringValue(possibleValues.getDefault());
+        return this.propertyValueInfoService.getConverter(propertySpec).convertValueToInfo(possibleValues.getDefault(), propertySpec);
+    }
+
+    public CustomPropertySetValues getCustomPropertySetValues(CustomPropertySetInfo<?> info, List<PropertySpec> propertySpecs) {
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        if (info != null && info.properties != null && propertySpecs != null) {
+            Map<String, PropertySpec> propertySpecMap = propertySpecs
+                    .stream()
+                    .collect(Collectors.toMap(propertySpec -> propertySpec.getName(), Function.identity()));
+            for (CustomPropertySetAttributeInfo property : info.properties) {
+                PropertySpec propertySpec = propertySpecMap.get(property.key);
+                if (propertySpec != null && property.propertyValueInfo != null && property.propertyValueInfo.value != null) {
+                    values.setProperty(property.key, this.propertyValueInfoService.getConverter(propertySpec).convertInfoToValue(property.propertyValueInfo.value, propertySpec));
+                }
+            }
+        }
+        return values;
+    }
+
+    interface PropertyValueInfoConverter {
+
+        boolean canProcess(PropertySpec propertySpec);
+
+        PropertyType getPropertyType(PropertySpec propertySpec);
+
+        Object convertValueToInfo(Object domainValue, PropertySpec propertySpec);
+
+        Object convertInfoToValue(Object infoValue, PropertySpec propertySpec);
+    }
+
+    //TODO https://jira.eict.vpdc/browse/COMU-3291 extract to common bundle
+    static class PropertyValueInfoService {
+        private static PropertyValueInfoConverter DEFAULT_CONVERTER = new DefaultPropertyValueConverter();
+        private final List<PropertyValueInfoConverter> converters = new CopyOnWriteArrayList<>();
+
+        public void addPropertyValueInfoConverter(PropertyValueInfoConverter converter) {
+            this.converters.add(converter);
+        }
+
+        public void removePropertyValueInfoConverter(PropertyValueInfoConverter converter) {
+            this.converters.remove(converter);
+        }
+
+        public PropertyValueInfoConverter getConverter(PropertySpec propertySpec) {
+            return this.converters.stream()
+                    .filter(converter -> converter.canProcess(propertySpec))
+                    .findAny()
+                    .orElse(DEFAULT_CONVERTER);
+        }
+    }
+
+    static class BooleanPropertyValueConverter implements PropertyValueInfoConverter {
+        @Override
+        public boolean canProcess(PropertySpec propertySpec) {
+            return propertySpec != null && propertySpec.getValueFactory() instanceof BooleanFactory;
+        }
+
+        @Override
+        public PropertyType getPropertyType(PropertySpec propertySpec) {
+            return SimplePropertyType.BOOLEAN;
+        }
+
+        @Override
+        public Object convertValueToInfo(Object domainValue, PropertySpec propertySpec) {
+            return domainValue;
+        }
+
+        @Override
+        public Object convertInfoToValue(Object infoValue, PropertySpec propertySpec) {
+            if (infoValue != null && infoValue instanceof Boolean) {
+                return infoValue;
+            }
+            return Boolean.FALSE;
+        }
+    }
+
+    static class DefaultPropertyValueConverter implements PropertyValueInfoConverter {
+        @Override
+        public boolean canProcess(PropertySpec propertySpec) {
+            return true; // it can process any property spec
+        }
+
+        @Override
+        public PropertyType getPropertyType(PropertySpec propertySpec) {
+            return SimplePropertyType.getTypeFrom(propertySpec.getValueFactory());
+        }
+
+        @Override
+        public Object convertValueToInfo(Object domainValue, PropertySpec propertySpec) {
+            return propertySpec.getValueFactory().toStringValue(domainValue);
+        }
+
+        @Override
+        public Object convertInfoToValue(Object infoValue, PropertySpec propertySpec) {
+            if (infoValue != null && infoValue instanceof String) {
+                return propertySpec.getValueFactory().fromStringValue((String) infoValue);
+            }
+            return null;
+        }
     }
 }
