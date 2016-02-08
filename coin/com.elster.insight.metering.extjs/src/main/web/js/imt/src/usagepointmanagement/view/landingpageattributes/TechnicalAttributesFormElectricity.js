@@ -15,9 +15,6 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
         xtype: 'displayfield'
     },
 
-    //panelTitle: null,
-    //record: null,
-
     initComponent: function () {
         var me = this;
         me.items = [
@@ -86,57 +83,38 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                 hidden: true,
                 defaults: {
                     xtype: 'textfield',
-                    labelWidth: 250,
-                    //width: 600
+                    labelWidth: 250
                 },
                 items: [
                     {
                         name: 'grounded',
-                        itemId: 'fld-up-grounded',
-                        fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded'),
-                        //renderer: function (value) {
-                        //    return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
-                        //}
+                        itemId: 'up-grounded-textfield',
+                        fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
                     },
                     {
                         name: 'nominalServiceVoltage',
-                        itemId: 'fld-up-service-voltage',
-                        fieldLabel: Uni.I18n.translate('general.label.voltage', 'IMT', 'Nominal voltage'),
-                        //renderer: function (data) {
-                        //    return me.renderValue(data);
-                        //}
+                        itemId: 'up-service-voltage-textfield',
+                        fieldLabel: Uni.I18n.translate('general.label.voltage', 'IMT', 'Nominal voltage')
                     },
                     {
                         name: 'phaseCode',
-                        itemId: 'fld-up-phase',
-                        fieldLabel: Uni.I18n.translate('general.label.phaseCode', 'IMT', 'Phase code'),
-                        //renderer: function (value) {
-                        //    return value ? value : '-';
-                        //}
+                        itemId: 'up-phase-textfield',
+                        fieldLabel: Uni.I18n.translate('general.label.phaseCode', 'IMT', 'Phase code')
                     },
                     {
                         name: 'ratedCurrent',
-                        itemId: 'fld-up-rated-current',
-                        fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current'),
-                        //renderer: function (data) {
-                        //    return me.renderValue(data);
-                        //}
+                        itemId: 'up-rated-current-textfield',
+                        fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current')
                     },
                     {
                         name: 'ratedPower',
-                        itemId: 'fld-up-rated-power',
-                        fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power'),
-                        //renderer: function (data) {
-                        //    return me.renderValue(data);
-                        //}
+                        itemId: 'up-rated-power-textfield',
+                        fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power')
                     },
                     {
                         name: 'estimatedLoad',
-                        itemId: 'fld-up-estimated-load',
-                        fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load'),
-                        //renderer: function (data) {
-                        //    return me.renderValue(data);
-                        //}
+                        itemId: 'up-estimated-load-textfield',
+                        fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load')
                     }
                 ]
             }

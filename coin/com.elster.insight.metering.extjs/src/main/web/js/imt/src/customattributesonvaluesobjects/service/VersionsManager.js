@@ -49,8 +49,7 @@ Ext.define('Imt.customattributesonvaluesobjects.service.VersionsManager', {
                     position: 'absolute',
                     top: '8px'
                 },
-                hidden: !(record.get('isEditable') && record.get('isActive')),
-                //handler: me.editHandler,
+                hidden: !(record.get('isEditable') && record.get('isActive'))
             });
         }
 

@@ -36,6 +36,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
             text: editActionTitle,
             handler: function () {
                 me.down('#edit-form').loadRecord(me.record);
+                me.down('#pencil-btn').hide();
                 me.down('#view-form').hide();
                 me.down('#edit-form').show();
                 me.down('#bottom-buttons').show();
@@ -50,6 +51,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
                 title: title,
                 editHandler: function(){
                     action.hide();
+                    me.down('#pencil-btn').hide();
                     me.down('#edit-form').loadRecord(me.record);
                     me.down('#view-form').hide();
                     me.down('#edit-form').show();
@@ -100,6 +102,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
                         text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
                         handler: function () {
                             action.show();
+                            me.down('#pencil-btn').show();
                             me.down('#view-form').show();
                             me.down('#edit-form').hide();
                             me.down('#bottom-buttons').hide();

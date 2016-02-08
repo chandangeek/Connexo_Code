@@ -6,7 +6,6 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         'Imt.usagepointmanagement.view.AssociatedDevices',
         'Imt.usagepointmanagement.view.AssociatedMetrologyConfiguration',
         'Imt.usagepointmanagement.view.UsagePointSideMenu',
-        //'Imt.usagepointmanagement.view.UsagePointAttributesFormMain',
         'Imt.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm',
         'Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAttributesPanel',
         'Imt.usagepointmanagement.view.SetupActionMenu'

@@ -138,7 +138,6 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
             action = Ext.create('Ext.menu.Item', {
                 itemId: 'action-menu-custom-attribute' + me.record.get('id'),
                 menuItemClass: 'inlineEditableAttributeSet',
-//                    privileges: Imt.privileges.Device.administrateDeviceData,
                 text: Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [Ext.String.htmlEncode(me.record.get('name'))]),
                 handler: function () {
                     Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(true);
