@@ -54,6 +54,13 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
         return this.usagePointConfigurationService.findMetrologyConfigurationForUsagePoint(getUsagePoint());
     }
 
+    private Map<RegisteredCustomPropertySet, CustomPropertySetValues> getCustomPropertySetValues(List<RegisteredCustomPropertySet> customPropertySets, Instant effectiveTimeStamp) {
+        return customPropertySets
+                .stream()
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .collect(Collectors.toMap(Function.identity(), rcps -> getCustomPropertySetValuesWithoutChecks(rcps, effectiveTimeStamp)));
+    }
+
     private CustomPropertySetValues getCustomPropertySetValuesWithoutChecks(RegisteredCustomPropertySet rcps, Instant effectiveTimeStamp) {
         if (rcps.getCustomPropertySet().isVersioned()) {
             return this.customPropertySetService.getUniqueValuesFor(rcps.getCustomPropertySet(), getUsagePoint(), effectiveTimeStamp);
@@ -86,10 +93,7 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
 
     @Override
     public Map<RegisteredCustomPropertySet, CustomPropertySetValues> getMetrologyConfigurationCustomPropertySetValues(Instant effectiveTimeStamp) {
-        return getMetrologyCustomPropertySets()
-                .stream()
-                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
-                .collect(Collectors.toMap(Function.identity(), rcps -> getCustomPropertySetValuesWithoutChecks(rcps, effectiveTimeStamp)));
+        return getCustomPropertySetValues(getMetrologyCustomPropertySets(), effectiveTimeStamp);
     }
 
     @Override
@@ -101,15 +105,47 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
                     .filter(rcps -> rcps.getCustomPropertySet().getId().equals(customPropertySet.getId()))
                     .findAny()
                     .orElseThrow(() -> UsagePointCustomPropertySetValuesManageException
-                            .noLinkedCustomPropertySetOnMetrologyConfiguration(this.thesaurus, customPropertySet.getName()));
+                            .noLinkedCustomPropertySetOnMetrologyConfiguration(this.thesaurus, customPropertySet.getName(),
+                                    metrologyConfiguration.get().getName()));
             if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
                 throw UsagePointCustomPropertySetValuesManageException
-                        .customPropertySetIsNotEditableByUser(this.thesaurus, customPropertySet.getName(), metrologyConfiguration.get().getName());
+                        .customPropertySetIsNotEditableByUser(this.thesaurus, customPropertySet.getName());
             }
             setCustomPropertySetValuesWithoutChecks(customPropertySet, customPropertySetValue);
         } else {
             throw UsagePointCustomPropertySetValuesManageException
                     .noLinkedMetrologyConfiguration(this.thesaurus, getUsagePoint().getName());
         }
+    }
+
+    @Override
+    public List<RegisteredCustomPropertySet> getServiceCategoryPropertySets() {
+        return getUsagePoint().getServiceCategory().getCustomPropertySets();
+    }
+
+    @Override
+    public Map<RegisteredCustomPropertySet, CustomPropertySetValues> getServiceCategoryCustomPropertySetValues() {
+        return getServiceCategoryCustomPropertySetValues(this.clock.instant());
+    }
+
+    @Override
+    public Map<RegisteredCustomPropertySet, CustomPropertySetValues> getServiceCategoryCustomPropertySetValues(Instant effectiveTimeStamp) {
+        return getCustomPropertySetValues(getServiceCategoryPropertySets(), effectiveTimeStamp);
+    }
+
+    @Override
+    public void setServiceCategoryCustomPropertySetValue(CustomPropertySet customPropertySet, CustomPropertySetValues customPropertySetValue) {
+        RegisteredCustomPropertySet registeredCustomPropertySet = getServiceCategoryPropertySets()
+                .stream()
+                .filter(rcps -> rcps.getCustomPropertySet().getId().equals(customPropertySet.getId()))
+                .findAny()
+                .orElseThrow(() -> UsagePointCustomPropertySetValuesManageException
+                        .noLinkedCustomPropertySetOnServiceCategory(this.thesaurus, customPropertySet.getName(),
+                                getUsagePoint().getServiceCategory().getName()));
+        if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
+            throw UsagePointCustomPropertySetValuesManageException
+                    .customPropertySetIsNotEditableByUser(this.thesaurus, customPropertySet.getName());
+        }
+        setCustomPropertySetValuesWithoutChecks(customPropertySet, customPropertySetValue);
     }
 }

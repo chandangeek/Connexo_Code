@@ -20,6 +20,8 @@ public enum MessageSeeds implements MessageSeed {
             "The custom attribute set ''{0}'' is not editable by current user."),
     NO_LINKED_METROLOGY_CONFIGURATION(5, Keys.NO_LINKED_METROLOGY_CONFIGURATION,
             "There is no linked metrology configuration for ''{1}'' usage point."),
+    NO_LINKED_CUSTOM_PROPERTY_SET_ON_SERVICE_CATEGORY(6, Keys.NO_LINKED_CUSTOM_PROPERTY_SET_ON_SERVICE_CATEGORY,
+            "The custom attribute set ''{0}'' is not attached to ''{1}'' service category."),
     ;
 
     private final int number;
@@ -70,5 +72,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_LINKED_CUSTOM_PROPERTY_SET_ON_METROLOGY_CONFIGURATION = "no.linked.custom.property.set.on.metrology.configuration";
         public static final String CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER = "custom.property.set.is.not.editable.by.user";
         public static final String NO_LINKED_METROLOGY_CONFIGURATION = "no.linked.metrology.configuration";
+        public static final String NO_LINKED_CUSTOM_PROPERTY_SET_ON_SERVICE_CATEGORY = "no.linked.custom.property.set.on.service.category";
     }
 }

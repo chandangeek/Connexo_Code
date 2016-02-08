@@ -57,4 +57,36 @@ public interface UsagePointCustomPropertySetExtension {
      * <li>current user has not sufficient privileges</li>
      */
     void setMetrologyConfigurationCustomPropertySetValue(CustomPropertySet customPropertySet, CustomPropertySetValues customPropertySetValue);
+
+    /**
+     * @return List of all registered custom property sets from service category.
+     */
+    List<RegisteredCustomPropertySet> getServiceCategoryPropertySets();
+
+    /**
+     * Returns a map with values for custom properties sets from service category.
+     * For time-sliced custom property sets it returns values which are actual at this moment.
+     *
+     * @return Values for custom properties sets from service category.
+     */
+    Map<RegisteredCustomPropertySet, CustomPropertySetValues> getServiceCategoryCustomPropertySetValues();
+
+    /**
+     * Returns a map with values for custom properties sets from service category.
+     *
+     * @param effectiveTimeStamp The point in time for time-sliced custom property sets values.
+     * @return Values for custom properties sets from service category.
+     */
+    Map<RegisteredCustomPropertySet, CustomPropertySetValues> getServiceCategoryCustomPropertySetValues(Instant effectiveTimeStamp);
+
+    /**
+     * Sets values for custom property sets on service category.
+     *
+     * @param customPropertySet      custom property sets whose values we want to save.
+     * @param customPropertySetValue filled values for a custom properties set.
+     * @throws UsagePointCustomPropertySetValuesManageException in cases:
+     * <li>there is no linked custom property set on service category</li>
+     * <li>current user has not sufficient privileges</li>
+     */
+    void setServiceCategoryCustomPropertySetValue(CustomPropertySet customPropertySet, CustomPropertySetValues customPropertySetValue);
 }

@@ -18,12 +18,16 @@ public class UsagePointCustomPropertySetValuesManageException extends LocalizedE
 
     public static UsagePointCustomPropertySetValuesManageException customPropertySetIsNotEditableByUser(Thesaurus thesaurus, Object... args){
         return new UsagePointCustomPropertySetValuesManageException(thesaurus,
-                MessageSeeds.NO_LINKED_CUSTOM_PROPERTY_SET_ON_METROLOGY_CONFIGURATION, args);
+                MessageSeeds.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, args);
     }
-
 
     public static UsagePointCustomPropertySetValuesManageException noLinkedMetrologyConfiguration(Thesaurus thesaurus, Object... args){
         return new UsagePointCustomPropertySetValuesManageException(thesaurus,
                 MessageSeeds.NO_LINKED_METROLOGY_CONFIGURATION, args);
+    }
+
+    public static UsagePointCustomPropertySetValuesManageException noLinkedCustomPropertySetOnServiceCategory(Thesaurus thesaurus, Object... args){
+        return new UsagePointCustomPropertySetValuesManageException(thesaurus,
+                MessageSeeds.NO_LINKED_CUSTOM_PROPERTY_SET_ON_METROLOGY_CONFIGURATION, args);
     }
 }
