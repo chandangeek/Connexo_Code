@@ -15,8 +15,8 @@ class InsightAppPrivileges {
                 com.elster.jupiter.metering.security.Privileges.Constants.ADMIN_OWN,
                 com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_ANY,
                 com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_OWN,
-            com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
-            com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY,
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY,
 
                 //com.elster.jupiter.time
                 com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD,
@@ -33,9 +33,7 @@ class InsightAppPrivileges {
 
                 //metrology configuration
                 Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION,
-                Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION,
-                Privileges.Constants.ADMINISTER_CPS_ON_METROLOGY_CONFIGURATION,
-                Privileges.Constants.VIEW_CPS_ON_METROLOGY_CONFIGURATION);
+                Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION);
     }
 
     static List<String> getApplicationViewPrivileges() {  // Add these privileges to 'Insight data operator' role
@@ -44,8 +42,8 @@ class InsightAppPrivileges {
                 //com.elster.jupiter.metering.security - usage points
                 com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_ANY,
                 com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_OWN,
-            com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
-            com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY,
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY,
 
                 //com.elster.jupiter.time
                 com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD,
@@ -57,8 +55,7 @@ class InsightAppPrivileges {
                 com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION,
 
                 //metrology configuration
-                Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION,
-                Privileges.Constants.VIEW_CPS_ON_METROLOGY_CONFIGURATION);
+                Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION);
     }
 
     static List<String> getAdminApplicationAllPrivileges() {  // Add these privileges to 'Insight data expert' role
@@ -79,7 +76,7 @@ class InsightAppPrivileges {
                 //com.elster.jupiter.metering.security - usage points
                 com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTRATE_READINGTYPE,
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
-            com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY,
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY,
 
                 //Users
                 com.elster.jupiter.users.security.Privileges.Constants.ADMINISTRATE_USER_ROLE,
@@ -102,7 +99,7 @@ class InsightAppPrivileges {
 
                 //com.elster.jupiter.metering.security - usage points
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
-            com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY,
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY,
 
                 //com.elster.jupiter.time
                 com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD,
