@@ -15,9 +15,17 @@ public class AbstractNode {
     private Reference<ExpressionNode> parent = ValueReference.absent();
     private List<ExpressionNode> children = new ArrayList<>();
 
-    public AbstractNode(Reference<ExpressionNode> parent, List<ExpressionNode> children) {
-        this.parent = parent;
+    public AbstractNode() {
+    }
+
+    public AbstractNode(List<ExpressionNode> children) {
         this.children = children;
+    }
+
+
+    public AbstractNode(List<ExpressionNode> children, ExpressionNode parentNode) {
+        this(children);
+        this.parent.set(parentNode);
     }
 
     public Reference<ExpressionNode> getParent() {
@@ -26,5 +34,13 @@ public class AbstractNode {
 
     public List<ExpressionNode> getChildren() {
         return children;
+    }
+
+    public void setParent(Reference<ExpressionNode> parent) {
+        this.parent = parent;
+    }
+
+    public void setChildren(List<ExpressionNode> children) {
+        this.children = children;
     }
 }

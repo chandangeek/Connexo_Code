@@ -39,7 +39,6 @@ public interface ExpressionNode {
         T visitConstant(ConstantNode constant);
         T visitRequirement(ReadingTypeRequirementNode requirement);
         T visitDeliverable(ReadingTypeDeliverableNode deliverable);
-        T visitIdentifier(IdentifierNode identifier);
         T visitOperation(OperationNode operatorNode);
         T visitFunctionCall(FunctionCallNode functionCall);
     }

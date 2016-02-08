@@ -10,15 +10,35 @@ import java.util.List;
  */
 public class FunctionCallNode extends AbstractNode implements ServerExpressionNode {
 
-    private final Function function;
+    private Function function;
+    private String name;
 
-    public FunctionCallNode(Reference<ExpressionNode> parent, List<ExpressionNode> children, Function function) {
-        super(parent, children);
+    public FunctionCallNode(List<ExpressionNode> children, Function function) {
+        super(children);
         this.function = function;
+    }
+
+    public FunctionCallNode(List<ExpressionNode> children, String name) {
+        super(children);
+        this.name = name;
+    }
+
+    public FunctionCallNode(List<ExpressionNode> children, ExpressionNode parentNode, Function function) {
+        super(children, parentNode);
+        this.function = function;
+    }
+
+    public FunctionCallNode(List<ExpressionNode> children, ExpressionNode parentNode, String name) {
+        super(children, parentNode);
+        this.name = name;
     }
 
     public Function getFunction() {
         return function;
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override

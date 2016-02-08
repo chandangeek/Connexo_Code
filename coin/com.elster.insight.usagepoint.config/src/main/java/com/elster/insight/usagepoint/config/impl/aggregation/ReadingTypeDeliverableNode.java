@@ -12,8 +12,13 @@ public class ReadingTypeDeliverableNode extends AbstractNode implements ServerEx
 
     private ReadingTypeDeliverable readingTypeDeliverable;
 
-    public ReadingTypeDeliverableNode(Reference<ExpressionNode> parent, List<ExpressionNode> children, ReadingTypeDeliverable readingTypeDeliverable) {
-        super(parent, children);
+    public ReadingTypeDeliverableNode(List<ExpressionNode> children, ReadingTypeDeliverable readingTypeDeliverable) {
+        super(children);
+        this.readingTypeDeliverable = readingTypeDeliverable;
+    }
+
+    public ReadingTypeDeliverableNode(List<ExpressionNode> children, ExpressionNode parentNode, ReadingTypeDeliverable readingTypeDeliverable) {
+        super(children, parentNode);
         this.readingTypeDeliverable = readingTypeDeliverable;
     }
 

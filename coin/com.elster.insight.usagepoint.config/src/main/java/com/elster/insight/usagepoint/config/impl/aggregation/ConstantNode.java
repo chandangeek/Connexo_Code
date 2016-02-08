@@ -12,8 +12,13 @@ public class ConstantNode extends AbstractNode implements ServerExpressionNode {
 
     private final BigDecimal value;
 
-    public ConstantNode(Reference<ExpressionNode> parent, List<ExpressionNode> children, BigDecimal value) {
-        super(parent, children);
+    public ConstantNode(List<ExpressionNode> children, BigDecimal value) {
+        super(children);
+        this.value = value;
+    }
+
+    public ConstantNode(List<ExpressionNode> children, ExpressionNode parentNode, BigDecimal value) {
+        super(children, parentNode);
         this.value = value;
     }
 

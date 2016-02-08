@@ -13,8 +13,13 @@ public class ReadingTypeRequirementNode extends AbstractNode implements ServerEx
 
     private ReadingTypeRequirement readingTypeRequirement;
 
-    public ReadingTypeRequirementNode(Reference<ExpressionNode> parent, List<ExpressionNode> children, ReadingTypeRequirement readingTypeRequirement) {
-        super(parent, children);
+    public ReadingTypeRequirementNode(List<ExpressionNode> children, ReadingTypeRequirement readingTypeRequirement) {
+        super(children);
+        this.readingTypeRequirement = readingTypeRequirement;
+    }
+
+    public ReadingTypeRequirementNode(List<ExpressionNode> children, ExpressionNode parentNode, ReadingTypeRequirement readingTypeRequirement) {
+        super(children, parentNode);
         this.readingTypeRequirement = readingTypeRequirement;
     }
 

@@ -11,10 +11,16 @@ public class OperationNode extends AbstractNode implements ServerExpressionNode 
 
     private final Operator operator;
 
-    public OperationNode(Reference<ExpressionNode> parent, List<ExpressionNode> children, Operator operator) {
-        super(parent, children);
+    public OperationNode(List<ExpressionNode> children, Operator operator) {
+        super(children);
         this.operator = operator;
     }
+
+    public OperationNode(List<ExpressionNode> children, ExpressionNode parentNode, Operator operator) {
+        super(children, parentNode);
+        this.operator = operator;
+    }
+
 
     public Operator getOperator() {
         return operator;
