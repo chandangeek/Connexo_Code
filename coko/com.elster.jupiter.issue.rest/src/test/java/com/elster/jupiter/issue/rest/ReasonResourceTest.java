@@ -26,8 +26,9 @@ public class ReasonResourceTest extends IssueRestApplicationJerseyTest {
         Query<IssueReason> query = mock(Query.class);
         when(issueService.query(IssueReason.class)).thenReturn(query);
         when(issueService.findIssueType(Matchers.<String>anyObject())).thenReturn(Optional.empty());
-        Response response = target("/reasons").request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        Map<String, Object> map = target("/reasons").request().get(Map.class);
+        assertThat(map.get("total")).isEqualTo(0);
+        assertThat((List) map.get("data")).isEmpty();
     }
 
     @Test
