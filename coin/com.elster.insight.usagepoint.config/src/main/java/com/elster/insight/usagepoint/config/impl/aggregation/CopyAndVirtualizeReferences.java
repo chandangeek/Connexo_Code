@@ -1,10 +1,9 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
-import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
 
 /**
- * Provides an implementation for the {@link ExpressionNode.Visitor} interface
+ * Provides an implementation for the {@link ServerExpressionNode.ServerVisitor} interface
  * that copies {@link ExpressionNode}s but applies the following replacements:
  * <ul>
  * <li>{@link ReadingTypeRequirementNode} -&gt; {@link VirtualRequirementNode}</li>
@@ -14,12 +13,11 @@ import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-05 (13:04)
  */
-class CopyAndVirtualizeReferences implements ExpressionNode.Visitor {
+class CopyAndVirtualizeReferences implements ServerExpressionNode.ServerVisitor<ServerExpressionNode> {
 
     private final VirtualFactory virtualFactory;
     private final TemporalAmountFactory temporalAmountFactory;
     private final ReadingTypeDeliverable deliverable;
-    private final Stack<ExpressionNode> workingCopies = new Stack<>();
 
     CopyAndVirtualizeReferences(VirtualFactory virtualFactory, TemporalAmountFactory temporalAmountFactory, ReadingTypeDeliverable deliverable) {
         super();
@@ -28,78 +26,58 @@ class CopyAndVirtualizeReferences implements ExpressionNode.Visitor {
         this.deliverable = deliverable;
     }
 
-    /**
-     * Returns the copy of the ExpressionNode.
-     * Note that this will throw an IllegalStateException
-     * when called during the visit as that would have to
-     * return an incomplete and possibly inconsitent copy.
-     *
-     * @return The copy of the ExpressionNode
-     */
-    ExpressionNode getCopy() {
-        if (this.workingCopies.size() == 1) {
-            return this.workingCopies.pop();
-        }
-        else {
-            throw new IllegalStateException("Copying expression node is ongoing");
-        }
+    @Override
+    public ServerExpressionNode visitConstant(ConstantNode constant) {
+        return new ConstantNode(constant.getValue());
     }
 
     @Override
-    public void visitConstant(ConstantNode constant) {
-        this.workingCopies.push(new ConstantNode(constant.getValue()));
-    }
-
-    @Override
-    public void visitRequirement(ReadingTypeRequirement requirement) {
+    public ServerExpressionNode visitRequirement(ReadingTypeRequirementNode node) {
         // Replace this one with a VirtualRequirementNode
-        this.workingCopies.push(new VirtualRequirementNode(this.virtualFactory, this.temporalAmountFactory, requirement, this.deliverable));
+        return new VirtualRequirementNode(this.virtualFactory, this.temporalAmountFactory, node.getReadingTypeRequirement(), this.deliverable);
     }
 
     @Override
-    public void visitDeliverable(ReadingTypeDeliverable deliverable) {
+    public ServerExpressionNode visitDeliverable(ReadingTypeDeliverableNode node) {
         // Replace this one with a VirtualDeliverableNode
-        this.workingCopies.push(new VirtualDeliverableNode(this.virtualFactory, this.temporalAmountFactory, deliverable));
+        return new VirtualDeliverableNode(this.virtualFactory, this.temporalAmountFactory, node.getReadingTypeDeliverable());
     }
 
     @Override
-    public void visitVirtualRequirement(VirtualRequirementNode requirement) {
+    public ServerExpressionNode visitVirtualRequirement(VirtualRequirementNode requirement) {
         throw new IllegalArgumentException("Not expecting actual formulas to contain virtual requirement nodes");
     }
 
     @Override
-    public void visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
+    public ServerExpressionNode visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
         throw new IllegalArgumentException("Not expecting actual formulas to contain virtual requirement nodes");
     }
 
     @Override
-    public void visitIdentifier(IdentifierNode identifier) {
-        this.workingCopies.push(new IdentifierNode(identifier.getName()));
+    public ServerExpressionNode visitIdentifier(IdentifierNode identifier) {
+        return new IdentifierNode(identifier.getName());
     }
 
     @Override
-    public void visitOperation(OperationNode operationNode) {
-        operationNode.getLeft().accept(this);
-        operationNode.getRight().accept(this);
-        this.workingCopies.push(new OperationNode(operationNode.getOperator(), this.workingCopies.pop(), this.workingCopies.pop()));
+    public ServerExpressionNode visitOperation(OperationNode operationNode) {
+        return new OperationNode(
+                operationNode.getOperator(),
+                operationNode.getLeft().accept(this),
+                operationNode.getRight().accept(this));
     }
 
     @Override
-    public void visitFunctionCall(FunctionCallNode functionCall) {
-        functionCall.getIdentifier().accept(this);
-        IdentifierNode copiedIdentifier = (IdentifierNode) this.workingCopies.pop();
-        functionCall.getArgumentList().accept(this);
-        ArgumentListNode copiedArgumentList = (ArgumentListNode) this.workingCopies.pop();
-        this.workingCopies.push(new FunctionCallNode(copiedIdentifier, copiedArgumentList));
+    public ServerExpressionNode visitFunctionCall(FunctionCallNode functionCall) {
+        return new FunctionCallNode(
+                (IdentifierNode) functionCall.getIdentifier().accept(this),
+                (ArgumentListNode) functionCall.getArgumentList().accept(this));
     }
 
     @Override
-    public void visitArgumentList(ArgumentListNode argumentList) {
-        argumentList.getLeft().accept(this);
-        ExpressionNode left = this.workingCopies.pop();
-        argumentList.getRight().accept(this);
-        ExpressionNode right = this.workingCopies.pop();
-        this.workingCopies.push(new ArgumentListNode(left, right));
+    public ServerExpressionNode visitArgumentList(ArgumentListNode argumentList) {
+        return new ArgumentListNode(
+                argumentList.getLeft().accept(this),
+                argumentList.getRight().accept(this));
     }
 
 }

@@ -20,7 +20,7 @@ import java.time.temporal.TemporalAmount;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-05 (13:28)
  */
-class VirtualRequirementNode implements ExpressionNode {
+class VirtualRequirementNode implements ServerExpressionNode {
 
     private final VirtualFactory virtualFactory;
     private final ReadingTypeRequirement requirement;
@@ -45,8 +45,13 @@ class VirtualRequirementNode implements ExpressionNode {
     }
 
     @Override
-    public void accept(Visitor visitor) {
-        visitor.visitVirtualRequirement(this);
+    public <T> T accept(Visitor<T> visitor) {
+        throw new UnsupportedOperationException("ExpressionNode.Visitor is not expected to visit expression trees that contain VirtualRequirementNodes");
+    }
+
+    @Override
+    public <T> T accept(ServerVisitor<T> visitor) {
+        return visitor.visitVirtualRequirement(this);
     }
 
 }

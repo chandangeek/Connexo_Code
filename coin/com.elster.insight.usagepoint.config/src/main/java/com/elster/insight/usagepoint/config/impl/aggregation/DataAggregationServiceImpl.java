@@ -9,8 +9,11 @@ import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 /**
@@ -23,9 +26,11 @@ public class DataAggregationServiceImpl implements DataAggregationService {
 
     private VirtualFactory virtualFactory;
     private TemporalAmountFactory temporalAmountFactory;
+    private Map<MeterActivation, List<VirtualReadingTypeDeliverable>> deliverablesPerMeterActivation;
 
     @Override
     public List<? extends BaseReadingRecord> calculate(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
+        this.deliverablesPerMeterActivation = new HashMap<>();
         this.getOverlappingMeterActivations(usagePoint, period).forEach(meterActivation -> this.prepare(meterActivation, contract, period));
         return Collections.emptyList();
     }
@@ -36,14 +41,26 @@ public class DataAggregationServiceImpl implements DataAggregationService {
 
     private void prepare(MeterActivation meterActivation, MetrologyContract contract, Range<Instant> period) {
         this.virtualFactory.nextMeterActivation(meterActivation);
+        this.deliverablesPerMeterActivation.put(meterActivation, new ArrayList<>());
         contract.getDeliverables().stream().forEach(deliverable -> this.prepare(meterActivation, deliverable, period));
     }
 
     private void prepare(MeterActivation meterActivation, ReadingTypeDeliverable deliverable, Range<Instant> period) {
-        VirtualReadingTypeDeliverable virtualDeliverable = new VirtualReadingTypeDeliverable(deliverable, meterActivation, period, this.virtualFactory.meterActivationSequenceNumber());
+        ExpressionNode preparedExpression = this.copyAndVirtualizeReferences(deliverable);
+        this.deliverablesPerMeterActivation
+                .get(meterActivation)
+                .add(new VirtualReadingTypeDeliverable(
+                        deliverable,
+                        meterActivation,
+                        period,
+                        this.virtualFactory.meterActivationSequenceNumber(),
+                        preparedExpression));
+    }
+
+    private ExpressionNode copyAndVirtualizeReferences(ReadingTypeDeliverable deliverable) {
         ServerFormula formula = (ServerFormula) deliverable.getFormula();
         CopyAndVirtualizeReferences visitor = new CopyAndVirtualizeReferences(this.virtualFactory, this.temporalAmountFactory, deliverable);
-        formula.expressionNode().accept(visitor);
+        return formula.expressionNode().accept(visitor);
     }
 
 }

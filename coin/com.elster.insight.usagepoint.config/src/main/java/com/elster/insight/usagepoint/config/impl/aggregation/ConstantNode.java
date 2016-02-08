@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 /**
  * Created by igh on 4/02/2016.
  */
-public class ConstantNode implements ExpressionNode {
+public class ConstantNode implements ServerExpressionNode {
 
     private final BigDecimal value;
 
@@ -19,8 +19,13 @@ public class ConstantNode implements ExpressionNode {
     }
 
     @Override
-    public void accept(Visitor visitor) {
-        visitor.visitConstant(this);
+    public <T> T accept(Visitor<T> visitor) {
+        return visitor.visitConstant(this);
+    }
+
+    @Override
+    public <T> T accept(ServerVisitor<T> visitor) {
+        return visitor.visitConstant(this);
     }
 
 }

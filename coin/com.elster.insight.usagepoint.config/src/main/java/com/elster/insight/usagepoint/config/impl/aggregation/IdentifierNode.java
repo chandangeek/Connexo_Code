@@ -3,7 +3,7 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
 /**
  * Created by igh on 4/02/2016.
  */
-public class IdentifierNode implements ExpressionNode {
+public class IdentifierNode implements ServerExpressionNode {
 
     private final String name;
 
@@ -17,8 +17,13 @@ public class IdentifierNode implements ExpressionNode {
     }
 
     @Override
-    public void accept(Visitor visitor) {
-        visitor.visitIdentifier(this);
+    public <T> T accept(Visitor<T> visitor) {
+        return visitor.visitIdentifier(this);
+    }
+
+    @Override
+    public <T> T accept(ServerVisitor<T> visitor) {
+        return visitor.visitIdentifier(this);
     }
 
 }

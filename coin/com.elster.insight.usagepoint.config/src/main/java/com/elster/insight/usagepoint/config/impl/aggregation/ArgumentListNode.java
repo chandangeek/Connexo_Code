@@ -3,7 +3,7 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
 /**
  * Created by igh on 4/02/2016.
  */
-public class ArgumentListNode implements ExpressionNode {
+public class ArgumentListNode implements ServerExpressionNode {
 
     private final ExpressionNode left;
     private final ExpressionNode right;
@@ -23,8 +23,13 @@ public class ArgumentListNode implements ExpressionNode {
     }
 
     @Override
-    public void accept(Visitor visitor) {
-        visitor.visitArgumentList(this);
+    public <T> T accept(Visitor<T> visitor) {
+        return visitor.visitArgumentList(this);
+    }
+
+    @Override
+    public <T> T accept(ServerVisitor<T> visitor) {
+        return visitor.visitArgumentList(this);
     }
 
 }

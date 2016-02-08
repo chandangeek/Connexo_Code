@@ -1,8 +1,5 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
-import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
-import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
-
 /**
  * Models a node of expression that comply with the BNF below.
  * <pre><code>
@@ -38,19 +35,17 @@ import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
  */
 public interface ExpressionNode {
 
-    interface Visitor {
-        void visitConstant(ConstantNode constant);
-        void visitRequirement(ReadingTypeRequirement requirement);
-        void visitDeliverable(ReadingTypeDeliverable deliverable);
-        void visitVirtualRequirement(VirtualRequirementNode requirement);
-        void visitVirtualDeliverable(VirtualDeliverableNode deliverable);
-        //void visitVariable(ExpressionNode variable);
-        void visitIdentifier(IdentifierNode identifier);
-        void visitOperation(OperationNode operatorNode);
-        void visitFunctionCall(FunctionCallNode functionCall);
-        void visitArgumentList(ArgumentListNode argumentList);
+    interface Visitor<T> {
+        T visitConstant(ConstantNode constant);
+        T visitRequirement(ReadingTypeRequirementNode requirement);
+        T visitDeliverable(ReadingTypeDeliverableNode deliverable);
+        //T visitVariable(ExpressionNode variable);
+        T visitIdentifier(IdentifierNode identifier);
+        T visitOperation(OperationNode operatorNode);
+        T visitFunctionCall(FunctionCallNode functionCall);
+        T visitArgumentList(ArgumentListNode argumentList);
     }
 
-    void accept(Visitor visitor);
+    <T> T accept(Visitor<T> visitor);
 
 }
