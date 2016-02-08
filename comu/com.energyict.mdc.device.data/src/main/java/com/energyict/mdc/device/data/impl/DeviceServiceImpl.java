@@ -48,7 +48,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
 import org.osgi.service.event.EventConstants;
 
 import javax.inject.Inject;
@@ -241,7 +240,7 @@ public class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public List<Device> findDevicesByPropertySpecValue(String propertySpecName, String propertySpecValue) {
-        Condition condition = where("deviceProperties.propertySpec").isEqualTo(propertySpecName).and(where("deviceProperties.propertyValue").isEqualTo(propertySpecValue));
+        Condition condition = where("deviceProperties.propertyName").isEqualTo(propertySpecName).and(where("deviceProperties.propertyValue").isEqualTo(propertySpecValue));
         return this.deviceDataModelService.dataModel().query(Device.class, DeviceProtocolProperty.class).select(condition);
     }
 
