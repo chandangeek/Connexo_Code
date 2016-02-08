@@ -94,6 +94,15 @@ public enum TableSpecs {
                     .on(metrologyConfigurationIdColumn)
                     .add();
         }
+    },
+
+    UPC_FORMULA_NODE {
+        @Override
+        void addTo(DataModel dataModel) {
+            //Table<ServerExpressionNode> table = dataModel.addTable(name(),ServerExpressionNode.class);
+            //table.map(AbstractNode.IMPLEMENTERS);
+
+        }
     };
 
     abstract void addTo(DataModel component);

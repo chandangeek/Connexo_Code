@@ -14,8 +14,8 @@ import java.util.Map;
 public abstract class AbstractNode implements ServerExpressionNode {
 
     // ORM inheritance map
-    static final Map<String, Class<? extends ExpressionNode>> IMPLEMENTERS =
-            ImmutableMap.<String, Class<? extends ExpressionNode>>of(
+    static final Map<String, Class<? extends ServerExpressionNode>> IMPLEMENTERS =
+            ImmutableMap.<String, Class<? extends ServerExpressionNode>>of(
                     ConstantNode.TYPE_IDENTIFIER, ConstantNode.class,
                     FunctionCallNode.TYPE_IDENTIFIER, FunctionCallNode.class,
                     OperationNode.TYPE_IDENTIFIER, OperationNode.class,
