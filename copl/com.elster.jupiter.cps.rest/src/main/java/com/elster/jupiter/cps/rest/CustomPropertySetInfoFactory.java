@@ -93,10 +93,14 @@ public class CustomPropertySetInfoFactory {
         Object[] possibleObjects = new Object[possibleValues.getAllValues().size()];
         for (int i = 0; i < possibleValues.getAllValues().size(); i++) {
             //TODO No conversion for now! https://jira.eict.vpdc/browse/COMU-3291
-            possibleObjects[i] = possibleValues.getAllValues().get(i);
+            possibleObjects[i] = propertySpec.getValueFactory().toStringValue(possibleValues.getAllValues().get(i));
         }
         PropertySelectionMode selectionMode = propertySpec.getPossibleValues().getSelectionMode();
-        return new PredefinedPropertyValuesInfo<>(possibleObjects, selectionMode, propertySpec.getPossibleValues().isExhaustive());
+        PredefinedPropertyValuesInfo<Object> predefinedPropertyValuesInfo = new PredefinedPropertyValuesInfo<>();
+        predefinedPropertyValuesInfo.possibleValues = possibleObjects;
+        predefinedPropertyValuesInfo.selectionMode = selectionMode;
+        predefinedPropertyValuesInfo.exhaustive = propertySpec.getPossibleValues().isExhaustive();
+        return predefinedPropertyValuesInfo;
     }
 
     public PropertyValueInfo<?> getPropertyValueInfo(PropertySpec propertySpec, Function<String, Object> propertyValueProvider) {
@@ -110,7 +114,7 @@ public class CustomPropertySetInfoFactory {
             return null;
         }
         //TODO No conversion for now! https://jira.eict.vpdc/browse/COMU-3291
-        return valueProvider.apply(propertySpec.getName());
+        return propertySpec.getValueFactory().toStringValue(valueProvider.apply(propertySpec.getName()));
     }
 
     private Object getDefaultValue(PropertySpec propertySpec) {
@@ -119,6 +123,6 @@ public class CustomPropertySetInfoFactory {
             return null;
         }
         //TODO No conversion for now! https://jira.eict.vpdc/browse/COMU-3291
-        return possibleValues.getDefault();
+        return propertySpec.getValueFactory().toStringValue(possibleValues.getDefault());
     }
 }
