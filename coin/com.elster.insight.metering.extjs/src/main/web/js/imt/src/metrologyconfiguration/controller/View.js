@@ -71,7 +71,7 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getAttributesPanel().add(actualForm);
                 actualForm.getForm().loadRecord(actualModel);
-                widget.down('metrologyConfigurationActionMenu').record=record;
+                widget.down('metrology-configuration-side-menu').record=record;
                 pageMainContent.setLoading(false);
 
             }

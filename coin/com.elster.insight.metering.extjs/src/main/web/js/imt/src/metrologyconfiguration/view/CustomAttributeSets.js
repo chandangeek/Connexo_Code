@@ -35,13 +35,16 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'cas-grid',
+                        itemId: 'cas-grid',
                         store: 'Imt.metrologyconfiguration.store.CustomAttributeSets',
                         actionColumnConfig: {
-                            //privileges: Imt.privileges.MetrologyConfig.admin,
+                            privileges: Imt.privileges.MetrologyConfig.admin,
                             xtype: 'uni-actioncolumn',
-                            disabled: isActive,
+                            isDisabled: function() {
+                                return isActive;
+                            },
                             menu: {
-                                //privileges: Imt.privileges.MetrologyConfig.admin,
+                                privileges: Imt.privileges.MetrologyConfig.admin,
                                 xtype: 'custom-attribute-sets-actions'
                             }
                         },
@@ -53,7 +56,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        itemId: 'ctr-no-comservers',
+                        itemId: 'cas-no-items-found-panel',
                         title: Uni.I18n.translate('Imt.metrologyconfiguration.empty.title', 'IMT', 'No custom attribute sets found'),
                         reasons: [
                             Uni.I18n.translate('Imt.metrologyconfiguration.empty.list.item1', 'IMT', 'No custom attribute sets added yet'),
@@ -63,7 +66,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
                             {
                                 text: casAddRoute.getTitle(),
                                 itemId: 'add-custom-attribute-set',
-                                //privileges: Mdc.privileges.Communication.admin,
+                                privileges: Imt.privileges.MetrologyConfig.admin,
                                 action: 'addCustomAttributeSet',
                                 href: casAddRoute.buildUrl()
                             }
@@ -75,6 +78,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
                         tools: [
                             {
                                 xtype: 'button',
+                                privileges: Imt.privileges.MetrologyConfig.admin,
                                 disabled: isActive,
                                 text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
                                 itemId: 'actionButton',

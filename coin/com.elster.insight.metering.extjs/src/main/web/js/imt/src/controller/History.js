@@ -324,19 +324,21 @@ Ext.define('Imt.controller.History', {
                                     title: Uni.I18n.translate('general.label.metrologyconfiguration.valruleset.manage', 'IMT', 'Link validation rule sets'),
                                     route: 'manage',
                                     controller: 'Imt.metrologyconfiguration.controller.Edit',
-                                    action: 'manageValidationRuleSets',
+                                    action: 'manageValidationRuleSets'
                                 },
                                 customAttributeSets: {
                                     title: Uni.I18n.translate('metrologyconfiguration.label.CAS', 'IMT', 'Custom attribute sets'),
                                     route: 'custom-attribute-sets',
                                     controller: 'Imt.metrologyconfiguration.controller.View',
                                     action: 'showCustomAttributeSets',
+                                    privileges: Imt.privileges.MetrologyConfig.view,
                                     items: {
                                         add: {
                                             title: Uni.I18n.translate('metrologyconfiguration.label.CAS.add', 'IMT', 'Add custom attribute sets'),
                                             route: 'add',
                                             controller: 'Imt.metrologyconfiguration.controller.View',
-                                            action: 'showAddCustomAttributeSets'
+                                            action: 'showAddCustomAttributeSets',
+                                            privileges: Imt.privileges.MetrologyConfig.admin
                                         }
                                     }
                                 },
