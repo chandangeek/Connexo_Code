@@ -121,6 +121,8 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
         var me = this,
             actionMenuArray=Ext.ComponentQuery.query('usage-point-setup-action-menu');
 
+        Ext.suspendLayouts();
+
         Ext.each(actionMenuArray, function (menu) {
             menu.add(action);
         });
@@ -131,5 +133,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
 
         me.down('#edit-form').getForm().loadRecord(me.record);
         me.down('#view-form').getForm().loadRecord(me.record);
+
+        Ext.resumeLayouts(true);
     }
 });

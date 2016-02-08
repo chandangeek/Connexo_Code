@@ -115,8 +115,8 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
 
         customAttributesStoreUsagePoint.getProxy().setUrl(record.get('mRID'));
         customAttributesModelUsagePoint.getProxy().setUrl(record.get('mRID'));
-        customAttributesStoreMetrology.getProxy().setUrl(record.get('mRID')); //TODO Put metrology id
-        customAttributesModelMetrology.getProxy().setUrl(record.get('mRID')); //TODO Put metrology id
+        customAttributesStoreMetrology.getProxy().setUrl(record.get('mRID'));
+        customAttributesModelMetrology.getProxy().setUrl(record.get('mRID'));
 
         Ext.suspendLayouts();
         me.getAttributesPanel().add({
