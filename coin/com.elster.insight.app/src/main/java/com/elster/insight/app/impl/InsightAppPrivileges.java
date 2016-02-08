@@ -15,7 +15,8 @@ class InsightAppPrivileges {
                 com.elster.jupiter.metering.security.Privileges.Constants.ADMIN_OWN,
                 com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_ANY,
                 com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_OWN,
-                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
+            com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
+            com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY,
 
                 //com.elster.jupiter.time
                 com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD,
@@ -43,7 +44,8 @@ class InsightAppPrivileges {
                 //com.elster.jupiter.metering.security - usage points
                 com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_ANY,
                 com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_OWN,
-                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
+            com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
+            com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY,
 
                 //com.elster.jupiter.time
                 com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD,
@@ -77,6 +79,7 @@ class InsightAppPrivileges {
                 //com.elster.jupiter.metering.security - usage points
                 com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTRATE_READINGTYPE,
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
+            com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY,
 
                 //Users
                 com.elster.jupiter.users.security.Privileges.Constants.ADMINISTRATE_USER_ROLE,
@@ -99,6 +102,7 @@ class InsightAppPrivileges {
 
                 //com.elster.jupiter.metering.security - usage points
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
+            com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY,
 
                 //com.elster.jupiter.time
                 com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD,
