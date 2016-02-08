@@ -7,7 +7,6 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -26,7 +25,9 @@ import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class UsagePointCustomPropertySetResource {
@@ -41,16 +42,10 @@ public class UsagePointCustomPropertySetResource {
         this.resourceHelper = resourceHelper;
     }
 
-    @GET
-    @Path("/metrology")
-    @RolesAllowed({Privileges.Constants.VIEW_CPS_ON_METROLOGY_CONFIGURATION, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getMetrologyConfigurationCustomPropertySetsWithValues(@PathParam("mrid") String usagePointMrid,
-                                                                               @BeanParam JsonQueryParameters queryParameters) {
-        UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper.findUsagePointExtensionByMrIdOrThrowException(usagePointMrid);
-        Map<RegisteredCustomPropertySet, CustomPropertySetValues> metrologyCustomPropertySetValues = usagePointExtension.getMetrologyConfigurationCustomPropertySetValues();
+    private PagedInfoList getCustomPropertySetValues(JsonQueryParameters queryParameters,
+                                                     Supplier<Map<RegisteredCustomPropertySet, CustomPropertySetValues>> customPropertySetValuesSupplier) {
         List<CustomPropertySetInfo> infos = new ArrayList<>();
-        for (Map.Entry<RegisteredCustomPropertySet, CustomPropertySetValues> customPropertySetValueEntry : metrologyCustomPropertySetValues.entrySet()) {
+        for (Map.Entry<RegisteredCustomPropertySet, CustomPropertySetValues> customPropertySetValueEntry : customPropertySetValuesSupplier.get().entrySet()) {
             CustomPropertySet<?, ?> customPropertySet = customPropertySetValueEntry.getKey().getCustomPropertySet();
             CustomPropertySetValues customPropertySetValue = customPropertySetValueEntry.getValue();
             CustomPropertySetInfo info = customPropertySetInfoFactory.getGeneralInfo(customPropertySetValueEntry.getKey());
@@ -64,23 +59,62 @@ public class UsagePointCustomPropertySetResource {
         return PagedInfoList.fromCompleteList("customPropertySets", infos, queryParameters);
     }
 
-    @PUT
-    @Path("/metrology/{cpsId}")
-    @RolesAllowed({Privileges.Constants.VIEW_CPS_ON_METROLOGY_CONFIGURATION, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Transactional
-    public PagedInfoList setMetrologyConfigurationCustomPropertySetValues(@PathParam("mrid") String usagePointMrid,
-                                                                               @BeanParam JsonQueryParameters queryParameters,
-                                                                               CustomPropertySetInfo<UsagePointInfo> info) {
-        UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper.lockUsagePointCustomPropertySetExtensionOrThrowException(info.parent);
+    private void setCustomPropertySetValues(CustomPropertySetInfo<UsagePointInfo> info, BiConsumer<CustomPropertySet<?, ?>, CustomPropertySetValues> customPropertySetValuesConsumer) {
         RegisteredCustomPropertySet registeredCustomPropertySet = resourceHelper.getRegisteredCustomPropertySetOrThrowException(info.customPropertySetId);
-        CustomPropertySet<?,?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
+        CustomPropertySet<?, ?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
         Map<String, PropertySpec> propertySpecMap = customPropertySet.getPropertySpecs()
                 .stream()
                 .collect(Collectors.toMap(propertySpec -> propertySpec.getName(), Function.identity()));
         CustomPropertySetValues customPropertySetValues = info.getCustomPropertySetValues((key, value) -> propertySpecMap.get(key).getValueFactory().fromStringValue(value.toString()));
-        usagePointExtension.setMetrologyConfigurationCustomPropertySetValue(customPropertySet, customPropertySetValues);
-        return getMetrologyConfigurationCustomPropertySetsWithValues(usagePointMrid, queryParameters);
+        customPropertySetValuesConsumer.accept(customPropertySet, customPropertySetValues);
+    }
+
+    @GET
+    @Path("/metrology")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getMetrologyConfigurationCustomPropertySetsWithValues(@PathParam("mrid") String usagePointMrid,
+                                                                               @BeanParam JsonQueryParameters queryParameters) {
+        UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper.findUsagePointExtensionByMrIdOrThrowException(usagePointMrid);
+        return getCustomPropertySetValues(queryParameters, usagePointExtension::getMetrologyConfigurationCustomPropertySetValues);
+    }
+
+    @PUT
+    @Path("/metrology/{cpsId}")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public PagedInfoList setMetrologyConfigurationCustomPropertySetValues(@PathParam("mrid") String usagePointMrid,
+                                                                          @BeanParam JsonQueryParameters queryParameters,
+                                                                          CustomPropertySetInfo<UsagePointInfo> info) {
+        UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper.lockUsagePointCustomPropertySetExtensionOrThrowException(info.parent);
+        setCustomPropertySetValues(info, usagePointExtension::setMetrologyConfigurationCustomPropertySetValue);
+        return getCustomPropertySetValues(queryParameters, usagePointExtension::getMetrologyConfigurationCustomPropertySetValues);
+    }
+
+
+    @GET
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getServiceCategoryCustomPropertySetsWithValues(@PathParam("mrid") String usagePointMrid,
+                                                                        @BeanParam JsonQueryParameters queryParameters) {
+        UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper.findUsagePointExtensionByMrIdOrThrowException(usagePointMrid);
+        return getCustomPropertySetValues(queryParameters, usagePointExtension::getServiceCategoryCustomPropertySetValues);
+    }
+
+
+    @PUT
+    @Path("/{cpsId}")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public PagedInfoList setServiceCategoryCustomPropertySetValues(@PathParam("mrid") String usagePointMrid,
+                                                                   @BeanParam JsonQueryParameters queryParameters,
+                                                                   CustomPropertySetInfo<UsagePointInfo> info) {
+        UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper.lockUsagePointCustomPropertySetExtensionOrThrowException(info.parent);
+        setCustomPropertySetValues(info, usagePointExtension::setServiceCategoryCustomPropertySetValue);
+        return getCustomPropertySetValues(queryParameters, usagePointExtension::getMetrologyConfigurationCustomPropertySetValues);
     }
 }

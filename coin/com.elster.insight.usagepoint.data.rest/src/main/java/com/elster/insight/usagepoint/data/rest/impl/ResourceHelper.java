@@ -79,7 +79,7 @@ public class ResourceHelper {
 
     public UsagePointCustomPropertySetExtension lockUsagePointCustomPropertySetExtensionOrThrowException(UsagePointInfo info) {
         return getLockedUsagePointCustomPropertySetExtensionById(info.id, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.mRID)
                         .withActualVersion(() -> getCurrentUsagePointVersion(info.mRID))
                         .supplier());
     }
