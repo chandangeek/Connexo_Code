@@ -87,6 +87,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                 },
                 items: [
                     {
+                        xtype: 'checkbox',
                         name: 'grounded',
                         itemId: 'up-grounded-textfield',
                         fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
