@@ -3,6 +3,7 @@ package com.elster.jupiter.fsm.impl;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.State;
@@ -14,7 +15,9 @@ import com.elster.jupiter.fsm.impl.constraints.ExactlyOneInitialState;
 import com.elster.jupiter.fsm.impl.constraints.Unique;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.streams.Predicates;
 
@@ -61,6 +64,7 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final Clock clock;
+    private final Publisher publisher;
 
     @SuppressWarnings("unused")
     private long id;
@@ -82,11 +86,12 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
     private Instant modTime;
 
     @Inject
-    public FiniteStateMachineImpl(DataModel dataModel, Thesaurus thesaurus, Clock clock) {
+    public FiniteStateMachineImpl(DataModel dataModel, Thesaurus thesaurus, Clock clock, Publisher publisher) {
         super();
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.clock = clock;
+        this.publisher = publisher;
     }
 
     public FiniteStateMachineImpl initialize(String name) {
@@ -251,6 +256,7 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
     @Override
     public void update() {
         Save.UPDATE.save(this.dataModel, this);
+        invalidateCache();
     }
 
     @Override
@@ -258,6 +264,7 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
         this.obsoleteTimestamp = this.clock.instant();
         this.obsoleteAllStates();
         this.dataModel.update(this, Fields.OBSOLETE_TIMESTAMP.fieldName());
+        invalidateCache();
     }
 
     private void obsoleteAllStates() {
@@ -298,5 +305,9 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    private void invalidateCache() {
+        this.publisher.publish(new InvalidateCacheRequest(FiniteStateMachineService.COMPONENT_NAME, TableSpecs.FSM_FINITE_STATE_MACHINE.name()));
     }
 }

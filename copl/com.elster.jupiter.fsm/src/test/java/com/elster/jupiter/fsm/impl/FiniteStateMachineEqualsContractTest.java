@@ -4,6 +4,7 @@ import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pubsub.Publisher;
 import com.google.common.collect.ImmutableSet;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -25,13 +26,15 @@ public class FiniteStateMachineEqualsContractTest extends EqualsContractTest {
     private Thesaurus thesaurus;
     @Mock
     private Clock clock;
+    @Mock
+    private Publisher publisher;
 
     private FiniteStateMachineImpl finiteStateMachine;
 
     @Override
     protected Object getInstanceA() {
         if (finiteStateMachine == null) {
-            finiteStateMachine = new FiniteStateMachineImpl(dataModel, thesaurus, clock);
+            finiteStateMachine = new FiniteStateMachineImpl(dataModel, thesaurus, clock, publisher);
             setId(finiteStateMachine, ID);
         }
         return finiteStateMachine;
@@ -43,14 +46,14 @@ public class FiniteStateMachineEqualsContractTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        FiniteStateMachineImpl finiteStateMachine = new FiniteStateMachineImpl(dataModel, thesaurus, clock);
+        FiniteStateMachineImpl finiteStateMachine = new FiniteStateMachineImpl(dataModel, thesaurus, clock, publisher);
         setId(finiteStateMachine, ID);
         return finiteStateMachine;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        FiniteStateMachineImpl finiteStateMachine = new FiniteStateMachineImpl(dataModel, thesaurus, clock);
+        FiniteStateMachineImpl finiteStateMachine = new FiniteStateMachineImpl(dataModel, thesaurus, clock, publisher);
         setId(finiteStateMachine, OTHER_ID);
         return ImmutableSet.of(finiteStateMachine);
     }

@@ -25,6 +25,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -2219,7 +2220,8 @@ public class FiniteStateMachineIT {
                 nlsService,
                 inMemoryPersistence.getService(UserService.class),
                 inMemoryPersistence.getService(EventService.class),
-                inMemoryPersistence.getService(TransactionService.class));
+                inMemoryPersistence.getService(TransactionService.class),
+                inMemoryPersistence.getService(Publisher.class));
     }
 
 }

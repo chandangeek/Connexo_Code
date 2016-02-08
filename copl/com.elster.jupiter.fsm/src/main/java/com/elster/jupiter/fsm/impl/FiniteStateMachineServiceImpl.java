@@ -27,6 +27,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
@@ -75,6 +76,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     private volatile TransactionService transactionService;
     private volatile List<StandardEventPredicate> standardEventPredicates = new CopyOnWriteArrayList<>();
     private volatile Thesaurus thesaurus;
+    private volatile Publisher publisher;
     private volatile boolean registered = false;
 
     // For OSGi purposes
@@ -84,13 +86,14 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
 
     // For unit testing purposes
     @Inject
-    public FiniteStateMachineServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, TransactionService transactionService) {
+    public FiniteStateMachineServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, TransactionService transactionService, Publisher publisher) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setUserService(userService);
         this.setEventService(eventService);
         this.setTransactionService(transactionService);
+        this.setPublisher(publisher);
         this.activate();
         if (!this.dataModel.isInstalled()) {
             install();
@@ -155,6 +158,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
                 bind(EventService.class).toInstance(eventService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(Publisher.class).toInstance(publisher);
 
                 bind(FiniteStateMachineService.class).toInstance(FiniteStateMachineServiceImpl.this);
                 bind(ServerFiniteStateMachineService.class).toInstance(FiniteStateMachineServiceImpl.this);
@@ -191,6 +195,11 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         this.transactionService = transactionService;
     }
 
+    @Reference(name = "thePublisher")
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
+    }
+
     @Override
     public List<StateChangeBusinessProcess> findStateChangeBusinessProcesses() {
         return this.dataModel.mapper(StateChangeBusinessProcess.class).find();
@@ -214,8 +223,8 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         List<StateChangeBusinessProcess> businessProcesses = this.dataModel
                 .mapper(StateChangeBusinessProcess.class)
                 .find(
-                    StateChangeBusinessProcessImpl.Fields.DEPLOYMENT_ID.fieldName(), deploymentId,
-                    StateChangeBusinessProcessImpl.Fields.PROCESS_ID.fieldName(), processId);
+                        StateChangeBusinessProcessImpl.Fields.DEPLOYMENT_ID.fieldName(), deploymentId,
+                        StateChangeBusinessProcessImpl.Fields.PROCESS_ID.fieldName(), processId);
         if (businessProcesses.isEmpty()) {
             throw new UnknownStateChangeBusinessProcessException(this.thesaurus, deploymentId, processId);
         }
