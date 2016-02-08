@@ -14,6 +14,7 @@ import com.elster.jupiter.servicecalls.ServiceCallLifeCycle;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,6 +34,12 @@ public class ServiceCallInstaller {
     }
 
     public void install() {
+        try {
+            this.dataModel.install(true, true);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+        }
+
         installDefaultLifeCycle();
     }
 
@@ -44,12 +51,12 @@ public class ServiceCallInstaller {
     }
 
     private ServiceCallLifeCycle createDefaultLifeCycle(String name, Map<String, CustomStateTransitionEventType> eventTypes) {
-        Optional<FiniteStateMachine> stateMachine = finiteStateMachineService.findFiniteStateMachineByName(TranslationKeys.DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME.getKey());
+//        Optional<FiniteStateMachine> stateMachine = finiteStateMachineService.findFiniteStateMachineByName(TranslationKeys.DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME.getKey());
 
         FiniteStateMachine defaultStateMachine = this.createDefaultFiniteStateMachine(name, eventTypes);
         // create and store service call life cycle
         ServiceCallLifeCycleImpl serviceCallLifeCycle = new ServiceCallLifeCycleImpl(dataModel);
-        serviceCallLifeCycle.init(TranslationKeys.DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME.getKey(), defaultStateMachine);
+        serviceCallLifeCycle.init(name, defaultStateMachine);
         serviceCallLifeCycle.save();
         return serviceCallLifeCycle;
     }

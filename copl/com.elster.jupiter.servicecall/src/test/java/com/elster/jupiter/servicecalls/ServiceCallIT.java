@@ -6,6 +6,7 @@ import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
@@ -14,7 +15,9 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecalls.impl.ServiceCallModule;
+import com.elster.jupiter.servicecalls.impl.TranslationKeys;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
@@ -32,10 +35,15 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
+import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceCallIT {
@@ -47,6 +55,7 @@ public class ServiceCallIT {
     private NlsService nlsService;
     private TransactionService transactionService;
     private MessageService messageService;
+    private ServiceCallService serviceCallService;
 
     @Mock
     private UserService userService;
@@ -56,6 +65,8 @@ public class ServiceCallIT {
     private EventAdmin eventAdmin;
     @Mock
     private LogService logService;
+    @Mock
+    private MessageInterpolator messageInterpolator;
 
     private Clock clock;
 
@@ -66,6 +77,7 @@ public class ServiceCallIT {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(MessageInterpolator.class).toInstance(messageInterpolator);
         }
     }
 
@@ -86,6 +98,7 @@ public class ServiceCallIT {
                     new TransactionModule(),
                     new NlsModule(),
                     new DataVaultModule(),
+                    new FiniteStateMachineModule(),
                     new ServiceCallModule()
             );
         } catch (Exception e) {
@@ -98,6 +111,7 @@ public class ServiceCallIT {
             public Void perform() {
                 nlsService = injector.getInstance(NlsService.class);
                 messageService = injector.getInstance(MessageService.class);
+                serviceCallService = injector.getInstance(ServiceCallService.class);
                 return null;
             }
         });
@@ -108,10 +122,12 @@ public class ServiceCallIT {
         inMemoryBootstrapModule.deactivate();
     }
 
-
     @Test
-    public void testInitServiceCalls() {
-
+    public void testInitServiceCallCreatesDefaultFSM() {
+        try (TransactionContext context = transactionService.getContext()) {
+            Optional<ServiceCallLifeCycle> serviceCallLifeCycle = serviceCallService.getServiceCallLifeCycle(TranslationKeys.DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME.getKey());
+            assertThat(serviceCallLifeCycle).isPresent();
+        }
     }
 
 }

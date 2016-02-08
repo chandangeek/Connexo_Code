@@ -22,6 +22,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +39,15 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
+
+    @Inject
+    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService) {
+        this.setFiniteStateMachineService(finiteStateMachineService);
+        this.setOrmService(ormService);
+        this.setNlsService(nlsService);
+        activate();
+        this.install();
+    }
 
     @Reference
     public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
