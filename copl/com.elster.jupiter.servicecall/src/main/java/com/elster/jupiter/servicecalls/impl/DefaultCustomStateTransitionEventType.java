@@ -15,7 +15,6 @@ import java.util.stream.Stream;
  * that are necessary to create the default service call life cycle.
  */
 public enum DefaultCustomStateTransitionEventType {
-
     ENQUEUED("#enqueued"),
     SCHEDULED("#scheduled"),
     PENDING("#pending"),

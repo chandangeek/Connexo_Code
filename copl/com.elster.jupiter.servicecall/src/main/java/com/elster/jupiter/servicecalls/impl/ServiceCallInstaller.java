@@ -88,11 +88,22 @@ public class ServiceCallInstaller {
 
         FiniteStateMachineBuilder builder = this.finiteStateMachineService.newFiniteStateMachine(name);
         // Create default States
-        State canceled = builder.newStandardState(DefaultState.CANCELLED.getKey()).complete();
+        FiniteStateMachineBuilder.StateBuilder scheduledBuilder = builder.newStandardState(DefaultState.SCHEDULED.getKey());
+
+        State canceled = builder
+                .newStandardState(DefaultState.CANCELLED.getKey())
+                .on(scheduledEventType).transitionTo(scheduledBuilder, TranslationKeys.TRANSITION_FROM_CANCELLED_TO_SCHEDULED)
+                .complete();
         State rejected = builder.newStandardState(DefaultState.REJECTED.getKey()).complete();
-        State failed = builder.newStandardState(DefaultState.FAILED.getKey()).complete();
+        State failed = builder
+                .newStandardState(DefaultState.FAILED.getKey())
+                .on(scheduledEventType).transitionTo(scheduledBuilder, TranslationKeys.TRANSITION_FROM_FAILED_TO_SCHEDULED)
+                .complete();
         State successful = builder.newStandardState(DefaultState.SUCCESSFUL.getKey()).complete();
-        State partialSuccess = builder.newStandardState(DefaultState.PARTIAL_SUCCESS.getKey()).complete();
+        State partialSuccess = builder
+                .newStandardState(DefaultState.PARTIAL_SUCCESS.getKey())
+                .on(scheduledEventType).transitionTo(scheduledBuilder, TranslationKeys.TRANSITION_FROM_PARTIAL_SUCCESS_TO_SCHEDULED)
+                .complete();
 
         FiniteStateMachineBuilder.StateBuilder ongoingBuilder = builder.newStandardState(DefaultState.ONGOING.getKey());
         State paused = builder
@@ -118,8 +129,7 @@ public class ServiceCallInstaller {
                 .on(ongoingEventType).transitionTo(ongoingBuilder, TranslationKeys.TRANSITION_FROM_PENDING_TO_ONGOING)
                 .on(cancelledEventType).transitionTo(canceled, TranslationKeys.TRANSITION_FROM_PENDING_TO_CANCELLED)
                 .complete();
-        State scheduled = builder
-                .newStandardState(DefaultState.SCHEDULED.getKey())
+        State scheduled = scheduledBuilder
                 .on(pendingEventType).transitionTo(pending, TranslationKeys.TRANSITION_FROM_SCHEDULED_TO_PENDING)
                 .on(cancelledEventType).transitionTo(canceled, TranslationKeys.TRANSITION_FROM_SCHEDULED_TO_CANCELLED)
                 .complete();
