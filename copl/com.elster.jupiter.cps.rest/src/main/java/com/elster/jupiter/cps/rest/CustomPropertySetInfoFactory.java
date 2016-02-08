@@ -14,6 +14,7 @@ import com.elster.jupiter.rest.util.properties.PropertyType;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -30,6 +31,7 @@ public class CustomPropertySetInfoFactory {
         this.thesaurus = thesaurus;
         this.propertyValueInfoService = new PropertyValueInfoService();
         this.propertyValueInfoService.addPropertyValueInfoConverter(new BooleanPropertyValueConverter());
+        this.propertyValueInfoService.addPropertyValueInfoConverter(new NumberPropertyValueConverter());
     }
 
     public CustomPropertySetInfo from(RegisteredCustomPropertySet rcps) {
@@ -203,6 +205,31 @@ public class CustomPropertySetInfoFactory {
                 return infoValue;
             }
             return Boolean.FALSE;
+        }
+    }
+
+    static class NumberPropertyValueConverter implements PropertyValueInfoConverter {
+        @Override
+        public boolean canProcess(PropertySpec propertySpec) {
+            return propertySpec != null && propertySpec.getValueFactory().getValueType().equals(BigDecimal.class);
+        }
+
+        @Override
+        public PropertyType getPropertyType(PropertySpec propertySpec) {
+            return SimplePropertyType.NUMBER;
+        }
+
+        @Override
+        public Object convertValueToInfo(Object domainValue, PropertySpec propertySpec) {
+            return domainValue;
+        }
+
+        @Override
+        public Object convertInfoToValue(Object infoValue, PropertySpec propertySpec) {
+            if (infoValue != null) {
+                return new BigDecimal(infoValue.toString());
+            }
+            return new BigDecimal(0);
         }
     }
 
