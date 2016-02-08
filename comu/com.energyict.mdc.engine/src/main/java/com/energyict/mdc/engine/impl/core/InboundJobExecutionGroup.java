@@ -11,6 +11,7 @@ import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,6 +97,9 @@ public class InboundJobExecutionGroup extends JobExecution {
 
     @Override
     protected ComSession.SuccessIndicator getFailureIndicatorFor(RescheduleBehavior.RescheduleReason rescheduleReason) {
+        if (this.inboundCommunicationHandler.getResponseType().equals(InboundDeviceProtocol.DiscoverResponseType.SUCCESS)) {
+            return super.getFailureIndicatorFor(rescheduleReason);
+        }
         return this.inboundCommunicationHandler.getFailureIndicator();
     }
 
