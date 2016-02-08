@@ -17,10 +17,11 @@ import java.util.*;
  */
 public abstract class ConnexoAbstractSSOFilter implements Filter {
     private FilterConfig filterConfig;
-    private List<String> excludedUrls = new ArrayList<>();
-    private List<String> unauthorizedUrls = new ArrayList<>();
 
     protected final String CONNEXO_CONFIG = System.getProperty("connexo.configuration");
+
+    protected List<String> excludedUrls = new ArrayList<>();
+    protected List<String> unauthorizedUrls = new ArrayList<>();
 
     protected Properties properties = new Properties();
 
@@ -72,7 +73,7 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
     }
 
     protected boolean shouldExcludUrl(final HttpServletRequest request) {
-        String requestUrl = request.getRequestURI().toString();
+        String requestUrl = request.getRequestURI();
         for(String url : excludedUrls) {
             if(requestUrl.matches(request.getContextPath() + url)) {
                 return true;
@@ -87,7 +88,7 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
     }
 
     protected boolean shouldUnauthorize(final HttpServletRequest request) {
-        String requestUrl = request.getRequestURI().toString();
+        String requestUrl = request.getRequestURI();
         for(String url : unauthorizedUrls) {
             if(requestUrl.matches(request.getContextPath() + url)) {
                 return true;
