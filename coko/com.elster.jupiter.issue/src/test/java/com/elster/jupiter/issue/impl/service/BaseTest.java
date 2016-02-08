@@ -58,6 +58,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.search.impl.SearchModule;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -153,7 +154,8 @@ public abstract class BaseTest {
                 new UserModule(),
                 new FiniteStateMachineModule(),
                 new IssueModule(),
-                new BasicPropertiesModule()
+                new BasicPropertiesModule(),
+                new SearchModule()
         );
 
         TransactionService transactionService = injector.getInstance(TransactionService.class);

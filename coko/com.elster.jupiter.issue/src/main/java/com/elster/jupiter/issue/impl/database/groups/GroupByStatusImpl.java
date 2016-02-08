@@ -44,13 +44,16 @@ public class GroupByStatusImpl extends IssuesGroupOperation {
         builder.append(getMeterCondition());
         builder.append(getAssigneeCondition());
         builder.append(getDueDateCondition());
-        builder.append(getDeviceGroupCondition());
+        appendDeviceGroupCondition(builder);
         if (getFilter().getGroupKey() != null) {
             builder.append(" AND reason.\"KEY\" = '" + getFilter().getGroupKey() + "'");
         }
         builder.append(" GROUP BY (isu.STATUS, status.TRANSLATION)");
         builder.append(" ORDER BY " + GROUP_COUNT + " " + (getFilter().isAscOrder() ? "ASC" : "DESC") + ", " + GROUP_TITLE + " ASC ) intr");
-        builder.append(" WHERE ROWNUM <= ? ) ext WHERE ext.rnum >= ? ");
+        builder.append(" WHERE ROWNUM <= ");
+        builder.addLong(getFilter().getTo());
+        builder.append(" ) ext WHERE ext.rnum >= ");
+        builder.addLong(getFilter().getFrom());
         return builder;
     }
 }

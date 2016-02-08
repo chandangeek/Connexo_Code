@@ -88,8 +88,6 @@ public abstract class IssuesGroupOperation {
             throw new IllegalArgumentException("[ GroupIssuesOperation ] Connection can't be null");
         }
         PreparedStatement statement = sql.prepare(connection);
-        statement.setLong(1, getFilter().getTo());
-        statement.setLong(2, getFilter().getFrom());
         return statement;
     }
 
@@ -197,30 +195,22 @@ public abstract class IssuesGroupOperation {
         return "";
     }
 
-    protected String getDeviceGroupCondition() {
+    protected void appendDeviceGroupCondition(SqlBuilder sqlBuilder) {
         if(getFilter().getDeviceGroups() != null && !getFilter().getDeviceGroups().isEmpty() ) {
-            StringBuilder builder = new StringBuilder();
-            for(Long endDeviceGroupId : getFilter().getDeviceGroups()) {
-                EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElse(null);
-                if (builder.length() != 0){
-                    builder.append(" OR ");
-                }
-                builder.append("isu.DEVICE_ID IN (");
+            sqlBuilder.append(" AND (1!=1");
+            for(Long deviceGroupId : getFilter().getDeviceGroups()) {
+                EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(deviceGroupId).orElse(null);
+                sqlBuilder.append(" OR isu.DEVICE_ID IN (");
                 if (endDeviceGroup != null && endDeviceGroup.isDynamic()) {
-                    builder.append(((QueryEndDeviceGroup) endDeviceGroup).toFragment().getText()).append(") ");
+                    sqlBuilder.add(((QueryEndDeviceGroup) endDeviceGroup).toFragment());
+                    sqlBuilder.append(") ");
                 } else {
-                    builder.append("select ENDDEVICE_ID from MTG_ENUM_ED_IN_GROUP where GROUP_ID = ");
-                    builder.append(endDeviceGroupId).append(") ");
+                    sqlBuilder.append("select ENDDEVICE_ID from MTG_ENUM_ED_IN_GROUP where GROUP_ID = ");
+                    sqlBuilder.append(deviceGroupId + ") ");
                 }
-                if (builder.length() != 0) {
-                    builder.insert(0, " AND (").append(") ");
-                    return builder.toString();
-                }
+                sqlBuilder.append(") ");
             }
-
-
         }
-        return "";
     }
 
     protected DataModel getDataModel() {

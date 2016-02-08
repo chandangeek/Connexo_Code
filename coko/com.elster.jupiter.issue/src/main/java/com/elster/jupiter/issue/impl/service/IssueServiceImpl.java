@@ -256,7 +256,7 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("USR", "TSK", "MSG", "ORM", "NLS", "MTR");
+        return Arrays.asList("USR", "TSK", "MSG", "ORM", "NLS", "MTR", "MTG");
     }
 
     @Override
