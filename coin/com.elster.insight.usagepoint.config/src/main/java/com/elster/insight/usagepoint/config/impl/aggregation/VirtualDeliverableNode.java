@@ -21,7 +21,7 @@ import java.time.temporal.TemporalAmount;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-04 (15:24)
  */
-class VirtualDeliverableNode implements ServerExpressionNode {
+class VirtualDeliverableNode extends AbstractNode {
 
     private final VirtualFactory virtualFactory;
     private final ReadingTypeDeliverable deliverable;

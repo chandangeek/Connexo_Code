@@ -20,7 +20,7 @@ import java.time.temporal.TemporalAmount;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-05 (13:28)
  */
-class VirtualRequirementNode implements ServerExpressionNode {
+class VirtualRequirementNode extends AbstractNode {
 
     private final VirtualFactory virtualFactory;
     private final ReadingTypeRequirement requirement;

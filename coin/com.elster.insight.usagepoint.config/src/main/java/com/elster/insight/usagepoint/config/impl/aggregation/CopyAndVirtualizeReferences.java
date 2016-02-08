@@ -2,6 +2,9 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
 
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Provides an implementation for the {@link ServerExpressionNode.ServerVisitor} interface
  * that copies {@link ExpressionNode}s but applies the following replacements:
@@ -13,7 +16,7 @@ import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-05 (13:04)
  */
-class CopyAndVirtualizeReferences implements ServerExpressionNode.ServerVisitor<ServerExpressionNode> {
+class CopyAndVirtualizeReferences implements ServerExpressionNode.ServerVisitor<AbstractNode> {
 
     private final VirtualFactory virtualFactory;
     private final TemporalAmountFactory temporalAmountFactory;
@@ -27,57 +30,50 @@ class CopyAndVirtualizeReferences implements ServerExpressionNode.ServerVisitor<
     }
 
     @Override
-    public ServerExpressionNode visitConstant(ConstantNode constant) {
+    public AbstractNode visitConstant(ConstantNode constant) {
         return new ConstantNode(constant.getValue());
     }
 
     @Override
-    public ServerExpressionNode visitRequirement(ReadingTypeRequirementNode node) {
+    public AbstractNode visitRequirement(ReadingTypeRequirementNode node) {
         // Replace this one with a VirtualRequirementNode
         return new VirtualRequirementNode(this.virtualFactory, this.temporalAmountFactory, node.getReadingTypeRequirement(), this.deliverable);
     }
 
     @Override
-    public ServerExpressionNode visitDeliverable(ReadingTypeDeliverableNode node) {
+    public AbstractNode visitDeliverable(ReadingTypeDeliverableNode node) {
         // Replace this one with a VirtualDeliverableNode
         return new VirtualDeliverableNode(this.virtualFactory, this.temporalAmountFactory, node.getReadingTypeDeliverable());
     }
 
     @Override
-    public ServerExpressionNode visitVirtualRequirement(VirtualRequirementNode requirement) {
+    public AbstractNode visitVirtualRequirement(VirtualRequirementNode requirement) {
         throw new IllegalArgumentException("Not expecting actual formulas to contain virtual requirement nodes");
     }
 
     @Override
-    public ServerExpressionNode visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
+    public AbstractNode visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
         throw new IllegalArgumentException("Not expecting actual formulas to contain virtual requirement nodes");
     }
 
     @Override
-    public ServerExpressionNode visitIdentifier(IdentifierNode identifier) {
-        return new IdentifierNode(identifier.getName());
-    }
-
-    @Override
-    public ServerExpressionNode visitOperation(OperationNode operationNode) {
+    public AbstractNode visitOperation(OperationNode operationNode) {
         return new OperationNode(
                 operationNode.getOperator(),
-                operationNode.getLeft().accept(this),
-                operationNode.getRight().accept(this));
+                operationNode.getLeftOperand().accept(this),
+                operationNode.getRightOperand().accept(this));
     }
 
     @Override
-    public ServerExpressionNode visitFunctionCall(FunctionCallNode functionCall) {
-        return new FunctionCallNode(
-                (IdentifierNode) functionCall.getIdentifier().accept(this),
-                (ArgumentListNode) functionCall.getArgumentList().accept(this));
-    }
-
-    @Override
-    public ServerExpressionNode visitArgumentList(ArgumentListNode argumentList) {
-        return new ArgumentListNode(
-                argumentList.getLeft().accept(this),
-                argumentList.getRight().accept(this));
+    public AbstractNode visitFunctionCall(FunctionCallNode functionCall) {
+        List<AbstractNode> arguments = functionCall.getChildren().stream().map(child -> child.accept(this)).collect(Collectors.toList());
+        Function function = functionCall.getFunction();
+        if (function == null) {
+            return new FunctionCallNode(arguments, functionCall.getName());
+        }
+        else {
+            return new FunctionCallNode(arguments, function);
+        }
     }
 
 }

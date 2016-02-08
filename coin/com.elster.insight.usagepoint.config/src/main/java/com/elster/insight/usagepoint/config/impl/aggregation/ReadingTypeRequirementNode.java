@@ -1,10 +1,6 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
-import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
-import com.elster.jupiter.orm.associations.Reference;
-
-import java.util.List;
 
 /**
  * Created by igh on 4/02/2016.
@@ -13,13 +9,14 @@ public class ReadingTypeRequirementNode extends AbstractNode implements ServerEx
 
     private ReadingTypeRequirement readingTypeRequirement;
 
-    public ReadingTypeRequirementNode(List<ExpressionNode> children, ReadingTypeRequirement readingTypeRequirement) {
-        super(children);
+    public ReadingTypeRequirementNode(ReadingTypeRequirement readingTypeRequirement) {
+        super();
         this.readingTypeRequirement = readingTypeRequirement;
     }
 
-    public ReadingTypeRequirementNode(List<ExpressionNode> children, ExpressionNode parentNode, ReadingTypeRequirement readingTypeRequirement) {
-        super(children, parentNode);
+    public ReadingTypeRequirementNode(ExpressionNode parentNode, ReadingTypeRequirement readingTypeRequirement) {
+        super();
+        this.setParent(parentNode);
         this.readingTypeRequirement = readingTypeRequirement;
     }
 

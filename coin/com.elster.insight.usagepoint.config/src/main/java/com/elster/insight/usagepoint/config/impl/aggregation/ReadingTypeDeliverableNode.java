@@ -1,24 +1,22 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
-import com.elster.jupiter.orm.associations.Reference;
-
-import java.util.List;
 
 /**
  * Created by igh on 4/02/2016.
  */
-public class ReadingTypeDeliverableNode extends AbstractNode implements ServerExpressionNode {
+public class ReadingTypeDeliverableNode extends AbstractNode {
 
     private ReadingTypeDeliverable readingTypeDeliverable;
 
-    public ReadingTypeDeliverableNode(List<ExpressionNode> children, ReadingTypeDeliverable readingTypeDeliverable) {
-        super(children);
+    public ReadingTypeDeliverableNode(ReadingTypeDeliverable readingTypeDeliverable) {
+        super();
         this.readingTypeDeliverable = readingTypeDeliverable;
     }
 
-    public ReadingTypeDeliverableNode(List<ExpressionNode> children, ExpressionNode parentNode, ReadingTypeDeliverable readingTypeDeliverable) {
-        super(children, parentNode);
+    public ReadingTypeDeliverableNode(ExpressionNode parentNode, ReadingTypeDeliverable readingTypeDeliverable) {
+        super();
+        this.setParent(parentNode);
         this.readingTypeDeliverable = readingTypeDeliverable;
     }
 
