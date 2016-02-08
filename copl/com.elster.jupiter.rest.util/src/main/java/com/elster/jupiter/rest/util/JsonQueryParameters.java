@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
@@ -31,19 +32,40 @@ public class JsonQueryParameters implements QueryParameters {
 
     private final MultivaluedMap<String, String> queryParameters;
 
+    /**
+     * @summary Paging parameter denoting the index of the first element in the total list to be returned in the answer.
+     * To get a paged answer, make sure you always specify both paging parameters <i>start</i> <b>and</b> <i>limit</i>
+     */
+    private @QueryParam("start") Integer start;
+
+    /**
+     * @summary Paging parameter denoting the number of elements to be returned in the answer.
+     * To get a paged answer, make sure you always specify both paging parameters <i>start</i> <b>and</b> <i>limit</i>
+     */
+    private @QueryParam("limit") Integer limit;
+
+
     @Inject
     public JsonQueryParameters(@Context UriInfo uriInfo) {
         queryParameters = uriInfo.getQueryParameters();
     }
 
+    /**
+     * @summary Paging parameter denoting the index of the first element in the total list to be returned in the answer.
+     * To get a paged answer, make sure you always specify both paging parameters <i>start</i> <b>and</b> <i>limit</i>
+     */
     @Override
     public Optional<Integer> getStart() {
-        return getIntegerOrEmpty(EXTJS_START);
+        return Optional.ofNullable(start);
     }
 
+    /**
+     * @summary Paging parameter denoting the number of elements to be returned in the answer.
+     * To get a paged answer, make sure you always specify both paging parameters <i>start</i> <b>and</b> <i>limit</i>
+     */
     @Override
     public Optional<Integer> getLimit() {
-        return getIntegerOrEmpty(EXTJS_LIMIT);
+        return Optional.ofNullable(limit);
     }
 
     @Override

@@ -15,6 +15,7 @@ public class PredefinedPropertyValuesInfo<T> {
     public T[] possibleValues;
     public PropertySelectionMode selectionMode;
     public boolean exhaustive;
+    public boolean editable;
 
     /**
      * Default constructor 4 JSON deserialization
@@ -22,10 +23,11 @@ public class PredefinedPropertyValuesInfo<T> {
     public PredefinedPropertyValuesInfo() {
     }
 
-    public PredefinedPropertyValuesInfo(T[] possibleValues, PropertySelectionMode selectionMode, boolean exhaustive) {
+    public PredefinedPropertyValuesInfo(T[] possibleValues, PropertySelectionMode selectionMode, boolean exhaustive, boolean editable) {
         this.possibleValues = possibleValues;
         this.selectionMode = selectionMode;
         this.exhaustive = exhaustive;
+        this.editable = editable;
     }
 
     public T[] getPossibleValues() {
@@ -52,5 +54,19 @@ public class PredefinedPropertyValuesInfo<T> {
      */
     public boolean isExhaustive() {
         return exhaustive;
+    }
+
+    /**
+     * Returns <code>true</code> if the possible values should be editable,
+     * i.e. the user should be allowed to type in text directly into the field,
+     * after which matching possibilities are shown. This could be used in situations
+     * where i.e. a ComboBox contains a lot of possible values. In this case,
+     * it is not convenient for the user to select the value from the picker
+     * (as he has to search his desired value in a big list of possible values).
+     *
+     * @return A flag that indicates if values should be editable or not
+     */
+    public boolean isEditable() {
+        return editable;
     }
 }
