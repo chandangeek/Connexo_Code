@@ -17,7 +17,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionsP
                 iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'time-sliced-custom-attribute-set-action-menu',
-                    itemId: 'time-sliced-custom-attribute-set-action-menu',
+                    itemId: 'time-sliced-custom-attribute-set-action-menu-id',
                     type: me.type
                 }
             }
@@ -33,7 +33,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionsP
 
 
     loadRecord: function(record) {
-        var menu = this.down('#time-sliced-custom-attribute-set-action-menu');
+        var menu = this.down('#time-sliced-custom-attribute-set-action-menu-id');
 
         Ext.suspendLayouts();
         this.setTitle(record.get('period'));

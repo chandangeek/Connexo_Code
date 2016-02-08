@@ -40,7 +40,9 @@ Ext.define('Imt.controller.Main', {
         'Imt.controller.Search',
         'Imt.validation.controller.UsagePointDataValidation',
         'Imt.servicecategories.controller.ServiceCategories',
-        'Imt.usagepointhistory.controller.History'
+        'Imt.usagepointhistory.controller.History',
+        'Imt.usagepointhistory.controller.CasVersionEdit',
+        'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersions'
     ],
 
     refs: [

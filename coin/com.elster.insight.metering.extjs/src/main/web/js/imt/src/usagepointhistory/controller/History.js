@@ -93,7 +93,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
         }
         newCard.add({
             xtype: 'custom-attribute-set-versions-overview',
-            itemId: 'custom-attribute-set-versions-overview',
+            itemId: 'custom-attribute-set-versions-setup-id',
             title: Uni.I18n.translate('customattributesets.versions', 'IMT', 'Versions'),
             store: versionsStore,
             type: 'usagePoint',

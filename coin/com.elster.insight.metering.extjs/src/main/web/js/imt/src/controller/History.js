@@ -270,7 +270,37 @@ Ext.define('Imt.controller.History', {
                             title: Uni.I18n.translate('general.history', 'IMT', 'History'),
                             route: 'history',
                             controller: 'Imt.usagepointhistory.controller.History',
-                            action: 'showHistory'
+                            action: 'showHistory',
+                            items: {
+                                customattributesversionsedit: {
+                                    title: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
+                                    route: 'customattributes/{customAttributeSetId}/versions/{versionId}/edit',
+                                    controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
+                                    action: 'editCasVersion',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadCasVersionOnUsagePoint', function (record) {
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [record.get('period')]));
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
+                                },
+                                customattributesversionsadd: {
+                                    title: Uni.I18n.translate('general.add', 'IMT', 'Add'),
+                                    route: 'customattributes/{customAttributeSetId}/versions/add',
+                                    controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
+                                    action: 'editCasVersion',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadCasOnUsagePointAdd', function (record) {
+                                            route.setTitle(Uni.I18n.translate('general.addxversion', 'IMT', "Add '{0}' version", [record.get('name')]));
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
+                                }
+                            }
                         }
            			}
            		},
