@@ -150,16 +150,11 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
 
         mc.set('customPropertySets', mc.get('customPropertySets').concat(sets));
         mc.save({
-            //failure: function(record, operation) {
-            //    debugger;
-            //    // do something if the load failed
-            //},
             success: function(record, operation) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.label.CAS.added', 'IMT', 'Custom attribute sets added'));
-            },
-            callback: function(record, operation, success) {
                 router.getRoute('administration/metrologyconfiguration/view/customAttributeSets').forward();
-            }
+            },
+            backUrl: router.getRoute('administration/metrologyconfiguration/view/customAttributeSets').buildUrl()
         });
     },
 
