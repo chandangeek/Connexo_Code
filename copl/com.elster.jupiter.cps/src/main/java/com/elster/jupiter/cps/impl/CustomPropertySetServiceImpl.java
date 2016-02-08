@@ -246,7 +246,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addCustomPropertySet(CustomPropertySet customPropertySet) {
-        this.addCustomPropertySet(customPropertySet, false, false);
+        this.addCustomPropertySet(customPropertySet, false);
     }
 
     @Override
@@ -256,7 +256,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     private void addSystemCustomPropertySetIfNotAlreadyActive(CustomPropertySet customPropertySet) {
         if (!this.isActive(customPropertySet)) {
-            this.addCustomPropertySet(customPropertySet, true, true);
+            this.addCustomPropertySet(customPropertySet, true);
         }
     }
 
@@ -264,9 +264,9 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         return this.activePropertySets.containsKey(customPropertySet.getId());
     }
 
-    private void addCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined, boolean inTransaction) {
+    private void addCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined) {
         if (this.installed) {
-            if (!inTransaction) {
+            if (!transactionService.isInTransaction()) {
                 try (TransactionContext ctx = transactionService.getContext()) {
                     this.registerCustomPropertySet(customPropertySet, systemDefined);
                     ctx.commit();
