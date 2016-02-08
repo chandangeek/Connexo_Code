@@ -19,6 +19,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu', {
             {
                 text: casRoute.getTitle(),
                 itemId: 'metrology-configuration-custom-attribute-sets-link',
+                priveleges: Imt.privileges.MetrologyConfig.view,
                 href: casRoute.buildUrl()
             },
             {

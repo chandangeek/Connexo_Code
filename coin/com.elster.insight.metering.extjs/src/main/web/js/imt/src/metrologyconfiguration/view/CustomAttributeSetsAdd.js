@@ -22,6 +22,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSetsAdd', {
                 xtype: 'emptygridcontainer',
                 grid: {
                     xtype: 'cas-selection-grid',
+                    itemId: 'cas-selection-grid',
                     store: 'Imt.metrologyconfiguration.store.CustomAttributeSets',
                     buttonAlign: 'left',
                     listeners: {
@@ -33,7 +34,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSetsAdd', {
                 },
                 emptyComponent: {
                     xtype: 'no-items-found-panel',
-                    itemId: 'ctr-no-comservers',
+                    itemId: 'cas-no-items-found-panel',
                     title: Uni.I18n.translate('Imt.metrologyconfiguration.add.empty.title', 'MDC', 'No custom attribute sets found'),
                     reasons: [
                         Uni.I18n.translate('Imt.metrologyconfiguration.add.empty.list.item1', 'MDC', 'All cutom attribute sets already added'),
@@ -44,12 +45,14 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSetsAdd', {
             buttonAlign: 'left',
             buttons: [
                 {
+                    itemId: 'cas-button-add',
                     text: Uni.I18n.translate('general.add', 'IMT', 'Add'),
                     ui: 'action',
                     action: 'add',
                     disabled: true
                 },
                 {
+                    itemId: 'cas-button-cancel',
                     text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
                     ui: 'link',
                     action: 'cancel'
