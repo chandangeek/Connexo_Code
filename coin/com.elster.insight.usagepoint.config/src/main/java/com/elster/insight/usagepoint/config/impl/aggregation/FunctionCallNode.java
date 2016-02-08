@@ -1,25 +1,24 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
+import com.elster.jupiter.orm.associations.Reference;
+
+import java.math.BigDecimal;
+import java.util.List;
+
 /**
  * Created by igh on 4/02/2016.
  */
-public class FunctionCallNode implements ExpressionNode {
+public class FunctionCallNode extends AbstractNode implements ExpressionNode {
 
-    private final IdentifierNode identifier;
-    private final ArgumentListNode argumentList;
+    private final Function function;
 
-    public FunctionCallNode(IdentifierNode identifier, ArgumentListNode argumentList) {
-        super();
-        this.identifier = identifier;
-        this.argumentList = argumentList;
+    public FunctionCallNode(Reference<ExpressionNode> parent, List<ExpressionNode> children, Function function) {
+        super(parent, children);
+        this.function = function;
     }
 
-    public IdentifierNode getIdentifier() {
-        return identifier;
-    }
-
-    public ArgumentListNode getArgumentList() {
-        return argumentList;
+    public Function getFunction() {
+        return function;
     }
 
     @Override

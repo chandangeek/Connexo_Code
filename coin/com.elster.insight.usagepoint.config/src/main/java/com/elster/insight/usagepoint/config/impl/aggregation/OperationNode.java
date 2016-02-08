@@ -1,31 +1,23 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
+import com.elster.jupiter.orm.associations.Reference;
+
+import java.util.List;
+
 /**
  * Created by igh on 4/02/2016.
  */
-public class OperationNode implements ExpressionNode {
+public class OperationNode extends AbstractNode implements ExpressionNode {
 
     private final Operator operator;
-    private final ExpressionNode left;
-    private final ExpressionNode right;
 
-    public OperationNode(Operator operator, ExpressionNode left, ExpressionNode right) {
-        super();
+    public OperationNode(Reference<ExpressionNode> parent, List<ExpressionNode> children, Operator operator) {
+        super(parent, children);
         this.operator = operator;
-        this.left = left;
-        this.right = right;
     }
 
     public Operator getOperator() {
         return operator;
-    }
-
-    public ExpressionNode getLeft() {
-        return left;
-    }
-
-    public ExpressionNode getRight() {
-        return right;
     }
 
     @Override

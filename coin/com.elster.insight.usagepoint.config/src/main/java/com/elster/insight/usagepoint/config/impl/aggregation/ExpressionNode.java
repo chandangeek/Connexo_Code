@@ -26,11 +26,11 @@ import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
  * ReadingTypeRequirementNode ::= LeafNode(ReadingTypeRequirement)
  * ReadingTypeDeliverableNode ::= LeafNode(ReadingTypeDeliverable)
  * VariableNode               ::= LeafNode(CustomPropertySet, PropertySpec)
- * IdentifierNode             ::= LeafNode(String)
- * OperationNode              ::= BinaryNode(Operator, ExpressionNode, ExpressionNode)
+ * IdentifierNode             ::= LeafNode(Function)
+ * OperationNode              ::= InternalNode(Operator)
  * Operator                   ::= + | - | * | /
- * FunctionCallNode           ::= BinaryNode(IdentifierNode, ArgumentListNode)
- * ArgumentListNode           ::= List<ExpressionNode>
+ * Function                   ::= AVG | MIN | MAX | SUM
+ * FunctionCallNode           ::= InternalNode(IdentifierNode, ArgumentListNode)
  * </code></pre>
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -45,10 +45,8 @@ public interface ExpressionNode {
         void visitVirtualRequirement(VirtualRequirementNode requirement);
         void visitVirtualDeliverable(VirtualDeliverableNode deliverable);
         //void visitVariable(ExpressionNode variable);
-        void visitIdentifier(IdentifierNode identifier);
         void visitOperation(OperationNode operatorNode);
         void visitFunctionCall(FunctionCallNode functionCall);
-        void visitArgumentList(ArgumentListNode argumentList);
     }
 
     void accept(Visitor visitor);
