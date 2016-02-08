@@ -39,7 +39,7 @@ Ext.define('Imt.customattributesonvaluesobjects.service.VersionsManager', {
         if (inline) {
             container.add({
                 xtype: 'button',
-                icon: '../mdc/resources/images/pencil-12.png',
+                icon: '../imt/resources/images/pencil-12.png',
                 cls: 'uni-btn-transparent masterfield-btn',
                 width: '10px',
                 tooltip: Uni.I18n.translate('general.tooltip.editVersion', 'IMT', 'Edit version'),
