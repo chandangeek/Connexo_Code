@@ -21,11 +21,9 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
             {
                 xtype: 'form',
                 itemId: 'view-form',
-                //hidden: true,
                 defaults: {
                     xtype: 'displayfield',
-                    labelWidth: 250,
-                    //width: 600
+                    labelWidth: 250
                 },
                 items: [
                     {
@@ -61,7 +59,6 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                         fieldLabel: Uni.I18n.translate('general.label.connectionState', 'IMT', 'Connection state'),
                         renderer: function (value) {
                             return value ? value : '-';
-                            //return value;
                         }
                     }
                 ]
@@ -71,48 +68,36 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                 itemId: 'edit-form',
                 hidden: true,
                 defaults: {
-                    //xtype: 'displayfield',
-                    labelWidth: 250,
-                    //width: 600
+                    labelWidth: 250
                 },
                 items: [
                     {
                         xtype: 'textfield',
                         disabled: true,
                         name: 'mRID',
-                        //itemId: 'fld-up-mRID',
-                        fieldLabel: Uni.I18n.translate('general.label.mRID', 'IMT', 'MRID'),
-                        //renderer: function (value) {
-                        //    return value ? value : '-';
-                        //}
+                        itemId: 'up-mrid-textfield',
+                        fieldLabel: Uni.I18n.translate('general.label.mRID', 'IMT', 'MRID')
                     },
                     {
                         xtype: 'textfield',
                         name: 'name',
-                        itemId: 'fld-up-name',
-                        fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
-                        //renderer: function (value) {
-                        //    return value ? value : '-';
-                        //}
+                        itemId: 'up-name-textfield',
+                        fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name')
                     },
                     {
                         xtype: 'combobox',
                         disabled: true,
                         name: 'serviceCategory',
-                        itemId: 'fld-up-serviceCategory',
+                        itemId: 'up-service-category-combo',
                         fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category')
                     },
-
                     {
                         xtype: 'combobox',
                         disabled: true,
                         name: 'connectionState',
-                        itemId: 'fld-up-connectionState',
-                        fieldLabel: Uni.I18n.translate('general.label.connectionState', 'IMT', 'Connection state'),
-                        //renderer: function (value) {
-                        //    return value ? value : '-';
-                        //}
-                    },
+                        itemId: 'up-connection-state-combo',
+                        fieldLabel: Uni.I18n.translate('general.label.connectionState', 'IMT', 'Connection state')
+                    }
                 ]
             }
         ];

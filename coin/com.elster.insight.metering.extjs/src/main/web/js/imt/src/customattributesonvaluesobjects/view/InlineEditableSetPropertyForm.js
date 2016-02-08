@@ -2,6 +2,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
     extend: 'Ext.form.Panel',
     alias: 'widget.inline-editable-set-property-form',
 
+    parent: null,
     router: null,
     record: null,
     actionMenuXtype: null,
@@ -31,12 +32,13 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                 xtype: 'title-with-edit-button',
                 record: me.record,
                 title: me.record.get('name'),
-                hiddenBtn: me.record.get('timesliced') && !me.record.get('isActive'),
+                hiddenBtn: !me.record.get('isEditable') || (me.record.get('isVersioned') && !me.record.get('isActive')),
                 editHandler: function () {
                     Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(true);
                     me.down('property-form').makeEditable(me.record);
                     me.down('#bottom-buttons').show();
                     action.hide();
+                    me.down('#pencil-btn').hide();
                 }
             },
             {
@@ -44,7 +46,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                 itemId: 'time-sliced-versions-container',
                 layout: 'hbox',
                 hidden: true,
-                margin: '0 0 30 0'
+                margin: '0 0 10 0'
             },
             {
                 xtype: 'property-form',
@@ -52,9 +54,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                 width: '100%',
                 isEdit: false,
                 defaults: {
-                    //resetButtonHidden: true,
-                    labelWidth: 250,
-                    //width: 600
+                    labelWidth: 250
                 }
             }
         ];
@@ -79,21 +79,17 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                     handler: function () {
 
                         me.down('property-form').updateRecord();
+                        me.record.set('parent', me.parent);
 
                         me.record.save({
                             success: function (record, response, success) {
+
                                 me.router.getRoute().forward();
-                                //if (success) {
-                                //
-                                //} else {
-                                //    var responseText = Ext.decode(response.response.responseText, true);
-                                //    if (responseText && Ext.isArray(responseText.errors)) {
-                                //        me.down('property-form').markInvalid(responseText.errors);
-                                //    }
-                                //}
+
                             },
-                            failure: function(record, response, success){
+                            failure: function (record, response, success) {
                                 var responseText = Ext.decode(response.response.responseText, true);
+                                console.log(responseText);
                                 if (responseText && Ext.isArray(responseText.errors)) {
                                     me.down('property-form').markInvalid(responseText.errors);
                                 }
@@ -121,6 +117,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                         me.down('property-form').makeNotEditable(me.record);
                         me.down('#bottom-buttons').hide();
                         action.show();
+                        me.down('#pencil-btn').show();
                     }
                 }
             ]
@@ -130,28 +127,28 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
 
         me.callParent(arguments);
         versionsContainer = me.down('#time-sliced-versions-container');
-        if (me.record.get('timesliced')) {
-            Imt.customattributesonvaluesobjects.service.VersionsManager.addVersion(me.record, versionsContainer, me.router, me.attributeSetType, me.down('#property-info-container'));
+        if (me.record.get('isVersioned')) {
+            Imt.customattributesonvaluesobjects.service.VersionsManager.addVersion(me.record, versionsContainer, me.router, me.attributeSetType, me.down('#property-info-container'), true);
             versionsContainer.show();
         } else {
             me.down('#property-info-container').loadRecord(me.record);
         }
-        if (me.actionMenuXtype && me.record.get('editable')) {
+        if (me.actionMenuXtype && me.record.get('isEditable')) {
 
-            action = Ext.create('Ext.menu.Item',{
+            action = Ext.create('Ext.menu.Item', {
                 itemId: 'action-menu-custom-attribute' + me.record.get('id'),
                 menuItemClass: 'inlineEditableAttributeSet',
-//                    privileges: Imt.privileges.Device.administrateDeviceData,
                 text: Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [Ext.String.htmlEncode(me.record.get('name'))]),
                 handler: function () {
                     Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(true);
                     me.down('property-form').makeEditable(me.record);
                     me.down('#bottom-buttons').show();
+                    me.down('#pencil-btn').hide();
                     this.hide();
                 }
             });
 
-            if (!(me.record.get('timesliced') && !me.record.get('isActive'))) {
+            if (!(me.record.get('isVersioned') && !me.record.get('isActive'))) {
                 Ext.each(actionMenusArray, function (menu) {
                     menu.add(action);
                 });

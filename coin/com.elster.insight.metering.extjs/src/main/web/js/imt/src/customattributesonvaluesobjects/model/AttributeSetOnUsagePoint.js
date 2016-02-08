@@ -6,8 +6,7 @@ Ext.define('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint',
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/udr/usagepoints/{mRID}/customproperties',
-        url: '/api/udr/usagepoints/123/customproperties',
+        urlTpl: '/api/udr/usagepoints/{mRID}/properties',
 
         setUrl: function (mRID) {
             this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));

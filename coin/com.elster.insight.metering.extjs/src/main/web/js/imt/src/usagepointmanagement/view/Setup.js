@@ -6,12 +6,13 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         'Imt.usagepointmanagement.view.AssociatedDevices',
         'Imt.usagepointmanagement.view.AssociatedMetrologyConfiguration',
         'Imt.usagepointmanagement.view.UsagePointSideMenu',
-        //'Imt.usagepointmanagement.view.UsagePointAttributesFormMain',
         'Imt.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm',
         'Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAttributesPanel',
         'Imt.usagepointmanagement.view.SetupActionMenu'
     ],
+    parent: null,
     router: null,
+    minWidth: 1600,
     content: [
         {
             xtype: 'panel',
@@ -70,19 +71,24 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         this.callParent(arguments);
 
         me.down('#usagePointSetupPanel').add(
+
             {
-                xtype: 'panel',
+                xtype: 'container',
+                padding: 5,
                 layout: {
                     type: 'hbox',
-
                 },
                 defaults: {
                     flex: 1
                 },
                 items: [
                     {
-                        //xtype: 'panel',
+                        style: {
+                            marginRight: '20px',
+                            padding: '20px'
+                        },
                         ui: 'tile',
+                        parent: me.parent,
                         title: Uni.I18n.translate('usagepoint.metrologyconfiguration', 'IMT', 'Metrology configuration'),
                         xtype: 'associated-metrology-configuration',
                         router: me.router,
@@ -110,6 +116,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                             {
                                 xtype: 'custom-attribute-sets-placeholder-form',
                                 inline: true,
+                                parent: me.parent,
                                 itemId: 'custom-attribute-sets-placeholder-form-id',
                                 actionMenuXtype: 'usage-point-setup-action-menu',
                                 attributeSetType: 'up',

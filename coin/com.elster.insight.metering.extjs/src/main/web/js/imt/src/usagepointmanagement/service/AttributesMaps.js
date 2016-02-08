@@ -8,7 +8,6 @@ Ext.define('Imt.usagepointmanagement.service.AttributesMaps', {
     },
 
     serviceCategoryTechnicalAttributesFormMap: {
-        //null: 'general-attributes-form',
         "GENERAL": 'general-attributes-form',
         "ELECTRICITY": 'technical-attributes-form-electricity'
     },

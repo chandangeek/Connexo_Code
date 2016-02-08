@@ -10,27 +10,26 @@ Ext.define('Imt.usagepointmanagement.view.AssociatedMetrologyConfiguration', {
 
     //title: Uni.I18n.translate('usagepoint.linked-metrologyconfiguration', 'IMT', 'Associated Metrology configuration'),
     router: null,
+    parent: null,
     //ui: 'tile',
 
     initComponent: function () {
         var me = this;
         me.items = [
             {
-                labelAlign: 'right',
-                xtype: 'fieldcontainer',
-                labelWidth: 175,
-                //fieldLabel: Uni.I18n.translate('usagepoint.metrologyconfiguration', 'IMT', 'Metrology configuration'),
-                layout: {
-                    type: 'vbox'
-                },
-                itemId: 'associatedMetrologyConfiguration',
-                items: [
-
-                ]
+                xtype: 'displayfield',
+                name: 'name',
+                labelWidth: 250,
+                itemId: 'fld-mc-name',
+                fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
+                renderer: function (value) {
+                    return value ? value : '-';
+                }
             },
             {
                 xtype: 'custom-attribute-sets-placeholder-form',
                 inline: true,
+                parent: me.parent,
                 itemId: 'metrology-custom-attribute-sets-placeholder-form-id',
                 actionMenuXtype: 'usage-point-setup-action-menu',
                 attributeSetType: 'up',

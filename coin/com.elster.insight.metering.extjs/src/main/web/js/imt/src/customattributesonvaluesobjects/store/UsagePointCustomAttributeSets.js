@@ -7,10 +7,10 @@ Ext.define('Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeS
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/udr/usagepoints/{mRID}/customproperties',
+        urlTpl: '/api/udr/usagepoints/{mRID}/properties',
         reader: {
             type: 'json',
-            root: 'customproperties'
+            root: 'customPropertySets'
         },
         pageParam: false,
         startParam: false,
