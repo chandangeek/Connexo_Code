@@ -23,10 +23,12 @@ Ext.define('CSMonitor.view.logging.Criteria', {
             items: [
                 {
                     name: 'deviceMRID',
+                    itemId: 'deviceMRID',
                     fieldLabel: 'Device MRID'
                 },
                 {
                     name: 'comportName',
+                    itemId: 'comPortName',
                     fieldLabel: 'Communication port name'
                 }
             ]

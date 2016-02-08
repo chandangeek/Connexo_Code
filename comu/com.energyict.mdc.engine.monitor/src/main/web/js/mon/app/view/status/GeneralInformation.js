@@ -20,6 +20,7 @@ Ext.define('CSMonitor.view.status.GeneralInformation', {
             items: [
                 {
                     xtype: 'component',
+                    itemId: 'statusGeneralPollingInfo',
                     html: '<h2>General polling information</h2>'
                 },
                 {
@@ -77,10 +78,12 @@ Ext.define('CSMonitor.view.status.GeneralInformation', {
             },
             items: [{
                 fieldLabel: 'Changes inter poll delay',
+                itemId: 'changesInterpollDelay',
                 name: 'changeDetectionFrequency'
             },
             {
                 fieldLabel: 'Scheduling inter poll delay',
+                itemId: 'schedulingInterpollDelay',
                 name: 'pollingFrequency'
             }]
         }

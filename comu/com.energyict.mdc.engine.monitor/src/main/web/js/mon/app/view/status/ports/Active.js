@@ -2,6 +2,7 @@ Ext.define('CSMonitor.view.status.ports.Active', {
     extend: 'Ext.grid.Panel',
     xtype: 'activePorts',
     layout: 'fit',
+    itemId: 'activePorts',
     border: false,
     enableColumnHide: false, // no column choosing
     disableSelection: true, // no selection allowed

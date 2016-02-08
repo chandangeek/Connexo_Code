@@ -43,6 +43,7 @@ Ext.define('CSMonitor.view.logging.Communication', {
                             xtype: 'image',
                             src: 'resources/images/inbound.png',
                             margins: '5,0,0,5',
+                            itemId: 'inboundImage',
                             width: 48,
                             height: 48
                         },
@@ -50,6 +51,7 @@ Ext.define('CSMonitor.view.logging.Communication', {
                             xtype: 'image',
                             src: 'resources/images/outbound.png',
                             margins: '5,0,0,0',
+                            itemId: 'outboundImage',
                             width: 48,
                             height: 48
                         }
@@ -64,6 +66,7 @@ Ext.define('CSMonitor.view.logging.Communication', {
                     items: [
                         {
                             xtype: 'component',
+                            itemId: 'inboundOutboundTxt',
                             html: '<b>Inbound/outbound communication <sup>*</sup></b>'
                         },
                         {
@@ -76,6 +79,7 @@ Ext.define('CSMonitor.view.logging.Communication', {
                         },
                         {
                             xtype: 'component',
+                            itemId: 'inboundOutboundInfo',
                             html: 'Opens a new browser tab containing logging about:<ul><li>Scheduler</li><li>Inbound/outbound connections</li><li>Communication tasks</li></ul>'
                         }
                     ]
