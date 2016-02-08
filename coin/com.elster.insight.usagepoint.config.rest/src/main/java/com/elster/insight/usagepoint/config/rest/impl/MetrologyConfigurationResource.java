@@ -217,7 +217,7 @@ public class MetrologyConfigurationResource {
 
     @GET
     @Path("/{id}/custompropertysets")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.VIEW_CPS_ON_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getMetrologyConfigCustomPropertySets(@PathParam("id") long id,
                                                               @QueryParam("linked") @DefaultValue("true") boolean linked,
@@ -242,7 +242,7 @@ public class MetrologyConfigurationResource {
 
     @PUT
     @Path("/{id}/custompropertysets")
-    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_CPS_ON_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION})
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
@@ -264,7 +264,7 @@ public class MetrologyConfigurationResource {
     @Path("/{id}/custompropertysets/{cpsId}")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_CPS_ON_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION})
     @Transactional
     public MetrologyConfigurationInfo removeCustomPropertySetFromMetrologyConfiguration(@PathParam("id") long id,
                                                                                         @PathParam("cpsId") String cpsId,
