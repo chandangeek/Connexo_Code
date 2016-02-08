@@ -19,13 +19,13 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
         var me = this, action,
             title = Uni.I18n.translate('general.technicalInformation', 'IMT', 'Technical information'),
             actualForm,
-            editActionTitle = Uni.I18n.translate('general.editTechnicalInformation', 'IMT', 'Edit Technical information');
+            editActionTitle = Uni.I18n.translate('general.editTechnicalInformation', 'IMT', "Edit 'Technical information'");
 
         if(me.category){
             actualForm = Imt.usagepointmanagement.service.AttributesMaps.getForm(me.category);
         } else {
             title = Uni.I18n.translate('general.generalInformation', 'IMT', 'General information');
-            editActionTitle = Uni.I18n.translate('general.editGeneralInformation', 'IMT', 'Edit General information');
+            editActionTitle = Uni.I18n.translate('general.editGeneralInformation', 'IMT', "Edit 'General information'");
             actualForm = Imt.usagepointmanagement.service.AttributesMaps.getForm("GENERAL");
         }
 
