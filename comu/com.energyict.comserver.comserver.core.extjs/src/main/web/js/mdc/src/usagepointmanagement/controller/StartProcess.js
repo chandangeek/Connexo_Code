@@ -30,7 +30,6 @@ Ext.define('Mdc.usagepointmanagement.controller.StartProcess', {
                 var widget;
 
                 me.getApplication().fireEvent('usagePointLoaded', usagepoint);
-
                 viewport.setLoading(false);
                 widget = Ext.widget('mdc-usage-point-start-process-view', {
                     router: me.getController('Uni.controller.history.Router'),
@@ -54,7 +53,7 @@ Ext.define('Mdc.usagepointmanagement.controller.StartProcess', {
                                 value: id
                             }
                         ],
-                        successLink: router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: id}),
+                        successLink: router.getRoute('usagepoints/usagepoint/processes').buildUrl({usagePointId: id}),
                         cancelLink: router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: id})
                     }
                 });
