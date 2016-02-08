@@ -23,11 +23,11 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
  * ReadingTypeRequirementNode ::= LeafNode(ReadingTypeRequirement)
  * ReadingTypeDeliverableNode ::= LeafNode(ReadingTypeDeliverable)
  * VariableNode               ::= LeafNode(CustomPropertySet, PropertySpec)
- * IdentifierNode             ::= LeafNode(String)
- * OperationNode              ::= BinaryNode(Operator, ExpressionNode, ExpressionNode)
+ * IdentifierNode             ::= LeafNode(Function)
+ * OperationNode              ::= InternalNode(Operator)
  * Operator                   ::= + | - | * | /
- * FunctionCallNode           ::= BinaryNode(IdentifierNode, ArgumentListNode)
- * ArgumentListNode           ::= List<ExpressionNode>
+ * Function                   ::= AVG | MIN | MAX | SUM
+ * FunctionCallNode           ::= InternalNode(IdentifierNode, ArgumentListNode)
  * </code></pre>
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -39,11 +39,9 @@ public interface ExpressionNode {
         T visitConstant(ConstantNode constant);
         T visitRequirement(ReadingTypeRequirementNode requirement);
         T visitDeliverable(ReadingTypeDeliverableNode deliverable);
-        //T visitVariable(ExpressionNode variable);
         T visitIdentifier(IdentifierNode identifier);
         T visitOperation(OperationNode operatorNode);
         T visitFunctionCall(FunctionCallNode functionCall);
-        T visitArgumentList(ArgumentListNode argumentList);
     }
 
     <T> T accept(Visitor<T> visitor);
