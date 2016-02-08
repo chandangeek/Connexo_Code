@@ -1,5 +1,9 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
+
 /**
  * Models a node of expression that comply with the BNF below.
  * <pre><code>
@@ -34,6 +38,7 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
  * @since 2016-02-04 (15:08)
  */
 public interface ExpressionNode {
+
 
     interface Visitor<T> {
         T visitConstant(ConstantNode constant);

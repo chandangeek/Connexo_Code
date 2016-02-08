@@ -1,11 +1,16 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
+import com.google.common.collect.ImmutableMap;
+
 import java.math.BigDecimal;
+import java.util.Map;
 
 /**
  * Created by igh on 4/02/2016.
  */
 public class ConstantNode extends AbstractNode implements ServerExpressionNode {
+
+    static String TYPE_IDENTIFIER = "CST";
 
     private final BigDecimal value;
 
