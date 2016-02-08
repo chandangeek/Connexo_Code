@@ -4,7 +4,8 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
 
 
     requires: [
-        'Uni.form.field.Duration'
+        'Uni.form.field.Duration',
+        'Imt.usagepointmanagement.view.landingpageattributes.QuantityAttribute'
     ],
     layout: {
         type: 'vbox',
@@ -87,34 +88,50 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                 },
                 items: [
                     {
+                        xtype: 'checkbox',
                         name: 'grounded',
                         itemId: 'up-grounded-textfield',
                         fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
                     },
-                    {
-                        name: 'nominalServiceVoltage',
-                        itemId: 'up-service-voltage-textfield',
-                        fieldLabel: Uni.I18n.translate('general.label.voltage', 'IMT', 'Nominal voltage')
-                    },
+                    //{
+                    //    name: 'nominalServiceVoltage',
+                    //    itemId: 'up-service-voltage-textfield',
+                    //    fieldLabel: Uni.I18n.translate('general.label.voltage', 'IMT', 'Nominal voltage')
+                    //},
                     {
                         name: 'phaseCode',
                         itemId: 'up-phase-textfield',
                         fieldLabel: Uni.I18n.translate('general.label.phaseCode', 'IMT', 'Phase code')
+
                     },
                     {
-                        name: 'ratedCurrent',
-                        itemId: 'up-rated-current-textfield',
-                        fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current')
+                        xtype: 'quantity-edit-field',
+                        itemId: 'nominalServiceVoltage-quantity'
+                        //name: 'phaseCode',
+                        //itemId: 'up-phase-textfield',
+                        //fieldLabel: Uni.I18n.translate('general.label.phaseCode', 'IMT', 'Phase code')
+
                     },
                     {
-                        name: 'ratedPower',
-                        itemId: 'up-rated-power-textfield',
-                        fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power')
+                        xtype: 'quantity-edit-field',
+                        itemId: 'ratedCurrent-quantity'
+                        //name: 'ratedCurrent',
+                        //itemId: 'up-rated-current-textfield',
+                        //fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current')
                     },
                     {
-                        name: 'estimatedLoad',
-                        itemId: 'up-estimated-load-textfield',
-                        fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load')
+                        xtype: 'quantity-edit-field',
+                        itemId: 'ratedPower-quantity'
+                        //name: 'ratedPower',
+                        //itemId: 'up-rated-power-textfield',
+                        //fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power')
+                    },
+                    {
+                        xtype: 'quantity-edit-field',
+                        itemId: 'estimatedLoad-quantity'
+                        //name: 'estimatedLoad',
+                        //itemId: 'up-estimated-load-textfield',
+                        //fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load')
                     }
                 ]
             }
@@ -122,12 +139,12 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
         me.callParent();
     },
     renderValue: function (data) {
-    if (data) {
-        if (data.multiplier == 0)
-            return data.value + ' ' + data.unit;
-        else
-            return data.value + '*10<sup style="vertical-align: top; position: relative; top: -0.5em;">' + data.multiplier + '</sup> ' + data.unit;
+        if (data) {
+            if (data.multiplier == 0)
+                return data.value + ' ' + data.unit;
+            else
+                return data.value + '*10<sup style="vertical-align: top; position: relative; top: -0.5em;">' + data.multiplier + '</sup> ' + data.unit;
 
-    } else return '-';
-}
+        } else return '-';
+    }
 });

@@ -22,10 +22,10 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'version', type: 'number', useNull: true},
         {name: 'metrologyConfiguration', type: 'auto'},
         //For ELECTRICITY
-        {name: 'nominalServiceVoltage', type: 'auto', defaultValue: undefined},
-        {name: 'ratedCurrent', type: 'auto', defaultValue: undefined},
-        {name: 'ratedPower', type: 'auto', defaultValue: undefined},
-        {name: 'estimatedLoad', type: 'auto', defaultValue: undefined},
+        {name: 'nominalServiceVoltage', type: 'auto', defaultValue: undefined, 'customType': 'quantity'},
+        {name: 'ratedCurrent', type: 'auto', defaultValue: undefined, 'customType': 'quantity'},
+        {name: 'ratedPower', type: 'auto', defaultValue: undefined, 'customType': 'quantity'},
+        {name: 'estimatedLoad', type: 'auto', defaultValue: undefined,'customType': 'quantity'},
         {name: 'grounded', type: 'boolean'},
         {name: 'phaseCode', type: 'string', defaultValue: 'UNKNOWN'},
         //For WATER

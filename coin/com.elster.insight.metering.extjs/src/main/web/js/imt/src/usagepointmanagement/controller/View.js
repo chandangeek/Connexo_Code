@@ -53,6 +53,8 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
 
 
 
+
+
                 //var store = me.getStore('Imt.usagepointmanagement.store.MeterActivations'),
                 //		associatedDevices = me.getAssociatedDevices();
                 //store.getProxy().setExtraParam('usagePointMRID', mRID);

@@ -35,13 +35,24 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
 //                    privileges: Imt.privileges.Device.administrateDeviceData,
             text: editActionTitle,
             handler: function () {
+
+
                 me.down('#edit-form').loadRecord(me.record);
                 me.down('#pencil-btn').hide();
                 me.down('#view-form').hide();
                 me.down('#edit-form').show();
+                //console.log(me.down('#edit-form').getForm().getFields());
                 me.down('#bottom-buttons').show();
                 Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(true);
                 this.hide();
+
+                Ext.each(me.record.fields.items, function(value){
+                    //console.log(value);
+                    if(value.customType && value.customType == 'quantity'){
+                        me.down('#' + value.name + '-quantity').setQuantityValue(me.record.get(value.name));
+
+                    }
+                });
             }
         });
 
@@ -82,18 +93,21 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
 
                             record.set(me.down('#edit-form').getValues());
 
-                            record.save({
-                                success: function(){
-
-                                },
-                                failure: function(record, response, success){
+                            Ext.Ajax.request({
+                                url: Ext.String.format('/api/udr/usagepoints/{0}', encodeURIComponent(record.get('mRID'))),
+                                method: 'PUT',
+                                jsonData: Ext.encode(record.getData()),
+                                timeout: 300000,
+                                success: function () {
+                               },
+                                failure: function (response) {
                                     var responseText = Ext.decode(response.response.responseText, true);
                                     if (responseText && Ext.isArray(responseText.errors)) {
                                         me.down('#edit-form').markInvalid(responseText.errors);
                                     }
                                     record.set(baseRecord.getData());
                                 }
-                            })
+                            });
                         }
                     },
                     {
@@ -107,6 +121,13 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
                             me.down('#edit-form').hide();
                             me.down('#bottom-buttons').hide();
                             Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(false);
+                            Ext.each(me.record.fields.items, function(value){
+                                //console.log(value);
+                                if(value.customType && value.customType == 'quantity'){
+                                    me.down('#' + value.name + '-quantity').setQuantityValue(me.record.get(value.name));
+
+                                }
+                            });
                         }
                     }
                 ]
