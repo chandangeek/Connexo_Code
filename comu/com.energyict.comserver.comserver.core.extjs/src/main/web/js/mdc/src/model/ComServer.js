@@ -43,7 +43,7 @@ Ext.define('Mdc.model.ComServer', {
             persist: false,
             mapping: function (data) {
                 if (data.eventRegistrationUri){
-                    return Mdc.util.UriParser.parse(data.statusUri).hostname;
+                    return Ext.create('Mdc.util.UriParser').parse(data.statusUri).hostname;
                 }
                 return '';
             }
@@ -53,7 +53,7 @@ Ext.define('Mdc.model.ComServer', {
             persist: false,
             mapping: function (data) {
                 if (data.eventRegistrationUri){
-                    return Mdc.util.UriParser.parse(data.statusUri).port;
+                    return Ext.create('Mdc.util.UriParser').parse(data.statusUri).port;
                 }
                 return '';
             }
@@ -63,7 +63,7 @@ Ext.define('Mdc.model.ComServer', {
             persist: false,
             mapping: function (data) {
                 if (data.eventRegistrationUri){
-                    return Mdc.util.UriParser.parse(data.eventRegistrationUri).port;
+                    return Ext.create('Mdc.util.UriParser').parse(data.eventRegistrationUri).port;
                 }
                 return '';
             }
@@ -90,11 +90,12 @@ Ext.define('Mdc.model.ComServer', {
             type: 'json'
         }
     },
-    updateHostNameOfUrisifNeeded: function (){
-        var current =  Mdc.util.UriParser.parse(this.get('statusUri')).hostname;
-        if (this.get('serverName') !== current) {
-            var statusUri = Mdc.util.UriParser.parse(this.get('statusUri')).withHostName(this.get('serverName')).buildUrl(),
-                eventRegistrationUri = Mdc.util.UriParser.parse(this.get('eventRegistrationUri')).withHostName(this.get('serverName')).buildUrl();
+    updateHostNameOfUrisIfNeeded: function (){
+        var currentStatusUri =  Ext.create('Mdc.util.UriParser').parse(this.get('statusUri')),
+            currentEventRegistrationUri =  Ext.create('Mdc.util.UriParser').parse(this.get('eventRegistrationUri'));
+        if (this.get('serverName') !== currentStatusUri.hostname) {
+            var statusUri = currentStatusUri.withHostName(this.get('serverName')).buildUrl(),
+                eventRegistrationUri = currentEventRegistrationUri.withHostName(this.get('serverName')).buildUrl();
 
             this.set('statusUri', statusUri);
             this.set('usesDefaultStatusUri', false);
@@ -104,18 +105,18 @@ Ext.define('Mdc.model.ComServer', {
 
         }
     },
-    updateMonitorAndStatusPortifNeeded: function (){
-        var current =  Mdc.util.UriParser.parse(this.get('statusUri')).port;
-        if (this.get('monitorPort') !== current) {
-            var statusUri = Mdc.util.UriParser.parse(this.get('statusUri')).withPort(this.get('monitorPort')).buildUrl();
+    updateMonitorAndStatusPortIfNeeded: function (){
+        var currentStatusUri =  Ext.create('Mdc.util.UriParser').parse(this.get('statusUri'));
+        if (this.get('monitorPort') !== currentStatusUri.port) {
+            var statusUri = currentStatusUri.withPort(this.get('monitorPort')).buildUrl();
             this.set('statusUri', statusUri);
             this.set('usesDefaultStatusUri', false);
         }
     },
-    updateEventRegistrationPortifNeeded: function (){
-        var current =  Mdc.util.UriParser.parse(this.get('eventRegistrationUri')).port;
-        if (this.get('eventRegistrationPort') !=  current) {
-            var eventRegistrationUri = Mdc.util.UriParser.parse(this.get('eventRegistrationUri')).withPort(this.get('eventRegistrationPort')).buildUrl();
+    updateEventRegistrationPortIfNeeded: function (){
+        var currentEventRegistrationUri =  Ext.create('Mdc.util.UriParser').parse(this.get('eventRegistrationUri'));
+        if (this.get('eventRegistrationPort') !=  currentEventRegistrationUri.port) {
+            var eventRegistrationUri = currentEventRegistrationUri.withPort(this.get('eventRegistrationPort')).buildUrl();
             this.set('eventRegistrationUri', eventRegistrationUri);
             this.set('usesDefaultEventRegistrationUri', false);
         }

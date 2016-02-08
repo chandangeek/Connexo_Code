@@ -220,7 +220,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
     },
 
     openComserverMonitor: function (record) {
-        var monitorUri = Mdc.util.UriParser.parse(record.get('statusUri')).withPort(record.get('monitorPort')).withPath('/apps/comservermonitor/index.html').buildUrl();
+        var monitorUri = Ext.create('Mdc.util.UriParser').parse(record.get('statusUri')).withPort(record.get('monitorPort')).withPath('/apps/comservermonitor/index.html').buildUrl();
         window.open(monitorUri);
     },
 

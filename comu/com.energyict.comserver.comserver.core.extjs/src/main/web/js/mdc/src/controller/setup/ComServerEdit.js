@@ -97,12 +97,12 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
         model.set('numberOfStoreTaskThreads', 1);
         model.set('storeTaskThreadPriority', 5);
 
-        model.set('statusUri', Mdc.util.UriParser.parse('http://localhost:8080/api/dsr/comserverstatus').withHostName('').buildUrl());
-        model.set('usesDefaultStatusUri', false);
+        model.set('statusUri', 'http://localhost:8080/api/dsr/comserverstatus');
+        model.set('usesDefaultStatusUri', true);
         model.set('monitorPort', 8080);
 
-        model.set('eventRegistrationUri', Mdc.util.UriParser.parse('ws://localhost:8888/event/registration').withHostName('').buildUrl());
-        model.set('usesDefaultEventRegistrationUri', false);
+        model.set('eventRegistrationUri', 'ws://localhost:8888/event/registration');
+        model.set('usesDefaultEventRegistrationUri', true);
         model.set('eventRegistrationPort', 8888);
 
         model.set('usesDefaultQueryAPIPostUri', true);
@@ -173,9 +173,9 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
             model = this.comServerModel;
         model.beginEdit();
         model.set(values);
-        model.updateHostNameOfUrisifNeeded();
-        model.updateMonitorAndStatusPortifNeeded();
-        model.updateEventRegistrationPortifNeeded();
+        model.updateHostNameOfUrisIfNeeded();
+        model.updateMonitorAndStatusPortIfNeeded();
+        model.updateEventRegistrationPortIfNeeded();
         model.endEdit();
 
         return model;
