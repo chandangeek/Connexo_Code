@@ -632,7 +632,7 @@ public enum TableSpecs {
             Column calculated = table.column("CALCULATED").varChar(NAME_LENGTH).add();
             Column multiplierType = table.column("MULTIPLIERTYPE").varChar(NAME_LENGTH).add();
             table.addAuditColumns();
-            table.column("OVERFLOW").number().conversion(ColumnConversion.NUMBER2LONGWRAPPER).map("overflowValue").add();
+            table.column("OVERFLOW").number().map("overflowValue").add();
             table.column("FRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INTWRAPPER).map("numberOfFractionDigits").add();
 
             table.primaryKey("MTR_PK_RT_METER_CONFIG").on(meterConfig, measured).add();

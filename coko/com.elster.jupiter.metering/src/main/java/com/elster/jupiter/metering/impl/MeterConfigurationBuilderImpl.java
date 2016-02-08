@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.graph.DiGraph;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +76,7 @@ class MeterConfigurationBuilderImpl implements MeterConfigurationBuilder {
     private class ReadingTypeConfigurationBuilder implements MeterReadingTypeConfigurationBuilder, MeterReadingTypeMultiplierConfigurationBuilder {
         private final ReadingType measured;
         private ReadingType calculated;
-        private Long overflowValue;
+        private BigDecimal overflowValue;
         private Integer numberOfFractionDigits;
         private MultiplierTypeImpl multiplierType;
 
@@ -85,8 +86,8 @@ class MeterConfigurationBuilderImpl implements MeterConfigurationBuilder {
         }
 
         @Override
-        public MeterReadingTypeConfigurationBuilder withOverflowValue(long digits) {
-            this.overflowValue = digits;
+        public MeterReadingTypeConfigurationBuilder withOverflowValue(BigDecimal value) {
+            this.overflowValue = value;
             return this;
         }
 

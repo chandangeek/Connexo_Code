@@ -242,22 +242,28 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public ReadingStorer createOverrulingStorer() {
-        return ReadingStorerImpl.createOverrulingStorer(idsService, eventService);
+        return withListeners(ReadingStorerImpl.createOverrulingStorer(idsService, eventService));
     }
 
     @Override
     public ReadingStorer createNonOverrulingStorer() {
-        return ReadingStorerImpl.createNonOverrulingStorer(idsService, eventService);
+        return withListeners(ReadingStorerImpl.createNonOverrulingStorer(idsService, eventService));
     }
 
     @Override
     public ReadingStorer createUpdatingStorer() {
-        return ReadingStorerImpl.createUpdatingStorer(idsService, eventService);
+        return withListeners(ReadingStorerImpl.createUpdatingStorer(idsService, eventService));
     }
 
     @Override
     public ReadingStorer createUpdatingStorer(StorerProcess process) {
-        return ReadingStorerImpl.createUpdatingStorer(idsService, eventService, process);
+        return withListeners(ReadingStorerImpl.createUpdatingStorer(idsService, eventService, process));
+    }
+
+    private ReadingStorer withListeners(ReadingStorerImpl storer) {
+        storer.subscribe(BackflowMarker.INSTANT);
+        storer.subscribe(OverflowMarker.INSTANT);
+        return storer;
     }
 
     @Override

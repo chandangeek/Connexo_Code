@@ -88,6 +88,8 @@ public class ReadingStorerImplDerivationTest {
         when(channel.getReadingTypes()).thenReturn(asList(secondaryDeltaReadingType, secondaryBulkReadingType));
         when(channel.getDerivationRule(secondaryDeltaReadingType)).thenReturn(DerivationRule.DELTA);
         when(channel.getDerivationRule(secondaryBulkReadingType)).thenReturn(DerivationRule.MEASURED);
+        when(channel.getMeterActivation()).thenReturn(meterActivation);
+        when(meterActivation.getMeter()).thenReturn(Optional.empty());
         when(timeSeries.getRecordSpec()).thenReturn(recordSpec);
         doReturn(asList(fieldSpec, fieldSpec, fieldSpec, fieldSpec)).when(recordSpec).getFieldSpecs();
         when(idsService.createOverrulingStorer()).thenReturn(storer);
