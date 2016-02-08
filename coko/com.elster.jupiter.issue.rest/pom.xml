@@ -91,7 +91,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.groups</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
@@ -116,6 +119,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>datavault</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>search</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
