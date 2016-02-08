@@ -18,11 +18,11 @@ public class OperationNode extends AbstractNode {
         return operator;
     }
 
-    public ExpressionNode getLeftOperand() {
+    public AbstractNode getLeftOperand() {
         return this.getChildren().get(0);
     }
 
-    public ExpressionNode getRightOperand() {
+    public AbstractNode getRightOperand() {
         return this.getChildren().get(1);
     }
 

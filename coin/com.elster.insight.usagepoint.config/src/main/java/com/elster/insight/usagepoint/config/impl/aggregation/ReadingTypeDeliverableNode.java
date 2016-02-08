@@ -14,12 +14,6 @@ public class ReadingTypeDeliverableNode extends AbstractNode {
         this.readingTypeDeliverable = readingTypeDeliverable;
     }
 
-    public ReadingTypeDeliverableNode(ExpressionNode parentNode, ReadingTypeDeliverable readingTypeDeliverable) {
-        super();
-        this.setParent(parentNode);
-        this.readingTypeDeliverable = readingTypeDeliverable;
-    }
-
     public ReadingTypeDeliverable getReadingTypeDeliverable() {
         return readingTypeDeliverable;
     }

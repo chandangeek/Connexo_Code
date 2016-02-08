@@ -9,6 +9,7 @@ import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,7 +47,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
     }
 
     private void prepare(MeterActivation meterActivation, ReadingTypeDeliverable deliverable, Range<Instant> period) {
-        ExpressionNode preparedExpression = this.copyAndVirtualizeReferences(deliverable);
+        AbstractNode preparedExpression = this.copyAndVirtualizeReferences(deliverable, meterActivation);
         this.deliverablesPerMeterActivation
                 .get(meterActivation)
                 .add(new VirtualReadingTypeDeliverable(
@@ -54,13 +55,40 @@ public class DataAggregationServiceImpl implements DataAggregationService {
                         meterActivation,
                         period,
                         this.virtualFactory.meterActivationSequenceNumber(),
-                        preparedExpression));
+                        preparedExpression,
+                        this.inferAggregationInterval(deliverable, preparedExpression)));
     }
 
-    private ExpressionNode copyAndVirtualizeReferences(ReadingTypeDeliverable deliverable) {
+    /**
+     * Copies the formula of the {@link ReadingTypeDeliverable} and replaces
+     * references to requirements and deliverables with virtual references
+     * as described {@link CopyAndVirtualizeReferences}.
+     *
+     * @param deliverable The ReadingTypeDeliverable
+     * @param meterActivation The MeterActivation
+     * @return The copied formula with virtual requirements and deliverables
+     */
+    private AbstractNode copyAndVirtualizeReferences(ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
         ServerFormula formula = (ServerFormula) deliverable.getFormula();
-        CopyAndVirtualizeReferences visitor = new CopyAndVirtualizeReferences(this.virtualFactory, this.temporalAmountFactory, deliverable);
+        CopyAndVirtualizeReferences visitor = new CopyAndVirtualizeReferences(this.virtualFactory, this.temporalAmountFactory, deliverable, meterActivation);
         return formula.expressionNode().accept(visitor);
+    }
+
+    /**
+     * Infers the most appropriate aggregation interval for the expressions in the tree.
+     * Uses information provided by
+     * <ul>
+     * <li>the {@link ReadingTypeDeliverable} (for which the expression tree defines the calculation) that specifies the requested or desired aggregation interval</li>
+     * <li>other ReadingTypeDeliverable that are found in the expression tree</li>
+     * <li>ReadingTypeRequirements that are not using wildcards in the interval</li>
+     * </ul>
+     *
+     * @param deliverable The ReadingTypeDeliverable
+     * @param expressionTree The expression tree that defines how the ReadingTypeDeliverable should be calculated
+     * @return The most appropriate aggregation interval for all expressions in the tree
+     */
+    private TemporalAmount inferAggregationInterval(ReadingTypeDeliverable deliverable, AbstractNode expressionTree) {
+        return expressionTree.accept(new InferAggregationInterval(this.temporalAmountFactory.from(deliverable.getReadingType())));
     }
 
 }

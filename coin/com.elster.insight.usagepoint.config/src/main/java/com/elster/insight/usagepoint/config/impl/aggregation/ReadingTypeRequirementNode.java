@@ -14,12 +14,6 @@ public class ReadingTypeRequirementNode extends AbstractNode implements ServerEx
         this.readingTypeRequirement = readingTypeRequirement;
     }
 
-    public ReadingTypeRequirementNode(ExpressionNode parentNode, ReadingTypeRequirement readingTypeRequirement) {
-        super();
-        this.setParent(parentNode);
-        this.readingTypeRequirement = readingTypeRequirement;
-    }
-
     public ReadingTypeRequirement getReadingTypeRequirement() {
         return readingTypeRequirement;
     }

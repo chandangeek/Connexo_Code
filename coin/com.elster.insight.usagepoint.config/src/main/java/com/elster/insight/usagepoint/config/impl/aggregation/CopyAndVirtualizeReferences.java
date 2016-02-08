@@ -1,5 +1,7 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
+import com.elster.jupiter.metering.MeterActivation;
+
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 
 import java.util.List;
@@ -21,12 +23,14 @@ class CopyAndVirtualizeReferences implements ServerExpressionNode.ServerVisitor<
     private final VirtualFactory virtualFactory;
     private final TemporalAmountFactory temporalAmountFactory;
     private final ReadingTypeDeliverable deliverable;
+    private final MeterActivation meterActivation;
 
-    CopyAndVirtualizeReferences(VirtualFactory virtualFactory, TemporalAmountFactory temporalAmountFactory, ReadingTypeDeliverable deliverable) {
+    CopyAndVirtualizeReferences(VirtualFactory virtualFactory, TemporalAmountFactory temporalAmountFactory, ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
         super();
         this.virtualFactory = virtualFactory;
         this.temporalAmountFactory = temporalAmountFactory;
         this.deliverable = deliverable;
+        this.meterActivation = meterActivation;
     }
 
     @Override
@@ -37,7 +41,12 @@ class CopyAndVirtualizeReferences implements ServerExpressionNode.ServerVisitor<
     @Override
     public AbstractNode visitRequirement(ReadingTypeRequirementNode node) {
         // Replace this one with a VirtualRequirementNode
-        return new VirtualRequirementNode(this.virtualFactory, this.temporalAmountFactory, node.getReadingTypeRequirement(), this.deliverable);
+        return new VirtualRequirementNode(
+                this.virtualFactory,
+                this.temporalAmountFactory,
+                node.getReadingTypeRequirement(),
+                this.deliverable,
+                this.meterActivation);
     }
 
     @Override
