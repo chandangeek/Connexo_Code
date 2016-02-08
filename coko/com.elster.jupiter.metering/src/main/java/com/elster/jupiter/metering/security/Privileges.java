@@ -18,7 +18,7 @@ public enum Privileges implements TranslationKey {
 	BROWSE_OWN(Constants.BROWSE_OWN, "Browse own usage point"),
 	ADMIN_OWN(Constants.ADMIN_OWN, "Administrate own usage point"),
 	VIEW_READINGTYPE(Constants.VIEW_READINGTYPE, "View reading types"),
-	ADMINISTRATE_READINGTYPE(Constants.ADMINISTRATE_READINGTYPE, "Administrate reading types"),
+	ADMINISTRATE_READINGTYPE(Constants.ADMINISTRATE_READINGTYPE, "Administer reading types"),
 	VIEW_SERVICECATEGORY(Constants.VIEW_SERVICECATEGORY, "View service categories");
 
 	private final String key;
