@@ -620,14 +620,13 @@ public class BpmResource {
         List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
         RunningProcessInfos runningProcessInfos = new RunningProcessInfos(arr);
         List<RunningProcessInfo> runningProcessesList = runningProcessInfos.processes.stream()
-                .filter(s -> activeProcesses.stream().anyMatch(a -> s.name.equals(a.getProcessName())))
-                .filter(s -> activeProcesses.stream().anyMatch(a -> s.version.equals(a.getVersion())))
+                .filter(s -> activeProcesses.stream().anyMatch(a -> s.name.equals(a.getProcessName()) && s.version.equals(a.getVersion())))
                 .collect(Collectors.toList());
         runningProcessInfos.processes = runningProcessesList;
         if (total == Integer.valueOf(queryParameters.get("page").get(0)) * runningProcessInfos.total + 1) {
             runningProcessInfos.total = total;
         }else{
-            runningProcessInfos.total = Integer.valueOf(queryParameters.get("page").get(0)) * 10 - 10 + runningProcessInfos.total;
+            runningProcessInfos.total = Integer.valueOf(queryParameters.get("page").get(0)) * 10 - 10 + runningProcessesList.size();
         }
         return runningProcessInfos;
     }
