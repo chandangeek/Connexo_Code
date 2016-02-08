@@ -20,6 +20,8 @@ import javax.ws.rs.core.UriInfo;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
+
 @Path("/devicegroups")
 public class DeviceGroupResource extends BaseResource {
 
@@ -27,8 +29,7 @@ public class DeviceGroupResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE,Privileges.Constants.ASSIGN_ISSUE,Privileges.Constants.CLOSE_ISSUE,Privileges.Constants.COMMENT_ISSUE,Privileges.Constants.ACTION_ISSUE})
     public Response getDeviceGroups(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters params) {
-        List<DeviceGroupInfo> infos = queryEndDeviceGroups().stream().map(DeviceGroupInfo::new).collect(Collectors.toList());
-        return Response.ok(infos).build();
+        return entity(queryEndDeviceGroups(), DeviceGroupInfo.class).build();
     }
 
     private List<EndDeviceGroup> queryEndDeviceGroups() {
