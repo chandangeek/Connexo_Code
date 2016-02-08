@@ -769,7 +769,19 @@ public class FlagIEC1107Connection extends Connection {
      * @throws FlagIEC1107ConnectionException
      */
     public byte[] receiveData() throws IOException, ConnectionException, FlagIEC1107ConnectionException {
-        return parseDataBetweenBrackets(doReceiveDataRetry());
+        return parseDataBetweenBrackets(doReceiveDataRetry(null));
+    }
+
+    /**
+     * @return the data without the brackets
+     * @throws IOException
+     * @throws ConnectionException
+     * @throws FlagIEC1107ConnectionException
+     *
+     * @param requestObjectId: the objectId sent in the request command
+     */
+    public byte[] receiveData(String requestObjectId) throws IOException, ConnectionException, FlagIEC1107ConnectionException {
+        return parseDataBetweenBrackets(doReceiveDataRetry(requestObjectId));
     }
 
     /**
@@ -779,19 +791,21 @@ public class FlagIEC1107Connection extends Connection {
      * @throws FlagIEC1107ConnectionException
      */
     public byte[] receiveRawData() throws IOException {
-        return doReceiveDataRetry();
+        return doReceiveDataRetry(null);
     }
 
     // KV 27102004
 
-    private byte[] doReceiveDataRetry() throws IOException {
+    private byte[] doReceiveDataRetry(String requestObjectId) throws IOException {
         int retries = 0;
         while (true) {
             try {
-                return doReceiveData();
+                return doReceiveData(requestObjectId);
             }
             catch (FlagIEC1107ConnectionException e) {
-                if ((retries++ < iMaxRetries) && (getTxBuffer() != null) && ((e.getReason() == CRC_ERROR) || (e.getReason() == NAK_RECEIVED) || (e.getReason() == TIMEOUT_ERROR) || (e.getReason() == RECONNECT_ERROR))) {
+                if (e.getReason() == FlagIEC1107ConnectionException.DUPLICATE_RESPONSE){
+                    logger.info("Duplicate response for objectid " + requestObjectId);
+                }else if ((retries++ < iMaxRetries) && (getTxBuffer() != null) && ((e.getReason() == CRC_ERROR) || (e.getReason() == NAK_RECEIVED) || (e.getReason() == TIMEOUT_ERROR) || (e.getReason() == RECONNECT_ERROR))) {
                     //System.out.println("KV_DEBUG> RETRY "+e.getReason()+", txBuffer="+new String(getTxBuffer()));
                     logErrorMessage(Level.INFO, "doReceiveDataRetry error [retry " + retries + " of " + iMaxRetries + "], " + e.getMessage());
                     delayAndFlush(1000);
@@ -804,7 +818,7 @@ public class FlagIEC1107Connection extends Connection {
         }
     }
 
-    private byte[] doReceiveData() throws IOException {
+    private byte[] doReceiveData(String requestObjectId) throws IOException {
         long lMSTimeout, lMSTimeoutInterFrame;
         int iNewKar;
         int iState;
@@ -892,6 +906,9 @@ public class FlagIEC1107Connection extends Connection {
 
                             if (end) {
                                 byte[] responseData = resultArrayOutputStream.toByteArray();
+                                if (isLateRetryResponse(requestObjectId, responseData)){
+                                    throw new FlagIEC1107ConnectionException("Duplicate response", FlagIEC1107ConnectionException.DUPLICATE_RESPONSE);
+                                }
                                 if (new String(responseData).compareTo("B0") == 0) {
 
                                     // KV 24112008
@@ -1253,4 +1270,29 @@ public class FlagIEC1107Connection extends Connection {
         return sb.toString();
     }
 
+    private boolean isLateRetryResponse(String requestObjectId, byte[] responseData) {
+        String responseObjectId = parseResponseObjectId(responseData);
+        if(requestObjectId == null || requestObjectId.isEmpty()){
+            return false;
+        }
+        if(responseObjectId == null || responseObjectId.isEmpty()){
+            return false;
+        }
+        return (!requestObjectId.contains(responseObjectId));
+    }
+
+    private String parseResponseObjectId(byte[] buffer) {
+        int idLength = 0;
+        for (int i = 0; i < buffer.length; i++) {
+            if (buffer[i] == (byte) '('){
+                idLength = i;
+                break;
+            }
+        }
+        String objectId = "";
+        for(int i =0; i < idLength; i++) {
+            objectId += (char) buffer[i];
+        }
+        return objectId;
+    }
 }
