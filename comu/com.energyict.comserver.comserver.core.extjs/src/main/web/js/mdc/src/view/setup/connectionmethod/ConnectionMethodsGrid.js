@@ -59,6 +59,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
                 items: [
                     {
                         xtype: 'button',
+                        itemId: 'mdc-config-add-connection-method-btn',
                         text: Uni.I18n.translate('connectionmethod.addConnectionMethod', 'MDC', 'Add connection method'),
                         privileges: Mdc.privileges.DeviceType.admin,
                         iconCls: 'x-uni-action-iconD',
@@ -67,12 +68,12 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
                             items: [
                                 {
                                     text: Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'),
-                                    itemId: 'createOutboundConnectionButton',
+                                    itemId: 'createOutboundConnectionMenuItem',
                                     action: 'createOutboundConnectionMethod'
                                 },
                                 {
                                     text: Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method'),
-                                    itemId: 'createInboundConnectionButton',
+                                    itemId: 'createInboundConnectionMenuItem',
                                     action: 'createInboundConnectionMethod'
                                 }
                             ]
