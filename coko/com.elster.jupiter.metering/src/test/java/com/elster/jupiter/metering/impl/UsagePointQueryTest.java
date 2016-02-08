@@ -6,6 +6,8 @@ import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.cbo.StreetDetail;
 import com.elster.jupiter.cbo.TownDetail;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -110,10 +112,12 @@ public class UsagePointQueryTest {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new DataVaultModule(),
-                    new NlsModule()
+                    new NlsModule(),
+                    new CustomPropertySetsModule()
                 );
         injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(EventService.class);
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringService.class);
             return null;

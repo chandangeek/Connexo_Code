@@ -607,6 +607,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                         Privileges.Constants.BROWSE_OWN, Privileges.Constants.ADMIN_OWN)));
         resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.PRIVILEGE_READING_TYPE_NAME.getKey(), DefaultTranslationKey.PRIVILEGE_READING_TYPE_DESCRIPTION.getKey(),
                 Arrays.asList(Privileges.Constants.ADMINISTRATE_READINGTYPE, Privileges.Constants.VIEW_READINGTYPE)));
+        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.PRIVILEGE_SERVICE_CATEGORY_NAME.getKey(), DefaultTranslationKey.PRIVILEGE_SERVICE_CATEGORY_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.VIEW_SERVICECATEGORY)));
         return resources;
     }
 
