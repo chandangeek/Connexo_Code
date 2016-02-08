@@ -1,9 +1,5 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
-import com.google.common.collect.ImmutableMap;
-
-import java.util.Map;
-
 /**
  * Models a node of expression that comply with the BNF below.
  * <pre><code>

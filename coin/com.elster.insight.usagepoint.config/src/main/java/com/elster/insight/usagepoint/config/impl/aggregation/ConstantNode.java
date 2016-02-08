@@ -1,9 +1,6 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
-import com.google.common.collect.ImmutableMap;
-
 import java.math.BigDecimal;
-import java.util.Map;
 
 /**
  * Created by igh on 4/02/2016.
