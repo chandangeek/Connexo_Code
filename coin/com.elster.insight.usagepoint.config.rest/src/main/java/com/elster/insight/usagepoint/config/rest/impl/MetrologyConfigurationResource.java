@@ -78,7 +78,7 @@ public class MetrologyConfigurationResource {
 
     @GET
     @Path("/{id}")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public MetrologyConfigurationInfo getMeterologyConfiguration(@PathParam("id") long id) {
         MetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
@@ -88,7 +88,7 @@ public class MetrologyConfigurationResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION})
     @Transactional
     public Response createMetrologyConfiguration(MetrologyConfigurationInfo metrologyConfigurationInfo) {
         MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.newMetrologyConfiguration(metrologyConfigurationInfo.name);
@@ -99,7 +99,7 @@ public class MetrologyConfigurationResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION})
     @Transactional
     public Response updateMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info, @Context SecurityContext securityContext) {
         MetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info);
@@ -110,7 +110,7 @@ public class MetrologyConfigurationResource {
 
     @PUT
     @Path("/{id}/activate")
-    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public MetrologyConfigurationInfo activateMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info) {
@@ -122,7 +122,7 @@ public class MetrologyConfigurationResource {
 
     @PUT
     @Path("/{id}/deactivate")
-    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public MetrologyConfigurationInfo deactivateMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info) {
@@ -135,7 +135,7 @@ public class MetrologyConfigurationResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION})
     @Transactional
     public Response deleteMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info) {
         info.id = id;
@@ -171,7 +171,7 @@ public class MetrologyConfigurationResource {
 
     @POST
     @Path("/{id}/assignedvalidationrulesets")
-    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public Response setAssignedValidationRuleSetsForMetrologyConfiguration(@PathParam("id") long id,
