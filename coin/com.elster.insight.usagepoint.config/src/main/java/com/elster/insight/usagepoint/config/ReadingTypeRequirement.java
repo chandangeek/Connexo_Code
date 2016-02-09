@@ -1,9 +1,13 @@
 package com.elster.insight.usagepoint.config;
 
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
+
+import java.util.List;
 
 /**
  * Models a requirement that a Meter should provide measurement
@@ -32,5 +36,14 @@ public interface ReadingTypeRequirement extends HasId, HasName {
      * @return The MetrologyConfiguration
      */
     MetrologyConfiguration getMetrologyConfiguration();
+
+    /**
+     * Return the List of {@link ReadingType}s from the
+     * specified {@link MeterActivation} that match this requirement.
+     *
+     * @param meterActivation The MeterActivation
+     * @return The List of matching ReadingTypes
+     */
+    List<ReadingType> getMatchesFor(MeterActivation meterActivation);
 
 }

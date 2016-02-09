@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.ReadingType;
 
 import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,9 +32,13 @@ public class VirtualReadingTypeRequirement {
     public VirtualReadingTypeRequirement(ReadingTypeRequirement requirement, List<Channel> matchingChannels, ReadingType targetReadingType, int meterActivationSequenceNumber) {
         super();
         this.requirement = requirement;
-        this.matchingChannels = matchingChannels;
+        this.matchingChannels = Collections.unmodifiableList(matchingChannels);
         this.targetReadingType = targetReadingType;
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
+    }
+
+    public List<Channel> getMatchingChannels() {
+        return matchingChannels;
     }
 
 }

@@ -57,8 +57,7 @@ class VirtualRequirementNode extends AbstractNode {
         // Taking the smallest interval for now
         // Todo: match this against the target
         Optional<IntervalLength> preferredInterval =
-                this.meterActivation
-                    .getReadingTypes()
+                this.requirement.getMatchesFor(this.meterActivation)
                     .stream()
                     .map(IntervalLength::from)
                     .sorted(new IntervalLengthComparator())
@@ -80,12 +79,14 @@ class VirtualRequirementNode extends AbstractNode {
      * @return A flag that indicates if the interval is backed by one of the channels
      */
     boolean supportsInterval(IntervalLength interval) {
-        IntervalLengthComparator comparator = new IntervalLengthComparator();
-        return this.meterActivation
-                    .getReadingTypes()
+        return this.requirement.getMatchesFor(this.meterActivation)
                     .stream()
                     .map(IntervalLength::from)
-                    .anyMatch(readingTypeInterval -> comparator.compare(readingTypeInterval, interval) < 1);
+                    .anyMatch(readingTypeInterval -> this.areCompatible(readingTypeInterval, interval));
+    }
+
+    private boolean areCompatible(IntervalLength first, IntervalLength second) {
+        return first.isMultipleOf(second) || first.multipliesTo(second);
     }
 
     IntervalLength getTargetInterval() {

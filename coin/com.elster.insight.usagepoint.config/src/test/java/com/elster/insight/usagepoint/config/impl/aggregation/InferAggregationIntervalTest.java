@@ -41,10 +41,9 @@ public class InferAggregationIntervalTest {
 
     @Before
     public void initializeMocks() {
-        ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
-        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        ReadingType readingType = this.mock15minReadingType();
         when(this.deliverable.getReadingType()).thenReturn(readingType);
+        when(this.requirement.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(readingType));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -112,13 +111,164 @@ public class InferAggregationIntervalTest {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE60);    // Different from the target set in test instance
-        when(this.meterActivation.getReadingTypes()).thenReturn(Collections.singletonList(readingType));
+        when(this.requirement.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(readingType));
 
         // Business method
         IntervalLength preferredInterval = node.accept(infer);
 
         // Asserts
         assertThat(preferredInterval).isEqualTo(IntervalLength.HOUR1);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void inferIncompatibleRequirementsInOperation() {
+        InferAggregationInterval infer = this.testInstance();
+
+        ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
+        ReadingType requirement1ReadingType = mock(ReadingType.class);
+        when(requirement1ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(requirement1ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE2);   // Make sure this is not compatible with requirement 2
+        when(requirement1.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement1ReadingType));
+        VirtualRequirementNode requirementNode1 =
+                new VirtualRequirementNode(
+                        this.virtualFactory,
+                        requirement1,
+                        this.deliverable,
+                        this.meterActivation);
+        ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
+        ReadingType requirement2ReadingType = mock(ReadingType.class);
+        when(requirement2ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(requirement2ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);  // Incompatible with requirement 1
+        when(requirement2.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement2ReadingType));
+        VirtualRequirementNode requirementNode2 =
+                new VirtualRequirementNode(
+                        this.virtualFactory,
+                        requirement2,
+                        this.deliverable,
+                        this.meterActivation);
+        OperationNode sum = new OperationNode(Operator.PLUS, requirementNode1, requirementNode2);
+        OperationNode multiply = new OperationNode(Operator.MULTIPLY, sum, new ConstantNode(BigDecimal.TEN));
+
+        // Business method
+        multiply.accept(infer);
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void inferIncompatibleRequirementsInFuntionCall() {
+        InferAggregationInterval infer = this.testInstance();
+
+        ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
+        ReadingType requirement1ReadingType = mock(ReadingType.class);
+        when(requirement1ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(requirement1ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE2);   // Make sure this is not compatible with requirement 2
+        when(requirement1.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement1ReadingType));
+        VirtualRequirementNode requirementNode1 =
+                new VirtualRequirementNode(
+                        this.virtualFactory,
+                        requirement1,
+                        this.deliverable,
+                        this.meterActivation);
+        ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
+        ReadingType requirement2ReadingType = mock(ReadingType.class);
+        when(requirement2ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(requirement2ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);  // Incompatible with requirement 1
+        when(requirement2.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement2ReadingType));
+        VirtualRequirementNode requirementNode2 =
+                new VirtualRequirementNode(
+                        this.virtualFactory,
+                        requirement2,
+                        this.deliverable,
+                        this.meterActivation);
+        FunctionCallNode maximum = new FunctionCallNode(Arrays.asList(requirementNode1, requirementNode2, new ConstantNode(BigDecimal.TEN)), Function.MAX);
+
+        // Business method
+        maximum.accept(infer);
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test
+    public void inferCompatibleRequirementsInOperation() {
+        InferAggregationInterval infer = this.testInstance();
+
+        ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
+        ReadingType requirement1ReadingType = mock(ReadingType.class);
+        when(requirement1ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(requirement1ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE5);   // Make sure this is compatible with requirement 2
+        when(requirement1.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement1ReadingType));
+        VirtualRequirementNode requirementNode1 =
+                new VirtualRequirementNode(
+                        this.virtualFactory,
+                        requirement1,
+                        this.deliverable,
+                        this.meterActivation);
+        ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
+        ReadingType requirement2ReadingType = mock(ReadingType.class);
+        when(requirement2ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(requirement2ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);  // Compatible with requirement 1
+        when(requirement2.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement2ReadingType));
+        VirtualRequirementNode requirementNode2 =
+                new VirtualRequirementNode(
+                        this.virtualFactory,
+                        requirement2,
+                        this.deliverable,
+                        this.meterActivation);
+        OperationNode sum = new OperationNode(Operator.PLUS, requirementNode1, requirementNode2);
+        OperationNode multiply = new OperationNode(Operator.MULTIPLY, sum, new ConstantNode(BigDecimal.TEN));
+
+        // Business method
+        IntervalLength intervalLength = multiply.accept(infer);
+
+        // Asserts
+        assertThat(intervalLength).isEqualTo(IntervalLength.MINUTE5);
+        assertThat(requirementNode1.getTargetInterval()).isEqualByComparingTo(IntervalLength.MINUTE5);
+        assertThat(requirementNode2.getTargetInterval()).isEqualByComparingTo(IntervalLength.MINUTE5);
+    }
+
+    @Test
+    public void inferCompatibleRequirementsInFunctionCall() {
+        InferAggregationInterval infer = this.testInstance();
+
+        ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
+        ReadingType requirement1ReadingType = mock(ReadingType.class);
+        when(requirement1ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(requirement1ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE5);   // Make sure this is compatible with requirement 2
+        when(requirement1.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement1ReadingType));
+        VirtualRequirementNode requirementNode1 =
+                new VirtualRequirementNode(
+                        this.virtualFactory,
+                        requirement1,
+                        this.deliverable,
+                        this.meterActivation);
+        ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
+        ReadingType requirement2ReadingType = mock(ReadingType.class);
+        when(requirement2ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(requirement2ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);  // Compatible with requirement 1
+        when(requirement2.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement2ReadingType));
+        VirtualRequirementNode requirementNode2 =
+                new VirtualRequirementNode(
+                        this.virtualFactory,
+                        requirement2,
+                        this.deliverable,
+                        this.meterActivation);
+        FunctionCallNode maximum = new FunctionCallNode(Arrays.asList(requirementNode1, requirementNode2, new ConstantNode(BigDecimal.TEN)), Function.MAX);
+
+        // Business method
+        IntervalLength intervalLength = maximum.accept(infer);
+
+        // Asserts
+        assertThat(intervalLength).isEqualTo(IntervalLength.MINUTE5);
+        assertThat(requirementNode1.getTargetInterval()).isEqualByComparingTo(IntervalLength.MINUTE5);
+        assertThat(requirementNode2.getTargetInterval()).isEqualByComparingTo(IntervalLength.MINUTE5);
+    }
+
+    private ReadingType mock15minReadingType() {
+        ReadingType meterActivationReadingType = mock(ReadingType.class);
+        when(meterActivationReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(meterActivationReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        return meterActivationReadingType;
     }
 
     private InferAggregationInterval testInstance() {
