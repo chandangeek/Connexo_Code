@@ -23,7 +23,7 @@ public enum MessageSeeds implements MessageSeed {
     TIMEDURATION_IS_NULL(8, Keys.TIMEDURATION_MUST_BE_POSITIVE, "Field must denote non-0 duration"),
     SIZE_TOO_LONG(9, Keys.SIZE_TOO_LONG, "Field exceeds max size of {max} characters"),
     DUPLICATE_COMTASK_NAME(10, Keys.DUPLICATE_COMTASK_NAME, "A ComTask by this name already exists"),
-    PROTOCOL_TASK_REQUIRED(11, Keys.COMTASK_WITHOUT_PROTOCOLTASK, "You have to add at least one command or you have to select at least one message category"),
+    PROTOCOL_TASK_REQUIRED(11, Keys.COMTASK_WITHOUT_PROTOCOLTASK, "You have to add at least one action or you have to select at least one command category"),
     FIELD_SIZE_INCORRECT(12, Keys.FIELD_TOO_LONG, "Field size should be exceed {max} characters"),
     DUPLICATE_PROTOCOL_TASK_TYPE_IN_COMTASK(13, Keys.DUPLICATE_PROTOCOL_TASK_TYPE_IN_COM_TASK, "ComTask contains multiple ProtocolTasks of the same type"),
     VETO_LOG_BOOK_TYPE_DELETION(14, Keys.VETO_LOG_BOOK_TYPE_DELETION, "Log book type ''{0}'' is still in use by the following communication task(s): ''{1}''"),
