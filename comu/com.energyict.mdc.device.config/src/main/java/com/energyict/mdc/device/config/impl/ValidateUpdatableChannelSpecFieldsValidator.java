@@ -45,7 +45,8 @@ public class ValidateUpdatableChannelSpecFieldsValidator implements ConstraintVa
     }
 
     private boolean validateOverFlowAndFractionDigitsUpdate(ChannelSpecImpl channelSpec, ConstraintValidatorContext constraintValidatorContext, ChannelSpec oldChannelSpec) {
-        if (oldChannelSpec.getOverflow().compareTo(channelSpec.getOverflow()) > 0) {
+        if (oldChannelSpec.getOverflow().isPresent() && channelSpec.getOverflow().isPresent() &&
+                oldChannelSpec.getOverflow().get().compareTo(channelSpec.getOverflow().get()) > 0) {
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CHANNEL_SPEC_OVERFLOW_DECREASED + "}").
                     addPropertyNode(ChannelSpecImpl.ChannelSpecFields.OVERFLOW_VALUE.fieldName()).

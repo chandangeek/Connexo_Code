@@ -127,7 +127,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(registerSpec.getDeviceObisCode()).isEqualTo(registerTypeObisCode);
         assertThat(registerSpec.getDeviceConfiguration().getId()).isEqualTo(this.getReloadedDeviceConfiguration().getId());
         assertThat(registerSpec.getNumberOfFractionDigits()).isEqualTo(this.numberOfFractionDigits);
-        assertThat(registerSpec.getOverflowValue()).isEqualTo(overflowValue);
+        assertThat(registerSpec.getOverflowValue().get().compareTo(overflowValue) == 0).isTrue();
     }
 
     @Test
@@ -154,7 +154,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void createRegisterSpecTestOverflowDefaultIsApplied() {
         NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).overflowValue(overflowValue).numberOfFractionDigits(0).add();
 
-        assertThat(registerSpec.getOverflowValue()).isEqualTo(overflowValue);
+        assertThat(registerSpec.getOverflowValue().get().compareTo(overflowValue) == 0).isTrue();
     }
 
     @Test
@@ -253,7 +253,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         registerSpecUpdater.overflowValue(overflow);
         registerSpecUpdater.update();
 
-        assertThat(registerSpec.getOverflowValue()).isEqualTo(overflow);
+        assertThat(registerSpec.getOverflowValue().get().compareTo(overflow) == 0).isTrue();
     }
 
     @Test
@@ -401,11 +401,11 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     public void cloneNumericalRegisterWithOverruledObisCodeTest() {
         ObisCode deviceObisCode = ObisCode.fromString("1.9.1.8.17.255");
-        BigDecimal overFlowValue = BigDecimal.valueOf(65111L);
+        BigDecimal myOverflowValue = BigDecimal.valueOf(65111L);
         int numberOfFractionDigits = 6;
         NumericalRegisterSpec.Builder builder = getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType);
         builder.overruledObisCode(deviceObisCode);
-        builder.overflowValue(overFlowValue);
+        builder.overflowValue(myOverflowValue);
         builder.numberOfFractionDigits(numberOfFractionDigits);
         NumericalRegisterSpec numericalRegisterSpec = builder.add();
 
@@ -415,7 +415,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(registerSpec.getDeviceObisCode()).isEqualTo(deviceObisCode);
         assertThat(registerSpec.getObisCode()).isEqualTo(registerType.getObisCode());
         assertThat(registerSpec.getNumberOfFractionDigits()).isEqualTo(numberOfFractionDigits);
-        assertThat(registerSpec.getOverflowValue()).isEqualTo(overFlowValue);
+        assertThat(registerSpec.getOverflowValue().get().compareTo(myOverflowValue) == 0).isTrue();
     }
 
     @Test
@@ -434,7 +434,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(registerSpec.getDeviceObisCode()).isEqualTo(registerType.getObisCode());
         assertThat(registerSpec.getObisCode()).isEqualTo(registerType.getObisCode());
         assertThat(registerSpec.getNumberOfFractionDigits()).isEqualTo(numberOfFractionDigits);
-        assertThat(registerSpec.getOverflowValue()).isEqualTo(overFlowValue);
+        assertThat(registerSpec.getOverflowValue().get().compareTo(overFlowValue) == 0).isTrue();
     }
 
 

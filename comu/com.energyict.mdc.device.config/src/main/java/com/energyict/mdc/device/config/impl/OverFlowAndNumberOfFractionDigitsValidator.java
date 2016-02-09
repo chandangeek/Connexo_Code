@@ -22,11 +22,11 @@ public class OverFlowAndNumberOfFractionDigitsValidator implements ConstraintVal
     @Override
     public boolean isValid(NumericalRegisterSpecImpl registerSpec, ConstraintValidatorContext context) {
         boolean valid=true;
-        if (registerSpec.getOverflowValue() != null && registerSpec.hasNumberOfFractionDigits()) {
-            int scale = registerSpec.getOverflowValue().scale();
+        if (registerSpec.getOverflowValue().isPresent() && registerSpec.hasNumberOfFractionDigits()) {
+            int scale = registerSpec.getOverflowValue().get().scale();
             if (scale > registerSpec.getNumberOfFractionDigits()) {
                 valid=false;
-                String message = thesaurus.getFormat(MessageSeeds.REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS).format(registerSpec.getOverflowValue(), scale, registerSpec.getNumberOfFractionDigits());
+                String message = thesaurus.getFormat(MessageSeeds.REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS).format(registerSpec.getOverflowValue().get(), scale, registerSpec.getNumberOfFractionDigits());
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(message).
                         addPropertyNode(RegisterSpecFields.OVERFLOW_VALUE.fieldName()).

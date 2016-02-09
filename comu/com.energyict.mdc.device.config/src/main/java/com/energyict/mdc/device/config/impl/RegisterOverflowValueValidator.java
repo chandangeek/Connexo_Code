@@ -17,7 +17,7 @@ public class RegisterOverflowValueValidator implements ConstraintValidator<Regis
 
     @Override
     public boolean isValid(NumericalRegisterSpecImpl registerSpec, ConstraintValidatorContext constraintValidatorContext) {
-            if (registerSpec.getReadingType().isCumulative() && registerSpec.getOverflowValue() == null) {
+            if (registerSpec.getReadingType().isCumulative() && !registerSpec.getOverflowValue().isPresent()) {
                 constraintValidatorContext.disableDefaultConstraintViolation();
                 constraintValidatorContext
                         .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
@@ -25,7 +25,7 @@ public class RegisterOverflowValueValidator implements ConstraintValidator<Regis
                         .addConstraintViolation();
                 return false;
             }
-            if (registerSpec.getOverflowValue() != null && registerSpec.getOverflowValue().compareTo(BigDecimal.ZERO) < 1) {
+            if (registerSpec.getOverflowValue().isPresent() && registerSpec.getOverflowValue().get().compareTo(BigDecimal.ZERO) < 1) {
                 constraintValidatorContext.disableDefaultConstraintViolation();
                 constraintValidatorContext
                         .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE + "}")

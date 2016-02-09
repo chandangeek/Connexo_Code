@@ -15,7 +15,7 @@ public class ChannelOverflowValueValidator implements ConstraintValidator<Channe
 
     @Override
     public boolean isValid(ChannelSpecImpl channelSpec, ConstraintValidatorContext constraintValidatorContext) {
-        if(channelSpec.getReadingType().isCumulative() && channelSpec.getOverflow() == null){
+        if(channelSpec.getReadingType().isCumulative() && !channelSpec.getOverflow().isPresent()){
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext
                     .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
@@ -23,7 +23,7 @@ public class ChannelOverflowValueValidator implements ConstraintValidator<Channe
                     .addConstraintViolation();
             return false;
         }
-        if(channelSpec.getOverflow() != null && channelSpec.getOverflow().compareTo(BigDecimal.ZERO) < 1){
+        if(channelSpec.getOverflow().isPresent() && channelSpec.getOverflow().get().compareTo(BigDecimal.ZERO) < 1){
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext
                     .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CHANNEL_SPEC_INVALID_OVERFLOW_VALUE + "}")

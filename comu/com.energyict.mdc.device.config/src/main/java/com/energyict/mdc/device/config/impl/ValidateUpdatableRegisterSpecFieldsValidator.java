@@ -46,7 +46,8 @@ public class ValidateUpdatableRegisterSpecFieldsValidator implements ConstraintV
     }
 
     private boolean validateOverFlowAndFractionDigitsUpdate(NumericalRegisterSpecImpl numericalRegisterSpec, ConstraintValidatorContext constraintValidatorContext, NumericalRegisterSpec oldNumericalRegisterSpec) {
-        if (oldNumericalRegisterSpec.getOverflowValue().compareTo(numericalRegisterSpec.getOverflowValue()) > 0) {
+        if (oldNumericalRegisterSpec.getOverflowValue().isPresent() && numericalRegisterSpec.getOverflowValue().isPresent() &&
+                oldNumericalRegisterSpec.getOverflowValue().get().compareTo(numericalRegisterSpec.getOverflowValue().get()) > 0) {
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.REGISTER_SPEC_OVERFLOW_DECREASED +"}").
                     addPropertyNode(RegisterSpecFields.OVERFLOW_VALUE.fieldName()).

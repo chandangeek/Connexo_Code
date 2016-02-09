@@ -35,7 +35,7 @@ public interface NumericalRegisterSpec extends RegisterSpec {
      *
      * @return the overflow value
      */
-    public BigDecimal getOverflowValue();
+    public Optional<BigDecimal> getOverflowValue();
 
     boolean isUseMultiplier();
 

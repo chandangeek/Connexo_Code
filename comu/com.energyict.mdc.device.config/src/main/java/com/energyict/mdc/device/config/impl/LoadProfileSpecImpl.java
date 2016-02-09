@@ -206,7 +206,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
             channelSpecBuilder.overruledObisCode(channelSpec.getObisCode().equals(channelSpec.getDeviceObisCode()) ? null : channelSpec.getDeviceObisCode());
             channelSpecBuilder.interval(channelSpec.getInterval());
             channelSpecBuilder.nbrOfFractionDigits(channelSpec.getNbrOfFractionDigits());
-            channelSpecBuilder.overflow(channelSpec.getOverflow());
+            channelSpec.getOverflow().ifPresent(channelSpecBuilder::overflow);
             if(channelSpec.isUseMultiplier()){
                 channelSpecBuilder.useMultiplierWithCalculatedReadingType(channelSpec.getCalculatedReadingType().get());
             } else {

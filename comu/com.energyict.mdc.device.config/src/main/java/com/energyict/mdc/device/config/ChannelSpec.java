@@ -28,7 +28,7 @@ public interface ChannelSpec extends HasId {
 
     int getNbrOfFractionDigits();
 
-    BigDecimal getOverflow();
+    Optional<BigDecimal> getOverflow();
 
     LoadProfileSpec getLoadProfileSpec();
 

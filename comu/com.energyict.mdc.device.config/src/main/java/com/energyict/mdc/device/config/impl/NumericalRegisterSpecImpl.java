@@ -62,8 +62,8 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         this.numberOfFractionDigits = numberOfFractionDigits;
     }
 
-    public BigDecimal getOverflowValue() {
-        return overflow;
+    public Optional<BigDecimal> getOverflowValue() {
+        return Optional.ofNullable(overflow);
     }
 
     public void setOverflowValue(BigDecimal overflowValue) {
@@ -194,7 +194,7 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
     public RegisterSpec cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
         Builder builder = deviceConfiguration.createNumericalRegisterSpec(getRegisterType());
         builder.numberOfFractionDigits(getNumberOfFractionDigits());
-        builder.overflowValue(getOverflowValue());
+        getOverflowValue().ifPresent(builder::overflowValue);
         builder.overruledObisCode(getObisCode().equals(getDeviceObisCode()) ? null : getDeviceObisCode());
         if(isUseMultiplier()){
             builder.useMultiplierWithCalculatedReadingType(getCalculatedReadingType().get());

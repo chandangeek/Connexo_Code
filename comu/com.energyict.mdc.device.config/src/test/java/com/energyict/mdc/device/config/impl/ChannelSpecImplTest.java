@@ -248,7 +248,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         channelSpecBuilder.overflow(overflow);
         channelSpec = channelSpecBuilder.add();
 
-        assertThat(channelSpec.getOverflow()).isEqualTo(overflow);
+        assertThat(channelSpec.getOverflow().get()).isEqualTo(overflow);
     }
 
     @Test
@@ -264,7 +264,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         channelSpecUpdater.overflow(overflow);
         channelSpecUpdater.update();
 
-        assertThat(channelSpec.getOverflow()).isEqualTo(overflow);
+        assertThat(channelSpec.getOverflow().get()).isEqualTo(overflow);
     }
 
     @Test
@@ -278,7 +278,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         channelSpecBuilder.overflow(null);
         channelSpec = channelSpecBuilder.add();
 
-        assertThat(channelSpec.getOverflow()).isNull();
+        assertThat(channelSpec.getOverflow().isPresent()).isFalse();
     }
 
 
@@ -294,7 +294,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         channelSpecBuilder.overflow(BigDecimal.ZERO);
         channelSpec = channelSpecBuilder.add();
 
-        assertThat(channelSpec.getOverflow()).isNull();
+        assertThat(channelSpec.getOverflow().isPresent()).isFalse();
     }
 
     @Test
@@ -454,7 +454,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(clonedChannelSpec.getChannelType().getId()).isEqualTo(channelType.getId());
         assertThat(clonedChannelSpec.getInterval()).isEqualTo(channelType.getInterval());
         assertThat(clonedChannelSpec.getNbrOfFractionDigits()).isEqualTo(channelSpec.getNbrOfFractionDigits());
-        assertThat(clonedChannelSpec.getOverflow()).isEqualTo(channelSpec.getOverflow());
+        assertThat(clonedChannelSpec.getOverflow().get().compareTo(channelSpec.getOverflow().get()) == 0).isTrue();
     }
 
     @Test
@@ -474,7 +474,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(clonedChannelSpec.getChannelType().getId()).isEqualTo(channelType.getId());
         assertThat(clonedChannelSpec.getInterval()).isEqualTo(channelType.getInterval());
         assertThat(clonedChannelSpec.getNbrOfFractionDigits()).isEqualTo(channelSpec.getNbrOfFractionDigits());
-        assertThat(clonedChannelSpec.getOverflow()).isEqualTo(channelSpec.getOverflow());
+        assertThat(clonedChannelSpec.getOverflow().get().compareTo(channelSpec.getOverflow().get()) == 0).isTrue();
     }
 
     @Test

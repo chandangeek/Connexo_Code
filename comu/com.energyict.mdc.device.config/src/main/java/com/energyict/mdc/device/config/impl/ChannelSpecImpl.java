@@ -139,8 +139,8 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     }
 
     @Override
-    public BigDecimal getOverflow() {
-        return overflow;
+    public Optional<BigDecimal> getOverflow() {
+        return Optional.ofNullable(overflow);
     }
 
     @Override
