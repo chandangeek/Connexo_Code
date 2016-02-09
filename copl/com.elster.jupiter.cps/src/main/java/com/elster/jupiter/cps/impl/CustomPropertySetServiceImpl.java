@@ -23,6 +23,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -32,7 +33,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
-
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
@@ -419,6 +420,14 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         return this.toCustomPropertySetValues(customPropertySet, this.getUniqueValuesEntityFor(customPropertySet, businesObject, effectiveTimestamp, additionalPrimaryKeyValues), additionalPrimaryKeyValues);
     }
 
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> boolean hasValueForPropertySpecs(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp, Set<PropertySpec> specs, Object... additionalPrimaryKeyValues) {
+        CustomPropertySetValues propertySetValues = this.toCustomPropertySetValues(customPropertySet, this.getUniqueValuesEntityFor(customPropertySet, businesObject, true, effectiveTimestamp, additionalPrimaryKeyValues), additionalPrimaryKeyValues);
+        return specs.stream().allMatch(
+                propertySpec -> propertySetValues.propertyNames().contains(propertySpec.getName())
+        );
+    }
+
     private <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues toCustomPropertySetValues(CustomPropertySet<D, T> customPropertySet, Optional<T> customPropertyValuesEntity, Object... additionalPrimaryKeyValues) {
         CustomPropertySetValues properties;
         if (customPropertyValuesEntity.isPresent()) {
@@ -468,9 +477,13 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     @Override
     public <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
+        return this.getUniqueValuesEntityFor(customPropertySet, businesObject, false, effectiveTimestamp, additionalPrimaryKeyValues);
+    }
+
+    private <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, boolean ignorePrivileges, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
-        return activeCustomPropertySet.getVersionedValuesEntityFor(businesObject, effectiveTimestamp, additionalPrimaryKeyValues);
+        return activeCustomPropertySet.getVersionedValuesEntityFor(businesObject, ignorePrivileges, effectiveTimestamp, additionalPrimaryKeyValues);
     }
 
     private <D, T extends PersistentDomainExtension<D>> void validateCustomPropertySetIsVersioned(CustomPropertySet<D, T> customPropertySet, ActiveCustomPropertySet activeCustomPropertySet) {

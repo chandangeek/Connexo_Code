@@ -129,6 +129,7 @@ public class CustomPropertySetServiceImplIT {
     }
 
     private class MockModule extends AbstractModule {
+
         @Override
         protected void configure() {
             bind(DataVaultService.class).toInstance(dataVaultService);
@@ -696,7 +697,7 @@ public class CustomPropertySetServiceImplIT {
     }
 
     @Test
-         public void removeNonVersionedValues() {
+    public void removeNonVersionedValues() {
         PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
         CustomPropertySetForTestingPurposes customPropertySet = new CustomPropertySetForTestingPurposes(propertySpecService);
         OrmService ormService = injector.getInstance(OrmService.class);
@@ -1131,6 +1132,7 @@ public class CustomPropertySetServiceImplIT {
     }
 
     private abstract class LatchDrivenRunnable implements Runnable {
+
         private final TransactionService transactionService;
         private final CustomPropertySetServiceImpl service;
         private final CountDownLatch startLatch;
@@ -1153,8 +1155,7 @@ public class CustomPropertySetServiceImplIT {
                     ctx.commit();
                 }
                 this.stopLatch.countDown();
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
@@ -1162,7 +1163,9 @@ public class CustomPropertySetServiceImplIT {
         protected abstract void doRun(CustomPropertySetServiceImpl service);
 
     }
+
     private class Felix extends LatchDrivenRunnable {
+
         private Felix(TransactionService transactionService, CustomPropertySetServiceImpl service, CountDownLatch startLatch, CountDownLatch stopLatch) {
             super(transactionService, service, startLatch, stopLatch);
         }

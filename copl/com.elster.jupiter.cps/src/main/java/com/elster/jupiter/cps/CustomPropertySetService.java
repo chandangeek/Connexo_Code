@@ -1,13 +1,14 @@
 package com.elster.jupiter.cps;
 
-import com.elster.jupiter.util.conditions.Condition;
-
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Provides support for adding custom properties to
@@ -175,6 +176,29 @@ public interface CustomPropertySetService {
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
      */
     <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
+
+    /**
+     * Checks if the unique set of values for the {@link CustomPropertySet} that were saved for
+     * the specified businesObject object at the specified point in time contains a value for
+     * all of the given {@link PropertySpec}s.
+     * <p>
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is <strong>NOT</strong> versioned because in that case
+     * you do not need to specify an instant in time when the values are effective.
+     * </p>
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param businesObject The businesObject object
+     * @param effectiveTimestamp The point in time
+     * @param specs The set of PropertySpecs that should be checked
+     * @param additionalPrimaryKeyValues The values for the additional primary key columns as defined by the CustomPropertySet
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @return true if a value was present for all of the given PropertySpecs, otherwise false
+     * @see CustomPropertySet#isVersioned()
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
+     */
+    <D, T extends PersistentDomainExtension<D>>  boolean hasValueForPropertySpecs(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp, Set<PropertySpec> specs, Object... additionalPrimaryKeyValues);
 
     /**
      * Gets all the versioned values for the {@link CustomPropertySet}

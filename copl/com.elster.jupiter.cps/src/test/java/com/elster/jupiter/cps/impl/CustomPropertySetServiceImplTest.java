@@ -22,6 +22,7 @@ import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -31,19 +32,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
-
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import com.google.common.collect.Range;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,18 +39,30 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import static junit.framework.TestCase.assertFalse;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.startsWith;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link CustomPropertySetServiceImpl} component.
@@ -583,6 +583,58 @@ public class CustomPropertySetServiceImplTest {
                 .containsOnly(
                         VersionedDomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(),
                         VersionedDomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName());
+    }
+
+    @Test
+    public void hasValueForPropertySpecs() {
+        when(this.serviceDataModel.isInstalled()).thenReturn(true);
+        CustomPropertySetServiceImpl service = this.testInstance();
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("getVersionedCustomProperties");
+        service.addCustomPropertySet(this.versionedCustomPropertySet);
+        TestDomain testDomain = new TestDomain(1L);
+        Interval expectedInterval = Interval.startAt(Instant.ofEpochSecond(1000L));
+        VersionedDomainExtensionForTestingPurposes extension = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, expectedInterval);
+        DataMapper<VersionedDomainExtensionForTestingPurposes> dataMapper = mock(DataMapper.class);
+        when(dataMapper.select(any(Condition.class))).thenReturn(Collections.singletonList(extension));
+        when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
+
+        // Business method
+        Set<PropertySpec> specs = new HashSet<>();
+        PropertySpec serviceCategorySpec = mock(PropertySpec.class);
+        when(serviceCategorySpec.getName()).thenReturn(VersionedDomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName());
+        PropertySpec billingCycleSpec = mock(PropertySpec.class);
+        when(billingCycleSpec.getName()).thenReturn(VersionedDomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName());
+        specs.add(serviceCategorySpec);
+        specs.add(billingCycleSpec);
+
+        assertTrue("For both of the given specs, a value should be present, so expecting this call returns true", service.hasValueForPropertySpecs(this.versionedCustomPropertySet, testDomain, Instant.now(), specs));
+    }
+
+    @Test
+    public void hasNoValueForMissingPropertySpecs() {
+        when(this.serviceDataModel.isInstalled()).thenReturn(true);
+        CustomPropertySetServiceImpl service = this.testInstance();
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("getVersionedCustomProperties");
+        service.addCustomPropertySet(this.versionedCustomPropertySet);
+        TestDomain testDomain = new TestDomain(1L);
+        Interval expectedInterval = Interval.startAt(Instant.ofEpochSecond(1000L));
+        VersionedDomainExtensionForTestingPurposes extension = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, expectedInterval);
+        DataMapper<VersionedDomainExtensionForTestingPurposes> dataMapper = mock(DataMapper.class);
+        when(dataMapper.select(any(Condition.class))).thenReturn(Collections.singletonList(extension));
+        when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
+
+        // Business method
+        Set<PropertySpec> specs = new HashSet<>();
+        PropertySpec serviceCategorySpec = mock(PropertySpec.class);
+        when(serviceCategorySpec.getName()).thenReturn(VersionedDomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName());
+        PropertySpec domainSpec = mock(PropertySpec.class);
+        when(domainSpec.getName()).thenReturn(VersionedDomainExtensionForTestingPurposes.FieldNames.DOMAIN.javaName());
+        specs.add(serviceCategorySpec);
+        specs.add(domainSpec);
+
+        assertFalse("As specs contains 'Domain' spec, for which no value exists, expecting false", service.hasValueForPropertySpecs(this.versionedCustomPropertySet, testDomain, Instant.now(), specs));
     }
 
     @Test
