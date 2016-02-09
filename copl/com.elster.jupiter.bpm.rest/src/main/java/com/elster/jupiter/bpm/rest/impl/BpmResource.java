@@ -292,7 +292,6 @@ public class BpmResource {
             processDefinitionInfos.total = processDefinitionInfos.processes.size();
             return processDefinitionInfos;
         }else{
-            ProcessHistoryInfos x = getProcessHistory(uriInfo, auth);
             List<BpmProcessDefinition> activeProcesses = bpmService.getAllBpmProcessDefinitions();
             ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinition(auth);
             processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
