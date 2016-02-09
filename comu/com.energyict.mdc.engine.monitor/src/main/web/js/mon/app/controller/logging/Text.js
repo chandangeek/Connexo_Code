@@ -118,13 +118,13 @@ Ext.define('CSMonitor.controller.logging.Text', {
                     var url =  me.getStatusGeneralInformationStore().first().get('eventRegistrationUri');
                     Ext.create('CSMonitor.util.UriParser').parse(url).withProtocol(socketProtocol).buildUrl();
 
-                    this.setWebSocket(new WebSocket(url));
-                    this.getWebSocket().onopen = function(evt) { me.onOpen(evt); };
-                    this.getWebSocket().onclose = function(evt) { me.onClose(evt); };
-                    this.getWebSocket().onmessage = function(evt) { me.onMessage(evt); };
-                    this.getWebSocket().onerror = function(evt) { me.onError(evt); };
-                    this.setSubscribed(true);
-                    this.getPingTask().start();
+                    me.setWebSocket(new WebSocket(url));
+                    me.getWebSocket().onopen = function(evt) { me.onOpen(evt); };
+                    me.getWebSocket().onclose = function(evt) { me.onClose(evt); };
+                    me.getWebSocket().onmessage = function(evt) { me.onMessage(evt); };
+                    me.getWebSocket().onerror = function(evt) { me.onError(evt); };
+                    me.setSubscribed(true);
+                    me.getPingTask().start();
                 } else {
                     console.log("statusGeneralInformationStore.load() was UNsuccessful. WebSocket not opened");
                 }

@@ -12,7 +12,7 @@ Ext.define('CSMonitor.view.status.ports.Inactive', {
     initComponent: function() {
         this.columns = [
             {
-                header: '<b>Inactive ports</b>',
+                header: '<b>Ports not in use</b>',
                 dataIndex: 'name',
                 flex: 8,
                 sortable: true,
