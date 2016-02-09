@@ -1,5 +1,6 @@
 package com.elster.jupiter.issue.rest.response;
 
+import com.elster.jupiter.issue.rest.resource.IssueRestModuleConst;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.User;
@@ -41,7 +42,7 @@ public class AssigneeFilterListInfo {
         }  else {
             // Adding 'Unassigned'
             String unassignedText = thesaurus.getFormat(ISSUE_ASSIGNEE_UNASSIGNED).format();
-            info.data.add(new IssueAssigneeInfo("UnexistingType", -1L, unassignedText));
+            info.data.add(new IssueAssigneeInfo(IssueRestModuleConst.ISSUE_UNEXISTING_TYPE, IssueRestModuleConst.ISSUE_UNASSIGNED_ID, unassignedText));
         }
         return info;
     }

@@ -13,6 +13,7 @@ import com.elster.jupiter.issue.rest.impl.resource.ReasonResource;
 import com.elster.jupiter.issue.rest.impl.resource.RuleResource;
 import com.elster.jupiter.issue.rest.impl.resource.StatusResource;
 import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
+import com.elster.jupiter.issue.rest.response.IssueGroupInfoFactory;
 import com.elster.jupiter.issue.rest.response.PropertyUtils;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfoFactory;
@@ -164,6 +165,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
             bind(thesaurus).to(Thesaurus.class);
             bind(PropertyUtils.class).to(PropertyUtils.class);
             bind(CreationRuleTemplateInfoFactory.class).to(CreationRuleTemplateInfoFactory.class);
+            bind(IssueGroupInfoFactory.class).to(IssueGroupInfoFactory.class);
             bind(CreationRuleInfoFactory.class).to(CreationRuleInfoFactory.class);
             bind(CreationRuleActionInfoFactory.class).to(CreationRuleActionInfoFactory.class);
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
