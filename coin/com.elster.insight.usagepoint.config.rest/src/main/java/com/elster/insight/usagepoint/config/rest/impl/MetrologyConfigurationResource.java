@@ -154,7 +154,7 @@ public class MetrologyConfigurationResource {
 
     @GET
     @Path("/{id}/assignedvalidationrulesets")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getAssignedValidationRuleSetsForMetrologyConfiguration(@PathParam("id") long id,
                                                                                 @Context SecurityContext securityContext,
@@ -198,7 +198,7 @@ public class MetrologyConfigurationResource {
 
     @GET
     @Path("/{id}/assignablevalidationrulesets")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getAssignableValidationRuleSetsForMetrologyConfiguration(@PathParam("id") long id,
                                                                                   @BeanParam JsonQueryParameters queryParameters,
@@ -217,7 +217,7 @@ public class MetrologyConfigurationResource {
 
     @GET
     @Path("/{id}/custompropertysets")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getMetrologyConfigCustomPropertySets(@PathParam("id") long id,
                                                               @QueryParam("linked") @DefaultValue("true") boolean linked,
