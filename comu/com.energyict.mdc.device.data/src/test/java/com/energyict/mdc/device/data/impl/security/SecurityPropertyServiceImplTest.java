@@ -36,8 +36,13 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import com.google.common.collect.Range;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -50,21 +55,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link SecurityPropertyServiceImpl} component.
@@ -225,84 +224,6 @@ public class SecurityPropertyServiceImplTest {
 
         // Asserts
         assertThat(hasSecurityProperties).isTrue();
-    }
-
-    @Test
-    public void securityPropertiesAreValidForUserThatIsNotAllowedToView () {
-        Instant effectiveStart = Instant.ofEpochSecond(97L);
-        Instant effectiveEnd = effectiveStart.plusSeconds(10);
-        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
-        when(this.deviceProtocol.getCustomPropertySet()).thenReturn(Optional.of(customPropertySet));
-        CustomPropertySetValues customPropertySetValues = CustomPropertySetValues.emptyDuring(Range.closedOpen(effectiveStart, effectiveEnd));
-        customPropertySetValues.setProperty(USERNAME_SECURITY_PROPERTY_NAME, "user");
-        customPropertySetValues.setProperty(PASSWORD_SECURITY_PROPERTY_NAME, "password");
-        customPropertySetValues.setProperty(CommonBaseDeviceSecurityProperties.Fields.COMPLETE.javaName(), true);
-        when(this.customPropertySetService
-                .getUniqueValuesFor(
-                        eq(customPropertySet),
-                        eq(this.device),
-                        any(Instant.class),
-                        eq(this.securityPropertySet1)))
-                .thenReturn(customPropertySetValues);
-        when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(false);
-
-        // Business method
-        boolean propertiesAreValid = this.testService().securityPropertiesAreValid(this.device, this.securityPropertySet1);
-
-        // Asserts
-        assertThat(propertiesAreValid).isTrue();
-    }
-
-    @Test
-    public void securityPropertiesAreValidForUserThatIsAllowedToView () {
-        Instant effectiveStart = Instant.ofEpochSecond(97L);
-        Instant effectiveEnd = effectiveStart.plusSeconds(10);
-        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
-        when(this.deviceProtocol.getCustomPropertySet()).thenReturn(Optional.of(customPropertySet));
-        CustomPropertySetValues customPropertySetValuesForSet1 = CustomPropertySetValues.emptyDuring(Range.closedOpen(effectiveStart, effectiveEnd));
-        customPropertySetValuesForSet1.setProperty(USERNAME_SECURITY_PROPERTY_NAME, "user");
-        customPropertySetValuesForSet1.setProperty(PASSWORD_SECURITY_PROPERTY_NAME, "password");
-        customPropertySetValuesForSet1.setProperty(CommonBaseDeviceSecurityProperties.Fields.COMPLETE.javaName(), true);
-        when(this.customPropertySetService
-                .getUniqueValuesFor(
-                        eq(customPropertySet),
-                        eq(this.device),
-                        any(Instant.class),
-                        eq(this.securityPropertySet1)))
-                .thenReturn(customPropertySetValuesForSet1);
-        when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
-
-        // Business method
-        boolean propertiesAreValid = this.testService().securityPropertiesAreValid(this.device, this.securityPropertySet1);
-
-        // Asserts
-        assertThat(propertiesAreValid).isTrue();
-    }
-
-    @Test
-    public void getSecurityPropertiesForUserThatIsNotAllowedToView () {
-        Instant effectiveStart = Instant.ofEpochSecond(97L);
-        Instant effectiveEnd = effectiveStart.plusSeconds(10);
-        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
-        when(this.deviceProtocol.getCustomPropertySet()).thenReturn(Optional.of(customPropertySet));
-        CustomPropertySetValues customPropertySetValues = CustomPropertySetValues.emptyDuring(Range.closedOpen(effectiveStart, effectiveEnd));
-        customPropertySetValues.setProperty(USERNAME_SECURITY_PROPERTY_NAME, "user");
-        customPropertySetValues.setProperty(PASSWORD_SECURITY_PROPERTY_NAME, "password");
-        when(this.customPropertySetService
-                .getUniqueValuesFor(
-                        customPropertySet,
-                        this.device,
-                        effectiveStart,
-                        this.securityPropertySet1))
-                .thenReturn(customPropertySetValues);
-        when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(false);
-
-        // Business method
-        List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, Instant.now(), this.securityPropertySet1);
-
-        // Asserts
-        verify(this.securityPropertySet1).currentUserIsAllowedToViewDeviceProperties();
-        assertThat(securityProperties).isEmpty();
     }
 
     @Test
@@ -468,32 +389,32 @@ public class SecurityPropertyServiceImplTest {
         when(unused.getPropertySpecs()).thenReturn(new HashSet<>(Collections.singletonList(otherKey)));
         when(this.deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(this.securityPropertySet1, this.securityPropertySet2));
 
+        PropertySpec someKey = mock(PropertySpec.class);
+        when(someKey.getName()).thenReturn(SOME_KEY_SECURITY_PROPERTY_NAME);
+        when(someKey.getValueFactory()).thenReturn(new StringFactory());
+        when(someKey.isRequired()).thenReturn(false);
+
+        Set<PropertySpec> requiredPropertySpecs = securityPropertySet1.getPropertySpecs();
+        when(this.securityPropertySet1.getPropertySpecs()).thenReturn(Stream.concat(requiredPropertySpecs.stream(), Stream.of(someKey)).collect(Collectors.toSet()));
         CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
-        List<PropertySpec> usedSpecs = new ArrayList<>();
-        usedSpecs.addAll(this.securityPropertySet1.getPropertySpecs());
-        usedSpecs.addAll(this.securityPropertySet2.getPropertySpecs());
-        when(customPropertySet.getPropertySpecs()).thenReturn(usedSpecs);
-        CustomPropertySetValues customPropertySetValuesForSet1 = CustomPropertySetValues.emptyDuring(Range.closedOpen(now, Instant.ofEpochMilli(ETERNITY)));
-        customPropertySetValuesForSet1.setProperty(USERNAME_SECURITY_PROPERTY_NAME, "test");
-        customPropertySetValuesForSet1.setProperty(PASSWORD_SECURITY_PROPERTY_NAME, "pass");
-        customPropertySetValuesForSet1.setProperty(CommonBaseDeviceSecurityProperties.Fields.COMPLETE.javaName(), true);
         when(this.customPropertySetService
-                .getUniqueValuesFor(
+                .hasValueForPropertySpecs(
                         eq(customPropertySet),
                         eq(this.device),
                         any(Instant.class),
+                        eq(requiredPropertySpecs),
                         eq(this.securityPropertySet1)))
-                .thenReturn(customPropertySetValuesForSet1);
-        CustomPropertySetValues customPropertySetValuesForSet2 = CustomPropertySetValues.emptyDuring(Range.closedOpen(now, Instant.ofEpochMilli(ETERNITY)));
-        customPropertySetValuesForSet2.setProperty(SOME_KEY_SECURITY_PROPERTY_NAME, "something");
-        customPropertySetValuesForSet2.setProperty(CommonBaseDeviceSecurityProperties.Fields.COMPLETE.javaName(), true);
+                .thenReturn(true);
+        requiredPropertySpecs = this.securityPropertySet2.getPropertySpecs();
+        when(this.securityPropertySet2.getPropertySpecs()).thenReturn(Stream.concat(requiredPropertySpecs.stream(), Stream.of(someKey)).collect(Collectors.toSet()));
         when(this.customPropertySetService
-                .getUniqueValuesFor(
+                .hasValueForPropertySpecs(
                         eq(customPropertySet),
                         eq(this.device),
                         any(Instant.class),
+                        eq(requiredPropertySpecs),
                         eq(this.securityPropertySet2)))
-                .thenReturn(customPropertySetValuesForSet2);
+                .thenReturn(true);
         when(this.deviceProtocol.getCustomPropertySet()).thenReturn(Optional.of(customPropertySet));
         when(this.deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(this.securityPropertySet1, this.securityPropertySet2));
 
@@ -591,27 +512,24 @@ public class SecurityPropertyServiceImplTest {
         usedSpecs.addAll(this.securityPropertySet1.getPropertySpecs());
         usedSpecs.addAll(this.securityPropertySet2.getPropertySpecs());
         when(customPropertySet.getPropertySpecs()).thenReturn(usedSpecs);
-        CustomPropertySetValues customPropertySetValuesForSet1 = CustomPropertySetValues.emptyDuring(Range.closedOpen(now, Instant.ofEpochMilli(ETERNITY)));
-        customPropertySetValuesForSet1.setProperty(USERNAME_SECURITY_PROPERTY_NAME, "test");
-        customPropertySetValuesForSet1.setProperty(PASSWORD_SECURITY_PROPERTY_NAME, "pass");
-        customPropertySetValuesForSet1.setProperty(CommonBaseDeviceSecurityProperties.Fields.COMPLETE.javaName(), true);
+        Set<PropertySpec> requiredPropertySpecs = securityPropertySet1.getPropertySpecs();
         when(this.customPropertySetService
-                .getUniqueValuesFor(
+                .hasValueForPropertySpecs(
                         eq(customPropertySet),
                         eq(this.device),
                         any(Instant.class),
+                        eq(requiredPropertySpecs),
                         eq(this.securityPropertySet1)))
-                .thenReturn(customPropertySetValuesForSet1);
-        CustomPropertySetValues customPropertySetValuesForSet2 = CustomPropertySetValues.emptyDuring(Range.closedOpen(now, Instant.ofEpochMilli(ETERNITY)));
-        customPropertySetValuesForSet2.setProperty(SOME_KEY_SECURITY_PROPERTY_NAME, "something");
-        customPropertySetValuesForSet2.setProperty(CommonBaseDeviceSecurityProperties.Fields.COMPLETE.javaName(), true);
+                .thenReturn(true);
+        requiredPropertySpecs = securityPropertySet2.getPropertySpecs();
         when(this.customPropertySetService
-                .getUniqueValuesFor(
+                .hasValueForPropertySpecs(
                         eq(customPropertySet),
                         eq(this.device),
                         any(Instant.class),
+                        eq(requiredPropertySpecs),
                         eq(this.securityPropertySet2)))
-                .thenReturn(customPropertySetValuesForSet2);
+                .thenReturn(true);
         when(this.deviceProtocol.getCustomPropertySet()).thenReturn(Optional.of(customPropertySet));
         when(this.deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(this.securityPropertySet1, this.securityPropertySet2));
 

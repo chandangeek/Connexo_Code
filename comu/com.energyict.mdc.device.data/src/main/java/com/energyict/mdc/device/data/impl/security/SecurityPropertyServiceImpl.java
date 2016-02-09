@@ -8,9 +8,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
-import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
@@ -18,7 +16,6 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.exceptions.SecurityPropertyException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertyServiceForConfigChange;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
@@ -32,9 +29,8 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 
 
 /**
@@ -81,26 +77,13 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
 
     @Override
     public List<SecurityProperty> getSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet) {
-        if (securityPropertySet.currentUserIsAllowedToViewDeviceProperties()) {
-            return this.getSecurityPropertiesIgnoringPrivileges(device, when, securityPropertySet);
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    private List<SecurityProperty> getSecurityPropertiesIgnoringPrivileges(Device device, Instant when, SecurityPropertySet securityPropertySet) {
         return this.findActiveProperties(device, securityPropertySet, when)
                 .map(values -> this.toSecurityProperties(values, device, securityPropertySet))
                 .orElse(Collections.emptyList());
     }
 
     public Optional<CustomPropertySetValues> findActiveProperties(Device device, SecurityPropertySet securityPropertySet, Instant activeDate) {
-        Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> customPropertySet =
-                device
-                    .getDeviceType()
-                    .getDeviceProtocolPluggableClass()
-                    .getDeviceProtocol()
-                    .getCustomPropertySet();
+        Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> customPropertySet = getDeviceProtocolCustomPropertySet(device);
         if (customPropertySet.isPresent()) {
             return Optional.of(
                     this.customPropertySetService.getUniqueValuesFor(
@@ -163,6 +146,13 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
                 .anyMatch(PropertySpec::isRequired);
     }
 
+    private Set<PropertySpec> getAllRequiredProperties(SecurityPropertySet securityPropertySet) {
+        return securityPropertySet
+                .getPropertySpecs()
+                .stream()
+                .filter(PropertySpec::isRequired).collect(Collectors.toSet());
+    }
+
     @Override
     public boolean securityPropertiesAreValid(Device device) {
         return device
@@ -173,11 +163,13 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
     }
 
     private boolean isMissingOrIncomplete(Device device, SecurityPropertySet securityPropertySet) {
-        List<SecurityProperty> securityProperties = this.getSecurityPropertiesIgnoringPrivileges(device, this.clock.instant(), securityPropertySet);
-        return securityProperties.isEmpty()
-                || securityProperties
-                .stream()
-                .anyMatch(Predicates.not(SecurityProperty::isComplete));
+        Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> customPropertySet = getDeviceProtocolCustomPropertySet(device);
+        return !customPropertySet.isPresent() || !this.customPropertySetService.hasValueForPropertySpecs(
+                customPropertySet.get(),
+                device, this.clock.instant(),
+                getAllRequiredProperties(securityPropertySet),
+                securityPropertySet
+        );
     }
 
     @Override
@@ -190,14 +182,11 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
     }
 
     private void doSetSecurityProperties(Device device, SecurityPropertySet securityPropertySet, TypedProperties properties) {
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = device.getDeviceType().getDeviceProtocolPluggableClass();
         CustomPropertySetValues values = CustomPropertySetValues.emptyDuring(Range.atLeast(this.clock.instant()));
         values.setProperty(CommonBaseDeviceSecurityProperties.Fields.PROPERTY_SPEC_PROVIDER.javaName(), securityPropertySet);
         properties.propertyNames().stream().forEach(propertyName -> values.setProperty(propertyName, properties.getLocalValue(propertyName)));
         values.setProperty(CommonBaseDeviceSecurityProperties.Fields.COMPLETE.javaName(), this.isSecurityPropertySetComplete(securityPropertySet, properties));
-        deviceProtocolPluggableClass
-                .getDeviceProtocol()
-                .getCustomPropertySet()
+        getDeviceProtocolCustomPropertySet(device)
                 .ifPresent(cps -> this.customPropertySetService.setValuesFor(
                                         cps,
                                         device,
@@ -214,11 +203,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
 
     @Override
     public void deleteSecurityPropertiesFor(Device device) {
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = device.getDeviceType().getDeviceProtocolPluggableClass();
-        deviceProtocolPluggableClass
-                .getDeviceProtocol()
-                .getCustomPropertySet()
-                .ifPresent(cps -> this.deleteSecurityPropertiesFor(device, cps));
+        getDeviceProtocolCustomPropertySet(device).ifPresent(cps -> this.deleteSecurityPropertiesFor(device, cps));
     }
 
     private void deleteSecurityPropertiesFor(Device device, CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> cps) {
@@ -242,11 +227,14 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
 
     @Override
     public void deleteSecurityPropertiesFor(Device device, SecurityPropertySet securityPropertySet) {
-        device
+        getDeviceProtocolCustomPropertySet(device).ifPresent(baseDeviceCustomPropertySet -> this.customPropertySetService.removeValuesFor(baseDeviceCustomPropertySet, device, securityPropertySet));
+    }
+
+    private Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getDeviceProtocolCustomPropertySet(Device device) {
+        return device
                 .getDeviceType()
                 .getDeviceProtocolPluggableClass()
                 .getDeviceProtocol()
-                .getCustomPropertySet()
-                .ifPresent(baseDeviceCustomPropertySet -> this.customPropertySetService.removeValuesFor(baseDeviceCustomPropertySet, device, securityPropertySet));
+                .getCustomPropertySet();
     }
 }
