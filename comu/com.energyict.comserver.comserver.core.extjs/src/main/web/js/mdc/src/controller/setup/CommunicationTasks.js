@@ -410,7 +410,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this,
             record = me.getCommunicationTaskEditForm().getRecord();
         me.updateRecord(record, values, Ext.apply({
-            successMessage: Uni.I18n.translate('comtask.saved', 'MDC', 'Communication task configuration saved')
+            successMessage: Uni.I18n.translate('comtask.saved', 'MDC', 'Communication task successfully saved')
         }, cfg));
     },
 
@@ -418,7 +418,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this,
             record = Ext.create(Mdc.model.CommunicationTaskConfig);
         me.updateRecord(record, values, Ext.apply({
-            successMessage: Uni.I18n.translate('communicationtasks.created', 'MDC', 'Communication task configuration added')
+            successMessage: Uni.I18n.translate('communicationtasks.created', 'MDC', 'Communication task successfully added')
         }, cfg));
     },
 
@@ -433,7 +433,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             communicationTaskToDelete.destroy({
                 success: function () {
                     me.getController('Uni.controller.history.Router').getRoute().forward();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task configuration successfully removed'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'));
                 }
             });
         }
