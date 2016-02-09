@@ -19,6 +19,7 @@ Ext.define('Isu.privileges.Issue', {
     notify: ['privilege.action.issue'],
     adminDevice: ['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue'],
     viewAdminDevice: ['privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue'],
+    viewAdminProcesses: ['privilege.view.bpm', 'privilege.administrate.bpm'],
     viewProcesses: ['privilege.view.bpm'],
     executeProcesses: ['privilege.execute.processes.lvl.1',
         'privilege.execute.processes.lvl.2',

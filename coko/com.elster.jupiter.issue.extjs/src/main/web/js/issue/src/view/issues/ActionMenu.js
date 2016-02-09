@@ -22,7 +22,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
         },
         {
             text: Uni.I18n.translate('issues.actionMenu.startProcess', 'ISU', 'Start process'),
-            privileges: Isu.privileges.Issue.viewProcesses && Isu.privileges.Issue.executeProcesses,
+            privileges: Isu.privileges.Issue.viewAdminProcesses && Isu.privileges.Issue.executeProcesses,
             action: 'startProcess',
             details: false
         }

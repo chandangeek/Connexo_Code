@@ -30,7 +30,7 @@ Ext.define('Isu.view.issues.DetailTop', {
                     itemId: 'issue-detail-action-menu',
                     predefinedItems: [{
                         text: Uni.I18n.translate('issues.actionMenu.startProcess', 'ISU', 'Start process'),
-                        privileges: Isu.privileges.Issue.viewProcesses && Isu.privileges.Issue.executeProcesses,
+                        privileges: Isu.privileges.Issue.viewAdminProcesses && Isu.privileges.Issue.executeProcesses,
                         action: 'startProcess',
                         details: true
                     }],
