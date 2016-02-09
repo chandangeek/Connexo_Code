@@ -281,23 +281,9 @@ public class BpmResource {
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
     public ProcessDefinitionInfos getProcesses(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth) {
         MultivaluedMap<String, String> filterProperties = uriInfo.getQueryParameters();
-        String jsonContent;
-        JSONArray arr = null;
-        try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes", auth);
-            if (!"".equals(jsonContent)) {
-                JSONObject jsnobject = new JSONObject(jsonContent);
-                arr = jsnobject.getJSONArray("processDefinitionList");
-            }
-
-        } catch (JSONException e) {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
-        } catch (RuntimeException e) {
-            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
-        }
         if(filterProperties.get("type") != null) {
             List<BpmProcessDefinition> activeProcesses = bpmService.getAllBpmProcessDefinitions();
-            ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos(arr);
+            ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinition(auth);
             processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
                     .filter(s -> activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version) && a.getAssociation().toLowerCase().equals(filterProperties.get("type").get(0).toLowerCase())))
                     .collect(Collectors.toList());
@@ -306,8 +292,9 @@ public class BpmResource {
             processDefinitionInfos.total = processDefinitionInfos.processes.size();
             return processDefinitionInfos;
         }else{
+            ProcessHistoryInfos x = getProcessHistory(uriInfo, auth);
             List<BpmProcessDefinition> activeProcesses = bpmService.getAllBpmProcessDefinitions();
-            ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos(arr);
+            ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinition(auth);
             processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
                     .filter(s -> activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version)))
                     .collect(Collectors.toList());
@@ -464,18 +451,7 @@ public class BpmResource {
                 List<Group> groups = this.userService.getGroups();
                 return new ProcessDefinitionInfo(bpmProcessDefinition.get(), groups);
             }else{
-                String jsonContent;
-                JSONArray arr = null;
-                try {
-                    jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes", auth);
-                    if (!"".equals(jsonContent)) {
-                        JSONObject jsnobject = new JSONObject(jsonContent);
-                        arr = jsnobject.getJSONArray("processDefinitionList");
-                    }
-                } catch (JSONException e) {
-                    throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
-                }
-                ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos(arr);
+                ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinition(auth);
                 boolean check = processDefinitionInfos.processes.stream()
                         .anyMatch(s -> s.name.equals(id) && s.version.equals(queryParameters.get("version").get(0)));
                 if(!check){
@@ -541,7 +517,9 @@ public class BpmResource {
                 arr = jsnobject.getJSONArray("processDefinitionList");
             }
         } catch (JSONException e) {
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
         }
         return new ProcessDefinitionInfos(arr);
     }
@@ -553,20 +531,7 @@ public class BpmResource {
     public PagedInfoList getBpmProcessesDefinitions(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth, @Context HttpHeaders headers) {
         try (TransactionContext context = transactionService.getContext()) {
             List<BpmProcessDefinition> connexoProcesses = bpmService.getBpmProcessDefinitions();
-            String jsonContent;
-            JSONArray arr = null;
-            try {
-                jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes", auth);
-                if (!"".equals(jsonContent)) {
-                    JSONObject jsnobject = new JSONObject(jsonContent);
-                    arr = jsnobject.getJSONArray("processDefinitionList");
-                }
-            } catch (JSONException e) {
-                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
-            } catch (RuntimeException e) {
-                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
-            }
-            ProcessDefinitionInfos bpmProcessDefinition = new ProcessDefinitionInfos(arr);
+            ProcessDefinitionInfos bpmProcessDefinition = getBpmProcessDefinition(auth);
             for (BpmProcessDefinition eachConnexo : connexoProcesses) {
                 boolean found = false;
                 for (ProcessDefinitionInfo eachBpm : bpmProcessDefinition.processes) {
