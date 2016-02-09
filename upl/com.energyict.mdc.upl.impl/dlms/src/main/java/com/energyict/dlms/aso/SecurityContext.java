@@ -42,12 +42,6 @@ import java.util.List;
  */
 public class SecurityContext {
 
-    public static final int SECURITYPOLICY_NONE = 0;
-    public static final int SECURITYPOLICY_AUTHENTICATION = 1;
-    public static final int SECURITYPOLICY_ENCRYPTION = 2;
-    public static final int SECURITYPOLICY_BOTH = 3;
-
-    public static final int INITIALIZATION_VECTOR_SIZE = 12;
     public static final int FRAME_COUNTER_SIZE = 4;
     public static final int LENGTH_INDEX = 1;
     public static final int FRAMECOUNTER_INDEX = 2;
@@ -57,6 +51,7 @@ public class SecurityContext {
     public static final int CB_LENGTH = 1;
     public static final int FC_LENGTH = 4;
     private static final String GENERAL_CIPHERING_KEY_TYPE = "GeneralCipheringKeyType";
+    private static final int TRANSACTION_ID_LENGTH = 8;
     private static int DLMS_AUTH_TAG_SIZE = 12;    // 12 bytes is specified for DLMS using GCM
     /**
      * Holds the securityLevel for the DataTransport.
@@ -100,6 +95,7 @@ public class SecurityContext {
      * From then on, the used session key is fixed, so there's no need to include the key information again in the next requests.
      */
     private boolean includeGeneralCipheringKeyInformation = true;
+    private byte[] transactionId;
 
     public SecurityContext(int dataTransportSecurityLevel,
                            int associationAuthenticationLevel,
@@ -243,15 +239,18 @@ public class SecurityContext {
                 AesGcm128 ag128 = new AesGcm128(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
 
                 /*
-                 * the associatedData is a concatenation of:
+                 * The additional associatedData (AAD) is a concatenation of:
                  * - the securityControlByte
                  * - the authenticationKey
+                 * - (the general ciphering header)
                  * - the plainText
                  */
-                byte[] associatedData = new byte[plainText.length + getSecurityProvider().getAuthenticationKey().length + 1];
-                associatedData[0] = getSecurityControlByte();
-                System.arraycopy(getSecurityProvider().getAuthenticationKey(), 0, associatedData, 1, getSecurityProvider().getAuthenticationKey().length);
-                System.arraycopy(plainText, 0, associatedData, 1 + getSecurityProvider().getAuthenticationKey().length, plainText.length);
+                byte[] associatedData = ProtocolTools.concatByteArrays(
+                        new byte[]{getSecurityControlByte()},
+                        getSecurityProvider().getAuthenticationKey(),
+                        (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? createGeneralCipheringHeader() : new byte[0],
+                        plainText
+                );
 
                 ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
                 ag128.setInitializationVector(new BitVector(getInitializationVector()));
@@ -268,13 +267,17 @@ public class SecurityContext {
                 AesGcm128 ag128 = new AesGcm128(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
 
                 /*
-                 * the associatedData is a concatenation of:
+                 * The additional associatedData (AAD) is a concatenation of:
                  * - the securityControlByte
                  * - the authenticationKey
+                 * - (the general ciphering header)
                  */
-                byte[] associatedData = new byte[getSecurityProvider().getAuthenticationKey().length + 1];
-                associatedData[0] = getSecurityControlByte();
-                System.arraycopy(getSecurityProvider().getAuthenticationKey(), 0, associatedData, 1, getSecurityProvider().getAuthenticationKey().length);
+                byte[] associatedData = ProtocolTools.concatByteArrays(
+                        new byte[]{getSecurityControlByte()},
+                        getSecurityProvider().getAuthenticationKey(),
+                        (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? createGeneralCipheringHeader() : new byte[0]
+                );
+
                 ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
                 ag128.setInitializationVector(new BitVector(getInitializationVector()));
                 ag128.setPlainText(new BitVector(plainText));
@@ -339,6 +342,45 @@ public class SecurityContext {
     }
 
     /**
+     * Wrap the given APDU (can already by secured) in a new general-signing APDU.
+     */
+    public byte[] applyGeneralSigning(byte[] securedRequest) throws UnsupportedException {
+        ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(ECCCurve.P256_SHA256);//TODO suite2
+        byte[] generalCipheringHeader = createGeneralCipheringHeader();
+        byte[] signature = ecdsaSignature.sign(ProtocolTools.concatByteArrays(generalCipheringHeader, securedRequest), getGeneralCipheringSecurityProvider().getClientPrivateSigningKey());
+
+        return ProtocolTools.concatByteArrays(
+                generalCipheringHeader,
+                securedRequest,
+                signature
+        );
+    }
+
+    /**
+     * Unwrap the given general-signing APDU, return its contents.
+     * Note that these contents can still be a ciphered APDU.
+     */
+    public byte[] unwrapGeneralSigning(byte[] generalSigningAPDU) throws UnsupportedException, ConnectionException {
+        int ptr = 0;
+        byte[] generalSigningHeader = parseGeneralHeader(generalSigningAPDU, DLMSCOSEMGlobals.GENERAL_SIGNING);
+        ptr++;  //Skip tag
+        ptr += generalSigningHeader.length;
+
+        int signatureLength = 64;   //TODO suite 2 = 96?
+        byte[] content = ProtocolTools.getSubArray(generalSigningAPDU, ptr, generalSigningAPDU.length - signatureLength);
+        byte[] signature = ProtocolTools.getSubArray(generalSigningAPDU, generalSigningAPDU.length - signatureLength);
+
+        ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(ECCCurve.P256_SHA256);//TODO suite2
+        byte[] input = ProtocolTools.concatByteArrays(generalSigningHeader, content);
+        PublicKey publicKey = getGeneralCipheringSecurityProvider().getServerSignatureCertificate().getPublicKey();
+        boolean verify = ecdsaSignature.verify(input, signature, publicKey);
+        if (!verify) {
+            throw ConnectionCommunicationException.signatureVerificationError();
+        }
+        return content;
+    }
+
+    /**
      * Constructs a general-ciphered xDLMS APDU.
      * Structure: transaction-id, client system title, server system title, date-time, other info, key-info, ciphered APDU
      *
@@ -346,6 +388,10 @@ public class SecurityContext {
      * @return the cipherText
      */
     public byte[] dataTransportGeneralEncryption(byte[] plainText) throws IOException {
+
+        //Reset it, so our next request will have a newly generated transactionId.
+        //It is used in the header of the general-ciphering APDU and the calculation of the authentication tag.
+        resetTransactionId();
 
         switch (this.generalCipheringKeyType) {
             case IDENTIFIED_KEY: {
@@ -467,12 +513,9 @@ public class SecurityContext {
     private byte[] createGeneralCipheringHeader() {
 
         //TODO replace epoch by transaction-id and treat it as invokeid??
-        int transactionIdLength = 8;
-        byte[] transactionIdBytes = ProtocolTools.getBytesFromLong(System.currentTimeMillis(), transactionIdLength);
-
         return ProtocolTools.concatByteArrays(
-                new byte[]{(byte) transactionIdLength},
-                transactionIdBytes,
+                new byte[]{(byte) TRANSACTION_ID_LENGTH},
+                getTransactionId(),
                 new byte[]{(byte) getSystemTitle().length},
                 getSystemTitle(),
                 new byte[]{(byte) getResponseSystemTitle().length},
@@ -482,17 +525,29 @@ public class SecurityContext {
         );
     }
 
+    private byte[] getTransactionId() {
+        if (transactionId == null) {
+            transactionId = ProtocolTools.getBytesFromLong(System.currentTimeMillis(), TRANSACTION_ID_LENGTH);
+        }
+        return transactionId;
+    }
+
+    private void resetTransactionId() {
+        this.transactionId = null;
+    }
+
     /**
      * Decrypts a received general-ciphered xDLMS APDU.
      * Structure: transaction-id, client system title, server system title, date-time, other info, key-info, ciphered APDU
      */
     public byte[] dataTransportGeneralDecryption(byte[] generalCipheringAPDU) throws ConnectionException, DLMSConnectionException, ProtocolException {
         int ptr = 0;
-        ptr = parseGeneralCipheringHeader(generalCipheringAPDU, ptr);
+        byte[] generalCipheringHeader = parseGeneralHeader(generalCipheringAPDU, DLMSCOSEMGlobals.GENERAL_CIPHERING);
+        ptr++;  //Skip tag
+        ptr += generalCipheringHeader.length;
+
         GeneralCipheringKeyType serverKeyType = this.generalCipheringKeyType;
-
         boolean keyInfoIsPresent = (generalCipheringAPDU[ptr++] & 0xFF) != 0;    //0x01: key-info field is present. 0x00: key-info field is omitted.
-
         if (keyInfoIsPresent) {
 
             int keyTypeId = generalCipheringAPDU[ptr++] & 0xFF;
@@ -581,7 +636,7 @@ public class SecurityContext {
         byte[] fullCipherFrame = ProtocolTools.concatByteArrays(new byte[]{(byte) 0x00}, ProtocolTools.getSubArray(generalCipheringAPDU, ptr));
 
         //Decrypt the frame using the key type that we received from the meter, it can be different from the configured key type in EIServer
-        return dataTransportDecryption(fullCipherFrame, serverKeyType);
+        return dataTransportDecryption(fullCipherFrame, serverKeyType, generalCipheringHeader);
     }
 
     private void handleReceivedSessionKey(byte[] sessionKey) {
@@ -603,39 +658,44 @@ public class SecurityContext {
         responseFrameCounter = 0;
     }
 
-    private int parseGeneralCipheringHeader(byte[] generalCipheringAPDU, int ptr) throws ConnectionException {
-        if (generalCipheringAPDU[ptr] != DLMSCOSEMGlobals.GENERAL_CIPHERING) {
-            throw new ConnectionException("Invalid General Ciphering-Tag :" + generalCipheringAPDU[ptr]);
+    /**
+     * Parse a general-ciphering or general-signing APDU header.
+     * Structure: tag, transaction-id, client system title, server system title, date-time, other info, key-info
+     * Returns the header, without the tag.
+     */
+    private byte[] parseGeneralHeader(byte[] generalAPDU, byte expectedTag) throws ConnectionException {
+        int ptr = 0;
+        if (generalAPDU[ptr] != expectedTag) {
+            throw new ConnectionException("Invalid General Tag :" + generalAPDU[ptr] + ", expected tag: " + expectedTag);
         }
         ptr++;
 
-        int transactionIdLength = generalCipheringAPDU[ptr++] & 0xFF;
-        byte[] transactionId = ProtocolTools.getSubArray(generalCipheringAPDU, ptr, ptr + transactionIdLength);
+        int transactionIdLength = generalAPDU[ptr++] & 0xFF;
+        byte[] transactionId = ProtocolTools.getSubArray(generalAPDU, ptr, ptr + transactionIdLength);
         ptr += transactionIdLength;
 
-        int serverSystemTitleLength = generalCipheringAPDU[ptr++] & 0xFF;
-        byte[] serverSystemTitle = ProtocolTools.getSubArray(generalCipheringAPDU, ptr, ptr + serverSystemTitleLength);
+        int serverSystemTitleLength = generalAPDU[ptr++] & 0xFF;
+        byte[] serverSystemTitle = ProtocolTools.getSubArray(generalAPDU, ptr, ptr + serverSystemTitleLength);
         ptr += serverSystemTitleLength;
         if (!Arrays.equals(serverSystemTitle, getResponseSystemTitle())) {
             throw DataEncryptionException.dataEncryptionException(new ProtocolException("The system-title of the response doesn't correspond to the system-title used during association establishment"));
         }
 
-        int clientSystemTitleLength = generalCipheringAPDU[ptr++] & 0xFF;
-        byte[] clientSystemTitle = ProtocolTools.getSubArray(generalCipheringAPDU, ptr, ptr + clientSystemTitleLength);
+        int clientSystemTitleLength = generalAPDU[ptr++] & 0xFF;
+        byte[] clientSystemTitle = ProtocolTools.getSubArray(generalAPDU, ptr, ptr + clientSystemTitleLength);
         ptr += clientSystemTitleLength;
         if (!Arrays.equals(clientSystemTitle, getSystemTitle())) {
             throw DataEncryptionException.dataEncryptionException(new ProtocolException("The system-title of the client doesn't correspond to the system-title used during association establishment"));
         }
 
-        int dateTimeLength = generalCipheringAPDU[ptr++] & 0xFF;
-        byte[] dateTime = ProtocolTools.getSubArray(generalCipheringAPDU, ptr, ptr + dateTimeLength);
+        int dateTimeLength = generalAPDU[ptr++] & 0xFF;
+        byte[] dateTime = ProtocolTools.getSubArray(generalAPDU, ptr, ptr + dateTimeLength);
         ptr += dateTimeLength;
 
-        int otherInfoLength = generalCipheringAPDU[ptr++] & 0xFF;
-        byte[] otherInfo = ProtocolTools.getSubArray(generalCipheringAPDU, ptr, ptr + otherInfoLength);
+        int otherInfoLength = generalAPDU[ptr++] & 0xFF;
+        byte[] otherInfo = ProtocolTools.getSubArray(generalAPDU, ptr, ptr + otherInfoLength);
         ptr += otherInfoLength;
-
-        return ptr;
+        return ProtocolTools.getSubArray(generalAPDU, 1, ptr); //The full header, without the tag
     }
 
     /**
@@ -664,15 +724,15 @@ public class SecurityContext {
      * The authenticationTag is constructed with the associatedData = SecurityControl byte || AuthenticationKey || StoC.
      * The secured packet is constructed as : SecurityControl byte || FrameCounter || (T)
      *
-     * @param plainText to encrypt using GMAC
+     * @param sToCChallenge to encrypt using GMAC
      * @return the secured APDU
      */
-    public byte[] highLevelAuthenticationGMAC(byte[] plainText) {
+    public byte[] highLevelAuthenticationGMAC(byte[] sToCChallenge) {
         int offset = 0;
         List<byte[]> plainArray = new ArrayList<byte[]>();
         plainArray.add(new byte[]{getHLS5SecurityControlByte()});
         plainArray.add(getSecurityProvider().getAuthenticationKey());
-        plainArray.add(plainText);
+        plainArray.add(sToCChallenge);
         byte[] associatedData = DLMSUtils.concatListOfByteArrays(plainArray);
 
         AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
@@ -700,7 +760,7 @@ public class SecurityContext {
      * Create the encrypted packet with the StoC challenge and the framecounter of the meter.
      * This way you can check if the meter has calculated the same one and both systems are then authenticated
      *
-     * @param clientChallenge our challenge we originally send to the meter
+     * @param clientChallenge our challenge we originally send to the meter (CtoS)
      * @param cipheredFrame   the ciphered frame we received from the meter
      * @return the encrypted packet
      */
@@ -759,40 +819,51 @@ public class SecurityContext {
         return dataTransportDecryption(cipherFrame, this.generalCipheringKeyType);
     }
 
+    public byte[] dataTransportDecryption(byte[] cipherFrame, GeneralCipheringKeyType generalCipheringKeyType) throws UnsupportedException, ConnectionException, DLMSConnectionException {
+        return dataTransportDecryption(cipherFrame, generalCipheringKeyType, new byte[0]);
+    }
+
     /**
      * Decrypts the ciphered APDU.
      *
      * @param cipherFrame             - the text to decrypt ...
      * @param generalCipheringKeyType - in case of general ciphering, this indicates the type of encryption key that should be used.
      *                                The server can respond with a different key type, so we should take that into account here
+     * @param generalCipheringHeader  The header of the general ciphering frame (or an empty byte if no general ciphering is used).
+     *                                This header is to be used as additional associated data for the calculation of the authentication tag.
      * @return the plainText
      * @throws ConnectionException when the decryption fails
      */
-    public byte[] dataTransportDecryption(byte[] cipherFrame, GeneralCipheringKeyType generalCipheringKeyType) throws UnsupportedException, ConnectionException, DLMSConnectionException {
+    public byte[] dataTransportDecryption(byte[] cipherFrame, GeneralCipheringKeyType generalCipheringKeyType, byte[] generalCipheringHeader) throws UnsupportedException, ConnectionException, DLMSConnectionException {
         if (securityPolicy.isResponsePlain()) {
-            return cipherFrame;
+            return optionallyUnwrapSignedAPDU(cipherFrame);
         } else if (securityPolicy.isResponseAuthenticatedOnly()) {
 
             AesGcm128 ag128 = new AesGcm128(getEncryptionKey(generalCipheringKeyType), DLMS_AUTH_TAG_SIZE);
 
             byte[] aTag = getAuthenticationTag(cipherFrame);
             byte[] apdu = getApdu(cipherFrame, true);
-            /* the associatedData is a concatenation of:
+
+            /*
+             * The additional associatedData (AAD) is a concatenation of:
              * - the securityControlByte
              * - the authenticationKey
-             * - the plainText */
-            byte[] associatedData = new byte[apdu.length + getSecurityProvider().getAuthenticationKey().length + 1];
-            associatedData[0] = getSecurityControlByte();
-            System.arraycopy(getSecurityProvider().getAuthenticationKey(), 0, associatedData, 1, getSecurityProvider().getAuthenticationKey().length);
-            System.arraycopy(apdu, 0, associatedData, 1 + getSecurityProvider().getAuthenticationKey().length, apdu.length);
-
+             * - (the general ciphering header)
+             * - the plainText
+             */
+            byte[] associatedData = ProtocolTools.concatByteArrays(
+                    new byte[]{getSecurityControlByte()},
+                    getSecurityProvider().getAuthenticationKey(),
+                    (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? generalCipheringHeader : new byte[0],
+                    apdu
+            );
 
             ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
             ag128.setInitializationVector(new BitVector(getRespondingInitializationVector()));
             ag128.setTag(new BitVector(aTag));
 
             if (ag128.decrypt()) {
-                return apdu;
+                return optionallyUnwrapSignedAPDU(apdu);
             } else {
                 throw new ConnectionException("Received an invalid cipher frame.");
             }
@@ -805,7 +876,7 @@ public class SecurityContext {
             ag128.setCipherText(new BitVector(cipheredAPDU));
 
             if (ag128.decrypt()) {
-                return ag128.getPlainText().getValue();
+                return optionallyUnwrapSignedAPDU(ag128.getPlainText().getValue());
             } else {
                 throw new ConnectionException("Received an invalid cipher frame.");
             }
@@ -815,12 +886,18 @@ public class SecurityContext {
 
             byte[] aTag = getAuthenticationTag(cipherFrame);
             byte[] cipheredAPDU = getApdu(cipherFrame, true);
-            /* the associatedData is a concatenation of:
+
+            /*
+             * The additional associatedData (AAD) is a concatenation of:
              * - the securityControlByte
-             * - the authenticationKey */
-            byte[] associatedData = new byte[getSecurityProvider().getAuthenticationKey().length + 1];
-            associatedData[0] = getSecurityControlByte();
-            System.arraycopy(getSecurityProvider().getAuthenticationKey(), 0, associatedData, 1, getSecurityProvider().getAuthenticationKey().length);
+             * - the authenticationKey
+             * - (the general ciphering header)
+             */
+            byte[] associatedData = ProtocolTools.concatByteArrays(
+                    new byte[]{getSecurityControlByte()},
+                    getSecurityProvider().getAuthenticationKey(),
+                    (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? generalCipheringHeader : new byte[0]
+            );
 
             ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
             ag128.setInitializationVector(new BitVector(getRespondingInitializationVector()));
@@ -828,12 +905,24 @@ public class SecurityContext {
             ag128.setCipherText(new BitVector(cipheredAPDU));
 
             if (ag128.decrypt()) {
-                return ag128.getPlainText().getValue();
+                return optionallyUnwrapSignedAPDU(ag128.getPlainText().getValue());
             } else {
                 throw new ConnectionException("Received an invalid cipher frame.");
             }
         } else {
             throw new UnsupportedException("Unknown securityPolicy: " + this.securityPolicy);
+        }
+    }
+
+    /**
+     * The decrypted APDU can still be a general-signing APDU.
+     * If so, unwrap it here and return its contents.
+     */
+    private byte[] optionallyUnwrapSignedAPDU(byte[] possibleGeneralSignedAPDU) throws ConnectionException, UnsupportedException {
+        if (possibleGeneralSignedAPDU[0] == DLMSCOSEMGlobals.GENERAL_SIGNING) {
+            return unwrapGeneralSigning(possibleGeneralSignedAPDU);
+        } else {
+            return possibleGeneralSignedAPDU;
         }
     }
 

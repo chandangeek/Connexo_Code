@@ -29,9 +29,9 @@ public class NTASecurityProvider implements SecurityProvider {
     protected byte[] dedicatedKey;
     protected TypedProperties properties;
     protected byte[] masterKey;
+    protected byte[] hlsSecret;
     private byte[] authenticationKey;
     private byte[] encryptionKey;
-    private byte[] hlsSecret;
     private RespondingFrameCounterHandler respondingFrameCounterHandler = new DefaultRespondingFrameCounterHandler();
 
     private Long initialFrameCounter;

@@ -10,6 +10,7 @@ import com.energyict.encryption.XDlmsEncryption;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -268,18 +269,15 @@ public class AssociationControlServiceElement {
         t += getApplicationContextName().length;
 
         if (getCalledApplicationProcessTitle() != null) {
-            System.arraycopy(generateCalledApplicationProcessTitleField(), 0, aarq, t, generateCalledApplicationProcessTitleField().length);
-            t += generateCalledApplicationProcessTitleField().length;
+            byte[] calledAPTitle = generateCalledApplicationProcessTitleField();
+            System.arraycopy(calledAPTitle, 0, aarq, t, calledAPTitle.length);
+            t += calledAPTitle.length;
         }
 
         if (getCalledApplicationEntityQualifier() != null) {
-            System.arraycopy(generateCalledApplicationEntityQualifier(), 0, aarq, t, generateCalledApplicationEntityQualifier().length);
-            t += generateCalledApplicationEntityQualifier().length;
-        }
-
-        if (getCallingApplicationEntityQualifier() != null) {
-            System.arraycopy(generateCallingApplicationEntityQualifier(), 0, aarq, t, generateCallingApplicationEntityQualifier().length);
-            t += generateCallingApplicationEntityQualifier().length;
+            byte[] calledAEQualifier = generateCalledApplicationEntityQualifier();
+            System.arraycopy(calledAEQualifier, 0, aarq, t, calledAEQualifier.length);
+            t += calledAEQualifier.length;
         }
 
         /**
@@ -296,8 +294,15 @@ public class AssociationControlServiceElement {
          */
 
         if (getCallingApplicationProcessTitle() != null) {
-            System.arraycopy(generateCallingApplicationProcessTitleField(), 0, aarq, t, generateCallingApplicationProcessTitleField().length);
-            t += generateCallingApplicationProcessTitleField().length;
+            byte[] callingAPTitle = generateCallingApplicationProcessTitleField();
+            System.arraycopy(callingAPTitle, 0, aarq, t, callingAPTitle.length);
+            t += callingAPTitle.length;
+        }
+
+        if (getCallingApplicationEntityQualifier() != null) {
+            byte[] callingAEQualifier = generateCallingApplicationEntityQualifier();
+            System.arraycopy(callingAEQualifier, 0, aarq, t, callingAEQualifier.length);
+            t += callingAEQualifier.length;
         }
 
         if (this.mechanismId != 0) {
@@ -382,10 +387,17 @@ public class AssociationControlServiceElement {
                             i += responseData[i];
                         } else if (responseData[i] == DLMSCOSEMGlobals.AARE_RESPONDING_AE_QUALIFIER) {
                             i++; // skip tag
-                            if (responseData[i] > 0) { // length of octet string
-                                this.respondingApplicationEntityQualifier = ProtocolUtils.getSubArray2(responseData, i + 3, responseData[i + 2]);
+                            int respondingAEQualifierLength = DLMSUtils.getAXDRLength(responseData, i);
+                            i += DLMSUtils.getAXDRLengthOffset(respondingAEQualifierLength);
+                            if (respondingAEQualifierLength > 0) { // length of octet string
+                                i += 1;  //Skip octet string tag
+                                respondingAEQualifierLength = DLMSUtils.getAXDRLength(responseData, i);
+                                i += DLMSUtils.getAXDRLengthOffset(respondingAEQualifierLength);
+                                if (respondingAEQualifierLength > 0) {
+                                    this.respondingApplicationEntityQualifier = ProtocolTools.getSubArray(responseData, i, i + respondingAEQualifierLength);
+                                }
                             }
-                            i += responseData[i];
+                            i += respondingAEQualifierLength - 1;
                         } else if (responseData[i] == DLMSCOSEMGlobals.AARE_RESULT_SOURCE_DIAGNOSTIC) {
                             i++; // skip tag
                             if (responseData[i] == 5) // check length
@@ -856,13 +868,15 @@ public class AssociationControlServiceElement {
      */
     private byte[] generateCallingApplicationEntityQualifier() {
         if (getCallingApplicationEntityQualifier() != null) {
-            byte[] result = new byte[getCallingApplicationEntityQualifier().length + 4];
-            result[0] = DLMSCOSEMGlobals.AARQ_CALLING_AE_QUALIFIER;
-            result[1] = (byte) (result.length - 2); // length
-            result[2] = (byte) 0x04;                // [4], Universal, Octetstring type
-            result[3] = (byte) (result.length - 4); // length
-            System.arraycopy(getCallingApplicationEntityQualifier(), 0, result, 4, getCallingApplicationEntityQualifier().length);
-            return result;
+            byte[] callingAEQualifierLength = DLMSUtils.getAXDRLengthEncoding(getCallingApplicationEntityQualifier().length);
+
+            return ProtocolTools.concatByteArrays(
+                    new byte[]{DLMSCOSEMGlobals.AARQ_CALLING_AE_QUALIFIER},
+                    DLMSUtils.getAXDRLengthEncoding(getCallingApplicationEntityQualifier().length + 1 + callingAEQualifierLength.length),
+                    new byte[]{0x04},   // [4], Universal, Octetstring type
+                    callingAEQualifierLength,
+                    getCallingApplicationEntityQualifier()
+            );
         } else {
             return null;
         }

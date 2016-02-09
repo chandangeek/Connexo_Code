@@ -7,6 +7,7 @@ package com.energyict.protocolimpl.debug;
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityPolicyMapper;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
 
 import java.io.IOException;
@@ -19,6 +20,16 @@ import java.util.Properties;
 public class GasDeviceMain extends AS220Main {
 
     private GasDevice gasDevice;
+
+    public static void main(String[] args) throws LinkException, IOException, InterruptedException {
+        GasDeviceMain main = new GasDeviceMain();
+        main.setCommPort(COMPORT);
+        main.setBaudRate(BAUDRATE);
+        main.setDataBits(DATABITS);
+        main.setParity(PARITY);
+        main.setStopBits(STOPBITS);
+        main.run();
+    }
 
     public GasDevice getGasDevice() {
         if (gasDevice == null) {
@@ -39,7 +50,7 @@ public class GasDeviceMain extends AS220Main {
         properties.setProperty("Timeout", "20000");
         //properties.setProperty("ForcedDelay", "500");
 
-        properties.setProperty("SecurityLevel", "1:" + SecurityContext.SECURITYPOLICY_NONE);
+        properties.setProperty("SecurityLevel", "1:" + SecurityPolicyMapper.SECURITYPOLICY_NONE);
         properties.setProperty("ProfileInterval", "900");
         properties.setProperty("Password", "00000000");
         properties.setProperty("SerialNumber", "00000000012345758");
@@ -55,16 +66,6 @@ public class GasDeviceMain extends AS220Main {
         properties.setProperty(LocalSecurityProvider.DATATRANSPORTKEY, "000102030405060708090A0B0C0D0E0F");
 
         return properties;
-    }
-
-    public static void main(String[] args) throws LinkException, IOException, InterruptedException {
-        GasDeviceMain main = new GasDeviceMain();
-        main.setCommPort(COMPORT);
-        main.setBaudRate(BAUDRATE);
-        main.setDataBits(DATABITS);
-        main.setParity(PARITY);
-        main.setStopBits(STOPBITS);
-        main.run();
     }
 
     @Override

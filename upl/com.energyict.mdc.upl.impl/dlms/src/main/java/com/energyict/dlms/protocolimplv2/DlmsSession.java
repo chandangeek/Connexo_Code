@@ -13,6 +13,7 @@ import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
 
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -146,12 +147,13 @@ public class DlmsSession implements ProtocolLink {
 
     /**
      * We fill our (client) signing certificate in the calling-AE-qualifier field, but only
-     * if use digital signing in this session, and we don't know the server signing certificate yet.
+     * if use digital signing (either for data transport security or for HLS7 authentication)
+     * in this session, and we don't know the server signing certificate yet.
      * <p/>
      * Note that this is the ASN.1 DER encoded version of the X.509 v3 certificate.
      */
     private byte[] getCallingAEQualifier() {
-        if (getProperties().isGeneralSigning()) {
+        if (getProperties().isGeneralSigning() || getProperties().getAuthenticationSecurityLevel() == DlmsSecuritySuite1And2Support.AuthenticationAccessLevelIds.ECDSA_AUTHENTICATION.getAccessLevel()) {
             if (getProperties().getSecurityProvider() instanceof GeneralCipheringSecurityProvider) {
                 GeneralCipheringSecurityProvider generalCipheringSecurityProvider = (GeneralCipheringSecurityProvider) getProperties().getSecurityProvider();
                 if (generalCipheringSecurityProvider.getServerSignatureCertificate() == null) {

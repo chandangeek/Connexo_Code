@@ -104,4 +104,22 @@ public class SecurityContextV2EncryptionHandler {
             throw ConnectionCommunicationException.unExpectedProtocolError(e);
         }
     }
+
+    public static byte[] applyGeneralSigning(SecurityContext securityContext, byte[] securedRequest) {
+        try {
+            return securityContext.applyGeneralSigning(securedRequest);
+        } catch (UnsupportedException e) {  //Unsupported security policy
+            throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy().getDataTransportSecurityLevel()));
+        }
+    }
+
+    public static byte[] unwrapGeneralSigning(SecurityContext securityContext, byte[] securedRequest) {
+        try {
+            return securityContext.unwrapGeneralSigning(securedRequest);
+        } catch (UnsupportedException e) {  //Unsupported security policy
+            throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy().getDataTransportSecurityLevel()));
+        } catch (IOException e) {           // Error while writing to the stream
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+        }
+    }
 }

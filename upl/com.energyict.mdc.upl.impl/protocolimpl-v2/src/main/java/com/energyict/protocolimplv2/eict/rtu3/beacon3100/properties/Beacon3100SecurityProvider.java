@@ -54,6 +54,18 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
     }
 
     @Override
+    public byte[] getHLSSecret() {
+        if (this.hlsSecret == null) {
+            String hex = properties.getTypedProperty(SecurityPropertySpecName.PASSWORD.toString());
+            if (hex == null || hex.isEmpty()) {
+                throw DeviceConfigurationException.missingProperty(SecurityPropertySpecName.PASSWORD.toString());
+            }
+            this.hlsSecret = DLMSUtils.hexStringToByteArray(hex);
+        }
+        return this.hlsSecret;
+    }
+
+    @Override
     public byte[] getSessionKey() {
         if (sessionKey == null) {
             sessionKey = new byte[16];
@@ -123,6 +135,9 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
         } else {
             try {
                 Certificate serverKeyAgreementCertificate = certificateAlias.getCertificate();
+                if (serverKeyAgreementCertificate == null) {
+                    return null;
+                }
                 if (!(serverKeyAgreementCertificate instanceof X509Certificate)) {
                     throw DeviceConfigurationException.invalidPropertyFormat(
                             propertyName,

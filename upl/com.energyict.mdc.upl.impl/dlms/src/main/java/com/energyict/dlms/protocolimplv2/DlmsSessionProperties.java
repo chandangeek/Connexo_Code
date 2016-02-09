@@ -49,7 +49,9 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
     int getAuthenticationSecurityLevel();
 
     /**
-     * Getter for the data transport security level. Can be 0 (no security), 1 (authentication), 2 (encryption) or 3 (both)
+     * Getter for the data transport security level.
+     * <p/>
+     * For suite 0: can be 0 (no security), 1 (authentication), 2 (encryption) or 3 (both)
      */
     int getDataTransportSecurityLevel();
 

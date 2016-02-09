@@ -156,6 +156,12 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
                             securedRequest = encrypt(securedRequest);
                             securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
                         }
+
+                        //Additionally, the secured APDU can be digitally signed in a general-signing APDU.
+                        if (isRequestSigned()) {
+                            securedRequest = applyGeneralSigning(securedRequest);
+                            securedRequest = ParseUtils.concatArray(new byte[]{DLMSCOSEMGlobals.GENERAL_SIGNING}, securedRequest);
+                        }
                     } else {
                         //No encryption, only increase the frame counter
                         aso.getSecurityContext().incFrameCounter();
@@ -166,7 +172,7 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
                 securedRequest = ProtocolUtils.concatByteArrays(leading, securedRequest);
 
                 // send the encrypted request to the DLMSConnection
-                final byte[] securedResponse = communicate(securedRequest, send, receive);
+                byte[] securedResponse = communicate(securedRequest, send, receive);
 
                 if (!receive || securedResponse == null) {
                     //Unconfirmed request, exit here.
@@ -178,6 +184,14 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
                     } else {
                         // check if the response tag is know and decrypt the data if necessary
                         byte cipheredTag = securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG];
+
+                        // If it's a general-signing APDU, check its signature and unwrap it.
+                        // Note that its contents can still be a ciphered APDU, it will be decrypted below.
+                        if (cipheredTag == DLMSCOSEMGlobals.GENERAL_SIGNING) {
+                            securedResponse = unwrapGeneralSigning(ProtocolUtils.getSubArray(securedResponse, 3));
+                            securedResponse = ProtocolUtils.concatByteArrays(leading, securedResponse);
+                            cipheredTag = securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG];
+                        }
 
                         if (XdlmsApduTags.contains(cipheredTag)) {
                             //Service specific ciphering
@@ -224,6 +238,10 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
         return this.aso.getSecurityContext().getCipheringType() == CipheringType.GENERAL_CIPHERING.getType();
     }
 
+    private boolean isRequestSigned() {
+        return this.aso.getSecurityContext().getSecurityPolicy().isRequestSigned();
+    }
+
     /**
      * Communicate with the device.
      * 3 scenario's are possible:
@@ -254,6 +272,14 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
 
     protected byte[] decrypt(byte[] securedResponse) {
         return SecurityContextV2EncryptionHandler.dataTransportDecryption(this.aso.getSecurityContext(), securedResponse);
+    }
+
+    private byte[] applyGeneralSigning(byte[] securedRequest) {
+        return SecurityContextV2EncryptionHandler.applyGeneralSigning(this.aso.getSecurityContext(), securedRequest);
+    }
+
+    private byte[] unwrapGeneralSigning(byte[] securedRequest) {
+        return SecurityContextV2EncryptionHandler.unwrapGeneralSigning(this.aso.getSecurityContext(), securedRequest);
     }
 
     private byte[] encryptGeneralGloOrDedCiphering(byte[] request) {
