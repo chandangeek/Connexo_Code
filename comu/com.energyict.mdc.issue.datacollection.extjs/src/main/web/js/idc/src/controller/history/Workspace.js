@@ -57,7 +57,7 @@ Ext.define('Idc.controller.history.Workspace', {
                                     route: 'startProcess',
                                     controller: 'Isu.controller.StartProcess',
                                     action: 'showStartProcess',
-                                    privileges: Isu.privileges.Issue.viewProcesses && Isu.privileges.Issue.executeProcesses
+                                    privileges: Isu.privileges.Issue.viewAdminProcesses && Isu.privileges.Issue.executeProcesses
                                 }
                             }
                         }
