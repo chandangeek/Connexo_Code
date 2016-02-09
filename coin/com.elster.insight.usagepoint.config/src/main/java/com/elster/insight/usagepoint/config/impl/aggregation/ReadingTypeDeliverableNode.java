@@ -1,6 +1,7 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
+import com.elster.jupiter.orm.associations.Reference;
 
 /**
  * Created by igh on 4/02/2016.
@@ -9,15 +10,15 @@ public class ReadingTypeDeliverableNode extends AbstractNode {
 
     static final String TYPE_IDENTIFIER = "DEL";
 
-    private ReadingTypeDeliverable readingTypeDeliverable;
+    private Reference<ReadingTypeDeliverable> readingTypeDeliverable;
 
     public ReadingTypeDeliverableNode(ReadingTypeDeliverable readingTypeDeliverable) {
         super();
-        this.readingTypeDeliverable = readingTypeDeliverable;
+        this.readingTypeDeliverable.set(readingTypeDeliverable);
     }
 
     public ReadingTypeDeliverable getReadingTypeDeliverable() {
-        return readingTypeDeliverable;
+        return readingTypeDeliverable.orNull();
     }
 
     @Override

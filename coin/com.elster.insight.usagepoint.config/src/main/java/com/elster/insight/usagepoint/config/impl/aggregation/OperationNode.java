@@ -7,7 +7,7 @@ import java.util.Arrays;
  */
 public class OperationNode extends AbstractNode {
 
-    static final String TYPE_IDENTIFIER = "OP";
+    static final String TYPE_IDENTIFIER = "OPR";
 
     private final Operator operator;
 

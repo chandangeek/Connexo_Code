@@ -6,8 +6,11 @@ import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 import com.elster.insight.usagepoint.config.MetrologyConfigurationValidationRuleSetUsage;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
+import com.elster.insight.usagepoint.config.impl.aggregation.AbstractNode;
+import com.elster.insight.usagepoint.config.impl.aggregation.ExpressionNode;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
@@ -99,9 +102,32 @@ public enum TableSpecs {
     UPC_FORMULA_NODE {
         @Override
         void addTo(DataModel dataModel) {
-            //Table<ServerExpressionNode> table = dataModel.addTable(name(),ServerExpressionNode.class);
-            //table.map(AbstractNode.IMPLEMENTERS);
+            Table<ExpressionNode> table = dataModel.addTable(name(),ExpressionNode.class);
+            table.map(AbstractNode.IMPLEMENTERS);
+            Column idColumn = table.addAutoIdColumn();
+            table.addDiscriminatorColumn("NODETYPE", "char(3)");
 
+            // parent node
+            Column parentColumn = table.column("parent").number().conversion(NUMBER2LONG).add();
+
+            //OperationNode operator value
+            table.column("OPERATOR").number().conversion(ColumnConversion.NUMBER2ENUM).map("operator").add();
+
+            //FunctionCallNode function value
+            table.column("FUNCTION").number().conversion(ColumnConversion.NUMBER2ENUM).map("function").add();
+
+            //ConstantNode constantValue
+            table.column("CONSTANTVALUE").number().conversion(NUMBER2LONG).map("constantValue").add();
+
+            // ReadingTypeDeliverableNode readingTypeDeliverable value
+            //todo add foreign key
+            Column readingTypeDeliverableIdColumn = table.column("readingTypeDeliverable").number().conversion(NUMBER2LONG).add();
+
+            // ReadingTypeRequirementNode readingTypeRequirement value
+            //todo add foreign key
+            Column readingTypeRequirementIdColumn = table.column("readingTypeRequirement").number().conversion(NUMBER2LONG).add();
+
+            table.foreignKey("UPC_FK_PARENT_NODE").references(UPC_FORMULA_NODE.name()).map("parent").on(parentColumn).add();
         }
     };
 
