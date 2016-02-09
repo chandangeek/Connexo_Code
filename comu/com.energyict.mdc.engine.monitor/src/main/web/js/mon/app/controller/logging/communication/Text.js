@@ -92,11 +92,11 @@ Ext.define('CSMonitor.controller.logging.communication.Text', {
     },
 
     registerForLogging: function() {
-        if (this.getDeviceId().length > 0) {
+        if (this.getDeviceMRIDs().length > 0) {
             this.getWebSocket().send('register request for device: ' + this.getDeviceMRIDs());
         }
 
-        if (this.getPortId().length > 0) {
+        if (this.getPortNames().length > 0) {
             this.getWebSocket().send('register request for comPort: ' + this.getPortNames());
         }
     },
