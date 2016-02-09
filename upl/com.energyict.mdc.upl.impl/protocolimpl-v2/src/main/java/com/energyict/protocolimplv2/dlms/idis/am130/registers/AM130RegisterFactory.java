@@ -296,7 +296,7 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
         return collectedBillingRegisters;
     }
 
-    private CollectedRegister readBillingRegister(OfflineRegister offlineRegister) {
+    protected CollectedRegister readBillingRegister(OfflineRegister offlineRegister) {
         try {
             HistoricalValue historicalValue = ((AM130) getMeterProtocol()).getStoredValues().getHistoricalValue(offlineRegister.getObisCode());
             RegisterValue registerValue = new RegisterValue(offlineRegister.getObisCode(), historicalValue.getQuantityValue(), historicalValue.getEventTime());

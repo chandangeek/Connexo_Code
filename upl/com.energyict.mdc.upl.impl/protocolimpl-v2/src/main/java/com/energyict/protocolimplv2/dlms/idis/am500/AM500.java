@@ -56,8 +56,8 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
     protected IDISLogBookFactory idisLogBookFactory = null;
     protected IDISMessaging idisMessaging = null;
     private IDISRegisterFactory registerFactory = null;
-    private IDISProfileDataReader idisProfileDataReader = null;
-    private IDISStoredValues storedValues = null;
+    protected IDISProfileDataReader idisProfileDataReader = null;
+    protected IDISStoredValues storedValues = null;
     private String serialNumber = null;
 
     @Override
@@ -308,6 +308,6 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-01-25 15:02:12 +0100 (Mon, 25 Jan 2016)$";
+        return "$Date: 2016-02-09 13:07:47 +0200 (Tue, 09 Feb 2016)$";
     }
 }

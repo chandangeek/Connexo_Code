@@ -71,7 +71,7 @@ public class IDISProfileDataReader {
 
                 try {
                     ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(getCorrectedLoadProfileObisCode(loadProfileReader));
-                    profileGeneric.setDsmr4SelectiveAccessFormat(true);
+                    profileGeneric.setDsmr4SelectiveAccessFormat(protocol.useDsmr4SelectiveAccessFormat());
                     DataContainer buffer = profileGeneric.getBuffer(getFromCalendar(loadProfileReader), getToCalendar(loadProfileReader));
                     Object[] loadProfileEntries = buffer.getRoot().getElements();
                     List<IntervalData> intervalDatas = new ArrayList<>();
@@ -79,6 +79,8 @@ public class IDISProfileDataReader {
 
                     Date previousTimeStamp = null;
                     for (int index = 0; index < loadProfileEntries.length; index++) {
+                        int status = 0;
+                        int offset = 1;
                         DataStructure structure = buffer.getRoot().getStructure(index);
                         Date timeStamp;
                         if (structure.isOctetString(0)) {
@@ -95,12 +97,16 @@ public class IDISProfileDataReader {
                             break;  //Stop parsing, move on
                         }
                         previousTimeStamp = timeStamp;
-                        
-                        final int status = structure.getInteger(1);
+
+                        if(hasStatusInformation()){
+                            status = structure.getInteger(1);
+                            offset = 2;
+                        }
+
                         final List<IntervalValue> values = new ArrayList<>();
                         
                         for (int channel = 0; channel < channelInfos.size(); channel++) {
-                            value = new IntervalValue(structure.getBigDecimalValue(channel + 2), status, getEiServerStatus(status));
+                            value = new IntervalValue(structure.getBigDecimalValue(channel + offset), status, getEiServerStatus(status));
                             values.add(value);
                         }
                         
@@ -145,7 +151,7 @@ public class IDISProfileDataReader {
         return protocol.getPhysicalAddressCorrectedObisCode(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
     }
 
-    private int getEiServerStatus(int protocolStatus) {
+    protected int getEiServerStatus(int protocolStatus) {
         int status = IntervalStateBits.OK;
         if ((protocolStatus & 0x80) == 0x80) {
             status = status | IntervalStateBits.POWERDOWN;
@@ -305,5 +311,9 @@ public class IDISProfileDataReader {
 
     public long getLimitMaxNrOfDays() {
         return limitMaxNrOfDays;
+    }
+
+    protected boolean hasStatusInformation() {
+        return true;
     }
 }

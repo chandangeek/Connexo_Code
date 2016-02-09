@@ -314,6 +314,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     CryptoWebRTUKP_42(275, "com.enexis.protocolimplv2.nta.dsmr23.eict.CryptoWebRTUKP", FamilyRule.EICT_NTA),
     CryptoRtuPlusServer_42(276, "com.enexis.protocolimplv2.rtuplusserver.g3.CryptoRtuPlusServer", FamilyRule.G3_LINKY_DLMS, FamilyRule.G3_PLC),
 
+    Mx382_IDIS(278, "com.energyict.protocolimplv2.dlms.idis.iskra.mx382.Mx382"),
+
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
     DLMS_Z3_MESSAGING(10002, "com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging"),

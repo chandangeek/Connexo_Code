@@ -356,4 +356,8 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
     public OfflineDevice getOfflineDevice() {
         return offlineDevice;
     }
+
+    public boolean useDsmr4SelectiveAccessFormat() {
+        return true;
+    }
 }
