@@ -22,23 +22,10 @@ Ext.define('Imt.usagepointmanagement.view.AssociatedMetrologyConfiguration', {
                 labelWidth: 250,
                 itemId: 'fld-mc-name',
                 fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
-                //renderer: function (value) {
-                //    return value ? value : '-';
-                //}
+                renderer: function (value) {
+                    return value ? value : '-';
+                }
             },
-            //{
-            //    labelAlign: 'right',
-            //    xtype: 'fieldcontainer',
-            //    labelWidth: 175,
-            //    //fieldLabel: Uni.I18n.translate('usagepoint.metrologyconfiguration', 'IMT', 'Metrology configuration'),
-            //    layout: {
-            //        type: 'vbox'
-            //    },
-            //    itemId: 'associatedMetrologyConfiguration',
-            //    items: [
-            //
-            //    ]
-            //},
             {
                 xtype: 'custom-attribute-sets-placeholder-form',
                 inline: true,

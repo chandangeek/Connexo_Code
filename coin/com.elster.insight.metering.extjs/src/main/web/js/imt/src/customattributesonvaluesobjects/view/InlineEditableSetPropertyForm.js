@@ -54,9 +54,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                 width: '100%',
                 isEdit: false,
                 defaults: {
-                    //resetButtonHidden: true,
-                    labelWidth: 250,
-                    //width: 600
+                    labelWidth: 250
                 }
             }
         ];
@@ -86,16 +84,10 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                         me.record.save({
                             success: function (record, response, success) {
 
-                                //if (success) {
-                                    me.router.getRoute().forward();
-                                //} else {
-                                //    var responseText = Ext.decode(response.response.responseText, true);
-                                //    if (responseText && Ext.isArray(responseText.errors)) {
-                                //        me.down('property-form').markInvalid(responseText.errors);
-                                //    }
-                                //}
+                                me.router.getRoute().forward();
+
                             },
-                            failure: function(record, response, success){
+                            failure: function (record, response, success) {
                                 var responseText = Ext.decode(response.response.responseText, true);
                                 console.log(responseText);
                                 if (responseText && Ext.isArray(responseText.errors)) {
@@ -136,17 +128,16 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
         me.callParent(arguments);
         versionsContainer = me.down('#time-sliced-versions-container');
         if (me.record.get('isVersioned')) {
-            Imt.customattributesonvaluesobjects.service.VersionsManager.addVersion(me.record, versionsContainer, me.router, me.attributeSetType, me.down('#property-info-container'));
+            Imt.customattributesonvaluesobjects.service.VersionsManager.addVersion(me.record, versionsContainer, me.router, me.attributeSetType, me.down('#property-info-container'), true);
             versionsContainer.show();
         } else {
             me.down('#property-info-container').loadRecord(me.record);
         }
         if (me.actionMenuXtype && me.record.get('isEditable')) {
 
-            action = Ext.create('Ext.menu.Item',{
+            action = Ext.create('Ext.menu.Item', {
                 itemId: 'action-menu-custom-attribute' + me.record.get('id'),
                 menuItemClass: 'inlineEditableAttributeSet',
-//                    privileges: Imt.privileges.Device.administrateDeviceData,
                 text: Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [Ext.String.htmlEncode(me.record.get('name'))]),
                 handler: function () {
                     Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(true);

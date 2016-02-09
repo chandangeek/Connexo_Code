@@ -1,6 +1,5 @@
 Ext.define('Imt.util.TitleWithEditButton', {
     extend: 'Ext.toolbar.Toolbar',
-    //extend: 'Ext.container.Container',
     alias: 'widget.title-with-edit-button',
     title: null,
     editHandler:null,
@@ -18,7 +17,7 @@ Ext.define('Imt.util.TitleWithEditButton', {
                 xtype: 'button',
                 itemId: 'pencil-btn',
                 width: '16px',
-                icon: '../mdc/resources/images/pencil.png',
+                icon: '../imt/resources/images/pencil.png',
                 cls: 'uni-btn-transparent masterfield-btn',
                 tooltip: Uni.I18n.translate('general.tooltip.edit', 'IMT', 'Edit'),
                 style: {
@@ -28,13 +27,9 @@ Ext.define('Imt.util.TitleWithEditButton', {
                     top: '8px'
                 },
                 hidden: me.hiddenBtn,
-                handler: me.editHandler,
-                //listeners: {
-                //    click: me.toEditMode
-                //}
+                handler: me.editHandler
             }
         ];
         me.callParent(arguments);
-    },
-
+    }
 });

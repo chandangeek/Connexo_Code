@@ -27,7 +27,7 @@ Ext.define('Imt.servicecategories.view.CASpanel', {
                 itemId: 'no-cas-found-panel',
                 title: Uni.I18n.translate('serviceCategories.cas.empty.title', 'IMT', 'No custom attribute sets found'),
                 reasons: [
-                    Uni.I18n.translate('serviceCategories.cas.empty.list.item1', 'IMT', 'No castom attribute sets have been added yet.')
+                    Uni.I18n.translate('serviceCategories.cas.empty.list.item1', 'IMT', 'No custom attribute sets have been added yet.')
                 ]
             },
             previewComponent: {
