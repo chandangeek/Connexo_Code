@@ -14,7 +14,18 @@ public class IntervalLengthComparator implements Comparator<IntervalLength> {
 
     @Override
     public int compare(IntervalLength first, IntervalLength second) {
-        return new TemporalAmountComparator().compare(first.toTemporalAmount(), second.toTemporalAmount());
+        if (first.equals(second)) {
+            return 0;
+        }
+        else if (IntervalLength.NOT_SUPPORTED.equals(first)) {
+            return 1;
+        }
+        else if (IntervalLength.NOT_SUPPORTED.equals(second)) {
+            return -1;
+        }
+        else {
+            return new TemporalAmountComparator().compare(first.toTemporalAmount(), second.toTemporalAmount());
+        }
     }
 
 }

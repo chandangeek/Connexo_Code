@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -747,7 +748,7 @@ public class IntervalLengthTest {
 
     @Test
     public void isMultipleOfIsReflective() {
-        List<IntervalLength> notMultipleOfSelf = Stream.of(IntervalLength.values()).filter(each -> !each.isMultipleOf(each)).collect(Collectors.toList());
+        List<IntervalLength> notMultipleOfSelf = allButNotSupported().filter(each -> !each.isMultipleOf(each)).collect(Collectors.toList());
         if (!notMultipleOfSelf.isEmpty()) {
             fail(notMultipleOfSelf.stream().map(IntervalLength::name).collect(Collectors.joining(", ")) + " are not multiples of themselves");
         }
@@ -755,7 +756,7 @@ public class IntervalLengthTest {
 
     @Test
     public void multipliesToIsReflective() {
-        List<IntervalLength> notMultipleOfSelf = Stream.of(IntervalLength.values()).filter(each -> !each.multipliesTo(each)).collect(Collectors.toList());
+        List<IntervalLength> notMultipleOfSelf = allButNotSupported().filter(each -> !each.multipliesTo(each)).collect(Collectors.toList());
         if (!notMultipleOfSelf.isEmpty()) {
             fail(notMultipleOfSelf.stream().map(IntervalLength::name).collect(Collectors.joining(", ")) + " are not multiples of themselves");
         }
@@ -855,10 +856,14 @@ public class IntervalLengthTest {
 
     @Test
     public void allMultiplyIntoYear() {
-        List<IntervalLength> doNotMultiplyToYear = Stream.of(IntervalLength.values()).filter(each -> !each.multipliesTo(IntervalLength.YEAR1)).collect(Collectors.toList());
+        List<IntervalLength> doNotMultiplyToYear = allButNotSupported().filter(each -> !each.multipliesTo(IntervalLength.YEAR1)).collect(Collectors.toList());
         if (!doNotMultiplyToYear.isEmpty()) {
             fail(doNotMultiplyToYear.stream().map(IntervalLength::name).collect(Collectors.joining(", ")) + " do not multiply to one year");
         }
+    }
+
+    private Stream<IntervalLength> allButNotSupported() {
+        return EnumSet.complementOf(EnumSet.of(IntervalLength.NOT_SUPPORTED)).stream();
     }
 
 }

@@ -19,6 +19,12 @@ import java.util.Set;
  */
 public enum IntervalLength {
 
+    NOT_SUPPORTED(Duration.ofMillis(0)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.noneOf(IntervalLength.class);
+        }
+    },
     MINUTE1(Duration.ofMinutes(1)) {
         @Override
         protected Set<IntervalLength> multiples() {

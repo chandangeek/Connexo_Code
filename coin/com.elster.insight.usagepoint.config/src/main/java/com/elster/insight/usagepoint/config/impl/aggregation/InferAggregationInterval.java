@@ -91,7 +91,7 @@ public class InferAggregationInterval implements ServerExpressionNode.ServerVisi
     private IntervalLength visitChildren(List<AbstractNode> children, Supplier<UnsupportedOperationException> unsupportedOperationExceptionSupplier) {
         Set<IntervalLength> preferredIntervals = children.stream().map(this::getPreferredInterval).collect(Collectors.toSet());
         if (preferredIntervals.size() == 1) {
-            // All arguments are fine with the same interval, now enforce that interval
+            // All child nodes are fine with the same interval, now enforce that interval
             IntervalLength preferredInterval = preferredIntervals.iterator().next();
             EnforceAggregationInterval enforce = new EnforceAggregationInterval(preferredInterval);
             children.stream().forEach(enforce::onto);
@@ -151,7 +151,12 @@ public class InferAggregationInterval implements ServerExpressionNode.ServerVisi
         }
 
         private Boolean forAll(List<AbstractNode> expressions) {
-            return expressions.stream().allMatch(expression -> expression.accept(this));
+            if (IntervalLength.NOT_SUPPORTED.equals(this.interval)) {
+                return Boolean.FALSE;
+            }
+            else {
+                return expressions.stream().allMatch(expression -> expression.accept(this));
+            }
         }
 
         @Override

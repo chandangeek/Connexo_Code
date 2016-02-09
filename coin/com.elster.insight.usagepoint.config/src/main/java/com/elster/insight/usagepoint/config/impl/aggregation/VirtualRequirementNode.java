@@ -54,19 +54,20 @@ class VirtualRequirementNode extends AbstractNode {
      * @return The preferred interval
      */
     IntervalLength getPreferredInterval() {
-        // Taking the smallest interval for now
-        // Todo: match this against the target
+        /* Preferred interval is the smallest matching reading type
+         * that is compatible with the target interval. */
         Optional<IntervalLength> preferredInterval =
                 this.requirement.getMatchesFor(this.meterActivation)
                     .stream()
                     .map(IntervalLength::from)
                     .sorted(new IntervalLengthComparator())
+                    .filter(each -> this.areCompatible(each, this.getTargetInterval()))
                     .findFirst();
         if (preferredInterval.isPresent()) {
             return preferredInterval.get();
         }
         else {
-            return this.getTargetInterval();
+            return IntervalLength.NOT_SUPPORTED;
         }
     }
 
