@@ -3,6 +3,8 @@ Ext.define('Sct.view.LogLevelWindow', {
     alias: 'widget.log-level-window',
     modal: true,
     title: Uni.I18n.translate('general.selectLogLevel', 'SCT', 'Select log level'),
+    record: null,
+    itemId: 'log-level-window',
 
     initComponent: function () {
         var me = this;

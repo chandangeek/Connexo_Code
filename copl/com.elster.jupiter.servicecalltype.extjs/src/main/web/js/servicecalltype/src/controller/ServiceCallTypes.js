@@ -16,6 +16,10 @@ Ext.define('Sct.controller.ServiceCallTypes', {
             ref: 'page',
             selector: 'servicecalltypes-setup'
         },
+        {
+            ref: 'changeLogLevelWindow',
+            selector: 'log-level-window'
+        }
     ],
 
     init: function () {
@@ -26,6 +30,12 @@ Ext.define('Sct.controller.ServiceCallTypes', {
             'sct-action-menu': {
                 click: this.chooseAction
             },
+            'log-level-window #save-log-level-button': {
+                click: this.updateLogLevel
+            },
+            'log-level-window': {
+                close: this.closeLogLevelWindow
+            }
         });
     },
 
@@ -63,5 +73,18 @@ Ext.define('Sct.controller.ServiceCallTypes', {
         Ext.widget('log-level-window', {
                 record: record
         }).show();
+    },
+
+    updateLogLevel: function() {
+        //TODO: put update code for log level here
+        var me = this,
+            window = me.getChangeLogLevelWindow(),
+            record = window.record;
+        debugger;
+    },
+
+    closeLogLevelWindow: function() {
+        var me = this;
+        me.getPage().setLoading(false);
     }
 });
