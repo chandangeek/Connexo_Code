@@ -112,6 +112,6 @@ public class UsagePointCustomPropertySetResource {
                                                                    CustomPropertySetInfo<UsagePointInfo> info) {
         UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper.lockUsagePointCustomPropertySetExtensionOrThrowException(info.parent);
         setCustomPropertySetValues(info, usagePointExtension::setServiceCategoryCustomPropertySetValue);
-        return getCustomPropertySetValues(queryParameters, usagePointExtension::getMetrologyConfigurationCustomPropertySetValues);
+        return getCustomPropertySetValues(queryParameters, usagePointExtension::getServiceCategoryCustomPropertySetValues);
     }
 }
