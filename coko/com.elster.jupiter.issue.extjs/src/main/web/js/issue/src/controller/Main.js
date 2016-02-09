@@ -20,7 +20,8 @@ Ext.define('Isu.controller.Main', {
         'Isu.controller.CreationRuleActionEdit',
         'Isu.controller.IssuesOverview',
         'Isu.controller.IssueDetail',
-        'Isu.controller.ApplyIssueAction'
+        'Isu.controller.ApplyIssueAction',
+        'Isu.controller.Overview'
     ],
 
     init: function () {
@@ -78,12 +79,13 @@ Ext.define('Isu.controller.Main', {
                     {
                         text: Uni.I18n.translate('workspace.issues.title','ISU','Issues'),
                         itemId: 'issues-item',
-                        href: router.getRoute('workspace/issues').buildUrl()
+                        href: router.getRoute('workspace/issues').buildUrl(),
+                        hidden: true
                     },
                     {
                         text: Uni.I18n.translate('workspace.issues.issuesOverview', 'ISU', 'Issues overview'),
                         itemId: 'issues-overview-item',
-                        //href: router.getRoute('workspace/issuesoverview').buildUrl()
+                        href: router.getRoute('workspace/issuesoverview').buildUrl()
                     }
                 ]
             });

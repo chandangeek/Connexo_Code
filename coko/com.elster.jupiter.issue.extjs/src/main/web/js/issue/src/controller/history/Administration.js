@@ -19,6 +19,13 @@ Ext.define('Isu.controller.history.Administration', {
                     controller: 'Isu.controller.IssuesOverview',
                     action: 'showOverview',
                     privileges: Isu.privileges.Issue.viewAdminDevice
+                },
+                issuesoverview: {
+                    title: Uni.I18n.translate('workspace.issuesOverview', 'ISU', 'Issues overview'),
+                    route: 'issuesoverview',
+                    controller: 'Isu.controller.Overview',
+                    action: 'showIssuesOverview',
+                    privileges: Isu.privileges.Issue.viewAdminDevice
                 }
             }
         },

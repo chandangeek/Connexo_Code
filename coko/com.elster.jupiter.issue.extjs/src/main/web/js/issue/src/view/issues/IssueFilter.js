@@ -1,13 +1,23 @@
 Ext.define('Isu.view.issues.IssueFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'isu-view-issues-issuefilter',
-
+    isOverviewFilter: false,
     store: undefined,
 
     initComponent: function () {
         var me = this;
 
         me.filters = [
+            {
+                type: 'combobox',
+                itemId: 'issue-type-filter',
+                dataIndex: 'issueType',
+                emptyText: Uni.I18n.translate('general.type', 'ISU', 'Type'),
+                multiSelect: true,
+                displayField: 'name',
+                valueField: 'uid',
+                store: 'Isu.store.IssueTypes'
+            },
             {
                 type: 'combobox',
                 itemId: 'issue-status-filter',
@@ -23,6 +33,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 itemId: 'issue-assignee-filter',
                 dataIndex: 'assignee',
                 emptyText: Uni.I18n.translate('general.assignee', 'ISU', 'Assignee'),
+                multiSelect: true,
                 store: 'Isu.store.IssueAssignees',
                 displayField: 'name',
                 valueField: 'idx',
@@ -43,6 +54,16 @@ Ext.define('Isu.view.issues.IssueFilter', {
             },
             {
                 type: 'combobox',
+                itemId: 'issue-device-group-filter',
+                dataIndex: 'deviceGroup',
+                emptyText: Uni.I18n.translate('general.deviceGroup', 'ISU', 'Device group'),
+                multiSelect: true,
+                displayField: 'name',
+                valueField: 'id',
+                store: 'Isu.store.DeviceGroups'
+            },
+            {
+                type: 'combobox',
                 itemId: 'issue-reason-filter',
                 dataIndex: 'reason',
                 emptyText: Uni.I18n.translate('general.reason', 'ISU', 'Reason'),
@@ -51,9 +72,22 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 store: 'Isu.store.IssueReasons',
                 queryMode: 'remote',
                 queryParam: 'like',
+                loadStore: !me.isOverviewFilter,
                 queryCaching: false,
                 minChars: 0,
-                forceSelection: false
+                forceSelection: false,
+                hidden: me.isOverviewFilter
+            },
+            {
+                type: 'dueDate',
+                itemId: 'issue-dueDate-filter',
+                dataIndex: 'dueDate',
+                emptyText: Uni.I18n.translate('general.dueDate', 'ISU', 'Due date'),
+                multiSelect: true,
+                displayField: 'name',
+                loadStore: false,
+                valueField: 'id',
+                store: 'Isu.store.DueDate'
             },
             {
                 type: 'combobox',
@@ -71,6 +105,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 setFilterValue: me.comboSetFilterValue,
                 getParamValue: me.comboGetParamValue,
                 forceSelection: false,
+                hidden: me.isOverviewFilter,
                 listeners: {
                     expand: {
                         fn: me.comboLimitNotification

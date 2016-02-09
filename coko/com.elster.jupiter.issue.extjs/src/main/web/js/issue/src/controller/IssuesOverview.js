@@ -117,8 +117,6 @@ Ext.define('Isu.controller.IssuesOverview', {
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
         } else {
             me.getStore('Isu.store.Clipboard').set('datacollection' + '-latest-issues-filter', queryString);
-            me.getStore('Isu.store.IssueStatuses').getProxy().setExtraParam('issueType', 'datacollection');
-            me.getStore('Isu.store.IssueReasons').getProxy().setExtraParam('issueType', 'datacollection');
 
             me.getApplication().fireEvent('changecontentevent', Ext.widget('issues-overview', {
                 router: me.getController('Uni.controller.history.Router'),

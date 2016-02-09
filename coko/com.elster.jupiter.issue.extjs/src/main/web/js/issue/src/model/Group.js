@@ -6,12 +6,16 @@ Ext.define('Isu.model.Group', {
             type: 'string'
         },
         {
-            name: 'reason',
+            name: 'description',
             type: 'text'
         },
         {
             name: 'number',
             type: 'int'
+        },
+        {
+            name: 'href',
+            persist: false
         }
     ],
 
@@ -20,8 +24,7 @@ Ext.define('Isu.model.Group', {
         url: '/api/isu/issues/groupedlist',
         reader: {
             type: 'json',
-            root: 'issueGroups',
-            totalProperty: 'totalCount'
+            root: 'issueGroups'
         }
     }
 });
