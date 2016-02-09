@@ -296,7 +296,7 @@ public class BpmResource {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
         }
         if(filterProperties.get("type") != null) {
-            List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
+            List<BpmProcessDefinition> activeProcesses = bpmService.getAllBpmProcessDefinitions();
             ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos(arr);
             processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
                     .filter(s -> activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version) && a.getAssociation().toLowerCase().equals(filterProperties.get("type").get(0).toLowerCase())))
@@ -306,7 +306,7 @@ public class BpmResource {
             processDefinitionInfos.total = processDefinitionInfos.processes.size();
             return processDefinitionInfos;
         }else{
-            List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
+            List<BpmProcessDefinition> activeProcesses = bpmService.getAllBpmProcessDefinitions();
             ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos(arr);
             processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
                     .filter(s -> activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version)))
