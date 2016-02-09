@@ -9,15 +9,15 @@ public class ConstantNode extends AbstractNode implements ServerExpressionNode {
 
     static String TYPE_IDENTIFIER = "CST";
 
-    private final BigDecimal value;
+    private final BigDecimal constantValue;
 
     public ConstantNode(BigDecimal value) {
         super();
-        this.value = value;
+        this.constantValue = value;
     }
 
     public BigDecimal getValue() {
-        return value;
+        return constantValue;
     }
 
     @Override
