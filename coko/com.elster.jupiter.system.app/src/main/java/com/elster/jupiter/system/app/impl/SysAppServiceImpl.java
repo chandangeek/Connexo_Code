@@ -87,7 +87,8 @@ public class SysAppServiceImpl implements SysAppService, InstallService, Transla
                 FileImportService.COMPONENT_NAME,
                 CustomPropertySetService.COMPONENT_NAME,
                 MeteringService.COMPONENTNAME,
-                SubsystemService.COMPONENTNAME);
+                SubsystemService.COMPONENTNAME,
+                "SCT");
     }
 
     @Reference
