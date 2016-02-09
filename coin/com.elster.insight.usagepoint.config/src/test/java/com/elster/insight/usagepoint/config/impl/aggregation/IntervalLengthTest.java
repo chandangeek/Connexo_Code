@@ -745,4 +745,120 @@ public class IntervalLengthTest {
         // Asserts: see expected exception rule
     }
 
+    @Test
+    public void isMultipleOfIsReflective() {
+        List<IntervalLength> notMultipleOfSelf = Stream.of(IntervalLength.values()).filter(each -> !each.isMultipleOf(each)).collect(Collectors.toList());
+        if (!notMultipleOfSelf.isEmpty()) {
+            fail(notMultipleOfSelf.stream().map(IntervalLength::name).collect(Collectors.joining(", ")) + " are not multiples of themselves");
+        }
+    }
+
+    @Test
+    public void multipliesToIsReflective() {
+        List<IntervalLength> notMultipleOfSelf = Stream.of(IntervalLength.values()).filter(each -> !each.multipliesTo(each)).collect(Collectors.toList());
+        if (!notMultipleOfSelf.isEmpty()) {
+            fail(notMultipleOfSelf.stream().map(IntervalLength::name).collect(Collectors.joining(", ")) + " are not multiples of themselves");
+        }
+    }
+
+    @Test
+    public void oneMinuteMultipliesToAll() {
+        List<IntervalLength> notMultipleOfOne = Stream.of(IntervalLength.values()).filter(each -> !IntervalLength.MINUTE1.multipliesTo(each)).collect(Collectors.toList());
+        if (!notMultipleOfOne.isEmpty()) {
+            fail(notMultipleOfOne.stream().map(IntervalLength::name).collect(Collectors.joining(", ")) + " are not multiples of one minute");
+        }
+    }
+
+    @Test
+    public void hourlyIntervalsMultiplyIntoDay() {
+        List<IntervalLength> doNotMultiplyToWeek = hourlyIntervals().filter(each -> !each.multipliesTo(IntervalLength.DAY1)).collect(Collectors.toList());
+        if (!doNotMultiplyToWeek.isEmpty()) {
+            fail(doNotMultiplyToWeek.stream().map(IntervalLength::name).collect(Collectors.joining(", ")) + " do not multiply to one day");
+        }
+    }
+
+    @Test
+    public void hourlyIntervalsMultiplyIntoWeek() {
+        List<IntervalLength> doNotMultiplyToWeek = hourlyIntervals().filter(each -> !each.multipliesTo(IntervalLength.WEEK1)).collect(Collectors.toList());
+        if (!doNotMultiplyToWeek.isEmpty()) {
+            fail(doNotMultiplyToWeek.stream().map(IntervalLength::name).collect(Collectors.joining(", ")) + " do not multiply to one week");
+        }
+    }
+
+    @Test
+    public void hourlyIntervalsMultiplyIntoMonth() {
+        List<IntervalLength> doNotMultiplyToMonth = hourlyIntervals().filter(each -> !each.multipliesTo(IntervalLength.MONTH1)).collect(Collectors.toList());
+        if (!doNotMultiplyToMonth.isEmpty()) {
+            fail(doNotMultiplyToMonth.stream().map(IntervalLength::name).collect(Collectors.joining(", ")) + " do not multiply to one month");
+        }
+    }
+
+    @Test
+    public void dailyIntervalsMultiplyIntoWeek() {
+        List<IntervalLength> doNotMultiplyToWeek = dailyIntervals().filter(each -> !each.multipliesTo(IntervalLength.WEEK1)).collect(Collectors.toList());
+        if (!doNotMultiplyToWeek.isEmpty()) {
+            fail(doNotMultiplyToWeek.stream().map(IntervalLength::name).collect(Collectors.joining(", ")) + " do not multiply to one week");
+        }
+    }
+
+    @Test
+    public void dailyIntervalsMultiplyIntoMonth() {
+        List<IntervalLength> doNotMultiplyToMonth = dailyIntervals().filter(each -> !each.multipliesTo(IntervalLength.MONTH1)).collect(Collectors.toList());
+        if (!doNotMultiplyToMonth.isEmpty()) {
+            fail(doNotMultiplyToMonth.stream().map(IntervalLength::name).collect(Collectors.joining(", ")) + " do not multiply to one month");
+        }
+    }
+
+    @Test
+    public void dailyIntervalsMultiplyIntoYear() {
+        List<IntervalLength> doNotMultiplyToYear = dailyIntervals().filter(each -> !each.multipliesTo(IntervalLength.YEAR1)).collect(Collectors.toList());
+        if (!doNotMultiplyToYear.isEmpty()) {
+            fail(doNotMultiplyToYear.stream().map(IntervalLength::name).collect(Collectors.joining(", ")) + " do not multiply to one year");
+        }
+    }
+
+    private Stream<IntervalLength> hourlyIntervals() {
+        return Stream.of(
+                IntervalLength.MINUTE1,
+                IntervalLength.MINUTE2,
+                IntervalLength.MINUTE3,
+                IntervalLength.MINUTE4,
+                IntervalLength.MINUTE5,
+                IntervalLength.MINUTE6,
+                IntervalLength.MINUTE10,
+                IntervalLength.MINUTE12,
+                IntervalLength.MINUTE15,
+                IntervalLength.MINUTE20,
+                IntervalLength.MINUTE30);
+    }
+
+    private Stream<IntervalLength> dailyIntervals() {
+        return Stream.of(
+                IntervalLength.MINUTE1,
+                IntervalLength.MINUTE2,
+                IntervalLength.MINUTE3,
+                IntervalLength.MINUTE4,
+                IntervalLength.MINUTE5,
+                IntervalLength.MINUTE6,
+                IntervalLength.MINUTE10,
+                IntervalLength.MINUTE12,
+                IntervalLength.MINUTE15,
+                IntervalLength.MINUTE20,
+                IntervalLength.MINUTE30,
+                IntervalLength.HOUR1,
+                IntervalLength.HOUR2,
+                IntervalLength.HOUR3,
+                IntervalLength.HOUR4,
+                IntervalLength.HOUR6,
+                IntervalLength.HOUR12);
+    }
+
+    @Test
+    public void allMultiplyIntoYear() {
+        List<IntervalLength> doNotMultiplyToYear = Stream.of(IntervalLength.values()).filter(each -> !each.multipliesTo(IntervalLength.YEAR1)).collect(Collectors.toList());
+        if (!doNotMultiplyToYear.isEmpty()) {
+            fail(doNotMultiplyToYear.stream().map(IntervalLength::name).collect(Collectors.joining(", ")) + " do not multiply to one year");
+        }
+    }
+
 }

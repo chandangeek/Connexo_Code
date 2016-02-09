@@ -6,6 +6,8 @@ import com.elster.jupiter.metering.ReadingType;
 import java.time.Duration;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * Models the length of an interval as specified by the
@@ -17,27 +19,314 @@ import java.time.temporal.TemporalAmount;
  */
 public enum IntervalLength {
 
-    MINUTE1(Duration.ofMinutes(1)),
-    MINUTE2(Duration.ofMinutes(2)),
-    MINUTE3(Duration.ofMinutes(3)),
-    MINUTE4(Duration.ofMinutes(4)),
-    MINUTE5(Duration.ofMinutes(5)),
-    MINUTE6(Duration.ofMinutes(6)),
-    MINUTE10(Duration.ofMinutes(10)),
-    MINUTE12(Duration.ofMinutes(12)),
-    MINUTE15(Duration.ofMinutes(15)),
-    MINUTE20(Duration.ofMinutes(20)),
-    MINUTE30(Duration.ofMinutes(30)),
-    HOUR1(Duration.ofHours(1)),
-    HOUR2(Duration.ofHours(2)),
-    HOUR3(Duration.ofHours(3)),
-    HOUR4(Duration.ofHours(4)),
-    HOUR6(Duration.ofHours(6)),
-    HOUR12(Duration.ofHours(12)),
-    DAY1(Period.ofDays(1)),
-    WEEK1(Period.ofWeeks(1)),
-    MONTH1(Period.ofMonths(1)),
-    YEAR1(Period.ofYears(1));
+    MINUTE1(Duration.ofMinutes(1)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.allOf(IntervalLength.class);
+        }
+    },
+    MINUTE2(Duration.ofMinutes(2)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(
+                    IntervalLength.MINUTE2,
+                    IntervalLength.MINUTE4,
+                    IntervalLength.MINUTE6,
+                    IntervalLength.MINUTE10,
+                    IntervalLength.MINUTE12,
+                    IntervalLength.MINUTE20,
+                    IntervalLength.MINUTE30,
+                    IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
+                    IntervalLength.HOUR12,
+                    IntervalLength.DAY1,
+                    IntervalLength.WEEK1,
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
+        }
+    },
+    MINUTE3(Duration.ofMinutes(3)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(
+                    IntervalLength.MINUTE3,
+                    IntervalLength.MINUTE6,
+                    IntervalLength.MINUTE12,
+                    IntervalLength.MINUTE15,
+                    IntervalLength.MINUTE30,
+                    IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
+                    IntervalLength.HOUR12,
+                    IntervalLength.DAY1,
+                    IntervalLength.WEEK1,
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
+        }
+    },
+    MINUTE4(Duration.ofMinutes(4)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(
+                    IntervalLength.MINUTE4,
+                    IntervalLength.MINUTE12,
+                    IntervalLength.MINUTE20,
+                    IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
+                    IntervalLength.HOUR12,
+                    IntervalLength.DAY1,
+                    IntervalLength.WEEK1,
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
+        }
+    },
+    MINUTE5(Duration.ofMinutes(5)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(
+                    IntervalLength.MINUTE5,
+                    IntervalLength.MINUTE10,
+                    IntervalLength.MINUTE15,
+                    IntervalLength.MINUTE20,
+                    IntervalLength.MINUTE30,
+                    IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
+                    IntervalLength.HOUR12,
+                    IntervalLength.DAY1,
+                    IntervalLength.WEEK1,
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
+        }
+    },
+    MINUTE6(Duration.ofMinutes(6)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(
+                    IntervalLength.MINUTE6,
+                    IntervalLength.MINUTE12,
+                    IntervalLength.MINUTE30,
+                    IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
+                    IntervalLength.HOUR12,
+                    IntervalLength.DAY1,
+                    IntervalLength.WEEK1,
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
+        }
+    },
+    MINUTE10(Duration.ofMinutes(10)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(
+                    IntervalLength.MINUTE10,
+                    IntervalLength.MINUTE20,
+                    IntervalLength.MINUTE30,
+                    IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
+                    IntervalLength.HOUR12,
+                    IntervalLength.DAY1,
+                    IntervalLength.WEEK1,
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
+        }
+    },
+    MINUTE12(Duration.ofMinutes(12)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(
+                    IntervalLength.MINUTE12,
+                    IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
+                    IntervalLength.HOUR12,
+                    IntervalLength.DAY1,
+                    IntervalLength.WEEK1,
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
+        }
+    },
+    MINUTE15(Duration.ofMinutes(15)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(
+                    IntervalLength.MINUTE15,
+                    IntervalLength.MINUTE30,
+                    IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
+                    IntervalLength.HOUR12,
+                    IntervalLength.DAY1,
+                    IntervalLength.WEEK1,
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
+        }
+    },
+    MINUTE20(Duration.ofMinutes(20)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(
+                    IntervalLength.MINUTE20,
+                    IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
+                    IntervalLength.HOUR12,
+                    IntervalLength.DAY1,
+                    IntervalLength.WEEK1,
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
+        }
+    },
+    MINUTE30(Duration.ofMinutes(30)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(
+                    IntervalLength.MINUTE30,
+                    IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
+                    IntervalLength.HOUR12,
+                    IntervalLength.DAY1,
+                    IntervalLength.WEEK1,
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
+        }
+    },
+    HOUR1(Duration.ofHours(1)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(
+                    IntervalLength.HOUR1,
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
+                    IntervalLength.HOUR12,
+                    IntervalLength.DAY1,
+                    IntervalLength.WEEK1,
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
+        }
+    },
+    HOUR2(Duration.ofHours(2)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(
+                    IntervalLength.HOUR2,
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR6,
+                    IntervalLength.HOUR12,
+                    IntervalLength.DAY1,
+                    IntervalLength.WEEK1,
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
+        }
+    },
+    HOUR3(Duration.ofHours(3)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(
+                    IntervalLength.HOUR3,
+                    IntervalLength.HOUR6,
+                    IntervalLength.HOUR12,
+                    IntervalLength.DAY1,
+                    IntervalLength.WEEK1,
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
+        }
+    },
+    HOUR4(Duration.ofHours(4)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(
+                    IntervalLength.HOUR4,
+                    IntervalLength.HOUR12,
+                    IntervalLength.DAY1,
+                    IntervalLength.WEEK1,
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
+        }
+    },
+    HOUR6(Duration.ofHours(6)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(
+                    IntervalLength.HOUR6,
+                    IntervalLength.HOUR12,
+                    IntervalLength.DAY1,
+                    IntervalLength.WEEK1,
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
+        }
+    },
+    HOUR12(Duration.ofHours(12)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(
+                    IntervalLength.HOUR12,
+                    IntervalLength.DAY1,
+                    IntervalLength.WEEK1,
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
+        }
+    },
+    DAY1(Period.ofDays(1)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(
+                    IntervalLength.DAY1,
+                    IntervalLength.WEEK1,
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
+        }
+    },
+    WEEK1(Period.ofWeeks(1)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(
+                    IntervalLength.WEEK1,
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
+        }
+    },
+    MONTH1(Period.ofMonths(1)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
+        }
+    },
+    YEAR1(Period.ofYears(1)) {
+        @Override
+        protected Set<IntervalLength> multiples() {
+            return EnumSet.of(IntervalLength.YEAR1);
+        }
+    };
 
     private final TemporalAmount temporalAmount;
 
@@ -48,6 +337,44 @@ public enum IntervalLength {
     public TemporalAmount toTemporalAmount() {
         return temporalAmount;
     }
+
+    /**
+     * Tests if this IntervalLength is a multiple of the other.
+     * In other words, is there an n for which the following holds
+     * this = n * other;
+     * <br>
+     * Is actually the reverse for {@link #multipliesTo(IntervalLength)}
+     *
+     * @param other The other IntervalLength
+     * @return A flag that indicates if this IntervalLength is a multiple of the other
+     * @see #multipliesTo(IntervalLength)
+     */
+    public boolean isMultipleOf(IntervalLength other) {
+        return other.multipliesTo(this);
+    }
+
+    /**
+     * Tests if this IntervalLength can be multiplied to the other.
+     * In other words, is there an n for which the following holds
+     * other = n * this;
+     * <br>
+     * Is actually the reverse for {@link #isMultipleOf(IntervalLength)}
+     *
+     * @param other The other IntervalLength
+     * @return A flag that indicates if this IntervalLength is a multiple of the other
+     * @see #isMultipleOf(IntervalLength)
+     */
+    public boolean multipliesTo(IntervalLength other) {
+        return this.multiples().contains(other);
+    }
+
+    /**
+     * Returns all the multiples of this IntervalLength,
+     * i.e. all the IntervalLength to which this one can be multiplied.
+     *
+     * @return The multiples
+     */
+    protected abstract Set<IntervalLength> multiples();
 
     public static IntervalLength from(ReadingType readingType) {
         switch (readingType.getMacroPeriod()) {
