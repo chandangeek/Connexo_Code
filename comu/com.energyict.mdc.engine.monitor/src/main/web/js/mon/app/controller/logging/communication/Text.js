@@ -8,7 +8,7 @@ Ext.define('CSMonitor.controller.logging.communication.Text', {
     views: ['logging.communication.Text', 'logging.communication.BytesViewer'],
     config: {
         deviceMRIDs: '',
-        portNames: '',
+        portNames: ''
     },
 
     refs: [

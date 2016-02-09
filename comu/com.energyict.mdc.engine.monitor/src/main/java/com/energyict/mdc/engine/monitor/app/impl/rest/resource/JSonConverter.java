@@ -142,6 +142,7 @@ public class JSonConverter {
                 jsDuration.put("time-unit", unit);
                 result.put("pollingFrequency", jsDuration);
             }
+            result.put("eventRegistrationUri", comServer.getEventRegistrationUriIfSupported());
         }
         setLastConVerted(result);
         return this;

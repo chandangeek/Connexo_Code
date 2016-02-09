@@ -27,7 +27,6 @@ Ext.define('CSMonitor.Application', {
         'performance.PoolThreadChart',
         'performance.PoolPortChart',
 
-
         'logging.Communication',
         'logging.Converter',
         'logging.DataStorage',

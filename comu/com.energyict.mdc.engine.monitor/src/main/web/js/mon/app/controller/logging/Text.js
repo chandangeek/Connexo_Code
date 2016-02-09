@@ -1,6 +1,7 @@
 Ext.define('CSMonitor.controller.logging.Text', {
     extend: 'Ext.app.Controller',
     requires: ['CSMonitor.decorators.logging.EventDecoratorFactory'],
+    uses: ['CSMonitor.model.status.GeneralInformation'],
     config: {
         isConnected : false,
         isPaused : false,
@@ -16,30 +17,15 @@ Ext.define('CSMonitor.controller.logging.Text', {
     },
 
     views: ['logging.Text'],
+    stores: ['status.GeneralInformation'],
+    models: ['status.GeneralInformation'],
 
     // To be overridden in extending classes
     init: function() {
     },
 
     subscribe: function() {
-        var me = this,
-            hostName = window.location.host,
-            protocol = window.location.protocol,
-            port = window.location.port;
-        var socketProtocol = 'ws' ;
-        if (protocol == 'https'){
-            socketProtocol = 'wss';
-        }
-        if (hostName.indexOf(':') >= 0){
-            hostName = hostName.substr(0, hostName.indexOf(':')).trim();
-        }
-        this.setWebSocket(new WebSocket(socketProtocol + '://' + hostName + ':8888/events/registration'));
-        this.getWebSocket().onopen = function(evt) { me.onOpen(evt); };
-        this.getWebSocket().onclose = function(evt) { me.onClose(evt); };
-        this.getWebSocket().onmessage = function(evt) { me.onMessage(evt); };
-        this.getWebSocket().onerror = function(evt) { me.onError(evt); };
-        this.setSubscribed(true);
-        this.getPingTask().start();
+        this.openWebSocket();
     },
 
     unsubscribe: function() {
@@ -117,6 +103,33 @@ Ext.define('CSMonitor.controller.logging.Text', {
         } else if (evt.data instanceof Blob) {
             console.log("Blob data received");
         }
+    },
+
+    openWebSocket: function(){
+        var socketProtocol = 'ws:' ;
+        if (window.location.protocol === 'https'){
+            socketProtocol = 'wss:';
+        }
+
+        var me = this;
+        this.getStatusGeneralInformationStore().load({
+            callback: function(records, operation, success) {
+                if (success) {
+                    var url =  me.getStatusGeneralInformationStore().first().get('eventRegistrationUri');
+                    Ext.create('CSMonitor.util.UriParser').parse(url).withProtocol(socketProtocol).buildUrl();
+
+                    this.setWebSocket(new WebSocket(url));
+                    this.getWebSocket().onopen = function(evt) { me.onOpen(evt); };
+                    this.getWebSocket().onclose = function(evt) { me.onClose(evt); };
+                    this.getWebSocket().onmessage = function(evt) { me.onMessage(evt); };
+                    this.getWebSocket().onerror = function(evt) { me.onError(evt); };
+                    this.setSubscribed(true);
+                    this.getPingTask().start();
+                } else {
+                    console.log("statusGeneralInformationStore.load() was UNsuccessful. WebSocket not opened");
+                }
+            }
+        });
     },
 
     fitsThisLogging: function(decorator) {
