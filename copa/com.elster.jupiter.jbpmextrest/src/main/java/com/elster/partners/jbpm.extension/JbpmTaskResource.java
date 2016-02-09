@@ -678,36 +678,35 @@ public class JbpmTaskResource {
     @POST
     @Produces("application/json")
     @Path("/managetasks")
-    public TaskGroupsInfos manageTasks(TaskGroupsInfos taskGroupsInfos, @Context UriInfo uriInfo){
-        if (getQueryValue(uriInfo, "assign") != null) {
-            if (getQueryValue(uriInfo, "currentuser") != null) {
-                for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
-                    for(Long taskId: taskGroup.taskIds){
+    public Response manageTasks(@Context UriInfo uriInfo){
+        if(getQueryValue(uriInfo, "tasks") != null) {
+            if (getQueryValue(uriInfo, "assign") != null) {
+                if (getQueryValue(uriInfo, "currentuser") != null) {
+                    List<Long> taskIdList = taskIdList(getQueryValue(uriInfo,"tasks"));
+                    for(Long taskId: taskIdList){
                         assignTaskToUser(getQueryValue(uriInfo, "assign"), getQueryValue(uriInfo, "currentuser"), taskId);
                     }
                 }
             }
-        }
-        if(getQueryValue(uriInfo, "setPriority") != null){
-            for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
-                for(Long taskId: taskGroup.taskIds){
+            if(getQueryValue(uriInfo, "setPriority") != null){
+                List<Long> taskIdList = taskIdList(getQueryValue(uriInfo,"tasks"));
+                for(Long taskId: taskIdList){
                     setPriority(Integer.valueOf(getQueryValue(uriInfo, "setPriority")), taskId);
                 }
+
             }
-        }
-        if(getQueryValue(uriInfo, "setDueDate") != null){
-            Date millis = new Date();
-            millis.setTime(Long.valueOf(getQueryValue(uriInfo, "setDueDate")));
-            for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
-                for(Long taskId: taskGroup.taskIds){
+            if(getQueryValue(uriInfo, "setDueDate") != null){
+                Date millis = new Date();
+                millis.setTime(Long.valueOf(getQueryValue(uriInfo, "setDueDate")));
+                List<Long> taskIdList = taskIdList(getQueryValue(uriInfo,"tasks"));
+                for(Long taskId: taskIdList){
                     setDueDate(millis , taskId);
                 }
             }
-        }
-        if(getQueryValue(uriInfo, "setDueDate") == null && getQueryValue(uriInfo, "setPriority") == null && getQueryValue(uriInfo, "assign") == null){
-            if (getQueryValue(uriInfo, "currentuser") != null) {
-                for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
-                    for(Long taskId: taskGroup.taskIds){
+            if(getQueryValue(uriInfo, "setDueDate") == null && getQueryValue(uriInfo, "setPriority") == null && getQueryValue(uriInfo, "assign") == null){
+                if (getQueryValue(uriInfo, "currentuser") != null) {
+                    List<Long> taskIdList = taskIdList(getQueryValue(uriInfo,"tasks"));
+                    for(Long taskId: taskIdList){
                         if(internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Ready)) {
                             assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId);
                         }
@@ -727,14 +726,12 @@ public class JbpmTaskResource {
                                 internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
                             }
                         }
-                        internalTaskService.complete(taskId, getQueryValue(uriInfo, "currentuser"), taskGroup.outputBindingContents);
+                        internalTaskService.complete(taskId, getQueryValue(uriInfo, "currentuser"), internalTaskService.getTaskContent(taskId));
                     }
                 }
             }
         }
-
-        return taskGroupsInfos;
-//        return Response.ok().build();
+        return Response.ok().build();
     }
 
     private boolean assignTaskToUser(String userName, String currentuser, long taskId){
