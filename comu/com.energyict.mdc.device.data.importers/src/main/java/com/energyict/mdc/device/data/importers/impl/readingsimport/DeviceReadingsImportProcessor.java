@@ -168,8 +168,10 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
             }
             NumericalRegisterSpec registerSpec = (NumericalRegisterSpec) register.get().getRegisterSpec();
             return value -> {
-                if (value.compareTo(registerSpec.getOverflowValue()) > 0) {
-                    throw new ProcessorException(MessageSeeds.READING_VALUE_DOES_NOT_MATCH_REGISTER_CONFIG_OVERFLOW, lineNumber, readingType.getMRID(), device.getmRID());
+                if(registerSpec.getOverflowValue().isPresent()){
+                    if (value.compareTo(registerSpec.getOverflowValue().get()) > 0) {
+                        throw new ProcessorException(MessageSeeds.READING_VALUE_DOES_NOT_MATCH_REGISTER_CONFIG_OVERFLOW, lineNumber, readingType.getMRID(), device.getmRID());
+                    }
                 }
                 if (value.scale() > registerSpec.getNumberOfFractionDigits()) {
                     value = value.setScale(registerSpec.getNumberOfFractionDigits(), RoundingMode.DOWN);
@@ -182,8 +184,10 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
         if (channel.isPresent()) {
             ChannelSpec channelSpec = channel.get().getChannelSpec();
             return value -> {
-                if (value.compareTo(channelSpec.getOverflow()) > 0) {
-                    throw new ProcessorException(MessageSeeds.READING_VALUE_DOES_NOT_MATCH_CHANNEL_CONFIG_OVERFLOW, lineNumber, readingType.getMRID(), device.getmRID());
+                if(channelSpec.getOverflow().isPresent()){
+                    if (value.compareTo(channelSpec.getOverflow().get()) > 0) {
+                        throw new ProcessorException(MessageSeeds.READING_VALUE_DOES_NOT_MATCH_CHANNEL_CONFIG_OVERFLOW, lineNumber, readingType.getMRID(), device.getmRID());
+                    }
                 }
                 if (value.scale() > channelSpec.getNbrOfFractionDigits()) {
                     value = value.setScale(channelSpec.getNbrOfFractionDigits(), RoundingMode.DOWN);

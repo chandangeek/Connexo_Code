@@ -784,7 +784,7 @@ public class DeviceReadingsImporterFactoryTest {
         when(register.getReadingType()).thenReturn(readingType);
         NumericalRegisterSpec registerSpec = mock(NumericalRegisterSpec.class);
         when(register.getRegisterSpec()).thenReturn(registerSpec);
-        when(registerSpec.getOverflowValue()).thenReturn(BigDecimal.valueOf(999L));
+        when(registerSpec.getOverflowValue()).thenReturn(Optional.of(BigDecimal.valueOf(999L)));
         when(registerSpec.getNumberOfFractionDigits()).thenReturn(2);
         return register;
     }
@@ -798,7 +798,7 @@ public class DeviceReadingsImporterFactoryTest {
         when(channel.getLoadProfile()).thenReturn(loadProfile);
         ChannelSpec channelSpec = mock(ChannelSpec.class);
         when(channel.getChannelSpec()).thenReturn(channelSpec);
-        when(channelSpec.getOverflow()).thenReturn(BigDecimal.valueOf(999L));
+        when(channelSpec.getOverflow()).thenReturn(Optional.of(BigDecimal.valueOf(999L)));
         when(channelSpec.getNbrOfFractionDigits()).thenReturn(2);
         LoadProfile.LoadProfileUpdater loadProfileUpdater = mock(LoadProfile.LoadProfileUpdater.class);
         when(device.getLoadProfiles()).thenReturn(Collections.singletonList(loadProfile));
