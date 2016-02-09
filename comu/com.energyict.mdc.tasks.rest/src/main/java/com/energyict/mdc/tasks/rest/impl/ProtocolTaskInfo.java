@@ -12,6 +12,7 @@ public class ProtocolTaskInfo {
     public String category;
     public String categoryId;
     public String action;
+    public String actionId;
     public List<ParameterInfo> parameters;
 
     public static ProtocolTaskInfo from(ProtocolTask protocolTask, Thesaurus thesaurus) {
@@ -23,6 +24,7 @@ public class ProtocolTaskInfo {
             protocolTaskInfo.category = thesaurus.getString(protocolTaskCategory.getId(),protocolTaskCategory.getId());
             protocolTaskInfo.categoryId = protocolTaskCategory.getId();
             String actionString = protocolTaskCategory.getActionAsStr(protocolTaskCategory.getAction(protocolTask));
+            protocolTaskInfo.actionId = actionString;
             protocolTaskInfo.action = thesaurus.getString(actionString,actionString);
             protocolTaskInfo.parameters = protocolTaskCategory.getProtocolTaskParameters(protocolTask);
         }
