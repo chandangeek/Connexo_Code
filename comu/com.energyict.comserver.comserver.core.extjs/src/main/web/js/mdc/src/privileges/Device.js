@@ -80,6 +80,6 @@ Ext.define('Mdc.privileges.Device', {
         return Uni.Auth.checkPrivileges(Mdc.privileges.Device.viewDevices);
     },
     canViewProcessMenu: function() {
-        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.viewProcesses) && Uni.Auth.checkPrivileges(Mdc.privileges.Device.deviceExecuteProcesses);
+        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.deviceProcesses) && Uni.Auth.checkPrivileges(Mdc.privileges.Device.deviceExecuteProcesses);
     }
 });

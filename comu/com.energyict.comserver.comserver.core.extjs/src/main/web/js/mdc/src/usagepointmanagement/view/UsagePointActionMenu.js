@@ -13,7 +13,7 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointActionMenu', {
 
             me.add({
                 itemId: 'action-menu-item-start-proc',
-                privileges: Mdc.privileges.Device.viewProcesses && Mdc.privileges.Device.deviceExecuteProcesses,
+                privileges: Mdc.privileges.Device.deviceProcesses && Mdc.privileges.Device.deviceExecuteProcesses,
                 text: Uni.I18n.translate('deviceconfiguration.process.startProcess', 'MDC', 'Start process'),
                 href: '#/usagepoints/' + encodeURIComponent(usagepointID) + '/processes/start'
             })
