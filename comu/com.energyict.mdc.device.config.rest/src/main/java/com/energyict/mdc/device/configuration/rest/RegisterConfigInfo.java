@@ -64,7 +64,7 @@ public class RegisterConfigInfo {
         this.version = registerSpec.getVersion();
         this.parent = new VersionInfo<>(registerSpec.getDeviceConfiguration().getId(), registerSpec.getDeviceConfiguration().getVersion());
         this.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
-        this.overflow = registerSpec.getOverflowValue();
+        registerSpec.getOverflowValue().ifPresent(overflow -> this.overflow = overflow);
         this.useMultiplier = registerSpec.isUseMultiplier();
         if(this.useMultiplier){
             this.calculatedReadingType = new ReadingTypeInfo(registerSpec.getCalculatedReadingType().get());
