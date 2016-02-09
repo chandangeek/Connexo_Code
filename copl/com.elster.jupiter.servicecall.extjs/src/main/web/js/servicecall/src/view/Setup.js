@@ -7,8 +7,10 @@ Ext.define('Scs.view.Setup', {
         'Uni.view.notifications.NoItemsFoundPanel',
         'Scs.view.Grid',
         'Scs.view.Preview',
-        'Scs.view.ActionMenu'
+        'Scs.view.ActionMenu',
+        'Scs.view.ServiceCallFilter'
     ],
+
     initComponent: function () {
         var me = this;
 
@@ -16,6 +18,9 @@ Ext.define('Scs.view.Setup', {
             ui: 'large',
             title: Uni.I18n.translate('general.serviceCalls', 'SCS', 'Service calls'),
             items: [
+                {
+                    xtype: 'service-call-filter'
+                },
                 {
                     xtype: 'preview-container',
                     grid: {
