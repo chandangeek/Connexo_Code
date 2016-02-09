@@ -66,7 +66,6 @@ public class UsagePointCustomPropertySetExtensionImplTest {
         usagePoint.delete();
         getTestServiceCategory().removeCustomPropertySet(getRegisteredCustomPropertySet());
         inMemoryBootstrapModule.getThreadPrincipalService().set(() -> "Test");
-
     }
 
     private MetrologyConfiguration createTestMetrologyConfigurationInstance() {
