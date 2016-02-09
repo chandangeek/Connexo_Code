@@ -4,8 +4,7 @@ import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.LocalSecurityProvider;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.SecurityPolicyMapper;
+import com.energyict.dlms.aso.SecurityPolicy;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
@@ -129,7 +128,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
         properties.setProperty("Timeout", "20000");
         properties.setProperty("ForcedDelay", "200");
 
-        properties.setProperty("SecurityLevel", "1:" + SecurityPolicyMapper.SECURITYPOLICY_BOTH);
+        properties.setProperty("SecurityLevel", "1:" + SecurityPolicy.SECURITYPOLICY_BOTH);
         properties.setProperty("ProfileInterval", "900");
         properties.setProperty("Password", "20100401");
         properties.setProperty("SerialNumber", AS1440 ? "03191576" : "35021373");
@@ -152,7 +151,7 @@ public class AS220Main extends AbstractDebuggingMain<AS220> {
 
     private Properties getOpticalProperties() {
         Properties properties = getProperties();
-        properties.setProperty("SecurityLevel", "1:" + SecurityPolicyMapper.SECURITYPOLICY_NONE);
+        properties.setProperty("SecurityLevel", "1:" + SecurityPolicy.SECURITYPOLICY_NONE);
         properties.setProperty("AddressingMode", "2");
         properties.setProperty("Connection", "0");
         properties.setProperty("ClientMacAddress", "1");

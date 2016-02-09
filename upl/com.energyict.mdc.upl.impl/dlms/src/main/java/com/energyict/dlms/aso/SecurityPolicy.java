@@ -8,6 +8,19 @@ package com.energyict.dlms.aso;
  */
 public class SecurityPolicy {
 
+    //The suite 0 policies
+    public static final int SECURITYPOLICY_NONE = 0;
+    public static final int SECURITYPOLICY_AUTHENTICATION = 1;
+    public static final int SECURITYPOLICY_ENCRYPTION = 2;
+    public static final int SECURITYPOLICY_BOTH = 3;
+
+    public static final int REQUESTS_AUTHENTICATED_FLAG = 2;
+    public static final int REQUESTS_ENCRYPTED_FLAG = 3;
+    public static final int REQUESTS_SIGNED_FLAG = 4;
+    public static final int RESPONSES_AUTHENTICATED_FLAG = 5;
+    public static final int RESPONSES_ENCRYPTED_FLAG = 6;
+    public static final int RESPONSES_SIGNED_FLAG = 7;
+
     /**
      * For suite 0, the dataTransportSecurityLevel is either 0, 1, 2 or 3.
      * <p/>
@@ -54,7 +67,7 @@ public class SecurityPolicy {
     }
 
     public boolean isRequestSigned() {
-        return suite != 0 && (isBitSet(SecurityPolicyMapper.REQUESTS_SIGNED_FLAG));
+        return suite != 0 && (isBitSet(REQUESTS_SIGNED_FLAG));
     }
 
     public boolean isResponsePlain() {
@@ -78,23 +91,23 @@ public class SecurityPolicy {
     }
 
     public boolean isResponseSigned() {
-        return suite != 0 && (isBitSet(SecurityPolicyMapper.RESPONSES_SIGNED_FLAG));
+        return suite != 0 && (isBitSet(RESPONSES_SIGNED_FLAG));
     }
 
     private boolean isRequestAuthenticated() {
-        return isBitSet(SecurityPolicyMapper.REQUESTS_AUTHENTICATED_FLAG);
+        return isBitSet(REQUESTS_AUTHENTICATED_FLAG);
     }
 
     private boolean isRequestEncrypted() {
-        return isBitSet(SecurityPolicyMapper.REQUESTS_ENCRYPTED_FLAG);
+        return isBitSet(REQUESTS_ENCRYPTED_FLAG);
     }
 
     private boolean isResponseAuthenticated() {
-        return isBitSet(SecurityPolicyMapper.RESPONSES_AUTHENTICATED_FLAG);
+        return isBitSet(RESPONSES_AUTHENTICATED_FLAG);
     }
 
     private boolean isResponseEncrypted() {
-        return isBitSet(SecurityPolicyMapper.RESPONSES_ENCRYPTED_FLAG);
+        return isBitSet(RESPONSES_ENCRYPTED_FLAG);
     }
 
     private boolean isBitSet(int bitPosition) {

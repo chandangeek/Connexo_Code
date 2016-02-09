@@ -2,9 +2,9 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.SecurityPolicyMapper;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityPropertySet;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.CIPHERING_TYPE;
@@ -86,13 +86,8 @@ public class Beacon3100Properties extends DlmsProperties {
                 return super.getDataTransportSecurityLevel();
             } else {
                 int result = 0;
-                SecurityPolicyMapper mapper = new SecurityPolicyMapper(advancedSecurityPropertySet);
-                result |= (mapper.isRequestAuthenticated() ? 1 : 0) << SecurityPolicyMapper.REQUESTS_AUTHENTICATED_FLAG;
-                result |= (mapper.isRequestEncrypted() ? 1 : 0) << SecurityPolicyMapper.REQUESTS_ENCRYPTED_FLAG;
-                result |= (mapper.isRequestSigned() ? 1 : 0) << SecurityPolicyMapper.REQUESTS_SIGNED_FLAG;
-                result |= (mapper.isResponseAuthenticated() ? 1 : 0) << SecurityPolicyMapper.RESPONSES_AUTHENTICATED_FLAG;
-                result |= (mapper.isResponseEncrypted() ? 1 : 0) << SecurityPolicyMapper.RESPONSES_ENCRYPTED_FLAG;
-                result |= (mapper.isResponseSigned() ? 1 : 0) << SecurityPolicyMapper.RESPONSES_SIGNED_FLAG;
+                result |= advancedSecurityPropertySet.getRequestSecurityLevel() << 2;
+                result |= advancedSecurityPropertySet.getResponseSecurityLevel() << 5;
                 return result;
             }
         } else {
@@ -100,14 +95,12 @@ public class Beacon3100Properties extends DlmsProperties {
         }
     }
 
+    /**
+     * Return true if bit 4 (request signed) or bit 7 (responses signed) is set in the configured security policy
+     */
     @Override
     public boolean isGeneralSigning() {
-        if (getSecurityPropertySet() instanceof AdvancedDeviceProtocolSecurityPropertySet) {
-            SecurityPolicyMapper mapper = new SecurityPolicyMapper((AdvancedDeviceProtocolSecurityPropertySet) getSecurityPropertySet());
-            return mapper.isRequestSigned() || mapper.isResponseSigned();
-        } else {
-            return false;
-        }
+        return ProtocolTools.isBitSet(getDataTransportSecurityLevel(), 4) || ProtocolTools.isBitSet(getDataTransportSecurityLevel(), 7);
     }
 
     @Override

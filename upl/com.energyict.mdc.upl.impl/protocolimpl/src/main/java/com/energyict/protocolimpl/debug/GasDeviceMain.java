@@ -6,8 +6,7 @@ package com.energyict.protocolimpl.debug;
 
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dlms.aso.LocalSecurityProvider;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.SecurityPolicyMapper;
+import com.energyict.dlms.aso.SecurityPolicy;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
 
 import java.io.IOException;
@@ -50,7 +49,7 @@ public class GasDeviceMain extends AS220Main {
         properties.setProperty("Timeout", "20000");
         //properties.setProperty("ForcedDelay", "500");
 
-        properties.setProperty("SecurityLevel", "1:" + SecurityPolicyMapper.SECURITYPOLICY_NONE);
+        properties.setProperty("SecurityLevel", "1:" + SecurityPolicy.SECURITYPOLICY_NONE);
         properties.setProperty("ProfileInterval", "900");
         properties.setProperty("Password", "00000000");
         properties.setProperty("SerialNumber", "00000000012345758");
@@ -76,7 +75,7 @@ public class GasDeviceMain extends AS220Main {
 
 
         /*
-		getGasDevice().getgMeter().getGasValveController().doDisconnect();
+        getGasDevice().getgMeter().getGasValveController().doDisconnect();
 
 		getGasDevice().getgMeter().getGasInstallController().deinstall();
 

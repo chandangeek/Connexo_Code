@@ -476,12 +476,12 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
             iRequestTimeZone = Integer.parseInt(properties.getProperty(PR_REQUEST_TIME_ZONE, "0").trim());
             setRoundtripCorrection(Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim()));
 
-            String[] securityLevel = properties.getProperty(PR_SECURITY_LEVEL, "0:" + SecurityPolicyMapper.SECURITYPOLICY_NONE).split(":");
+            String[] securityLevel = properties.getProperty(PR_SECURITY_LEVEL, "0:" + SecurityPolicy.SECURITYPOLICY_NONE).split(":");
             this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
             if (securityLevel.length == 2) {
                 this.datatransportSecurityLevel = Integer.parseInt(securityLevel[1]);
             } else if (securityLevel.length == 1) {
-                this.datatransportSecurityLevel = SecurityPolicyMapper.SECURITYPOLICY_NONE;
+                this.datatransportSecurityLevel = SecurityPolicy.SECURITYPOLICY_NONE;
             } else {
                 throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getProperty(PR_SECURITY_LEVEL, "0"));
             }
