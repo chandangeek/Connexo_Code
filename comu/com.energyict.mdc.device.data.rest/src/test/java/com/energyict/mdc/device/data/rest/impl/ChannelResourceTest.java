@@ -188,6 +188,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel.getDevice()).thenReturn(device);
         when(channel.getId()).thenReturn(CHANNEL_ID1);
         when(channel.getChannelSpec()).thenReturn(channelSpec);
+        when(channel.getOverflow()).thenReturn(Optional.empty());
         when(channelSpec.getId()).thenReturn(CHANNEL_ID1);
         when(device.forValidation()).thenReturn(deviceValidation);
         when(deviceValidation.isValidationActive(channel, NOW)).thenReturn(true);
@@ -230,6 +231,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(validationRule.getImplementation()).thenReturn("isPrime");
         when(validationRule.getDisplayName()).thenReturn("Primes only");
         when(channelSpec.getNbrOfFractionDigits()).thenReturn(3);
+        when(channelSpec.getOverflow()).thenReturn(Optional.empty());
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
         when(channel.getLastDateTime()).thenReturn(Optional.of(NOW));
         ReadingType readingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
@@ -484,6 +486,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 //        when(collectedReadingType.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
         ChannelSpec channelSpec = mock(ChannelSpec.class);
         when(channelSpec.getReadingType()).thenReturn(collectedReadingType);
+        when(channelSpec.getOverflow()).thenReturn(Optional.empty());
         Channel channelWithBulkAndCalculatedDelta = mock(Channel.class);
         when(channelWithBulkAndCalculatedDelta.getId()).thenReturn(channelId);
         when(channelWithBulkAndCalculatedDelta.getChannelSpec()).thenReturn(channelSpec);
@@ -495,6 +498,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channelWithBulkAndCalculatedDelta.getLastDateTime()).thenReturn(Optional.empty());
         when(channelWithBulkAndCalculatedDelta.getLoadProfile()).thenReturn(loadProfile);
         when(channelWithBulkAndCalculatedDelta.getDevice()).thenReturn(device);
+        when(channelWithBulkAndCalculatedDelta.getOverflow()).thenReturn(Optional.empty());
         Unit collectedUnit = getUnit(collectedReadingType);
         when(channelWithBulkAndCalculatedDelta.getUnit()).thenReturn(collectedUnit);
         when(loadProfile.getChannels()).thenReturn(Arrays.asList(channelWithBulkAndCalculatedDelta));

@@ -613,7 +613,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel1.getLastDateTime()).thenReturn(Optional.empty());
         when(channel2.getLastDateTime()).thenReturn(Optional.empty());
         when(channel1.getLoadProfile()).thenReturn(loadProfile1);
+        when(channel1.getOverflow()).thenReturn(Optional.empty());
         when(channel2.getLoadProfile()).thenReturn(loadProfile1);
+        when(channel2.getOverflow()).thenReturn(Optional.empty());
         when(channel2.getCalculatedReadingType(clock.instant())).thenReturn(Optional.empty());
         when(channel1.getCalculatedReadingType(clock.instant())).thenReturn(Optional.empty());
         DeviceValidation deviceValidation = mock(DeviceValidation.class);

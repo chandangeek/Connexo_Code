@@ -106,6 +106,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
         when(channel.getChannelSpec()).thenReturn(channelSpec);
         when(channel.getLastDateTime()).thenReturn(Optional.<Instant>empty());
         when(channel.getUnit()).thenReturn(unit);
+        when(channel.getOverflow()).thenReturn(Optional.empty());
         when(channel.getCalculatedReadingType(clock.instant())).thenReturn(Optional.empty());
         return channel;
     }

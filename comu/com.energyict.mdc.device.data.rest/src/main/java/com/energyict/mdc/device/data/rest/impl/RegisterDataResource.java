@@ -39,6 +39,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -170,10 +171,10 @@ public class RegisterDataResource {
     }
 
     private void validateManualAddedEditValueForOverflow(Register<?, ?> register, BaseReading reading) {
-        if(register instanceof NumericalRegister && (!((NumericalRegister) register).getRegisterSpec().isUseMultiplier() || !register.getDevice().getMultiplierAt(reading.getTimeStamp()).isPresent())){
-            BigDecimal overflowValue = ((NumericalRegister) register).getRegisterSpec().getOverflowValue();
-            if(overflowValue != null && overflowValue.compareTo(reading.getValue()) < 0){
-                throw this.exceptionFactory.newExceptionSupplier(MessageSeeds.VALUE_MAY_NOT_EXCEED_OVERFLOW_VALUE, reading.getValue(), overflowValue).get();
+        if (register instanceof NumericalRegister && (!((NumericalRegister) register).getRegisterSpec().isUseMultiplier() || !register.getDevice().getMultiplierAt(reading.getTimeStamp()).isPresent())) {
+            Optional<BigDecimal> optionalOverflow = ((NumericalRegister) register).getRegisterSpec().getOverflowValue();
+            if (optionalOverflow.isPresent() && optionalOverflow.get().compareTo(reading.getValue()) < 0) {
+                throw this.exceptionFactory.newExceptionSupplier(MessageSeeds.VALUE_MAY_NOT_EXCEED_OVERFLOW_VALUE, reading.getValue(), optionalOverflow.get()).get();
             }
         }
     }

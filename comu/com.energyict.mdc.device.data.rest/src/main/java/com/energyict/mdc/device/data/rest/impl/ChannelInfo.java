@@ -49,7 +49,7 @@ public class ChannelInfo {
         info.lastValueTimestamp = channel.getLastDateTime().orElse(null);
         info.readingType = new ReadingTypeInfo(channel.getReadingType());
         channel.getCalculatedReadingType(clock.instant()).ifPresent(readingType1 -> info.calculatedReadingType = new ReadingTypeInfo(readingType1));
-        info.overflowValue = channel.getOverflow();
+        channel.getOverflow().ifPresent(overflow -> info.overflowValue = overflow);
         info.flowUnit = channel.getUnit().isFlowUnit() ? "flow" : "volume";
         info.obisCode = channel.getObisCode();
         info.nbrOfFractionDigits = channel.getChannelSpec().getNbrOfFractionDigits();

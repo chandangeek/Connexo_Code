@@ -301,6 +301,7 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(registerSpec.getObisCode()).thenReturn(registerSpecObisCode);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
         when(registerSpec.getReadingType()).thenReturn(collectedReadingType);
+        when(registerSpec.getOverflowValue()).thenReturn(Optional.empty());
         when(registerSpec.getId()).thenReturn(registerSpecId);
         NumericalRegister numericalRegister = mock(NumericalRegister.class);
         when(numericalRegister.getRegisterSpec()).thenReturn(registerSpec);
