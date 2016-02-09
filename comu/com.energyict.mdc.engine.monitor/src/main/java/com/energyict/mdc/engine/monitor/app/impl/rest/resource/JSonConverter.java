@@ -304,7 +304,6 @@ public class JSonConverter {
         }else{
             comPortPools = notInactiveSet;
         }
-        comPortPools.stream().sorted((p1,p2) -> p1.getName().compareTo(p2.getName())).collect(Collectors.toList());
         List<JSONObject>  jsonPools = new ArrayList<>();
         for (ComPortPool each: comPortPools){
             JSONObject jsonPool = new JSONObject();
@@ -320,7 +319,16 @@ public class JSonConverter {
             }
             jsonPools.add(jsonPool);
         }
+        jsonPools = jsonPools.stream().sorted((p1, p2) -> this.getName(p1).compareTo(this.getName(p2))).collect(Collectors.toList());
         return jsonPools.toArray(new JSONObject[jsonPools.size()]);
+    }
+
+    private String getName(JSONObject jsonPool){
+        try{
+            return (String) jsonPool.get("name");
+        }catch (JSONException e){
+            return "";
+        }
     }
 
     private Map<ComPortPool, List<ComPort>> getComPortPoolMapping(Boolean active){
