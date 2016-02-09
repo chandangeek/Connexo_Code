@@ -1,6 +1,7 @@
 Ext.define('Scs.view.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.servicecalls-setup',
+    router: null,
 
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
@@ -20,6 +21,7 @@ Ext.define('Scs.view.Setup', {
                     grid: {
                         xtype: 'servicecalls-grid',
                         itemId: 'grd-service-calls',
+                        router: me.router
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',

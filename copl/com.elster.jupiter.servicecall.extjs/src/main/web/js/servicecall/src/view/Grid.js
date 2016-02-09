@@ -1,7 +1,8 @@
 Ext.define('Scs.view.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.servicecalls-grid',
-    store: 'Sct.store.ServiceCalls',
+    store: 'Scs.store.ServiceCalls',
+    router: null,
     requires: [
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
@@ -12,13 +13,22 @@ Ext.define('Scs.view.Grid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('general.type', 'SCS', 'Type'),
-                dataIndex: 'type',
+                header: Uni.I18n.translate('general.serviceCall', 'SCS', 'Service call'),
+                dataIndex: 'internalId',
+                renderer: function (value, metaData, record) {
+                    var url = me.router.getRoute().buildUrl() + '/' + record.get('internalId');
+                    return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                },
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.version', 'SCS', 'Version'),
-                dataIndex: 'versionName',
+                header: Uni.I18n.translate('general.externalReference', 'SCS', 'External reference'),
+                dataIndex: 'externalReference',
+                flex: 1
+            },
+            {
+                header: Uni.I18n.translate('general.type', 'SCS', 'Type'),
+                dataIndex: 'type',
                 flex: 1
             },
             {
@@ -27,13 +37,13 @@ Ext.define('Scs.view.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.logLevel', 'SCS', 'Log level'),
-                dataIndex: 'loglevel',
+                header: Uni.I18n.translate('general.receivedDate', 'SCS', 'Received date'),
+                dataIndex: 'receivedDate',
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.lifeCycle', 'SCS', 'Life cycle'),
-                dataIndex: 'lifecycle',
+                header: Uni.I18n.translate('general.modificationDate', 'SCS', 'Modification date'),
+                dataIndex: 'modificationDate',
                 flex: 1
             },
             {

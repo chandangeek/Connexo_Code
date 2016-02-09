@@ -13,31 +13,33 @@ Ext.define('Scs.store.ServiceCalls', {
     }*/
 
     fields: [
+        {name: 'internalId'},
+        {name: 'hasChildren', type: 'boolean'},
+        {name: 'externalReference'},
         {name: 'type'},
-        {name: 'versionName'},
         {name: 'status'},
-        {name: 'loglevel'},
-        {name: 'lifecycle'},
+        {name: 'modificationDate'},
+        {name: 'receivedDate'},
         {name: 'version', type: 'int'},
         {name: 'id', type: 'int'}
     ],
     data: [
-        {type: 'SAP', versionName: '15', status: 'active', loglevel: 'Warning', lifecycle: 'default', version: '204', id: '2'},
-        {type: 'SAP', versionName: '17', status: 'active', loglevel: 'Warning', lifecycle: 'default', version: '204', id: '3'},
-        {type: 'SAP', versionName: '18', status: 'active', loglevel: 'Warning', lifecycle: 'default', version: '204', id: '4'},
-        {type: 'SAP', versionName: '19', status: 'active', loglevel: 'Warning', lifecycle: 'default', version: '204', id: '5'},
-        {type: 'SAP', versionName: '20', status: 'active', loglevel: 'Warning', lifecycle: 'default', version: '204', id: '6'},
-        {type: 'SAP', versionName: '21', status: 'active', loglevel: 'Warning', lifecycle: 'default', version: '204', id: '7'},
-        {type: 'SAP', versionName: '22', status: 'active', loglevel: 'Warning', lifecycle: 'default', version: '204', id: '8'},
-        {type: 'SAP', versionName: '23', status: 'active', loglevel: 'Warning', lifecycle: 'default', version: '204', id: '9'},
-        {type: 'SAP', versionName: '24', status: 'active', loglevel: 'Warning', lifecycle: 'default', version: '204', id: '10'},
-        {type: 'SAP', versionName: '25', status: 'active', loglevel: 'Warning', lifecycle: 'default', version: '204', id: '11'},
-        {type: 'SAP', versionName: '26', status: 'active', loglevel: 'Warning', lifecycle: 'default', version: '204', id: '12'},
-        {type: 'SAP', versionName: '27', status: 'active', loglevel: 'Warning', lifecycle: 'default', version: '204', id: '13'},
-        {type: 'SAP', versionName: '28', status: 'active', loglevel: 'Warning', lifecycle: 'default', version: '204', id: '14'},
-        {type: 'SAP', versionName: '29', status: 'active', loglevel: 'Warning', lifecycle: 'default', version: '204', id: '15'},
-        {type: 'SAP', versionName: '30', status: 'active', loglevel: 'Warning', lifecycle: 'default', version: '204', id: '16'},
-        {type: 'SAP', versionName: '31', status: 'active', loglevel: 'Warning', lifecycle: 'default', version: '204', id: '17'}
+        {internalId: '111', hasChildren: true, type: 'SAP Mdus', externalReference: '15', status: 'Ongoing', modificationDate: '13/01/2016', receivedDate: '12/01/2016', version: '204', id: '2'},
+        {internalId: '114', hasChildren: true, type: 'SAP Mdus', externalReference: '17', status: 'Failed', modificationDate: '13/01/2016', receivedDate: '12/01/2016', version: '204', id: '3'},
+        {internalId: '116', hasChildren: false, type: 'SAP Mdus', externalReference: '18', status: 'Success', modificationDate: '13/01/2016', receivedDate: '12/01/2016', version: '204', id: '4'},
+        {internalId: '118', hasChildren: false, type: 'SAP Mdus', externalReference: '19', status: 'Success', modificationDate: '13/01/2016', receivedDate: '12/01/2016', version: '204', id: '5'},
+        {internalId: '121', hasChildren: true, type: 'SAP Mdus', externalReference: '20', status: 'Success', modificationDate: '13/01/2016', receivedDate: '12/01/2016', version: '204', id: '6'},
+        {internalId: '224', hasChildren: false, type: 'SAP Mdus', externalReference: '21', status: 'Paused', modificationDate: '13/01/2016', receivedDate: '12/01/2016', version: '204', id: '7'},
+        {internalId: '226', hasChildren: false, type: 'SAP Mdus', externalReference: '22', status: 'Paused', modificationDate: '13/01/2016', receivedDate: '12/01/2016', version: '204', id: '8'},
+        {internalId: '227', hasChildren: false, type: 'SAP Mdus', externalReference: '23', status: 'Ongoing', modificationDate: '13/01/2016', receivedDate: '12/01/2016', version: '204', id: '9'},
+        {internalId: '335', hasChildren: true, type: 'SAP Mdus', externalReference: '24', status: 'Ongoing', modificationDate: '13/01/2016', receivedDate: '12/01/2016', version: '204', id: '10'},
+        {internalId: '315', hasChildren: false, type: 'SAP Mdus', externalReference: '25', status: 'Waiting', modificationDate: '13/01/2016', receivedDate: '12/01/2016', version: '204', id: '11'},
+        {internalId: '147', hasChildren: false, type: 'SAP Mdus', externalReference: '26', status: 'Partial success', modificationDate: '13/01/2016', receivedDate: '12/01/2016', version: '204', id: '12'},
+        {internalId: '148', hasChildren: true, type: 'SAP Mdus', externalReference: '27', status: 'Ongoing', modificationDate: '13/01/2016', receivedDate: '12/01/2016', version: '204', id: '13'},
+        {internalId: '987', hasChildren: false, type: 'SAP Mdus', externalReference: '28', status: 'Paused', modificationDate: '13/01/2016', receivedDate: '12/01/2016', version: '204', id: '14'},
+        {internalId: '874', hasChildren: false, type: 'SAP Mdus', externalReference: '29', status: 'Failed', modificationDate: '13/01/2016', receivedDate: '12/01/2016', version: '204', id: '15'},
+        {internalId: '584', hasChildren: true, type: 'SAP Mdus', externalReference: '30', status: 'Failed', modificationDate: '13/01/2016', receivedDate: '12/01/2016', version: '204', id: '16'},
+        {internalId: '324', hasChildren: true, type: 'SAP Mdus', externalReference: '31', status: 'Failed', modificationDate: '13/01/2016', receivedDate: '12/01/2016', version: '204', id: '17'}
 
     ]
 });

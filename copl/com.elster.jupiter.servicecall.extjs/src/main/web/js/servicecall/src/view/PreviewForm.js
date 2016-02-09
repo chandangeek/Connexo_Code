@@ -12,13 +12,18 @@ Ext.define('Scs.view.PreviewForm', {
         me.items = [
             {
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.type', 'SCS', 'Type'),
-                name: 'type'
+                fieldLabel: Uni.I18n.translate('general.serviceCall', 'SCS', 'Service call'),
+                name: 'internalId'
             },
             {
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.version', 'SCS', 'Version'),
-                name: 'versionName'
+                fieldLabel: Uni.I18n.translate('general.externalReference', 'SCS', 'External reference'),
+                name: 'externalReference'
+            },
+            {
+                xtype: 'displayfield',
+                fieldLabel: Uni.I18n.translate('general.type', 'SCS', 'Type'),
+                name: 'type'
             },
             {
                 xtype: 'displayfield',
@@ -27,13 +32,13 @@ Ext.define('Scs.view.PreviewForm', {
             },
             {
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.loglevel', 'SCS', 'Log level'),
-                name: 'loglevel'
+                fieldLabel: Uni.I18n.translate('general.receivedDate', 'SCS', 'Received date'),
+                name: 'receivedDate',
             },
             {
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.lifecycle', 'SCS', 'Life cycle'),
-                name: 'lifecycle',
+                fieldLabel: Uni.I18n.translate('general.modificationDate', 'SCS', 'Modification date'),
+                name: 'modificationDate',
             }
         ];
         me.callParent(arguments);
