@@ -6,6 +6,7 @@ import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
 import com.elster.insight.usagepoint.config.impl.errors.MessageSeeds;
 import com.elster.insight.usagepoint.config.security.Privileges;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.UsagePoint;
@@ -191,7 +192,12 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         Boolean result = false;
         Optional<UsagePointMetrologyConfiguration> link = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(where("usagePoint").isEqualTo(up)).stream().findFirst();
         if (link.isPresent()) {
-            link.get().delete();
+            UsagePointMetrologyConfiguration usage = link.get();
+            usage.getMetrologyConfiguration().getCustomPropertySets()
+                    .stream()
+                    .map(RegisteredCustomPropertySet::getCustomPropertySet)
+                    .forEach(cps -> customPropertySetService.removeValuesFor(cps, usage.getUsagePoint()));
+            usage.delete();
             result = true;
         }
         return result;
