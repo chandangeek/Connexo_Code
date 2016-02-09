@@ -189,15 +189,26 @@ public class InferAggregationIntervalTest {
         // Asserts: see expected exception rule
     }
 
+    /**
+     * Setup: X = Y + Z
+     *        Y = requirement that is backed by 15 min and 60 min values
+     *        Z = requirement that is only backed by 15 min values
+     *        X explicitly needs 60 min values
+     * Initially, Y will be requested to produce 60 min values, which it can.
+     * Then the algorithm should discover that Z can only produce 15 min values but those are more precise
+     * than the hourly values and will try to enforce 15 min onto Y. Since this is also possible,
+     * the inference algorithm should return 15 min as a result.
+     */
     @Test
     public void inferCompatibleRequirementsInOperation() {
         InferAggregationInterval infer = this.testInstance();
 
+        ReadingType hourlyReadingType = this.mockHourlyReadingType();
+        when(this.deliverable.getReadingType()).thenReturn(hourlyReadingType);
+        ReadingType fifteenMinReadingType = this.mock15minReadingType();
+
         ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
-        ReadingType requirement1ReadingType = mock(ReadingType.class);
-        when(requirement1ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
-        when(requirement1ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE5);   // Make sure this is compatible with requirement 2
-        when(requirement1.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement1ReadingType));
+        when(requirement1.getMatchesFor(this.meterActivation)).thenReturn(Arrays.asList(fifteenMinReadingType, hourlyReadingType));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
                         this.virtualFactory,
@@ -205,10 +216,7 @@ public class InferAggregationIntervalTest {
                         this.deliverable,
                         this.meterActivation);
         ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
-        ReadingType requirement2ReadingType = mock(ReadingType.class);
-        when(requirement2ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
-        when(requirement2ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);  // Compatible with requirement 1
-        when(requirement2.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement2ReadingType));
+        when(requirement2.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(hourlyReadingType));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
                         this.virtualFactory,
@@ -222,20 +230,24 @@ public class InferAggregationIntervalTest {
         IntervalLength intervalLength = multiply.accept(infer);
 
         // Asserts
-        assertThat(intervalLength).isEqualTo(IntervalLength.MINUTE5);
-        assertThat(requirementNode1.getTargetInterval()).isEqualByComparingTo(IntervalLength.MINUTE5);
-        assertThat(requirementNode2.getTargetInterval()).isEqualByComparingTo(IntervalLength.MINUTE5);
+        assertThat(intervalLength).isEqualTo(IntervalLength.MINUTE15);
+        assertThat(requirementNode1.getTargetInterval()).isEqualByComparingTo(IntervalLength.MINUTE15);
+        assertThat(requirementNode2.getTargetInterval()).isEqualByComparingTo(IntervalLength.MINUTE15);
     }
 
+    /**
+     * Same setup and purpose as {@link #inferCompatibleRequirementsInOperation()}.
+     */
     @Test
     public void inferCompatibleRequirementsInFunctionCall() {
         InferAggregationInterval infer = this.testInstance();
 
+        ReadingType hourlyReadingType = this.mockHourlyReadingType();
+        when(this.deliverable.getReadingType()).thenReturn(hourlyReadingType);
+        ReadingType fifteenMinReadingType = this.mock15minReadingType();
+
         ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
-        ReadingType requirement1ReadingType = mock(ReadingType.class);
-        when(requirement1ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
-        when(requirement1ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE5);   // Make sure this is compatible with requirement 2
-        when(requirement1.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement1ReadingType));
+        when(requirement1.getMatchesFor(this.meterActivation)).thenReturn(Arrays.asList(fifteenMinReadingType, hourlyReadingType));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
                         this.virtualFactory,
@@ -243,10 +255,7 @@ public class InferAggregationIntervalTest {
                         this.deliverable,
                         this.meterActivation);
         ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
-        ReadingType requirement2ReadingType = mock(ReadingType.class);
-        when(requirement2ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
-        when(requirement2ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);  // Compatible with requirement 1
-        when(requirement2.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement2ReadingType));
+        when(requirement2.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(hourlyReadingType));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
                         this.virtualFactory,
@@ -259,15 +268,22 @@ public class InferAggregationIntervalTest {
         IntervalLength intervalLength = maximum.accept(infer);
 
         // Asserts
-        assertThat(intervalLength).isEqualTo(IntervalLength.MINUTE5);
-        assertThat(requirementNode1.getTargetInterval()).isEqualByComparingTo(IntervalLength.MINUTE5);
-        assertThat(requirementNode2.getTargetInterval()).isEqualByComparingTo(IntervalLength.MINUTE5);
+        assertThat(intervalLength).isEqualTo(IntervalLength.MINUTE15);
+        assertThat(requirementNode1.getTargetInterval()).isEqualByComparingTo(IntervalLength.MINUTE15);
+        assertThat(requirementNode2.getTargetInterval()).isEqualByComparingTo(IntervalLength.MINUTE15);
     }
 
     private ReadingType mock15minReadingType() {
         ReadingType meterActivationReadingType = mock(ReadingType.class);
         when(meterActivationReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(meterActivationReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        return meterActivationReadingType;
+    }
+
+    private ReadingType mockHourlyReadingType() {
+        ReadingType meterActivationReadingType = mock(ReadingType.class);
+        when(meterActivationReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(meterActivationReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE60);
         return meterActivationReadingType;
     }
 
