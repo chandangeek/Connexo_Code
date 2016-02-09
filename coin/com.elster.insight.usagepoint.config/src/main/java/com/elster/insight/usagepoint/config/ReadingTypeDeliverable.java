@@ -36,7 +36,8 @@ public interface ReadingTypeDeliverable extends HasId, HasName {
 
     /**
      * Gets the {@link ReadingType} that will be delivered.
-     * @return
+     *
+     * @return The ReadingType
      */
     ReadingType getReadingType();
 

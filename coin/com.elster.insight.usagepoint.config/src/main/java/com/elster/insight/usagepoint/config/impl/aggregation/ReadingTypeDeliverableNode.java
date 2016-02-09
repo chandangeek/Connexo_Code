@@ -7,7 +7,7 @@ import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
  */
 public class ReadingTypeDeliverableNode extends AbstractNode {
 
-    static String TYPE_IDENTIFIER = "DEL";
+    static final String TYPE_IDENTIFIER = "DEL";
 
     private ReadingTypeDeliverable readingTypeDeliverable;
 

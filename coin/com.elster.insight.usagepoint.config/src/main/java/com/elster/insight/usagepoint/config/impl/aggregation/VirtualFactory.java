@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
 
-import java.time.temporal.TemporalAmount;
 import java.util.List;
 
 /**
@@ -25,10 +24,10 @@ interface VirtualFactory {
      *
      * @param requirement The ReadingTypeRequirement
      * @param deliverable The ReadingTypeDeliverable
-     * @param intervalLength The TemporalAmount
+     * @param intervalLength The IntervalLength
      * @return The VirtualRequirementNode
      */
-    VirtualReadingTypeRequirement requirementFor(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, TemporalAmount intervalLength);
+    VirtualReadingTypeRequirement requirementFor(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, IntervalLength intervalLength);
 
     /**
      * Returns a new {@link VirtualDeliverableNode} for the specified
@@ -37,10 +36,10 @@ interface VirtualFactory {
      * been produced before.
      *
      * @param deliverable The ReadingTypeDeliverable
-     * @param intervalLength The TemporalAmount
+     * @param intervalLength The IntervalLength
      * @return The VirtualDeliverableNode
      */
-    VirtualReadingTypeDeliverable deliverableFor(ReadingTypeDeliverable deliverable, TemporalAmount intervalLength);
+    VirtualReadingTypeDeliverable deliverableFor(ReadingTypeDeliverable deliverable, IntervalLength intervalLength);
 
     /**
      * Returns all the {@link VirtualReadingTypeRequirement}s that were produced by this factory.

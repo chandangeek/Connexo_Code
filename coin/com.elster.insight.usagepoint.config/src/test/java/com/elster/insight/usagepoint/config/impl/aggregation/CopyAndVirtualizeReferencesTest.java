@@ -1,6 +1,9 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
 
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
@@ -17,6 +20,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link CopyAndVirtualizeReferences} component.
@@ -35,6 +39,14 @@ public class CopyAndVirtualizeReferencesTest {
     private ReadingTypeDeliverable deliverable;
     @Mock
     private MeterActivation meterActivation;
+
+    @Before
+    public void initializeMocks() {
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(this.deliverable.getReadingType()).thenReturn(readingType);
+    }
 
     @Test
     public void copyConstantNode() {
@@ -186,12 +198,17 @@ public class CopyAndVirtualizeReferencesTest {
     @Test
     public void copyComplexTree() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
+        ReadingTypeDeliverable readingTypeDeliverable = mock(ReadingTypeDeliverable.class);
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(readingTypeDeliverable.getReadingType()).thenReturn(readingType);
         OperationNode node =
                 new OperationNode(
                     Operator.PLUS,
                     new ReadingTypeRequirementNode(mock(ReadingTypeRequirement.class)),
                     new FunctionCallNode(Arrays.asList(
-                            new ReadingTypeDeliverableNode(mock(ReadingTypeDeliverable.class)),
+                            new ReadingTypeDeliverableNode(readingTypeDeliverable),
                             new ConstantNode(BigDecimal.TEN)),
                         Function.MAX));
 

@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
 
-import java.time.temporal.TemporalAmount;
 import java.util.Optional;
 
 /**
@@ -31,18 +30,16 @@ class VirtualRequirementNode extends AbstractNode {
     private final ReadingTypeRequirement requirement;
     private final ReadingTypeDeliverable deliverable;
     private final MeterActivation meterActivation;
-    private final TemporalAmountFactory temporalAmountFactory;
-    private TemporalAmount targetInterval;
+    private IntervalLength targetInterval;
     private VirtualReadingTypeRequirement virtualRequirement;
 
-    VirtualRequirementNode(VirtualFactory virtualFactory, TemporalAmountFactory temporalAmountFactory, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
+    VirtualRequirementNode(VirtualFactory virtualFactory, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
         super();
         this.virtualFactory = virtualFactory;
         this.requirement = requirement;
         this.deliverable = deliverable;
         this.meterActivation = meterActivation;
-        this.temporalAmountFactory = temporalAmountFactory;
-        this.targetInterval = temporalAmountFactory.from(this.deliverable.getReadingType());
+        this.targetInterval = IntervalLength.from(this.deliverable.getReadingType());
     }
 
     ReadingTypeRequirement getRequirement() {
@@ -56,15 +53,15 @@ class VirtualRequirementNode extends AbstractNode {
      *
      * @return The preferred interval
      */
-    TemporalAmount getPreferredInterval() {
+    IntervalLength getPreferredInterval() {
         // Taking the smallest interval for now
         // Todo: match this against the target
-        Optional<TemporalAmount> preferredInterval =
+        Optional<IntervalLength> preferredInterval =
                 this.meterActivation
                     .getReadingTypes()
                     .stream()
-                    .map(this.temporalAmountFactory::from)
-                    .sorted(new TemporalAmountComparator())
+                    .map(IntervalLength::from)
+                    .sorted(new IntervalLengthComparator())
                     .findFirst();
         if (preferredInterval.isPresent()) {
             return preferredInterval.get();
@@ -75,27 +72,27 @@ class VirtualRequirementNode extends AbstractNode {
     }
 
     /**
-     * Tests if the specified {@link TemporalAmount interval}
+     * Tests if the specified {@link IntervalLength}
      * can be supported by looking at the backing channels of
      * the actual {@link ReadingTypeRequirement}.
      *
      * @param interval The interval
      * @return A flag that indicates if the interval is backed by one of the channels
      */
-    boolean supportsInterval(TemporalAmount interval) {
-        TemporalAmountComparator comparator = new TemporalAmountComparator();
+    boolean supportsInterval(IntervalLength interval) {
+        IntervalLengthComparator comparator = new IntervalLengthComparator();
         return this.meterActivation
                     .getReadingTypes()
                     .stream()
-                    .map(this.temporalAmountFactory::from)
-                    .anyMatch(temporalAmount -> comparator.compare(temporalAmount, interval) < 1);
+                    .map(IntervalLength::from)
+                    .anyMatch(readingTypeInterval -> comparator.compare(readingTypeInterval, interval) < 1);
     }
 
-    TemporalAmount getTargetInterval() {
+    IntervalLength getTargetInterval() {
         return this.targetInterval;
     }
 
-    void setTargetInterval(TemporalAmount targetInterval) {
+    void setTargetInterval(IntervalLength targetInterval) {
         this.targetInterval = targetInterval;
     }
 

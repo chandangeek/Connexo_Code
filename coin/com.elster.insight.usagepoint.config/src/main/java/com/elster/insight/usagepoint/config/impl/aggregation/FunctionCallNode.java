@@ -7,7 +7,7 @@ import java.util.List;
  */
 public class FunctionCallNode extends AbstractNode {
 
-    static String TYPE_IDENTIFIER = "FCT";
+    static final String TYPE_IDENTIFIER = "FCT";
 
     private Function function;
     private String name;

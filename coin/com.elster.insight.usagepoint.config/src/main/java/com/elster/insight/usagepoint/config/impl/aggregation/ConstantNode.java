@@ -5,9 +5,9 @@ import java.math.BigDecimal;
 /**
  * Created by igh on 4/02/2016.
  */
-public class ConstantNode extends AbstractNode implements ServerExpressionNode {
+public class ConstantNode extends AbstractNode {
 
-    static String TYPE_IDENTIFIER = "CST";
+    static final String TYPE_IDENTIFIER = "CST";
 
     private final BigDecimal value;
 

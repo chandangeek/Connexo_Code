@@ -1,5 +1,7 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 
@@ -7,8 +9,6 @@ import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
 
 import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -37,9 +37,15 @@ public class InferAggregationIntervalTest {
     @Mock
     private VirtualFactory virtualFactory;
     @Mock
-    private TemporalAmountFactory temporalAmountFactory;
-    @Mock
     private MeterActivation meterActivation;
+
+    @Before
+    public void initializeMocks() {
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(this.deliverable.getReadingType()).thenReturn(readingType);
+    }
 
     @Test(expected = IllegalArgumentException.class)
     public void requirementNotSupported() {
@@ -69,10 +75,10 @@ public class InferAggregationIntervalTest {
         ConstantNode node = new ConstantNode(BigDecimal.TEN);
 
         // Business method
-        TemporalAmount preferredInterval = node.accept(infer);
+        IntervalLength preferredInterval = node.accept(infer);
 
         // Asserts
-        assertThat(preferredInterval).isEqualTo(Duration.ofMinutes(15));
+        assertThat(preferredInterval).isEqualTo(IntervalLength.MINUTE15);
     }
 
     @Test
@@ -88,10 +94,10 @@ public class InferAggregationIntervalTest {
                                 Function.MAX));
 
         // Business method
-        TemporalAmount preferredInterval = node.accept(infer);
+        IntervalLength preferredInterval = node.accept(infer);
 
         // Asserts
-        assertThat(preferredInterval).isEqualTo(Duration.ofMinutes(15));
+        assertThat(preferredInterval).isEqualTo(IntervalLength.MINUTE15);
     }
 
     @Test
@@ -100,23 +106,23 @@ public class InferAggregationIntervalTest {
         VirtualRequirementNode node =
                 new VirtualRequirementNode(
                         this.virtualFactory,
-                        this.temporalAmountFactory,
                         this.requirement,
                         this.deliverable,
                         this.meterActivation);
         ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE60);    // Different from the target set in test instance
         when(this.meterActivation.getReadingTypes()).thenReturn(Collections.singletonList(readingType));
-        when(this.temporalAmountFactory.from(readingType)).thenReturn(Duration.ofHours(1L));    // Different from the target set in test instance
 
         // Business method
-        TemporalAmount preferredInterval = node.accept(infer);
+        IntervalLength preferredInterval = node.accept(infer);
 
         // Asserts
-        assertThat(preferredInterval).isEqualTo(Duration.ofHours(1L));
+        assertThat(preferredInterval).isEqualTo(IntervalLength.HOUR1);
     }
 
     private InferAggregationInterval testInstance() {
-        return new InferAggregationInterval(Duration.ofMinutes(15));
+        return new InferAggregationInterval(IntervalLength.MINUTE15);
     }
 
 }

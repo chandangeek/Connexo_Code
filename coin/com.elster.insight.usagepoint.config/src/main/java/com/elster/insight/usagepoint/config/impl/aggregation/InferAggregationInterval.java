@@ -2,7 +2,6 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
 
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 
-import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,17 +19,17 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-08 (12:13)
  */
-public class InferAggregationInterval implements ServerExpressionNode.ServerVisitor<TemporalAmount> {
+public class InferAggregationInterval implements ServerExpressionNode.ServerVisitor<IntervalLength> {
 
-    private final TemporalAmount requestedInterval;
+    private final IntervalLength requestedInterval;
 
-    public InferAggregationInterval(TemporalAmount requestedInterval) {
+    public InferAggregationInterval(IntervalLength requestedInterval) {
         super();
         this.requestedInterval = requestedInterval;
     }
 
     @Override
-    public TemporalAmount visitRequirement(ReadingTypeRequirementNode requirement) {
+    public IntervalLength visitRequirement(ReadingTypeRequirementNode requirement) {
         this.unexpectedRequirementNode();
         return null;    // Above will have thrown an exception so merely satisfying the compiler here
     }
@@ -40,33 +39,33 @@ public class InferAggregationInterval implements ServerExpressionNode.ServerVisi
     }
 
     @Override
-    public TemporalAmount visitVirtualRequirement(VirtualRequirementNode node) {
+    public IntervalLength visitVirtualRequirement(VirtualRequirementNode node) {
         return node.getPreferredInterval();
     }
 
     @Override
-    public TemporalAmount visitDeliverable(ReadingTypeDeliverableNode deliverable) {
+    public IntervalLength visitDeliverable(ReadingTypeDeliverableNode deliverable) {
         this.unexpectedDeliverableNode();
         return null;    // Above will have thrown an exception so merely satisfying the compiler here
     }
 
-    private TemporalAmount unexpectedDeliverableNode() {
+    private IntervalLength unexpectedDeliverableNode() {
         throw new IllegalArgumentException("Not expecting formulas to contain actual deliverable nodes, invoke this component when those have been replaced with VirtualReadingTypeDeliverable");
     }
 
     @Override
-    public TemporalAmount visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
+    public IntervalLength visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
         // Just another reference to a deliverable that we can aggregate to whatever level we need anyway
         return this.requestedInterval;
     }
 
     @Override
-    public TemporalAmount visitConstant(ConstantNode constant) {
+    public IntervalLength visitConstant(ConstantNode constant) {
         return this.requestedInterval;
     }
 
     @Override
-    public TemporalAmount visitOperation(OperationNode operatorNode) {
+    public IntervalLength visitOperation(OperationNode operatorNode) {
         List<AbstractNode> operands = Arrays.asList(operatorNode.getLeftOperand(), operatorNode.getRightOperand());
         return this.visitChildren(
                 operands,
@@ -75,7 +74,7 @@ public class InferAggregationInterval implements ServerExpressionNode.ServerVisi
     }
 
     @Override
-    public TemporalAmount visitFunctionCall(FunctionCallNode functionCall) {
+    public IntervalLength visitFunctionCall(FunctionCallNode functionCall) {
         /* Two cases: 1. The function call represents one of the known functions
                          and each of these operate on TimeSeries and maintain
                          the interval of the TimeSeries
@@ -89,20 +88,20 @@ public class InferAggregationInterval implements ServerExpressionNode.ServerVisi
                         "Not all arguments of the function " + this.getFunctionName(functionCall) + " can support the same interval"));
     }
 
-    private TemporalAmount visitChildren(List<AbstractNode> children, Supplier<UnsupportedOperationException> unsupportedOperationExceptionSupplier) {
-        Set<TemporalAmount> preferredIntervals = children.stream().map(this::getPreferredInterval).collect(Collectors.toSet());
+    private IntervalLength visitChildren(List<AbstractNode> children, Supplier<UnsupportedOperationException> unsupportedOperationExceptionSupplier) {
+        Set<IntervalLength> preferredIntervals = children.stream().map(this::getPreferredInterval).collect(Collectors.toSet());
         if (preferredIntervals.size() == 1) {
             // All arguments are fine with the same interval, now enforce that interval
-            TemporalAmount preferredInterval = preferredIntervals.iterator().next();
+            IntervalLength preferredInterval = preferredIntervals.iterator().next();
             EnforceAggregationInterval enforce = new EnforceAggregationInterval(preferredInterval);
             children.stream().forEach(enforce::onto);
             return preferredInterval;
         }
         else {
             // Difference of opinions, try to compromise, start with the smallest interval
-            List<TemporalAmount> smallestToBiggest = new ArrayList<>(preferredIntervals);
-            Collections.sort(smallestToBiggest, new TemporalAmountComparator());
-            Optional<TemporalAmount> compromise =
+            List<IntervalLength> smallestToBiggest = new ArrayList<>(preferredIntervals);
+            Collections.sort(smallestToBiggest, new IntervalLengthComparator());
+            Optional<IntervalLength> compromise =
                     smallestToBiggest
                             .stream()
                             .map(CheckEnforceAggregationInterval::new)
@@ -128,26 +127,26 @@ public class InferAggregationInterval implements ServerExpressionNode.ServerVisi
         }
     }
 
-    private TemporalAmount getPreferredInterval(AbstractNode expression) {
+    private IntervalLength getPreferredInterval(AbstractNode expression) {
         return expression.accept(this);
     }
 
     /**
-     * Checks if enforcing a TemporalAmount onto all expressions will work
+     * Checks if enforcing a IntervalLength onto all expressions will work
      * and returns <code>true</code> if that is the case.
-     * As an example, the TemporalAmount 15min cannot be forced into a
+     * As an example, the IntervalLength 15min cannot be forced into a
      * {@link VirtualReadingTypeRequirement} if none of the backing channels
      * are capable of providing that interval.
      */
     private class CheckEnforceAggregationInterval implements ServerExpressionNode.ServerVisitor<Boolean> {
-        private final TemporalAmount interval;
+        private final IntervalLength interval;
 
-        private CheckEnforceAggregationInterval(TemporalAmount interval) {
+        private CheckEnforceAggregationInterval(IntervalLength interval) {
             super();
             this.interval = interval;
         }
 
-        public TemporalAmount getInterval() {
+        public IntervalLength getInterval() {
             return interval;
         }
 
@@ -195,15 +194,15 @@ public class InferAggregationInterval implements ServerExpressionNode.ServerVisi
     }
 
     /**
-     * Enforces a TemporalAmount onto all visited expressions
+     * Enforces a IntervalLength onto all visited expressions
      * after it has been verified that this will work.
      *
      * @see CheckEnforceAggregationInterval
      */
     private class EnforceAggregationInterval implements ServerExpressionNode.ServerVisitor<Void> {
-        private final TemporalAmount interval;
+        private final IntervalLength interval;
 
-        private EnforceAggregationInterval(TemporalAmount interval) {
+        private EnforceAggregationInterval(IntervalLength interval) {
             this.interval = interval;
         }
 

@@ -7,7 +7,7 @@ import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
  */
 public class ReadingTypeRequirementNode extends AbstractNode implements ServerExpressionNode {
 
-    static String TYPE_IDENTIFIER = "REQ";
+    static final String TYPE_IDENTIFIER = "REQ";
 
     private ReadingTypeRequirement readingTypeRequirement;
 

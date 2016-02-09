@@ -43,7 +43,6 @@ class CopyAndVirtualizeReferences implements ServerExpressionNode.ServerVisitor<
         // Replace this one with a VirtualRequirementNode
         return new VirtualRequirementNode(
                 this.virtualFactory,
-                this.temporalAmountFactory,
                 node.getReadingTypeRequirement(),
                 this.deliverable,
                 this.meterActivation);
@@ -52,7 +51,7 @@ class CopyAndVirtualizeReferences implements ServerExpressionNode.ServerVisitor<
     @Override
     public AbstractNode visitDeliverable(ReadingTypeDeliverableNode node) {
         // Replace this one with a VirtualDeliverableNode
-        return new VirtualDeliverableNode(this.virtualFactory, this.temporalAmountFactory, node.getReadingTypeDeliverable());
+        return new VirtualDeliverableNode(this.virtualFactory, node.getReadingTypeDeliverable());
     }
 
     @Override

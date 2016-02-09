@@ -4,8 +4,6 @@ import com.elster.jupiter.metering.MeterActivation;
 
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 
-import java.time.temporal.TemporalAmount;
-
 /**
  * Provides an implementation for the {@link ExpressionNode} interface
  * for a reference to a {@link ReadingTypeDeliverable} for a specific {@link MeterActivation}.
@@ -25,17 +23,17 @@ class VirtualDeliverableNode extends AbstractNode {
 
     private final VirtualFactory virtualFactory;
     private final ReadingTypeDeliverable deliverable;
-    private TemporalAmount targetInterval;
+    private IntervalLength targetInterval;
     private VirtualReadingTypeDeliverable virtualDeliverable;
 
-    VirtualDeliverableNode(VirtualFactory virtualFactory, TemporalAmountFactory temporalAmountFactory, ReadingTypeDeliverable deliverable) {
+    VirtualDeliverableNode(VirtualFactory virtualFactory, ReadingTypeDeliverable deliverable) {
         super();
         this.virtualFactory = virtualFactory;
         this.deliverable = deliverable;
-        this.targetInterval = temporalAmountFactory.from(this.deliverable.getReadingType());
+        this.targetInterval = IntervalLength.from(this.deliverable.getReadingType());
     }
 
-    void setTargetInterval(TemporalAmount targetInterval) {
+    void setTargetInterval(IntervalLength targetInterval) {
         this.targetInterval = targetInterval;
     }
 

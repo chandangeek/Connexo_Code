@@ -9,7 +9,6 @@ import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -87,8 +86,8 @@ public class DataAggregationServiceImpl implements DataAggregationService {
      * @param expressionTree The expression tree that defines how the ReadingTypeDeliverable should be calculated
      * @return The most appropriate aggregation interval for all expressions in the tree
      */
-    private TemporalAmount inferAggregationInterval(ReadingTypeDeliverable deliverable, AbstractNode expressionTree) {
-        return expressionTree.accept(new InferAggregationInterval(this.temporalAmountFactory.from(deliverable.getReadingType())));
+    private IntervalLength inferAggregationInterval(ReadingTypeDeliverable deliverable, AbstractNode expressionTree) {
+        return expressionTree.accept(new InferAggregationInterval(IntervalLength.from(deliverable.getReadingType())));
     }
 
 }
