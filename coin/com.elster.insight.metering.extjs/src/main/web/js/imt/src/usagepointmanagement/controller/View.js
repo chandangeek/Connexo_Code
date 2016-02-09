@@ -49,7 +49,9 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.initAttributes(record);
                 me.getOverviewLink().setText(record.get('mRID'));
-                widget.down('#fld-mc-name').setValue(record.get('metrologyConfiguration').name);
+                if(record.get('metrologyConfiguration') && record.get('metrologyConfiguration').name){
+                    widget.down('#fld-mc-name').setValue(record.get('metrologyConfiguration').name);
+                }
 
 
 
@@ -115,8 +117,8 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
 
         customAttributesStoreUsagePoint.getProxy().setUrl(record.get('mRID'));
         customAttributesModelUsagePoint.getProxy().setUrl(record.get('mRID'));
-        customAttributesStoreMetrology.getProxy().setUrl(record.get('mRID')); //TODO Put metrology id
-        customAttributesModelMetrology.getProxy().setUrl(record.get('mRID')); //TODO Put metrology id
+        customAttributesStoreMetrology.getProxy().setUrl(record.get('mRID'));
+        customAttributesModelMetrology.getProxy().setUrl(record.get('mRID'));
 
         Ext.suspendLayouts();
         me.getAttributesPanel().add({
