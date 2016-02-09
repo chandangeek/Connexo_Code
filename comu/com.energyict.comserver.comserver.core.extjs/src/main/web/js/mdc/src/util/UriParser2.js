@@ -1,5 +1,4 @@
 Ext.define('Mdc.util.UriParser', {
-    singleton: true,
 
     protocol: null,
     hostname: null,
