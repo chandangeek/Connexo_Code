@@ -101,7 +101,7 @@ Ext.define('CSMonitor.view.Main', {
         this.serverName = name;
         var newTitle;
         if (!this.getDocTitleSuffix()) {
-            newTitle = this.getServerName() + "-ComServer Monitor";
+            newTitle = this.getServerName() + "-Communication Server Monitor";
         } else {
             newTitle = this.getServerName() + "-" + this.getDocTitleSuffix();
         }
