@@ -1,12 +1,12 @@
 Ext.define('Scs.controller.history.ServiceCall', {
     extend: 'Uni.controller.history.Converter',
 
-    rootToken: 'administration',
+    rootToken: 'workspace',
 
     routeConfig: {
         administration: {
-            title: Uni.I18n.translate('general.administration', 'SCS', 'Administration'),
-            route: 'administration',
+            title: Uni.I18n.translate('general.workspace', 'SCS', 'Workspace'),
+            route: 'workspace',
             disabled: true,
             items: {
                 servicecalls: {
