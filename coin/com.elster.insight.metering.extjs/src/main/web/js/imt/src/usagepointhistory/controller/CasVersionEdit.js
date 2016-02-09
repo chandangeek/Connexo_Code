@@ -6,7 +6,8 @@ Ext.define('Imt.usagepointhistory.controller.CasVersionEdit', {
     models: [
         'Imt.usagepointmanagement.model.UsagePoint',
         'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint',
-        'Imt.customattributesonvaluesobjects.model.AttributeSetVersionOnUsagePoint'
+        'Imt.customattributesonvaluesobjects.model.AttributeSetVersionOnUsagePoint',
+        'Imt.customattributesonvaluesobjects.model.AttributeSetVersionPeriod'
     ],
     stores: [
         'Imt.customattributesonvaluesobjects.store.ConflictedAttributeSetVersions'
