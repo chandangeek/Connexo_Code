@@ -27,6 +27,10 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<FiniteStateMachine> table = dataModel.addTable(this.name(), FiniteStateMachine.class);
             table.map(FiniteStateMachineImpl.class);
+            /**
+             * Caching enabled to increase performance of data collection and data monitoring.
+             * When modifying a finite state machine, make sure the cache is invalidated so changes are taken into account
+             */
             table.cache();
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
