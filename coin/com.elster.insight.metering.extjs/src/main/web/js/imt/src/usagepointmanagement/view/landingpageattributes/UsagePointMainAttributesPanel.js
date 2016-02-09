@@ -102,7 +102,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
     addAttributes: function(actualForm, action){
         var me = this,
             actionMenuArray=Ext.ComponentQuery.query('usage-point-setup-action-menu');
-        me.itemId = me.category + '-attribute-set';
+        me.itemId = me.category ? me.category + '-attribute-set' : "GENERAL-attribute-set" ;
 
         Ext.suspendLayouts();
 
