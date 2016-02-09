@@ -1,6 +1,11 @@
 package com.elster.jupiter.issue.share.service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class IssueGroupFilter {
     private Object key;
@@ -15,6 +20,14 @@ public final class IssueGroupFilter {
     private Set<String> issueTypes;
     private List<DueDateRange> dueDates;
     private List<Long> deviceGroups;
+
+    public IssueGroupFilter() {
+        this.statuses = new HashSet<>();
+        this.assignees = new ArrayList<>();
+        this.issueTypes = new HashSet<>();
+        this.dueDates = new ArrayList<>();
+        this.deviceGroups = new ArrayList<>();
+    }
 
     public class AssigneeDetails {
         private long assigneeId;
@@ -145,16 +158,12 @@ public final class IssueGroupFilter {
      */
     public IssueGroupFilter withStatuses(Collection<String> statuses) {
         if (statuses != null) {
-            this.statuses = new HashSet<>();
-            statuses.stream().forEach(st -> this.statuses.add(getSafeString(st)));
+            this.statuses = statuses.stream().map(this::getSafeString).collect(Collectors.toSet());
         }
         return this;
     }
 
     public IssueGroupFilter withAssignee(long id, String type) {
-        if (this.assignees == null) {
-            this.assignees = new ArrayList<>();
-        }
         this.assignees.add(new IssueGroupFilter.AssigneeDetails(id, type));
         return this;
     }
@@ -173,9 +182,8 @@ public final class IssueGroupFilter {
 
     public IssueGroupFilter withDeviceGroups(List<Long> deviceGroups) {
         if (deviceGroups != null) {
-            this.deviceGroups = new ArrayList<>();
+            this.deviceGroups = deviceGroups;
         }
-        this.deviceGroups = deviceGroups;
         return this;
     }
 
@@ -190,16 +198,12 @@ public final class IssueGroupFilter {
 
     public IssueGroupFilter withIssueTypes(Collection<String> issueTypes) {
         if (issueTypes != null) {
-            this.issueTypes = new HashSet<>();
-            issueTypes.stream().forEach(it -> this.issueTypes.add(getSafeString(it)));
+            this.issueTypes = issueTypes.stream().map(this::getSafeString).collect(Collectors.toSet());
         }
         return this;
     }
 
     public IssueGroupFilter withDueDate(long startTime, long endTime) {
-        if (this.dueDates == null) {
-            this.dueDates = new ArrayList<>();
-        }
         this.dueDates.add(new IssueGroupFilter.DueDateRange(startTime, endTime));
         return this;
     }

@@ -3,7 +3,12 @@ package com.elster.jupiter.issue.impl.database.groups;
 import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.records.IssueGroupImpl;
-import com.elster.jupiter.issue.share.entity.*;
+
+import com.elster.jupiter.issue.share.entity.AssigneeType;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueGroup;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueGroupFilter;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -105,7 +110,6 @@ public abstract class IssuesGroupOperation {
     }
 
     protected String getIssueTypeCondition(){
-        if (getFilter().getIssueTypes() != null){
             StringBuilder builder = new StringBuilder();
             for (String issueType : getFilter().getIssueTypes()) {
                 if (builder.length() != 0){
@@ -117,12 +121,10 @@ public abstract class IssuesGroupOperation {
                 builder.insert(0, " AND (").append(") ");
                 return builder.toString();
             }
-        }
         return  "";
     }
 
     protected String getStatusCondition(){
-        if (getFilter().getStatuses() != null) {
             StringBuilder builder = new StringBuilder();
             for (String status : getFilter().getStatuses()) {
                 if (builder.length() != 0){
@@ -134,7 +136,6 @@ public abstract class IssuesGroupOperation {
                 builder.insert(0, " AND (").append(") ");
                 return builder.toString();
             }
-        }
         return "";
     }
 
@@ -149,7 +150,6 @@ public abstract class IssuesGroupOperation {
     }
 
     protected String getAssigneeCondition(){
-        if (getFilter().getAssignees() != null) {
             StringBuilder builder = new StringBuilder();
             for (IssueGroupFilter.AssigneeDetails assigneeDetails : getFilter().getAssignees()) {
                 if (builder.length() != 0){
@@ -169,12 +169,10 @@ public abstract class IssuesGroupOperation {
                 builder.insert(0, " AND (").append(") ");
                 return builder.toString();
             }
-        }
         return "";
     }
 
     protected String getDueDateCondition() {
-        if (getFilter().getDueDates() != null) {
             StringBuilder builder = new StringBuilder();
             for (IssueGroupFilter.DueDateRange dueDateRange : getFilter().getDueDates()) {
                 if (builder.length() != 0){
@@ -191,12 +189,11 @@ public abstract class IssuesGroupOperation {
                 builder.insert(0, " AND (").append(") ");
                 return builder.toString();
             }
-        }
         return "";
     }
 
     protected void appendDeviceGroupCondition(SqlBuilder sqlBuilder) {
-        if(getFilter().getDeviceGroups() != null && !getFilter().getDeviceGroups().isEmpty() ) {
+        if(!getFilter().getDeviceGroups().isEmpty()) {
             sqlBuilder.append(" AND (1!=1");
             for(Long deviceGroupId : getFilter().getDeviceGroups()) {
                 EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(deviceGroupId).orElse(null);
