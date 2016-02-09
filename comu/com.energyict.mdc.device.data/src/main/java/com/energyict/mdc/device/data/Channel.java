@@ -53,7 +53,7 @@ public interface Channel extends BaseChannel {
 
     ObisCode getObisCode();
 
-    BigDecimal getOverflow();
+    Optional<BigDecimal> getOverflow();
 
     ReadingType getReadingType();
 

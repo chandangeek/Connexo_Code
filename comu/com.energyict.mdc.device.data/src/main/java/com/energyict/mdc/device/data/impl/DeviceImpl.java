@@ -390,8 +390,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         getDeviceConfiguration().getChannelSpecs().forEach(channelSpec -> {
             Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = meterConfigurationBuilder
                     .configureReadingType(channelSpec.getReadingType())
-                    .withNumberOfFractionDigits(channelSpec.getNbrOfFractionDigits())
-                    .withOverflowValue(channelSpec.getOverflow());
+                    .withNumberOfFractionDigits(channelSpec.getNbrOfFractionDigits());
+            channelSpec.getOverflow().ifPresent(meterReadingTypeConfigurationBuilder::withOverflowValue);
             if (addCalculatedReadingType && channelSpec.isUseMultiplier()) {
                 meterReadingTypeConfigurationBuilder
                         .withMultiplierOfType(defaultMultiplierType)
@@ -405,8 +405,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .map(registerSpec1 -> ((NumericalRegisterSpec) registerSpec1)).forEach(registerSpec -> {
             Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = meterConfigurationBuilder
                     .configureReadingType(registerSpec.getReadingType())
-                    .withNumberOfFractionDigits(registerSpec.getNumberOfFractionDigits())
-                    .withOverflowValue(registerSpec.getOverflowValue());
+                    .withNumberOfFractionDigits(registerSpec.getNumberOfFractionDigits());
+            registerSpec.getOverflowValue().ifPresent(meterReadingTypeConfigurationBuilder::withOverflowValue);
             if (addCalculatedReadingType && registerSpec.isUseMultiplier()) {
                 meterReadingTypeConfigurationBuilder
                         .withMultiplierOfType(defaultMultiplierType)
