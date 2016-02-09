@@ -5,13 +5,13 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
     requires: [
         'Imt.usagepointmanagement.view.landingpageattributes.GeneralAttributesForm',
         'Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttributesFormElectricity',
+        'Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttributesFormWater',
         'Imt.usagepointmanagement.view.SetupActionMenu'
     ],
     layout: {
         type: 'vbox',
         align: 'stretch'
     },
-    items: [],
     category: null,
     record: null,
 
@@ -32,16 +32,9 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
         action = Ext.create('Ext.menu.Item',{
             itemId: 'action-menu-' + actualForm,
             menuItemClass: 'inlineEditableAttributeSet',
-//                    privileges: Imt.privileges.Device.administrateDeviceData,
             text: editActionTitle,
             handler: function () {
-                me.down('#edit-form').loadRecord(me.record);
-                me.down('#pencil-btn').hide();
-                me.down('#view-form').hide();
-                me.down('#edit-form').show();
-                me.down('#bottom-buttons').show();
-                Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(true);
-                this.hide();
+                me.toEditMode(true, this);
             }
         });
 
@@ -50,13 +43,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
                 xtype: 'title-with-edit-button',
                 title: title,
                 editHandler: function(){
-                    action.hide();
-                    me.down('#pencil-btn').hide();
-                    me.down('#edit-form').loadRecord(me.record);
-                    me.down('#view-form').hide();
-                    me.down('#edit-form').show();
-                    me.down('#bottom-buttons').show();
-                    Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(true);
+                    me.toEditMode(true, action);
                 }
             },
             {
@@ -101,12 +88,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
                         ui: 'link',
                         text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
                         handler: function () {
-                            action.show();
-                            me.down('#pencil-btn').show();
-                            me.down('#view-form').show();
-                            me.down('#edit-form').hide();
-                            me.down('#bottom-buttons').hide();
-                            Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(false);
+                            me.toEditMode(false, action);
                         }
                     }
                 ]
@@ -120,6 +102,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
     addAttributes: function(actualForm, action){
         var me = this,
             actionMenuArray=Ext.ComponentQuery.query('usage-point-setup-action-menu');
+        me.itemId = me.category + '-attribute-set';
 
         Ext.suspendLayouts();
 
@@ -133,6 +116,32 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
 
         me.down('#edit-form').getForm().loadRecord(me.record);
         me.down('#view-form').getForm().loadRecord(me.record);
+
+        Ext.resumeLayouts(true);
+    },
+
+    toEditMode: function(isEdit, action){
+        var me =this;
+
+        Ext.suspendLayouts();
+
+        if(isEdit){
+            me.down('#edit-form').loadRecord(me.record);
+            me.down('#pencil-btn').hide();
+            me.down('#view-form').hide();
+            me.down('#edit-form').show();
+            me.down('#bottom-buttons').show();
+            Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(isEdit);
+            action.hide();
+        } else {
+            me.down('#edit-form').loadRecord(me.record);
+            me.down('#pencil-btn').show();
+            me.down('#view-form').show();
+            me.down('#edit-form').hide();
+            me.down('#bottom-buttons').hide();
+            Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(isEdit);
+            action.show();
+        }
 
         Ext.resumeLayouts(true);
     }

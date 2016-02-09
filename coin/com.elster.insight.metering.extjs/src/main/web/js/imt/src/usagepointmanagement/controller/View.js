@@ -49,7 +49,9 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.initAttributes(record);
                 me.getOverviewLink().setText(record.get('mRID'));
-                widget.down('#fld-mc-name').setValue(record.get('metrologyConfiguration').name);
+                if(record.get('metrologyConfiguration') && record.get('metrologyConfiguration').name){
+                    widget.down('#fld-mc-name').setValue(record.get('metrologyConfiguration').name);
+                }
 
 
 
