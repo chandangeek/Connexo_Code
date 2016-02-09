@@ -262,7 +262,7 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
         }
 
         @Override
-        public BigDecimal getOverflow() {
+        public Optional<BigDecimal> getOverflow() {
             return channelSpec.getOverflow();
         }
 
