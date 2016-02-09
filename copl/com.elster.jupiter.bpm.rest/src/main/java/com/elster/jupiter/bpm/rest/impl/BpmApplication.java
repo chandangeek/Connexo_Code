@@ -1,11 +1,9 @@
 package com.elster.jupiter.bpm.rest.impl;
 
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.bpm.rest.TranslationKeys;
 import com.elster.jupiter.license.License;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.*;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -21,10 +19,10 @@ import java.util.*;
 
 @Component(
         name = "com.elster.jupiter.bpm.rest",
-        service = {Application.class, MessageSeedProvider.class},
+        service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         immediate = true,
         property = {"alias=/bpm", "app=BPM", "name=" + BpmApplication.COMPONENT_NAME})
-public class BpmApplication extends Application implements MessageSeedProvider {
+public class BpmApplication extends Application implements MessageSeedProvider, TranslationKeyProvider {
 
     public static final String APP_KEY = "BPM";
     public static final String COMPONENT_NAME = "BPM";
@@ -89,8 +87,20 @@ public class BpmApplication extends Application implements MessageSeedProvider {
     }
 
     @Override
+    public String getComponentName() {
+        return BpmApplication.COMPONENT_NAME;
+    }
+
+    @Override
     public Layer getLayer() {
         return Layer.REST;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> keys =  new ArrayList<>();
+        keys.addAll(Arrays.asList(TranslationKeys.values()));
+        return keys;
     }
 
     @Override

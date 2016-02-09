@@ -10,7 +10,7 @@ public enum MessageSeeds implements MessageSeed {
     ASSIGN_USER_EXCEPTION(2, Constants.ASSIGN_USER_EXCEPTION, "Only members of \"Administrators\" role can perform this action.", Level.SEVERE),
     NO_BPM_CONNECTION(3, Constants.NO_BPM_CONNECTION, "Connection to Flow failed.", Level.SEVERE),
     PROCESS_NOT_AVAILABLE(4, Constants.PROCESS_NOT_AVAILABLE, "Process {0} not available.", Level.SEVERE),
-    USER_TASK(5, Constants.USER_TASK, "User task", Level.INFO),
+    /*USER_TASK(5, Constants.USER_TASK, "User task", Level.INFO),
     ACTION_NODE(6, Constants.ACTION_NODE, "Action", Level.INFO),
     ASSIGNMENT_NODE(7, Constants.ASSIGNMENT_NODE, "Assignment", Level.INFO),
     ASYNC_EVENT_NODE(8, Constants.ASYNC_EVENT_NODE, "Async event", Level.INFO),
@@ -40,7 +40,7 @@ public enum MessageSeeds implements MessageSeed {
     TIMER_NODE(32, Constants.TIMER_NODE, "Timer", Level.INFO),
     TRANSFORMATION_NODE(33, Constants.TRANSFORMATION_NODE, "Transformation", Level.INFO),
     TRIGGER_NODE(34, Constants.TRIGGER_NODE, "Trigger", Level.INFO),
-    WORK_ITEM_NODE(35, Constants.WORK_ITEM_NODE, "Work item", Level.INFO);
+    WORK_ITEM_NODE(35, Constants.WORK_ITEM_NODE, "Work item", Level.INFO)*/;
 
     public static final String COMPONENT_NAME = "BPM";
 
@@ -87,7 +87,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String ASSIGN_USER_EXCEPTION= "BPM.AssignUserException";
         public static final String FIELD_CAN_NOT_BE_EMPTY= "BPM.FieldCanNotBeEmpty";
         public static final String PROCESS_NOT_AVAILABLE= "BPM.ProcessNotAvailable";
-        public static final String ACTION_NODE = "ActionNode";
+        /*public static final String ACTION_NODE = "ActionNode";
         public static final String ASSIGNMENT_NODE = "Assignment";
         public static final String ASYNC_EVENT_NODE = "AsyncEventNode";
         public static final String BOUNDRY_EVENT_NODE = "BoundaryEventNode";
@@ -117,7 +117,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String TRANSFORMATION_NODE= "Transformation";
         public static final String TRIGGER_NODE= "Trigger";
         public static final String WORK_ITEM_NODE= "WorkItemNode";
-        public static final String USER_TASK= "HumanTaskNode";
+        public static final String USER_TASK= "HumanTaskNode";*/
 
     }
 
