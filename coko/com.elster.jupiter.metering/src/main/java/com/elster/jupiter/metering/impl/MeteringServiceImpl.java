@@ -393,6 +393,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
+                bind(CustomPropertySetService.class).toInstance(customPropertySetService);
             }
         });
     }

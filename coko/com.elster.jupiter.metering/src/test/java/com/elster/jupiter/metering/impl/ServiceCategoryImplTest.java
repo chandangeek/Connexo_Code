@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -39,6 +40,8 @@ public class ServiceCategoryImplTest {
     @Mock
     private Provider<UsagePointAccountabilityImpl> accountabilityFactory;
     @Mock
+    private CustomPropertySetService customPropertySetService;
+    @Mock
     private ValidatorFactory validatorFactory;
     @Mock
     private javax.validation.Validator validator;
@@ -49,7 +52,7 @@ public class ServiceCategoryImplTest {
     	Provider<UsagePointImpl> usagePointFactory = new Provider<UsagePointImpl>() {
 			@Override
 			public UsagePointImpl get() {
-				return new UsagePointImpl(dataModel, eventService, meterActivationFactory, accountabilityFactory);
+				return new UsagePointImpl(dataModel, eventService, meterActivationFactory, accountabilityFactory, customPropertySetService);
 			}
     	};
         serviceCategory = new ServiceCategoryImpl(dataModel,usagePointFactory,thesaurus).init(ServiceKind.ELECTRICITY);
@@ -96,7 +99,7 @@ public class ServiceCategoryImplTest {
 
     @Test
     public void testNewUsagePoint() {
-        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(dataModel, eventService, () -> null, () -> null));
+        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(dataModel, eventService, () -> null, () -> null, customPropertySetService));
 
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId").create();
         assertThat(usagePoint).isInstanceOf(UsagePointImpl.class);
