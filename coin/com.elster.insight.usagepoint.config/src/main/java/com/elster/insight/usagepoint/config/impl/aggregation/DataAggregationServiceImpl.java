@@ -25,7 +25,6 @@ import java.util.stream.Stream;
 public class DataAggregationServiceImpl implements DataAggregationService {
 
     private VirtualFactory virtualFactory;
-    private TemporalAmountFactory temporalAmountFactory;
     private Map<MeterActivation, List<VirtualReadingTypeDeliverable>> deliverablesPerMeterActivation;
 
     @Override
@@ -69,7 +68,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
      */
     private AbstractNode copyAndVirtualizeReferences(ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
         ServerFormula formula = (ServerFormula) deliverable.getFormula();
-        CopyAndVirtualizeReferences visitor = new CopyAndVirtualizeReferences(this.virtualFactory, this.temporalAmountFactory, deliverable, meterActivation);
+        CopyAndVirtualizeReferences visitor = new CopyAndVirtualizeReferences(this.virtualFactory, deliverable, meterActivation);
         return formula.expressionNode().accept(visitor);
     }
 

@@ -232,7 +232,7 @@ public class CopyAndVirtualizeReferencesTest {
     }
 
     private CopyAndVirtualizeReferences getTestInstance() {
-        return new CopyAndVirtualizeReferences(this.virtualFactory, this.temporalAmountFactory, this.deliverable, this.meterActivation);
+        return new CopyAndVirtualizeReferences(this.virtualFactory, this.deliverable, this.meterActivation);
     }
 
 }

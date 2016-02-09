@@ -21,14 +21,12 @@ import java.util.stream.Collectors;
 class CopyAndVirtualizeReferences implements ServerExpressionNode.ServerVisitor<AbstractNode> {
 
     private final VirtualFactory virtualFactory;
-    private final TemporalAmountFactory temporalAmountFactory;
     private final ReadingTypeDeliverable deliverable;
     private final MeterActivation meterActivation;
 
-    CopyAndVirtualizeReferences(VirtualFactory virtualFactory, TemporalAmountFactory temporalAmountFactory, ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
+    CopyAndVirtualizeReferences(VirtualFactory virtualFactory, ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
         super();
         this.virtualFactory = virtualFactory;
-        this.temporalAmountFactory = temporalAmountFactory;
         this.deliverable = deliverable;
         this.meterActivation = meterActivation;
     }
