@@ -13,7 +13,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         'Mdc.view.setup.devicecommunicationschedule.OnRequestCommunicationScheduleGrid',
         'Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSchedule',
         'Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationScheduleGrid',
-        'Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSchedulePreview',
         'Mdc.view.setup.devicecommunicationschedule.AddSchedulePopUp'
     ],
 
@@ -25,8 +24,6 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
 
     refs: [
         {ref: 'addSharedCommunicationScheduleGrid', selector: '#addSharedCommunicationScheduleGrid'},
-        {ref: 'addSharedCommunicationSchedulePreview', selector: '#addSharedCommunicationSchedulePreview'},
-        {ref: 'addSharedCommunicationSchedulePreviewForm', selector: '#addSharedCommunicationSchedulePreviewForm'},
         {ref: 'sharedCommunicationScheduleGrid', selector: '#sharedCommunicationScheduleGrid'},
         {ref: 'onRequestCommunicationScheduleGrid', selector: '#onRequestComtaskGrid'},
         {ref: 'individualCommunicationScheduleGrid', selector: '#individualComtaskGrid'},
@@ -49,16 +46,17 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             'menuitem[action=runCommunicationSchedule]': {
                 click: this.runCommunicationSchedule
             },
-            'menuitem[action=removeSharedCommunicationSchedule]': {
-                click: this.removeSharedCommunicationScheduleConfirmation
-            }, 'menuitem[action=changeCommunicationSchedule]': {
+            'actioncolumn': {
+                removeSharedCommunicationSchedule: this.removeSharedCommunicationScheduleConfirmation
+            },
+            'menuitem[action=changeCommunicationSchedule]': {
                 click: this.changeCommunicationSchedule
             },
             'menuitem[action=removeCommunicationSchedule]': {
                 click: this.removeCommunicationScheduleConfirmation
             },
             '#addSharedCommunicationScheduleGrid': {
-                selectionchange: this.previewDeviceCommunicationSchedule
+                selectionchange: this.onSharedComScheduleSelectionChange
             },
             '#addSharedScheduleButtonForm button[action=addAction]': {
                 click: this.saveSharedSchedule
@@ -202,33 +200,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         });
     },
 
-    previewDeviceCommunicationSchedule: function () {
-        var communicationSchedules = this.getAddSharedCommunicationScheduleGrid().getSelectionModel().getSelection();
-        var me = this;
+    onSharedComScheduleSelectionChange: function () {
+        var me = this,
+            communicationSchedules = me.getAddSharedCommunicationScheduleGrid().getSelectionModel().getSelection();
         me.getWarningMessage().setVisible(false);
         me.getUniFormErrorMessage().hide();
-        if (communicationSchedules.length === 1) {
-            this.getAddSharedCommunicationSchedulePreview().setTitle(communicationSchedules[0].get('name'));
-            this.getAddSharedCommunicationSchedulePreview().setVisible(true);
-            this.getAddSharedCommunicationSchedulePreviewForm().loadRecord(communicationSchedules[0]);
-            this.getAddSharedCommunicationSchedulePreviewForm().down('#comTaskPreviewContainer').removeAll();
-            if (communicationSchedules[0].comTaskUsages().data.items.length === 0) {
-                me.getAddSharedCommunicationSchedulePreviewForm().down('#comTaskPreviewContainer').add({
-                    xtype: 'displayfield',
-                    htmlEncode: false
-                });
-            } else {
-                Ext.each(communicationSchedules[0].comTaskUsages().data.items, function (comTaskUsage) {
-                    me.getAddSharedCommunicationSchedulePreviewForm().down('#comTaskPreviewContainer').add({
-                        xtype: 'displayfield',
-                        value: '<li>' + Ext.String.htmlEncode(comTaskUsage.get('name')) + '</li>',
-                        htmlEncode: false
-                    })
-                });
-            }
-
-        }
-        else {
+        if (communicationSchedules.length != 1) {
             var valuesToCheck = [];
             Ext.each(communicationSchedules, function (item) {
                 valuesToCheck.push.apply(valuesToCheck, item.get('comTaskUsages'));
@@ -271,7 +248,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                 backUrl: backUrl,
                 success: function (response) {
                     location.href = backUrl;
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.addSharedScheduleSucceeded', 'MDC', 'Add shared communication schedule succeeded'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.addSharedScheduleSucceeded', 'MDC', 'Shared communication schedule successfully added'));
                 }
             });
         }
@@ -308,16 +285,15 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         }
     },
 
-    removeSharedCommunicationScheduleConfirmation: function () {
+    removeSharedCommunicationScheduleConfirmation: function (record2Remove) {
         var me = this;
-        var record = this.getSharedCommunicationScheduleGrid().getSelectionModel().getSelection()[0];
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('deviceCommunicationSchedule.deleteConfirmationSharedSchedule.msg', 'MDC', 'This shared communication schedule will no longer be available on this device.'),
-            title: Uni.I18n.translate('general.removeConfirmation', 'MDC', 'Remove \'{0}\'?', [record.get('name')]),
+            title: Uni.I18n.translate('general.removeConfirmation', 'MDC', 'Remove \'{0}\'?', record2Remove.get('name')),
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
-                        me.removeSharedCommunicationSchedule(record);
+                        me.removeSharedCommunicationSchedule(record2Remove);
                         break;
                     case 'cancel':
                         break;

@@ -188,9 +188,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         xtype: 'reading-type-combo',
                         itemId: 'mdc-calculated-readingType-combo',
                         fieldLabel: Uni.I18n.translate('general.calculatedReadingType', 'MDC', 'Calculated reading type'),
-                        tpl: null,
-                        displayTpl: null,
-                        displayField: 'fullAliasName',
                         required: true,
                         width: 650,
                         hidden: true

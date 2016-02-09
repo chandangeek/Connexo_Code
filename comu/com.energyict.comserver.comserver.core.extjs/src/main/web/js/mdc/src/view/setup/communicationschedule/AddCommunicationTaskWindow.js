@@ -42,7 +42,7 @@ Ext.define('Mdc.view.setup.communicationschedule.AddCommunicationTaskWindow', {
                     title: Uni.I18n.translate('communicationschedule.communicationtasks.empty.title', 'MDC', 'No communication tasks found'),
                     reasons: [
                         Uni.I18n.translate('communicationschedule.communicationtasks.empty.list.item1', 'MDC', 'No communication tasks have been defined yet.'),
-                        Uni.I18n.translate('communicationschedule.communicationtasks.empty.list.item2', 'MDC', 'All presented communication tasks already added to shared communication schedule.')
+                        Uni.I18n.translate('communicationschedule.communicationtasks.empty.list.item2', 'MDC', 'All communication tasks have already been added to the shared communication schedule.')
                     ],
                     stepItems: [
                         {
@@ -50,9 +50,6 @@ Ext.define('Mdc.view.setup.communicationschedule.AddCommunicationTaskWindow', {
                             href: me.router.getRoute('administration/communicationtasks').buildUrl()
                         }
                     ]
-                },
-                previewComponent: {
-                    xtype: 'addCommunicationTaskPreview'
                 }
             }
         ];

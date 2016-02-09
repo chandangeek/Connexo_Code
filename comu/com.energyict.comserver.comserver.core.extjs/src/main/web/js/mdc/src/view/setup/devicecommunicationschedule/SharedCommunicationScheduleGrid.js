@@ -66,9 +66,17 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.SharedCommunicationSchedu
                     }
                 },
                 {
-                    xtype: 'uni-actioncolumn',
-                    items: 'Mdc.view.setup.devicecommunicationschedule.SharedCommunicationScheduleActionMenu'
-
+                    xtype: 'actioncolumn',
+                    iconCls: 'uni-icon-delete',
+                    width: 55,
+                    items: [
+                        {
+                            tooltip: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                            handler: function (grid, rowIndex, colIndex, item, e, record, row) {
+                                this.fireEvent('removeSharedCommunicationSchedule', record);
+                            }
+                        }
+                    ]
                 }
             ]
         }

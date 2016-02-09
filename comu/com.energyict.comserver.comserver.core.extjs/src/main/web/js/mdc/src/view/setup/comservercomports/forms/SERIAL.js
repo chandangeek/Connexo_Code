@@ -92,7 +92,7 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERIAL', {
                     htmlEncode: false
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.comPortPools', 'MDC', 'Communication port pools'),
+                    fieldLabel: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool'),
                     name: 'inboundComPortPools',
                     htmlEncode: false
                 },

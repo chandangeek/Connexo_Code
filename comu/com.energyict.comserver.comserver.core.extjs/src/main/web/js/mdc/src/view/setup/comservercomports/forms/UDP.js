@@ -57,7 +57,7 @@ Ext.define('Mdc.view.setup.comservercomports.forms.UDP', {
                     name: 'outboundComPortPoolIdsDisplay'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.comPortPools', 'MDC', 'Communication port pools'),
+                    fieldLabel: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool'),
                     htmlEncode: false,
                     name: 'inboundComPortPools'
                 }

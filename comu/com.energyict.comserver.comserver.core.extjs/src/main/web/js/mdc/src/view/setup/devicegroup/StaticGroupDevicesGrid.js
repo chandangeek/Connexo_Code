@@ -46,13 +46,20 @@ Ext.define('Mdc.view.setup.devicegroup.StaticGroupDevicesGrid', {
     },
 
     devices: null,
+    listenersAreInited: false,
+
+    initComponent: function () {
+        var me = this;
+
+        me.callParent(arguments);
+        me.initListeners();
+    },
 
     setDevices: function (devices) {
         var me = this,
             ids = [],
             selectionGroupType = {};
 
-        me.un('selectionchange', me.onSelectionChange, me);
         selectionGroupType[me.radioGroupName] = me.selectedInputValue;
         me.getSelectionGroupType().setValue(selectionGroupType);
         Ext.Array.each(devices, function (device) {
@@ -61,6 +68,15 @@ Ext.define('Mdc.view.setup.devicegroup.StaticGroupDevicesGrid', {
         me.devices = ids;
         me.getSelectionCounter().setText(me.counterTextFn(me.devices.length));
         me.getUncheckAllButton().setDisabled(me.devices.length === 0);
+    },
+
+    initListeners: function () {
+        var me = this;
+
+        if (me.listenersAreInited) {
+            return
+        }
+        me.un('selectionchange', me.onSelectionChange, me);
         me.on('select', me.onSelect, me);
         me.on('beforedeselect', me.onBeforeDeselect, me);
         me.getStore().on('prefetch', me.onPrefetch, me);
@@ -69,11 +85,15 @@ Ext.define('Mdc.view.setup.devicegroup.StaticGroupDevicesGrid', {
             me.un('beforedeselect', me.onBeforeDeselect, me);
             me.getStore().un('prefetch', me.onPrefetch, me);
         });
+        me.listenersAreInited = true;
     },
 
     onSelect: function (selectionModel, record) {
         var me = this;
 
+        if (!me.devices) {
+            me.devices = [];
+        }
         Ext.Array.include(me.devices, record.get('id'));
         Ext.suspendLayouts();
         me.getSelectionCounter().setText(me.counterTextFn(me.devices.length));
@@ -96,11 +116,13 @@ Ext.define('Mdc.view.setup.devicegroup.StaticGroupDevicesGrid', {
             selectionModel = me.getSelectionModel(),
             toSelect = [];
 
-        Ext.Array.each(records, function (record) {
-            if (Ext.Array.contains(me.devices, record.get('id'))) {
-                toSelect.push(record);
-            }
-        });
+        if (Ext.isArray(me.devices)) {
+            Ext.Array.each(records, function (record) {
+                if (Ext.Array.contains(me.devices, record.get('id'))) {
+                    toSelect.push(record);
+                }
+            });
+        }
 
         if (toSelect.length) {
             selectionModel.select(toSelect, true, true);

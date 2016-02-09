@@ -2,6 +2,11 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     extend: 'Ext.app.Controller',
     deviceTypeId: null,
     deviceConfigurationId: null,
+
+    /* caching */
+    loadedConnectionTypesStore: null,
+    loadedConnectionTypesStoreDirection: null,
+
     requires: [
         'Mdc.store.ConnectionMethodsOfDeviceConfiguration',
         'Mdc.store.TimeUnits'
@@ -29,6 +34,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         {ref: 'connectionMethodPreview', selector: '#connectionMethodPreview'},
         {ref: 'connectionMethodPreviewTitle', selector: '#connectionMethodPreviewTitle'},
         {ref: 'connectionMethodPreviewForm', selector: '#connectionMethodPreviewForm'},
+        {ref: 'connectionMethodSetupPanel', selector: '#connectionMethodSetupPanel'},
         {ref: 'connectionMethodEditView', selector: '#connectionMethodEdit'},
         {ref: 'connectionMethodEditForm', selector: '#connectionMethodEditForm'},
         {ref: 'connectionStrategyComboBox', selector: '#connectionStrategyComboBox'},
@@ -47,6 +53,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         this.control({
             '#connectionmethodsgrid': {
                 select: this.previewConnectionMethod
+            },
+            '#connectionmethodsgrid #mdc-config-add-connection-method-btn': {
+                click: this.onAddConnectionMethodClicked
             },
             '#connectionmethodsgrid menuitem[action = createOutboundConnectionMethod]': {
                 click: this.addOutboundConnectionMethodHistory
@@ -105,6 +114,11 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
         timeUnitsStore.load();
         if (mainView) mainView.setLoading(Uni.I18n.translate('general.loading', 'MDC', 'Loading...'));
+        if (this.deviceTypeId === null || this.deviceTypeId != deviceTypeId) {
+            // forget the previously loaded types
+            this.loadedConnectionTypesStore = null;
+            this.loadedConnectionTypesStoreDirection = null;
+        }
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigurationId = deviceConfigurationId;
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
@@ -114,18 +128,23 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
-                        var widget = Ext.widget('connectionMethodSetup', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId, isDirectlyAddressable: deviceConfig.get('isDirectlyAddressable')});
+                        var widget = Ext.widget('connectionMethodSetup', {
+                                deviceTypeId: deviceTypeId,
+                                deviceConfigId: deviceConfigurationId,
+                                isDirectlyAddressable: deviceConfig.get('isDirectlyAddressable')
+                            }),
+                            methodsStore = widget.down('connectionMethodsGrid').getStore();
+
+                        methodsStore.on('load', function() {
+                            if (methodsStore.getCount()===0) {
+                                me.updateButtonsOfEmptyComponent();
+                            }
+                        }, me, {single: true});
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                         widget.down('#connectionMethodSetupPanel').setTitle(Uni.I18n.translate('general.connectionMethods', 'MDC', 'Connection methods'));
                         if (mainView) mainView.setLoading(false);
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        me.getConnectionmethodsgrid().getStore().load({
-                            callback: function(){
-                                me.getConnectionmethodsgrid().getSelectionModel().doSelect(0);
-                            }
-                        });
-
                     }
                 });
             }
@@ -188,21 +207,35 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
     showAddConnectionMethodView: function (deviceTypeId, deviceConfigId, direction, a, b) {
-        var connectionTypesStore = Ext.StoreManager.get('ConnectionTypes'),
-            timeUnitsStore = Ext.StoreManager.get('TimeUnits');
+        var me = this,
+            storeStill2Load = false,
+            connectionTypesStore = null,
+            connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
+
         this.comPortPoolStore = Ext.StoreManager.get('ComPortPoolsWithoutPaging');
-        var connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
-        var me = this;
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigurationId = deviceConfigId;
+        if (me.loadedConnectionTypesStoreDirection && me.loadedConnectionTypesStoreDirection === direction) {
+            connectionTypesStore = me.loadedConnectionTypesStore;
+        } else {
+            connectionTypesStore = Ext.StoreManager.get('ConnectionTypes');
+            storeStill2Load = true;
+        }
         var widget = Ext.widget('connectionMethodEdit', {
-            edit: false,
-            returnLink: '#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(this.deviceConfigurationId) + '/connectionmethods',
-            connectionTypes: connectionTypesStore,
-            comPortPools: this.comPortPoolStore,
-            connectionStrategies: connectionStrategiesStore,
-            direction: direction
-        });
+                edit: false,
+                returnLink: '#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(this.deviceConfigurationId) + '/connectionmethods',
+                connectionTypes: connectionTypesStore,
+                comPortPools: this.comPortPoolStore,
+                connectionStrategies: connectionStrategiesStore,
+                direction: direction
+            }),
+            endFunction2Perform = function() {
+                var title = direction === 'Outbound'
+                    ? Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method')
+                    : Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method');
+                widget.down('#connectionMethodEditAddTitle').setTitle(title);
+                widget.setLoading(false);
+            };
         me.getCommunicationPortPoolComboBox().disable();
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
@@ -218,25 +251,11 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         connectionStrategiesStore.load({
                             callback: function () {
-                                connectionTypesStore.getProxy().setExtraParam('protocolId', deviceType.get('deviceProtocolPluggableClassId'));
-                                connectionTypesStore.getProxy().setExtraParam('filter', Ext.encode([
-                                    {
-                                        property: 'direction',
-                                        value: direction
-                                    }
-                                ]));
-
-                                connectionTypesStore.load({
-                                    callback: function () {
-                                        var title = direction === 'Outbound'
-                                            ? Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method')
-                                            : Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method');
-                                        widget.down('#connectionMethodEditAddTitle').setTitle(title);
-                                        widget.setLoading(false);
-                                    }
-                                });
-
-
+                                if (storeStill2Load) {
+                                    me.loadConnectionTypesStore(connectionTypesStore, deviceType, direction, endFunction2Perform);
+                                } else {
+                                    endFunction2Perform();
+                                }
                             }
                         });
                     }
@@ -433,15 +452,21 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
     showConnectionMethodEditView: function (deviceTypeId, deviceConfigId, connectionMethodId) {
-        var connectionTypesStore = Ext.StoreManager.get('ConnectionTypes');
-        this.comPortPoolStore = Ext.StoreManager.get('ComPortPoolsWithoutPaging');
-        var connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
-        this.deviceTypeId = deviceTypeId;
-        this.deviceConfigurationId = deviceConfigId;
         var me = this,
-            returnLink;
+            returnLink,
+            connectionTypesStore = null,
+            storeStill2Load = false,
+            connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies'),
+            model = Ext.ModelManager.getModel('Mdc.model.ConnectionMethod');
 
-        var model = Ext.ModelManager.getModel('Mdc.model.ConnectionMethod');
+        me.comPortPoolStore = Ext.StoreManager.get('ComPortPoolsWithoutPaging');
+        if (this.deviceTypeId === null || this.deviceTypeId != deviceTypeId) {
+            // forget the previously loaded types
+            this.loadedConnectionTypesStore = null;
+            this.loadedConnectionTypesStoreDirection = null;
+        }
+        me.deviceTypeId = deviceTypeId;
+        me.deviceConfigurationId = deviceConfigId;
         model.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
         if (me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens().indexOf('null') >= -1) {
             returnLink = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/connectionmethods';
@@ -451,13 +476,20 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         model.load(connectionMethodId, {
             success: function (connectionMethod) {
                 me.getApplication().fireEvent('loadConnectionMethod', connectionMethod);
+                var direction = connectionMethod.get('direction');
+                if (me.loadedConnectionTypesStoreDirection && me.loadedConnectionTypesStoreDirection === direction) {
+                    connectionTypesStore = me.loadedConnectionTypesStore;
+                } else {
+                    connectionTypesStore = Ext.StoreManager.get('ConnectionTypes');
+                    storeStill2Load = true;
+                }
                 var widget = Ext.widget('connectionMethodEdit', {
                     edit: true,
                     returnLink: returnLink,
                     connectionTypes: connectionTypesStore,
                     comPortPools: me.comPortPoolStore,
                     connectionStrategies: connectionStrategiesStore,
-                    direction: connectionMethod.get('direction')
+                    direction: direction
                 });
 
                 me.getApplication().fireEvent('changecontentevent', widget);
@@ -471,56 +503,53 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                         model.load(deviceConfigId, {
                             success: function (deviceConfig) {
                                 me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                                connectionTypesStore.getProxy().setExtraParam('protocolId', deviceType.get('deviceProtocolPluggableClassId'));
-                                connectionTypesStore.getProxy().setExtraParam('filter', Ext.encode([
-                                    {
-                                        property: 'direction',
-                                        value: connectionMethod.get('direction')
-                                    }
-                                ]));
-                                connectionTypesStore.load({
-                                    callback: function () {
-                                        connectionStrategiesStore.load({
-                                            callback: function () {
-                                                me.comPortPoolStore.clearFilter(true);
-                                                me.comPortPoolStore.getProxy().extraParams = ({compatibleWithConnectionType: connectionTypesStore.findRecord('name', connectionMethod.get('connectionTypePluggableClass')).get('id')});
-                                                me.comPortPoolStore.load({
 
-                                                    callback: function () {
-                                                        var deviceTypeName = deviceType.get('name');
-                                                        var deviceConfigName = deviceConfig.get('name');
-                                                        if (connectionMethod.get('connectionStrategy') === 'MINIMIZE_CONNECTIONS') {
-                                                            widget.down('form').down('#scheduleFieldContainer').setVisible(true);
-                                                        }
-                                                        widget.down('form').loadRecord(connectionMethod);
-                                                        var title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[ connectionMethod.get('name')]);
-                                                        widget.down('#connectionMethodEditAddTitle').setTitle(title);
-                                                        widget.down('form').down('#connectionTypeComboBox').setValue(connectionMethod.get('connectionTypePluggableClass'));
-                                                        connectionMethod.properties().count() ? widget.down('#connectionDetailsField').setValue('') : widget.down('#connectionDetailsField').setValue('-');
-                                                        me.getConnectionTypeComboBox().disable();
-                                                        widget.down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));
-                                                        widget.down('form').down('#connectionStrategyComboBox').setValue(connectionMethod.get('connectionStrategy'));
-                                                        if (connectionMethod.get('comWindowStart') || connectionMethod.get('comWindowEnd')) {
-                                                            widget.down('form').down('#activateConnWindowRadiogroup').items.items[1].setValue(true);
-                                                        } else {
-                                                            widget.down('form').down('#activateConnWindowRadiogroup').items.items[0].setValue(true);
-                                                        }
-                                                        var form = widget.down('property-form');
-                                                        form.loadRecordAsNotRequired(connectionMethod);
-                                                        me.getRescheduleRetryDelayField().getUnitStore().load({
-                                                            callback: function () {
-                                                                var rescheduleRetryDelayField = me.getRescheduleRetryDelayField();
-                                                                rescheduleRetryDelayField.setValue(connectionMethod.get('rescheduleRetryDelay'));
-                                                            }
-                                                        });
-                                                        form.show();
-                                                        widget.setLoading(false);
+                                var endFunction2Perform = function() {
+                                    connectionStrategiesStore.load({
+                                        callback: function () {
+                                            me.comPortPoolStore.clearFilter(true);
+                                            me.comPortPoolStore.getProxy().extraParams = ({compatibleWithConnectionType: connectionTypesStore.findRecord('name', connectionMethod.get('connectionTypePluggableClass')).get('id')});
+                                            me.comPortPoolStore.load({
+
+                                                callback: function () {
+                                                    if (connectionMethod.get('connectionStrategy') === 'MINIMIZE_CONNECTIONS') {
+                                                        widget.down('form').down('#scheduleFieldContainer').setVisible(true);
                                                     }
-                                                });
-                                            }
-                                        });
-                                    }
-                                });
+                                                    widget.down('form').loadRecord(connectionMethod);
+                                                    var title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [connectionMethod.get('name')]);
+                                                    widget.down('#connectionMethodEditAddTitle').setTitle(title);
+                                                    widget.down('form').down('#connectionTypeComboBox').setValue(connectionMethod.get('connectionTypePluggableClass'));
+                                                    connectionMethod.properties().count() ? widget.down('#connectionDetailsField').setValue('') : widget.down('#connectionDetailsField').setValue('-');
+                                                    me.getConnectionTypeComboBox().disable();
+                                                    widget.down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));
+                                                    widget.down('form').down('#connectionStrategyComboBox').setValue(connectionMethod.get('connectionStrategy'));
+                                                    if (connectionMethod.get('comWindowStart') || connectionMethod.get('comWindowEnd')) {
+                                                        widget.down('form').down('#activateConnWindowRadiogroup').items.items[1].setValue(true);
+                                                    } else {
+                                                        widget.down('form').down('#activateConnWindowRadiogroup').items.items[0].setValue(true);
+                                                    }
+                                                    var form = widget.down('property-form');
+                                                    form.loadRecordAsNotRequired(connectionMethod);
+                                                    me.getRescheduleRetryDelayField().getUnitStore().load({
+                                                        callback: function () {
+                                                            var rescheduleRetryDelayField = me.getRescheduleRetryDelayField();
+                                                            rescheduleRetryDelayField.setValue(connectionMethod.get('rescheduleRetryDelay'));
+                                                        }
+                                                    });
+                                                    form.show();
+                                                    widget.setLoading(false);
+                                                }
+                                            });
+                                        }
+                                    });
+
+                                };
+
+                                if (storeStill2Load) {
+                                    me.loadConnectionTypesStore(connectionTypesStore, deviceType, direction, endFunction2Perform);
+                                } else {
+                                    endFunction2Perform();
+                                }
                             }
                         });
                     }
@@ -547,7 +576,6 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             delete connectionMethod.get('rescheduleRetryDelay').translatedTimeUnit;
         }
 
-//        this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);
         connectionMethod.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
         connectionMethod.save({
             isNotEdit: true,
@@ -561,6 +589,101 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             callback: function () {
                 me.getConnectionMethodsOfDeviceConfigurationStore().load();
                 me.previewConnectionMethod();
+            }
+        });
+    },
+
+    onAddConnectionMethodClicked: function() {
+        var me = this,
+            menuButton = me.getConnectionmethodsgrid().down('#mdc-config-add-connection-method-btn'),
+            addInboundMenuItem = menuButton.down('#createInboundConnectionMenuItem'),
+            addOutboundMenuItem = menuButton.down('#createOutboundConnectionMenuItem');
+
+        me.updateComponentsBasedOnStoreCount(addInboundMenuItem, addOutboundMenuItem, menuButton);
+    },
+
+    updateButtonsOfEmptyComponent: function() {
+        var me = this,
+            noConnectionsPanel = me.getConnectionMethodSetupPanel().down('#no-connections-method-panel'),
+            addInboundButton = me.getConnectionMethodSetupPanel().down('#createInboundConnectionButton'),
+            addOutboundButton = me.getConnectionMethodSetupPanel().down('#createOutboundConnectionButton');
+
+        me.updateComponentsBasedOnStoreCount(addInboundButton, addOutboundButton, noConnectionsPanel);
+    },
+
+    updateComponentsBasedOnStoreCount: function(inboundBtnOrMenuItem, outboundBtnOrMenuItem, componentForLoadingMask) {
+        var me = this,
+            connectionTypesStore = Ext.StoreManager.get('ConnectionTypes'),
+            inboundTypesAvailable = false,
+            outboundTypesAvailable = false,
+            toPerformAfterInboundLoad = function() {
+                if (connectionTypesStore.getCount()>0) {
+                    inboundBtnOrMenuItem.show();
+                }
+                componentForLoadingMask.setLoading(false);
+            },
+            toPerformAfterOutboundLoad = function() {
+                if (connectionTypesStore.getCount()>0) {
+                    outboundBtnOrMenuItem.show();
+                }
+                componentForLoadingMask.setLoading(false);
+            };
+
+        // Determine the state of the "Add inbound connection method"/"Add outbound connection method" buttons/menu item
+        if (inboundBtnOrMenuItem) {
+            inboundBtnOrMenuItem.hide();
+            componentForLoadingMask.setLoading();
+        }
+        if (outboundBtnOrMenuItem) {
+            outboundBtnOrMenuItem.hide();
+            componentForLoadingMask.setLoading();
+        }
+
+        if (me.loadedConnectionTypesStoreDirection) {
+            if (me.loadedConnectionTypesStoreDirection === 'Inbound') {
+                inboundTypesAvailable = true;
+                if (me.loadedConnectionTypesStore.getCount()>0) {
+                    inboundBtnOrMenuItem.show();
+                }
+            } else {
+                outboundTypesAvailable = true;
+                if (me.loadedConnectionTypesStore.getCount()>0) {
+                    outboundBtnOrMenuItem.show();
+                }
+            }
+        }
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
+            success: function (deviceType) {
+                if (!inboundTypesAvailable) {
+                    me.loadConnectionTypesStore(connectionTypesStore, deviceType, 'Inbound', toPerformAfterInboundLoad);
+                }
+                if (!outboundTypesAvailable) {
+                    me.loadConnectionTypesStore(connectionTypesStore, deviceType, 'Outbound', toPerformAfterOutboundLoad);
+                }
+            },
+            failure: function () {
+                inboundBtnOrMenuItem.show();
+                outboundBtnOrMenuItem.show();
+                componentForLoadingMask.setLoading(false);
+            }
+        });
+    },
+
+    loadConnectionTypesStore: function(connectionTypesStore, deviceType, direction, function2PerformAfterwards) {
+        var me = this;
+
+        connectionTypesStore.getProxy().setExtraParam('protocolId', deviceType.get('deviceProtocolPluggableClassId'));
+        connectionTypesStore.getProxy().setExtraParam('filter', Ext.encode([
+            {
+                property: 'direction',
+                value: direction
+            }
+        ]));
+        connectionTypesStore.load({
+            callback: function() {
+                me.loadedConnectionTypesStore = connectionTypesStore;
+                me.loadedConnectionTypesStoreDirection = direction;
+                function2PerformAfterwards();
             }
         });
     },

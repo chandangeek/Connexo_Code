@@ -1,4 +1,8 @@
 Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSchedulePreview', {
+    /*
+        This is an obsolete, no more used class
+        (Keep it in case it is needed later on)
+     */
     extend: 'Ext.panel.Panel',
     frame: true,
     alias: 'widget.addSharedCommunicationSchedulePreview',
