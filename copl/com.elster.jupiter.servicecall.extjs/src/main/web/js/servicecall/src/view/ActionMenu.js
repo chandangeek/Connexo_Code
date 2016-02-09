@@ -6,10 +6,28 @@ Ext.define('Scs.view.ActionMenu', {
     shadow: false,
     items: [
         {
-            itemId: 'change-log-level-scs',
-            text: Uni.I18n.translate('general.changeLogLevel', 'SCS', 'Change log level'),
+            itemId: 'cancel-scs',
+            text: Uni.I18n.translate('general.cancel', 'SCS', 'Cancel'),
             //privileges: Apr.privileges.AppServer.admin,
-            action: 'test'
+            action: 'cancel'
+        },
+        {
+            itemId: 'resume-scs',
+            text: Uni.I18n.translate('general.resume', 'SCS', 'Resume'),
+            //privileges: Apr.privileges.AppServer.admin,
+            action: 'resume'
+        },
+        {
+            itemId: 'pause-scs',
+            text: Uni.I18n.translate('general.pause', 'SCS', 'Pause'),
+            //privileges: Apr.privileges.AppServer.admin,
+            action: 'pause'
+        },
+        {
+            itemId: 'retry-scs',
+            text: Uni.I18n.translate('general.retry', 'SCS', 'Retry'),
+            //privileges: Apr.privileges.AppServer.admin,
+            action: 'retry'
         }
     ]
 });

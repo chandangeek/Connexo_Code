@@ -76,8 +76,15 @@ Ext.define('Scs.controller.ServiceCalls', {
         var me = this;
 
         switch (item.action) {
-            case 'test':
+            case 'cancel':
                 debugger;
+                break;
+            case 'pause':
+                break;
+            case 'resume':
+                break;
+            case 'retry':
+                break;
         }
     }
 });
