@@ -111,7 +111,11 @@ public class OfflineRegisterImpl implements OfflineRegister {
         this.deviceSerialNumber = this.register.getDevice().getSerialNumber();
         this.deviceMRID = this.register.getDevice().getmRID();
         this.readingType = this.register.getRegisterSpec().getRegisterType().getReadingType();
-        this.overFlow = this.register.getRegisterSpec().isTextual()?new BigDecimal(Double.MAX_VALUE): ((NumericalRegisterSpec) this.register.getRegisterSpec()).getOverflowValue();
+        if(this.register.getRegisterSpec().isTextual()){
+            this.overFlow = new BigDecimal(Double.MAX_VALUE);
+        } else if(((NumericalRegisterSpec) this.register.getRegisterSpec()).getOverflowValue().isPresent()){
+            this.overFlow = ((NumericalRegisterSpec) this.register.getRegisterSpec()).getOverflowValue().get();
+        }
         this.isText = this.register.getRegisterSpec().isTextual();
     }
 

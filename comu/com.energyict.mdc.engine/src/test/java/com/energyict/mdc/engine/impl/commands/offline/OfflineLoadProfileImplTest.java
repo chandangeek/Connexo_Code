@@ -71,13 +71,19 @@ public class OfflineLoadProfileImplTest {
 
     private LoadProfile getMockedLoadProfileWithTwoChannels(long loadProfileId, ObisCode loadProfileObisCode, TopologyService topologyService) {
         LoadProfile newMockedLoadProfile = getNewMockedLoadProfile(loadProfileId, loadProfileObisCode);
-        Channel channel1 = mock(Channel.class, RETURNS_DEEP_STUBS);
-        Channel channel2 = mock(Channel.class, RETURNS_DEEP_STUBS);
-        Channel channel3 = mock(Channel.class, RETURNS_DEEP_STUBS);
-        Channel channel4 = mock(Channel.class, RETURNS_DEEP_STUBS);
+        Channel channel1 = mockChannel();
+        Channel channel2 = mockChannel();
+        Channel channel3 = mockChannel();
+        Channel channel4 = mockChannel();
         when(newMockedLoadProfile.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(topologyService.getAllChannels(newMockedLoadProfile)).thenReturn(Arrays.asList(channel1, channel2, channel3, channel4));
         return newMockedLoadProfile;
+    }
+
+    private Channel mockChannel() {
+        Channel channel = mock(Channel.class, RETURNS_DEEP_STUBS);
+        when(channel.getOverflow()).thenReturn(Optional.empty());
+        return channel;
     }
 
     @Test

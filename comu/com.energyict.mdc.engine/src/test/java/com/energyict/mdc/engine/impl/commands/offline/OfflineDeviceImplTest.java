@@ -370,6 +370,7 @@ public class OfflineDeviceImplTest {
     private RegisterSpec createMockedRegisterSpec(RegisterType registerType) {
         RegisterSpec registerSpec = mock(RegisterSpec.class, withSettings().extraInterfaces(NumericalRegisterSpec.class));
         when(registerSpec.getRegisterType()).thenReturn(registerType);
+        when(((NumericalRegisterSpec) registerSpec).getOverflowValue()).thenReturn(Optional.empty());
         return registerSpec;
     }
 

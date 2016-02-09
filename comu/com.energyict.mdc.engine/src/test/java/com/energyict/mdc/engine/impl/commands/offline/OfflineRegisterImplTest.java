@@ -20,6 +20,7 @@ import org.junit.runner.*;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -57,6 +58,7 @@ public class OfflineRegisterImplTest {
         when(registerSpec.getDeviceObisCode()).thenReturn(REGISTER_MAPPING_OBISCODE);
         when(registerSpec.getId()).thenReturn(REGISTER_SPEC_ID);
         when(registerSpec.getRegisterType()).thenReturn(mockedMeasurementType);
+        when(((NumericalRegisterSpec) registerSpec).getOverflowValue()).thenReturn(Optional.empty());
         when(mockedMeasurementType.getUnit()).thenReturn(REGISTER_UNIT);
         return registerSpec;
     }
