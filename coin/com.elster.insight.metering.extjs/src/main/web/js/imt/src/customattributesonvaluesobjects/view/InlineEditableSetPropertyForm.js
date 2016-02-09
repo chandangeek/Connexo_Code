@@ -138,7 +138,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
             ]
         };
 
-        me.itemId = 'CAS' + me.record.get('id');
+        me.itemId = me.record.get('name') + '-attribute-set';
 
         me.callParent(arguments);
         versionsContainer = me.down('#time-sliced-versions-container');
