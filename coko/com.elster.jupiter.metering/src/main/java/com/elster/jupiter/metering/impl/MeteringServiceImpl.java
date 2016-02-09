@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
@@ -104,6 +105,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private volatile MessageService messageService;
     private volatile JsonService jsonService;
     private volatile FiniteStateMachineService finiteStateMachineService;
+    private volatile CustomPropertySetService customPropertySetService;
 
     private volatile boolean createAllReadingTypes;
     private volatile String[] requiredReadingTypes;
@@ -115,7 +117,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Inject
     public MeteringServiceImpl(
             Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, MessageService messageService, JsonService jsonService,
-            FiniteStateMachineService finiteStateMachineService, @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes) {
+            FiniteStateMachineService finiteStateMachineService, @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes, CustomPropertySetService customPropertySetService) {
         this.clock = clock;
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
@@ -129,6 +131,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         setMessageService(messageService);
         setJsonService(jsonService);
         setFiniteStateMachineService(finiteStateMachineService);
+        setCustomPropertySetService(customPropertySetService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -367,6 +370,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         // method was added to make sure that the MeteringService is started after the FiniteStateMachineService
         // because the Metering datamodel depends on the FiniteStateMachine datamodel
         this.finiteStateMachineService = service;
+    }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
     }
 
     @Activate
