@@ -19,12 +19,6 @@ Ext.define('Isu.view.issues.ActionMenu', {
             text: Uni.I18n.translate('issues.actionMenu.addComment', 'ISU', 'Add comment'),
             privileges: Isu.privileges.Issue.comment,
             action: 'addComment'
-        },
-        {
-            text: Uni.I18n.translate('issues.actionMenu.startProcess', 'ISU', 'Start process'),
-            privileges: Isu.privileges.Issue.viewAdminProcesses && Isu.privileges.Issue.executeProcesses,
-            action: 'startProcess',
-            details: false
         }
     ],
     listeners: {
@@ -159,6 +153,16 @@ Ext.define('Isu.view.issues.ActionMenu', {
                 }
             });
             me.add(me.predefinedItems);
+        }
+
+        if (Isu.privileges.Issue.canViewProcessMenu())
+        {
+            me.add({
+                text: Uni.I18n.translate('issues.actionMenu.startProcess', 'ISU', 'Start process'),
+                action: 'startProcess',
+                href: me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({issueId: issueId} , {details: false}),
+                details: false
+            });
         }
 
         // add specific actions

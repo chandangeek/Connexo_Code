@@ -74,6 +74,9 @@ Ext.define('Isu.privileges.Issue', {
     },
     canExecuteLevel4: function () {
         return Uni.Auth.checkPrivileges(Isu.privileges.Issue.executeLevel4);
+    },
+    canViewProcessMenu: function() {
+        return Uni.Auth.checkPrivileges(Isu.privileges.Issue.viewAdminProcesses) && Uni.Auth.checkPrivileges(Isu.privileges.Issue.executeProcesses);
     }
 
 });
