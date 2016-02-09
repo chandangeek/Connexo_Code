@@ -12,6 +12,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
@@ -91,8 +92,8 @@ public class UsagePointDataInMemoryBootstrapModule {
         return injector.getInstance(UsagePointConfigurationService.class);
     }
 
-    public ServerMeteringService getMeteringService() {
-        return injector.getInstance(ServerMeteringService.class);
+    public MeteringService getMeteringService() {
+        return injector.getInstance(MeteringService.class);
     }
 
     public CustomPropertySetService getCustomPropertySetService() {

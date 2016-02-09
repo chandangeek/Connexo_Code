@@ -28,6 +28,6 @@ public class UsagePointCustomPropertySetValuesManageException extends LocalizedE
 
     public static UsagePointCustomPropertySetValuesManageException noLinkedCustomPropertySetOnServiceCategory(Thesaurus thesaurus, Object... args){
         return new UsagePointCustomPropertySetValuesManageException(thesaurus,
-                MessageSeeds.NO_LINKED_CUSTOM_PROPERTY_SET_ON_METROLOGY_CONFIGURATION, args);
+                MessageSeeds.NO_LINKED_CUSTOM_PROPERTY_SET_ON_SERVICE_CATEGORY, args);
     }
 }
