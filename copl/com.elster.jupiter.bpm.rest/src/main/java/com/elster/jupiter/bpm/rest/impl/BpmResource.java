@@ -746,16 +746,7 @@ public class BpmResource {
         TaskContentInfos taskContents = getProcessContent(id,deploymentId, auth);
         taskContentInfos.properties.stream()
                 .forEach(s -> {
-                    if (s.propertyValueInfo.value == null) {
-                        Optional<TaskContentInfo> taskContentInfo = taskContents.properties.stream()
-                                .filter(x -> x.key.equals(s.key))
-                                .findFirst();
-                        if (taskContentInfo.isPresent()) {
-                            if (taskContentInfo.get().required) {
-                                err.add(new Errors("properties." + s.key, MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
-                            }
-                        }
-                    } else if (s.propertyValueInfo.value.equals("")) {
+                    if (s.propertyValueInfo.value == null  || s.propertyValueInfo.value.equals("")) {
                         Optional<TaskContentInfo> taskContentInfo = taskContents.properties.stream()
                                 .filter(x -> x.key.equals(s.key))
                                 .findFirst();
@@ -863,16 +854,7 @@ public class BpmResource {
         TaskContentInfos taskContents = getTaskContent(id, auth);
         taskContentInfos.properties.stream()
                 .forEach(s -> {
-                    if (s.propertyValueInfo.value == null) {
-                        Optional<TaskContentInfo> taskContentInfo = taskContents.properties.stream()
-                                .filter(x -> x.key.equals(s.key))
-                                .findFirst();
-                        if (taskContentInfo.isPresent()) {
-                            if (taskContentInfo.get().required) {
-                                err.add(new Errors("properties." + s.key, MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
-                            }
-                        }
-                    } else if (s.propertyValueInfo.value.equals("")) {
+                    if (s.propertyValueInfo.value == null || s.propertyValueInfo.value.equals("")) {
                         Optional<TaskContentInfo> taskContentInfo = taskContents.properties.stream()
                                 .filter(x -> x.key.equals(s.key))
                                 .findFirst();
