@@ -762,7 +762,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 .on(domainReference)
                 .references(customPropertySet.getDomainClass())
                 .map(persistenceSupport.domainFieldName())
-                .onDelete(DeleteRule.CASCADE)
                 .add();
             return domainReference;
         }
