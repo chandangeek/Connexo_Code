@@ -1,6 +1,7 @@
 package com.elster.jupiter.bpm.rest;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.json.JsonDeserializeException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,19 +27,15 @@ public class ProcessInstanceNodeInfo {
             this.nodeInstanceId = jsonObject.getString("nodeInstanceId");
             if (variables != null) {
                 for(int i = 0; i < variables.length(); i++) {
-                    try {
-                        JSONObject variable = variables.getJSONObject(i);
-                        if(variable.getString("nodeInstanceId").equals(nodeInstanceId)) {
-                            ProcessInstanceVariableInfo result = new ProcessInstanceVariableInfo(variable);
-                            processInstanceVariables.add(result);
-                        }
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
+                    JSONObject variable = variables.getJSONObject(i);
+                    if(variable.getString("nodeInstanceId").equals(nodeInstanceId)) {
+                        ProcessInstanceVariableInfo result = new ProcessInstanceVariableInfo(variable);
+                        processInstanceVariables.add(result);
                     }
                 }
             }
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            throw new JsonDeserializeException(e, jsonObject.toString(), ProcessInstanceNodeInfo.class);
         }
     }
 
