@@ -250,6 +250,11 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     }
 
     @Override
+    public List<BpmProcessDefinition> getAllBpmProcessDefinitions(){
+        return dataModel.mapper(BpmProcessDefinition.class).find();
+    }
+
+    @Override
     public List<BpmProcessDefinition> getActiveBpmProcessDefinitions(){
         return dataModel.query(BpmProcessDefinition.class).select(Operator.EQUALIGNORECASE.compare("status", "ACTIVE"));
     }
