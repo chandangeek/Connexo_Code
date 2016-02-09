@@ -19,6 +19,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -761,6 +762,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 .on(domainReference)
                 .references(customPropertySet.getDomainClass())
                 .map(persistenceSupport.domainFieldName())
+                .onDelete(DeleteRule.CASCADE)
                 .add();
             return domainReference;
         }
