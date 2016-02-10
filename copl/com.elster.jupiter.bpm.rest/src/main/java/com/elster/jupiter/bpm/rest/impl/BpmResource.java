@@ -733,7 +733,7 @@ public class BpmResource {
     @PUT
     @Path("/processcontent/{id}/{deploymentId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_BPM)
+    @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.ADMINISTRATE_BPM})
     public Response startProcessContent(TaskContentInfos taskContentInfos, @PathParam("id") String id,
                                         @PathParam("deploymentId") String deploymentId, @HeaderParam("Authorization") String auth) {
         Map<String, Object> expectedParams = getOutputContent(taskContentInfos, -1, id, auth);
