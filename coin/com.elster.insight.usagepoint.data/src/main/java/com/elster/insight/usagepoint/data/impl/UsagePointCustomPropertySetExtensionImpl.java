@@ -70,7 +70,7 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
 
     private void setCustomPropertySetValuesWithoutChecks(CustomPropertySet customPropertySet, CustomPropertySetValues customPropertySetValue) {
         if (customPropertySet.isVersioned()) {
-            throw new UnsupportedOperationException();
+            this.customPropertySetService.setValuesFor(customPropertySet, getUsagePoint(), customPropertySetValue, this.clock.instant());
         } else {
             this.customPropertySetService.setValuesFor(customPropertySet, getUsagePoint(), customPropertySetValue);
         }
