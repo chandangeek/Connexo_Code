@@ -24,11 +24,17 @@ Ext.define('Scs.view.LandingPageForm', {
                 items: [
                     {
                         fieldLabel: Uni.I18n.translate('servicecalls.topLevelServiceCall', 'SCS', 'Top level service call'),
-                        name: 'toplevelservicecall'
+                        name: 'toplevelservicecall',
+                        renderer: function(value) {
+                            //PUT CODE FOR LINK HERE (see appserver)
+                        }
                     },
                     {
                         fieldLabel: Uni.I18n.translate('servicecalls.parentServiceCall', 'SCS', 'Parent service call'),
-                        name: 'parentlevelservicecall'
+                        name: 'parentlevelservicecall',
+                        renderer: function(value) {
+                            //PUT CODE FOR LINK HERE (see appserver)
+                        }
                     },
                     {
                         fieldLabel: Uni.I18n.translate('servicecalls.affectedObject', 'SCS', 'Affected object'),
