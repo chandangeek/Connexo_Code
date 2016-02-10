@@ -129,17 +129,40 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     },
 
     onWizardPrevEvent: function (wizard) {
-        var index = wizard.getActiveItemId();
+        var index = wizard.getActiveItemId(),
+            operation = this.getBulkRecord().get('operation'),
+            isRetry = (operation == 'retrycomm') || (operation == 'retrycommnow') || (operation == 'retryconn');
+
+        if (index == 2 && isRetry) {
+            Ext.suspendLayouts();
+            wizard.getLayout().setActiveItem(--wizard.activeItemId);
+            wizard.fireEvent('wizardpagechange', wizard);
+            this.getBulkNavigation().moveToStep(2);
+            Ext.resumeLayouts(true);
+        } else {
+            this.getBulkNavigation().movePrevStep();
+        }
         this.setBulkActionListActiveItem(wizard);
-        this.getBulkNavigation().movePrevStep();
     },
 
     onWizardNextEvent: function (wizard) {
-        var index = wizard.getActiveItemId();
+        var index = wizard.getActiveItemId(),
+            operation = this.getBulkRecord().get('operation'),
+            isRetry = (operation == 'retrycomm') || (operation == 'retrycommnow') || (operation == 'retryconn');
+
+        if (index == 2 && isRetry) {
+            index++;
+            Ext.suspendLayouts();
+            wizard.getLayout().setActiveItem(++wizard.activeItemId);
+            wizard.fireEvent('wizardpagechange', wizard);
+            this.getBulkNavigation().moveToStep(4);
+            Ext.resumeLayouts(true);
+        } else {
+            this.getBulkNavigation().moveNextStep();
+        }
         this.setBulkActionListActiveItem(wizard);
         var functionName = 'processNextOnStep' + index;
         this.processStep(functionName, wizard);
-        this.getBulkNavigation().moveNextStep();
     },
 
     onWizardStartedEvent: function (wizard) {
@@ -153,11 +176,13 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             record = me.getBulkRecord(),
             requestData = me.getRequestData(record),
             operation = record.get('operation'),
+            isRetry = (operation == 'retrycomm') || (operation == 'retrycommnow') || (operation == 'retryconn'),
             requestUrl = '/api/' + me.bundlePrefix.toLowerCase() + '/issues/' + operation,
             warnIssues = [],
             failedIssues = [],
             params = [],
-            allIssues = false;
+            allIssues = false,
+            step5panelText = '';
 
         this.setBulkActionListActiveItem(wizard);
 
@@ -173,11 +198,26 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         var pb = Ext.create('Ext.ProgressBar', {width: '50%'});
         Ext.suspendLayouts();
         step5panel.removeAll(true);
+        switch (operation) {
+            case 'assign':
+                step5panelText = Uni.I18n.translate('issues.processing.assign', 'ISU', 'Assigning {0} issue(s). Please wait...',
+                    (requestData.allIssues ? Uni.I18n.translate('general.all', 'ISU', 'all') : requestData.issues.length));
+                break;
+            case 'close':
+                step5panelText = Uni.I18n.translate('issues.processing.close', 'ISU', 'Closing {0} issue(s). Please wait...',
+                    (requestData.allIssues ? Uni.I18n.translate('general.all', 'ISU', 'all') : requestData.issues.length));
+                break;
+            default:
+                requestUrl = '/api/idc/issues/' + operation;
+                step5panelText = Uni.I18n.translate('issues.processing.default', 'ISU', 'Processing {0} issue(s). Please wait...',
+                    (requestData.allIssues ? Uni.I18n.translate('general.all', 'ISU', 'all') : requestData.issues.length));
+                break;
+        }
         step5panel.add(
             pb.wait({
                 interval: 50,
                 increment: 20,
-                text: (operation === 'assign' ? Uni.I18n.translate('issues.processing.assign', 'ISU', 'Assigning {0} issue(s). Please wait...', (requestData.allIssues ? Uni.I18n.translate('general.all', 'ISU', 'all') : requestData.issues.length)) :  Uni.I18n.translate('issues.processing.close', 'ISU', 'Closing {0} issue(s). Please wait...', (requestData.allIssues ? Uni.I18n.translate('general.all', 'ISU', 'all') : requestData.issues.length)))
+                text: step5panelText
             })
         );
         Ext.resumeLayouts(true);
@@ -214,31 +254,61 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                             if (successCount > 0) {
                                 successMessage = Uni.I18n.translatePlural('issues.close.success.result', successCount, 'ISU', '-', '<h3>Successfully closed issue</h3><br>', '<h3>Successfully closed issues</h3><br>');
                             }
+                            break;
+                        case 'retrycomm':
+                            if (successCount > 0) {
+                                successMessage = '\<h3\>' + Uni.I18n.translatePlural('issues.retrycomm.success.result', successCount, 'ISU',
+                                        "No communication tasks have been retriggered",
+                                        "Communication tasks have been retriggered for {0} issue",
+                                        "Communication tasks have been retriggered for {0} issues") + '\</h3\>\<br\>';
+                            }
+                            break;
+                        case 'retrycommnow':
+                            if (successCount > 0) {
+                                successMessage = '\<h3\>' + Uni.I18n.translatePlural('issues.retrycomm.success.result', successCount, 'ISU',
+                                        "No communication tasks have been retriggered",
+                                        "Communication tasks have been retriggered for one issue",
+                                        "Communication tasks have been retriggered for {0} issues") + '\</h3\>\<br\>';
+                            }
+                            break;
+                        case 'retryconn':
+                            if (successCount > 0) {
+                                successMessage = '\<h3\>' + Uni.I18n.translatePlural('issues.retryconn.success.result', successCount, 'ISU',
+                                        "No connections have been retriggered",
+                                        "Connections have been retriggered for {0} issue",
+                                        "Connections have been retriggered for {0} issues") + '\</h3\>\<br\>';
+                            }
+                            break;
                     }
                 }
 
                 if (!Ext.isEmpty(obj.failure)) {
-                    Ext.each(obj.failure, function (fail) {
-                        switch (fail.reason) {
-                            case 'Issue doesn\'t exist':
-                                warnList += '<h4>' + fail.reason + ':</h4><ul style="list-style: none; padding-left: 1em;">';
-                                Ext.each(fail.issues, function (issue) {
-                                    warnCount += 1;
-                                    warnIssues.push(issue.id);
-                                    warnList += '<li>- <a href="javascript:void(0)">' + issue.title + '</a></li>';
-                                });
-                                warnList += '</ul>';
-                                break;
-                            default:
-                                failList += '<h4>' + fail.reason + ':</h4><ul style="list-style: none; padding-left: 1em;">';
-                                Ext.each(fail.issues, function (issue) {
-                                    failedCount += 1;
-                                    failedIssues.push(issue.id);
-                                    failList += '<li>- <a href="javascript:void(0)">' + issue.title + '</a></li>';
-                                });
-                                failList += '</ul>';
-                        }
-                    });
+                    if (isRetry) {
+                        warnCount = obj.failure[0].issues.length;
+                        warnList = '<h4>' + obj.failure[0].reason + '</h4><br>';
+                    } else {
+                        Ext.each(obj.failure, function (fail) {
+                            switch (fail.reason) {
+                                case 'Issue doesn\'t exist':
+                                    warnList += '<h4>' + fail.reason + ':</h4><ul style="list-style: none; padding-left: 1em;">';
+                                    Ext.each(fail.issues, function (issue) {
+                                        warnCount += 1;
+                                        warnIssues.push(issue.id);
+                                        warnList += '<li>- <a href="javascript:void(0)">' + issue.title + '</a></li>';
+                                    });
+                                    warnList += '</ul>';
+                                    break;
+                                default:
+                                    failList += '<h4>' + fail.reason + ':</h4><ul style="list-style: none; padding-left: 1em;">';
+                                    Ext.each(fail.issues, function (issue) {
+                                        failedCount += 1;
+                                        failedIssues.push(issue.id);
+                                        failList += '<li>- <a href="javascript:void(0)">' + issue.title + '</a></li>';
+                                    });
+                                    failList += '</ul>';
+                            }
+                        });
+                    }
 
                     switch (operation) {
                         case 'assign':
@@ -256,30 +326,29 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                             if (failedCount > 0) {
                                 failedMessage = Uni.I18n.translatePlural('issues.close.failed.result', failedCount, 'ISU', '-', '<h3>Failed to close one issue</h3><br>', '<h3>Failed to close {0} issues</h3><br>') + failList;
                             }
+                            break;
+                        case 'retrycomm':
+                            if (warnCount > 0) {
+                                warnMessage = Uni.I18n.translatePlural('issues.retrycomm.unable.result', warnCount, 'ISU', '-', '<h3>Unable to retry communication tasks for {0} issue</h3><br>',
+                                        '<h3>Unable to retry communication tasks for {0} issues</h3><br>') + warnList;
+                            }
+                            break;
+                        case 'retrycommnow':
+                            if (warnCount > 0) {
+                                warnMessage = Uni.I18n.translatePlural('issues.retrycomm.unable.result', warnCount, 'ISU', '-', '<h3>Unable to retry communication tasks for {0} issue</h3><br>',
+                                        '<h3>Unable to retry communication tasks for {0} issues</h3><br>') + warnList;
+                            }
+                            break;
+                        case 'retryconn':
+                            if (warnCount > 0) {
+                                warnMessage = Uni.I18n.translatePlural('issues.retryconn.unable.result', warnCount, 'ISU', '-', '<h3>Unable to retry connections for {0} issue</h3><br>',
+                                        '<h3>Unable to retry connections for {0} issues</h3><br>') + warnList;
+                            }
+                            break;
                     }
                 }
 
                 step5panel.removeAll(true);
-
-                if (successCount > 0) {
-                    var successMsgParams = {
-                        type: 'success',
-                        msgBody: [
-                            {html: successMessage}
-                        ],
-                        closeBtn: false
-                    };
-                    if (failedCount == 0) {
-                        successMsgParams.btns = [
-                            {text: Uni.I18n.translate('general.ok', 'ISU', 'OK'), hnd: function () {
-                                step5panel.removeAll(true);
-                                Ext.History.back();
-                            }}
-                        ];
-                    }
-                    var successPanel = Ext.widget('message-panel', successMsgParams);
-                    step5panel.add(successPanel);
-                }
 
                 if (warnCount > 0) {
                     var warnMessageParams = {
@@ -287,9 +356,16 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                         msgBody: [
                             {html: warnMessage}
                         ],
-                        btns: [],
                         closeBtn: false
                     };
+                    if (isRetry) {
+                        warnMessageParams.btns = [{
+                            text: Uni.I18n.translate('general.finish', 'ISU', 'Finish'),
+                            hnd: function () {
+                                Ext.History.back();
+                            }
+                        }];
+                    }
                     var warnPanel = Ext.widget('message-panel', warnMessageParams);
                     step5panel.add(warnPanel);
                 }
@@ -312,6 +388,26 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                     };
                     var failedPanel = Ext.widget('message-panel', failedMessageParams);
                     step5panel.add(failedPanel);
+                }
+
+                if (successCount > 0) {
+                    var successMsgParams = {
+                        type: 'success',
+                        msgBody: [
+                            {html: successMessage}
+                        ],
+                        closeBtn: false
+                    };
+                    if ((!isRetry && failedCount == 0) || (isRetry && warnCount == 0)) {
+                        successMsgParams.btns = [
+                            {text: Uni.I18n.translate('general.finish', 'ISU', 'Finish'), ui: 'action', hnd: function () {
+                                step5panel.removeAll(true);
+                                Ext.History.back();
+                            }}
+                        ];
+                    }
+                    var successPanel = Ext.widget('message-panel', successMsgParams);
+                    step5panel.add(successPanel);
                 }
                 me.getBulkNavigation().moveNextStep();
             },
@@ -470,54 +566,82 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     },
 
     processNextOnStep3: function (wizard) {
-        var formPanel = wizard.down('bulk-step3').down('form'),
-            form = formPanel.getForm();
+        var record = this.getBulkRecord(),
+            step4Panel = wizard.down('bulk-step4'),
+            operation = record.get('operation'),
+            formPanel = wizard.down('bulk-step3').down('form'),
+            message, widget;
 
-        if (form.isValid()) {
-            var record = this.getBulkRecord(),
-                step4Panel = wizard.down('bulk-step4'),
-                operation = record.get('operation'),
-                message, widget;
-
-            switch (operation) {
-                case 'assign':
-                    var activeCombo = formPanel.down('combo[name=assigneeCombo]');
-                    record.set('assignee', {
-                        id: activeCombo.getValue(),
-                        type: "User",
-                        title: activeCombo.rawValue
-                    });
-                    if (!record.get('allIssues')) {
-                        message = Uni.I18n.translatePlural('issues.selectedIssues.assign.withCount', record.get('issues').length, 'ISU', '-', '<h3>Assign one issue?</h3><br>', '<h3>Assign {0} issues?</h3><br>')
+        switch (operation) {
+            case 'assign':
+                var activeCombo = formPanel.down('combo[name=assigneeCombo]');
+                record.set('assignee', {
+                    id: activeCombo.getValue(),
+                    type: "User",
+                    title: activeCombo.rawValue
+                });
+                if (!record.get('allIssues')) {
+                    message = Uni.I18n.translatePlural('issues.selectedIssues.assign.withCount', record.get('issues').length, 'ISU', '-', '<h3>Assign one issue?</h3><br>', '<h3>Assign {0} issues?</h3><br>')
                         + Uni.I18n.translate('issues.selectedIssues.willBeAssigned', 'ISU','The selected issue(s) will be assigned to {0}',[record.get('assignee').title])
-                    } else {
-                        message = Uni.I18n.translate('issues.allIssues.willBeAssigned.title', 'ISU', '<h3>Assign all issues to {0}?</h3><br>', [record.get('assignee').title])
+                } else {
+                    message = Uni.I18n.translate('issues.allIssues.willBeAssigned.title', 'ISU', '<h3>Assign all issues to {0}?</h3><br>', [record.get('assignee').title])
                         + Uni.I18n.translate('issues.allIssues.willBeAssigned', 'ISU','All issues will be assigned to {0}',[record.get('assignee').title]);
-                    }
-                    break;
+                }
+                break;
 
-                case 'close':
-                    if (!record.get('allIssues')) {
-                        message = Uni.I18n.translatePlural('issues.selectedIssues.close.withCount', record.get('issues').length, 'ISU', '-', '<h3>Close one issue?</h3><br>', '<h3>Close {0} issues?</h3><br>')
+            case 'close':
+                if (!record.get('allIssues')) {
+                    message = Uni.I18n.translatePlural('issues.selectedIssues.close.withCount', record.get('issues').length, 'ISU', '-', '<h3>Close one issue?</h3><br>', '<h3>Close {0} issues?</h3><br>')
                         + Uni.I18n.translate('issues.selectedIssues.willBeClosed','ISU', 'The selected issue(s) will be closed with status "<b>{0}</b>"', [record.get('statusName')]);
-                    } else {
-                        message = Uni.I18n.translate('issues.allIssues.willBeClosed.title', 'ISU', '<h3>Close all issues?</h3><br>')
+                } else {
+                    message = Uni.I18n.translate('issues.allIssues.willBeClosed.title', 'ISU', '<h3>Close all issues?</h3><br>')
                         + Uni.I18n.translate('issues.allIssues.willBeClosed', 'ISU', 'All issues will be closed with status "<b>{0}</b>"',[record.get('statusName')]);
-                    }
-                    break;
-            }
+                }
+                break;
 
-            record.set('comment', formPanel.down('textarea').getValue().trim());
+            case 'retrycomm':
+                if (!record.get('allIssues')) {
+                    message = Uni.I18n.translatePlural('issues.selectedIssues.retryCommunication.withCount', record.get('issues').length, 'ISU', '-', '<h3>Retry one communication task?</h3><br>', '<h3>Retry {0} communication tasks?</h3><br>')
+                        + Uni.I18n.translate('issues.selectedIssues.retryCommunication.willBeRetriggered', 'ISU', 'Communication tasks of selected issue(s) will be retriggered');
+                } else {
+                    message = Uni.I18n.translate('issues.allIssues.retryCommunication.title', 'ISU', '<h3>Retry all communication tasks?</h3><br>')
+                        + Uni.I18n.translate('issues.allIssues.retryCommunication', 'ISU', 'Communication tasks of all issues will be retriggered');
+                }
+                break;
 
-            widget = Ext.widget('container', {
-                style: 'margin: 20px 0',
-                html: message
-            });
-            Ext.suspendLayouts();
-            step4Panel.removeAll(true);
-            Ext.resumeLayouts();
-            step4Panel.add(widget);
+            case 'retrycommnow':
+                if (!record.get('allIssues')) {
+                    message = Uni.I18n.translatePlural('issues.selectedIssues.retryCommunication.withCount', record.get('issues').length, 'ISU', '-', '<h3>Retry one communication task?</h3><br>', '<h3>Retry {0} communication tasks?</h3><br>')
+                        + Uni.I18n.translate('issues.selectedIssues.retryCommunication.willBeRetriggered', 'ISU', 'Communication tasks of selected issue(s) will be retriggered');
+                } else {
+                    message = Uni.I18n.translate('issues.allIssues.retryCommunication.title', 'ISU', '<h3>Retry all communication tasks?</h3><br>')
+                        + Uni.I18n.translate('issues.allIssues.retryCommunication', 'ISU', 'Communication tasks of all issues will be retriggered');
+                }
+                break;
+
+            case 'retryconn':
+                if (!record.get('allIssues')) {
+                    message = Uni.I18n.translatePlural('issues.selectedIssues.retryConnection.withCount', record.get('issues').length, 'ISU', '-', '<h3>Retry one connection?</h3><br>', '<h3>Retry {0} connections?</h3><br>')
+                        + Uni.I18n.translate('issues.selectedIssues.retryConnection.willBeRetriggered', 'ISU', 'Connections of selected issue(s) will be retriggered');
+                } else {
+                    message = Uni.I18n.translate('issues.allIssues.retryConnection.title', 'ISU', '<h3>Retry all connections?</h3><br>')
+                        + Uni.I18n.translate('issues.allIssues.retryConnection', 'ISU', 'Connections of all issues will be retriggered');
+                }
+                break;
         }
+
+        if (formPanel) {
+            record.set('comment', formPanel.down('textarea').getValue().trim());
+        }
+
+        widget = Ext.widget('container', {
+            style: 'margin: 20px 0',
+            html: message
+        });
+        Ext.suspendLayouts();
+        step4Panel.removeAll(true);
+        Ext.resumeLayouts();
+        step4Panel.add(widget);
     },
 
     beforeStep4: function () {

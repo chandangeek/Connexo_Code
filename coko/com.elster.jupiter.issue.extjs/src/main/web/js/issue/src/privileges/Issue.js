@@ -17,6 +17,7 @@ Ext.define('Isu.privileges.Issue', {
     close: ['privilege.close.issue'],
     commentOrAssing: ['privilege.comment.issue','privilege.assign.issue'],
     notify: ['privilege.action.issue'],
+    action: ['privilege.action.issue'],
     adminDevice: ['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue'],
     viewAdminDevice: ['privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue'],
 
