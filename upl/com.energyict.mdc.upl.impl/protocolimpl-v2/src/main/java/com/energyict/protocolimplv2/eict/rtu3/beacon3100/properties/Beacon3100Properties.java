@@ -41,7 +41,7 @@ public class Beacon3100Properties extends DlmsProperties {
     @Override
     public SecurityProvider getSecurityProvider() {
         if (securityProvider == null) {
-            securityProvider = new Beacon3100SecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel());
+            securityProvider = new Beacon3100SecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel(), getSecuritySuite());
         }
         return securityProvider;
     }

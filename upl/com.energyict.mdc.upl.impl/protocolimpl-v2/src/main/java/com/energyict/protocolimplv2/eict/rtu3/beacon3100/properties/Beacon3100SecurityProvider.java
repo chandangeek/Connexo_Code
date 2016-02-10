@@ -6,7 +6,10 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
+import com.energyict.encryption.asymetric.util.KeyUtils;
+import com.energyict.mdw.core.ECCCurve;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RespondingFrameCounterHandler;
@@ -16,6 +19,9 @@ import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
+import java.security.spec.ECPoint;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Random;
 
@@ -27,6 +33,7 @@ import java.util.Random;
  */
 public class Beacon3100SecurityProvider extends NTASecurityProvider implements GeneralCipheringSecurityProvider {
 
+    private final int securitySuite;
     private byte[] sessionKey;
     private byte[] serverSessionKey;
     private X509Certificate serverSigningCertificate;
@@ -35,9 +42,10 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
     private PrivateKey clientPrivateKeyAgreementKey;
     private PrivateKey clientPrivateSigningKey;
 
-    public Beacon3100SecurityProvider(TypedProperties properties, int authenticationDeviceAccessLevel) {
+    public Beacon3100SecurityProvider(TypedProperties properties, int authenticationDeviceAccessLevel, int securitySuite) {
         super(properties, authenticationDeviceAccessLevel);
         setRespondingFrameCounterHandling(new DSMR40RespondingFrameCounterHandler());
+        this.securitySuite = securitySuite;
     }
 
     /**
@@ -158,8 +166,28 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
                 }
 
                 X509Certificate x509Certificate = (X509Certificate) serverKeyAgreementCertificate;
+
+                if (x509Certificate.getPublicKey() instanceof ECPublicKey) {
+                    ECPoint ecPoint = ((ECPublicKey) x509Certificate.getPublicKey()).getW();
+
+                    int componentSize = KeyUtils.getKeySize(getECCCurve()) / 2;
+                    byte[] xBytes = trim(ecPoint.getAffineX().toByteArray(), componentSize);
+                    byte[] yBytes = trim(ecPoint.getAffineY().toByteArray(), componentSize);
+
+                    if ((xBytes.length + yBytes.length) != KeyUtils.getKeySize(getECCCurve())) {
+                        throw DeviceConfigurationException.invalidPropertyFormat(
+                                propertyName,
+                                "Certificate with alias '" + certificateAlias.getAlias() + "'",
+                                "The public key of the certificate should be for the " + getECCCurve().getCurveName() + " elliptic curve (DLMS security suite " + securitySuite + ")");
+                    }
+                } else {
+                    throw DeviceConfigurationException.invalidPropertyFormat(
+                            propertyName,
+                            "Certificate with alias '" + certificateAlias.getAlias() + "'",
+                            "The public key of the certificate should be for elliptic curve cryptography");
+                }
+
                 x509Certificate.checkValidity();
-                //TODO validate public key length against suite1/2
 
                 return x509Certificate;
             } catch (CertificateException e) {
@@ -171,15 +199,56 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
         }
     }
 
+    /**
+     * Remove the leading zero byte from the component bytes, if it's present.
+     */
+    private byte[] trim(byte[] componentBytes, int componentSize) {
+        if (componentBytes.length > componentSize) {
+            if (componentBytes[0] == 0x00) {
+                return ProtocolTools.getSubArray(componentBytes, 1);
+            }
+        }
+        return componentBytes;
+    }
+
+    private ECCCurve getECCCurve() {
+        switch (securitySuite) {
+            case 1:
+                return ECCCurve.P256_SHA256;
+            case 2:
+                return ECCCurve.P384_SHA384;
+            default:
+                throw DeviceConfigurationException.unsupportedPropertyValue("SecuritySuite", String.valueOf(securitySuite));
+        }
+    }
+
     private PrivateKey parsePrivateKey(String propertyName) {
-        //TODO validate key length against suite1/2
-        //TODO
         PrivateKeyAlias alias = properties.getTypedProperty(propertyName);
         if (alias == null) {
             return null;
         } else {
             try {
-                return alias.getPrivateKey();
+                PrivateKey privateKey = alias.getPrivateKey();
+                if (privateKey instanceof ECPrivateKey) {
+
+                    int componentSize = KeyUtils.getKeySize(getECCCurve()) / 2;
+                    byte[] privateKeyBytes = trim(((ECPrivateKey) privateKey).getS().toByteArray(), componentSize);
+
+                    if (privateKeyBytes.length != componentSize) {
+                        throw DeviceConfigurationException.invalidPropertyFormat(
+                                propertyName,
+                                "Private key with alias '" + alias.getAlias() + "'",
+                                "The private key should be for the " + getECCCurve().getCurveName() + " elliptic curve (DLMS security suite " + securitySuite + ")");
+                    }
+                } else {
+                    throw DeviceConfigurationException.invalidPropertyFormat(
+                            propertyName,
+                            "Private key with alias '" + alias.getAlias() + "'",
+                            "The private key should be for elliptic curve cryptography");
+                }
+
+
+                return privateKey;
             } catch (InvalidKeySpecException e) {
                 throw DeviceConfigurationException.invalidPropertyFormat(
                         propertyName,
