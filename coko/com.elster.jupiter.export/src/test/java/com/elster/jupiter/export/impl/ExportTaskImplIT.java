@@ -3,6 +3,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
@@ -211,7 +212,8 @@ public class ExportTaskImplIT {
                     new BpmModule(),
                     new ValidationModule(),
                     new DataVaultModule(),
-                    new FtpModule()
+                    new FtpModule(),
+                    new CustomPropertySetsModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
