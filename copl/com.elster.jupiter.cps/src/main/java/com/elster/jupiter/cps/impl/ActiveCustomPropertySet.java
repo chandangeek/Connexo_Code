@@ -15,7 +15,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Interval;
-
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Range;
 
@@ -148,7 +147,12 @@ class ActiveCustomPropertySet {
 
     @SuppressWarnings("unchecked")
     <T extends PersistentDomainExtension<D>, D> Optional<T> getVersionedValuesEntityFor(D businessObject, Instant effectiveTimestamp, Object... additionalPrimaryKeyColumnValues) {
-        if (this.registeredCustomPropertySet.isViewableByCurrentUser()) {
+        return this.getVersionedValuesEntityFor(businessObject, false, effectiveTimestamp, additionalPrimaryKeyColumnValues);
+    }
+
+    @SuppressWarnings("unchecked")
+    <T extends PersistentDomainExtension<D>, D> Optional<T> getVersionedValuesEntityFor(D businessObject, boolean ignorePrivileges, Instant effectiveTimestamp, Object... additionalPrimaryKeyColumnValues) {
+        if (ignorePrivileges || this.registeredCustomPropertySet.isViewableByCurrentUser()) {
             this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
             Condition condition =
                     this.addAdditionalPrimaryKeyColumnConditionsTo(
