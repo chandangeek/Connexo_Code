@@ -10,7 +10,7 @@ Ext.define('Isu.view.issues.bulk.Step2', {
     initComponent: function () {
         var me = this,
             icon = '<span class="icon-question3" style="cursor: pointer; display: inline-block; width: 16px; height: 16px; margin-left: 5px" data-qtip="' +
-                Uni.I18n.translate('readingType.tooltip', 'UNI', 'Click for more information') + '"></span>';
+                Uni.I18n.translate('general.helpTooltip', 'ISU', 'Click for more information') + '"></span>';
 
         me.items = [
             {
