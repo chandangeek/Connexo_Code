@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.cps;
+package com.elster.jupiter.metering.cps.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;

@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.cps;
+package com.elster.jupiter.metering.cps.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
@@ -112,6 +112,7 @@ public class UsagePointVersionedCustomPropertySet implements CustomPropertySet<U
                         .named(UsagePointVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName(), UsagePointVersionedDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName())
                         .describedAs("infoString")
                         .setDefaultValue("description")
+                        .markRequired()
                         .finish(),
                 this.propertySpecService
                         .bigDecimalSpec()
