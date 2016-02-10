@@ -27,7 +27,7 @@ Ext.define('Mdc.controller.history.Setup', {
                         startprocess: {
                             title: Uni.I18n.translate('usagePoint.startProcess', 'MDC', 'Start process'),
                             route: 'processes/start',
-                            privileges: Mdc.privileges.Device.deviceProcesses && Mdc.privileges.Device.deviceExecuteProcesses,
+                            privileges: Mdc.privileges.Device.deviceProcesses,
                             controller: 'Mdc.usagepointmanagement.controller.StartProcess',
                             action: 'showStartProcess'
                         }
