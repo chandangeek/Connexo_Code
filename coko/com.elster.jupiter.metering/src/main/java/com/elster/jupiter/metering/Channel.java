@@ -1,15 +1,14 @@
 package com.elster.jupiter.metering;
 
-import com.elster.jupiter.metering.impl.DerivationRule;
-import com.elster.jupiter.metering.impl.IReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface Channel {
@@ -69,5 +68,5 @@ public interface Channel {
 		}
 	}
 
-	
+
 }
