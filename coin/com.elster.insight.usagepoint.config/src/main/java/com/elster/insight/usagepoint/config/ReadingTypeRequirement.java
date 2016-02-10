@@ -1,5 +1,6 @@
 package com.elster.insight.usagepoint.config;
 
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.HasId;
@@ -8,6 +9,7 @@ import com.elster.jupiter.util.HasName;
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Models a requirement that a Meter should provide measurement
@@ -44,6 +46,20 @@ public interface ReadingTypeRequirement extends HasId, HasName {
      * @param meterActivation The MeterActivation
      * @return The List of matching ReadingTypes
      */
-    List<ReadingType> getMatchesFor(MeterActivation meterActivation);
+    default List<ReadingType> getMatchesFor(MeterActivation meterActivation) {
+        return this.getMatchingChannelsFor(meterActivation)
+                .stream()
+                .map(Channel::getMainReadingType)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Return the List of {@link Channel}s from the specified
+     * {@link MeterActivation} that can provide data for this requirement.
+     *
+     * @param meterActivation The MeterActivation
+     * @return The List of matching ReadingTypes
+     */
+    List<Channel> getMatchingChannelsFor(MeterActivation meterActivation);
 
 }

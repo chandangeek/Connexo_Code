@@ -2,7 +2,6 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingType;
 
 import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
 
@@ -25,15 +24,15 @@ public class VirtualReadingTypeRequirement {
 
     private final ReadingTypeRequirement requirement;
     private final List<Channel> matchingChannels;
-    private final ReadingType targetReadingType;
+    private final IntervalLength targetIntervalLength;
     private final int meterActivationSequenceNumber;
     private Channel preferredChannel;   // Lazy from the list of matching channels and the targetReadingType
 
-    public VirtualReadingTypeRequirement(ReadingTypeRequirement requirement, List<Channel> matchingChannels, ReadingType targetReadingType, int meterActivationSequenceNumber) {
+    public VirtualReadingTypeRequirement(ReadingTypeRequirement requirement, List<Channel> matchingChannels, IntervalLength targetIntervalLength, int meterActivationSequenceNumber) {
         super();
         this.requirement = requirement;
         this.matchingChannels = Collections.unmodifiableList(matchingChannels);
-        this.targetReadingType = targetReadingType;
+        this.targetIntervalLength = targetIntervalLength;
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
     }
 

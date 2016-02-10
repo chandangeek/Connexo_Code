@@ -1,12 +1,10 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
-import com.elster.jupiter.metering.MeterActivation;
-
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 
 /**
  * Provides an implementation for the {@link ExpressionNode} interface
- * for a reference to a {@link ReadingTypeDeliverable} for a specific {@link MeterActivation}.
+ * for a reference to a {@link ReadingTypeDeliverableForMeterActivation}.
  * <p>
  * It will participate in generating a "with" clause that will
  * do time based aggregation if the interval of the target reading
@@ -22,11 +20,11 @@ import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 class VirtualDeliverableNode extends AbstractNode {
 
     private final VirtualFactory virtualFactory;
-    private final ReadingTypeDeliverable deliverable;
+    private final ReadingTypeDeliverableForMeterActivation deliverable;
     private IntervalLength targetInterval;
     private VirtualReadingTypeDeliverable virtualDeliverable;
 
-    VirtualDeliverableNode(VirtualFactory virtualFactory, ReadingTypeDeliverable deliverable) {
+    VirtualDeliverableNode(VirtualFactory virtualFactory, ReadingTypeDeliverableForMeterActivation deliverable) {
         super();
         this.virtualFactory = virtualFactory;
         this.deliverable = deliverable;

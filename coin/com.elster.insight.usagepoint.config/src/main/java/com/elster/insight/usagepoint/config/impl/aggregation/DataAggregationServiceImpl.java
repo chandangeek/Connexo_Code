@@ -7,7 +7,9 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.insight.usagepoint.config.MetrologyContract;
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 import com.google.common.collect.Range;
+import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,10 +24,27 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-04 (12:56)
  */
-public class DataAggregationServiceImpl implements DataAggregationService {
+public class DataAggregationServiceImpl implements DataAggregationService, ReadingTypeDeliverableForMeterActivationProvider {
 
     private VirtualFactory virtualFactory;
-    private Map<MeterActivation, List<VirtualReadingTypeDeliverable>> deliverablesPerMeterActivation;
+    private Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation;
+
+    // For OSGi only
+    public DataAggregationServiceImpl() {
+        super();
+    }
+
+    // For testing purposes only
+    @Inject
+    public DataAggregationServiceImpl(VirtualFactory virtualFactory) {
+        this();
+        this.setVirtualFactory(virtualFactory);
+    }
+
+    @Reference
+    public void setVirtualFactory(VirtualFactory virtualFactory) {
+        this.virtualFactory = virtualFactory;
+    }
 
     @Override
     public List<? extends BaseReadingRecord> calculate(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
@@ -48,7 +67,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         AbstractNode preparedExpression = this.copyAndVirtualizeReferences(deliverable, meterActivation);
         this.deliverablesPerMeterActivation
                 .get(meterActivation)
-                .add(new VirtualReadingTypeDeliverable(
+                .add(new ReadingTypeDeliverableForMeterActivation(
                         deliverable,
                         meterActivation,
                         period,
@@ -60,7 +79,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
     /**
      * Copies the formula of the {@link ReadingTypeDeliverable} and replaces
      * references to requirements and deliverables with virtual references
-     * as described {@link CopyAndVirtualizeReferences}.
+     * as described by {@link CopyAndVirtualizeReferences}.
      *
      * @param deliverable The ReadingTypeDeliverable
      * @param meterActivation The MeterActivation
@@ -68,7 +87,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
      */
     private AbstractNode copyAndVirtualizeReferences(ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
         ServerFormula formula = (ServerFormula) deliverable.getFormula();
-        CopyAndVirtualizeReferences visitor = new CopyAndVirtualizeReferences(this.virtualFactory, deliverable, meterActivation);
+        CopyAndVirtualizeReferences visitor = new CopyAndVirtualizeReferences(this.virtualFactory, this, deliverable, meterActivation);
         return formula.expressionNode().accept(visitor);
     }
 
@@ -87,6 +106,16 @@ public class DataAggregationServiceImpl implements DataAggregationService {
      */
     private IntervalLength inferAggregationInterval(ReadingTypeDeliverable deliverable, AbstractNode expressionTree) {
         return expressionTree.accept(new InferAggregationInterval(IntervalLength.from(deliverable.getReadingType())));
+    }
+
+    @Override
+    public ReadingTypeDeliverableForMeterActivation from(ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
+        List<ReadingTypeDeliverableForMeterActivation> candidates = this.deliverablesPerMeterActivation.get(meterActivation);
+        return candidates
+                .stream()
+                .filter(candidate -> candidate.getDeliverable().equals(deliverable))
+                .findAny()
+                .orElseThrow(() -> new UnsupportedOperationException("Forward references to other deliverables is not supported yet"));
     }
 
 }

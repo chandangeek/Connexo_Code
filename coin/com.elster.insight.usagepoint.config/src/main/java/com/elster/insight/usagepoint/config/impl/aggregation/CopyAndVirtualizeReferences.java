@@ -21,12 +21,14 @@ import java.util.stream.Collectors;
 class CopyAndVirtualizeReferences implements ServerExpressionNode.ServerVisitor<AbstractNode> {
 
     private final VirtualFactory virtualFactory;
+    private final ReadingTypeDeliverableForMeterActivationProvider deliverableProvider;
     private final ReadingTypeDeliverable deliverable;
     private final MeterActivation meterActivation;
 
-    CopyAndVirtualizeReferences(VirtualFactory virtualFactory, ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
+    CopyAndVirtualizeReferences(VirtualFactory virtualFactory, ReadingTypeDeliverableForMeterActivationProvider deliverableProvider, ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
         super();
         this.virtualFactory = virtualFactory;
+        this.deliverableProvider = deliverableProvider;
         this.deliverable = deliverable;
         this.meterActivation = meterActivation;
     }
@@ -49,7 +51,11 @@ class CopyAndVirtualizeReferences implements ServerExpressionNode.ServerVisitor<
     @Override
     public AbstractNode visitDeliverable(ReadingTypeDeliverableNode node) {
         // Replace this one with a VirtualDeliverableNode
-        return new VirtualDeliverableNode(this.virtualFactory, node.getReadingTypeDeliverable());
+        return new VirtualDeliverableNode(
+                this.virtualFactory,
+                this.deliverableProvider.from(
+                        node.getReadingTypeDeliverable(),
+                        this.meterActivation));
     }
 
     @Override

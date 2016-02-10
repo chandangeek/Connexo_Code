@@ -31,7 +31,7 @@ interface VirtualFactory {
 
     /**
      * Returns a new {@link VirtualDeliverableNode} for the specified
-     * {@link ReadingTypeDeliverable} and interval length
+     * {@link ReadingTypeDeliverableForMeterActivation} and interval length
      * or one that was already produced before if such a node has already
      * been produced before.
      *
@@ -39,7 +39,7 @@ interface VirtualFactory {
      * @param intervalLength The IntervalLength
      * @return The VirtualDeliverableNode
      */
-    VirtualReadingTypeDeliverable deliverableFor(ReadingTypeDeliverable deliverable, IntervalLength intervalLength);
+    VirtualReadingTypeDeliverable deliverableFor(ReadingTypeDeliverableForMeterActivation deliverable, IntervalLength intervalLength);
 
     /**
      * Returns all the {@link VirtualReadingTypeRequirement}s that were produced by this factory.

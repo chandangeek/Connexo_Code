@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.ReadingType;
 
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
+import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -39,6 +40,8 @@ public class CopyAndVirtualizeReferencesTest {
     private ReadingTypeDeliverable deliverable;
     @Mock
     private MeterActivation meterActivation;
+    @Mock
+    private ReadingTypeDeliverableForMeterActivationProvider readingTypeDeliverableForMeterActivationProvider;
 
     @Before
     public void initializeMocks() {
@@ -211,6 +214,15 @@ public class CopyAndVirtualizeReferencesTest {
                             new ReadingTypeDeliverableNode(readingTypeDeliverable),
                             new ConstantNode(BigDecimal.TEN)),
                         Function.MAX));
+        ReadingTypeDeliverableForMeterActivation readingTypeDeliverableForMeterActivation =
+                new ReadingTypeDeliverableForMeterActivation(
+                        readingTypeDeliverable,
+                        this.meterActivation,
+                        Range.all(),
+                        1,
+                        mock(ServerExpressionNode.class),
+                        IntervalLength.MINUTE15);
+        when(this.readingTypeDeliverableForMeterActivationProvider.from(readingTypeDeliverable, this.meterActivation)).thenReturn(readingTypeDeliverableForMeterActivation);
 
         // Business method
         AbstractNode copied = node.accept(visitor);
@@ -232,7 +244,7 @@ public class CopyAndVirtualizeReferencesTest {
     }
 
     private CopyAndVirtualizeReferences getTestInstance() {
-        return new CopyAndVirtualizeReferences(this.virtualFactory, this.deliverable, this.meterActivation);
+        return new CopyAndVirtualizeReferences(this.virtualFactory, this.readingTypeDeliverableForMeterActivationProvider, this.deliverable, this.meterActivation);
     }
 
 }
