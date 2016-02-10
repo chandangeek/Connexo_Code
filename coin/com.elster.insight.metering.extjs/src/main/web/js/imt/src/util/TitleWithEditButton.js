@@ -5,6 +5,7 @@ Ext.define('Imt.util.TitleWithEditButton', {
     editHandler:null,
     record: null,
     hiddenBtn: false,
+    margin: '0 0 15 0',
     layout: 'hbox',
 
     initComponent: function() {

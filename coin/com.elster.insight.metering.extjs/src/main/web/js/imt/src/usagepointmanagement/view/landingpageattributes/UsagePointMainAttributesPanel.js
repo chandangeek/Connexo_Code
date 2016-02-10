@@ -31,7 +31,8 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
 
         action = Ext.create('Ext.menu.Item',{
             itemId: 'action-menu-' + actualForm,
-            menuItemClass: 'inlineEditableAttributeSet',
+            menuItemClass: 'mainInlineEditableAttributeSet',
+            disabled: true,
             text: editActionTitle,
             handler: function () {
                 me.toEditMode(true, this);
@@ -40,12 +41,32 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
 
         me.items = [
             {
-                xtype: 'title-with-edit-button',
-                title: title,
-                editHandler: function(){
-                    me.toEditMode(true, action);
-                }
+                xtype: 'container',
+                layout: 'hbox',
+                items: [
+                    {
+                        xtype: 'container',
+                        html: '<label class="x-form-item-label x-form-item-label-top">' + title + '</label>'
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'main-attr-pencil-btn',
+                        disabled: true,
+                        margin: '7 0 0 7',
+                        ui: 'plain',
+                        iconCls: 'icon-pencil2',
+                        tooltip: Uni.I18n.translate('general.tooltip.edit', 'IMT', 'Edit'),
+                    }
+                ]
             },
+            //{
+            //    xtype: 'title-with-edit-button',
+            //    pencilBtnItemId: ''
+            //    title: title,
+            //    editHandler: function(){
+            //        me.toEditMode(true, action);
+            //    }
+            //},
             {
                 xtype: 'container',
                 hidden: true,
@@ -63,25 +84,25 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
                         ui: 'action',
                         text: Uni.I18n.translate('general.save', 'IMT', 'Save'),
                         action: 'save',
-                        handler: function(){
-                            var  record = me.down('#edit-form').getRecord();
-                            var baseRecord = record.copy();
-
-                            record.set(me.down('#edit-form').getValues());
-
-                            record.save({
-                                success: function(){
-
-                                },
-                                failure: function(record, response, success){
-                                    var responseText = Ext.decode(response.response.responseText, true);
-                                    if (responseText && Ext.isArray(responseText.errors)) {
-                                        me.down('#edit-form').markInvalid(responseText.errors);
-                                    }
-                                    record.set(baseRecord.getData());
-                                }
-                            })
-                        }
+                        //handler: function(){
+                        //    var  record = me.down('#edit-form').getRecord();
+                        //    var baseRecord = record.copy();
+                        //
+                        //    record.set(me.down('#edit-form').getValues());
+                        //
+                        //    record.save({
+                        //        success: function(){
+                        //            me.router.getRoute().forward();
+                        //        },
+                        //        failure: function(record, response, success){
+                        //            var responseText = Ext.decode(response.response.responseText, true);
+                        //            if (responseText && Ext.isArray(responseText.errors)) {
+                        //                me.down('#edit-form').markInvalid(responseText.errors);
+                        //            }
+                        //            record.set(baseRecord.getData());
+                        //        }
+                        //    })
+                        //}
                     },
                     {
                         xtype: 'button',
@@ -114,35 +135,32 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
             xtype: actualForm
         });
 
+        Ext.resumeLayouts(true);
+
         me.down('#edit-form').getForm().loadRecord(me.record);
         me.down('#view-form').getForm().loadRecord(me.record);
-
-        Ext.resumeLayouts(true);
     },
 
     toEditMode: function(isEdit, action){
         var me =this;
 
         Ext.suspendLayouts();
-
         if(isEdit){
-            me.down('#edit-form').loadRecord(me.record);
             me.down('#pencil-btn').hide();
             me.down('#view-form').hide();
             me.down('#edit-form').show();
             me.down('#bottom-buttons').show();
-            Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(isEdit);
             action.hide();
         } else {
-            me.down('#edit-form').loadRecord(me.record);
             me.down('#pencil-btn').show();
             me.down('#view-form').show();
             me.down('#edit-form').hide();
             me.down('#bottom-buttons').hide();
-            Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(isEdit);
             action.show();
         }
-
         Ext.resumeLayouts(true);
+
+        me.down('#edit-form').loadRecord(me.record);
+        Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(isEdit);
     }
 });
