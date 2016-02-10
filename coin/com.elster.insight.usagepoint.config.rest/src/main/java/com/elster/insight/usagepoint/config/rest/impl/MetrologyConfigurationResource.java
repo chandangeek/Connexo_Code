@@ -272,11 +272,13 @@ public class MetrologyConfigurationResource {
                                                                                         CustomPropertySetInfo<MetrologyConfigurationInfo> info) {
         if (info.parent != null){
             info.parent.id = id;
-            info.parent.name = info.name != null ? info.name : info.parent.name;
         }
-        MetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info.parent);
         RegisteredCustomPropertySet customPropertySet = resourceHelper.getRegisteredCustomPropertySetOrThrowException(cpsId);
-        metrologyConfiguration.removeCustomPropertySet(customPropertySet);
+        MetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
+        if (metrologyConfiguration.getCustomPropertySets().contains(customPropertySet)){
+            metrologyConfiguration = resourceHelper.findAndLockCPSOnMetrologyConfiguration(info);
+            metrologyConfiguration.removeCustomPropertySet(customPropertySet);
+        }
         return metrologyConfigurationInfoFactory.asDetailedInfo(metrologyConfiguration);
     }
 }

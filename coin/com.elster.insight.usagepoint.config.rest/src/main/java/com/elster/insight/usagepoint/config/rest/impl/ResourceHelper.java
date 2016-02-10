@@ -5,6 +5,7 @@ import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 
 import javax.inject.Inject;
@@ -50,5 +51,14 @@ public class ResourceHelper {
         return customPropertySetService.findActiveCustomPropertySet(id)
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    // In fact the CPS has no version, so we rely on metrology version
+    public MetrologyConfiguration findAndLockCPSOnMetrologyConfiguration(CustomPropertySetInfo<MetrologyConfigurationInfo> info) {
+        return getLockedMetrologyConfiguration(info.parent.id, info.parent.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualParent(() ->  getCurrentMetrologyConfigurationVersion(info.parent.id), info.parent.id)
+                        .withActualVersion(() ->  getCurrentMetrologyConfigurationVersion(info.parent.id))
+                        .supplier());
     }
 }
