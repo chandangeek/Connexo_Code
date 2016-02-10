@@ -123,6 +123,14 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>system</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>appserver.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
