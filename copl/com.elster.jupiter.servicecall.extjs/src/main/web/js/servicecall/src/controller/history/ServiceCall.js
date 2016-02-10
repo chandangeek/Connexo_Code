@@ -83,7 +83,7 @@ Ext.define('Scs.controller.history.ServiceCall', {
                                                                     return true;
                                                                 }, {single: true});
                                                                 return this;
-                                                            },
+                                                            }
                                                         }
                                                     }
                                                 }
