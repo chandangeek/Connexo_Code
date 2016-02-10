@@ -18,12 +18,12 @@ Ext.define('Scs.controller.history.ServiceCall', {
                         overviewD1: {
                             route: '{serviceCallIdDepth1}',
                            // privileges: Apr.privileges.AppServer.view,
-                            title: Uni.I18n.translate('general.overview', 'SCS', 'Service call overview'),
+                            title: Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'),
                             controller: 'Scs.controller.ServiceCalls',
                             action: 'showServiceCallOverview',
                             callback: function (route) {
                                 this.getApplication().on('servicecallload', function (arguments) {
-                                    route.setTitle(arguments[0] ? arguments[0] : Uni.I18n.translate('general.overview', 'SCS', 'Service call overview'));
+                                    route.setTitle(arguments[0] ? arguments[0] : Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'));
                                     return true;
                                 }, {single: true});
                                 return this;
@@ -37,7 +37,7 @@ Ext.define('Scs.controller.history.ServiceCall', {
                                     action: 'showServiceCallOverview',
                                     callback: function (route) {
                                         this.getApplication().on('servicecallload', function (arguments) {
-                                            route.setTitle(arguments[1] ? arguments[1] : Uni.I18n.translate('general.overview', 'SCS', 'Service call overview'));
+                                            route.setTitle(arguments[1] ? arguments[1] : Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'));
                                             return true;
                                         }, {single: true});
                                         return this;
@@ -51,7 +51,7 @@ Ext.define('Scs.controller.history.ServiceCall', {
                                             action: 'showServiceCallOverview',
                                             callback: function (route) {
                                                 this.getApplication().on('servicecallload', function (arguments) {
-                                                    route.setTitle(arguments[2] ? arguments[2] : Uni.I18n.translate('general.overview', 'SCS', 'Service call overview'));
+                                                    route.setTitle(arguments[2] ? arguments[2] : Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'));
                                                     return true;
                                                 }, {single: true});
                                                 return this;
@@ -65,7 +65,7 @@ Ext.define('Scs.controller.history.ServiceCall', {
                                                     action: 'showServiceCallOverview',
                                                     callback: function (route) {
                                                         this.getApplication().on('servicecallload', function (arguments) {
-                                                            route.setTitle(arguments[3] ? arguments[3] : Uni.I18n.translate('general.overview', 'SCS', 'Service call overview'));
+                                                            route.setTitle(arguments[3] ? arguments[3] : Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'));
                                                             return true;
                                                         }, {single: true});
                                                         return this;
@@ -79,7 +79,7 @@ Ext.define('Scs.controller.history.ServiceCall', {
                                                             action: 'showServiceCallOverview',
                                                             callback: function (route) {
                                                                 this.getApplication().on('servicecallload', function (arguments) {
-                                                                    route.setTitle(arguments[4] ? arguments[4] : Uni.I18n.translate('general.overview', 'SCS', 'Service call overview'));
+                                                                    route.setTitle(arguments[4] ? arguments[4] : Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'));
                                                                     return true;
                                                                 }, {single: true});
                                                                 return this;
