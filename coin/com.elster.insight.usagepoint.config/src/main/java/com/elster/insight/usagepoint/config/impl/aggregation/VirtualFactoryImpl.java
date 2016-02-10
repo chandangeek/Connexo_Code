@@ -6,7 +6,6 @@ import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,12 +79,12 @@ public class VirtualFactoryImpl implements VirtualFactory {
 
         @Override
         public List<VirtualReadingTypeRequirement> allRequirements() {
-            return Collections.emptyList();
+            throw new UnsupportedOperationException("Parent class should not be delegating this");
         }
 
         @Override
         public List<VirtualReadingTypeDeliverable> allDeliverables() {
-            return Collections.emptyList();
+            throw new UnsupportedOperationException("Parent class should not be delegating this");
         }
 
         @Override
@@ -119,7 +118,7 @@ public class VirtualFactoryImpl implements VirtualFactory {
         @Override
         public VirtualReadingTypeRequirement requirementFor(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, IntervalLength intervalLength) {
             return this.factoriesPerRequirement
-                    .putIfAbsent(requirement, new MeterActivationAndRequirementFactory(this, this.meterActivation))
+                    .computeIfAbsent(requirement, key -> new MeterActivationAndRequirementFactory(this, this.meterActivation))
                     .requirementFor(requirement, deliverable, intervalLength);
         }
 
@@ -135,7 +134,7 @@ public class VirtualFactoryImpl implements VirtualFactory {
         @Override
         public VirtualReadingTypeDeliverable deliverableFor(ReadingTypeDeliverableForMeterActivation deliverable, IntervalLength intervalLength) {
             return this.factoriesPerDeliverable
-                    .putIfAbsent(deliverable, new MeterActivationAndDeliverableFactory())
+                    .computeIfAbsent(deliverable, key -> new MeterActivationAndDeliverableFactory())
                     .deliverableFor(deliverable,  intervalLength);
         }
 
@@ -177,7 +176,7 @@ public class VirtualFactoryImpl implements VirtualFactory {
 
         public VirtualReadingTypeRequirement requirementFor(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, IntervalLength intervalLength) {
             return this.requirements
-                    .putIfAbsent(intervalLength, new MeterActivationAndRequirementInDeliverableFactory(this, this.meterActivation))
+                    .computeIfAbsent(intervalLength, key -> new MeterActivationAndRequirementInDeliverableFactory(this, this.meterActivation))
                     .requirementFor(requirement, deliverable, intervalLength);
         }
 

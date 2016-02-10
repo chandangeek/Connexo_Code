@@ -6,11 +6,14 @@ import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
 import com.google.common.collect.Range;
 
+import java.util.List;
+
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -30,7 +33,7 @@ public class VirtualFactoryImplTest {
     private MeterActivation meterActivation;
 
     @Test(expected = IllegalStateException.class)
-    public void noRequirementsWithoutCurrentMeterActivation() {
+    public void requirementsNotSupportedWithoutCurrentMeterActivation() {
         VirtualFactoryImpl factory = this.testInstance();
 
         // Business method
@@ -40,7 +43,7 @@ public class VirtualFactoryImplTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void noDeliverablesWithoutCurrentMeterActivation() {
+    public void deliverablesNotSupportedWithoutCurrentMeterActivation() {
         VirtualFactoryImpl factory = this.testInstance();
         ReadingTypeDeliverableForMeterActivation deliverable =
                 new ReadingTypeDeliverableForMeterActivation(
@@ -55,6 +58,241 @@ public class VirtualFactoryImplTest {
         factory.deliverableFor(deliverable, IntervalLength.DAY1);
 
         // Asserts: see expected exception rule
+    }
+
+    @Test
+    public void noDeliverablesWithoutCurrentMeterActivation() {
+        VirtualFactoryImpl factory = this.testInstance();
+
+        // Business method and asserts
+        assertThat(factory.allDeliverables()).isEmpty();
+    }
+
+    @Test
+    public void noRequirementsWithoutCurrentMeterActivation() {
+        VirtualFactoryImpl factory = this.testInstance();
+
+        // Business method and asserts
+        assertThat(factory.allRequirements()).isEmpty();
+    }
+
+    @Test
+    public void nextMeterActivationIncreasesMeterActivationSequenceNumber() {
+        VirtualFactoryImpl factory = this.testInstance();
+        int before = factory.meterActivationSequenceNumber();
+
+        // Business method
+        factory.nextMeterActivation(this.meterActivation);
+
+        // Asserts
+        int after = factory.meterActivationSequenceNumber();
+        assertThat(after).isGreaterThan(before);
+    }
+
+    @Test
+    public void sameRequirementIsCreatedOnlyOnce() {
+        VirtualFactoryImpl factory = this.testInstance();
+        factory.nextMeterActivation(this.meterActivation);
+        VirtualReadingTypeRequirement first = factory.requirementFor(this.requirement, this.deliverable, IntervalLength.DAY1);
+
+        // Business method
+        VirtualReadingTypeRequirement second = factory.requirementFor(this.requirement, this.deliverable, IntervalLength.DAY1);
+
+        // Asserts
+        assertThat(first).isSameAs(second);
+    }
+
+    @Test
+    public void sameRequirementIsRecreatedForAnotherMeterActivation() {
+        VirtualFactoryImpl factory = this.testInstance();
+        factory.nextMeterActivation(this.meterActivation);
+        VirtualReadingTypeRequirement first = factory.requirementFor(this.requirement, this.deliverable, IntervalLength.DAY1);
+        factory.nextMeterActivation(mock(MeterActivation.class));
+
+        // Business method
+        VirtualReadingTypeRequirement second = factory.requirementFor(this.requirement, this.deliverable, IntervalLength.DAY1);
+
+        // Asserts
+        assertThat(first).isNotSameAs(second);
+    }
+
+    @Test
+    public void sameRequirementIsRecreatedForAnotherInterval() {
+        VirtualFactoryImpl factory = this.testInstance();
+        factory.nextMeterActivation(this.meterActivation);
+        VirtualReadingTypeRequirement first = factory.requirementFor(this.requirement, this.deliverable, IntervalLength.DAY1);
+
+        // Business method
+        VirtualReadingTypeRequirement second = factory.requirementFor(this.requirement, this.deliverable, IntervalLength.HOUR1);
+
+        // Asserts
+        assertThat(first).isNotSameAs(second);
+    }
+
+    @Test
+    public void sameRequirementIsRecreatedForAnotherDeliverable() {
+        VirtualFactoryImpl factory = this.testInstance();
+        factory.nextMeterActivation(this.meterActivation);
+        VirtualReadingTypeRequirement first = factory.requirementFor(this.requirement, this.deliverable, IntervalLength.DAY1);
+        ReadingTypeDeliverable otherDeliverable = mock(ReadingTypeDeliverable.class);
+
+        // Business method
+        VirtualReadingTypeRequirement second = factory.requirementFor(this.requirement, otherDeliverable, IntervalLength.DAY1);
+
+        // Asserts
+        assertThat(first).isNotSameAs(second);
+    }
+
+    @Test
+    public void allRequirementsWhenNoneCreated() {
+        VirtualFactoryImpl factory = this.testInstance();
+        factory.nextMeterActivation(this.meterActivation);
+
+        // Business method + asserts
+        assertThat(factory.allRequirements()).isEmpty();
+    }
+
+    @Test
+    public void allRequirementsWhenOnlyOneCreated() {
+        VirtualFactoryImpl factory = this.testInstance();
+        factory.nextMeterActivation(this.meterActivation);
+        VirtualReadingTypeRequirement requirement = factory.requirementFor(this.requirement, this.deliverable, IntervalLength.DAY1);
+
+        // Business method
+        List<VirtualReadingTypeRequirement> requirements = factory.allRequirements();
+
+        // Asserts
+        assertThat(requirements).containsOnly(requirement);
+    }
+
+    @Test
+    public void allRequirementsWhenMultipleCreated() {
+        VirtualFactoryImpl factory = this.testInstance();
+        factory.nextMeterActivation(this.meterActivation);
+        VirtualReadingTypeRequirement daily = factory.requirementFor(this.requirement, this.deliverable, IntervalLength.DAY1);
+        VirtualReadingTypeRequirement hourly = factory.requirementFor(this.requirement, this.deliverable, IntervalLength.HOUR1);
+        ReadingTypeDeliverable otherDeliverable = mock(ReadingTypeDeliverable.class);
+        VirtualReadingTypeRequirement dailyForOtherDeliverable = factory.requirementFor(this.requirement, otherDeliverable, IntervalLength.DAY1);
+        factory.nextMeterActivation(mock(MeterActivation.class));
+        VirtualReadingTypeRequirement dailyForOtherMeterActivation = factory.requirementFor(this.requirement, this.deliverable, IntervalLength.DAY1);
+
+        // Business method
+        List<VirtualReadingTypeRequirement> requirements = factory.allRequirements();
+
+        // Asserts
+        assertThat(requirements).containsOnly(hourly, daily, dailyForOtherDeliverable, dailyForOtherMeterActivation);
+    }
+
+    @Test
+    public void sameDeliverableIsCreatedOnlyOnce() {
+        VirtualFactoryImpl factory = this.testInstance();
+        factory.nextMeterActivation(this.meterActivation);
+        ReadingTypeDeliverableForMeterActivation deliverable =
+                new ReadingTypeDeliverableForMeterActivation(
+                        this.deliverable,
+                        this.meterActivation,
+                        Range.all(),
+                        0,
+                        mock(ServerExpressionNode.class),
+                        IntervalLength.DAY1);
+        VirtualReadingTypeDeliverable first = factory.deliverableFor(deliverable, IntervalLength.DAY1);
+
+        // Business method
+        VirtualReadingTypeDeliverable second = factory.deliverableFor(deliverable, IntervalLength.DAY1);
+
+        // Asserts
+        assertThat(first).isSameAs(second);
+    }
+
+    @Test
+    public void sameDeliverableIsRecreatedForAnotherMeterActivation() {
+        VirtualFactoryImpl factory = this.testInstance();
+        factory.nextMeterActivation(this.meterActivation);
+        ReadingTypeDeliverableForMeterActivation deliverable =
+                new ReadingTypeDeliverableForMeterActivation(
+                        this.deliverable,
+                        this.meterActivation,
+                        Range.all(),
+                        0,
+                        mock(ServerExpressionNode.class),
+                        IntervalLength.DAY1);
+        VirtualReadingTypeDeliverable first = factory.deliverableFor(deliverable, IntervalLength.DAY1);
+        factory.nextMeterActivation(mock(MeterActivation.class));
+
+        // Business method
+        VirtualReadingTypeDeliverable second = factory.deliverableFor(deliverable, IntervalLength.DAY1);
+
+        // Asserts
+        assertThat(first).isNotSameAs(second);
+    }
+
+    @Test
+    public void sameDeliverableIsRecreatedForAnotherInterval() {
+        VirtualFactoryImpl factory = this.testInstance();
+        factory.nextMeterActivation(this.meterActivation);
+        ReadingTypeDeliverableForMeterActivation deliverable =
+                new ReadingTypeDeliverableForMeterActivation(
+                        this.deliverable,
+                        this.meterActivation,
+                        Range.all(),
+                        0,
+                        mock(ServerExpressionNode.class),
+                        IntervalLength.DAY1);
+        VirtualReadingTypeDeliverable daily = factory.deliverableFor(deliverable, IntervalLength.DAY1);
+
+        // Business method
+        VirtualReadingTypeDeliverable hourly = factory.deliverableFor(deliverable, IntervalLength.HOUR1);
+
+        // Asserts
+        assertThat(daily).isNotSameAs(hourly);
+    }
+
+    @Test
+    public void allDeliverablesWhenNoneCreated() {
+        VirtualFactoryImpl factory = this.testInstance();
+        factory.nextMeterActivation(this.meterActivation);
+
+        // Business method + asserts
+        assertThat(factory.allDeliverables()).isEmpty();
+    }
+
+    @Test
+    public void allDeliverablesWhenOnlyOneCreated() {
+        VirtualFactoryImpl factory = this.testInstance();
+        factory.nextMeterActivation(this.meterActivation);
+        ReadingTypeDeliverableForMeterActivation deliverable =
+                new ReadingTypeDeliverableForMeterActivation(
+                        this.deliverable,
+                        this.meterActivation,
+                        Range.all(),
+                        0,
+                        mock(ServerExpressionNode.class),
+                        IntervalLength.DAY1);
+        VirtualReadingTypeDeliverable daily = factory.deliverableFor(deliverable, IntervalLength.DAY1);
+
+        // Business method + asserts
+        assertThat(factory.allDeliverables()).containsOnly(daily);
+    }
+
+    @Test
+    public void allDeliverablesWhenMultipleCreated() {
+        VirtualFactoryImpl factory = this.testInstance();
+        factory.nextMeterActivation(this.meterActivation);
+        ReadingTypeDeliverableForMeterActivation deliverable =
+                new ReadingTypeDeliverableForMeterActivation(
+                        this.deliverable,
+                        this.meterActivation,
+                        Range.all(),
+                        0,
+                        mock(ServerExpressionNode.class),
+                        IntervalLength.DAY1);
+        VirtualReadingTypeDeliverable daily = factory.deliverableFor(deliverable, IntervalLength.DAY1);
+        VirtualReadingTypeDeliverable hourly = factory.deliverableFor(deliverable, IntervalLength.HOUR1);
+        factory.nextMeterActivation(mock(MeterActivation.class));
+        VirtualReadingTypeDeliverable dailyForOtherMeterActivation = factory.deliverableFor(deliverable, IntervalLength.DAY1);
+
+        // Business method + asserts
+        assertThat(factory.allDeliverables()).containsOnly(daily, hourly, dailyForOtherMeterActivation);
     }
 
     private VirtualFactoryImpl testInstance() {
