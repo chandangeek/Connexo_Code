@@ -1,8 +1,9 @@
-Ext.define('Scs.view.LandingOverview', {
+Ext.define('Scs.view.Landing', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.scs-landing-page',
     requires: [
-        'Scs.view.LandingPageForm'
+        'Scs.view.LandingPageForm',
+        'Scs.view.ActionMenu'
     ],
     serviceCallId: null,
 
@@ -20,6 +21,16 @@ Ext.define('Scs.view.LandingOverview', {
                     items: {
                         xtype: 'scs-landing-page-form',
                         margin: '0 0 0 100'
+                    }
+                },
+                {
+                    xtype: 'button',
+                    //privileges: Apr.privileges.AppServer.admin,
+                    text: Uni.I18n.translate('general.actions', 'SCS', 'Actions'),
+                    iconCls: 'x-uni-action-iconD',
+                    margin: '20 0 0 0',
+                    menu: {
+                        xtype: 'scs-action-menu'
                     }
                 }
             ]
