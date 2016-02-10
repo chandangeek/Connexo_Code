@@ -1,19 +1,5 @@
 package com.elster.insight.usagepoint.config.impl;
 
-import static com.elster.jupiter.domain.util.Save.action;
-import static com.google.common.base.MoreObjects.toStringHelper;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.validation.constraints.Size;
-
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.MetrologyConfigurationValidationRuleSetUsage;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.domain.util.Unique;
@@ -23,6 +9,24 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 
+import com.elster.insight.usagepoint.config.MetrologyConfiguration;
+import com.elster.insight.usagepoint.config.MetrologyConfigurationValidationRuleSetUsage;
+import com.elster.insight.usagepoint.config.MetrologyContract;
+import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
+import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
+
+import javax.inject.Inject;
+import javax.validation.constraints.Size;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.domain.util.Save.action;
+import static com.google.common.base.MoreObjects.toStringHelper;
+
 @Unique(fields = "name", groups = {Save.Create.class, Save.Update.class})
 public final class MetrologyConfigurationImpl implements MetrologyConfiguration {
     private long id;
@@ -30,8 +34,8 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
     private Instant createTime;
     private Instant modTime;
     private String userName;
-    private List<MetrologyConfigurationValidationRuleSetUsage> metrologyConfValidationRuleSetUsages = new ArrayList<MetrologyConfigurationValidationRuleSetUsage>();
-    
+    private List<MetrologyConfigurationValidationRuleSetUsage> metrologyConfValidationRuleSetUsages = new ArrayList<>();
+
     @NotEmpty
     @Size(max = Table.NAME_LENGTH)
     private String name;
@@ -47,7 +51,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
         this.validationService = validationService;
     }
 
-    MetrologyConfigurationImpl init(String name) {  
+    MetrologyConfigurationImpl init(String name) {
         setName(name);
         return this;
     }
@@ -71,7 +75,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
     public List<MetrologyConfigurationValidationRuleSetUsage> getMetrologyConfValidationRuleSetUsages() {
         return metrologyConfValidationRuleSetUsages;
     }
-    
+
     @Override
     public MetrologyConfigurationValidationRuleSetUsage addValidationRuleSet(ValidationRuleSet validationRuleSet) {
         MetrologyConfigurationValidationRuleSetUsageImpl usage =new MetrologyConfigurationValidationRuleSetUsageImpl(dataModel, eventService, validationService);
@@ -80,13 +84,14 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
         getDataModel().touch(this);
         return usage;
     }
-    
-    protected void setName(String name) {
+
+    private void setName(String name) {
         if (name != null) {
             this.name = name.trim();
         }
     }
-    protected MetrologyConfigurationValidationRuleSetUsage getUsage(ValidationRuleSet validationRuleSet) {
+
+    private MetrologyConfigurationValidationRuleSetUsage getUsage(ValidationRuleSet validationRuleSet) {
         List<MetrologyConfigurationValidationRuleSetUsage> usages = this.getMetrologyConfValidationRuleSetUsages();
         for (MetrologyConfigurationValidationRuleSetUsage usage : usages) {
             if (usage.getValidationRuleSet().getId() == validationRuleSet.getId()) {
@@ -102,7 +107,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
         metrologyConfValidationRuleSetUsages.remove(usage);
         getDataModel().touch(this);
     }
-    
+
     @Override
     public List<ValidationRuleSet> getValidationRuleSets() {
         return this.metrologyConfValidationRuleSetUsages
@@ -160,8 +165,27 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
     }
 
     @Override
+    public List<MetrologyContract> getContracts() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<ReadingTypeRequirement> getRequirements() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<ReadingTypeDeliverable> getDeliverables() {
+        return Collections.emptyList();
+    }
+
+    @Override
     public long getVersion() {
         return version;
+    }
+
+    private DataModel getDataModel() {
+        return dataModel;
     }
 
     @Override
@@ -176,10 +200,6 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
         return id == party.getId();
     }
 
-    protected DataModel getDataModel() {
-        return dataModel;
-    }
-    
     @Override
     public int hashCode() {
         return Objects.hash(id);

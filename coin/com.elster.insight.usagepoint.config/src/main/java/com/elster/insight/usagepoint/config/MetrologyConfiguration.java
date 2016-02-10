@@ -1,11 +1,11 @@
 package com.elster.insight.usagepoint.config;
 
-import java.time.Instant;
-import java.util.List;
+import com.elster.jupiter.validation.ValidationRuleSet;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.elster.jupiter.validation.ValidationRuleSet;
+import java.time.Instant;
+import java.util.List;
 
 @ProviderType
 public interface MetrologyConfiguration {
@@ -28,4 +28,11 @@ public interface MetrologyConfiguration {
     Instant getModTime();
 
     String getUserName();
+
+    List<MetrologyContract> getContracts();
+
+    List<ReadingTypeRequirement> getRequirements();
+
+    List<ReadingTypeDeliverable> getDeliverables();
+
 }
