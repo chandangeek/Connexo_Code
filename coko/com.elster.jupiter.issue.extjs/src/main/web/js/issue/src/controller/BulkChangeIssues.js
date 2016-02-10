@@ -267,7 +267,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                             if (successCount > 0) {
                                 successMessage = '\<h3\>' + Uni.I18n.translatePlural('issues.retrycomm.success.result', successCount, 'ISU',
                                         "No communication tasks have been retriggered",
-                                        "Communication tasks have been retriggered for one issue",
+                                        "Communication tasks have been retriggered for {0} issue",
                                         "Communication tasks have been retriggered for {0} issues") + '\</h3\>\<br\>';
                             }
                             break;
