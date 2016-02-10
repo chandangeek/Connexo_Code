@@ -47,6 +47,7 @@ Ext.define('Scs.controller.ServiceCalls', {
 
         //TODO: check if the service call has children or not using the correct rest info, then decide what screen to show
         if (servicecallId) {
+            me.getApplication().fireEvent('servicecallload', arguments);
             record = store.getAt(store.find('internalId', servicecallId));
             if (record.get('hasChildren')) {
                 view = Ext.widget('servicecalls-setup', {
