@@ -39,7 +39,7 @@ Ext.define('Scs.view.LandingPageForm', {
                         name: 'servicecallid'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('servicecalls.externalReference', 'SCS', 'Top level service call'),
+                        fieldLabel: Uni.I18n.translate('servicecalls.externalReference', 'SCS', 'External reference'),
                         name: 'externalreference'
                     },
                     {
