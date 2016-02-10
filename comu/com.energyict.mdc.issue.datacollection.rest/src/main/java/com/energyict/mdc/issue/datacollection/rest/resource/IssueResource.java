@@ -234,10 +234,17 @@ public class IssueResource extends BaseResource {
     private Response queueConnectionBulkAction(List<? extends IssueDataCollection> issues, ActionInfo response) throws Exception {
         Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION);
         if (destinationSpec.isPresent()) {
-            issues.stream().filter(is -> isActionApplicable(is, response, ModuleConstants.ACTION_CLASS_RETRY_CONNECTION))
-                    .map(IssueDataCollection::getConnectionTask)
+
+            List<IssueDataCollection> issuesToRetry = issues.stream().filter(is -> isActionApplicable(is, response, ModuleConstants.ACTION_CLASS_RETRY_CONNECTION)).collect(Collectors.toList());
+            issuesToRetry.stream().map(IssueDataCollection::getConnectionTask)
                     .flatMap(Functions.asStream())
                     .forEach(t -> processMessagePost(new RescheduleConnectionTaskQueueMessage(t.getId(), "scheduleNow"), destinationSpec.get()));
+            issuesToRetry.stream()
+                    .forEach(issue -> {
+                        issue.setStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
+                        issue.update();
+                        response.addSuccess(issue.getId());
+                    });
             return entity(response).build();
         } else {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
@@ -247,11 +254,17 @@ public class IssueResource extends BaseResource {
     private Response queueCommunicationBulkAction(List<? extends IssueDataCollection> issues, String actionClassName, ActionInfo response) throws Exception {
         Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION);
         if (destinationSpec.isPresent()) {
-            issues.stream().filter(is -> isActionApplicable(is, response, actionClassName))
-                    .map(IssueDataCollection::getCommunicationTask)
+            List<IssueDataCollection> issuesToRetry = issues.stream().filter(is -> isActionApplicable(is, response, actionClassName)).collect(Collectors.toList());
+            issuesToRetry.stream().map(IssueDataCollection::getCommunicationTask)
                     .flatMap(Functions.asStream())
                     .forEach(t -> processMessagePost(new ComTaskExecutionQueueMessage
                             (t.getId(), ModuleConstants.ACTION_CLASS_RETRY_COMMUNICATION.equals(actionClassName) ? "scheduleNow" : "runNow"), destinationSpec.get()));
+            issuesToRetry.stream()
+                    .forEach(issue -> {
+                        issue.setStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
+                        issue.update();
+                        response.addSuccess(issue.getId());
+                    });
             return entity(response).build();
         } else {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
@@ -263,7 +276,6 @@ public class IssueResource extends BaseResource {
                 .map(IssueActionType::getClassName)
                 .filter(s -> s.equals(actionClassName))
                 .findFirst().isPresent()) {
-            response.addSuccess(issue.getId());
             return true;
         }
         response.addFail(getThesaurus().getFormat(DataCollectionIssueTranslationKeys.RETRY_NOT_SUPPORTED).format(), issue.getId(), issue.getTitle());
