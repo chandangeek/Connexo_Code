@@ -32,7 +32,7 @@ Ext.define('Scs.controller.history.ServiceCall', {
                                 overview: {
                                     route: '{serviceCallIdDepth2}',
                                     // privileges: Apr.privileges.AppServer.view,
-                                    title: Uni.I18n.translate('general.overview', 'SCS', 'Overview'),
+                                    title: Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'),
                                     controller: 'Scs.controller.ServiceCalls',
                                     action: 'showServiceCallOverview',
                                     callback: function (route) {
@@ -46,7 +46,7 @@ Ext.define('Scs.controller.history.ServiceCall', {
                                         overview: {
                                             route: '{serviceCallIdDepth3}',
                                             // privileges: Apr.privileges.AppServer.view,
-                                            title: Uni.I18n.translate('general.overview', 'SCS', 'Overview'),
+                                            title: Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'),
                                             controller: 'Scs.controller.ServiceCalls',
                                             action: 'showServiceCallOverview',
                                             callback: function (route) {
@@ -60,7 +60,7 @@ Ext.define('Scs.controller.history.ServiceCall', {
                                                 overview: {
                                                     route: '{serviceCallIdDepth4}',
                                                     // privileges: Apr.privileges.AppServer.view,
-                                                    title: Uni.I18n.translate('general.overview', 'SCS', 'Overview'),
+                                                    title: Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'),
                                                     controller: 'Scs.controller.ServiceCalls',
                                                     action: 'showServiceCallOverview',
                                                     callback: function (route) {
@@ -74,7 +74,7 @@ Ext.define('Scs.controller.history.ServiceCall', {
                                                         overview: {
                                                             route: '{serviceCallIdDepth5}',
                                                             // privileges: Apr.privileges.AppServer.view,
-                                                            title: Uni.I18n.translate('general.overview', 'SCS', 'Overview'),
+                                                            title: Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'),
                                                             controller: 'Scs.controller.ServiceCalls',
                                                             action: 'showServiceCallOverview',
                                                             callback: function (route) {
