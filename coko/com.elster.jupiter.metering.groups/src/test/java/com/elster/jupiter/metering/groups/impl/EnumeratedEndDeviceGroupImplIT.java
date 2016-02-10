@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.groups.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -104,7 +105,8 @@ public class EnumeratedEndDeviceGroupImplIT {
                 new TransactionModule(),
                 new NlsModule(),
                 new FiniteStateMachineModule(),
-                new DataVaultModule()
+                new DataVaultModule(),
+                new CustomPropertySetsModule()
         );
         injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(FiniteStateMachineService.class);
