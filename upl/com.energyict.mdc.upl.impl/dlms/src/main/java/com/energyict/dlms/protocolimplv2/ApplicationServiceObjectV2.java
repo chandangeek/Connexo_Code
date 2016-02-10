@@ -14,7 +14,6 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.encryption.asymetric.signature.ECDSASignatureImpl;
-import com.energyict.mdw.core.ECCCurve;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;
@@ -252,7 +251,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                         this.securityContext.getSecurityProvider().getCallingAuthenticationValue()
                 );
 
-                ECDSASignatureImpl signing = new ECDSASignatureImpl(ECCCurve.P256_SHA256);  //TODO or suite 2
+                ECDSASignatureImpl signing = new ECDSASignatureImpl(getSecurityContext().getECCCurve());
                 PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
                 if (clientPrivateSigningKey == null) {
                     throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
@@ -318,7 +317,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                     this.acse.getRespondingAuthenticationValue()
             );
 
-            ECDSASignatureImpl signing = new ECDSASignatureImpl(ECCCurve.P256_SHA256);  //TODO or suite 2
+            ECDSASignatureImpl signing = new ECDSASignatureImpl(getSecurityContext().getECCCurve());
             X509Certificate serverSignatureCertificate = getGeneralCipheringSecurityProvider().getServerSignatureCertificate();
             if (serverSignatureCertificate == null) {
                 throw DeviceConfigurationException.missingProperty(SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString());

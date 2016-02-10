@@ -12,6 +12,7 @@ import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RespondingFrameCounterHandler;
 
 import java.security.PrivateKey;
+import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -27,6 +28,7 @@ import java.util.Random;
 public class Beacon3100SecurityProvider extends NTASecurityProvider implements GeneralCipheringSecurityProvider {
 
     private byte[] sessionKey;
+    private byte[] serverSessionKey;
     private X509Certificate serverSigningCertificate;
     private X509Certificate serverKeyAgreementCertificate;
     private X509Certificate clientSigningCertificate;
@@ -69,7 +71,7 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
     public byte[] getSessionKey() {
         if (sessionKey == null) {
             sessionKey = new byte[16];
-            Random rnd = new Random();
+            Random rnd = new SecureRandom();
             rnd.nextBytes(sessionKey);
         }
         return sessionKey;
@@ -78,6 +80,16 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
     @Override
     public void setSessionKey(byte[] sessionKey) {
         this.sessionKey = sessionKey;
+    }
+
+    @Override
+    public byte[] getServerSessionKey() {
+        return serverSessionKey;
+    }
+
+    @Override
+    public void setServerSessionKey(byte[] serverSessionKey) {
+        this.serverSessionKey = serverSessionKey;
     }
 
     @Override
@@ -147,6 +159,8 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
 
                 X509Certificate x509Certificate = (X509Certificate) serverKeyAgreementCertificate;
                 x509Certificate.checkValidity();
+                //TODO validate public key length against suite1/2
+
                 return x509Certificate;
             } catch (CertificateException e) {
                 throw DeviceConfigurationException.invalidPropertyFormat(
@@ -158,6 +172,8 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
     }
 
     private PrivateKey parsePrivateKey(String propertyName) {
+        //TODO validate key length against suite1/2
+        //TODO
         PrivateKeyAlias alias = properties.getTypedProperty(propertyName);
         if (alias == null) {
             return null;

@@ -294,7 +294,7 @@ public class SecurityContext {
     }
 
     private byte[] getEncryptionKey() {
-        return getEncryptionKey(this.generalCipheringKeyType);
+        return getEncryptionKey(this.generalCipheringKeyType, false);
     }
 
     /**
@@ -303,18 +303,28 @@ public class SecurityContext {
      *
      * @param generalCipheringKeyType - in case of general ciphering, this indicates the type of encryption key that should be used.
      *                                If no key type is given, use the one that is configured in EIServer.
+     * @param serverSessionKey        true: return the server session key (used to decrypt frames received from the server)
+     *                                false: return our (client) session key (used to encrypt frames to send to the server)
      */
-    private byte[] getEncryptionKey(GeneralCipheringKeyType generalCipheringKeyType) {
+    private byte[] getEncryptionKey(GeneralCipheringKeyType generalCipheringKeyType, boolean serverSessionKey) {
         if (this.cipheringType == CipheringType.GENERAL_CIPHERING.getType()) {
             switch (generalCipheringKeyType) {
                 case IDENTIFIED_KEY:
                     return getSecurityProvider().getGlobalKey();
                 case WRAPPED_KEY:
                     //The wrapped key is stored in the session key field of the security provider
-                    return getGeneralCipheringSecurityProvider().getSessionKey();
+                    if (serverSessionKey) {
+                        return getGeneralCipheringSecurityProvider().getServerSessionKey();
+                    } else {
+                        return getGeneralCipheringSecurityProvider().getSessionKey();
+                    }
                 case AGREED_KEY:
                     //The agreed key is stored in the session key field of the security provider
-                    return getGeneralCipheringSecurityProvider().getSessionKey();
+                    if (serverSessionKey) {
+                        return getGeneralCipheringSecurityProvider().getServerSessionKey();
+                    } else {
+                        return getGeneralCipheringSecurityProvider().getSessionKey();
+                    }
                 default:
                     throw DeviceConfigurationException.missingProperty(GENERAL_CIPHERING_KEY_TYPE);
             }
@@ -343,9 +353,10 @@ public class SecurityContext {
 
     /**
      * Wrap the given APDU (can already by secured) in a new general-signing APDU.
+     * The signature is either 64 bytes or 96 bytes based on the suite that is used.
      */
     public byte[] applyGeneralSigning(byte[] securedRequest) throws UnsupportedException {
-        ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(ECCCurve.P256_SHA256);//TODO suite2
+        ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
         byte[] generalCipheringHeader = createGeneralCipheringHeader();
         byte[] signature = ecdsaSignature.sign(ProtocolTools.concatByteArrays(generalCipheringHeader, securedRequest), getGeneralCipheringSecurityProvider().getClientPrivateSigningKey());
 
@@ -366,11 +377,11 @@ public class SecurityContext {
         ptr++;  //Skip tag
         ptr += generalSigningHeader.length;
 
-        int signatureLength = 64;   //TODO suite 2 = 96?
+        int signatureLength = getECCCurve().getSignatureComponentSize() * 2;    //64 bytes for suite1, 96 bytes for suite 2
         byte[] content = ProtocolTools.getSubArray(generalSigningAPDU, ptr, generalSigningAPDU.length - signatureLength);
         byte[] signature = ProtocolTools.getSubArray(generalSigningAPDU, generalSigningAPDU.length - signatureLength);
 
-        ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(ECCCurve.P256_SHA256);//TODO suite2
+        ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
         byte[] input = ProtocolTools.concatByteArrays(generalSigningHeader, content);
         PublicKey publicKey = getGeneralCipheringSecurityProvider().getServerSignatureCertificate().getPublicKey();
         boolean verify = ecdsaSignature.verify(input, signature, publicKey);
@@ -408,8 +419,8 @@ public class SecurityContext {
                 if (includeGeneralCipheringKeyInformation) {
                     byte[] sessionKey = getGeneralCipheringSecurityProvider().getSessionKey();
 
-                    //This is a newly generated session key, so reset the frame counters
-                    resetFrameCounters();
+                    //This is a newly generated session key, so reset our frame counter
+                    setFrameCounter(1);
 
                     byte[] masterKey = getSecurityProvider().getMasterKey();
                     byte[] wrappedKey = ProtocolTools.aesWrap(sessionKey, masterKey);
@@ -445,7 +456,7 @@ public class SecurityContext {
                     //the public static key agreement key of the server to derive a shared secret.
                     //The server side will do the same, using its static key agreement private key and our ephemeral public key.
 
-                    KeyAgreement keyAgreement = new KeyAgreementImpl(ECCCurve.P256_SHA256);     //TODO suite 2 too
+                    KeyAgreement keyAgreement = new KeyAgreementImpl(getECCCurve());
                     Certificate serverKeyAgreementCertificate = getGeneralCipheringSecurityProvider().getServerKeyAgreementCertificate();
                     if (serverKeyAgreementCertificate == null) {
                         throw DeviceConfigurationException.missingProperty(SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
@@ -454,13 +465,13 @@ public class SecurityContext {
                     byte[] sharedSecretZ = keyAgreement.generateSecret(serverKeyAgreementCertificate.getPublicKey());
                     byte[] partyUInfo = getSystemTitle();           //Party U is the sender, us, the client
                     byte[] partyVInfo = getResponseSystemTitle();   //Party V is the receiver, the server, the meter
-                    byte[] sessionKey = NIST_SP_800_56_KDF.getInstance().derive(KDF.HashFunction.SHA256, sharedSecretZ, AlgorithmID.AES_GCM_128, partyUInfo, partyVInfo);//TODO suite 2 too
+                    byte[] sessionKey = NIST_SP_800_56_KDF.getInstance().derive(getKeyDerivingHashFunction(), sharedSecretZ, getKeyDerivingEncryptionAlgorithm(), partyUInfo, partyVInfo);
                     getGeneralCipheringSecurityProvider().setSessionKey(sessionKey);
 
                     PublicKey ephemeralPublicKey = keyAgreement.getEphemeralPublicKey();
-                    byte[] ephemeralPublicKeyBytes = KeyUtils.toRawData(ECCCurve.P256_SHA256, ephemeralPublicKey);//TODO suite 2 too
+                    byte[] ephemeralPublicKeyBytes = KeyUtils.toRawData(getECCCurve(), ephemeralPublicKey);
 
-                    ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(ECCCurve.P256_SHA256);//TODO suite 2 too
+                    ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
                     PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
                     if (clientPrivateSigningKey == null) {
                         throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
@@ -468,8 +479,8 @@ public class SecurityContext {
 
                     byte[] signature = ecdsaSignature.sign(ephemeralPublicKeyBytes, clientPrivateSigningKey);
 
-                    //This is a newly generated session key, so reset the frame counters
-                    resetFrameCounters();
+                    //This is a newly generated session key, so reset our frame counter
+                    setFrameCounter(1);
 
                     //Only include the key information the first request
                     includeGeneralCipheringKeyInformation = false;
@@ -575,8 +586,8 @@ public class SecurityContext {
                     byte[] wrappedKey = ProtocolTools.getSubArray(generalCipheringAPDU, ptr, ptr + wrappedKeyLength);
                     ptr += wrappedKeyLength;
 
-                    byte[] sessionKey = ProtocolTools.aesUnwrap(wrappedKey, getSecurityProvider().getMasterKey());
-                    handleReceivedSessionKey(sessionKey);
+                    byte[] serverSessionKey = ProtocolTools.aesUnwrap(wrappedKey, getSecurityProvider().getMasterKey());
+                    handleServerSessionKey(serverSessionKey);
                 }
                 break;
 
@@ -589,17 +600,17 @@ public class SecurityContext {
                     }
 
                     int keyCipheredDataLength = DLMSUtils.getAXDRLength(generalCipheringAPDU, ptr);
-                    ptr += DLMSUtils.getAXDRLengthOffset(keyCipheredDataLength);    //TODO test!
+                    ptr += DLMSUtils.getAXDRLengthOffset(keyCipheredDataLength);
 
                     byte[] keyCipheredData = ProtocolTools.getSubArray(generalCipheringAPDU, ptr, ptr + keyCipheredDataLength);
                     ptr += keyCipheredDataLength;
 
-                    int keySize = KeyUtils.getKeySize(ECCCurve.P256_SHA256);    //TODO suite 2 too
+                    int keySize = KeyUtils.getKeySize(getECCCurve());
                     byte[] serverEphemeralPublicKeyBytes = ProtocolTools.getSubArray(keyCipheredData, 0, keySize);
-                    PublicKey serverEphemeralPublicKey = KeyUtils.toECPublicKey(ECCCurve.P256_SHA256, serverEphemeralPublicKeyBytes);
+                    PublicKey serverEphemeralPublicKey = KeyUtils.toECPublicKey(getECCCurve(), serverEphemeralPublicKeyBytes);
                     byte[] signature = ProtocolTools.getSubArray(keyCipheredData, keySize, keyCipheredDataLength);
 
-                    ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(ECCCurve.P256_SHA256);
+                    ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
                     X509Certificate serverSignatureCertificate = getGeneralCipheringSecurityProvider().getServerSignatureCertificate();
                     if (serverSignatureCertificate == null) {
                         throw DeviceConfigurationException.missingProperty(SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString());
@@ -615,14 +626,14 @@ public class SecurityContext {
                     }
 
                     KeyPair keyAgreementKeyPair = new KeyPair(null, clientPrivateKeyAgreementKey);
-                    KeyAgreement keyAgreement = new KeyAgreementImpl(ECCCurve.P256_SHA256, keyAgreementKeyPair);//TODO suite 2 too
+                    KeyAgreement keyAgreement = new KeyAgreementImpl(getECCCurve(), keyAgreementKeyPair);
 
                     byte[] secretZ = keyAgreement.generateSecret(serverEphemeralPublicKey);
                     byte[] partyUInfo = getResponseSystemTitle();   //Party U is the sender, the server, the meter
-                    byte[] partyVInfo = getSystemTitle();           //Party U is the receiver, us, the client
-                    byte[] sessionKey = NIST_SP_800_56_KDF.getInstance().derive(KDF.HashFunction.SHA256, secretZ, AlgorithmID.AES_GCM_128, partyUInfo, partyVInfo);
+                    byte[] partyVInfo = getSystemTitle();           //Party V is the receiver, us, the client
+                    byte[] serverSessionKey = NIST_SP_800_56_KDF.getInstance().derive(getKeyDerivingHashFunction(), secretZ, getKeyDerivingEncryptionAlgorithm(), partyUInfo, partyVInfo);
 
-                    handleReceivedSessionKey(sessionKey);
+                    handleServerSessionKey(serverSessionKey);
                 }
                 break;
 
@@ -639,23 +650,49 @@ public class SecurityContext {
         return dataTransportDecryption(fullCipherFrame, serverKeyType, generalCipheringHeader);
     }
 
-    private void handleReceivedSessionKey(byte[] sessionKey) {
-        if (!Arrays.equals(getGeneralCipheringSecurityProvider().getSessionKey(), sessionKey)) {
-            getGeneralCipheringSecurityProvider().setSessionKey(sessionKey);
-
-            //We're using a new session key (the one received from the server) from now on,
-            //so make sure to specify it once again in the next general ciphering request
-            includeGeneralCipheringKeyInformation = true;
-
-            //New key in use, so start using a new frame counter
-            resetFrameCounters();
+    private AlgorithmID getKeyDerivingEncryptionAlgorithm() {
+        switch (securitySuite) {
+            case 1:
+                return AlgorithmID.AES_GCM_128;
+            case 2:
+                return AlgorithmID.AES_GCM_256;
+            default:
+                throw DeviceConfigurationException.unsupportedPropertyValue("SecuritySuite", String.valueOf(securitySuite));
         }
     }
 
-    private void resetFrameCounters() {
-        setFrameCounter(1);
-        getSecurityProvider().getRespondingFrameCounterHandler().resetRespondingFrameCounter(0);
-        responseFrameCounter = 0;
+    private KDF.HashFunction getKeyDerivingHashFunction() {
+        switch (securitySuite) {
+            case 1:
+                return KDF.HashFunction.SHA256;
+            case 2:
+                return KDF.HashFunction.SHA384;
+            default:
+                throw DeviceConfigurationException.unsupportedPropertyValue("SecuritySuite", String.valueOf(securitySuite));
+        }
+    }
+
+    public ECCCurve getECCCurve() {
+        switch (securitySuite) {
+            case 1:
+                return ECCCurve.P256_SHA256;
+            case 2:
+                return ECCCurve.P384_SHA384;
+            default:
+                throw DeviceConfigurationException.unsupportedPropertyValue("SecuritySuite", String.valueOf(securitySuite));
+        }
+    }
+
+    private void handleServerSessionKey(byte[] serverSessionKey) {
+        if (getGeneralCipheringSecurityProvider().getServerSessionKey() == null
+                || !Arrays.equals(getGeneralCipheringSecurityProvider().getServerSessionKey(), serverSessionKey)) {
+
+            getGeneralCipheringSecurityProvider().setServerSessionKey(serverSessionKey);
+
+            //New server session key in use, so start using a new responding frame counter
+            getSecurityProvider().getRespondingFrameCounterHandler().resetRespondingFrameCounter(0);
+            responseFrameCounter = 0;
+        }
     }
 
     /**
@@ -839,7 +876,7 @@ public class SecurityContext {
             return optionallyUnwrapSignedAPDU(cipherFrame);
         } else if (securityPolicy.isResponseAuthenticatedOnly()) {
 
-            AesGcm128 ag128 = new AesGcm128(getEncryptionKey(generalCipheringKeyType), DLMS_AUTH_TAG_SIZE);
+            AesGcm128 ag128 = new AesGcm128(getEncryptionKey(generalCipheringKeyType, true), DLMS_AUTH_TAG_SIZE);
 
             byte[] aTag = getAuthenticationTag(cipherFrame);
             byte[] apdu = getApdu(cipherFrame, true);
@@ -869,7 +906,7 @@ public class SecurityContext {
             }
         } else if (securityPolicy.isResponseEncryptedOnly()) {
 
-            AesGcm128 ag128 = new AesGcm128(getEncryptionKey(generalCipheringKeyType), DLMS_AUTH_TAG_SIZE);
+            AesGcm128 ag128 = new AesGcm128(getEncryptionKey(generalCipheringKeyType, true), DLMS_AUTH_TAG_SIZE);
 
             byte[] cipheredAPDU = getApdu(cipherFrame, false);
             ag128.setInitializationVector(new BitVector(getRespondingInitializationVector()));
@@ -882,7 +919,7 @@ public class SecurityContext {
             }
         } else if (securityPolicy.isResponseAuthenticatedAndEncrypted()) {
 
-            AesGcm128 ag128 = new AesGcm128(getEncryptionKey(generalCipheringKeyType), DLMS_AUTH_TAG_SIZE);
+            AesGcm128 ag128 = new AesGcm128(getEncryptionKey(generalCipheringKeyType, true), DLMS_AUTH_TAG_SIZE);
 
             byte[] aTag = getAuthenticationTag(cipherFrame);
             byte[] cipheredAPDU = getApdu(cipherFrame, true);

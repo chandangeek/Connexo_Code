@@ -28,6 +28,17 @@ public interface GeneralCipheringSecurityProvider extends SecurityProvider {
     void setSessionKey(byte[] sessionKey);
 
     /**
+     * Return the session key that the server uses to encrypt its APDUs.
+     * This can be different from our session key, in case of asymmetrical encryption.
+     */
+    byte[] getServerSessionKey();
+
+    /**
+     * Setter for the received serverSessionKey, so it can be used later on to decrypt received APDUs.
+     */
+    void setServerSessionKey(byte[] serverSessionKey);
+
+    /**
      * The (static) public key of the server used for key agreement (ECDH).
      */
     X509Certificate getServerKeyAgreementCertificate();
