@@ -15,7 +15,8 @@ Ext.define('Uni.service.Search', {
         'Ext.state.LocalStorageProvider',
         'Uni.model.search.Value',
         'Uni.view.search.field.internal.CriteriaButton',
-        'Uni.view.search.field.internal.Adapter'
+        'Uni.view.search.field.internal.Adapter',
+        'Uni.grid.column.Date'
     ],
 
     config: {
@@ -89,6 +90,7 @@ Ext.define('Uni.service.Search', {
 
     fieldMap: {
         'Boolean': 'boolean',
+        'Instant': 'date',
         'Long': 'int',
         'String': 'string'
     },
@@ -96,6 +98,7 @@ Ext.define('Uni.service.Search', {
     columnMap: {
         'Long': 'numbercolumn',
         'Date': 'datecolumn',
+        'Instant': 'uni-date-column',
         'Boolean': 'uni-grid-column-search-boolean',
         'DeviceType': 'uni-grid-column-search-devicetype',
         'DeviceConfiguration': 'uni-grid-column-search-deviceconfiguration',
@@ -394,10 +397,18 @@ Ext.define('Uni.service.Search', {
             type = 'auto';
         }
 
-        return {
+        var config = {
             name: propertyName,
             type: type
         };
+
+        if (config.type == 'date') {
+            Ext.apply(config, {
+                dateFormat: 'time'
+            })
+        }
+
+        return config;
     },
 
     checkConstraints: function (property) {
