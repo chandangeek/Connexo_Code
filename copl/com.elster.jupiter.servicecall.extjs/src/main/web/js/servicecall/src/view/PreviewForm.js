@@ -17,7 +17,7 @@ Ext.define('Scs.view.PreviewForm', {
             },
             {
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.externalReference', 'SCS', 'External reference'),
+                fieldLabel: Uni.I18n.translate('servicecalls.externalReference', 'SCS', 'External reference'),
                 name: 'externalReference'
             },
             {

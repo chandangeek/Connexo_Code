@@ -22,7 +22,7 @@ Ext.define('Scs.view.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.externalReference', 'SCS', 'External reference'),
+                header: Uni.I18n.translate('servicecalls.externalReference', 'SCS', 'External reference'),
                 dataIndex: 'externalReference',
                 flex: 1
             },

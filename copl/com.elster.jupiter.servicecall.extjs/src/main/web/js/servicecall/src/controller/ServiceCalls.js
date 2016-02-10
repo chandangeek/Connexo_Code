@@ -54,7 +54,7 @@ Ext.define('Scs.controller.ServiceCalls', {
                     router: me.getController('Uni.controller.history.Router')
                 });
             } else {
-                view = Ext.widget('servicecall-landing', {});
+                view = Ext.widget('scs-landing-page', {serviceCallId: servicecallId});
 
             }
 
