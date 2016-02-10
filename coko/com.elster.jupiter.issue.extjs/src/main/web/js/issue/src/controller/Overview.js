@@ -2,10 +2,6 @@ Ext.define('Isu.controller.Overview', {
     extend: 'Ext.app.Controller',
 
     models: [
-        'Isu.model.IssuesFilter',
-        'Isu.model.IssueAssignee',
-        'Isu.model.IssueReason',
-        'Isu.model.Device',
         'Isu.model.Group'
     ],
 

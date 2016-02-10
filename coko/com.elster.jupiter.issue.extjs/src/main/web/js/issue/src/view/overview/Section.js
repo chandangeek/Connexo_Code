@@ -6,6 +6,18 @@ Ext.define('Isu.view.overview.Section', {
         'Uni.view.widget.Bar'
     ],
     title: null,
+    itemsInCollapsedMode: 5,
+    buttonAlign: 'left',
+    buttons: [
+        {
+            text: Uni.I18n.translate('overview.issues.showMore', 'ISU', 'Show more'),
+            hidden: true,
+            margin: '0 0 0 10',
+            handler: function () {
+                this.up('panel').moreLess();
+            }
+        }
+    ],
 
     fillSection: function (store, section) {
         var me = this;
@@ -16,6 +28,8 @@ Ext.define('Isu.view.overview.Section', {
 
             Ext.suspendLayouts();
             me.removeAll(true);
+            me.down('button').setVisible(store.getCount() > me.itemsInCollapsedMode);
+
             if (section == 'assignee') {
                 var unassigned = store.findRecord('id', -1);
                 if (unassigned) {
@@ -65,11 +79,30 @@ Ext.define('Isu.view.overview.Section', {
                                 label: record.get('number')
                             }).render(view.getEl().down('#bar-' + pos));
                         });
+                        view.collapsed = store.getCount() > me.itemsInCollapsedMode;
+                        view.expandedHeight = view.getHeight();
+                        view.collapsedHeight = view.expandedHeight / store.getCount() * me.itemsInCollapsedMode;
+                        if (view.collapsed) view.setHeight(view.collapsedHeight);
                     }
                 }
             });
             me.add(dataview);
             Ext.resumeLayouts(true);
         }
+    },
+    moreLess: function () {
+        var view = this.down('dataview');
+        Ext.suspendLayouts();
+        this.down('button').setText(view.collapsed ?
+            Uni.I18n.translate('overview.issues.showLess', 'ISU', 'Show less') :
+            Uni.I18n.translate('overview.issues.showMore', 'ISU', 'Show more'));
+        view.animate({
+            duration: 300,
+            to: {
+                height: (view.collapsed ? view.expandedHeight : view.collapsedHeight)
+            }
+        });
+        view.collapsed = !view.collapsed;
+        Ext.resumeLayouts(true);
     }
 });

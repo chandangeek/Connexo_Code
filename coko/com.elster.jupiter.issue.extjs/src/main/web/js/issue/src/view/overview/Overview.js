@@ -56,8 +56,7 @@ Ext.define('Isu.view.overview.Overview', {
                             },
                             {
                                 layout: {
-                                    type: 'hbox',
-                                    align: 'stretch'
+                                    type: 'hbox'
                                 },
                                 defaults: {
                                     xtype: 'overview-of-issues-section',
