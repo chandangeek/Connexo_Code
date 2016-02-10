@@ -852,6 +852,10 @@ public class SecurityContext {
         return scByte;
     }
 
+    public int getSecuritySuite() {
+        return securitySuite;
+    }
+
     public byte[] dataTransportDecryption(byte[] cipherFrame) throws UnsupportedException, ConnectionException, DLMSConnectionException {
         return dataTransportDecryption(cipherFrame, this.generalCipheringKeyType);
     }

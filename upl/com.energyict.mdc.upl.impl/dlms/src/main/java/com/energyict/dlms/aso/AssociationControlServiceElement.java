@@ -126,14 +126,16 @@ public class AssociationControlServiceElement {
     }
 
     protected byte[] encryptAndAuthenticateUserInformation(byte[] userInformation) {
-        XDlmsEncryption xdlmsEncryption = new XDlmsEncryption();
+        XDlmsEncryption xdlmsEncryption = new XDlmsEncryption(getSecurityContext().getSecuritySuite());
         xdlmsEncryption.setPlainText(userInformation);
         byte[] paddedSystemTitle = Arrays.copyOf(getSecurityContext().getSystemTitle(), SecurityContext.SYSTEM_TITLE_LENGTH);
         xdlmsEncryption.setSystemTitle(paddedSystemTitle);
         xdlmsEncryption.setFrameCounter(getSecurityContext().getFrameCounterInBytes());
         xdlmsEncryption.setAuthenticationKey(getSecurityContext().getSecurityProvider().getAuthenticationKey());
         xdlmsEncryption.setGlobalKey(getSecurityContext().getSecurityProvider().getGlobalKey());
-        xdlmsEncryption.setSecurityControlByte((byte) 0x30);
+        byte securityControlByte = (byte) 0x30;
+        securityControlByte |= (this.sc.getSecuritySuite() & 0x0F); // add the securitySuite to bits 0 to 3
+        xdlmsEncryption.setSecurityControlByte(securityControlByte);
         userInformation = xdlmsEncryption.generateCipheredAPDU();
         return userInformation;
     }
@@ -641,7 +643,7 @@ public class AssociationControlServiceElement {
      * Subclasses can override the decryption implementation
      */
     protected byte[] decrypt(byte[] authenticationTag, byte[] cipheredText, byte[] frameCounter, byte securityControl) throws ConnectionException {
-        XDlmsDecryption decryption = new XDlmsDecryption();
+        XDlmsDecryption decryption = new XDlmsDecryption(getSecurityContext().getSecuritySuite());
         decryption.setAuthenticationKey(getSecurityContext().getSecurityProvider().getAuthenticationKey());
         decryption.setGlobalKey(getSecurityContext().getSecurityProvider().getGlobalKey());
         decryption.setAuthenticationTag(authenticationTag);
