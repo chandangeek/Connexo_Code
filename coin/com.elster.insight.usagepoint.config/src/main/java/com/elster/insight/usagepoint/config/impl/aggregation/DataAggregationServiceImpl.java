@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.UsagePoint;
 
 import com.elster.insight.usagepoint.config.MetrologyContract;
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
+import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Reference;
 
@@ -63,6 +64,25 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
         contract.getDeliverables().stream().forEach(deliverable -> this.prepare(meterActivation, deliverable, period));
     }
 
+    /**
+     * Prepares the data aggregation of the specified {@link ReadingTypeDeliverable}
+     * with the data provided in the {@link MeterActivation}.
+     * Will copy the formula of the deliverable to be able to change the
+     * interval specs on each reference node (both deliverable and requirement)
+     * depending on the inference engine.<br>
+     * Will have created a {@link  VirtualReadingTypeRequirement} for each
+     * {@link ReadingTypeRequirement} that is referenced in the formula with
+     * an appropriate {@link IntervalLength} that best matches the available data
+     * and the requested target interval of the deliverable.<br>
+     * Will also have created a {@link VirtualReadingTypeDeliverable} for each
+     * {@link ReadingTypeDeliverable} that is referenced in the formula with
+     * an appropriate {@link IntervalLength} that best matches the interval
+     * of the expression that calculates the deliverable.
+     *
+     * @param meterActivation The MeterActivation
+     * @param deliverable The ReadingTypeDeliverable
+     * @param period The requested period in time
+     */
     private void prepare(MeterActivation meterActivation, ReadingTypeDeliverable deliverable, Range<Instant> period) {
         AbstractNode preparedExpression = this.copyAndVirtualizeReferences(deliverable, meterActivation);
         this.deliverablesPerMeterActivation
