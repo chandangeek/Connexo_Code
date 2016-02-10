@@ -272,6 +272,7 @@ public class MetrologyConfigurationResource {
                                                                                         CustomPropertySetInfo<MetrologyConfigurationInfo> info) {
         if (info.parent != null){
             info.parent.id = id;
+            info.parent.name = info.name != null ? info.name : info.parent.name;
         }
         MetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info.parent);
         RegisteredCustomPropertySet customPropertySet = resourceHelper.getRegisteredCustomPropertySetOrThrowException(cpsId);
