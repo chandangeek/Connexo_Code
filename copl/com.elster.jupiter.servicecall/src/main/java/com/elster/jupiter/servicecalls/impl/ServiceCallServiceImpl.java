@@ -33,7 +33,8 @@ import java.util.Optional;
  */
 @Component(name = "com.elster.jupiter.servicecalls",
         service = {ServiceCallService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
-        property = "name=" + ServiceCallService.COMPONENT_NAME)
+        property = "name=" + ServiceCallService.COMPONENT_NAME,
+        immediate = true)
 public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
 
     private volatile FiniteStateMachineService finiteStateMachineService;

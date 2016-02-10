@@ -10,4 +10,6 @@ public interface ServiceCallService {
     String COMPONENT_NAME = "SCS";
 
     public Optional<ServiceCallLifeCycle> getServiceCallLifeCycle(String name);
+
+//    public ServiceCallType createServiceCallType();
 }
