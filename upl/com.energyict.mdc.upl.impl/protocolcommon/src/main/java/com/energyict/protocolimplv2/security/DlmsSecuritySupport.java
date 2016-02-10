@@ -230,7 +230,10 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
     }
 
     protected List<PropertySpec> getManufactureSpecificSecurityProperties() {
-        return Arrays.asList(getClientMacAddressPropertySpec());
+        List<PropertySpec> propertySpecs = new ArrayList<>();
+        propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+        propertySpecs.add(getClientMacAddressPropertySpec());
+        return propertySpecs;
     }
 
     /**
