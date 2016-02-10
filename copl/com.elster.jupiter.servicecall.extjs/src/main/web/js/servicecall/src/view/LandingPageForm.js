@@ -80,5 +80,21 @@ Ext.define('Scs.view.LandingPageForm', {
             }
         ];
         me.callParent(arguments);
+    },
+
+    updateLandingPage: function (serviceCallRecord) {
+        var me = this;
+
+        if (!Ext.isDefined(serviceCallRecord)) {
+            return;
+        }
+        if (me.rendered) {
+            Ext.suspendLayouts();
+        }
+
+        me.loadRecord(serviceCallRecord);
+        if (me.rendered) {
+            Ext.resumeLayouts(true);
+        }
     }
 });

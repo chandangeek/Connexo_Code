@@ -55,6 +55,7 @@ Ext.define('Scs.controller.ServiceCalls', {
                 });
             } else {
                 view = Ext.widget('scs-landing-page', {serviceCallId: servicecallId});
+                view.down('scs-landing-page-form').updateLandingPage(record);
 
             }
 
