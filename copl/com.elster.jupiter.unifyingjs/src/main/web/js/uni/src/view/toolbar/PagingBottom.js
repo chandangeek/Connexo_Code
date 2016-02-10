@@ -99,8 +99,8 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
             pageStart = (this.store.currentPage - 1) * this.store.pageSize;
             pageSize = this.store.pageSize;
         } else {
-            pageStart = parseInt(pageStart, this.defaultPageSize) || 0;
-            pageSize = parseInt(pageSize, this.defaultPageSize) || this.store.pageSize;
+            pageStart = parseInt(pageStart) || this.defaultPageSize || 0;
+            pageSize = parseInt(pageSize)|| this.defaultPageSize  || this.store.pageSize;
         }
         this.initPageSizeAndStart(pageSize, pageStart);
     },
