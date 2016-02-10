@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -120,9 +121,12 @@ public class AdapterDeviceProtocolDialectTest {
                 new MdcIOModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
-                new ProtocolPluggableModule());
+                new ProtocolPluggableModule(),
+                new CustomPropertySetsModule()
+                );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(OrmService.class);
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
             ProtocolPluggableService protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
@@ -186,7 +190,6 @@ public class AdapterDeviceProtocolDialectTest {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(CustomPropertySetService.class).toInstance(mock(CustomPropertySetService.class));
             bind(TimeService.class).toInstance(mock(TimeService.class));
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
