@@ -12,6 +12,7 @@ import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.rest.util.properties.PredefinedPropertyValuesInfo;
 import com.elster.jupiter.rest.util.properties.PropertyType;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+import com.elster.jupiter.util.Checks;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -226,10 +227,10 @@ public class CustomPropertySetInfoFactory {
 
         @Override
         public Object convertInfoToValue(Object infoValue, PropertySpec propertySpec) {
-            if (infoValue != null) {
+            if (infoValue != null && !(infoValue instanceof String && Checks.is((String) infoValue).emptyOrOnlyWhiteSpace())) {
                 return new BigDecimal(infoValue.toString());
             }
-            return new BigDecimal(0);
+            return null;
         }
     }
 
@@ -251,7 +252,7 @@ public class CustomPropertySetInfoFactory {
 
         @Override
         public Object convertInfoToValue(Object infoValue, PropertySpec propertySpec) {
-            if (infoValue != null && infoValue instanceof String) {
+            if (infoValue != null && infoValue instanceof String && !Checks.is((String)infoValue).emptyOrOnlyWhiteSpace()) {
                 return propertySpec.getValueFactory().fromStringValue((String) infoValue);
             }
             return null;

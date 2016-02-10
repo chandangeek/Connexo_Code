@@ -17,7 +17,9 @@ import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -60,8 +62,8 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
         Map jsonCustomAttributes = (Map) ((List) jsonCustomAttributeSets.get("properties")).get(0);
         assertThat(jsonCustomAttributes.get("key")).isEqualTo("customAttribute");
         Map propertyTypeInfo = (Map) jsonCustomAttributes.get("propertyTypeInfo");
-        assertThat(propertyTypeInfo.get("type")).isEqualTo("com.elster.jupiter.properties.BigDecimalFactory");
-        assertThat(propertyTypeInfo.get("typeSimpleName")).isEqualTo("com.elster.jupiter.properties.BigDecimalFactory");
+        assertThat(propertyTypeInfo.get("type")).isEqualTo("java.math.BigDecimal");
+        assertThat(propertyTypeInfo.get("typeSimpleName")).isEqualTo("BigDecimal");
         assertThat(jsonCustomAttributes.get("required")).isEqualTo(true);
     }
 
@@ -87,7 +89,7 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
         PropertySpecPossibleValues propertySpecPossibleValues = mock(PropertySpecPossibleValues.class);
         when(propertySpec.getName()).thenReturn("customAttribute");
         when(propertySpec.getValueFactory()).thenReturn(valueFactory);
-        when(propertySpec.getValueFactory().getValueType()).thenReturn(BigDecimalFactory.class);
+        when(propertySpec.getValueFactory().getValueType()).thenReturn(BigDecimal.class);
         when(propertySpec.getPossibleValues()).thenReturn(propertySpecPossibleValues);
         when(propertySpec.getPossibleValues().getDefault()).thenReturn("");
         when(propertySpec.getPossibleValues().getAllValues()).thenReturn(Arrays.asList("", ""));
