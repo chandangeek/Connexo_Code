@@ -111,10 +111,10 @@ Ext.define('CSMonitor.view.status.GeneralInformation', {
 
     setWaitInfo: function(secondsToWait, refreshRateInSeconds, text) {
         if (secondsToWait === 0 && refreshRateInSeconds === 0) {
-            this.down('#waitTimeProgressBar').setVisible(false);
+            this.down('#statusProgressBar').setVisible(false);
         } else {
-            this.down('#waitTimeProgressBar').setVisible(true);
-            this.down('#waitTimeProgressBar').updateProgress(secondsToWait / refreshRateInSeconds, text);
+            this.down('#statusProgressBar').setVisible(true);
+            this.down('#statusProgressBar').updateProgress(secondsToWait / refreshRateInSeconds, text);
         }
     }
 });

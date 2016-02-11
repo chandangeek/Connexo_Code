@@ -164,10 +164,10 @@ Ext.define('CSMonitor.view.performance.Storage', {
 
     setWaitInfo: function(secondsToWait, refreshRateInSeconds, text) {
         if (secondsToWait === 0 && refreshRateInSeconds === 0) {
-            this.down('#waitTimeProgressBar').setVisible(false);
+            this.down('#performanceProgressBar').setVisible(false);
         } else {
-            this.down('#waitTimeProgressBar').setVisible(true);
-            this.down('#waitTimeProgressBar').updateProgress(secondsToWait / refreshRateInSeconds, text);
+            this.down('#performanceProgressBar').setVisible(true);
+            this.down('#performanceProgressBar').updateProgress(secondsToWait / refreshRateInSeconds, text);
         }
     }
 
