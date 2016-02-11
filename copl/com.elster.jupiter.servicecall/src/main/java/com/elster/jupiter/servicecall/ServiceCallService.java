@@ -12,6 +12,7 @@ public interface ServiceCallService {
     String COMPONENT_NAME = "SCS";
 
     public Optional<ServiceCallLifeCycle> getServiceCallLifeCycle(String name);
+    public Optional<ServiceCallLifeCycle> getDefaultServiceCallLifeCycle();
     public Finder<ServiceCallType> getServiceCallTypes();
 
 //    public ServiceCallType createServiceCallType();

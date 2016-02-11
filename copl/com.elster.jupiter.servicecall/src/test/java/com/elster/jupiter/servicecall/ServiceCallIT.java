@@ -129,4 +129,12 @@ public class ServiceCallIT {
         }
     }
 
+    @Test
+    public void testInitServiceCallGetDefaultLifeCycle() {
+        try (TransactionContext context = transactionService.getContext()) {
+            Optional<ServiceCallLifeCycle> serviceCallLifeCycle = serviceCallService.getDefaultServiceCallLifeCycle();
+            assertThat(serviceCallLifeCycle).isPresent();
+        }
+    }
+
 }

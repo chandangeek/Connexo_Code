@@ -138,6 +138,11 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     }
 
     @Override
+    public Optional<ServiceCallLifeCycle> getDefaultServiceCallLifeCycle() {
+        return dataModel.mapper(ServiceCallLifeCycle.class).getUnique(ServiceCallLifeCycleImpl.Fields.name.fieldName(), TranslationKeys.DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME.getKey());
+    }
+
+    @Override
     public Finder<ServiceCallType> getServiceCallTypes() {
         return DefaultFinder.of(ServiceCallType.class, dataModel).defaultSortColumn("name");
     }
