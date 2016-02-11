@@ -100,7 +100,7 @@ public class AesGcm {
 	 * Creates a new instance of the AES Galois/Counter mode with an empty global encryption key
 	 */
 	public AesGcm() {
-		this(new byte[0], new byte[0], new byte[0], new byte[0], new byte[0], new byte[0], DEFAULT_TAG_SIZE);
+		this(new byte[16], new byte[0], new byte[0], new byte[0], new byte[0], new byte[0], DEFAULT_TAG_SIZE);
 	}
 
 	/**
