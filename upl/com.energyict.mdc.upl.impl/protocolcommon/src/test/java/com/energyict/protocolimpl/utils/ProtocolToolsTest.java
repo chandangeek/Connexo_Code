@@ -85,6 +85,24 @@ public class ProtocolToolsTest {
     }
 
     /**
+     * Wrap 256 bits of Key Data with a 256-bit KEK
+     * Test vectors from https://www.ietf.org/rfc/rfc3394.txt
+     */
+    @Test
+    public final void testAESWrap256() {
+        byte[] newKey = ProtocolTools.getBytesFromHexString("00112233445566778899AABBCCDDEEFF000102030405060708090A0B0C0D0E0F", "");
+        byte[] masterKey = ProtocolTools.getBytesFromHexString("000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F", "");
+        byte[] expectedWrappedKey = ProtocolTools.getBytesFromHexString("28C9F404C4B810F4CBCCB35CFB87F8263F5786E2D80ED326CBC7F0E71A99F43BFB988B9B7A02DD21", "");
+
+        byte[] wrappedKey = ProtocolTools.aesWrap(newKey, masterKey);
+        assertArrayEquals(wrappedKey, expectedWrappedKey);
+
+        byte[] unwrappedKey = ProtocolTools.aesUnwrap(wrappedKey, masterKey);
+
+        assertArrayEquals(unwrappedKey, newKey);
+    }
+
+    /**
      * Test method for {@link com.energyict.protocolimpl.utils.ProtocolTools#getBytesFromHexString(java.lang.String)}.
      */
     @Test

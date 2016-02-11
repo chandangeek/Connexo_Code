@@ -78,7 +78,7 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
     @Override
     public byte[] getSessionKey() {
         if (sessionKey == null) {
-            sessionKey = new byte[16];
+            sessionKey = new byte[getKeyLength()];
             Random rnd = new SecureRandom();
             rnd.nextBytes(sessionKey);
         }
@@ -88,6 +88,10 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
     @Override
     public void setSessionKey(byte[] sessionKey) {
         this.sessionKey = sessionKey;
+    }
+
+    private int getKeyLength() {
+        return securitySuite == 2 ? 32 : 16;
     }
 
     @Override
@@ -256,5 +260,15 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
                         "The private key must be a valid, PKCS8 encoded key");
             }
         }
+    }
+
+    @Override
+    public byte[] getDedicatedKey() {
+        if (dedicatedKey == null) {
+            dedicatedKey = new byte[getKeyLength()];
+            Random rnd = new Random();
+            rnd.nextBytes(dedicatedKey);
+        }
+        return dedicatedKey;
     }
 }

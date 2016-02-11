@@ -5,7 +5,7 @@ import com.energyict.dlms.*;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
-import com.energyict.encryption.AesGcm128;
+import com.energyict.encryption.AesGcm;
 import com.energyict.encryption.AlgorithmID;
 import com.energyict.encryption.BitVector;
 import com.energyict.encryption.asymetric.keyagreement.KeyAgreement;
@@ -236,7 +236,7 @@ public class SecurityContext {
             if (securityPolicy.isRequestPlain()) {
                 return plainText;
             } else if (securityPolicy.isRequestAuthenticatedOnly()) {
-                AesGcm128 ag128 = new AesGcm128(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
+                AesGcm aesGcm = new AesGcm(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
 
                 /*
                  * The additional associatedData (AAD) is a concatenation of:
@@ -252,19 +252,19 @@ public class SecurityContext {
                         plainText
                 );
 
-                ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
-                ag128.setInitializationVector(new BitVector(getInitializationVector()));
-                ag128.encrypt();
-                return createSecuredApdu(plainText, ag128.getTag().getValue());
+                aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
+                aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
+                aesGcm.encrypt();
+                return createSecuredApdu(plainText, aesGcm.getTag().getValue());
             } else if (securityPolicy.isRequestEncryptedOnly()) {
-                AesGcm128 ag128 = new AesGcm128(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
+                AesGcm aesGcm = new AesGcm(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
 
-                ag128.setInitializationVector(new BitVector(getInitializationVector()));
-                ag128.setPlainText(new BitVector(plainText));
-                ag128.encrypt();
-                return createSecuredApdu(ag128.getCipherText().getValue(), null);
+                aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
+                aesGcm.setPlainText(new BitVector(plainText));
+                aesGcm.encrypt();
+                return createSecuredApdu(aesGcm.getCipherText().getValue(), null);
             } else if (securityPolicy.isRequestAuthenticatedAndEncrypted()) {
-                AesGcm128 ag128 = new AesGcm128(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
+                AesGcm aesGcm = new AesGcm(getEncryptionKey(), DLMS_AUTH_TAG_SIZE);
 
                 /*
                  * The additional associatedData (AAD) is a concatenation of:
@@ -278,11 +278,11 @@ public class SecurityContext {
                         (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? createGeneralCipheringHeader() : new byte[0]
                 );
 
-                ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
-                ag128.setInitializationVector(new BitVector(getInitializationVector()));
-                ag128.setPlainText(new BitVector(plainText));
-                ag128.encrypt();
-                return createSecuredApdu(ag128.getCipherText().getValue(), ag128.getTag().getValue());
+                aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
+                aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
+                aesGcm.setPlainText(new BitVector(plainText));
+                aesGcm.encrypt();
+                return createSecuredApdu(aesGcm.getCipherText().getValue(), aesGcm.getTag().getValue());
             } else {
                 throw new UnsupportedException("Unknown securityPolicy: " + this.securityPolicy.getDataTransportSecurityLevel());
             }
@@ -772,11 +772,11 @@ public class SecurityContext {
         plainArray.add(sToCChallenge);
         byte[] associatedData = DLMSUtils.concatListOfByteArrays(plainArray);
 
-        AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
-        ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
-        ag128.setInitializationVector(new BitVector(getInitializationVector()));
+        AesGcm aesGcm = new AesGcm(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
+        aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
+        aesGcm.setInitializationVector(new BitVector(getInitializationVector()));
 
-        ag128.encrypt();
+        aesGcm.encrypt();
 
         /*
         * 1 for SecurityControlByte, 4 for frameCounter,
@@ -788,7 +788,7 @@ public class SecurityContext {
         securedApdu[offset++] = getHLS5SecurityControlByte();
         System.arraycopy(getFrameCounterInBytes(), 0, securedApdu, offset, FRAMECOUNTER_BYTE_LENGTH);
         offset += FRAMECOUNTER_BYTE_LENGTH;
-        System.arraycopy(ProtocolUtils.getSubArray2(ag128.getTag().getValue(), 0, DLMS_AUTH_TAG_SIZE), 0, securedApdu, offset,
+        System.arraycopy(ProtocolUtils.getSubArray2(aesGcm.getTag().getValue(), 0, DLMS_AUTH_TAG_SIZE), 0, securedApdu, offset,
                 DLMS_AUTH_TAG_SIZE);
         return securedApdu;
     }
@@ -810,11 +810,11 @@ public class SecurityContext {
         plainArray.add(clientChallenge);
         byte[] associatedData = DLMSUtils.concatListOfByteArrays(plainArray);
 
-        AesGcm128 ag128 = new AesGcm128(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
-        ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
-        ag128.setInitializationVector(new BitVector(ProtocolUtils.concatByteArrays(getResponseSystemTitle(), fc)));
+        AesGcm aesGcm = new AesGcm(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
+        aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
+        aesGcm.setInitializationVector(new BitVector(ProtocolUtils.concatByteArrays(getResponseSystemTitle(), fc)));
 
-        ag128.encrypt();
+        aesGcm.encrypt();
 
         /*
         * 1 for SecurityControlByte, 4 for frameCounter,
@@ -826,7 +826,7 @@ public class SecurityContext {
         securedApdu[offset++] = getHLS5SecurityControlByte();
         System.arraycopy(fc, 0, securedApdu, offset, FRAMECOUNTER_BYTE_LENGTH);
         offset += FRAMECOUNTER_BYTE_LENGTH;
-        System.arraycopy(ProtocolUtils.getSubArray2(ag128.getTag().getValue(), 0, DLMS_AUTH_TAG_SIZE), 0, securedApdu, offset,
+        System.arraycopy(ProtocolUtils.getSubArray2(aesGcm.getTag().getValue(), 0, DLMS_AUTH_TAG_SIZE), 0, securedApdu, offset,
                 DLMS_AUTH_TAG_SIZE);
 
         return securedApdu;
@@ -880,7 +880,7 @@ public class SecurityContext {
             return optionallyUnwrapSignedAPDU(cipherFrame);
         } else if (securityPolicy.isResponseAuthenticatedOnly()) {
 
-            AesGcm128 ag128 = new AesGcm128(getEncryptionKey(generalCipheringKeyType, true), DLMS_AUTH_TAG_SIZE);
+            AesGcm aesGcm = new AesGcm(getEncryptionKey(generalCipheringKeyType, true), DLMS_AUTH_TAG_SIZE);
 
             byte[] aTag = getAuthenticationTag(cipherFrame);
             byte[] apdu = getApdu(cipherFrame, true);
@@ -899,31 +899,31 @@ public class SecurityContext {
                     apdu
             );
 
-            ag128.setAdditionalAuthenticationData(new BitVector(associatedData));
-            ag128.setInitializationVector(new BitVector(getRespondingInitializationVector()));
-            ag128.setTag(new BitVector(aTag));
+            aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
+            aesGcm.setInitializationVector(new BitVector(getRespondingInitializationVector()));
+            aesGcm.setTag(new BitVector(aTag));
 
-            if (ag128.decrypt()) {
+            if (aesGcm.decrypt()) {
                 return optionallyUnwrapSignedAPDU(apdu);
             } else {
                 throw new ConnectionException("Received an invalid cipher frame.");
             }
         } else if (securityPolicy.isResponseEncryptedOnly()) {
 
-            AesGcm128 ag128 = new AesGcm128(getEncryptionKey(generalCipheringKeyType, true), DLMS_AUTH_TAG_SIZE);
+            AesGcm aesGcm = new AesGcm(getEncryptionKey(generalCipheringKeyType, true), DLMS_AUTH_TAG_SIZE);
 
             byte[] cipheredAPDU = getApdu(cipherFrame, false);
-            ag128.setInitializationVector(new BitVector(getRespondingInitializationVector()));
-            ag128.setCipherText(new BitVector(cipheredAPDU));
+            aesGcm.setInitializationVector(new BitVector(getRespondingInitializationVector()));
+            aesGcm.setCipherText(new BitVector(cipheredAPDU));
 
-            if (ag128.decrypt()) {
-                return optionallyUnwrapSignedAPDU(ag128.getPlainText().getValue());
+            if (aesGcm.decrypt()) {
+                return optionallyUnwrapSignedAPDU(aesGcm.getPlainText().getValue());
             } else {
                 throw new ConnectionException("Received an invalid cipher frame.");
             }
         } else if (securityPolicy.isResponseAuthenticatedAndEncrypted()) {
 
-            AesGcm128 ag128 = new AesGcm128(getEncryptionKey(generalCipheringKeyType, true), DLMS_AUTH_TAG_SIZE);
+            AesGcm ag128 = new AesGcm(getEncryptionKey(generalCipheringKeyType, true), DLMS_AUTH_TAG_SIZE);
 
             byte[] aTag = getAuthenticationTag(cipherFrame);
             byte[] cipheredAPDU = getApdu(cipherFrame, true);

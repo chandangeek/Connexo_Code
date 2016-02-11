@@ -18,6 +18,8 @@ public interface GeneralCipheringSecurityProvider extends SecurityProvider {
      * Return a generated key (either randomly or derived) that can be used to encrypt APDUs in a single application association.
      * This is similar to the use of the dedicated key.
      * However, the dedicated key is agreed in the AARQ, while the session key can be renewed for every APDU within an AA.
+     * <p/>
+     * Note that the length of the session key is 16 bytes for suite 0 and 1, and 32 bytes for suite 2.
      */
     byte[] getSessionKey();
 

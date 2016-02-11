@@ -87,7 +87,7 @@ public class XDlmsEncryption {
         if (containsNull(getAuthenticationKey(), getGlobalKey(), generateIV(), getPlainText(), generateAssociatedData())) {
             return null;
         } else {
-            AesGcm128 aes = new AesGcm128(new BitVector(getAuthenticationKey()));
+            AesGcm aes = new AesGcm(new BitVector(getAuthenticationKey()));
             aes.setGlobalKey(new BitVector(getGlobalKey()));
             aes.setInitializationVector(new BitVector(generateIV()));
             aes.setPlainText(new BitVector(getPlainText()));
@@ -102,7 +102,7 @@ public class XDlmsEncryption {
         if (containsNull(getAuthenticationKey(), getGlobalKey(), generateIV(), getPlainText(), generateAssociatedData())) {
             return null;
         } else {
-            AesGcm128 aes = new AesGcm128(new BitVector(getAuthenticationKey()));
+            AesGcm aes = new AesGcm(new BitVector(getAuthenticationKey()));
             aes.setGlobalKey(new BitVector(getGlobalKey()));
             aes.setInitializationVector(new BitVector(generateIV()));
             aes.setPlainText(new BitVector(getPlainText()));
