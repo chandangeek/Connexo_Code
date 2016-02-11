@@ -653,6 +653,7 @@ public class JbpmTaskResource {
             for(Task each : entry.getValue()){
                 ids.add(each.getId());
             }
+            form.taskStatus = Status.InProgress;
             taskGroups.add(new TaskGroupsInfo(entry.getValue().get(0).getName(), entry.getKey().getName(), entry.getKey().getVersion(), ids, hasFormMandatoryFields(form), form));
         }
         return new TaskGroupsInfos(taskGroups);
