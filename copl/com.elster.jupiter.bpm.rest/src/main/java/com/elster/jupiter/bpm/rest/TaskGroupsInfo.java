@@ -38,6 +38,7 @@ public class TaskGroupsInfo {
             for(int i = 0; i< ids.length(); i++){
                 taskIds.add(ids.getLong(i));
             }
+            this.count = taskIds.size();
         } catch (JSONException e) {
             e.printStackTrace();
         }
