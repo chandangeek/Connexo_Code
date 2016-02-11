@@ -45,8 +45,8 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     private volatile Thesaurus thesaurus;
 
     // OSGi
-    public ServiceCallServiceImpl() {
-    }
+//    public ServiceCallServiceImpl() {
+//    }
 
     @Inject
     public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService) {
