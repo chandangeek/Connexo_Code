@@ -14,7 +14,7 @@ Ext.define('Bpm.monitorprocesses.view.StatusProcessPreview', {
             columns: {
                 items: [
                     {
-                        header: Uni.I18n.translate('bpm.process.node.status', 'MDC', ' Status'),
+                        header: Uni.I18n.translate('bpm.process.node.status', 'BPM', ' Status'),
                         dataIndex: 'status',
                         flex: 1,
                         renderer: function (value,metaData) {
@@ -36,17 +36,17 @@ Ext.define('Bpm.monitorprocesses.view.StatusProcessPreview', {
                         }
                     },
                     {
-                        header: Uni.I18n.translate('bpm.process.node.node', 'MDC', ' Node'),
+                        header: Uni.I18n.translate('bpm.process.node.node', 'BPM', ' Node'),
                         dataIndex: 'name',
                         flex: 2
                     },
                     {
-                        header: Uni.I18n.translate('bpm.process.node.startedOn', 'MDC', ' Started on'),
+                        header: Uni.I18n.translate('bpm.process.node.startedOn', 'BPM', ' Started on'),
                         dataIndex: 'logDateDisplay',
                         flex: 2
                     },
                     {
-                        header: Uni.I18n.translate('bpm.process.node.type', 'MDC', ' Type'),
+                        header: Uni.I18n.translate('bpm.process.node.type', 'BPM', ' Type'),
                         dataIndex: 'type',
                         flex: 2
                     }

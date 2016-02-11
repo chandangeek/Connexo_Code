@@ -163,7 +163,7 @@ Ext.define('Bpm.monitorprocesses.controller.MonitorProcesses', {
     showVariablesPreview: function (panel, record) {
         var me = this;
 
-        panel.setTitle(Ext.String.format(Uni.I18n.translate('bpm.process.node.variablesTitle', 'MDC', '{0} ({1}) variables'),
+        panel.setTitle(Ext.String.format(Uni.I18n.translate('bpm.process.node.variablesTitle', 'BPM', '{0} ({1}) variables'),
             record.get('name'), record.get('type')));
 
         var panelItems = new Ext.util.MixedCollection();
@@ -185,7 +185,7 @@ Ext.define('Bpm.monitorprocesses.controller.MonitorProcesses', {
             panelItems.add(Ext.create("Ext.Component", {
                     height: 40,
                     autoEl: {
-                        html: Uni.I18n.translate('bpm.process.node.noVariables', 'MDC', 'No variable change during the node execution'),
+                        html: Uni.I18n.translate('bpm.process.node.noVariables', 'BPM', 'No variable change during the node execution'),
                         tag: 'span',
                         style: {
                             top: '2em !important',
