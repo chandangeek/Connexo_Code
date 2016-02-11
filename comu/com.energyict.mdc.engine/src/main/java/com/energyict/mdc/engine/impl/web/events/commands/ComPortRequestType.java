@@ -42,11 +42,11 @@ public class ComPortRequestType extends IdBusinessObjectRequestType {
         }catch (BusinessObjectIdParseException e){
             //As the parameterString could not be parsed to a List of long,
             // We consider the parameterString being a comma separated list of comport names
-            StringTokenizer tokenizer = new StringTokenizer(parameterString, ", ", false);
+            StringTokenizer tokenizer = new StringTokenizer(parameterString, ",", false);
             String[] comportNames = new String[tokenizer.countTokens()];
             int i= 0;
             while (tokenizer.hasMoreTokens()) {
-                comportNames[i++] = tokenizer.nextToken().trim();
+                comportNames[i++] = tokenizer.nextToken().replaceAll("'","").trim();
             }
             return new ComPortRequest(engineConfigurationService, comportNames);
         }
