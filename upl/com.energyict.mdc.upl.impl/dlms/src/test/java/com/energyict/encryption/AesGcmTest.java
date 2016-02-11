@@ -306,5 +306,15 @@ public class AesGcmTest {
 
         assertThat(cipherText).isEqualTo(AES256_CIPHER_TEXT);
         assertThat(tag).isEqualTo(ProtocolTools.getSubArray(AES256_EXPECTED_TAG, 0, 12));
+
+
+        aesGcm = new AesGcm(ENCRYPTION_KEY_AES256_AUTH_ENC, 12);
+        aesGcm.setCipherText(new BitVector(cipherText));
+        aesGcm.setTag(new BitVector(tag));
+        aesGcm.setAdditionalAuthenticationData(new BitVector(ADDITIONAL_DATA_AES256_AUTH_ENC));
+        aesGcm.setInitializationVector(new BitVector(IV_AES256_AUTH_ENC));
+        aesGcm.decrypt();
+
+        assertThat(aesGcm.getPlainText().getValue()).isEqualTo(PLAINTEXT_AES256_AUTH_ENC);
     }
 }
