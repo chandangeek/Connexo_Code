@@ -1,12 +1,11 @@
-package com.elster.jupiter.servicecalls.impl;
+package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.servicecalls.ServiceCallLifeCycle;
+import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 
-import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 /**

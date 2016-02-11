@@ -1,7 +1,7 @@
-package com.elster.jupiter.servicecalls.impl;
+package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.servicecalls.DefaultState;
+import com.elster.jupiter.servicecall.DefaultState;
 
 /**
  * Created by bvn on 2/4/16.

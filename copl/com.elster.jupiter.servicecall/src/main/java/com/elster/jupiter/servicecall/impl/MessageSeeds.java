@@ -1,6 +1,6 @@
-package com.elster.jupiter.servicecalls.impl;
+package com.elster.jupiter.servicecall.impl;
 
-import com.elster.jupiter.servicecalls.ServiceCallService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;

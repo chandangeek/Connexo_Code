@@ -1,14 +1,7 @@
-package com.elster.jupiter.servicecalls.impl;
+package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
-import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.StateTransitionEventType;
-
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Models the default {@link CustomStateTransitionEventType}

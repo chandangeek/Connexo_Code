@@ -1,5 +1,6 @@
-package com.elster.jupiter.servicecalls.impl;
+package com.elster.jupiter.servicecall.impl;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -10,8 +11,9 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.servicecalls.ServiceCallLifeCycle;
-import com.elster.jupiter.servicecalls.ServiceCallService;
+import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -128,5 +130,10 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     @Override
     public Optional<ServiceCallLifeCycle> getServiceCallLifeCycle(String name) {
         return dataModel.mapper(ServiceCallLifeCycle.class).getUnique(ServiceCallLifeCycleImpl.Fields.name.fieldName(), name);
+    }
+
+    @Override
+    public Finder<ServiceCallType> getServiceCallTypes() {
+        return null;
     }
 }

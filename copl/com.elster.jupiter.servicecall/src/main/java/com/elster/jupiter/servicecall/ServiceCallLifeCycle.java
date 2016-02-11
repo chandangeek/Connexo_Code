@@ -1,4 +1,4 @@
-package com.elster.jupiter.servicecalls;
+package com.elster.jupiter.servicecall;
 
 /**
  * This is the wrapper class for FSM in service call bundle

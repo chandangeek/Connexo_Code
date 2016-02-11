@@ -1,10 +1,10 @@
-package com.elster.jupiter.servicecalls.impl;
+package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.servicecalls.ServiceCallLifeCycle;
+import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 
 import javax.inject.Inject;
 

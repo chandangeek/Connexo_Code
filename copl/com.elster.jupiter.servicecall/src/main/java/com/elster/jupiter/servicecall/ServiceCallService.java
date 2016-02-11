@@ -1,4 +1,6 @@
-package com.elster.jupiter.servicecalls;
+package com.elster.jupiter.servicecall;
+
+import com.elster.jupiter.domain.util.Finder;
 
 import java.util.Optional;
 
@@ -10,6 +12,7 @@ public interface ServiceCallService {
     String COMPONENT_NAME = "SCS";
 
     public Optional<ServiceCallLifeCycle> getServiceCallLifeCycle(String name);
+    public Finder<ServiceCallType> getServiceCallTypes();
 
 //    public ServiceCallType createServiceCallType();
 }

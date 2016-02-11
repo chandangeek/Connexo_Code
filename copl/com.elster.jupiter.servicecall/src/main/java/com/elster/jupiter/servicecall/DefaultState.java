@@ -1,4 +1,4 @@
-package com.elster.jupiter.servicecalls;
+package com.elster.jupiter.servicecall;
 
 import com.elster.jupiter.fsm.State;
 

@@ -1,9 +1,8 @@
-package com.elster.jupiter.servicecalls;
+package com.elster.jupiter.servicecall;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
-import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
@@ -14,8 +13,8 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.servicecalls.impl.ServiceCallModule;
-import com.elster.jupiter.servicecalls.impl.TranslationKeys;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
+import com.elster.jupiter.servicecall.impl.TranslationKeys;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -41,7 +40,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
-import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

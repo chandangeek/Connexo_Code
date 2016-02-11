@@ -1,13 +1,13 @@
-package com.elster.jupiter.servicecalls.impl;
+package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.servicecalls.LogLevel;
-import com.elster.jupiter.servicecalls.ServiceCall;
-import com.elster.jupiter.servicecalls.ServiceCallLifeCycle;
-import com.elster.jupiter.servicecalls.ServiceCallType;
-import com.elster.jupiter.servicecalls.Status;
+import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
+import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.Status;
 
 import java.util.Optional;
 
