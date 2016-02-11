@@ -65,6 +65,10 @@
       <groupId>com.elster.jupiter</groupId>
       <artifactId>fsm</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>cps</artifactId>
+    </dependency>
 
     <!-- Testing -->
     <dependency>
@@ -120,10 +124,6 @@
       <groupId>com.elster.jupiter</groupId>
       <artifactId>messaging</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.elster.jupiter</groupId>
-      <artifactId>cps</artifactId>
     </dependency>
     <!--<dependency>-->
       <!--<groupId>com.google.inject</groupId>-->
