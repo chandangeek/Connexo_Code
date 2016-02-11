@@ -1,5 +1,6 @@
 package com.elster.jupiter.servicecall.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.nls.Layer;
@@ -134,6 +135,6 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
 
     @Override
     public Finder<ServiceCallType> getServiceCallTypes() {
-        return null;
+        return DefaultFinder.of(ServiceCallType.class, dataModel).defaultSortColumn("name");
     }
 }
