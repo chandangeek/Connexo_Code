@@ -12,6 +12,10 @@ public class ProcessInstanceVariableInfo {
     public Date logDate;
     public long nodeInstanceId = -1;
 
+    public ProcessInstanceVariableInfo(){
+
+    }
+
     public ProcessInstanceVariableInfo(Object[] obj){
         this.variableName = obj[7] == null ? "" : (String) obj[7];
         this.logDate = obj[1] == null ? null : (Timestamp) obj[1];

@@ -7,6 +7,7 @@ import org.jboss.resteasy.plugins.providers.jackson.ResteasyJacksonProvider;
 import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jbpm.kie.services.api.RuntimeDataService;
+import org.jbpm.kie.services.impl.model.ProcessInstanceDesc;
 import org.jbpm.services.task.impl.model.UserImpl;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -29,6 +30,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -218,6 +220,52 @@ public class JbpmTaskResourceTest {
         assertEquals(calendar.getTime(), response.getEntity().processHistories.get(0).endDate);
         assertEquals(0L, response.getEntity().processHistories.get(0).duration);
 
+    }
+
+    @Test
+    public  void testGetNodesAndVariables() throws Exception{
+        Calendar calendar = new GregorianCalendar(2016, 1, 1, 10, 30, 0);
+        EntityManager em = mock(EntityManager.class);
+        ProcessInstanceDesc processInstanceDesc = mock(ProcessInstanceDesc.class);
+        when(runtimeDataService.getProcessInstanceById(anyLong())).thenReturn(processInstanceDesc);
+        when(processInstanceDesc.getState()).thenReturn(2);
+        when(emf.createEntityManager()).thenReturn(em);
+        Query query = mock(Query.class);
+        when(em.createNativeQuery(anyString())).thenReturn(query);
+        Object[] node = new Object[8];
+        node[0] = "TestNodeName";
+        node[1] = "TestTask";
+        node[2] = new java.sql.Timestamp(calendar.getTime().getTime());
+        node[4] = "TestNodeID";
+        node[5] = new BigDecimal(1);
+        node[7] = new BigDecimal(1);
+        Object[] variable = new Object[8];
+        variable[1] = new java.sql.Timestamp(calendar.getTime().getTime());
+        variable[3] = "TestOldValue";
+        variable[6] = "TestValue";
+        variable[7] = "TestVariableName";
+        List<Object[]> nodesRecords = new ArrayList<>();
+        List<Object[]> variableRecords = new ArrayList<>();
+        nodesRecords.add(node);
+        variableRecords.add(variable);
+        when(query.getResultList())
+                .thenReturn(nodesRecords)
+                .thenReturn(variableRecords);
+        ClientRequest request = new ClientRequest(baseUri + "/process/instance/1/node");
+
+        ClientResponse<ProcessInstanceNodeInfos> response = request.get(ProcessInstanceNodeInfos.class);
+
+        assertEquals("TestNodeName", response.getEntity().processInstanceNodes.get(0).nodeName);
+        assertEquals("TestTask", response.getEntity().processInstanceNodes.get(0).nodeType);
+        assertEquals(calendar.getTime(), response.getEntity().processInstanceNodes.get(0).logDate);
+        assertEquals(1L, response.getEntity().processInstanceNodes.get(0).nodeInstanceId);
+        assertEquals("COMPLETED", response.getEntity().processInstanceNodes.get(0).type);
+
+        assertEquals(1L, response.getEntity().processInstanceVariables.get(0).nodeInstanceId);
+        assertEquals(calendar.getTime(), response.getEntity().processInstanceVariables.get(0).logDate);
+        assertEquals("TestValue", response.getEntity().processInstanceVariables.get(0).value);
+        assertEquals("TestOldValue", response.getEntity().processInstanceVariables.get(0).oldValue);
+        assertEquals("TestVariableName", response.getEntity().processInstanceVariables.get(0).variableName);
     }
 
     // testAssignTask

@@ -14,6 +14,10 @@ public class ProcessInstanceNodeInfo {
     public Date logDate;
     public long nodeInstanceId;
 
+    public ProcessInstanceNodeInfo(){
+
+    }
+
     public ProcessInstanceNodeInfo(Object[] obj, String processInstanceStatus){
         this.nodeName = obj[0] == null ? "" :(String) obj[0];
         this.nodeType = obj[1] == null ? "" :(String) obj[1];
