@@ -1,3 +1,7 @@
+a.ports:link    {color:#0073cf; text-decoration:none}
+a.ports:visited {color:#002244; text-decoration:none}
+a.ports:hover   {color:#949d9e; text-decoration:underline}
+a.ports:active  {color:#FF5800; text-decoration:underline}
 .server-details
 {
     background-color: #0073cf; /* Elster ocean blue */
@@ -25,7 +29,7 @@
 }
 .logmessage-error
 {
-    color: red;
+    color: #FF5800;
 }
 .logrecord-date
 {

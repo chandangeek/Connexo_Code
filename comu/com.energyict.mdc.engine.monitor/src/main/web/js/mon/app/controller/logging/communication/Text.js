@@ -97,7 +97,7 @@ Ext.define('CSMonitor.controller.logging.communication.Text', {
         }
 
         if (this.getPortNames().length > 0) {
-            this.getWebSocket().send('register request for comPort: ' + this.getPortNames());
+            this.getWebSocket().send('register request for comPort: ' + this.parserFriendly(this.getPortNames()));
         }
     },
 
@@ -130,5 +130,17 @@ Ext.define('CSMonitor.controller.logging.communication.Text', {
 
     saveLogging: function() {
         this.doSaveLogging("protocol_logging.txt");
+    },
+
+    parserFriendly: function (allnames){
+        var parserfriendly = '';
+        var names = allnames.split(",");
+        for	(index = 0; index < names.length; index++) {
+            parserfriendly += '\'' + names[index]+'\'';
+            if (index < names.length -1){
+                parserfriendly += ','
+            }
+        }
+        return parserfriendly;
     }
 });

@@ -5,7 +5,7 @@ import java.util.*;
 
 class MdcMonitorAppPrivileges {
 
-    private final static String MONITOR_COMMUNICATION_SERVER = "privilege.monitor.communication.server";
+    public final static String MONITOR_COMMUNICATION_SERVER = "privilege.monitor.communication.server";
 
     static List<String> getApplicationPrivileges() {
         return Collections.singletonList(MONITOR_COMMUNICATION_SERVER);
