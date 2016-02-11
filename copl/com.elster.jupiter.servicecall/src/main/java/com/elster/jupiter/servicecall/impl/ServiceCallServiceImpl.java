@@ -44,6 +44,10 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
 
+    // OSGi
+//    public ServiceCallServiceImpl() {
+//    }
+
     @Inject
     public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService) {
         this.setFiniteStateMachineService(finiteStateMachineService);
