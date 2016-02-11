@@ -99,7 +99,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
                 store: me.store,
                 displayMsg: Uni.I18n.translate('connection.communication.widget.details.displayMsg', 'DSH', '{0} - {1} of {2} communication tasks'),
                 displayMoreMsg: Uni.I18n.translate('connection.communication.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} communication tasks'),
-                emptyMsg: Uni.I18n.translate('connection.communication.widget.details.emptyMsg', 'DSH', 'There are no communication task to display'),
+                emptyMsg: Uni.I18n.translate('connection.communication.widget.details.emptyMsg', 'DSH', 'There are no communication tasks to display'),
                 items:[
                     {
                         xtype:'button',
