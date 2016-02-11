@@ -10,7 +10,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -43,18 +49,20 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     private volatile EventService eventService;
     private volatile ValidationService validationService;
     private volatile UserService userService;
+    private volatile Thesaurus thesaurus;
     
     public UsagePointConfigurationServiceImpl() {
     }
 
     @Inject
     public UsagePointConfigurationServiceImpl(Clock clock, OrmService ormService, EventService eventService, UserService userService,
-            MeteringService meteringService, ValidationService validationService) {
+            MeteringService meteringService, ValidationService validationService, NlsService nlsService) {
         setClock(clock);
         setOrmService(ormService);
         setEventService(eventService);
         setUserService(userService);
         setValidationService(validationService);
+        setNlsService(nlsService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -70,6 +78,8 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 bind(Clock.class).toInstance(clock);
                 bind(ValidationService.class).toInstance(validationService);
                 bind(UserService.class).toInstance(userService);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(Thesaurus.class).toInstance(thesaurus);
             }
         };
     }
@@ -116,7 +126,12 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
     }
-    
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
+    }
+
     DataModel getDataModel() {
         return dataModel;
     }
