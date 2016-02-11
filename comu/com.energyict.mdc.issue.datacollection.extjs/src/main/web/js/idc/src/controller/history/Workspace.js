@@ -53,7 +53,7 @@ Ext.define('Idc.controller.history.Workspace', {
                                     }
                                 },
                                 startProcess: {
-                                    title: Uni.I18n.translate('general.startProcess','ISU','Start process'),
+                                    title: Uni.I18n.translate('general.startProcess','IDC','Start process'),
                                     route: 'startProcess',
                                     controller: 'Isu.controller.StartProcess',
                                     action: 'showStartProcess',
