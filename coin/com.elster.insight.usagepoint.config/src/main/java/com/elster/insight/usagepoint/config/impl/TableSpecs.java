@@ -1,5 +1,6 @@
 package com.elster.insight.usagepoint.config.impl;
 
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
@@ -110,6 +111,8 @@ public enum TableSpecs {
             // parent node
             Column parentColumn = table.column("parent").number().conversion(NUMBER2LONG).add();
 
+            Column argumentIndex = table.column("ARGUMENTINDEX").number().notNull().map("argumentIndex").conversion(NUMBER2INT).add();
+
             //OperationNode operator value
             table.column("OPERATOR").number().conversion(ColumnConversion.NUMBER2ENUM).map("operator").add();
 
@@ -121,13 +124,16 @@ public enum TableSpecs {
 
             // ReadingTypeDeliverableNode readingTypeDeliverable value
             //todo add foreign key
-            Column readingTypeDeliverableIdColumn = table.column("readingTypeDeliverable").number().conversion(NUMBER2LONG).add();
+            Column readingTypeDeliverableIdColumn = table.column("READINGTYPE_DELIVERABLE").number().conversion(NUMBER2LONG).map("readingTypeDeliverable").add();
 
             // ReadingTypeRequirementNode readingTypeRequirement value
             //todo add foreign key
-            Column readingTypeRequirementIdColumn = table.column("readingTypeRequirement").number().conversion(NUMBER2LONG).add();
+            Column readingTypeRequirementIdColumn = table.column("READINGTYPE_REQUIREMENT").number().conversion(NUMBER2LONG).map("readingTypeRequirement").add();
 
-            table.foreignKey("UPC_FK_PARENT_NODE").references(UPC_FORMULA_NODE.name()).map("parent").on(parentColumn).add();
+            table.primaryKey("UPC_PK_FORMULA_NODE").on(idColumn).add();
+
+            table.foreignKey("UPC_VALIDCHILD").references(UPC_FORMULA_NODE.name()).on(parentColumn).onDelete(DeleteRule.CASCADE)
+                    .map("parent").reverseMap("children").reverseMapOrder("argumentIndex").composition().add();
         }
     };
 

@@ -23,8 +23,10 @@ public abstract class AbstractNode implements ServerExpressionNode {
                     ReadingTypeRequirementNode.TYPE_IDENTIFIER, ReadingTypeRequirementNode.class
             );
 
+    private long id;
     private Reference<AbstractNode> parent = ValueReference.absent();
     private List<AbstractNode> children = new ArrayList<>();
+    private long argumentIndex;
 
     public AbstractNode() {
         super();
