@@ -138,6 +138,7 @@ public class FormulaCrudTest {
     @Test
     public void testCrud()  {
         try (TransactionContext context = getTransactionService().getContext()) {
+
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
             MetrologyConfiguration mc1 = upcService.newMetrologyConfiguration("metrology config 1");
             context.commit();
