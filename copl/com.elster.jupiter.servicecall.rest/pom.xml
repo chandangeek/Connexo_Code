@@ -76,6 +76,16 @@
 
         <!-- Testing -->
         <dependency>
+            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+            <artifactId>jersey-test-framework-provider-inmemory</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools.rest</artifactId>
             <scope>test</scope>

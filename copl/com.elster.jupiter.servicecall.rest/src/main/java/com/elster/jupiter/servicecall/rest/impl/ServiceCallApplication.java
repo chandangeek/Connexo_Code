@@ -40,7 +40,8 @@ public class ServiceCallApplication extends Application implements TranslationKe
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                RestValidationExceptionMapper.class
+                RestValidationExceptionMapper.class,
+                ServiceCallTypeResource.class
         );
     }
 
@@ -78,7 +79,7 @@ public class ServiceCallApplication extends Application implements TranslationKe
     }
 
     public void setNlsService(NlsService nlsService) {
-        nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+        thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
     }
 
     public void setTransactionService(TransactionService transactionService) {
