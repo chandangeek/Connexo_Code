@@ -185,7 +185,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "IDS", "PRT", "USR", "EVT", "NLS", "FSM");
+        return Arrays.asList("ORM", "IDS", "PRT", "USR", "EVT", "NLS", "FSM", "CPS");
     }
 
     @Override
