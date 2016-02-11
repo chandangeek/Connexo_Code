@@ -268,6 +268,19 @@ public class JbpmTaskResourceTest {
         assertEquals("TestVariableName", response.getEntity().processInstanceVariables.get(0).variableName);
     }
 
+    @Test
+    public  void testGetTaskContent() throws Exception{
+        Map<String, Object> content = new HashMap<>();
+        content.put("TestContent", "TestContentValue");
+        when(internalTaskService.getTaskContent(anyLong())).thenReturn(content);
+        ClientRequest request = new ClientRequest(baseUri + "/1/taskcontent");
+
+        ClientResponse<ConnexoForm> response = request.get(ConnexoForm.class);
+
+        assertEquals("TestContentValue", response.getEntity().content.get("TestContent"));
+    }
+
+
     // testAssignTask
     // testSetDueDateAndPriority
     // testGetProc
