@@ -32,7 +32,7 @@ Ext.define('CSMonitor.view.status.GeneralInformation', {
                     width: 150,
                     margins: '0 10 0 0',
                     animate: true,
-                    itemId: 'waitTimeProgressBar'
+                    itemId: 'statusProgressBar'
                 },
                 {
                     xtype: 'checkbox',

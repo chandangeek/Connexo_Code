@@ -32,7 +32,7 @@ Ext.define('CSMonitor.view.performance.Storage', {
                     width: 150,
                     margins: '0 10 0 0',
                     animate: true,
-                    itemId: 'waitTimeProgressBar'
+                    itemId: 'performanceProgressBar'
                 },
                 {
                     xtype: 'button',
