@@ -2,6 +2,8 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
 
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import java.util.Optional;
+
 /**
  * Wraps or assembles one or more {@link SqlBuilder}s that you will
  * use to build fragments of the complete SQL statement you need.
@@ -46,22 +48,17 @@ interface ClauseAwareSqlBuilder {
      *                         by the sql of the with clause
      * @return The SqlBuilder
      */
-    SqlBuilder with(String alias, String... columnAliasNames);
+    SqlBuilder with(String alias, Optional<String> comment, String... columnAliasNames);
 
     /**
-     * Starts the "SELECT" clause.
+     * Returns a new SqlBuilder that already contains "SELECT" and
+     * that will be included in the overall SQL statement being built.
+     * Note that multiple select clauses will automatically be merged
+     * together with the "UNION ALL" construct.
      *
      * @return The SqlBuilder that allows you to build the "SELECT" clause
      */
     SqlBuilder select();
-
-    /**
-     * Produces a "UNION ALL" and starts a new "SELECT" clause.
-     *
-     * @return The SqlBuilder that allows you to build the next "SELECT" clause
-     * @throws IllegalStateException Thrown when {@link #select()} has not been called yet
-     */
-    SqlBuilder unionAll();
 
     /**
      * Returns the SqlBuilder that contains the overall

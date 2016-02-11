@@ -6,6 +6,8 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 
+import java.util.Optional;
+
 /**
  * Represents a {@link ReadingTypeDeliverable} for a {@link MeterActivation}.
  *
@@ -28,7 +30,7 @@ class VirtualReadingTypeDeliverable {
     }
 
     void appendTo(ClauseAwareSqlBuilder sqlBuilder) {
-        SqlBuilder withClauseBuilder = sqlBuilder.with("ts7", "id", "value", "timestamp", "localdate");
+        SqlBuilder withClauseBuilder = sqlBuilder.with("ts7", Optional.empty(), "id", "value", "timestamp", "localdate");
     }
 
 }
