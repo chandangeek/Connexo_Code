@@ -8,7 +8,7 @@ import javax.ws.rs.Path;
 /**
  * Created by bvn on 2/11/16.
  */
-@Path("servicecalltypes")
+@Path("/servicecalltypes")
 public class ServiceCallTypeResource {
 
     private final ServiceCallService serviceCallService;

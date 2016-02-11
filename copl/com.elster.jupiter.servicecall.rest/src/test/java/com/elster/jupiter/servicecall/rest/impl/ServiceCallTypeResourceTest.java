@@ -28,7 +28,8 @@ public class ServiceCallTypeResourceTest extends ServiceCallApplicationTest {
         when(serviceCallService.getServiceCallTypes()).thenReturn(serviceCallTypeFinder);
 
         Response response = target("/servicecalltypes").request().get();
-        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("total")).isEqualTo(1);
     }
 }
