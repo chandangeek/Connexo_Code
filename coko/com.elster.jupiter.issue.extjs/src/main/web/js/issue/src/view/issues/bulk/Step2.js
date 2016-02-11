@@ -98,19 +98,15 @@ Ext.define('Isu.view.issues.bulk.Step2', {
 
             switch (field.inputValue) {
                 case 'retrycomm':
-                    message = Uni.I18n.translate('issue.retryCommunicationTask.description', 'ISU', 'Communications of selected issues will be queued for the next scheduled run. ' +
-                        'This action will only be executed on issues with reason Failed to communicate.');
-                    title = Uni.I18n.translate('issue.retryCommunicationTask.title.description', 'ISU', 'Help - About retry communication action');
+                    message = Uni.I18n.translate('issue.retryCommunicationTask.description.help', 'ISU', 'Communications of selected issues will be queued for the next scheduled run. This action will only be executed on issues with reason Failed to communicate.');
+                    title = Uni.I18n.translate('issue.retryCommunicationTask.title.description.help', 'ISU', 'Help - About retry communication task action');
                     break;
                 case 'retrycommnow':
-                    message = Uni.I18n.translate('issue.retryCommunicationTaskNow.description', 'ISU', 'Communications of selected issues will be queued for an immediate run. ' +
-                        'This action will only be executed on issues with reason Failed to communicate.');
-                    title = Uni.I18n.translate('issue.retryCommunicationTaskNow.title.description', 'ISU', 'Help - About retry communication now action');
+                    message = Uni.I18n.translate('issue.retryCommunicationTaskNow.description.help', 'ISU', 'Communications of selected issues will be queued for an immediate run. This action will only be executed on issues with reason Failed to communicate.');
+                    title = Uni.I18n.translate('issue.retryCommunicationTaskNow.title.description.help', 'ISU', 'Help - About retry communication task now action');
                     break;
                 case 'retryconn':
-                    message = Uni.I18n.translate('issue.retryConnection.description', 'ISU', 'Outbound connections of selected issues and their associated tasks with' +
-                        ' state Pending, Failed, Retrying or Never completed will be queued. All non-outbound connections will be ignored. This action will only be' +
-                        ' executed on issues with reason Connection setup failed or Connection failed.');
+                    message = Uni.I18n.translate('issue.retryConnection.description.help', 'ISU', 'Outbound connections of selected issues and their associated tasks with state Pending, Failed, Retrying or Never completed will be queued. All non-outbound connections will be ignored. This action will only be executed on issues with reason Connection setup failed or Connection failed.');
                     title = Uni.I18n.translate('issue.retryConnection.title.description', 'ISU', 'Help - About retry connection action');
                     break;
             }
