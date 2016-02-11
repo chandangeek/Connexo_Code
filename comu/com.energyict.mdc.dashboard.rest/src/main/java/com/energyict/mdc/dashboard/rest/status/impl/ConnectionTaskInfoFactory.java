@@ -1,7 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.Device;
