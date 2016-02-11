@@ -281,8 +281,8 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
         return SecurityContextV2EncryptionHandler.applyGeneralSigning(this.aso.getSecurityContext(), securedRequest);
     }
 
-    private byte[] unwrapGeneralSigning(byte[] securedRequest) {
-        return SecurityContextV2EncryptionHandler.unwrapGeneralSigning(this.aso.getSecurityContext(), securedRequest);
+    private byte[] unwrapGeneralSigning(byte[] securedResponse) {
+        return SecurityContextV2EncryptionHandler.unwrapGeneralSigning(this.aso.getSecurityContext(), securedResponse);
     }
 
     private byte[] encryptGeneralGloOrDedCiphering(byte[] request) {
