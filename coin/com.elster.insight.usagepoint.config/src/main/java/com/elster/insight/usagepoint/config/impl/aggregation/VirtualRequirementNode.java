@@ -99,6 +99,13 @@ class VirtualRequirementNode extends AbstractNode {
     }
 
     /**
+     * Finishes the building process of this VirtualRequirementNode.
+     */
+    void finish() {
+        this.virtualize();
+    }
+
+    /**
      * Creates the {@link VirtualReadingTypeRequirement} from the current target interval.
      * Postpone calls as long as possible and avoid changing the target interval after
      * calls to this method.

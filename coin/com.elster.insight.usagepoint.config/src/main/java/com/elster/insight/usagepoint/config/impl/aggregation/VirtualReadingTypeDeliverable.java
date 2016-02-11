@@ -2,6 +2,7 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
 
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 
@@ -24,6 +25,10 @@ class VirtualReadingTypeDeliverable {
 
     ReadingType getReadingType () {
         return this.deliverable.getReadingType();
+    }
+
+    void appendTo(ClauseAwareSqlBuilder sqlBuilder) {
+        SqlBuilder withClauseBuilder = sqlBuilder.with("ts7", "id", "value", "timestamp", "localdate");
     }
 
 }

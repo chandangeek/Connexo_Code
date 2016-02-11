@@ -2,6 +2,7 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
 
@@ -20,7 +21,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-04 (15:24)
  */
-public class VirtualReadingTypeRequirement {
+class VirtualReadingTypeRequirement {
 
     private final ReadingTypeRequirement requirement;
     private final List<Channel> matchingChannels;
@@ -28,7 +29,7 @@ public class VirtualReadingTypeRequirement {
     private final int meterActivationSequenceNumber;
     private Channel preferredChannel;   // Lazy from the list of matching channels and the targetReadingType
 
-    public VirtualReadingTypeRequirement(ReadingTypeRequirement requirement, List<Channel> matchingChannels, IntervalLength targetIntervalLength, int meterActivationSequenceNumber) {
+    VirtualReadingTypeRequirement(ReadingTypeRequirement requirement, List<Channel> matchingChannels, IntervalLength targetIntervalLength, int meterActivationSequenceNumber) {
         super();
         this.requirement = requirement;
         this.matchingChannels = Collections.unmodifiableList(matchingChannels);
@@ -36,8 +37,12 @@ public class VirtualReadingTypeRequirement {
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
     }
 
-    public List<Channel> getMatchingChannels() {
+    List<Channel> getMatchingChannels() {
         return matchingChannels;
+    }
+
+    void appendTo(ClauseAwareSqlBuilder sqlBuilder) {
+        SqlBuilder withClauseBuilder = sqlBuilder.with("ts7", "id", "value", "timestamp", "localdate");
     }
 
 }

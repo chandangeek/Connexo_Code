@@ -35,6 +35,13 @@ class VirtualDeliverableNode extends AbstractNode {
         this.targetInterval = targetInterval;
     }
 
+    /**
+     * Finishes the building process of this VirtualDeliverableNode.
+     */
+    void finish() {
+        this.virtualize();
+    }
+
     private void virtualize() {
         this.virtualDeliverable = this.virtualFactory.deliverableFor(this.deliverable, this.targetInterval);
     }

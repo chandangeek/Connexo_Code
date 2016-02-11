@@ -44,4 +44,52 @@ class ReadingTypeDeliverableForMeterActivation {
         return this.deliverable.getReadingType();
     }
 
+    void appendTo(ClauseAwareSqlBuilder sqlBuilder) {
+        this.expressionNode.accept(new FinishRequirementAndDeliverableNodes());
+        // Todo: add select or with clause, still need to figure out which one we need
+    }
+
+    private class FinishRequirementAndDeliverableNodes implements ServerExpressionNode.ServerVisitor<Void> {
+        @Override
+        public Void visitVirtualRequirement(VirtualRequirementNode requirement) {
+            requirement.finish();
+            return null;
+        }
+
+        @Override
+        public Void visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
+            deliverable.finish();
+            return null;
+        }
+
+        @Override
+        public Void visitConstant(ConstantNode constant) {
+            // Nothing to finish here
+            return null;
+        }
+
+        @Override
+        public Void visitRequirement(ReadingTypeRequirementNode requirement) {
+            throw new IllegalArgumentException("ReadingTypeRequirement nodes should have been replaced with virtual ones");
+        }
+
+        @Override
+        public Void visitDeliverable(ReadingTypeDeliverableNode deliverable) {
+            throw new IllegalArgumentException("ReadingTypeDeliverable nodes should have been replaced with virtual ones");
+        }
+
+        @Override
+        public Void visitOperation(OperationNode operation) {
+            operation.getLeftOperand().accept(this);
+            operation.getRightOperand().accept(this);
+            return null;
+        }
+
+        @Override
+        public Void visitFunctionCall(FunctionCallNode functionCall) {
+            functionCall.getChildren().forEach(child -> child.accept(this));
+            return null;
+        }
+    }
+
 }

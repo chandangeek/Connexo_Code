@@ -65,36 +65,42 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
-        </dependency>   
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cbo</artifactId>
-        </dependency> 
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>validation</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>search</artifactId>
-            <scope>test</scope>
-        </dependency> 
-        
+            <artifactId>ids</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.gogo.runtime</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Test dependencies -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>ids</artifactId>
+            <artifactId>search</artifactId>
             <scope>test</scope>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>parties</artifactId>
             <scope>test</scope>
-        </dependency>  
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>fsm</artifactId>
             <scope>test</scope>
-        </dependency>              
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bootstrap</artifactId>
@@ -109,12 +115,12 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>messaging</artifactId>
             <scope>test</scope>
-        </dependency>         
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>messaging.h2</artifactId>
             <scope>test</scope>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>datavault</artifactId>
@@ -139,17 +145,11 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>properties</artifactId>
             <scope>test</scope>
-        </dependency>    
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.gogo.runtime</artifactId>
-            <scope>provided</scope>
-            <optional>true</optional>
         </dependency>
     </dependencies>
 </project>
