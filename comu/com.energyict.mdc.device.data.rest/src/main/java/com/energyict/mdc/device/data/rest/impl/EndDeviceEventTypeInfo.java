@@ -6,7 +6,7 @@ import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 public class EndDeviceEventTypeInfo {
 

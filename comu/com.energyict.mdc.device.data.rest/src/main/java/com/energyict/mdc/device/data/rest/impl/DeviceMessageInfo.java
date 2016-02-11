@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import java.time.Instant;
 import java.util.List;
