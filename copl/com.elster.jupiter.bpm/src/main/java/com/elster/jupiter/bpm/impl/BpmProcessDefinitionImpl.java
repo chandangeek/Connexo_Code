@@ -1,12 +1,11 @@
 package com.elster.jupiter.bpm.impl;
 
-import com.elster.jupiter.bpm.BpmProcessDefinition;
-import com.elster.jupiter.bpm.BpmProcessDeviceState;
-import com.elster.jupiter.bpm.BpmProcessPrivilege;
-import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.bpm.*;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
@@ -16,18 +15,22 @@ import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 
 public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
 
     private long id;
+    private String type;
     private final DataModel dataModel;
     private String processName;
     private String association;
     private String version;
     private String status;
     private List<BpmProcessPrivilege> processPrivileges = new ArrayList<>();
-    private List<BpmProcessDeviceState> processDeviceStates = new ArrayList<>();
+    private List<Map<String, String>> associationData;
+
+
     private final BpmService bpmService;
     private final UserService userService;
 
@@ -53,16 +56,6 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     @Override
     public void revokePrivileges(List<BpmProcessPrivilege> processPrivileges){
             processPrivileges.stream().forEach(BpmProcessPrivilege::delete);
-    }
-
-    @Override
-    public void revokeProcessDeviceStates(List<BpmProcessDeviceState> processDeviceStates){
-        processDeviceStates.stream().forEach(BpmProcessDeviceState::delete);
-    }
-
-    @Override
-    public void grantProcessDeviceStates(List<BpmProcessDeviceState> processDeviceStates){
-        processDeviceStates.stream().forEach(BpmProcessDeviceState::persist);
     }
 
     @Override
@@ -96,7 +89,7 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     }
 
     @Override
-    public void save() {
+    public void update() {
         if (getId() == 0) {
             Save.CREATE.save(dataModel, this);
         } else {
@@ -120,7 +113,14 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     }
 
     @Override
-    public List<BpmProcessDeviceState> getProcessDeviceStates() {
-        return processDeviceStates;
+    public List<Map<String, String>> getAssociationData() {
+        return associationData;
     }
+
+    @Override
+    public void setAssociationData(List<Map<String, String>> associationData) {
+        this.associationData = associationData;
+    }
+
+
 }

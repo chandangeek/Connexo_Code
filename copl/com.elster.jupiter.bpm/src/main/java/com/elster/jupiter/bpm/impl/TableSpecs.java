@@ -2,7 +2,6 @@ package com.elster.jupiter.bpm.impl;
 
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
-import com.elster.jupiter.bpm.BpmProcessDeviceState;
 import com.elster.jupiter.bpm.BpmProcessPrivilege;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
@@ -37,21 +36,6 @@ public enum TableSpecs {
             table.primaryKey("BPM_PK_PROCESSPRIVILEGE").on(processIdColumn, applicationColumn, privilegeIdColumn).add();
             table.foreignKey("FK_PROCESSPRIVILEGE").references(BPM_PROCESS.name()).onDelete(CASCADE).map("bpmProcessDefinition")
                     .reverseMap("processPrivileges").on(processIdColumn).add();
-        }
-    },
-    BPM_PROCESS_DEVICESTATE(BpmProcessDeviceState.class) {
-        @Override
-        void describeTable(Table table) {
-            table.map(BpmProcessDeviceStateImpl.class);
-            Column processIdColumn = table.column("PROCESSID").number().notNull().conversion(NUMBER2LONG).map("processId").add();
-            Column deviceStateId = table.column("DEVICESTATEID").number().notNull().conversion(NUMBER2LONG).map("deviceStateId").add();
-            table.column("DEVICELIFECYCLEID").number().notNull().conversion(NUMBER2LONG).map("deviceLifeCycleId").add();
-            table.column("NAME").type("varchar2(30)").notNull().map("name").add();
-            table.column("DEVICESTATE").type("varchar2(30)").notNull().map("deviceState").add();
-            table.addCreateTimeColumn("CREATETIME", "createTime");
-            table.primaryKey("BPM_PK_DEVICESTATE").on(processIdColumn, deviceStateId).add();
-            table.foreignKey("FK_DEVICESTATE").references(BPM_PROCESS.name()).onDelete(CASCADE).map("bpmProcessDefinition")
-                    .reverseMap("processDeviceStates").on(processIdColumn).add();
         }
     };
 

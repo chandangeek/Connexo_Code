@@ -72,4 +72,25 @@ public class BpmProcessPrivilegeImpl implements BpmProcessPrivilege {
     public void delete() {
         dataModel.mapper(BpmProcessPrivilege.class).remove(this);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BpmProcessPrivilegeImpl that = (BpmProcessPrivilegeImpl) o;
+
+        if (processId != that.processId) return false;
+        if (!privilegeName.equals(that.privilegeName)) return false;
+        return application.equals(that.application);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (processId ^ (processId >>> 32));
+        result = 31 * result + privilegeName.hashCode();
+        result = 31 * result + application.hashCode();
+        return result;
+    }
 }

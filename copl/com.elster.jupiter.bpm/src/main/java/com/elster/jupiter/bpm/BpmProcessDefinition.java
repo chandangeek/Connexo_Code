@@ -2,34 +2,34 @@ package com.elster.jupiter.bpm;
 
 
 import java.util.List;
+import java.util.Map;
 
 public interface BpmProcessDefinition {
 
-    public void revokePrivileges(List<BpmProcessPrivilege> processPrivileges);
-
-    void revokeProcessDeviceStates(List<BpmProcessDeviceState> processDeviceStates);
-
-    void grantProcessDeviceStates(List<BpmProcessDeviceState> processDeviceStates);
+    void revokePrivileges(List<BpmProcessPrivilege> processPrivileges);
 
     void grantPrivileges(List<BpmProcessPrivilege> targetPrivileges);
 
-    public long getId();
+    long getId();
 
-    public String getProcessName();
+    String getProcessName();
 
-    public String getAssociation();
+    String getAssociation();
 
-    public String getVersion();
+    String getVersion();
 
-    public String getStatus();
+    String getStatus();
 
-    void save();
+    void update();
 
-    public void setStatus(String status);
+    void setStatus(String status);
 
     void delete();
 
     List<BpmProcessPrivilege> getPrivileges();
 
-    List<BpmProcessDeviceState> getProcessDeviceStates();
+    List<Map<String, String>> getAssociationData();
+
+    void setAssociationData(List<Map<String, String>> associationData);
+
 }

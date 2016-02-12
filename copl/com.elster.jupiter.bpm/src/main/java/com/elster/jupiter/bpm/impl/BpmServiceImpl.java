@@ -21,33 +21,30 @@ import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-
+import org.osgi.service.component.annotations.*;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import javax.ws.rs.core.Application;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Predicate;
 
-import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.bpm",
-        service = {BpmService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class, MessageSeedProvider.class},
-        immediate = true,
-        property = "name=" + BpmService.COMPONENTNAME)
-public class BpmServiceImpl implements BpmService, InstallService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
+        service = {BpmService.class, Application.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        property = {"alias=/processAssociationProviders","name=" + BpmService.COMPONENTNAME},
+        immediate = true)
+public class BpmServiceImpl extends Application implements BpmService, InstallService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile MessageService messageService;
@@ -56,6 +53,12 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     private volatile UserService userService;
     private volatile BpmServerImpl bpmServer;
     private volatile QueryService queryService;
+
+   public List<ProcessAssociationProvider> getProcessAssociationProviders() {
+        return processAssociationProviders;
+    }
+
+    private List<ProcessAssociationProvider> processAssociationProviders = new CopyOnWriteArrayList<>();
 
     public BpmServiceImpl() {
     }
@@ -114,6 +117,21 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
         }
     }
 
+
+    @Reference(name = "ZApplication", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addApplication(ProcessAssociationProvider app) {
+        processAssociationProviders.add(app);
+    }
+
+    @SuppressWarnings("unused")
+    public void removeApplication(ProcessAssociationProvider app) {
+        processAssociationProviders.remove(app);
+    }
+
+    /*@Override
+    public String findAppNameByKey(String appKey) {
+        return processAssociationProviders.stream().filter(app -> app.getKey().equals(appKey)).map(ProcessAssociationProvider::getName).findFirst().orElse(appKey);
+    } */
     @Reference
     public void setQueryService(QueryService queryService) {
         this.queryService = queryService;
@@ -138,6 +156,8 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
     }
+
+
 
     @Override
     public BpmServer getBpmServer() {
@@ -240,6 +260,20 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     }
 
     @Override
+    public Optional<BpmProcessDefinition> findProcess (String processName, String association, String version, String status){
+        Condition nameCondition = Operator.EQUALIGNORECASE.compare("processName", processName);
+        Condition versionCondition = Operator.EQUALIGNORECASE.compare("version", version);
+        Condition associationCondition = Operator.EQUALIGNORECASE.compare("association",association);
+        List<BpmProcessDefinition> bpmProcessDefinitions = dataModel.query(BpmProcessDefinition.class)
+                .select(nameCondition.and(versionCondition).and(associationCondition));
+        if(bpmProcessDefinitions.isEmpty()){
+            return Optional.empty();
+        }
+        bpmProcessDefinitions.get(0).setStatus(status);
+        return Optional.of(bpmProcessDefinitions.get(0));
+    }
+
+    @Override
     public Query<BpmProcessDefinition> getQueryBpmProcessDefinition(){
         return getQueryService().wrap(dataModel.query(BpmProcessDefinition.class));
     }
@@ -259,10 +293,7 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
         return BpmProcessPrivilegeImpl.from(dataModel, bpmProcessDefinition, privilegeName, application);
     }
 
-    @Override
-    public BpmProcessDeviceState createBpmProcessDeviceState(BpmProcessDefinition bpmProcessDefinition, long deviceStateId, long deviceLifeCycleId, String name, String deviceName){
-        return BpmProcessDeviceStateImpl.from(dataModel, bpmProcessDefinition, deviceStateId, deviceLifeCycleId, name, deviceName);
-    }
+
 
     @Override
     public Optional<BpmProcessDefinition> getBpmProcessDefinition(String processName, String version){
@@ -284,5 +315,26 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     @Override
     public QueryService getQueryService() {
         return queryService;
+    }
+
+    @Override
+    public BpmProcessDefinitionBuilder newProcessBuilder() {
+        return new BpmProcessDefinitionBuilderImpl(dataModel, this);
+    }
+
+
+
+   /* public Optional<ProcessAssociationProvider> getProcessAssociationProvider(String type) throws InterruptedException {
+        return processAssociationProviders.get(withType(type));
+    }
+
+    private Predicate<ProcessAssociationProvider> withType(String type) {
+        return p -> p.getType().equals(type);
+    } */
+
+    @Override
+    public Optional<ProcessAssociationProvider> getProcessAssociationProvider(String type){
+        return processAssociationProviders.stream()
+                .filter(p->p.getType().equalsIgnoreCase(type)).findFirst();
     }
 }
