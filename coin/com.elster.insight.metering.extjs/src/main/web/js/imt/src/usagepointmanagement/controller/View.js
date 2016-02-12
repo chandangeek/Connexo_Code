@@ -10,6 +10,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
     stores: [
         'Imt.usagepointmanagement.store.MeterActivations',
         'Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets',
+        'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
         'Imt.metrologyconfiguration.store.MetrologyConfiguration'
     ],
     views: [
