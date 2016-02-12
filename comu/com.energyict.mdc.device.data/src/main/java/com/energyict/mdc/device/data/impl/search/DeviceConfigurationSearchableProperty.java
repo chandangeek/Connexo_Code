@@ -37,7 +37,6 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
     private SearchableProperty parent;
     private final PropertySpecService propertySpecService;
     private DeviceConfiguration[] deviceConfigurations = new DeviceConfiguration[0];
-    private DisplayStrategy displayStrategy = DisplayStrategy.NAME_ONLY;
 
     @Inject
     public DeviceConfigurationSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
@@ -117,12 +116,6 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
 
     private void refreshWithConstrictionValues(List<Object> list) {
         this.validateAllParentsAreDeviceTypes(list);
-        if (list.size() > 1) {
-            this.displayStrategy = DisplayStrategy.WITH_DEVICE_TYPE;
-        }
-        else {
-            this.displayStrategy = DisplayStrategy.NAME_ONLY;
-        }
         this.deviceConfigurations =
             list.stream()
                 .map(DeviceType.class::cast)
@@ -157,25 +150,7 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
 
     @Override
     protected String toDisplayAfterValidation(Object value) {
-        return this.displayStrategy.toDisplay((DeviceConfiguration) value);
+        DeviceConfiguration deviceConfiguration = (DeviceConfiguration) value;
+        return deviceConfiguration.getName() + " (" + deviceConfiguration.getDeviceType().getName() + ")";
     }
-
-    private enum DisplayStrategy {
-        NAME_ONLY {
-            @Override
-            public String toDisplay(DeviceConfiguration deviceConfiguration) {
-                return deviceConfiguration.getName();
-            }
-        },
-
-        WITH_DEVICE_TYPE {
-            @Override
-            public String toDisplay(DeviceConfiguration deviceConfiguration) {
-                return deviceConfiguration.getName() + " (" + deviceConfiguration.getDeviceType().getName() + ")";
-            }
-        };
-
-        public abstract String toDisplay(DeviceConfiguration deviceConfiguration);
-    }
-
 }
