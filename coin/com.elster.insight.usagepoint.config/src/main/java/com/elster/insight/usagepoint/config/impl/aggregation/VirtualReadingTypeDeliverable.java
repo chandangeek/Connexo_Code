@@ -2,9 +2,9 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
 
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.util.Optional;
 

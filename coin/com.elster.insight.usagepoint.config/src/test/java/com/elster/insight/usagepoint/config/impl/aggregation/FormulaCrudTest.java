@@ -1,5 +1,6 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
+import com.elster.insight.usagepoint.config.Formula;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.config.impl.UsagePointConfigModule;
@@ -18,6 +19,7 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -52,7 +54,10 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.MessageInterpolator;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
+import javax.validation.constraints.AssertTrue;
+import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -60,6 +65,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.fail;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -136,11 +142,52 @@ public class FormulaCrudTest {
     }
 
     @Test
-    public void testCrud()  {
+    public void testSimpleFunctionCallCrud()  {
+        Formula.Mode myMode = Formula.Mode.AUTO;
+        Function myFunction = Function.MAX;
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            MetrologyConfiguration mc1 = upcService.newMetrologyConfiguration("metrology config 1");
+            FunctionCallNode node =
+                    new FunctionCallNode(
+                            Arrays.asList(new ConstantNode(BigDecimal.TEN), new ConstantNode(BigDecimal.ZERO)),
+                            myFunction);
+            Formula formula = upcService.newFormula(myMode, node);
+            formula.update();
             context.commit();
+            long formulaId = formula.getId();
+            Optional<Formula> loadedFormula = upcService.findFormula(formulaId);
+            if (!loadedFormula.isPresent()) {
+                fail("No formula found");
+            }
+            Formula myFormula = loadedFormula.get();
+            assertThat(myFormula.getId() == formulaId);
+            assertThat(myFormula.getMode().equals(myMode));
+            ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
+            assertThat(myNode.equals(node));
+            if (!(myNode instanceof FunctionCallNode)) {
+                fail("Node should be a FunctionCallNode");
+            }
+            FunctionCallNode functionCallNode = (FunctionCallNode) myNode;
+            assertThat(functionCallNode.getFunction().equals(myFunction));
+            List<AbstractNode> children = functionCallNode.getChildren();
+            if (children.size() != 2) {
+                fail("2 children expected");
+            }
+            AbstractNode child1 = children.get(0);
+            AbstractNode child2 = children.get(1);
+            if (!(child1 instanceof ConstantNode)) {
+                fail("child1 should be a ConstantNode");
+            }
+            if (!(child2 instanceof ConstantNode)) {
+                fail("child2 should be a ConstantNode");
+            }
+            ConstantNode constant1 = (ConstantNode) child1;
+            assertThat(constant1.getValue().equals(BigDecimal.TEN));
+            ConstantNode constant2 = (ConstantNode) child2;
+            assertThat(constant2.getValue().equals(BigDecimal.ZERO));
+
+
+
         }
 
 

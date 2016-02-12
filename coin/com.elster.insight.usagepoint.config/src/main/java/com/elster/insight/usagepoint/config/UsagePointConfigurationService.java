@@ -6,7 +6,9 @@ import java.util.stream.Stream;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.elster.insight.usagepoint.config.impl.aggregation.ExpressionNode;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 @ProviderType
@@ -31,5 +33,9 @@ public interface UsagePointConfigurationService {
     Boolean unlink(UsagePoint up, MetrologyConfiguration mc);
 
     Optional<MetrologyConfiguration> findAndLockMetrologyConfiguration(long id, long version);
+
+    Formula newFormula(Formula.Mode mode, ExpressionNode node);
+
+    Optional<Formula> findFormula(long id);
 
 }

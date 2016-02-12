@@ -6,8 +6,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Interval;
 
 import com.elster.insight.usagepoint.config.Formula;
@@ -17,10 +15,6 @@ import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
 import com.google.common.collect.Range;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,7 +25,8 @@ import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -54,27 +49,6 @@ public class DataAggregationServiceImplCalculateTest {
     private MetrologyConfiguration configuration;
     @Mock
     private MetrologyContract contract;
-    @Mock
-    private DataModel dataModel;
-    @Mock
-    private Connection connection;
-    @Mock
-    private PreparedStatement preparedStatement;
-    @Mock
-    private ResultSet resultSet;
-    @Mock
-    private SqlBuilderFactory sqlBuilderFactory;
-    @Mock
-    private ClauseAwareSqlBuilder sqlBuilder;
-
-    @Before
-    public void initializeMocks() throws SQLException {
-        when(this.sqlBuilderFactory.newClauseAwareSqlBuilder()).thenReturn(this.sqlBuilder);
-        when(this.sqlBuilder.finish()).thenReturn(new SqlBuilder());
-        when(this.dataModel.getConnection(true)).thenReturn(this.connection);
-        when(this.connection.prepareStatement(anyString())).thenReturn(this.preparedStatement);
-        when(this.preparedStatement.executeQuery()).thenReturn(this.resultSet);
-    }
 
     /**
      * Tests the simplest case:
@@ -93,7 +67,7 @@ public class DataAggregationServiceImplCalculateTest {
      * by exactly one matching channel with a single meter activation.
      */
     @Test
-    public void simplestNetConsumptionOfProsumer() throws SQLException {
+    public void simplestNetConsumptionOfProsumer() {
         DataAggregationServiceImpl service = this.testInstance();
         // Setup configuration requirements
         ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
@@ -130,9 +104,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(chn2.getMainReadingType()).thenReturn(readingType15min);
         when(consumption.getMatchesFor(meterActivation)).thenReturn(Collections.singletonList(readingType15min));
         when(consumption.getMatchingChannelsFor(meterActivation)).thenReturn(Collections.singletonList(chn1));
-        when(production.getMatchesFor(meterActivation)).thenReturn(Collections.singletonList(readingType15min));
         when(production.getMatchingChannelsFor(meterActivation)).thenReturn(Collections.singletonList(chn2));
-        when(this.resultSet.next()).thenReturn(false);
 
         // Business method
         service.calculate(this.usagePoint, this.contract, year2016());
@@ -141,13 +113,9 @@ public class DataAggregationServiceImplCalculateTest {
         verify(this.virtualFactory).nextMeterActivation(meterActivation);
         verify(this.virtualFactory).requirementFor(consumption, netConsumption, IntervalLength.MINUTE15);
         verify(this.virtualFactory).requirementFor(production, netConsumption, IntervalLength.MINUTE15);
+        verify(this.virtualFactory).deliverableFor(any(ReadingTypeDeliverableForMeterActivation.class), eq(IntervalLength.MINUTE15));
         verify(this.virtualFactory).allRequirements();
         verify(this.virtualFactory).allDeliverables();
-        verify(this.dataModel).getConnection(true);
-        verify(this.resultSet).next();
-        verify(this.resultSet).close();
-        verify(this.preparedStatement).close();
-        verify(this.connection).close();
     }
 
     private Instant jan1st2015() {
@@ -173,7 +141,7 @@ public class DataAggregationServiceImplCalculateTest {
     }
 
     private DataAggregationServiceImpl testInstance() {
-        return new DataAggregationServiceImpl(this.virtualFactory, this.sqlBuilderFactory, this.dataModel);
+        return new DataAggregationServiceImpl(this.virtualFactory);
     }
 
 }

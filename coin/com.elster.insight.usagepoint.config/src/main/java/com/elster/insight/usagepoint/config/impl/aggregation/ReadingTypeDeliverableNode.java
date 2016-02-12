@@ -12,15 +12,19 @@ public class ReadingTypeDeliverableNode extends AbstractNode {
 
     static final String TYPE_IDENTIFIER = "DEL";
 
-    private Reference<ReadingTypeDeliverable> readingTypeDeliverable = ValueReference.absent();
+    //todo add foreign key and replace id by reference
+    //private Reference<ReadingTypeDeliverable> readingTypeDeliverable = ValueReference.absent();
+    private long readingTypeDeliverable;
 
     public ReadingTypeDeliverableNode(ReadingTypeDeliverable readingTypeDeliverable) {
         super();
-        this.readingTypeDeliverable.set(readingTypeDeliverable);
+        //this.readingTypeDeliverable.set(readingTypeDeliverable);
+        this.readingTypeDeliverable = readingTypeDeliverable.getId();
     }
 
     public ReadingTypeDeliverable getReadingTypeDeliverable() {
-        return readingTypeDeliverable.orNull();
+        return null;
+        //return readingTypeDeliverable.orNull();
     }
 
     @Override

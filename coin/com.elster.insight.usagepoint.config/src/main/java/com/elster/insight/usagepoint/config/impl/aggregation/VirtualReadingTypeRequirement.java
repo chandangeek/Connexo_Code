@@ -7,6 +7,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
 import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +25,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-04 (15:24)
  */
-class VirtualReadingTypeRequirement {
+public class VirtualReadingTypeRequirement {
 
     private final ReadingTypeRequirement requirement;
     private final ReadingTypeDeliverable deliverable;
@@ -35,7 +36,7 @@ class VirtualReadingTypeRequirement {
     // Todo: Will become valid usage once moved to the metering bundle
     private ChannelContract preferredChannel;   // Lazy from the list of matching channels and the targetIntervalLength
 
-    VirtualReadingTypeRequirement(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, List<Channel> matchingChannels, IntervalLength targetIntervalLength, MeterActivation meterActivation, int meterActivationSequenceNumber) {
+    public VirtualReadingTypeRequirement(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, List<Channel> matchingChannels, IntervalLength targetIntervalLength, MeterActivation meterActivation, int meterActivationSequenceNumber) {
         super();
         this.requirement = requirement;
         this.deliverable = deliverable;
@@ -45,7 +46,7 @@ class VirtualReadingTypeRequirement {
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
     }
 
-    List<Channel> getMatchingChannels() {
+    public List<Channel> getMatchingChannels() {
         return matchingChannels;
     }
 

@@ -3,9 +3,6 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.elster.insight.usagepoint.config.MetrologyContract;
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
@@ -14,13 +11,9 @@ import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,10 +28,7 @@ import java.util.stream.Stream;
 public class DataAggregationServiceImpl implements DataAggregationService, ReadingTypeDeliverableForMeterActivationProvider {
 
     private VirtualFactory virtualFactory;
-    private SqlBuilderFactory sqlBuilderFactory;
-    private DataModel dataModel;
     private Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation;
-    private ClauseAwareSqlBuilder sqlBuilder;
 
     // For OSGi only
     public DataAggregationServiceImpl() {
@@ -47,11 +37,9 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
 
     // For testing purposes only
     @Inject
-    public DataAggregationServiceImpl(VirtualFactory virtualFactory, SqlBuilderFactory sqlBuilderFactory, DataModel dataModel) {
+    public DataAggregationServiceImpl(VirtualFactory virtualFactory) {
         this();
         this.setVirtualFactory(virtualFactory);
-        this.setSqlBuilderFactory(sqlBuilderFactory);
-        this.setDataModel(dataModel);
     }
 
     @Reference
@@ -59,62 +47,11 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
         this.virtualFactory = virtualFactory;
     }
 
-    @Reference
-    public void setSqlBuilderFactory(SqlBuilderFactory sqlBuilderFactory) {
-        this.sqlBuilderFactory = sqlBuilderFactory;
-    }
-
-    @Reference
-    public void setDataModel(DataModel dataModel) {
-        this.dataModel = dataModel;
-    }
-
     @Override
     public List<? extends BaseReadingRecord> calculate(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
         this.deliverablesPerMeterActivation = new HashMap<>();
         this.getOverlappingMeterActivations(usagePoint, period).forEach(meterActivation -> this.prepare(meterActivation, contract, period));
-        try {
-            return this.execute(this.generateSql());
-        }
-        catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
-    }
-
-    private SqlBuilder generateSql() {
-        this.sqlBuilder = this.sqlBuilderFactory.newClauseAwareSqlBuilder();
-        this.appendAllToSqlBuilder();
-        SqlBuilder fullSqlBuilder = this.sqlBuilder.finish();
-        fullSqlBuilder.append("order by 3 desc, 1");
-        return fullSqlBuilder;
-    }
-
-    private void appendAllToSqlBuilder() {
-        this.deliverablesPerMeterActivation
-                .values()
-                .stream()
-                .flatMap(Collection::stream)
-                .forEach(each -> each.appendTo(this.sqlBuilder));
-        this.virtualFactory.allRequirements().stream().forEach(requirement -> requirement.appendTo(this.sqlBuilder));
-        this.virtualFactory.allDeliverables().stream().forEach(requirement -> requirement.appendTo(this.sqlBuilder));
-    }
-
-    private List<AggregatedReadingRecord> execute(SqlBuilder sqlBuilder) throws SQLException {
-        try (Connection connection = dataModel.getConnection(true)) {
-            try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
-                return this.execute(statement);
-            }
-        }
-    }
-
-    private List<AggregatedReadingRecord> execute(PreparedStatement statement) throws SQLException {
-        List<AggregatedReadingRecord> aggregatedReadingRecords = new ArrayList<>();
-        try (ResultSet resultSet = statement.executeQuery()) {
-            while (resultSet.next()) {
-                aggregatedReadingRecords.add(AggregatedReadingRecord.from(resultSet));
-            }
-        }
-        return aggregatedReadingRecords;
+        return Collections.emptyList();
     }
 
     private Stream<? extends MeterActivation> getOverlappingMeterActivations(UsagePoint usagePoint, Range<Instant> period) {

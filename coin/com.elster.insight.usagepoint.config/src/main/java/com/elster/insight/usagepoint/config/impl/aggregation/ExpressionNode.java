@@ -40,10 +40,20 @@ public interface ExpressionNode {
         T visitConstant(ConstantNode constant);
         T visitRequirement(ReadingTypeRequirementNode requirement);
         T visitDeliverable(ReadingTypeDeliverableNode deliverable);
-        T visitOperation(OperationNode operation);
+        T visitOperation(OperationNode operatorNode);
         T visitFunctionCall(FunctionCallNode functionCall);
     }
 
     <T> T accept(Visitor<T> visitor);
+
+    /**
+     * Delete this {@link ExpressionNode}
+     */
+   // void delete();
+
+    /**
+     * Update this {@link ExpressionNode}
+     */
+    //void update();
 
 }
