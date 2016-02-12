@@ -6,72 +6,63 @@ Ext.define('Mdc.view.setup.devicegroup.DevicesOfDeviceGroupGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.DevicesOfDeviceGroup'
+        'Mdc.store.DevicesOfDeviceGroup',
+        'Uni.store.search.Fields'
     ],
     selModel: {
         mode: 'SINGLE'
     },
-    store: 'DevicesOfDeviceGroup',
+    store: 'Uni.store.search.Results',
+    forceFit: true,
+    enableColumnMove: true,
+    columns: [],
+    config: {
+        service: null
+    },
 
     initComponent: function () {
-        var me = this;
-        //me.store = Ext.StoreMgr.lookup('DevicesOfDeviceGroup');
-        this.columns = [
-            {
-                header: Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID'),
-                dataIndex: 'mRID',
-                sortable: false,
-                hideable: false,
-                renderer: function (value, b, record) {
-                    return '<a href="#/devices/' + encodeURIComponent(record.get('mRID')) + '">' + Ext.String.htmlEncode(value) + '</a>';
-                },
-                fixed: true,
-                flex: 3
-            },
-            {
-                header: Uni.I18n.translate('searchItems.serialNumber', 'MDC', 'Serial number'),
-                dataIndex: 'serialNumber',
-                sortable: false,
-                hideable: false,
-                fixed: true,
-                flex: 3
-            },
-            {
-                header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
-                dataIndex: 'deviceTypeName',
-                sortable: false,
-                hideable: false,
-                fixed: true,
-                flex: 3
-            },
-            {
-                header: Uni.I18n.translate('searchItems.configuration', 'MDC', 'Configuration'),
-                dataIndex: 'deviceConfigurationName',
-                sortable: false,
-                hideable: false,
-                fixed: true,
-                flex: 3
-            }
+        var me = this,
+            service = me.getService(),
+            searchFields = Ext.getStore('Uni.store.search.Fields');
 
-        ];
-        this.dockedItems = [
+        me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
-                store: this.store,
+                store: me.store,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} devices'),
                 displayMoreMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} devices'),
-                emptyMsg: Uni.I18n.translate('devices.pagingtoolbartop.emptyMsg', 'MDC', 'There are no devices to display')
+                emptyMsg: Uni.I18n.translate('devices.pagingtoolbartop.emptyMsg', 'MDC', 'There are no devices to display'),
+                items: {
+                    xtype: 'uni-search-column-picker',
+                    itemId: 'column-picker',
+                    grid: me
+                }
             },
             {
                 xtype: 'pagingtoolbarbottom',
-                store: this.store,
+                store: me.store,
+                itemsPerPageMsg: Uni.I18n.translate('devices.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Devices per page'),
                 dock: 'bottom',
-                itemsPerPageMsg: Uni.I18n.translate('devices.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Devices per page')
+                deferLoading: true
             }
         ];
 
-        this.callParent();
+        var storeListeners = searchFields.on('load', function (store, items) {
+            me.down('uni-search-column-picker').setColumns(items.map(function (field) {
+                return service.createColumnDefinitionFromModel(field)
+            }));
+        }, me, {
+            destroyable: true
+        });
+
+        me.callParent(arguments);
+        me.on('destroy', function(){
+            storeListeners.destroy();
+        });
+
+        me.down('pagingtoolbartop').resetPaging();
+        me.down('pagingtoolbarbottom').resetPaging();
     }
 });
 
