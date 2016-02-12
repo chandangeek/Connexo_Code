@@ -35,7 +35,7 @@ import java.util.Optional;
 /**
  * Created by bvn on 2/4/16.
  */
-@Component(name = "com.elster.jupiter.servicecalls",
+@Component(name = "com.elster.jupiter.servicecall",
         service = {ServiceCallService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
         property = "name=" + ServiceCallService.COMPONENT_NAME,
         immediate = true)
