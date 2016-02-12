@@ -126,7 +126,6 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
             @Override
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
-                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
