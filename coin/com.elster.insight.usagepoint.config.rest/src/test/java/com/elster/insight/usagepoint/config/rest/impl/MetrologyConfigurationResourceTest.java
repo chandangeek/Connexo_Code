@@ -343,22 +343,35 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(mConfig.getId()).thenReturn(mConfigId);
         when(mConfig.isActive()).thenReturn(false);
         when(mConfig.getVersion()).thenReturn(1L);
-        when(mConfig.getCustomPropertySets()).thenReturn(Collections.emptyList());
+        when(mConfig.getCustomPropertySets()).thenReturn(Collections.singletonList(rcps));
 
         when(customPropertySetService.findActiveCustomPropertySet("TestSPCId")).thenReturn(Optional.of(rcps));
+        when(usagePointConfigurationService.findMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
         when(usagePointConfigurationService.findAndLockMetrologyConfiguration(mConfigId, parent.version)).thenReturn(Optional.of(mConfig));
 
         Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets/TestSPCId").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
-        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(model.<List>get("$.customPropertySets")).isEmpty();
         verify(mConfig).removeCustomPropertySet(rcps);
-        verify(mConfig).getCustomPropertySets();
+        verify(mConfig, atLeastOnce()).getCustomPropertySets();
     }
 
     @Test
     public void testRemoveCustomPropertySetConcurrentCheck() throws Exception {
         long mConfigId = 123L;
 
+        CustomPropertySet cps = mock(CustomPropertySet.class);
+        when(cps.getId()).thenReturn("TestSPCId");
+        when(cps.getDomainClass()).thenReturn(MetrologyConfiguration.class);
+
+        RegisteredCustomPropertySet rcps = mock(RegisteredCustomPropertySet.class);
+        when(rcps.getId()).thenReturn(456L);
+        when(rcps.getCustomPropertySet()).thenReturn(cps);
+        when(rcps.isViewableByCurrentUser()).thenReturn(true);
+
+        MetrologyConfiguration mConfig = mock(MetrologyConfiguration.class);
+        when(mConfig.getId()).thenReturn(mConfigId);
+        when(mConfig.isActive()).thenReturn(false);
+        when(mConfig.getVersion()).thenReturn(1L);
+        when(mConfig.getCustomPropertySets()).thenReturn(Collections.singletonList(rcps));
         MetrologyConfigurationInfo parent = new MetrologyConfigurationInfo();
         parent.id = mConfigId;
         parent.version = 1;
@@ -366,8 +379,9 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         CustomPropertySetInfo<MetrologyConfigurationInfo> info = new CustomPropertySetInfo<>();
         info.parent = parent;
         info.customPropertySetId = "TestSPCId";
-        when(usagePointConfigurationService.findMetrologyConfiguration(mConfigId)).thenReturn(Optional.empty());
+        when(usagePointConfigurationService.findMetrologyConfiguration(mConfigId)).thenReturn(Optional.of(mConfig));
         when(usagePointConfigurationService.findAndLockMetrologyConfiguration(mConfigId, parent.version)).thenReturn(Optional.empty());
+        when(customPropertySetService.findActiveCustomPropertySet("TestSPCId")).thenReturn(Optional.of(rcps));
 
         Response response = target("/metrologyconfigurations/" + mConfigId + "/custompropertysets/TestSPCId").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
