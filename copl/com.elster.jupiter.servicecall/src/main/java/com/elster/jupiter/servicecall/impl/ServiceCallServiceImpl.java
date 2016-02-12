@@ -134,6 +134,11 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     }
 
     @Override
+    public Finder<ServiceCallLifeCycle> getServiceCallLifeCycles() {
+        return DefaultFinder.of(ServiceCallLifeCycle.class, dataModel).defaultSortColumn(ServiceCallLifeCycleImpl.Fields.name.fieldName());
+    }
+
+    @Override
     public Optional<ServiceCallLifeCycle> getServiceCallLifeCycle(String name) {
         return dataModel.mapper(ServiceCallLifeCycle.class).getUnique(ServiceCallLifeCycleImpl.Fields.name.fieldName(), name);
     }
@@ -145,7 +150,12 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
 
     @Override
     public Finder<ServiceCallType> getServiceCallTypes() {
-        return DefaultFinder.of(ServiceCallType.class, dataModel).defaultSortColumn("name");
+        return DefaultFinder.of(ServiceCallType.class, dataModel).defaultSortColumn(ServiceCallTypeImpl.Fields.name.fieldName());
+    }
+
+    @Override
+    public ServiceCallType createServiceCallType(String name) {
+        return null;
     }
 
     @Override

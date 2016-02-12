@@ -24,6 +24,21 @@ public class ServiceCallTypeImpl implements ServiceCallType {
     private LogLevel logLevel;
     private Reference<ServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
 
+    public enum Fields {
+        name("name"),
+        ;
+
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        public String fieldName() {
+            return javaFieldName;
+        }
+    }
+
     @Override
     public long getVersion() {
         return version;
@@ -82,5 +97,10 @@ public class ServiceCallTypeImpl implements ServiceCallType {
     @Override
     public Optional<CustomPropertySet<ServiceCall, ? extends PersistentDomainExtension<ServiceCall>>> getCustomPropertySet() {
         return Optional.empty();
+    }
+
+    @Override
+    public void save() {
+        // TODO
     }
 }

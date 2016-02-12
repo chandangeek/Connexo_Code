@@ -30,4 +30,6 @@ public interface ServiceCallType extends HasId, HasName {
     Optional<ServiceCallLifeCycle> getServiceCallLifeCycle();
 
     Optional<CustomPropertySet<ServiceCall, ? extends PersistentDomainExtension<ServiceCall>>> getCustomPropertySet();
+
+    void save();
 }
