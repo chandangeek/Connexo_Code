@@ -11,15 +11,20 @@ public class ReadingTypeRequirementNode extends AbstractNode implements ServerEx
 
     static final String TYPE_IDENTIFIER = "REQ";
 
-    private Reference<ReadingTypeRequirement> readingTypeRequirement = ValueReference.absent();
+    //todo add foreign key and replace id by reference
+    //private Reference<ReadingTypeRequirement> readingTypeRequirement = ValueReference.absent();
+    private long readingTypeRequirement;
+
 
     public ReadingTypeRequirementNode(ReadingTypeRequirement readingTypeRequirement) {
         super();
-        this.readingTypeRequirement.set(readingTypeRequirement);
+        this.readingTypeRequirement = readingTypeRequirement.getId();
+        //this.readingTypeRequirement.set(readingTypeRequirement);
     }
 
     public ReadingTypeRequirement getReadingTypeRequirement() {
-        return readingTypeRequirement.orNull();
+        return null;
+        //return readingTypeRequirement.orNull();
     }
 
     @Override

@@ -12,6 +12,8 @@ public class FunctionCallNode extends AbstractNode {
     private Function function;
     private String name;
 
+    public FunctionCallNode() {}
+
     public FunctionCallNode(List<AbstractNode> children, Function function) {
         super(children);
         this.function = function;

@@ -159,6 +159,11 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Override
+    public Optional<Formula> findFormula(long id) {
+        return dataModel.mapper(Formula.class).getUnique("id", id);
+    }
+
+    @Override
     public Optional<MetrologyConfiguration> findMetrologyConfiguration(String name) {
         return dataModel.mapper(MetrologyConfiguration.class).getUnique("name", name);
     }

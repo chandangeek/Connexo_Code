@@ -36,4 +36,6 @@ public interface UsagePointConfigurationService {
 
     Formula newFormula(Formula.Mode mode, ExpressionNode node);
 
+    Optional<Formula> findFormula(long id);
+
 }

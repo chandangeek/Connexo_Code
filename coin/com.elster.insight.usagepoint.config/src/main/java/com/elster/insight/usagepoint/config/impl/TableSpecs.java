@@ -102,7 +102,7 @@ public enum TableSpecs {
         }
     },
 
-    UPC_FORMULA_NODE {
+        UPC_FORMULA_NODE {
         @Override
         void addTo(DataModel dataModel) {
             Table<ExpressionNode> table = dataModel.addTable(name(),ExpressionNode.class);
@@ -135,9 +135,12 @@ public enum TableSpecs {
             table.primaryKey("UPC_PK_FORMULA_NODE").on(idColumn).add();
 
             table.foreignKey("UPC_VALIDCHILD").references(UPC_FORMULA_NODE.name()).on(parentColumn).onDelete(DeleteRule.CASCADE)
-                    .map("parent").reverseMap("children").reverseMapOrder("argumentIndex").composition().add();
+                    .map("parent").reverseMap("children").reverseMapOrder("argumentIndex").add();
         }
     },
+
+
+
 
     UPC_FORMULA {
         @Override

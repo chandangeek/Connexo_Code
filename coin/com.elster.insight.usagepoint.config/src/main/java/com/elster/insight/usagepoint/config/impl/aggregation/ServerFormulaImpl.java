@@ -88,12 +88,12 @@ public class ServerFormulaImpl implements ServerFormula {
     }
 
     private void persist() {
-        Save.CREATE.save(dataModel, this.expressionNode);
+        Save.CREATE.save(dataModel, this.expressionNode.get());
         Save.CREATE.save(dataModel, this);
     }
 
     private void doUpdate() {
-        Save.UPDATE.save(dataModel, this.expressionNode);
+        Save.UPDATE.save(dataModel, this.expressionNode.get());
         Save.UPDATE.save(dataModel, this);
     }
 }
