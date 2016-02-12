@@ -51,6 +51,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
         var activate = menu.down('#activate'),
             deactivate = menu.down('#deactivate'),
             active = menu.record.data.active;
+
         if (active) {
             deactivate.show();
             activate.hide();

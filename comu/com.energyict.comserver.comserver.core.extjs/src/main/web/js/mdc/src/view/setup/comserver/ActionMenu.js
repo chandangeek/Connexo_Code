@@ -1,5 +1,8 @@
 Ext.define('Mdc.view.setup.comserver.ActionMenu', {
     extend: 'Ext.menu.Menu',
+    requires:[
+        'Mdc.privileges.Monitor'
+    ],
     alias: 'widget.comserver-actionmenu',
     plain: true,
     border: false,
@@ -24,6 +27,7 @@ Ext.define('Mdc.view.setup.comserver.ActionMenu', {
         {
             itemId: 'monitor',
             text: Uni.I18n.translate('comserver.mon itor', 'MDC', 'Monitor'),
+            hidden: !Mdc.privileges.Monitor.canMonitor(),
             action: 'monitor'
         },
         {
