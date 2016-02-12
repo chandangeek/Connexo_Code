@@ -1,4 +1,6 @@
 -classpath: target/classes
 -dsannotations: *
-Private-Package: com.elster.jupiter.metering.cps.impl
+Private-Package: \
+    com.elster.jupiter.metering.cps.impl, \
+    com.elster.jupiter.metering.cps.impl.metrology
 Export-Package: com.elster.jupiter.metering.cps
