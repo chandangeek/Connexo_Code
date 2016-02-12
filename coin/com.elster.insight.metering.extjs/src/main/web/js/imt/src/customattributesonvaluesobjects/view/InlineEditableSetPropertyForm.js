@@ -56,7 +56,9 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                 ui: 'link',
                 text: Uni.I18n.translate('customattributesets.versions', 'IMT', 'Versions'),
                 hidden: true,
-                disabled: true, // timeslised are not ready yet
+                handler: function() {
+                    me.router.getRoute('usagepoints/view/history').forward(null, {customAttributeSetId: me.record.getId()});
+                },
                 margin: '-5 0 0 -10'
 
             },
