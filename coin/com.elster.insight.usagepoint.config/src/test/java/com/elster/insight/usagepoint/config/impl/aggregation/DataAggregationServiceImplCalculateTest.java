@@ -123,9 +123,11 @@ public class DataAggregationServiceImplCalculateTest {
         when(meterActivation.getInterval()).thenReturn(Interval.startAt(jan1st2015()));
         when(meterActivation.overlaps(year2016())).thenReturn(true);
         doReturn(Collections.singletonList(meterActivation)).when(this.usagePoint).getMeterActivations();
-        Channel chn1 = mock(Channel.class);
-        Channel chn2 = mock(Channel.class);
         ReadingType readingType15min = this.mock15minReadingType();
+        Channel chn1 = mock(Channel.class);
+        when(chn1.getMainReadingType()).thenReturn(readingType15min);
+        Channel chn2 = mock(Channel.class);
+        when(chn2.getMainReadingType()).thenReturn(readingType15min);
         when(consumption.getMatchesFor(meterActivation)).thenReturn(Collections.singletonList(readingType15min));
         when(consumption.getMatchingChannelsFor(meterActivation)).thenReturn(Collections.singletonList(chn1));
         when(production.getMatchesFor(meterActivation)).thenReturn(Collections.singletonList(readingType15min));

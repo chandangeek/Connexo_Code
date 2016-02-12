@@ -32,7 +32,7 @@ public class ClauseAwareSqlBuilderImplTest {
         ClauseAwareSqlBuilderImpl sqlBuilder = testInstance();
 
         // Business methods
-        sqlBuilder.with("w1", Optional.empty()).append("1, 2 from dual");
+        sqlBuilder.with("w1", Optional.empty()).append("SELECT 1, 2 from dual");
         sqlBuilder.select().append("w1.value from w1");
         String sql = sqlBuilder.finish().getText();
 
@@ -46,7 +46,7 @@ public class ClauseAwareSqlBuilderImplTest {
         ClauseAwareSqlBuilderImpl sqlBuilder = testInstance();
 
         // Business methods
-        sqlBuilder.with("w1", Optional.of("silly comment"), "id", "value").append("1, 2 from dual");
+        sqlBuilder.with("w1", Optional.of("silly comment"), "id", "value").append("SELECT 1, 2 from dual");
         sqlBuilder.select().append("w1.value from w1");
         String sql = sqlBuilder.finish().getText();
 
@@ -60,8 +60,8 @@ public class ClauseAwareSqlBuilderImplTest {
         ClauseAwareSqlBuilderImpl sqlBuilder = testInstance();
 
         // Business methods
-        sqlBuilder.with("w1", Optional.of("dataset1"), "id", "value").append("1, 2 from dual");
-        sqlBuilder.with("w2", Optional.of("dataset2"), "id", "value").append("1, 20 from dual");
+        sqlBuilder.with("w1", Optional.of("dataset1"), "id", "value").append("SELECT 1, 2 from dual");
+        sqlBuilder.with("w2", Optional.of("dataset2"), "id", "value").append("SELECT 1, 20 from dual");
         sqlBuilder.select().append("w1.value - w2.value from w1 join w2 on w2.id = w1.id");
         sqlBuilder.select().append("w1.value * w2.value from w1 join w2 on w2.id = w1.id");
         String sql = sqlBuilder.finish().getText();
@@ -77,8 +77,8 @@ public class ClauseAwareSqlBuilderImplTest {
 
         // Business methods
         sqlBuilder.select().append("w1.value - w2.value from w1 join w2 on w2.id = w1.id");
-        sqlBuilder.with("w1", Optional.of("dataset1"), "id", "value").append("1, 2 from dual");
-        sqlBuilder.with("w2", Optional.of("dataset2"), "id", "value").append("1, 20 from dual");
+        sqlBuilder.with("w1", Optional.of("dataset1"), "id", "value").append("SELECT 1, 2 from dual");
+        sqlBuilder.with("w2", Optional.of("dataset2"), "id", "value").append("SELECT 1, 20 from dual");
         sqlBuilder.select().append("w1.value * w2.value from w1 join w2 on w2.id = w1.id");
         String sql = sqlBuilder.finish().getText();
 

@@ -70,7 +70,7 @@ public class InferAggregationInterval implements ServerExpressionNode.ServerVisi
         return this.visitChildren(
                 operands,
                 () -> new UnsupportedOperationException(
-                        "Two operands for " + operatorNode.getOperator().name() + " cannot support the same interval"));
+                        "The 2 operands for " + operatorNode.getOperator().name() + " cannot support the same interval"));
     }
 
     @Override
