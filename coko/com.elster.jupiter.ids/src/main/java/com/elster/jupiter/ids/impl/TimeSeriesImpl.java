@@ -10,6 +10,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.sql.SqlFragment;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -49,17 +51,17 @@ public final class TimeSeriesImpl implements TimeSeries {
 	private Instant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
-	
+
 	// association
 	private Reference<IVault> vault = ValueReference.absent();
 	private Reference<RecordSpec> recordSpec = ValueReference.absent();
-	
+
 	// cached values
-	private ZoneId zoneId;	
-	
+	private ZoneId zoneId;
+
 	private final DataModel dataModel;
 	private final IdsService idsService;
-	
+
     @Inject
 	TimeSeriesImpl(DataModel dataModel, IdsService idsService) {
     	this.dataModel = dataModel;
@@ -82,7 +84,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 		this.offset = offsetInHours;
 		return this;
 	}
-    
+
     private final void setInterval(TemporalAmount interval) {
     	List<TemporalUnit> units = interval.getUnits().stream().filter(unit -> interval.get(unit) > 0).collect(Collectors.toList());
     	if (units.size() > 1) {
@@ -103,7 +105,7 @@ public final class TimeSeriesImpl implements TimeSeries {
             }
     		this.intervalLength = (int) minutes;
     		this.intervalLengthUnit = IntervalLengthUnit.MINUTE;
-        } 
+        }
     	if (unit.equals(ChronoUnit.DAYS)) {
     		long days = interval.get(unit);
         	if (days != 1) {
@@ -143,7 +145,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 	}
 
 	@Override
-	public ZoneId getZoneId() {		
+	public ZoneId getZoneId() {
 		if (zoneId == null) {
 			// TODO may need to optimized as TimeZone.getTimeZone is probably the slowest method in the JDK
 			zoneId = ZoneId.of(timeZoneName);
@@ -155,7 +157,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 	public boolean isRegular() {
 		return regular;
 	}
-	
+
 	@Override
 	public TemporalAmount interval() {
 		return intervalLengthUnit.amount(intervalLength);
@@ -170,12 +172,12 @@ public final class TimeSeriesImpl implements TimeSeries {
 	public IVault getVault() {
 		return vault.get();
 	}
-	
+
 	@Override
 	public RecordSpecImpl getRecordSpec() {
 		return (RecordSpecImpl) recordSpec.get();
 	}
-	
+
 	@Override
 	public String toString() {
 		return "TimeSeries " + id + " (version: " + version + " created: " + getCreateDate() + " modified: " + getModDate() + ")" ;
@@ -184,15 +186,15 @@ public final class TimeSeriesImpl implements TimeSeries {
 	public Instant getCreateDate() {
 		return createTime;
 	}
-	
+
 	public Instant getModDate() {
 		return modTime;
 	}
 
 	void persist() {
-		dataModel.persist(this);		
+		dataModel.persist(this);
 	}
-	
+
 	@Override
 	public boolean add(Instant instant, boolean overrule, Object... values) {
 		TimeSeriesDataStorer storer = overrule ? idsService.createOverrulingStorer() : idsService.createNonOverrulingStorer();
@@ -200,7 +202,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 		StorerStats stats = storer.execute();
 		return stats.getInsertCount() > 0 || stats.getUpdateCount() > 0;
 	}
-	
+
 	void updateRange(Instant minDate , Instant maxDate) {
 		List<String> updateAspects = new ArrayList<>();
 		if (minDate != null) {
@@ -209,7 +211,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 				updateAspects.add("firstTime");
 			}
 		}
-		if (maxDate != null) {		
+		if (maxDate != null) {
 			if (this.lastTime ==  null || lastTime.isBefore(maxDate)) {
 				lastTime = maxDate;
 				updateAspects.add("lastTime");
@@ -219,7 +221,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 			dataModel.update(this, updateAspects.toArray(new String[updateAspects.size()]));
 		}
 	}
-	
+
 	Calendar getStartCalendar(Instant instant) {
 		Calendar result = Calendar.getInstance(TimeZone.getTimeZone(getZoneId()));
 		result.setTimeInMillis(instant.toEpochMilli());
@@ -227,16 +229,16 @@ public final class TimeSeriesImpl implements TimeSeries {
 		if (getOffset() != 0) {
 			// use set instead of add, because calendar behavior is unexpected for adding hours to midnight on a DST transition day.
 			result.set(Calendar.HOUR_OF_DAY,offset);
-		}		
+		}
 		return result;
 	}
-	
-	
+
+
 	@Override
 	public boolean isValidInstant(Instant instant) {
 		return getVault().isValidInstant(instant) && isValid(instant);
 	}
-	
+
 	private boolean isValid(Instant instant) {
 		if (lockTime != null &&  !instant.isAfter(lockTime)) {
 			return false;
@@ -255,7 +257,7 @@ public final class TimeSeriesImpl implements TimeSeries {
         }
         return !MONTH.equals(intervalLengthUnit) || dateTime.getDayOfMonth() == 1;
     }
-	
+
 	Instant validInstantOnOrAfter(Instant instant) {
 		if (isValid(instant)) {
 			return instant;
@@ -289,6 +291,11 @@ public final class TimeSeriesImpl implements TimeSeries {
 	}
 
 	@Override
+	public SqlFragment getRawValuesSql(Range<Instant> interval, String... fieldSpecNames) {
+		return this.getVault().getRawValuesSql(this, interval, fieldSpecNames);
+	}
+
+	@Override
 	public List<TimeSeriesEntry> getEntriesUpdatedSince(Range<Instant> interval, Instant since) {
 		return getVault().getEntriesUpdatedSince(this, interval, since);
 	}
@@ -297,12 +304,12 @@ public final class TimeSeriesImpl implements TimeSeries {
     public Optional<TimeSeriesEntry> getEntry(Instant when) {
     	return getVault().getEntry(this,when);
     }
-    
-    void lock() {     
+
+    void lock() {
     	TimeSeriesImpl latest = dataModel.mapper(TimeSeriesImpl.class).lock(getId());
     	if (latest.version != this.version) throw new OptimisticLockException();
     }
-	
+
 	@Override
 	public boolean equals(Object other) {
         if (this == other) {
@@ -313,12 +320,12 @@ public final class TimeSeriesImpl implements TimeSeries {
         }
         return this.id == ((TimeSeriesImpl) other).id;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Objects.hashCode(id);
 	}
-	
+
 	Instant next(Instant instant , int numberOfEntries) {
 		if (!isRegular()) {
 			throw new UnsupportedOperationException();
@@ -347,7 +354,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 	public List<TimeSeriesEntry> getEntriesOnOrBefore(Instant when, int entryCount) {
 		return getVault().getEntriesBefore(this,when,entryCount,true);
 	}
-	
+
 	@Override
 	public void removeEntries(Range<Instant> range) {
 		if (lockTime != null) {
@@ -368,7 +375,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 			dataModel.update(this, "lastTime");
 		}
 	}
-	
+
 	@Override
 	public List<Instant> toList(Range<Instant> range) {
 		if (!isRegular()) {

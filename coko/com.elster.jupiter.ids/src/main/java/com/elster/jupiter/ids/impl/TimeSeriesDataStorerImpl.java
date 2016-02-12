@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.security.Principal;
 import java.sql.Connection;
@@ -235,8 +236,8 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
             }
         }
 
-        String selectSql(Collection<SingleTimeSeriesStorer> storers) {
-            StringBuilder builder = vault.selectSql(recordSpec);
+        SqlBuilder selectSql(Collection<SingleTimeSeriesStorer> storers) {
+            SqlBuilder builder = vault.selectSql(recordSpec);
             String separator = " ";
             for (SingleTimeSeriesStorer storer : storers) {
                 builder.append(separator);
@@ -244,7 +245,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
                 separator = " or ";
             }
             builder.append(" ORDER BY TIMESERIESID , UTCSTAMP ");
-            return builder.toString();
+            return builder;
         }
 
         String insertSql() {
@@ -261,11 +262,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 
         void setOldEntries(Connection connection) throws SQLException {
             Collection<SingleTimeSeriesStorer> storers = storerMap.values();
-            try (PreparedStatement statement = connection.prepareStatement(selectSql(storers))) {
-                int offset = 1;
-                for (SingleTimeSeriesStorer storer : storers) {
-                    offset = storer.bindWhere(statement, offset);
-                }
+            try (PreparedStatement statement = this.selectSql(storers).prepare(connection)) {
                 try (ResultSet rs = statement.executeQuery()) {
                     SingleTimeSeriesStorer storer = null;
                     while (rs.next()) {
@@ -349,7 +346,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 
         SingleTimeSeriesStorer(TimeSeriesEntryImpl entry) {
             newEntries.put(entry.getTimeStamp(), entry);
-            timeSeries = (TimeSeriesImpl) entry.getTimeSeries();
+            timeSeries = entry.getTimeSeries();
         }
 
         void add(TimeSeriesEntryImpl entry) {
@@ -364,17 +361,14 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
             return timeSeries;
         }
 
-        void appendWhereClause(StringBuilder builder) {
-            builder.append(" (TIMESERIESID = ? AND UTCSTAMP between ? and ?)");
-        }
-
-        int bindWhere(PreparedStatement statement, int offset) throws SQLException {
-            Instant first = newEntries.firstKey();
-            Instant last = newEntries.lastKey();
-            statement.setLong(offset++, getTimeSeries().getId());
-            statement.setLong(offset++, first.toEpochMilli());
-            statement.setLong(offset++, last.toEpochMilli());
-            return offset;
+        void appendWhereClause(SqlBuilder builder) {
+            builder.append(" (TIMESERIESID =");
+            builder.addLong(this.getTimeSeries().getId());
+            builder.append("AND UTCSTAMP between");
+            builder.addLong(this.newEntries.firstKey().toEpochMilli());
+            builder.append("and");
+            builder.addLong(this.newEntries.lastKey().toEpochMilli());
+            builder.append(")");
         }
 
         void add(ResultSet rs) throws SQLException {
@@ -438,7 +432,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 
         void updateTimeSeries() {
             if (insertCount + updateCount > 0) {
-                ((TimeSeriesImpl) getTimeSeries()).updateRange(minDate, maxDate);
+                getTimeSeries().updateRange(minDate, maxDate);
             }
         }
 
@@ -455,4 +449,4 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
         }
     }
 
-}	
+}

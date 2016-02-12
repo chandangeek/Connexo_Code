@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
@@ -28,17 +29,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @LiteralSql
 public final class VaultImpl implements IVault {
-
-    private static final int ID_COLUMN_INDEX = 1;
-    private static final int FROM_COLUMN_INDEX = 2;
-    private static final int TO_COLUMN_INDEX = 3;
-    private static final int WHEN_COLUMN_INDEX = 2;
-    private static final int RECORDTIME_INDEX = 4;
-    private static final int VERSION_INDEX = 3;
 
     //persistent fields
     private String componentName;
@@ -54,8 +51,11 @@ public final class VaultImpl implements IVault {
     private boolean partitioned;
     private boolean active;
     private int retentionDays;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
@@ -297,15 +297,26 @@ public final class VaultImpl implements IVault {
         return isActive() && minTime.isBefore(instant) && !maxTime.isBefore(instant);
     }
 
-    private StringBuilder selectSql(TimeSeriesImpl timeSeries) {
-        StringBuilder builder = selectSql(timeSeries.getRecordSpec());
-        builder.append(" TIMESERIESID = ?");
+    private SqlBuilder selectSql(TimeSeriesImpl timeSeries) {
+        SqlBuilder builder = selectSql(timeSeries.getRecordSpec());
+        builder.append(" TIMESERIESID =");
+        builder.addLong(timeSeries.getId());
         return builder;
     }
 
-    private StringBuilder selectJournalSql(TimeSeriesImpl timeSeries) {
-        StringBuilder builder = selectJournalSql(timeSeries.getRecordSpec());
-        builder.append(" TIMESERIESID = ?");
+    private SqlBuilder selectSql(TimeSeriesImpl timeSeries, Set<String> limitedRecordSpecFieldNames) {
+        RecordSpecImpl recordSpec = timeSeries.getRecordSpec();
+        List<String> columnNames = recordSpec.getFieldSpecs().stream().filter(each -> limitedRecordSpecFieldNames.contains(each.getName())).map(recordSpec::columnName).collect(Collectors.toList());
+        SqlBuilder builder = selectSql(columnNames);
+        builder.append(" TIMESERIESID =");
+        builder.addLong(timeSeries.getId());
+        return builder;
+    }
+
+    private SqlBuilder selectJournalSql(TimeSeriesImpl timeSeries) {
+        SqlBuilder builder = selectJournalSql(timeSeries.getRecordSpec());
+        builder.append(" TIMESERIESID =");
+        builder.addLong(timeSeries.getId());
         return builder;
     }
 
@@ -376,6 +387,11 @@ public final class VaultImpl implements IVault {
     }
 
     @Override
+    public SqlFragment getRawValuesSql(TimeSeriesImpl timeSeries, Range<Instant> interval, String... fieldSpecNames) {
+        return this.rangeSql(timeSeries, interval, Stream.of(fieldSpecNames).collect(Collectors.toSet()));
+    }
+
+    @Override
     public List<TimeSeriesEntry> getEntriesUpdatedSince(TimeSeriesImpl timeSeries, Range<Instant> interval, Instant since) {
         try {
             return doGetEntriesSince(timeSeries, interval, since);
@@ -402,58 +418,60 @@ public final class VaultImpl implements IVault {
         }
     }
 
-    private String rangeSql(TimeSeriesImpl timeSeries, Range<Instant> range) {
-        StringBuilder builder = selectSql(timeSeries);
+    private SqlBuilder rangeSql(TimeSeriesImpl timeSeries, Range<Instant> range) {
+        SqlBuilder builder = selectSql(timeSeries);
+        this.appendRange(range, builder);
+        builder.append(" order by UTCSTAMP");
+        return builder;
+    }
+
+    private SqlBuilder rangeSql(TimeSeriesImpl timeSeries, Range<Instant> range, Set<String> recordSpecFieldNames) {
+        SqlBuilder builder = selectSql(timeSeries, recordSpecFieldNames);
+        this.appendRange(range, builder);
+        builder.append(" order by UTCSTAMP");
+        return builder;
+    }
+
+    private SqlBuilder rangeUpdatedSinceSql(TimeSeriesImpl timeSeries, Range<Instant> range, Instant since) {
+        SqlBuilder builder = selectSql(timeSeries);
+        appendRange(range, builder);
+        builder.append(" and RECORDTIME >");
+        builder.addLong(since.toEpochMilli());
+        builder.append(" order by UTCSTAMP");
+        return builder;
+    }
+
+    private void appendRange(Range<Instant> range, SqlBuilder builder) {
         builder.append(" AND UTCSTAMP >");
         if (range.hasLowerBound() && range.lowerBoundType() == BoundType.CLOSED) {
             builder.append("=");
         }
-        builder.append(" ? and UTCSTAMP <");
+        builder.addLong(range.hasLowerBound() ? range.lowerEndpoint().toEpochMilli() : Long.MIN_VALUE);
+        builder.append("and UTCSTAMP <");
         if (range.hasUpperBound() && range.upperBoundType() == BoundType.CLOSED) {
             builder.append("=");
         }
-        builder.append(" ?");
-        builder.append(" order by UTCSTAMP");
-        return builder.toString();
+        builder.addLong(range.hasUpperBound() ? range.upperEndpoint().toEpochMilli() : Long.MAX_VALUE);
     }
 
-    private String rangeUpdatedSinceSql(TimeSeriesImpl timeSeries, Range<Instant> range) {
-        StringBuilder builder = selectSql(timeSeries);
-        builder.append(" AND UTCSTAMP >");
-        if (range.hasLowerBound() && range.lowerBoundType() == BoundType.CLOSED) {
-            builder.append("=");
-        }
-        builder.append(" ? and UTCSTAMP <");
-        if (range.hasUpperBound() && range.upperBoundType() == BoundType.CLOSED) {
-            builder.append("=");
-        }
-        builder.append(" ?");
-
-        builder.append(" and RECORDTIME > ?");
-
-        builder.append(" order by UTCSTAMP");
-        return builder.toString();
+    private SqlBuilder entrySql(TimeSeriesImpl timeSeries, Instant when) {
+        SqlBuilder builder = selectSql(timeSeries);
+        builder.append(" AND UTCSTAMP =");
+        builder.addLong(when.toEpochMilli());
+        return builder;
     }
 
-    private String entrySql(TimeSeriesImpl timeSeries) {
-        StringBuilder builder = selectSql(timeSeries);
-        builder.append(" AND UTCSTAMP = ? ");
-        return builder.toString();
-    }
-
-    private String entryJournalSql(TimeSeriesImpl timeSeries) {
-        StringBuilder builder = selectJournalSql(timeSeries);
-        builder.append(" AND UTCSTAMP = ? ");
-        return builder.toString();
+    private SqlBuilder entryJournalSql(TimeSeriesImpl timeSeries, Instant when) {
+        SqlBuilder builder = selectJournalSql(timeSeries);
+        builder.append(" AND UTCSTAMP =");
+        builder.addLong(when.toEpochMilli());
+        return builder;
     }
 
     private List<TimeSeriesEntry> doGetEntries(TimeSeriesImpl timeSeries, Range<Instant> interval) throws SQLException {
         List<TimeSeriesEntry> result = new ArrayList<>();
         try (Connection connection = getConnection(false)) {
-            try (PreparedStatement statement = connection.prepareStatement(rangeSql(timeSeries, interval))) {
-                statement.setLong(ID_COLUMN_INDEX, timeSeries.getId());
-                statement.setLong(FROM_COLUMN_INDEX, interval.hasLowerBound() ? interval.lowerEndpoint().toEpochMilli() : Long.MIN_VALUE);
-                statement.setLong(TO_COLUMN_INDEX, interval.hasUpperBound() ? interval.upperEndpoint().toEpochMilli() : Long.MAX_VALUE);
+            try (PreparedStatement statement = rangeSql(timeSeries, interval).prepare(connection)) {
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
                         result.add(new TimeSeriesEntryImpl(timeSeries, rs));
@@ -467,11 +485,7 @@ public final class VaultImpl implements IVault {
     private List<TimeSeriesEntry> doGetEntriesSince(TimeSeriesImpl timeSeries, Range<Instant> interval, Instant since) throws SQLException {
         List<TimeSeriesEntry> result = new ArrayList<>();
         try (Connection connection = getConnection(false)) {
-            try (PreparedStatement statement = connection.prepareStatement(rangeUpdatedSinceSql(timeSeries, interval))) {
-                statement.setLong(ID_COLUMN_INDEX, timeSeries.getId());
-                statement.setLong(FROM_COLUMN_INDEX, interval.hasLowerBound() ? interval.lowerEndpoint().toEpochMilli() : Long.MIN_VALUE);
-                statement.setLong(TO_COLUMN_INDEX, interval.hasUpperBound() ? interval.upperEndpoint().toEpochMilli() : Long.MAX_VALUE);
-                statement.setLong(RECORDTIME_INDEX, since.toEpochMilli());
+            try (PreparedStatement statement = rangeUpdatedSinceSql(timeSeries, interval, since).prepare(connection)) {
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
                         result.add(new TimeSeriesEntryImpl(timeSeries, rs));
@@ -484,9 +498,8 @@ public final class VaultImpl implements IVault {
 
     private TimeSeriesEntry doGetEntry(TimeSeriesImpl timeSeries, Instant when) throws SQLException {
         try (Connection connection = getConnection(false)) {
-            try (PreparedStatement statement = connection.prepareStatement(entrySql(timeSeries))) {
-                statement.setLong(ID_COLUMN_INDEX, timeSeries.getId());
-                statement.setLong(WHEN_COLUMN_INDEX, when.toEpochMilli());
+            SqlBuilder sqlBuilder = entrySql(timeSeries, when);
+            try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
                 try (ResultSet rs = statement.executeQuery()) {
                     return rs.next() ? new TimeSeriesEntryImpl(timeSeries, rs) : null;
                 }
@@ -496,13 +509,12 @@ public final class VaultImpl implements IVault {
 
     private TimeSeriesEntry doGetJournalEntry(TimeSeriesImpl timeSeries, Instant when, Instant at) throws SQLException {
         try (Connection connection = getConnection(false)) {
-            StringBuilder journalSql = new StringBuilder(entryJournalSql(timeSeries));
-            journalSql.append(" and RECORDTIME <= ? and JOURNALTIME > ? ");
-            try (PreparedStatement statement = connection.prepareStatement(journalSql.toString())) {
-                statement.setLong(ID_COLUMN_INDEX, timeSeries.getId());
-                statement.setLong(WHEN_COLUMN_INDEX, when.toEpochMilli());
-                statement.setLong(VERSION_INDEX, at.toEpochMilli());
-                statement.setLong(VERSION_INDEX + 1, at.toEpochMilli());
+            SqlBuilder journalSql = entryJournalSql(timeSeries, when);
+            journalSql.append(" and RECORDTIME <=");
+            journalSql.addLong(at.toEpochMilli());
+            journalSql.append("and JOURNALTIME >");
+            journalSql.addLong(at.toEpochMilli());
+            try (PreparedStatement statement = journalSql.prepare(connection)) {
                 try (ResultSet rs = statement.executeQuery()) {
                     return rs.next() ? new TimeSeriesEntryImpl(timeSeries, rs) : null;
                 }
@@ -510,9 +522,13 @@ public final class VaultImpl implements IVault {
         }
     }
 
-    StringBuilder selectSql(RecordSpecImpl recordSpec) {
-        StringBuilder builder = new StringBuilder("select timeseriesid , utcstamp , versioncount , recordtime ");
-        for (String column : recordSpec.columnNames()) {
+    SqlBuilder selectSql(RecordSpecImpl recordSpec) {
+        return this.selectSql(recordSpec.columnNames());
+    }
+
+    SqlBuilder selectSql(List<String> recordSpecColumnNames) {
+        SqlBuilder builder = new SqlBuilder("select timeseriesid , utcstamp , versioncount , recordtime ");
+        for (String column : recordSpecColumnNames) {
             builder.append(",");
             builder.append(column);
         }
@@ -522,8 +538,8 @@ public final class VaultImpl implements IVault {
         return builder;
     }
 
-    StringBuilder selectJournalSql(RecordSpecImpl recordSpec) {
-        StringBuilder builder = new StringBuilder("select timeseriesid , utcstamp , versioncount , recordtime ");
+    SqlBuilder selectJournalSql(RecordSpecImpl recordSpec) {
+        SqlBuilder builder = new SqlBuilder("select timeseriesid , utcstamp , versioncount , recordtime ");
         for (String column : recordSpec.columnNames()) {
             builder.append(",");
             builder.append(column);
@@ -602,10 +618,7 @@ public final class VaultImpl implements IVault {
     private List<TimeSeriesEntry> doGetEntriesBefore(TimeSeriesImpl timeSeries, Instant when, int entryCount, boolean includeBoundary) throws SQLException {
         List<TimeSeriesEntry> result = new ArrayList<>();
         try (Connection connection = getConnection(false)) {
-            try (PreparedStatement statement = connection.prepareStatement(entriesBeforeSql(timeSeries, includeBoundary))) {
-                statement.setLong(ID_COLUMN_INDEX, timeSeries.getId());
-                statement.setLong(WHEN_COLUMN_INDEX, when.toEpochMilli());
-                statement.setInt(3, entryCount);
+            try (PreparedStatement statement = entriesBeforeSql(timeSeries, includeBoundary, when, entryCount).prepare(connection)) {
                 try (ResultSet rs = statement.executeQuery()) {
                     while (rs.next()) {
                         result.add(new TimeSeriesEntryImpl(timeSeries, rs));
@@ -616,15 +629,17 @@ public final class VaultImpl implements IVault {
         return result;
     }
 
-    private String entriesBeforeSql(TimeSeriesImpl timeSeries, boolean includeBoundary) {
-        StringBuilder base = selectSql(timeSeries);
+    private SqlBuilder entriesBeforeSql(TimeSeriesImpl timeSeries, boolean includeBoundary, Instant when, int entryCount) {
+        SqlBuilder base = selectSql(timeSeries);
         base.append(" AND UTCSTAMP ");
         base.append(includeBoundary ? "<= " : "<");
-        base.append(" ? ORDER BY UTCSTAMP DESC ");
-        StringBuilder builder = new StringBuilder("SELECT * from (");
-        builder.append(base.toString());
-        builder.append(") where ROWNUM <= ? ");
-        return builder.toString();
+        base.addLong(when.toEpochMilli());
+        base.append("ORDER BY UTCSTAMP DESC ");
+        SqlBuilder builder = new SqlBuilder("SELECT * from (");
+        builder.add(base);
+        builder.append(") where ROWNUM <=");
+        builder.addInt(entryCount);
+        return builder;
     }
 
     @Override
