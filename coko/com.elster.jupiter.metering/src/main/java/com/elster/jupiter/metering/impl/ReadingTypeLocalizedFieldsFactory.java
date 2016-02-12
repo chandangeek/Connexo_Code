@@ -13,6 +13,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingTypeFieldsFactory;
 import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.units.Unit;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -121,7 +122,7 @@ public class ReadingTypeLocalizedFieldsFactory implements ReadingTypeFieldsFacto
 
         UNIT(ReadingTypeFilter.ReadingTypeFields.UNIT.getName(),
                 (thesaurus) -> Arrays.stream(ReadingTypeUnit.values())
-                        .map(e -> new CodeField(e.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.UnitFields(e)).format())).sorted()
+                        .map(e -> new CodeField(e.getId(), thesaurus.getFormat(new ReadingTypeTranslationKeys.UnitFields(e)).format() + (e.getUnit().equals(Unit.UNITLESS) ? "" : (" (" + thesaurus.getFormat(new ReadingTypeTranslationKeys.Unit(e)).format() + ")")))).sorted()
                         .collect(LinkedHashMap::new, (map, element) -> map.put(element.code, element.displayName), Map::putAll));
 
         private final String name;

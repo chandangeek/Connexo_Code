@@ -52,6 +52,8 @@ public class ReadingStorerImplTest {
     private RecordSpec recordSpec;
     @Mock
     private FieldSpec fieldSpec;
+    @Mock
+    private IMeterActivation meterActivation;
 
     @Before
     public void setUp() {
@@ -59,6 +61,8 @@ public class ReadingStorerImplTest {
         doReturn(recordSpec).when(timeSeries).getRecordSpec();
         doReturn(Arrays.asList(fieldSpec, fieldSpec, fieldSpec)).when(recordSpec).getFieldSpecs();
         when(channel.getBulkQuantityReadingType()).thenReturn(Optional.empty());
+        when(channel.getMeterActivation()).thenReturn(meterActivation);
+        when(meterActivation.getMeter()).thenReturn(Optional.empty());
         when(idsService.createOverrulingStorer()).thenReturn(storer);
         when(idsService.createUpdatingStorer()).thenReturn(updatingStorer);
         doReturn(channel).when(cimChannel).getChannel();

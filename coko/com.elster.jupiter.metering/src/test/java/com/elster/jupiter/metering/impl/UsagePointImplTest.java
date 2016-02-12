@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.MarketRoleKind;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.events.EventService;
@@ -92,6 +93,8 @@ public class UsagePointImplTest {
     @Mock
     private Provider<UsagePointAccountabilityImpl> accountabilityProvider;
     @Mock
+    private CustomPropertySetService customPropertySetService;
+    @Mock
     private Thesaurus thesaurus;
     @Mock
     private DataMapper<MeterActivation> meterActivationMapper;
@@ -136,7 +139,7 @@ public class UsagePointImplTest {
         when(representation4.getDelegate()).thenReturn(user4);
         when(dataModel.mapper(MeterActivation.class)).thenReturn(meterActivationMapper);
 
-        usagePoint = new UsagePointImpl(dataModel, eventService, meterActivationProvider, accountabilityProvider).init(MR_ID, serviceCategory);
+        usagePoint = new UsagePointImpl(dataModel, eventService, meterActivationProvider, accountabilityProvider, customPropertySetService).init(MR_ID, serviceCategory);
     }
 
     @After

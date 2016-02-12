@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.impl.MeterActivationImpl;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.google.common.collect.Range;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +44,7 @@ public interface Meter extends EndDevice, ReadingContainer {
 
     interface MeterReadingTypeConfigurationBuilder {
 
-        MeterReadingTypeConfigurationBuilder withOverflowValue(long digits);
+        MeterReadingTypeConfigurationBuilder withOverflowValue(BigDecimal value);
 
         MeterReadingTypeConfigurationBuilder withNumberOfFractionDigits(int digits);
 

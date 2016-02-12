@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -15,7 +16,7 @@ import java.util.OptionalLong;
 class MeterReadingTypeConfigurationImpl implements MeterReadingTypeConfiguration {
 
     private Reference<MeterConfigurationImpl> meterConfiguration = ValueReference.absent();
-    private Long overflowValue;
+    private BigDecimal overflowValue;
     private Integer numberOfFractionDigits;
     private Reference<MultiplierTypeImpl> multiplierType = ValueReference.absent();
 
@@ -58,11 +59,11 @@ class MeterReadingTypeConfigurationImpl implements MeterReadingTypeConfiguration
     }
 
     @Override
-    public OptionalLong getOverflowValue() {
-        return overflowValue == null ? OptionalLong.empty() : OptionalLong.of(overflowValue);
+    public Optional<BigDecimal> getOverflowValue() {
+        return Optional.ofNullable(overflowValue);
     }
 
-    void setOverflowValue(Long overflowValue) {
+    void setOverflowValue(BigDecimal overflowValue) {
         this.overflowValue = overflowValue;
     }
 

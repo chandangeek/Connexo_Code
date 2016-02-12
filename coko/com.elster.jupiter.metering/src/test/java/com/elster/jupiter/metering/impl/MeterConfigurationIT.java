@@ -2,6 +2,8 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -112,13 +114,15 @@ public class MeterConfigurationIT {
                     new TransactionModule(),
                     new BpmModule(),
                     new FiniteStateMachineModule(),
-                    new NlsModule()
+                    new NlsModule(),
+                    new CustomPropertySetsModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             meteringService = injector.getInstance(MeteringService.class);
             return null;
@@ -143,7 +147,7 @@ public class MeterConfigurationIT {
                     .startingConfigurationOn(ACTIVE_DATE.toInstant())
                     .endingAt(END_DATE.toInstant())
                     .configureReadingType(secondaryMetered)
-                    .withOverflowValue(15)
+                    .withOverflowValue(BigDecimal.valueOf(15))
                     .withNumberOfFractionDigits(3)
                     .withMultiplierOfType(multiplierType)
                     .calculating(primaryMetered)
@@ -164,7 +168,7 @@ public class MeterConfigurationIT {
         assertThat(meterReadingTypeConfiguration.getMeasured()).isEqualTo(secondaryMetered);
         assertThat(meterReadingTypeConfiguration.getCalculated()).contains(primaryMetered);
         assertThat(meterReadingTypeConfiguration.getMultiplierType()).isEqualTo(multiplierType);
-        assertThat(meterReadingTypeConfiguration.getOverflowValue()).hasValue(15);
+        assertThat(meterReadingTypeConfiguration.getOverflowValue()).hasValue(BigDecimal.valueOf(15));
         assertThat(meterReadingTypeConfiguration.getNumberOfFractionDigits()).hasValue(3);
     }
 
@@ -178,7 +182,7 @@ public class MeterConfigurationIT {
             meterConfiguration = meter
                     .startingConfigurationOn(ACTIVE_DATE.toInstant())
                     .configureReadingType(secondaryMetered)
-                    .withOverflowValue(15)
+                    .withOverflowValue(BigDecimal.valueOf(15))
                     .withNumberOfFractionDigits(3)
                     .withMultiplierOfType(multiplierType)
                     .calculating(primaryMetered)

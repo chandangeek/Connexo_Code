@@ -147,9 +147,11 @@ public final class ReadingTypeTranslationKeys {
         @Override
         public String getDefaultFormat() {
             switch (this.unit) {
-                case ANGLEMIN: // Intentional fall-through
+                case ANGLEMIN: {
+                    return "arcmin";
+                }
                 case ANGLESECOND: {
-                    return this.unit.name();
+                    return "arcsec";
                 }
                 case NOTAPPLICABLE: {
                     return "None";
@@ -157,7 +159,7 @@ public final class ReadingTypeTranslationKeys {
                 default: {
                     String symbol = this.unit.getSymbol();
                     if (is(symbol).emptyOrOnlyWhiteSpace()) {
-                        return this.unit.name();
+                        return this.unit.getUnit().getName();
                     }
                     else {
                         return symbol;
@@ -206,20 +208,13 @@ public final class ReadingTypeTranslationKeys {
 
         @Override
         public String getDefaultFormat() {
-            switch (this.unit) {
-                case NOTAPPLICABLE: {
-                    return "Not applicable";
-                }
-                default: {
-                    String unitName = this.unit.getUnit().getName();
+                    String unitName = this.unit.getName();
                     if (is(unitName).emptyOrOnlyWhiteSpace()) {
                         return this.unit.name();
                     }
                     else {
                         return unitName;
                     }
-                }
-            }
         }
 
         public static Stream<TranslationKey> allKeys() {
