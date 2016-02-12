@@ -2,14 +2,17 @@ Ext.define('Imt.usagepointmanagement.service.AttributesMaps', {
     singleton: true,
 
     serviceCategoryImageMap: {
-        "ELECTRICITY": '<span style="display: inline-block; width: 16px; height: 16px; margin: 0 0 0 10px; background-image: url(../imt/resources/images/flash.png)" ></span>',
-        "GAS": '<span style="display: inline-block; width: 16px; height: 16px; margin: 0 0 0 10px; background-image: url(../imt/resources/images/flame.png)" ></span>',
-        "WATER": '<span style="display: inline-block; width: 16px; height: 16px; margin: 0 0 0 10px; background-image: url(../imt/resources/images/drop.png)" ></span>'
+        "ELECTRICITY": '<span class="icon-power"></span>',
+        "GAS": '<span class="icon-fire2"></span>',
+        "WATER": '<span class="icon-droplet"></span>'
+
     },
 
-    serviceCategoryTechnicalAttributesFormMap: {
+    mainAttributesFormMap: {
         "GENERAL": 'general-attributes-form',
-        "ELECTRICITY": 'technical-attributes-form-electricity'
+        "ELECTRICITY": 'technical-attributes-form-electricity',
+        "GAS": 'technical-attributes-form-water',
+        "WATER": 'technical-attributes-form-water'
     },
 
     connectionStateImageMap: {
@@ -17,7 +20,7 @@ Ext.define('Imt.usagepointmanagement.service.AttributesMaps', {
     },
 
     getForm: function (category) {
-        return this.serviceCategoryTechnicalAttributesFormMap[category];
+        return this.mainAttributesFormMap[category];
     },
     getServiceIcon: function (category) {
         return this.serviceCategoryImageMap[category];

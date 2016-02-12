@@ -6,14 +6,6 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
     requires: [
         'Uni.form.field.Duration'
     ],
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
-    defaults: {
-        labelWidth: 150,
-        xtype: 'displayfield'
-    },
 
     initComponent: function () {
         var me = this;
@@ -49,7 +41,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                         fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category'),
                         renderer: function (value) {
                             var icon = Imt.usagepointmanagement.service.AttributesMaps.getServiceIcon(value);
-                            return value + icon;
+                            return value + "&nbsp" + icon;
                         }
                     },
 

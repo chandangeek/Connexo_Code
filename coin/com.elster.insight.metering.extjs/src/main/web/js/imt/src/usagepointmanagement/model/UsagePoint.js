@@ -20,7 +20,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'isVirtual', type: 'boolean'},
         {name: 'minimalUsageExpected', type: 'boolean'},
         {name: 'version', type: 'number', useNull: true},
-        {name: 'metrologyConfiguration', type: 'auto'},
+        {name: 'metrologyConfiguration', type: 'auto',useNull: true, defaultValue: null},
         //For ELECTRICITY
         {name: 'nominalServiceVoltage', type: 'auto', defaultValue: undefined, 'customType': 'quantity'},
         {name: 'ratedCurrent', type: 'auto', defaultValue: undefined, 'customType': 'quantity'},

@@ -37,7 +37,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                     {
                         xtype: 'button',
                         itemId: 'usage-point-setup-actions-btn',
-                        //iconCls: 'x-uni-action-iconD',
+                        iconCls: 'x-uni-action-iconD',
                         style: {
                             'background-color': '#71adc7'
                         },
@@ -102,6 +102,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                     },
                     {
                         xtype: 'panel',
+                        itemId: 'usage-point-attributes-panel',
                         ui: 'tile',
                         style: {
                             marginRight: '20px',
@@ -110,7 +111,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         items: [
                             {
                                 xtype: 'panel',
-                                itemId: 'usage-point-attributes-panel',
+                                itemId: 'usage-point-main-attributes-panel',
                                 router: me.router
                             },
                             {

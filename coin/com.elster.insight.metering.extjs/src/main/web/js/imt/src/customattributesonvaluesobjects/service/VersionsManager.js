@@ -39,35 +39,30 @@ Ext.define('Imt.customattributesonvaluesobjects.service.VersionsManager', {
         if (inline) {
             container.add({
                 xtype: 'button',
-                icon: '../mdc/resources/images/pencil-12.png',
-                cls: 'uni-btn-transparent masterfield-btn',
-                width: '10px',
+                margin: '0 0 0 7',
+                ui: 'plain',
+                iconCls: 'icon-pencil2',
                 tooltip: Uni.I18n.translate('general.tooltip.editVersion', 'IMT', 'Edit version'),
-                style: {
-                    display: 'inline-block',
-                    textDecoration: 'none !important',
-                    position: 'absolute',
-                    top: '8px'
-                },
+                disabled: true, // timeslised are not ready yet
                 hidden: !(record.get('isEditable') && record.get('isActive'))
             });
-        }
+        } else {
+            container.add({
+                xtype: 'button',
+                ui: 'link',
+                text: Uni.I18n.translate('customattributesets.versions', 'IMT', 'Versions'),
+                margin: '-5 0 0 5',
+                handler: function () {
+                    if (attributeSetType === 'device') {
+                        routeQueryParams.customAttributeSetId = record.get('id');
+                    } else {
+                        routeArguments.customAttributeSetId = record.get('id');
+                    }
 
-        container.add({
-            xtype: 'button',
-            ui: 'link',
-            text: Uni.I18n.translate('customattributesets.versions', 'IMT', 'Versions'),
-            margin: '-5 0 0 5',
-            handler: function () {
-                if (attributeSetType === 'device') {
-                    routeQueryParams.customAttributeSetId = record.get('id');
-                } else {
-                    routeArguments.customAttributeSetId = record.get('id');
+                    router.getRoute(versionRoute).forward(routeArguments, routeQueryParams);
                 }
-
-                router.getRoute(versionRoute).forward(routeArguments, routeQueryParams);
-            }
-        });
+            });
+        }
 
         Ext.resumeLayouts(true);
     }
