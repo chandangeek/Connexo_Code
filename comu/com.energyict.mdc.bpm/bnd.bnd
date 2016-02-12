@@ -1,0 +1,4 @@
+-classpath: target/classes
+-dsannotations: * 
+Private-Package: com.energyict.mdc.bpm.impl.*
+Export-Package: com.energyict.mdc.bpm, com.energyict.mdc.security
