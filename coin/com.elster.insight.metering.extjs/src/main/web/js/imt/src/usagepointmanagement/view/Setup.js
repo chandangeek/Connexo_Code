@@ -102,6 +102,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                     },
                     {
                         xtype: 'panel',
+                        itemId: 'usage-point-attributes-panel',
                         ui: 'tile',
                         style: {
                             marginRight: '20px',
@@ -110,7 +111,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         items: [
                             {
                                 xtype: 'panel',
-                                itemId: 'usage-point-attributes-panel',
+                                itemId: 'usage-point-main-attributes-panel',
                                 router: me.router
                             },
                             {

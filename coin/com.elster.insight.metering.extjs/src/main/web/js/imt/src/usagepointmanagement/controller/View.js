@@ -20,7 +20,8 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         {ref: 'associatedDevices', selector: 'associated-devices'},
         {ref: 'associatedMetrologyConfiguration', selector: 'associated-metrology-configuration'},
         {ref: 'overviewLink', selector: '#usage-point-overview-link'},
-        {ref: 'attributesPanel', selector: '#usage-point-attributes-panel'},
+        {ref: 'attributesPanel', selector: '#usage-point-main-attributes-panel'},
+        {ref: 'usagePointAttributes', selector: '#usage-point-attributes-panel'},
         {ref: 'usagePointTechnicalAttributesDeviceLink', selector: '#usagePointTechnicalAttributesDeviceLink'},
         {ref: 'usagePointTechnicalAttributesDeviceDates', selector: '#usagePointTechnicalAttributesDeviceDates'},
         {ref: 'mcAttributesPanel', selector: '#up-metrology-configuration-attributes-panel'},
@@ -29,6 +30,11 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
     ],
 
     init: function () {
+        this.control({
+            'usage-point-management-setup inline-editable-set-property-form': {
+                saveClick: this.saveUsagePointAttributes
+            }
+        });
     },
 
     showUsagePoint: function (mRID) {
@@ -44,7 +50,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
             success: function (record) {
                 me.getApplication().fireEvent('usagePointLoaded', record);
                 var widget = Ext.widget('usage-point-management-setup', {router: router, parent: record.getData()});
-
+                me.parent = record.getData();
 
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.initAttributes(record);
@@ -121,6 +127,8 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         customAttributesModelMetrology.getProxy().setUrl(record.get('mRID'));
 
         Ext.suspendLayouts();
+
+        me.getUsagePointAttributes().setLoading(true);
         me.getAttributesPanel().add({
             xtype: 'usage-point-main-attributes-panel',
             record: record
@@ -130,15 +138,18 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
             record: record,
             category: record.get('serviceCategory')
         });
+        Ext.resumeLayouts(true);
 
-        customAttributesStoreMetrology.load(function () {
-            me.getOverview().down('#metrology-custom-attribute-sets-placeholder-form-id').loadStore(this);
-        });
         customAttributesStoreUsagePoint.load(function () {
             me.getOverview().down('#custom-attribute-sets-placeholder-form-id').loadStore(this);
+            me.getUsagePointAttributes().setLoading(false);
         });
 
-        Ext.resumeLayouts(true);
+        me.getAssociatedMetrologyConfiguration().setLoading(true);
+        customAttributesStoreMetrology.load(function () {
+            me.getOverview().down('#metrology-custom-attribute-sets-placeholder-form-id').loadStore(this);
+            me.getAssociatedMetrologyConfiguration().setLoading(false);
+        });
     },
 
     showMetrologyConfiguration: function (mRID, id) {
@@ -171,8 +182,26 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                 pageMainContent.setLoading(false);
             }
         });
+    },
+
+    saveUsagePointAttributes: function(form, record){
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+        form.updateRecord();
+        record.set('parent', me.parent);
+
+        record.save({
+            success: function (record, response, success) {
+                router.getRoute().forward();
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePoint.acknowledge.updateSuccess', 'IMT', 'Usage point saved'));
+            },
+            failure: function (record, response, success) {
+                var responseText = Ext.decode(response.response.responseText, true);
+                if (responseText && Ext.isArray(responseText.errors)) {
+                    form.markInvalid(responseText.errors);
+                }
+            }
+        });
     }
-
-
 });
 

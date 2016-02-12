@@ -42,17 +42,26 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                     {
                         name: 'bypassStatus',
                         itemId: 'fld-up-rated-current',
-                        fieldLabel: Uni.I18n.translate('general.label.bypassStatus', 'IMT', 'Bypass status')
+                        fieldLabel: Uni.I18n.translate('general.label.bypassStatus', 'IMT', 'Bypass status'),
+                        renderer: function (value) {
+                            return value ? value : '-';
+                        }
                     },
                     {
                         name: 'Valve',
                         itemId: 'fld-up-Valve',
-                        fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Valve')
+                        fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Valve'),
+                        renderer: function (value) {
+                            return value ? value : '-';
+                        }
                     },
                     {
                         name: 'clamped',
                         itemId: 'fld-up-clamped',
-                        fieldLabel: Uni.I18n.translate('general.label.clamped', 'IMT', 'Clamped')
+                        fieldLabel: Uni.I18n.translate('general.label.clamped', 'IMT', 'Clamped'),
+                        renderer: function (value) {
+                            return value ? value : '-';
+                        }
                     }
                 ]
             },
