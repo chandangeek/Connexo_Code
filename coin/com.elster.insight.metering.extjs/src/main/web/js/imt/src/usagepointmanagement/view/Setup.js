@@ -37,7 +37,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                     {
                         xtype: 'button',
                         itemId: 'usage-point-setup-actions-btn',
-                        //iconCls: 'x-uni-action-iconD',
+                        iconCls: 'x-uni-action-iconD',
                         style: {
                             'background-color': '#71adc7'
                         },
