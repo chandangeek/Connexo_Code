@@ -15,7 +15,6 @@ Ext.define('Idc.controller.Main', {
     controllers: [
         'Idc.controller.history.Workspace',
         'Idc.controller.MainOverview',
-        'Idc.controller.Overview',
         'Idc.controller.Detail',
         'Idc.controller.ApplyAction',
         'Idc.controller.BulkChangeIssues',
@@ -39,6 +38,7 @@ Ext.define('Idc.controller.Main', {
 
     init: function () {
         this.initMenu();
+        this.getApplication().fireEvent('initIssueType', 'dataCollection');
     },
 
     initMenu: function () {
@@ -64,12 +64,12 @@ Ext.define('Idc.controller.Main', {
                 items: [
                     {
                         text: Uni.I18n.translate('datacollection.issues','IDC','Issues'),
-                        href: router.getRoute('workspace/datacollectionissues').buildUrl()
+                        href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['dataCollection']})
                     },
                     {
                         text: Uni.I18n.translate('datacollection.myOpenIssues','IDC','My open issues'),
                         itemId: 'my-open-issues',
-                        href: router.getRoute('workspace/datacollectionissues').buildUrl({}, {myopenissues: true})
+                        href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['dataCollection'], myopenissues: true})
                     }
                 ]
             });
