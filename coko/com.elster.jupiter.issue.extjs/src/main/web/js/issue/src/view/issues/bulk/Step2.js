@@ -106,7 +106,8 @@ Ext.define('Isu.view.issues.bulk.Step2', {
                     title = Uni.I18n.translate('issue.retryCommunicationTaskNow.title.description.help', 'ISU', 'Help - About retry communication task now action');
                     break;
                 case 'retryconn':
-                    message = Uni.I18n.translate('issue.retryConnection.description.help', 'ISU', 'Outbound connections of selected issues and their associated tasks with state Pending, Failed, Retrying or Never completed will be queued. All non-outbound connections will be ignored. This action will only be executed on issues with reason Connection setup failed or Connection failed.');
+                    message = Uni.I18n.translate('issue.retryConnection.description.help.partOne', 'ISU', 'Outbound connections of selected issues and their associated tasks with state Pending, Failed, Retrying or Never completed will be queued.')
+                        + ' ' + Uni.I18n.translate('issue.retryConnection.description.help.partTwo', 'ISU', 'All non-outbound connections will be ignored. This action will only be executed on issues with reason Connection setup failed or Connection failed.');
                     title = Uni.I18n.translate('issue.retryConnection.title.description', 'ISU', 'Help - About retry connection action');
                     break;
             }
