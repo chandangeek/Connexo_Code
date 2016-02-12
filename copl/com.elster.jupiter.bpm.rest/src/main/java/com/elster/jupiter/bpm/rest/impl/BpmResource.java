@@ -653,7 +653,9 @@ public class BpmResource {
 
         } catch (JSONException e) {
         }
-        return new TaskGroupsInfos(arr);
+        TaskGroupsInfos taskGroups = new TaskGroupsInfos(arr);
+        taskGroups.taskGroups.stream().forEach(s-> s.tasksForm.outputContent = null);
+        return taskGroups;
     }
 
     @GET
@@ -917,6 +919,7 @@ public class BpmResource {
                         }
                     });
         }catch (RuntimeException e) {
+            System.out.println(e.getMessage());
         }
         return outputBindingContents;
     }
