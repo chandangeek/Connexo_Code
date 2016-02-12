@@ -28,7 +28,7 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
     init: function () {
         this.control({
             '#custom-attribute-sets cas-grid actioncolumn': {
-                removeCustomAttributeSet: this.removeCustomAttributeSet
+                deleteCAS: this.removeCustomAttributeSet
             },
             '#custom-attribute-sets cas-detail-form menuitem[action=removeCustomAttributeSet]': {
                 click: function(elm) {
