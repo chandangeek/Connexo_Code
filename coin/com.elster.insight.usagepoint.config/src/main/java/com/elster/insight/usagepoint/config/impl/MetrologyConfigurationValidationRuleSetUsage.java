@@ -1,9 +1,8 @@
-package com.elster.insight.usagepoint.config;
+package com.elster.insight.usagepoint.config.impl;
 
-import aQute.bnd.annotation.ProviderType;
+import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
-@ProviderType
 public interface MetrologyConfigurationValidationRuleSetUsage {
 
     MetrologyConfiguration getMetrologyConfiguration();

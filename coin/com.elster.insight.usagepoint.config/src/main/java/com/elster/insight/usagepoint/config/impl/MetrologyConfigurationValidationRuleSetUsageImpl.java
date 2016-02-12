@@ -1,12 +1,10 @@
 package com.elster.insight.usagepoint.config.impl;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.inject.Inject;
 
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.MetrologyConfigurationValidationRuleSetUsage;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;

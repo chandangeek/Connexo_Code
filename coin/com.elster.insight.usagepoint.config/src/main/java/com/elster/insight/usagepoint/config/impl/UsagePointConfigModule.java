@@ -3,6 +3,7 @@ package com.elster.insight.usagepoint.config.impl;
 import java.time.Clock;
 
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.OrmService;
@@ -23,6 +24,7 @@ public class UsagePointConfigModule extends AbstractModule {
         requireBinding(UserService.class);
         requireBinding(EventService.class);
         requireBinding(ThreadPrincipalService.class);
+        requireBinding(CustomPropertySetService.class);
 
         bind(UsagePointConfigurationService.class).to(UsagePointConfigurationServiceImpl.class).in(Scopes.SINGLETON);
     }

@@ -1,8 +1,8 @@
 package com.elster.insight.usagepoint.config;
 
-import com.elster.jupiter.validation.ValidationRuleSet;
-
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.validation.ValidationRuleSet;
 
 import java.time.Instant;
 import java.util.List;
@@ -15,8 +15,10 @@ public interface MetrologyConfiguration {
 
     void updateName(String name);
 
-    MetrologyConfigurationValidationRuleSetUsage addValidationRuleSet(ValidationRuleSet validationRuleSet);
+    void addValidationRuleSet(ValidationRuleSet validationRuleSet);
+
     List<ValidationRuleSet> getValidationRuleSets();
+
     void removeValidationRuleSet(ValidationRuleSet validationRuleSet);
 
     void delete();
@@ -28,6 +30,18 @@ public interface MetrologyConfiguration {
     Instant getModTime();
 
     String getUserName();
+
+    boolean isActive();
+
+    void activate();
+
+    void deactivate();
+
+    List<RegisteredCustomPropertySet> getCustomPropertySets();
+
+    void addCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet);
+
+    void removeCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet);
 
     List<MetrologyContract> getContracts();
 
