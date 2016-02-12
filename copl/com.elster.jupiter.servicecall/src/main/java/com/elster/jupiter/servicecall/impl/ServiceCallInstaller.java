@@ -9,12 +9,8 @@ import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.Resource;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;

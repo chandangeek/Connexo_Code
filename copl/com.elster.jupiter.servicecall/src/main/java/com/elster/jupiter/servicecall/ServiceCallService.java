@@ -13,6 +13,7 @@ public interface ServiceCallService {
 
     public Optional<ServiceCallLifeCycle> getServiceCallLifeCycle(String name);
     public Optional<ServiceCallLifeCycle> getDefaultServiceCallLifeCycle();
+    public ServiceCallLifeCycle createServiceCallLifeCycle(String name);
     public Finder<ServiceCallType> getServiceCallTypes();
 
 //    public ServiceCallType createServiceCallType();

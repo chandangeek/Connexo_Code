@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
@@ -45,8 +46,8 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     private volatile Thesaurus thesaurus;
 
     // OSGi
-//    public ServiceCallServiceImpl() {
-//    }
+    public ServiceCallServiceImpl() {
+    }
 
     @Inject
     public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService) {
@@ -145,5 +146,30 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     @Override
     public Finder<ServiceCallType> getServiceCallTypes() {
         return DefaultFinder.of(ServiceCallType.class, dataModel).defaultSortColumn("name");
+    }
+
+    @Override
+    public ServiceCallLifeCycle createServiceCallLifeCycle(String name) {
+        return null;
+    }
+
+    class ServiceCallLifeCycleBuilder {
+        private ServiceCallLifeCycle underConstruction;
+
+        public ServiceCallLifeCycleBuilder(String name) {
+
+        }
+
+        public void removeState(DefaultState state) {
+
+        }
+
+        public void removeTransition(DefaultState from, DefaultState to) {
+
+        }
+
+        public void add() {
+
+        }
     }
 }
