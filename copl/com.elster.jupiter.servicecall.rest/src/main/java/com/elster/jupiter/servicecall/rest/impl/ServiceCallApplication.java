@@ -78,6 +78,7 @@ public class ServiceCallApplication extends Application implements TranslationKe
         this.serviceCallService = serviceCallService;
     }
 
+    @Reference
     public void setNlsService(NlsService nlsService) {
         thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
     }
