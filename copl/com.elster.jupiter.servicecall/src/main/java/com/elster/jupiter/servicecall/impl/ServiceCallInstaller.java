@@ -8,9 +8,9 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.servicecall.DefaultState;
-import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,22 +60,23 @@ public class ServiceCallInstaller {
     }
 
 
-    public ServiceCallLifeCycle installDefaultLifeCycle() {
+    public void installDefaultLifeCycle() {
         Map<String, CustomStateTransitionEventType> eventTypes = this.findOrCreateStateTransitionEventTypes();
-        return this.createDefaultLifeCycle(
+        this.createDefaultLifeCycle(
                 TranslationKeys.DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME.getKey(),
                 eventTypes);
     }
 
-    private ServiceCallLifeCycle createDefaultLifeCycle(String name, Map<String, CustomStateTransitionEventType> eventTypes) {
-//        Optional<FiniteStateMachine> stateMachine = finiteStateMachineService.findFiniteStateMachineByName(TranslationKeys.DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME.getKey());
+    private void createDefaultLifeCycle(String name, Map<String, CustomStateTransitionEventType> eventTypes) {
+        Optional<FiniteStateMachine> stateMachine = finiteStateMachineService.findFiniteStateMachineByName(TranslationKeys.DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME.getKey());
+        if (!stateMachine.isPresent()) {
 
-        FiniteStateMachine defaultStateMachine = this.createDefaultFiniteStateMachine(name, eventTypes);
-        // create and store service call life cycle
-        ServiceCallLifeCycleImpl serviceCallLifeCycle = new ServiceCallLifeCycleImpl(dataModel);
-        serviceCallLifeCycle.init(name, defaultStateMachine);
-        serviceCallLifeCycle.save();
-        return serviceCallLifeCycle;
+            FiniteStateMachine defaultStateMachine = this.createDefaultFiniteStateMachine(name, eventTypes);
+            // create and store service call life cycle
+            ServiceCallLifeCycleImpl serviceCallLifeCycle = new ServiceCallLifeCycleImpl(dataModel);
+            serviceCallLifeCycle.init(name, defaultStateMachine);
+            serviceCallLifeCycle.save();
+        }
     }
 
     private Map<String, CustomStateTransitionEventType> findOrCreateStateTransitionEventTypes() {
@@ -109,7 +110,6 @@ public class ServiceCallInstaller {
 
         State canceled = builder
                 .newStandardState(DefaultState.CANCELLED.getKey())
-                .on(scheduledEventType).transitionTo(scheduledBuilder, TranslationKeys.TRANSITION_FROM_CANCELLED_TO_SCHEDULED)
                 .complete();
         State rejected = builder.newStandardState(DefaultState.REJECTED.getKey()).complete();
         State failed = builder
