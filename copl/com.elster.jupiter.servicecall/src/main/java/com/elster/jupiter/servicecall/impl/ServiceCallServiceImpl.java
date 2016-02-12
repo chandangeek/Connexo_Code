@@ -154,32 +154,16 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     }
 
     @Override
-    public ServiceCallType createServiceCallType(String name) {
+    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName) {
         return null;
     }
 
     @Override
     public ServiceCallLifeCycle createServiceCallLifeCycle(String name) {
-        return null;
+        return null; // TODO
     }
 
-    class ServiceCallLifeCycleBuilder {
-        private ServiceCallLifeCycle underConstruction;
+    class ServiceCallTypeBuilderImpl implements ServiceCallTypeBuilder {
 
-        public ServiceCallLifeCycleBuilder(String name) {
-
-        }
-
-        public void removeState(DefaultState state) {
-
-        }
-
-        public void removeTransition(DefaultState from, DefaultState to) {
-
-        }
-
-        public void add() {
-
-        }
     }
 }
