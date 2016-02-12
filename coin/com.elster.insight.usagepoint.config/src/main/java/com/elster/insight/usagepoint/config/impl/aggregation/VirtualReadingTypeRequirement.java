@@ -7,6 +7,7 @@ import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Models a {@link ReadingTypeRequirement} in the context of
@@ -38,6 +39,10 @@ public class VirtualReadingTypeRequirement {
 
     public List<Channel> getMatchingChannels() {
         return matchingChannels;
+    }
+
+    void appendTo(ClauseAwareSqlBuilder sqlBuilder) {
+        SqlBuilder withClauseBuilder = sqlBuilder.with("ts7", Optional.empty(), "id", "value", "timestamp", "localdate");
     }
 
 }
