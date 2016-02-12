@@ -151,7 +151,7 @@ public class BpmServerImpl implements BpmServer {
                 httpConnection.disconnect();
             }
         }
-        return Optional.empty();
+        return Optional.of("");
     }
 
 }
