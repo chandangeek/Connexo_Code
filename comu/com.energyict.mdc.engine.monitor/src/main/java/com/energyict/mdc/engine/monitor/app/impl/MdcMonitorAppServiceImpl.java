@@ -6,22 +6,27 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.*;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.monitor.app.MdcMonitorAppService;
+import com.energyict.mdc.engine.monitor.app.security.MdcMonitorAppPrivileges;
+import com.energyict.mdc.engine.monitor.app.security.PrivilegeTranslationKeyPair;
 import com.energyict.mdc.engine.status.StatusService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component(
         name = "com.energyict.mdc.engine.monitor.app",
-        service = {MdcMonitorAppService.class, TranslationKeyProvider.class, ApplicationPrivilegesProvider.class},
+        service = {MdcMonitorAppService.class, TranslationKeyProvider.class, PrivilegesProvider.class},
+        property = "name=" + MdcMonitorAppService.COMPONENT_NAME,
         immediate = true)
 @SuppressWarnings("unused")
-public class MdcMonitorAppServiceImpl implements MdcMonitorAppService , TranslationKeyProvider, ApplicationPrivilegesProvider{
+public class MdcMonitorAppServiceImpl implements MdcMonitorAppService , TranslationKeyProvider, PrivilegesProvider{
 
     private final Logger logger = Logger.getLogger(MdcMonitorAppServiceImpl.class.getName());
 
@@ -84,27 +89,28 @@ public class MdcMonitorAppServiceImpl implements MdcMonitorAppService , Translat
     }
 
     private boolean isAllowed(User user) {
-        List<? super Privilege> appPrivileges = getDBApplicationPrivileges();
-        return user.getPrivileges(APPLICATION_KEY).stream().anyMatch(appPrivileges::contains);
-    }
-
-    private List<? super Privilege> getDBApplicationPrivileges() {
-        return userService.getPrivileges(APPLICATION_KEY);
+        List<? super Privilege> appPrivileges = userService.getPrivileges(COMPONENT_NAME);
+        return user.getPrivileges(COMPONENT_NAME).stream().anyMatch(appPrivileges::contains);
     }
 
     @Override
-    public List<String> getApplicationPrivileges() {
-        return MdcMonitorAppPrivileges.getApplicationPrivileges();
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(COMPONENT_NAME,
+                                        PrivilegeTranslationKeyPair.RESOURCE_COMMUNICATION_SERVER_MONITOR.getKey(),
+                                        PrivilegeTranslationKeyPair.RESOURCE_COMMUNICATION_SERVER_MONITOR_DESCRIPTION.getKey(),
+                Collections.singletonList(MdcMonitorAppPrivileges.MONITOR_COMMUNICATION_SERVER)));
+        return resources;
     }
 
     @Override
-    public String getApplicationName() {
-        return APPLICATION_KEY;
+    public String getModuleName() {
+        return COMPONENT_NAME;
     }
 
     @Override
     public String getComponentName() {
-        return APPLICATION_KEY;
+        return COMPONENT_NAME;
     }
 
     @Override
@@ -114,8 +120,9 @@ public class MdcMonitorAppServiceImpl implements MdcMonitorAppService , Translat
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> translationKeys = new ArrayList<>();
-        translationKeys.add(new SimpleTranslationKey(APPLICATION_KEY, APPLICATION_NAME));
-        return translationKeys;
+        return Stream.of(
+                Arrays.stream(PrivilegeTranslationKeyPair.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 }

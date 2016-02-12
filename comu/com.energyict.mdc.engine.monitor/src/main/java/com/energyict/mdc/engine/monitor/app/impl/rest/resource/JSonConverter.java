@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
  */
 public class JSonConverter {
 
-
     private final static long K = 1024L;
     private static final int DAYS_IN_WEEK = 7;
     private static final int SECONDS_IN_MINUTE = 60;

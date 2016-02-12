@@ -3,15 +3,19 @@ package com.energyict.mdc.engine.monitor.app.impl.rest.resource;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.monitor.app.security.MdcMonitorAppPrivileges;
 import com.energyict.mdc.engine.status.StatusService;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.osgi.service.component.annotations.Reference;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
 @Path("/monitoringResults")
+@RolesAllowed({MdcMonitorAppPrivileges.MONITOR_COMMUNICATION_SERVER})
 public class MonitorResource{
 
     private final JSonConverter jSonConverter;

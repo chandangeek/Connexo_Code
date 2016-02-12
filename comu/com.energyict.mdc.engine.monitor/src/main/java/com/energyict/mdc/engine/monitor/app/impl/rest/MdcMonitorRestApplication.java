@@ -19,9 +19,9 @@ import java.util.*;
 @Component(
         name = "com.energyict.mdc.engine.monitor.rest",
         service = {Application.class},
-        property = {"alias=/CSMonitor", "app=CSM", "name=CSM"},
+        property = {"alias=/CSMonitor", "app=MDC", "name=" + MdcMonitorAppService.COMPONENT_NAME},
         immediate = true)
-public class MdcMonitorRestApplication extends Application implements TranslationKeyProvider{
+public class MdcMonitorRestApplication extends Application {
 
     private volatile StatusService statusService;
     private volatile EngineConfigurationService engineConfigurationService;
@@ -63,22 +63,7 @@ public class MdcMonitorRestApplication extends Application implements Translatio
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(MdcMonitorAppService.APPLICATION_KEY, Layer.REST);
-    }
-
-    @Override
-    public String getComponentName() {
-        return MdcMonitorAppService.APPLICATION_KEY;
-    }
-
-    @Override
-    public Layer getLayer() {
-        return Layer.REST;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        return null;
+        this.thesaurus = nlsService.getThesaurus(MdcMonitorAppService.COMPONENT_NAME, Layer.REST);
     }
 
     class HK2Binder extends AbstractBinder {
