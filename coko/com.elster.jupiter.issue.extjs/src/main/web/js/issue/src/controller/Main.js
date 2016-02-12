@@ -79,8 +79,7 @@ Ext.define('Isu.controller.Main', {
                     {
                         text: Uni.I18n.translate('workspace.issues.title','ISU','Issues'),
                         itemId: 'issues-item',
-                        href: router.getRoute('workspace/issues').buildUrl(),
-                        hidden: true
+                        href: router.getRoute('workspace/issues').buildUrl()
                     },
                     {
                         text: Uni.I18n.translate('workspace.issues.issuesOverview', 'ISU', 'Issues overview'),

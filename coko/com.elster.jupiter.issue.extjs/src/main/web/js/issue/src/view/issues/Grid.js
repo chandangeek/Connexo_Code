@@ -11,6 +11,8 @@ Ext.define('Isu.view.issues.Grid', {
         'Isu.privileges.Issue'
     ],
     alias: 'widget.issues-grid',
+    dataCollectionActivated: false,
+    dataValidationActivated: false,
     router: null,
 
     initComponent: function () {
@@ -24,9 +26,29 @@ Ext.define('Isu.view.issues.Grid', {
                 flex: 2,
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute(me.router.currentRoute + '/view').buildUrl({issueId: record.getId()});
-
-                    return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                    switch (record.get('issueType').id) {
+                        case 'datacollection':
+                            if (me.dataCollectionActivated) {
+                                return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                            } else {
+                                return Ext.String.htmlEncode(value);
+                            }
+                            break;
+                        case 'datavalidation':
+                            if (me.dataValidationActivated) {
+                                return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                            } else {
+                                return Ext.String.htmlEncode(value);
+                            }
+                            break;
+                    }
                 }
+            },
+            {
+                itemId: 'issues-grid-type',
+                header: Uni.I18n.translate('general.type', 'ISU', 'Type'),
+                dataIndex: 'issueType_name',
+                flex: 1
             },
             {
                 itemId: 'issues-grid-due-date',

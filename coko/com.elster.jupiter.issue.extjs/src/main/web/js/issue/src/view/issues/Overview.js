@@ -14,6 +14,8 @@ Ext.define('Isu.view.issues.Overview', {
     ],
     router: null,
     groupingType: null,
+    dataCollectionActivated: false,
+    dataValidationActivated: false,
     initComponent: function () {
         var me = this;
 
@@ -72,6 +74,8 @@ Ext.define('Isu.view.issues.Overview', {
                         itemId: 'issues-preview-container',
                         grid: {
                             xtype: 'issues-grid',
+                            dataCollectionActivated: me.dataCollectionActivated,
+                            dataValidationActivated: me.dataValidationActivated,
                             itemId: 'issues-grid',
                             store: 'Isu.store.Issues',
                             router: me.router
@@ -82,6 +86,8 @@ Ext.define('Isu.view.issues.Overview', {
                         },
                         previewComponent: {
                             xtype: 'issues-preview',
+                            dataCollectionActivated: me.dataCollectionActivated,
+                            dataValidationActivated: me.dataValidationActivated,
                             itemId: 'issues-preview',
                             router: me.router
                         }

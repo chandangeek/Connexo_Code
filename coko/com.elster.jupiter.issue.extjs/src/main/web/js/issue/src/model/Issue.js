@@ -15,6 +15,7 @@ Ext.define('Isu.model.Issue', {
         {name: 'modTime', type: 'date', dateFormat: 'time'},
         {name: 'version', type: 'int'},
         {name: 'status', type: 'auto'},
+        {name: 'issueType', type: 'auto'},
         {name: 'assignee', type: 'auto'},
         {name: 'reason', type: 'auto'},
         {name: 'device', type: 'auto'},
@@ -25,6 +26,7 @@ Ext.define('Isu.model.Issue', {
                 return data.reason.name + (data.device ? data.device.name + ' ' + data.device.serialNumber : '');
             }
         },
+        {name: 'issueType_name', persist: false, mapping: 'issueType.name'},
         {name: 'reason_name', persist: false, mapping: 'reason.name'},
         {name: 'status_name', persist: false, mapping: 'status.name'},
         {name: 'device_name', persist: false, mapping: 'device.name'},
@@ -32,7 +34,12 @@ Ext.define('Isu.model.Issue', {
         {name: 'assignee_type', persist: false, mapping: 'assignee.type'},
         {name: 'usage_point', persist: false, mapping: 'device.usagePoint.info'},
         {name: 'service_location', persist: false, mapping: 'device.serviceLocation.info'},
-        {name: 'service_category', persist: false, mapping: 'device.serviceCategory.info'}
+        {name: 'service_category', persist: false, mapping: 'device.serviceCategory.info'},
+        'deviceMRID',
+        'comTaskId',
+        'comTaskSessionId',
+        'connectionTaskId',
+        'comSessionId'
     ],
     associations: [
         {
@@ -79,5 +86,13 @@ Ext.define('Isu.model.Issue', {
             associationKey: 'actions',
             name: 'actions'
         }
-    ]
+    ],
+    proxy: {
+        type: 'rest',
+        url: '/api/idc/issues',
+        reader: {
+            type: 'json',
+            root: 'data'
+        }
+    }
 });
