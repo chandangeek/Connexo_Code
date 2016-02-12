@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Objects;
 
 /**
  * Created by igh on 11/02/2016.
@@ -48,5 +49,22 @@ public class ServerFormulaImpl implements ServerFormula {
     @Override
     public long getId() {
         return id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ServerFormula)) {
+            return false;
+        }
+        ServerFormula serverFormula = (ServerFormula) o;
+        return id == serverFormula.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

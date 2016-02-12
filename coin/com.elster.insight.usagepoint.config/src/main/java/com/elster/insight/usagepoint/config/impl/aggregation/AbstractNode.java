@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by igh on 5/02/2016.
@@ -55,9 +56,30 @@ public abstract class AbstractNode implements ServerExpressionNode {
         this.parent.set(parent);
     }
 
+    public long getId() {
+        return id;
+    }
+
     public void setChildren(List<AbstractNode> children) {
         this.children.clear();
         this.children.addAll(children);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof AbstractNode)) {
+            return false;
+        }
+        AbstractNode node = (AbstractNode) o;
+        return id == node.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
 }
