@@ -15,7 +15,8 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
         'Imt.util.TitleWithEditButton',
         'Imt.customattributesonvaluesobjects.service.ActionMenuManager',
         'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint',
-        'Imt.customattributesonvaluesobjects.service.VersionsManager'
+        'Imt.customattributesonvaluesobjects.service.VersionsManager',
+        'Imt.customattributesonvaluesobjects.model.AttributeSetOnMetrologyConfiguration'
     ],
 
     items: [],

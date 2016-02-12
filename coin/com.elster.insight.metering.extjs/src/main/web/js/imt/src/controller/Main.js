@@ -41,6 +41,10 @@ Ext.define('Imt.controller.Main', {
         'Imt.validation.controller.UsagePointDataValidation',
         'Imt.servicecategories.controller.ServiceCategories'
     ],
+    stores: [
+        'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
+        'Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets'
+    ],
 
     refs: [
         {

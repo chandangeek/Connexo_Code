@@ -116,9 +116,9 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
     initAttributes: function(record){
         var me = this,
             customAttributesStoreUsagePoint = me.getStore('Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets'),
-            customAttributesModelUsagePoint = me.getStore('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
+            customAttributesModelUsagePoint = me.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
             customAttributesStoreMetrology = me.getStore('Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets'),
-            customAttributesModelMetrology = me.getStore('Imt.customattributesonvaluesobjects.model.AttributeSetOnMetrologyConfiguration');
+            customAttributesModelMetrology = me.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnMetrologyConfiguration');
 
 
         customAttributesStoreUsagePoint.getProxy().setUrl(record.get('mRID'));
