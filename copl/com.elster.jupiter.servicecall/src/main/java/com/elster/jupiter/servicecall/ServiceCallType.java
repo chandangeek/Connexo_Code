@@ -31,6 +31,8 @@ public interface ServiceCallType extends HasId, HasName {
 
     Optional<DefaultState> getCurrentLifeCycleState();
 
+    void setCurrentLifeCycleState(DefaultState currentLifeCycleState);
+
     Optional<CustomPropertySet<ServiceCall, ? extends PersistentDomainExtension<ServiceCall>>> getCustomPropertySet();
 
     void save();

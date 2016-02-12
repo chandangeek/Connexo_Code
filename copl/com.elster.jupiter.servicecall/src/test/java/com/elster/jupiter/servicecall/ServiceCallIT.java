@@ -39,6 +39,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -137,4 +138,30 @@ public class ServiceCallIT {
         }
     }
 
+    @Test
+    public void testCreateServiceCallTypeWithCustomLogLevel() throws Exception {
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").logLevel(LogLevel.INFO).add();
+
+            List<ServiceCallType> serviceCallTypes = serviceCallService.getServiceCallTypes().find();
+            assertThat(serviceCallTypes).hasSize(1);
+            assertThat(serviceCallTypes.get(0).getName()).isEqualTo("primer");
+            assertThat(serviceCallTypes.get(0).getVersionName()).isEqualTo("v1");
+            assertThat(serviceCallTypes.get(0).getLogLevel()).isEqualTo(LogLevel.INFO);
+        }
+
+    }
+
+    @Test
+    public void testCreateServiceCallTypeWithDefaultLogLevel() throws Exception {
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").add();
+
+            List<ServiceCallType> serviceCallTypes = serviceCallService.getServiceCallTypes().find();
+            assertThat(serviceCallTypes).hasSize(1);
+            assertThat(serviceCallTypes.get(0).getName()).isEqualTo("primer");
+            assertThat(serviceCallTypes.get(0).getVersionName()).isEqualTo("v1");
+            assertThat(serviceCallTypes.get(0).getLogLevel()).isEqualTo(LogLevel.WARNING);
+        }
+    }
 }

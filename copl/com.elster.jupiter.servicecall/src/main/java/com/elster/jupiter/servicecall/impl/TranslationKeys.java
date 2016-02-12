@@ -7,7 +7,8 @@ import com.elster.jupiter.servicecall.DefaultState;
  * Created by bvn on 2/4/16.
  */
 public enum TranslationKeys implements TranslationKey {
-    DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME("dlc.standard.service.call.life.cycle", "Default service call life cycle"),
+
+    DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME("scs.standard.service.call.life.cycle", "Default service call life cycle"),
 
     TRANSITION_FROM_PENDING_TO_ONGOING(DefaultState.PENDING.getKey()+DefaultCustomStateTransitionEventType.ONGOING.getSymbol(), "Activate handler"),
     TRANSITION_FROM_PENDING_TO_CANCELLED(DefaultState.PENDING.getKey()+DefaultCustomStateTransitionEventType.CANCELLED.getSymbol(), "Cancel"),
@@ -26,7 +27,8 @@ public enum TranslationKeys implements TranslationKey {
     TRANSITION_FROM_CREATED_TO_SCHEDULED(DefaultState.CREATED.getKey()+DefaultCustomStateTransitionEventType.SCHEDULED.getSymbol(), "Schedule"),
     TRANSITION_FROM_CREATED_TO_REJECTED(DefaultState.CREATED.getKey()+DefaultCustomStateTransitionEventType.REJECTED.getSymbol(), "Reject"),
     TRANSITION_FROM_FAILED_TO_SCHEDULED(DefaultState.FAILED.getKey()+DefaultCustomStateTransitionEventType.SCHEDULED.getSymbol(), "Reschedule"),
-    TRANSITION_FROM_PARTIAL_SUCCESS_TO_SCHEDULED(DefaultState.PARTIAL_SUCCESS.getKey()+DefaultCustomStateTransitionEventType.SCHEDULED.getSymbol(), "Reschedule");
+    TRANSITION_FROM_PARTIAL_SUCCESS_TO_SCHEDULED(DefaultState.PARTIAL_SUCCESS.getKey()+DefaultCustomStateTransitionEventType.SCHEDULED.getSymbol(), "Reschedule"),
+    TRANSITION_FROM_ONGOING_TO_CANCELLED(DefaultState.ONGOING.getKey()+DefaultCustomStateTransitionEventType.CANCELLED.getSymbol(), "Cancel");
 
     private final String key;
     private final String defaultFormat;

@@ -39,14 +39,24 @@ public interface ServiceCallService {
     public Finder<ServiceCallType> getServiceCallTypes();
 
     /**
-     * Creates a new servic call type. This method start a builder.
+     * Creates a new service call type, using provided name, version and life cycle. This method start a builder.
      * @param name
      * @return
      */
-    public ServiceCallService.ServiceCallTypeBuilder createServiceCallType(String name,String versionName);
+    public ServiceCallService.ServiceCallTypeBuilder createServiceCallType(String name,String versionName, ServiceCallLifeCycle serviceCallLifeCycle);
+
+    /**
+     * Creates a new service call type, using provided name and version. The default life cycle is used. This method start a builder.
+     * @param name
+     * @return
+     */
+    default public ServiceCallService.ServiceCallTypeBuilder createServiceCallType(String name,String versionName) {
+        return createServiceCallType(name, versionName, getDefaultServiceCallLifeCycle().get());
+    }
 
     interface ServiceCallTypeBuilder {
-
+        public ServiceCallTypeBuilder logLevel(LogLevel logLevel);
+        public ServiceCallType add();
     }
 
 }

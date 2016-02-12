@@ -134,7 +134,7 @@ public class ServiceCallInstaller {
                 .on(cancelledEventType).transitionTo(canceled, TranslationKeys.TRANSITION_FROM_WAITING_TO_CANCELLED)
                 .complete();
         ongoingBuilder
-                .on(cancelledEventType).transitionTo(canceled, TranslationKeys.TRANSITION_FROM_WAITING_TO_CANCELLED)
+                .on(cancelledEventType).transitionTo(canceled, TranslationKeys.TRANSITION_FROM_ONGOING_TO_CANCELLED)
                 .on(waitingEventType).transitionTo(waiting, TranslationKeys.TRANSITION_FROM_ONGOING_TO_WAITING)
                 .on(pausedEventType).transitionTo(paused, TranslationKeys.TRANSITION_FROM_ONGOING_TO_PAUSED)
                 .on(successEventType).transitionTo(successful, TranslationKeys.TRANSITION_FROM_ONGOING_TO_SUCCESS)

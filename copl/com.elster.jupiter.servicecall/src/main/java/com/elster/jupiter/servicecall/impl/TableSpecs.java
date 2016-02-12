@@ -14,7 +14,7 @@ import static com.elster.jupiter.orm.Table.NAME_LENGTH;
  * Created by bvn on 2/4/16.
  */
 public enum TableSpecs {
-    SERVICE_CALL_LIFECYCLE(ServiceCallLifeCycle.class) {
+    SCS_SERVICE_CALL_LIFECYCLE(ServiceCallLifeCycle.class) {
         @Override
         void describeTable(Table table) {
             table.map(ServiceCallLifeCycleImpl.class);
@@ -30,7 +30,7 @@ public enum TableSpecs {
         }
     },
 
-    SERVICE_CALL_TYPE(ServiceCallType.class) {
+    SCS_SERVICE_CALL_TYPE(ServiceCallType.class) {
         @Override
         void describeTable(Table table) {
             table.map(ServiceCallTypeImpl.class);

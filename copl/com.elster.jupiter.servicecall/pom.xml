@@ -69,6 +69,14 @@
       <groupId>com.elster.jupiter</groupId>
       <artifactId>cps</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>transaction</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>security.thread</artifactId>
+    </dependency>
 
     <!-- Testing -->
     <dependency>
@@ -88,16 +96,6 @@
     <dependency>
       <groupId>com.elster.jupiter</groupId>
       <artifactId>messaging.h2</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.elster.jupiter</groupId>
-      <artifactId>security.thread</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.elster.jupiter</groupId>
-      <artifactId>transaction</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

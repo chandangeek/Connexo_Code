@@ -2,6 +2,7 @@ package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -13,6 +14,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
@@ -27,9 +29,11 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -114,7 +118,7 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME, UserService.COMPONENTNAME);
+        return Arrays.asList(OrmService.COMPONENTNAME, UserService.COMPONENTNAME, FiniteStateMachineService.COMPONENT_NAME);
     }
 
     private Module getModule() {
@@ -123,6 +127,7 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
             }
         };
@@ -154,8 +159,8 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     }
 
     @Override
-    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName) {
-        return null;
+    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle) {
+        return new ServiceCallTypeBuilderImpl(name, versionName, serviceCallLifeCycle);
     }
 
     @Override
@@ -164,6 +169,27 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     }
 
     class ServiceCallTypeBuilderImpl implements ServiceCallTypeBuilder {
+        private final ServiceCallTypeImpl instance;
 
+        public ServiceCallTypeBuilderImpl(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle) {
+            instance = dataModel.getInstance(ServiceCallTypeImpl.class);
+            instance.setName(name);
+            instance.setVersionName(versionName);
+            instance.setServiceCallLifeCycle(serviceCallLifeCycle);
+            instance.setLogLevel(LogLevel.WARNING);
+        }
+
+        @Override
+        public ServiceCallTypeBuilder logLevel(LogLevel logLevel) {
+            Objects.requireNonNull(logLevel, "LogLevel must not be null");
+            instance.setLogLevel(logLevel);
+            return this;
+        }
+
+        @Override
+        public ServiceCallType add() {
+            instance.save();
+            return instance;
+        }
     }
 }

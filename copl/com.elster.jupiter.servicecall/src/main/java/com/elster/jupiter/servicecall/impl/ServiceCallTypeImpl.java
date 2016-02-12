@@ -2,6 +2,8 @@ package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
@@ -10,6 +12,7 @@ import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.Status;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -33,6 +36,14 @@ public class ServiceCallTypeImpl implements ServiceCallType {
     private String userName;
     @SuppressWarnings("unused")
     private long version;
+
+
+    private final DataModel dataModel;
+
+    @Inject
+    public ServiceCallTypeImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
+    }
 
     public enum Fields {
         name("name"),
@@ -109,10 +120,12 @@ public class ServiceCallTypeImpl implements ServiceCallType {
         return serviceCallLifeCycle.getOptional();
     }
 
+    @Override
     public Optional<DefaultState> getCurrentLifeCycleState() {
         return Optional.ofNullable(currentLifeCycleState);
     }
 
+    @Override
     public void setCurrentLifeCycleState(DefaultState currentLifeCycleState) {
         // todo transition life cycle
         this.currentLifeCycleState = currentLifeCycleState;
@@ -123,10 +136,17 @@ public class ServiceCallTypeImpl implements ServiceCallType {
         return Optional.empty();
     }
 
-
+    void setServiceCallLifeCycle(ServiceCallLifeCycle serviceCallLifeCycle) {
+        this.serviceCallLifeCycle.set(serviceCallLifeCycle);
+    }
 
     @Override
     public void save() {
-        // TODO
+        if (this.getId() > 0) {
+            Save.UPDATE.save(this.dataModel, this, Save.Update.class);
+        } else {
+            Save.CREATE.save(this.dataModel, this, Save.Create.class);
+        }
+
     }
 }
