@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 
 import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.util.Optional;
 
