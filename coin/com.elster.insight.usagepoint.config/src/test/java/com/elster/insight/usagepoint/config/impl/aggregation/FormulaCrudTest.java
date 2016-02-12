@@ -1,5 +1,6 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
+import com.elster.insight.usagepoint.config.Formula;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.config.impl.UsagePointConfigModule;
@@ -52,7 +53,9 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.MessageInterpolator;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
+import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -138,9 +141,13 @@ public class FormulaCrudTest {
     @Test
     public void testCrud()  {
         try (TransactionContext context = getTransactionService().getContext()) {
-
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            MetrologyConfiguration mc1 = upcService.newMetrologyConfiguration("metrology config 1");
+            FunctionCallNode node =
+                    new FunctionCallNode(
+                            Arrays.asList(new ConstantNode(BigDecimal.TEN), new ConstantNode(BigDecimal.ZERO)),
+                            Function.MAX);
+            Formula formula = upcService.newFormula(Formula.Mode.AUTO, node);
+            formula.update();
             context.commit();
         }
 

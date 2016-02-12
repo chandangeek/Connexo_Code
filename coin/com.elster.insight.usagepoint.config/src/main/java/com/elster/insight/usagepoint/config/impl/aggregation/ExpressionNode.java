@@ -46,4 +46,14 @@ public interface ExpressionNode {
 
     <T> T accept(Visitor<T> visitor);
 
+    /**
+     * Delete this {@link ExpressionNode}
+     */
+   // void delete();
+
+    /**
+     * Update this {@link ExpressionNode}
+     */
+    //void update();
+
 }

@@ -1,6 +1,7 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
 import com.elster.insight.usagepoint.config.Formula;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -24,7 +25,7 @@ public class ServerFormulaImpl implements ServerFormula {
         this.dataModel = dataModel;
     }
 
-    ServerFormulaImpl init(Mode mode, ExpressionNode expressionNode) {
+    public ServerFormulaImpl init(Mode mode, ExpressionNode expressionNode) {
         this.mode = mode;
         this.expressionNode.set(expressionNode);
         return this;
@@ -66,5 +67,33 @@ public class ServerFormulaImpl implements ServerFormula {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public void delete() {
+        dataModel.remove(this);
+    }
+
+    @Override
+    public void update() {
+        doSave();
+    }
+
+    void doSave() {
+        if (id == 0) {
+            persist();
+        } else {
+            doUpdate();
+        }
+    }
+
+    private void persist() {
+        Save.CREATE.save(dataModel, this.expressionNode);
+        Save.CREATE.save(dataModel, this);
+    }
+
+    private void doUpdate() {
+        Save.UPDATE.save(dataModel, this.expressionNode);
+        Save.UPDATE.save(dataModel, this);
     }
 }

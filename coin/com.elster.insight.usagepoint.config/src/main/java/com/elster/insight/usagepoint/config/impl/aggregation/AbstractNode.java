@@ -1,5 +1,6 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.google.common.collect.ImmutableMap;
@@ -28,6 +29,7 @@ public abstract class AbstractNode implements ServerExpressionNode {
     private Reference<AbstractNode> parent = ValueReference.absent();
     private List<AbstractNode> children = new ArrayList<>();
     private long argumentIndex;
+
 
     public AbstractNode() {
         super();
@@ -81,5 +83,31 @@ public abstract class AbstractNode implements ServerExpressionNode {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+    /*@Override
+    public void delete() {
+        dataModel.remove(this);
+    }
+
+    @Override
+    public void update() {
+        doSave();
+    }
+
+    void doSave() {
+        if (id == 0) {
+            persist();
+        } else {
+            doUpdate();
+        }
+    }
+
+    private void persist() {
+        Save.CREATE.save(dataModel, this);
+    }
+
+    private void doUpdate() {
+        Save.UPDATE.save(dataModel, this);
+    }*/
 
 }

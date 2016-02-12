@@ -46,4 +46,14 @@ public interface Formula extends HasId {
     @Deprecated
     String getDescription();
 
+    /**
+     * Delete this {@link Formula}
+     */
+    void delete();
+
+    /**
+     * Update this {@link Formula}
+     */
+    void update();
+
 }

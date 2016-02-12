@@ -12,11 +12,12 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 
+import com.elster.insight.usagepoint.config.Formula;
+import com.elster.insight.usagepoint.config.impl.aggregation.ExpressionNode;
+import com.elster.insight.usagepoint.config.impl.aggregation.ServerFormulaImpl;
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -142,6 +143,15 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         metrologyConfiguration.update();
         return metrologyConfiguration;
     }
+
+    @Override
+    public Formula newFormula(Formula.Mode mode, ExpressionNode node) {
+        Formula formula = dataModel.getInstance(ServerFormulaImpl.class).init(mode, node);
+        formula.update();
+        return formula;
+    }
+
+
 
     @Override
     public Optional<MetrologyConfiguration> findMetrologyConfiguration(long id) {
