@@ -114,7 +114,7 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME, UserService.COMPONENTNAME);
+        return Arrays.asList(OrmService.COMPONENTNAME, UserService.COMPONENTNAME, FiniteStateMachineService.COMPONENT_NAME);
     }
 
     private Module getModule() {
