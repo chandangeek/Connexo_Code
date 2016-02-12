@@ -45,6 +45,7 @@ Ext.define('Idv.controller.Main', {
 
     init: function () {
         this.initMenu();
+        this.getApplication().fireEvent('initIssueType', 'dataValidation');
     },
 
     initMenu: function () {
@@ -68,12 +69,12 @@ Ext.define('Idv.controller.Main', {
             if (Isu.privileges.Issue.canViewAdminDevice()) {
                 items.push({
                     text: Uni.I18n.translate('general.issues','IDV','Issues'),
-                    href: router.getRoute('workspace/datavalidationissues').buildUrl()
+                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['dataValidation']})
                 });
                 items.push({
                     text: Uni.I18n.translate('datavalidation.myOpenIssues','IDV','My open issues'),
                     itemId: 'my-open-issues',
-                    href: router.getRoute('workspace/datavalidationissues').buildUrl({}, {myopenissues: true})
+                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['dataValidation'], myopenissues: true})
                 });
             }
 

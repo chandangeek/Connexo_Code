@@ -1,7 +1,8 @@
 Ext.define('Idv.controller.history.Workspace', {
     extend: 'Uni.controller.history.Converter',
     requires:[
-        'Isu.privileges.Issue'
+        'Isu.privileges.Issue',
+        'Isu.controller.IssuesOverview'
     ],
     rootToken: 'workspace',
     previousPath: '',
@@ -13,10 +14,10 @@ Ext.define('Idv.controller.history.Workspace', {
             route: 'workspace',
             disabled: true,
             items: {
-                datavalidationissues: {
+                issues: {
                     title: Uni.I18n.translate('breadcrumb.datavalidationissues', 'IDV', 'Data validation issues'),
-                    route: 'datavalidationissues',
-                    controller: 'Idv.controller.Overview',
+                    route: 'issues',
+                    controller: 'Isu.controller.IssuesOverview',
                     action: 'showOverview',
                     privileges: Isu.privileges.Issue.viewAdminDevice,
                     items: {
