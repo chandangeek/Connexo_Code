@@ -35,10 +35,10 @@ public enum TableSpecs {
         void describeTable(Table table) {
             table.map(ServiceCallTypeImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(NAME_LENGTH).notNull().map(ServiceCallTypeImpl.Fields.name.fieldName()).add();
+            Column name = table.column("NAME").varChar(NAME_LENGTH).notNull().map(ServiceCallTypeImpl.Fields.name.fieldName()).add();
             table.column("LOGLEVEL").number().conversion(ColumnConversion.NUMBER2ENUM).map(ServiceCallTypeImpl.Fields.logLevel.fieldName()).add();
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map(ServiceCallTypeImpl.Fields.status.fieldName()).add();
-            table.column("VERSIONNAME").varChar(NAME_LENGTH).notNull().map(ServiceCallTypeImpl.Fields.versionName.fieldName()).add();
+            Column versionName = table.column("VERSIONNAME").varChar(NAME_LENGTH).notNull().map(ServiceCallTypeImpl.Fields.versionName.fieldName()).add();
             table.column("CURRENTSTATE").number().conversion(ColumnConversion.NUMBER2ENUM).map(ServiceCallTypeImpl.Fields.currentLifeCycleState.fieldName()).add();
             Column serviceCallLifeCycle = table.column("LIFECYCLE").number().notNull().add();
             table.addAuditColumns();
@@ -48,7 +48,7 @@ public enum TableSpecs {
                     .on(serviceCallLifeCycle)
                     .add();
             table.primaryKey("SCT_PK_SERVICECALLTYPE").on(idColumn).add();
-
+            table.unique("SCT_U_TYPE").on(name, versionName).add();
         }
     };
 

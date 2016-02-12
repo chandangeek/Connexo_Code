@@ -3,6 +3,8 @@ package com.elster.jupiter.servicecall;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
+import com.elster.jupiter.devtools.tests.rules.Expected;
+import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
@@ -10,6 +12,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -26,7 +29,9 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -43,6 +48,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -56,6 +62,9 @@ public class ServiceCallIT {
     private TransactionService transactionService;
     private MessageService messageService;
     private ServiceCallService serviceCallService;
+
+    @Rule
+    public TestRule expectedRule = new ExpectedExceptionRule();
 
     @Mock
     private UserService userService;
@@ -135,6 +144,24 @@ public class ServiceCallIT {
         try (TransactionContext context = transactionService.getContext()) {
             Optional<ServiceCallLifeCycle> serviceCallLifeCycle = serviceCallService.getDefaultServiceCallLifeCycle();
             assertThat(serviceCallLifeCycle).isPresent();
+        }
+    }
+
+    @Test
+    @Expected(value = UnderlyingSQLFailedException.class)
+    public void testCanNotCreateDuplicateServiceCallTypes() throws Exception {
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCallService.createServiceCallType("primer", "v1").logLevel(LogLevel.INFO).add();
+            serviceCallService.createServiceCallType("primer", "v1").logLevel(LogLevel.INFO).add();
+            fail("Should have been prevented: duplication");
+        }
+    }
+
+    @Test
+    public void testCanCreateDuplicateServiceCallTypeWithName() throws Exception {
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCallService.createServiceCallType("primer", "v1").logLevel(LogLevel.INFO).add();
+            serviceCallService.createServiceCallType("primer", "v2").logLevel(LogLevel.INFO).add();
         }
     }
 

@@ -75,8 +75,7 @@ public class ServiceCallTypeImpl implements ServiceCallType {
         return name;
     }
 
-    @Override
-    public void setName(String name) {
+    void setName(String name) {
         this.name = name;
     }
 
@@ -85,8 +84,7 @@ public class ServiceCallTypeImpl implements ServiceCallType {
         return versionName;
     }
 
-    @Override
-    public void setVersionName(String versionName) {
+    void setVersionName(String versionName) {
         this.versionName = versionName;
     }
 
@@ -96,8 +94,8 @@ public class ServiceCallTypeImpl implements ServiceCallType {
     }
 
     @Override
-    public void setStatus(Status status) {
-        this.status = status;
+    public void deprecate() {
+        this.status = Status.DEPRECATED;
     }
 
     @Override

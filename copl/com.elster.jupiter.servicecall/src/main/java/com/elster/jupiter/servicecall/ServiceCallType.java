@@ -13,15 +13,11 @@ import java.util.Optional;
 public interface ServiceCallType extends HasId, HasName {
     long getVersion();
 
-    void setName(String type);
-
     String getVersionName();
-
-    void setVersionName(String versionName);
 
     Status getStatus();
 
-    void setStatus(Status status);
+    void deprecate();
 
     LogLevel getLogLevel();
 
