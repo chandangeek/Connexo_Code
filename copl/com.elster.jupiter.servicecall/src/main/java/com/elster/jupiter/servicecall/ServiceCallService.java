@@ -54,6 +54,14 @@ public interface ServiceCallService {
         return createServiceCallType(name, versionName, getDefaultServiceCallLifeCycle().get());
     }
 
+    /**
+     * Fetch a service call type by name and version name.
+     * @param name
+     * @param versionName This is the named version of the type. Not to be confused with the concurrency version. This is version as applied by the user.
+     * @return
+     */
+    Optional<ServiceCallType> findServiceCallType(String name, String versionName);
+
     interface ServiceCallTypeBuilder {
         public ServiceCallTypeBuilder logLevel(LogLevel logLevel);
         public ServiceCallType add();

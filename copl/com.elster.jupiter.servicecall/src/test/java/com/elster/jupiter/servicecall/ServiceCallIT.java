@@ -1,5 +1,6 @@
 package com.elster.jupiter.servicecall;
 
+import aQute.service.reporter.Messages;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
@@ -189,6 +190,21 @@ public class ServiceCallIT {
             assertThat(serviceCallTypes.get(0).getName()).isEqualTo("primer");
             assertThat(serviceCallTypes.get(0).getVersionName()).isEqualTo("v1");
             assertThat(serviceCallTypes.get(0).getLogLevel()).isEqualTo(LogLevel.WARNING);
+        }
+    }
+
+    @Test
+    public void testUpdateServiceCallTypeLogLevel() throws Exception {
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCallService.createServiceCallType("primer", "v1").add();
+            Optional<ServiceCallType> serviceCallTypeReloaded = serviceCallService.findServiceCallType("primer", "v1");
+            assertThat(serviceCallTypeReloaded.get().getLogLevel()).isEqualTo(LogLevel.WARNING);
+            serviceCallTypeReloaded.get().setLogLevel(LogLevel.SEVERE);
+            serviceCallTypeReloaded.get().save();
+
+            Optional<ServiceCallType> serviceCallTypeReloadedAgain = serviceCallService.findServiceCallType("primer", "v1");
+            assertThat(serviceCallTypeReloadedAgain).isPresent();
+            assertThat(serviceCallTypeReloadedAgain.get().getLogLevel()).isEqualTo(LogLevel.SEVERE);
         }
     }
 }
