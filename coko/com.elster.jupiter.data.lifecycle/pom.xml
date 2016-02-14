@@ -122,6 +122,11 @@
             <artifactId>cps</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!--<dependency>-->
         <!--<groupId>com.google.inject</groupId>-->
         <!--<artifactId>guice</artifactId>-->
