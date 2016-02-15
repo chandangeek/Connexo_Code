@@ -2,6 +2,7 @@ package com.elster.jupiter.servicecall.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
@@ -25,11 +26,13 @@ public class ServiceCallTypeResource {
 
     private final ServiceCallService serviceCallService;
     private final Thesaurus thesaurus;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public ServiceCallTypeResource(ServiceCallService serviceCallService, Thesaurus thesaurus) {
+    public ServiceCallTypeResource(ServiceCallService serviceCallService, Thesaurus thesaurus, ConcurrentModificationExceptionFactory conflictFactory) {
         this.serviceCallService = serviceCallService;
         this.thesaurus = thesaurus;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -46,12 +49,12 @@ public class ServiceCallTypeResource {
     }
 
     @PUT
-    @Path("/{serviceCallTypeName}")
+    @Path("/{id}")
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response changeLogLevel(@PathParam("serviceCallTypeID") String serviceCallTypeName, ServiceCallTypeInfo info) {
-        ServiceCallType type = null; //= serviceCallService.getServiceCallType(serviceCallTypeName, info); lock and fetch
+    public Response changeLogLevel(@PathParam("id") long id, ServiceCallTypeInfo info) {
+        ServiceCallType type = fetchAndLockAppServer(info);
         type.setLogLevel(LogLevel.valueOf(info.logLevel.id));
         type.save();
         return Response.status(Response.Status.OK).build();
@@ -65,6 +68,13 @@ public class ServiceCallTypeResource {
     public Response cancelServiceCall(@PathParam("serviceCallTypeID") String serviceCallTypeName, ServiceCallTypeInfo info) {
 
         return Response.status(Response.Status.OK).build();
+    }
+
+    private ServiceCallType fetchAndLockAppServer(ServiceCallTypeInfo info) {
+        return serviceCallService.findAndLockServiceCallType(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> serviceCallService.findServiceCallType(info.name, info.versionName).map(ServiceCallType::getVersion).orElse(null))
+                        .supplier());
     }
 
 }
