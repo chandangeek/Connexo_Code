@@ -17,8 +17,21 @@ Ext.define('Isu.privileges.Issue', {
     close: ['privilege.close.issue'],
     commentOrAssing: ['privilege.comment.issue','privilege.assign.issue'],
     notify: ['privilege.action.issue'],
+    action: ['privilege.action.issue'],
     adminDevice: ['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue'],
     viewAdminDevice: ['privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue'],
+    viewAdminProcesses: ['privilege.view.bpm', 'privilege.administrate.bpm'],
+    viewProcesses: ['privilege.view.bpm'],
+    executeProcesses: ['privilege.execute.processes.lvl.1',
+        'privilege.execute.processes.lvl.2',
+        'privilege.execute.processes.lvl.3',
+        'privilege.execute.processes.lvl.4'],
+
+    executeLevel1: ['privilege.execute.processes.lvl.1'],
+    executeLevel2: ['privilege.execute.processes.lvl.2'],
+    executeLevel3: ['privilege.execute.processes.lvl.3'],
+    executeLevel4: ['privilege.execute.processes.lvl.4'],
+
 
     all: function() {
         return Ext.Array.merge(Isu.privileges.Issue.createRule, Isu.privileges.Issue.comment,Isu.privileges.Issue.adminRule,
@@ -49,5 +62,22 @@ Ext.define('Isu.privileges.Issue', {
 
     canViewAdminDevice: function() {
         return Uni.Auth.checkPrivileges(Isu.privileges.Issue.viewAdminDevice);
+    },
+
+    canExecuteLevel1: function () {
+        return Uni.Auth.checkPrivileges(Isu.privileges.Issue.executeLevel1);
+    },
+    canExecuteLevel2: function () {
+        return Uni.Auth.checkPrivileges(Isu.privileges.Issue.executeLevel2);
+    },
+    canExecuteLevel3: function () {
+        return Uni.Auth.checkPrivileges(Isu.privileges.Issue.executeLevel3);
+    },
+    canExecuteLevel4: function () {
+        return Uni.Auth.checkPrivileges(Isu.privileges.Issue.executeLevel4);
+    },
+    canViewProcessMenu: function() {
+        return Uni.Auth.checkPrivileges(Isu.privileges.Issue.viewAdminProcesses) && Uni.Auth.checkPrivileges(Isu.privileges.Issue.executeProcesses);
     }
+
 });
