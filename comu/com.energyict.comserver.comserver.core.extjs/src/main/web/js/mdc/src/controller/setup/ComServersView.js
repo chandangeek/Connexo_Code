@@ -59,6 +59,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
             activate.show();
             deactivate.hide();
         }
+
     },
 
     chooseAction: function (menu, item) {

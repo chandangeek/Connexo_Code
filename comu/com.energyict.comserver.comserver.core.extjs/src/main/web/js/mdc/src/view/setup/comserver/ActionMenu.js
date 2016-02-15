@@ -26,8 +26,8 @@ Ext.define('Mdc.view.setup.comserver.ActionMenu', {
         },
         {
             itemId: 'monitor',
-            text: Uni.I18n.translate('comserver.mon itor', 'MDC', 'Monitor'),
-            hidden: !Mdc.privileges.Monitor.canMonitor(),
+            text: Uni.I18n.translate('comserver.monitor', 'MDC', 'Monitor'),
+            privileges: Mdc.privileges.Monitor.canMonitor,
             action: 'monitor'
         },
         {
