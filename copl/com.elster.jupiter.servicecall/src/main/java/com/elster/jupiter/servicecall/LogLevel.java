@@ -7,13 +7,13 @@ import com.elster.jupiter.nls.TranslationKey;
  * Created by bvn on 2/10/16.
  */
 public enum LogLevel implements TranslationKey {
-    SEVERE("SEVERE"),
-    WARNING("WARNING"),
-    INFO("INFO"),
-    CONFIG("CONFIG"),
-    FINE("FINE"),
-    FINER("FINER"),
-    FINEST("FINEST");
+    SEVERE("Severe"),
+    WARNING("Warning"),
+    INFO("Info"),
+    CONFIG("Config"),
+    FINE("Fine"),
+    FINER("Finer"),
+    FINEST("Finest");
 
     private String name;
 

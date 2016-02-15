@@ -166,6 +166,12 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
         return dataModel.mapper(ServiceCallType.class).getUnique(ServiceCallTypeImpl.Fields.name.fieldName(), name, ServiceCallTypeImpl.Fields.versionName.fieldName(), versionName);
     }
 
+
+    @Override
+    public Optional<ServiceCallType> findAndLockServiceCallType(long id, long version) {
+        return dataModel.mapper(ServiceCallType.class).lockObjectIfVersion(version, id);
+    }
+
     @Override
     public ServiceCallLifeCycle createServiceCallLifeCycle(String name) {
         return null; // TODO
