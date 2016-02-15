@@ -28,7 +28,7 @@ Ext.define('Sct.view.Grid', {
             },
             {
                 header: Uni.I18n.translate('general.logLevel', 'SCT', 'Log level'),
-                dataIndex: 'logLevel',
+                dataIndex: 'logLevelName',
                 flex: 1
             },
             {

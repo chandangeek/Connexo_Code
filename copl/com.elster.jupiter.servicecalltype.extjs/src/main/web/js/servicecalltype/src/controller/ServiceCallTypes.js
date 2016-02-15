@@ -6,7 +6,8 @@ Ext.define('Sct.controller.ServiceCallTypes', {
         'Sct.view.LogLevelWindow'
     ],
     stores: [
-        'Sct.store.ServiceCallTypes'
+        'Sct.store.ServiceCallTypes',
+        'Sct.store.LogLevels'
     ],
     models: [
     ],
@@ -67,20 +68,40 @@ Ext.define('Sct.controller.ServiceCallTypes', {
     },
 
     changeLogLevel: function (record) {
-        var me = this;
+        var me = this,
+            store = Ext.getStore('Sct.store.LogLevels'),
+            view = Ext.widget('log-level-window', {
+                record: record,
+                store: store
+            });
 
         me.getPage().setLoading();
-        Ext.widget('log-level-window', {
-                record: record
-        }).show();
+        store.load(function(records, operation, success) {
+            if(success) {
+                view.show();
+            }
+
+            me.getPage().setLoading(false);
+        });
     },
 
     updateLogLevel: function() {
-        //TODO: put update code for log level here
         var me = this,
             window = me.getChangeLogLevelWindow(),
-            record = window.record;
-        debugger;
+            record = window.record,
+            combobox = window.down('#log-level-field'),
+            loglevel;
+        loglevel = combobox.findRecordByDisplay(combobox.getRawValue());
+        record.set('logLevel', loglevel.data);
+        record.save( {
+            success: function (record) {
+                me.getPage().down('#grd-service-call-types').getStore().load();
+                window.close();
+            },
+            failure: function (record, operation) {
+                //TODO
+            }
+        });
     },
 
     closeLogLevelWindow: function() {

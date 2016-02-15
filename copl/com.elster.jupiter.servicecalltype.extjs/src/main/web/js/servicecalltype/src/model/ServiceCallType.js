@@ -31,14 +31,24 @@ Ext.define('Sct.model.ServiceCallType', {
                     return 'undefined';
                 }
             }
+        },
+        {
+            name: 'logLevelName',
+            persist: false,
+            mapping: function (data) {
+                if(data.logLevel) {
+                    return data.logLevel.displayValue;
+                } else {
+                    return 'undefined';
+                }
+            }
         }
     ],
-/*
     proxy: {
         type: 'rest',
         url: '/api/scs/servicecalltypes',
         reader: {
             type: 'json'
         }
-    }*/
+    }
 });

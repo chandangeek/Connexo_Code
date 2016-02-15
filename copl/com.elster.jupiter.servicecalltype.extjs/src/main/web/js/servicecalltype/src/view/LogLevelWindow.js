@@ -5,6 +5,7 @@ Ext.define('Sct.view.LogLevelWindow', {
     title: Uni.I18n.translate('general.selectLogLevel', 'SCT', 'Select log level'),
     record: null,
     itemId: 'log-level-window',
+    store: null,
 
     initComponent: function () {
         var me = this;
@@ -35,12 +36,12 @@ Ext.define('Sct.view.LogLevelWindow', {
                     name: 'logLevel',
                     fieldLabel: Uni.I18n.translate('general.logLevel', 'SCT', 'Log level'),
                     required: true,
-                    editable: 'false',
-                   /* store: 'Imt.store.Estimators',
-                    valueField: 'implementation',
-                    displayField: 'displayName',*/
+                    editable: false,
+                    store: me.store,
+                    valueField: 'id',
+                    displayField: 'displayValue',
                     queryMode: 'local',
-                    forceSelection: true,
+                    value: me.record ? me.record.get('logLevelName') : "WARNING",
                     emptyText: Uni.I18n.translate('general.selectALogLevel', 'SCT', 'Select a log level...'),
                 },
                 {

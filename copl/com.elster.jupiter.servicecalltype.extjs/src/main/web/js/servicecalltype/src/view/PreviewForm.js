@@ -28,7 +28,7 @@ Ext.define('Sct.view.PreviewForm', {
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.logLevel', 'SCT', 'Log level'),
-                name: 'logLevel'
+                name: 'logLevelName'
             },
             {
                 xtype: 'displayfield',
