@@ -37,6 +37,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import com.google.inject.util.Modules;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -179,16 +180,21 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     private <D, T extends PersistentDomainExtension<D>> Module getCustomPropertySetModule(final DataModel dataModel, final CustomPropertySet<D, T> customPropertySet) {
-        return new AbstractModule() {
+
+        Module bindings = new AbstractModule() {
             @Override
             public void configure() {
-                customPropertySet.getPersistenceSupport().module().ifPresent(customModule -> customModule.configure(this.binder()));
                 bind(DataModel.class).toInstance(dataModel);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(CustomPropertySetService.class).toInstance(CustomPropertySetServiceImpl.this);
             }
         };
+        Optional<Module> cpsModule = customPropertySet.getPersistenceSupport().module();
+        if (cpsModule.isPresent()) {
+            bindings = Modules.override(bindings).with(cpsModule.get());
+        }
+        return bindings;
     }
 
     private void registerAllCustomPropertySets() {

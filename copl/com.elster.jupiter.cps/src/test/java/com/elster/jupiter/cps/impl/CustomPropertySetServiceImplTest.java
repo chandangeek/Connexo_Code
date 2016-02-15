@@ -159,6 +159,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.persistenceSupport.domainColumnName()).thenReturn(DOMAIN_COLUMN_NAME);
         when(this.persistenceSupport.domainForeignKeyName()).thenReturn(DOMAIN_FK_NAME);
         when(this.persistenceSupport.persistenceClass()).thenReturn(DomainExtensionForTestingPurposes.class);
+        when(this.persistenceSupport.module()).thenReturn(Optional.empty());
         when(this.table.column(DOMAIN_COLUMN_NAME)).thenReturn(this.domainColumnBuilder);
         when(this.table.foreignKey(DOMAIN_FK_NAME)).thenReturn(this.domainForeignKeyConstraintBuilder);
         when(this.table.column(HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())).thenReturn(this.customPropertySetColumnBuilder);
@@ -176,6 +177,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.versionedPersistenceSupport.domainColumnName()).thenReturn(DOMAIN_COLUMN_NAME);
         when(this.versionedPersistenceSupport.domainForeignKeyName()).thenReturn(DOMAIN_FK_NAME);
         when(this.versionedPersistenceSupport.persistenceClass()).thenReturn(VersionedDomainExtensionForTestingPurposes.class);
+        when(this.versionedPersistenceSupport.module()).thenReturn(Optional.empty());
         when(this.versionedTable.column(DOMAIN_COLUMN_NAME)).thenReturn(this.domainColumnBuilder);
         when(this.versionedTable.foreignKey(DOMAIN_FK_NAME)).thenReturn(this.domainForeignKeyConstraintBuilder);
         when(this.versionedTable.column(HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())).thenReturn(this.customPropertySetColumnBuilder);
