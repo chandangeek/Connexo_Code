@@ -51,10 +51,10 @@ Ext.define('Sct.controller.ServiceCallTypes', {
         var me = this,
             page = me.getPage(),
             preview = page.down('servicecalltypes-preview'),
-            serviceCallTypeName = record.get('type'),
+            serviceCallTypeName = record.get('name'),
             previewForm = page.down('servicecalltypes-preview-form');
 
-        preview.setTitle(serviceCallTypeName);
+        preview.setTitle(Ext.String.htmlEncode(serviceCallTypeName));
         previewForm.updatePreview(record);
     },
 
