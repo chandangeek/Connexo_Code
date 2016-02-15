@@ -31,6 +31,7 @@ public class ServiceCategoryResourceTest extends MeteringApplicationJerseyTest {
         ServiceCategory category = mock(ServiceCategory.class);
         when(category.getKind()).thenReturn(ServiceKind.ELECTRICITY);
         when(category.getName()).thenReturn(ServiceKind.ELECTRICITY.getDefaultFormat());
+        when(category.isActive()).thenReturn(true);
         when(meteringService.getServiceCategory(any(ServiceKind.class))).thenReturn(Optional.empty());
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(category));
 
