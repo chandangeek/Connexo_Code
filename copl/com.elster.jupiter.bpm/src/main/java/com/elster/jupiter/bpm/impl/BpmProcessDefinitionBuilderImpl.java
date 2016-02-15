@@ -16,7 +16,7 @@ public class BpmProcessDefinitionBuilderImpl implements BpmProcessDefinitionBuil
     private String version;
     private String status;
     private List<BpmProcessPrivilege> processPrivileges = new ArrayList<>();
-    private List<Map<String,String>> associatedData = new ArrayList<>();
+    private List<Map<String,String>> associationData = new ArrayList<>();
     private final BpmService bpmService;
 
 
@@ -58,7 +58,7 @@ public class BpmProcessDefinitionBuilderImpl implements BpmProcessDefinitionBuil
 
     @Override
     public BpmProcessDefinitionBuilder setAssociatedData(List<Map<String,String>> associatedData) {
-        this.associatedData = associatedData;
+        this.associationData = associatedData;
         return this;
     }
 
@@ -71,6 +71,8 @@ public class BpmProcessDefinitionBuilderImpl implements BpmProcessDefinitionBuil
     @Override
     public BpmProcessDefinition create() {
         BpmProcessDefinitionImpl process = BpmProcessDefinitionImpl.from(dataModel, processName, association, version, status);
+        process.setAssociationData(associationData);
+        process.setProcessPrivileges(processPrivileges);
         process.update();
         return process;
     }

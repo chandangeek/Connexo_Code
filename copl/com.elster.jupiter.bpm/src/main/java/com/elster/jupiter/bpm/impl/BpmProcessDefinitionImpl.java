@@ -122,5 +122,15 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
         this.associationData = associationData;
     }
 
+    @Override
+    public void setProcessPrivileges(List<BpmProcessPrivilege> processPrivileges) {
+        this.processPrivileges = processPrivileges;
+    }
+
+    @Override
+    public List<BpmProcessPrivilege> getProcessPrivileges() {
+        return processPrivileges;
+    }
+
 
 }

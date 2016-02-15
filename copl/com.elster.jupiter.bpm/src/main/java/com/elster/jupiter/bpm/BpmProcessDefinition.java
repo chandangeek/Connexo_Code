@@ -32,4 +32,8 @@ public interface BpmProcessDefinition {
 
     void setAssociationData(List<Map<String, String>> associationData);
 
+    void setProcessPrivileges(List<BpmProcessPrivilege> processPrivileges);
+
+    List<BpmProcessPrivilege> getProcessPrivileges();
+
 }

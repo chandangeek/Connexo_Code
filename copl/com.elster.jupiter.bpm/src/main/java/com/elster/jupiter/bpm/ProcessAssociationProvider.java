@@ -8,9 +8,11 @@ public interface ProcessAssociationProvider {
 
     String getName();
 
-    List<Map<String,String>> getDataProperties(BpmProcessDefinition bpmProcessDefinition);
+    List<Map<String,String>> getAssociationData(BpmProcessDefinition bpmProcessDefinition);
 
     String getType();
 
     void update(BpmProcessDefinition bpmProcessDefinition, List<Map<String,String>> associationData);
+
+    void checkPresentAssociationData(List associationData) throws IllegalStateException;
 }
