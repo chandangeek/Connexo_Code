@@ -376,21 +376,8 @@ public class BpmResource {
     public Response createProcess(ProcessDefinitionInfo info) {
         try (TransactionContext context = transactionService.getContext()) {
             List<Errors> err = new ArrayList<>();
-
-            //TO DO: Refactor to check for missing fields - move to provider
-
-            //if(info.associatedTo.equalsIgnoreCase("device") && info.deviceStates.isEmpty()){
-            //    err.add(new Errors("noDeviceStates", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
-            //  }
-            if (info.privileges.isEmpty()) {
-                err.add(new Errors("noPrivileges", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
-            }
-            if (!err.isEmpty()) {
-                return Response.status(400).entity(new LocalizedFieldException(err)).build();
-            }
             Optional<BpmProcessDefinition> bpmProcessDefinition = bpmService.findProcess(info.name, info.associatedTo, info.version, info.active);
             Optional<ProcessAssociationProvider> provider = bpmService.getProcessAssociationProvider(info.associatedTo);
-
             if (!bpmProcessDefinition.isPresent()) {
                 BpmProcessDefinitionBuilder processBuilder = bpmService.newProcessBuilder().
                         setId(info.id).setProcessName(info.name)
@@ -403,11 +390,23 @@ public class BpmResource {
                 bpmProcessDefinition = Optional.of(processBuilder.create());
             }
             if (provider.isPresent()) {
-
                 //TO DO: rename deviceStates to associationData
                 //provider.get().update(bpmProcessDefinition.get(),info.associationData);
+                try {
+                    provider.get().checkPresentAssociationData(info.deviceStates);
+                } catch (IllegalStateException e) {
+                    err.add(new Errors(e.getMessage(), MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
+                }
                 provider.get().update(bpmProcessDefinition.get(), info.deviceStates);
             }
+            if (info.privileges.isEmpty()) {
+                err.add(new Errors("noPrivileges", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
+            }
+
+            if (!err.isEmpty()) {
+                return Response.status(400).entity(new LocalizedFieldException(err)).build();
+            }
+
             doUpdatePrivileges(bpmProcessDefinition.get(), info);
             bpmProcessDefinition.get().update();
             context.commit();
@@ -443,7 +442,7 @@ public class BpmResource {
                 List<Group> groups = this.userService.getGroups();
                 Optional<ProcessAssociationProvider> provider = bpmService.getProcessAssociationProvider(bpmProcessDefinition.get().getAssociation());
                 if (provider.isPresent()) {
-                    bpmProcessDefinition.get().setAssociationData(provider.get().getDataProperties(bpmProcessDefinition.get()));
+                    bpmProcessDefinition.get().setAssociationData(provider.get().getAssociationData(bpmProcessDefinition.get()));
                 }
                 return new ProcessDefinitionInfo(bpmProcessDefinition.get(), groups);
             } else {
