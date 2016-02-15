@@ -78,6 +78,6 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService {
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("CPS", "MTR");
+        return Arrays.asList("NLS", "CPS", "MTR");
     }
 }
