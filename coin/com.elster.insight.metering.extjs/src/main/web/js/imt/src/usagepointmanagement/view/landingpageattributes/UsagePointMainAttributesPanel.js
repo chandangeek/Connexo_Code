@@ -154,7 +154,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
             if(me.category){
                 Ext.each(me.record.fields.items, function(value){
                     if(value.customType && value.customType == 'quantity'){
-                        me.down('#' + value.name + '-quantity').setQuantityValue(me.record.get(value.name));
+                        me.record.get(value.name) && me.down('#' + value.name + '-quantity').setQuantityValue(me.record.get(value.name));
                     }
                 });
             }

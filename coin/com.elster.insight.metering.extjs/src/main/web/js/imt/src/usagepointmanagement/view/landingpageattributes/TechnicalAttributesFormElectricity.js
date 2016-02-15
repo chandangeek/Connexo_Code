@@ -29,14 +29,6 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                 },
                 items: [
                     {
-                        name: 'grounded',
-                        itemId: 'fld-up-grounded',
-                        fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded'),
-                        renderer: function (value) {
-                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
-                        }
-                    },
-                    {
                         name: 'nominalServiceVoltage',
                         itemId: 'fld-up-service-voltage',
                         fieldLabel: Uni.I18n.translate('general.label.voltage', 'IMT', 'Nominal voltage'),
@@ -68,6 +60,47 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         itemId: 'fld-up-estimated-load',
                         fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load'),
                         renderer: Ext.bind(me.renderValue, me)
+                    },
+                    {
+                        name: 'grounded',
+                        itemId: 'fld-up-grounded',
+                        fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded'),
+                        renderer: function (value) {
+                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
+                        }
+                    },
+                    {
+                        name: 'estimationLoad',
+                        itemId: 'fld-up-estimationLoad',
+                        fieldLabel: Uni.I18n.translate('general.label.estimationLoad', 'IMT', 'Estimation load'),
+                        renderer: Ext.bind(me.renderValue, me)
+                    },
+                    {
+                        name: 'limiter',
+                        itemId: 'fld-up-limiter',
+                        fieldLabel: Uni.I18n.translate('general.label.limiter', 'IMT', 'Limiter'),
+                        renderer: function (value) {
+                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
+                        }
+                    },
+                    {
+                        name: 'loadLimiterType',
+                        itemId: 'fld-up-loadLimiterType',
+                        fieldLabel: Uni.I18n.translate('general.label.loadLimiterType', 'IMT', 'Load limiter type')
+                    },
+                    {
+                        name: 'loadLimit',
+                        itemId: 'fld-up-loadLimit',
+                        fieldLabel: Uni.I18n.translate('general.label.loadLimit', 'IMT', 'Load limit'),
+                        renderer: Ext.bind(me.renderValue, me)
+                    },
+                    {
+                        name: 'collar',
+                        itemId: 'fld-up-collar',
+                        fieldLabel: Uni.I18n.translate('general.label.collar', 'IMT', 'Collar'),
+                        renderer: function (value) {
+                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
+                        }
                     }
                 ]
             },
@@ -81,50 +114,63 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                 },
                 items: [
                     {
-                        xtype: 'checkbox',
-                        name: 'grounded',
-                        itemId: 'up-grounded-textfield',
-                        fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
+                        xtype: 'quantity-edit-field',
+                        itemId: 'nominalServiceVoltage-quantity',
+                        fieldLabel: Uni.I18n.translate('general.label.voltage', 'IMT', 'Nominal voltage')
+
                     },
-                    //{
-                    //    name: 'nominalServiceVoltage',
-                    //    itemId: 'up-service-voltage-textfield',
-                    //    fieldLabel: Uni.I18n.translate('general.label.voltage', 'IMT', 'Nominal voltage')
-                    //},
                     {
                         name: 'phaseCode',
-                        itemId: 'up-phase-textfield',
+                        itemId: 'fld-up-phase',
                         fieldLabel: Uni.I18n.translate('general.label.phaseCode', 'IMT', 'Phase code')
-
                     },
                     {
-                        xtype: 'quantity-edit-field',
-                        itemId: 'nominalServiceVoltage-quantity'
-                        //name: 'phaseCode',
-                        //itemId: 'up-phase-textfield',
-                        //fieldLabel: Uni.I18n.translate('general.label.phaseCode', 'IMT', 'Phase code')
-
+                        name: 'ratedCurrent',
+                        itemId: 'fld-up-rated-current',
+                        fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current')
                     },
                     {
-                        xtype: 'quantity-edit-field',
-                        itemId: 'ratedCurrent-quantity'
-                        //name: 'ratedCurrent',
-                        //itemId: 'up-rated-current-textfield',
-                        //fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current')
+                        name: 'ratedPower',
+                        itemId: 'fld-up-rated-power',
+                        fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power')
                     },
                     {
-                        xtype: 'quantity-edit-field',
-                        itemId: 'ratedPower-quantity'
-                        //name: 'ratedPower',
-                        //itemId: 'up-rated-power-textfield',
-                        //fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power')
+                        name: 'estimatedLoad',
+                        itemId: 'fld-up-estimated-load',
+                        fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load')
                     },
                     {
-                        xtype: 'quantity-edit-field',
-                        itemId: 'estimatedLoad-quantity'
-                        //name: 'estimatedLoad',
-                        //itemId: 'up-estimated-load-textfield',
-                        //fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load')
+                        xtype: 'checkbox',
+                        name: 'grounded',
+                        itemId: 'fld-up-grounded',
+                        fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
+                    },
+                    {
+                        name: 'estimationLoad',
+                        itemId: 'fld-up-estimationLoad',
+                        fieldLabel: Uni.I18n.translate('general.label.estimationLoad', 'IMT', 'Estimation load')
+                    },
+                    {
+                        xtype: 'checkbox',
+                        name: 'limiter',
+                        itemId: 'fld-up-limiter',
+                        fieldLabel: Uni.I18n.translate('general.label.limiter', 'IMT', 'Limiter')
+                    },
+                    {
+                        name: 'loadLimiterType',
+                        itemId: 'fld-up-loadLimiterType',
+                        fieldLabel: Uni.I18n.translate('general.label.loadLimiterType', 'IMT', 'Load limiter type')
+                    },
+                    {
+                        name: 'loadLimit',
+                        itemId: 'fld-up-loadLimit',
+                        fieldLabel: Uni.I18n.translate('general.label.loadLimit', 'IMT', 'Load limit')
+                    },
+                    {
+                        xtype: 'checkbox',
+                        name: 'collar',
+                        itemId: 'fld-up-collar',
+                        fieldLabel: Uni.I18n.translate('general.label.collar', 'IMT', 'Collar')
                     }
                 ]
             }
