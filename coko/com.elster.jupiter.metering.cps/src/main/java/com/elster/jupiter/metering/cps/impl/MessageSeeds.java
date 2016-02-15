@@ -14,7 +14,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     CAN_NOT_BE_NULL(3, Keys.CAN_NOT_BE__NULL, "This field can not be null"),
     NUMBER_MIN_VALUE(4, Keys.NUMBER_MIN_VALUE, "Minimum acceptable value is {value}"),
     NUMBER_MAX_VALUE(5, Keys.NUMBER_MAX_VALUE, "Maximum acceptable value is {value}"),
-    CURRENT_USER_IS_NOT_ALLOWED_TO_EDIT(6, Keys.CURRENT_USER_IS_NOT_ALLOWED_TO_EDIT, "The current user is not allowed to edit values of the custom property set");
+    CURRENT_USER_IS_NOT_ALLOWED_TO_EDIT(6, Keys.CURRENT_USER_IS_NOT_ALLOWED_TO_EDIT, "The current user is not allowed to edit values of the custom property set"),
+    NOT_NUMBER(7, Keys.NOT_NUMBER, "This field must be a number");
 
     private final int number;
 
@@ -65,5 +66,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String NUMBER_MIN_VALUE = "NumberMinValue";
         public static final String NUMBER_MAX_VALUE = "NumberMaxValue";
         public static final String CURRENT_USER_IS_NOT_ALLOWED_TO_EDIT = "cps.edit.notAllowed";
+        public static final String NOT_NUMBER = "NotNumber";
     }
 }

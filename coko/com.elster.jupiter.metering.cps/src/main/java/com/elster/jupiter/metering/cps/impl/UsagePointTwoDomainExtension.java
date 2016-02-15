@@ -44,7 +44,7 @@ public class UsagePointTwoDomainExtension implements PersistentDomainExtension<U
     private Reference<UsagePoint> usagePoint = Reference.empty();
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{CannotBeNull}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{NotNumber}")
     @Min(value = 0, groups = {Save.Create.class, Save.Update.class}, message = "{NumberMinValue}")
     @Max(value = 999999999, groups = {Save.Create.class, Save.Update.class}, message = "{NumberMaxValue}")
     private BigDecimal testNumber;
@@ -109,7 +109,8 @@ public class UsagePointTwoDomainExtension implements PersistentDomainExtension<U
     @Override
     public void copyFrom(UsagePoint usagePoint, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(usagePoint);
-        this.setTestNumber(new BigDecimal(propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_NUMBER.javaName()).toString()));
+        this.setTestNumber(propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_NUMBER.javaName()) != null ?
+                new BigDecimal(propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_NUMBER.javaName()).toString()) : null);
         this.setTestString((String) propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_STRING.javaName()));
         this.setTestEnumNumber(propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName()) != null ?
                 new BigDecimal(propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName()).toString()) : null);
