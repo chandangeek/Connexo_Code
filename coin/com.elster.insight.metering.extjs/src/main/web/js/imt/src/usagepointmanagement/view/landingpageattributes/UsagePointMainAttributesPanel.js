@@ -41,33 +41,34 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
         });
 
         me.items = [
-            {
-                xtype: 'container',
-                layout: 'hbox',
-                items: [
-                    {
-                        xtype: 'container',
-                        html: '<label class="x-form-item-label x-form-item-label-top">' + title + '</label>'
-                    },
-                    {
-                        xtype: 'button',
-                        itemId: 'main-attr-pencil-btn',
-                        disabled: true,
-                        margin: '7 0 0 7',
-                        ui: 'plain',
-                        iconCls: 'icon-pencil2',
-                        tooltip: Uni.I18n.translate('general.tooltip.edit', 'IMT', 'Edit'),
-                    }
-                ]
-            },
             //{
-            //    xtype: 'title-with-edit-button',
-            //    pencilBtnItemId: ''
-            //    title: title,
-            //    editHandler: function(){
-            //        me.toEditMode(true, action);
-            //    }
+            //    xtype: 'container',
+            //    layout: 'hbox',
+            //    items: [
+            //        {
+            //            xtype: 'container',
+            //            html: '<label class="x-form-item-label x-form-item-label-top">' + title + '</label>'
+            //        },
+            //        {
+            //            xtype: 'button',
+            //            itemId: 'main-attr-pencil-btn',
+            //            disabled: true,
+            //            margin: '7 0 0 7',
+            //            ui: 'plain',
+            //            iconCls: 'icon-pencil2',
+            //            tooltip: Uni.I18n.translate('general.tooltip.edit', 'IMT', 'Edit'),
+            //
+            //        }
+            //    ]
             //},
+                {
+                xtype: 'title-with-edit-button',
+                pencilBtnItemId: '',
+                title: title,
+                editHandler: function(){
+                    me.toEditMode(true, action);
+                }
+            },
             {
                 xtype: 'container',
                 hidden: true,
@@ -113,20 +114,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
                         ui: 'link',
                         text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
                         handler: function () {
-                            //me.toEditMode(false, action);
-                            action.show();
-                            me.down('#pencil-btn').show();
-                            me.down('#view-form').show();
-                            me.down('#edit-form').hide();
-                            me.down('#bottom-buttons').hide();
-                            Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(false);
-                            Ext.each(me.record.fields.items, function(value){
-                                //console.log(value);
-                                if(value.customType && value.customType == 'quantity'){
-                                    me.down('#' + value.name + '-quantity').setQuantityValue(me.record.get(value.name));
-
-                                }
-                            });
+                            me.toEditMode(false, action);
                         }
                     }
                 ]
@@ -163,6 +151,13 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
 
         Ext.suspendLayouts();
         if(isEdit){
+            if(me.category){
+                Ext.each(me.record.fields.items, function(value){
+                    if(value.customType && value.customType == 'quantity'){
+                        me.down('#' + value.name + '-quantity').setQuantityValue(me.record.get(value.name));
+                    }
+                });
+            }
             me.down('#pencil-btn').hide();
             me.down('#view-form').hide();
             me.down('#edit-form').show();

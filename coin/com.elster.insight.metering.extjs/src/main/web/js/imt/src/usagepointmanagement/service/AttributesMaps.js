@@ -4,7 +4,8 @@ Ext.define('Imt.usagepointmanagement.service.AttributesMaps', {
     serviceCategoryImageMap: {
         "ELECTRICITY": '<span class="icon-power"></span>',
         "GAS": '<span class="icon-fire2"></span>',
-        "WATER": '<span class="icon-droplet"></span>'
+        "WATER": '<span class="icon-droplet"></span>',
+        "THERMAL": '<span class="icon-rating3"></span>'
 
     },
 
@@ -16,7 +17,10 @@ Ext.define('Imt.usagepointmanagement.service.AttributesMaps', {
     },
 
     connectionStateImageMap: {
-
+        "CONNECTED": '<span class="icon-link"></span>',
+        "PHYSICALLY DISCONNECTED": '<span class="icon-link2"></span>',
+        "LOGICAL DISCONNECTED": '<span class="icon-link5"></span>',
+        "UNKNOWN" : '<span class="icon-blocked"></span>'
     },
 
     getForm: function (category) {
@@ -24,5 +28,8 @@ Ext.define('Imt.usagepointmanagement.service.AttributesMaps', {
     },
     getServiceIcon: function (category) {
         return this.serviceCategoryImageMap[category];
+    },
+    getConnectionIcon: function (category) {
+        return this.connectionStateImageMap[category];
     }
 });

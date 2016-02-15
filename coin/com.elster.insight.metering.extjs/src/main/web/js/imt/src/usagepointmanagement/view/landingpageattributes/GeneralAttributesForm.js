@@ -15,21 +15,14 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                 itemId: 'view-form',
                 defaults: {
                     xtype: 'displayfield',
-                    labelWidth: 250
+                    labelWidth: 250,
+                    maxHeight: 27
                 },
                 items: [
                     {
                         name: 'mRID',
                         itemId: 'fld-up-mRID',
                         fieldLabel: Uni.I18n.translate('general.label.mRID', 'IMT', 'MRID'),
-                        renderer: function (value) {
-                            return value ? value : '-';
-                        }
-                    },
-                    {
-                        name: 'name',
-                        itemId: 'fld-up-name',
-                        fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
                         renderer: function (value) {
                             return value ? value : '-';
                         }
@@ -44,14 +37,62 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                             return value + "&nbsp" + icon;
                         }
                     },
-
+                    {
+                        name: 'name',
+                        itemId: 'fld-up-name',
+                        fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
+                        renderer: function (value) {
+                            return value ? value : '-';
+                        }
+                    },
+                    {
+                        name: 'created',
+                        itemId: 'fld-up-created',
+                        fieldLabel: Uni.I18n.translate('general.label.created', 'IMT', 'Created'),
+                        //renderer: function (value) {
+                        //    return value ? value : '-';
+                        //}
+                    },
+                    {
+                        name: 'location',
+                        itemId: 'fld-up-location',
+                        fieldLabel: Uni.I18n.translate('general.label.location', 'IMT', 'Location'),
+                        //renderer: function (value) {
+                        //    return value ? value : '-';
+                        //}
+                    },
+                    {
+                        name: 'type',
+                        itemId: 'fld-up-type',
+                        fieldLabel: Uni.I18n.translate('general.label.type', 'IMT', 'Type of usage point'),
+                        //renderer: function (value) {
+                        //    return value ? value : '-';
+                        //}
+                    },
                     {
                         name: 'connectionState',
                         itemId: 'fld-up-connectionState',
                         fieldLabel: Uni.I18n.translate('general.label.connectionState', 'IMT', 'Connection state'),
                         renderer: function (value) {
-                            return value ? value : '-';
+                            var icon = Imt.usagepointmanagement.service.AttributesMaps.getConnectionIcon(value);
+                            return value + "&nbsp" + icon;
                         }
+                    },
+                    {
+                        name: 'readRoute',
+                        itemId: 'fld-up-readRoute',
+                        fieldLabel: Uni.I18n.translate('general.label.readRoute', 'IMT', 'Read route'),
+                        //renderer: function (value) {
+                        //    return value ? value : '-';
+                        //}
+                    },
+                    {
+                        name: 'serviceDeliveryRemark',
+                        itemId: 'fld-up-serviceDeliveryRemark',
+                        fieldLabel: Uni.I18n.translate('general.label.serviceDeliveryRemark', 'IMT', 'Service delivery remark'),
+                        //renderer: function (value) {
+                        //    return value ? value : '-';
+                        //}
                     }
                 ]
             },
@@ -60,15 +101,27 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                 itemId: 'edit-form',
                 hidden: true,
                 defaults: {
-                    labelWidth: 250
+                    labelWidth: 250,
+                    maxHeight: 27
                 },
                 items: [
                     {
-                        xtype: 'textfield',
-                        disabled: true,
+                        xtype: 'displayfield',
+                        //disabled: true,
                         name: 'mRID',
                         itemId: 'up-mrid-textfield',
                         fieldLabel: Uni.I18n.translate('general.label.mRID', 'IMT', 'MRID')
+                    },
+                    {
+                        xtype: 'displayfield',
+                        //disabled: true,
+                        name: 'serviceCategory',
+                        itemId: 'up-service-category-combo',
+                        fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category'),
+                        renderer: function (value) {
+                            var icon = Imt.usagepointmanagement.service.AttributesMaps.getServiceIcon(value);
+                            return value + "&nbsp" + icon;
+                        }
                     },
                     {
                         xtype: 'textfield',
@@ -77,18 +130,57 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                         fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name')
                     },
                     {
-                        xtype: 'combobox',
-                        disabled: true,
-                        name: 'serviceCategory',
-                        itemId: 'up-service-category-combo',
-                        fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category')
+                        xtype: 'displayfield',
+                        name: 'created',
+                        itemId: 'fld-up-created',
+                        fieldLabel: Uni.I18n.translate('general.label.created', 'IMT', 'Created'),
+                        //renderer: function (value) {
+                        //    return value ? value : '-';
+                        //}
                     },
                     {
                         xtype: 'combobox',
                         disabled: true,
+                        name: 'location',
+                        itemId: 'fld-up-location',
+                        fieldLabel: Uni.I18n.translate('general.label.location', 'IMT', 'Location'),
+                        //renderer: function (value) {
+                        //    return value ? value : '-';
+                        //}
+                    },
+                    {
+                        xtype: 'combobox',
+                        disabled: true,
+                        name: 'type',
+                        itemId: 'fld-up-type',
+                        fieldLabel: Uni.I18n.translate('general.label.type', 'IMT', 'Type of usage point'),
+                        //renderer: function (value) {
+                        //    return value ? value : '-';
+                        //}
+                    },
+                    {
+                        xtype: 'displayfield',
                         name: 'connectionState',
-                        itemId: 'up-connection-state-combo',
-                        fieldLabel: Uni.I18n.translate('general.label.connectionState', 'IMT', 'Connection state')
+                        itemId: 'fld-up-connectionState',
+                        fieldLabel: Uni.I18n.translate('general.label.connectionState', 'IMT', 'Connection state'),
+                        renderer: function (value) {
+                            var icon = Imt.usagepointmanagement.service.AttributesMaps.getConnectionIcon(value);
+                            return value + "&nbsp" + icon;
+                        }
+                    },
+                    {
+                        xtype: 'combobox',
+                        disabled: true,
+                        name: 'readRoute',
+                        itemId: 'fld-up-readRoute',
+                        fieldLabel: Uni.I18n.translate('general.label.readRoute', 'IMT', 'Read route'),
+                    },
+                    {
+                        xtype: 'textfield',
+                        //disabled: true,
+                        name: 'serviceDeliveryRemark',
+                        itemId: 'fld-up-serviceDeliveryRemark',
+                        fieldLabel: Uni.I18n.translate('general.label.serviceDeliveryRemark', 'IMT', 'Service delivery remark'),
                     }
                 ]
             }

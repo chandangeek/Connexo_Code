@@ -35,7 +35,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.QuantityAttribut
 
     setQuantityValue: function(data){
         var me = this;
-        me.down('numberfield').setValue(data.value);
-        me.down('combobox').setValue(data.unit);
+        data.value && me.down('numberfield').setValue(data.value);
+        data.unit && me.down('combobox').setValue(data.unit);
     }
 });
