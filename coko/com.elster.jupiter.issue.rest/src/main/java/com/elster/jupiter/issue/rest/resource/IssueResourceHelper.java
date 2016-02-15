@@ -56,6 +56,10 @@ public class IssueResourceHelper {
     }
 
     public List<IssueActionTypeInfo> getListOfAvailableIssueActions(Issue issue) {
+        return getListOfAvailableIssueActionsTypes(issue).stream().map(actionInfoFactory::asInfo).collect(Collectors.toList());
+    }
+
+    public List<IssueActionType> getListOfAvailableIssueActionsTypes(Issue issue) {
         User user = ((User) securityContext.getUserPrincipal());
         Query<IssueActionType> query = issueService.query(IssueActionType.class, IssueType.class);
         IssueReason reason = issue.getReason();
@@ -70,7 +74,6 @@ public class IssueResourceHelper {
                 .filter(actionType -> actionType.createIssueAction()
                         .map(action -> action.isApplicable(issue) && action.isApplicableForUser(user))
                         .orElse(false))
-                .map(actionInfoFactory::asInfo)
                 .collect(Collectors.toList());
     }
 
