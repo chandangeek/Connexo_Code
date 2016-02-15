@@ -43,7 +43,7 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
         info.id = channelSpec.getId();
         info.name = channelSpec.getReadingType().getFullAliasName();
         info.overruledObisCode = channelSpec.getDeviceObisCode();
-        info.overflowValue = channelSpec.getOverflow();
+        channelSpec.getOverflow().ifPresent(bigDecimal -> info.overflowValue = bigDecimal);
         info.nbrOfFractionDigits = channelSpec.getNbrOfFractionDigits();
         info.measurementType = new ChannelSpecShortInfo(channelSpec.getChannelType(), collectedReadingType, multipliedCalculatedRegisterTypes);
         info.useMultiplier = channelSpec.isUseMultiplier();

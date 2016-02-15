@@ -439,7 +439,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(registerSpec.getId()).thenReturn(id);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
         when(registerSpec.getDeviceObisCode()).thenReturn(new ObisCode());
-        when(registerSpec.getOverflowValue()).thenReturn(BigDecimal.ONE);
+        when(registerSpec.getOverflowValue()).thenReturn(Optional.of(BigDecimal.ONE));
         when(registerSpec.getNumberOfFractionDigits()).thenReturn(1);
         when(registerSpec.getObisCode()).thenReturn(obisCode);
         when(registerSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -1075,6 +1075,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(registerSpec.getObisCode()).thenReturn(obisCode);
         when(registerSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(registerSpec.getReadingType()).thenReturn(readingType);
+        when(registerSpec.getOverflowValue()).thenReturn(Optional.empty());
 
         NumericalRegisterSpec.Builder registerSpecBuilder = mock(NumericalRegisterSpec.Builder.class, Answers.RETURNS_SELF);
         when(deviceConfiguration.createNumericalRegisterSpec(Matchers.<RegisterType>any())).thenReturn(registerSpecBuilder);
@@ -1121,6 +1122,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(registerSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(registerSpec.getVersion()).thenReturn(OK_VERSION);
         when(registerSpec.getReadingType()).thenReturn(readingType);
+        when(registerSpec.getOverflowValue()).thenReturn(Optional.empty());
         deviceConfiguration.getRegisterSpecs().add(registerSpec);
 
         NumericalRegisterSpec.Builder registerSpecBuilder = mock(NumericalRegisterSpec.Builder.class, Answers.RETURNS_SELF);
