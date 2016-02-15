@@ -96,6 +96,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
     public void setUpStubs() {
         when(device.getRegisters()).thenReturn(Arrays.asList(register));
         when(numericalRegisterSpec.getRegisterType()).thenReturn(registerType);
+        when(numericalRegisterSpec.getOverflowValue()).thenReturn(Optional.empty());
         when(register.getRegisterSpec()).thenReturn(numericalRegisterSpec);
         when(register.getReadingType()).thenReturn(readingType);
         when(register.getCalculatedReadingType(any())).thenReturn(Optional.empty());
@@ -255,7 +256,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
     public void testPutRegisterDataExceedsOverflow() throws IOException {
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         when(numericalRegisterSpec.getId()).thenReturn(1L);
-        when(numericalRegisterSpec.getOverflowValue()).thenReturn(BigDecimal.ONE);
+        when(numericalRegisterSpec.getOverflowValue()).thenReturn(Optional.of(BigDecimal.ONE));
         when(device.getId()).thenReturn(1L);
         when(readingType.getMRID()).thenReturn("mRID");
 
