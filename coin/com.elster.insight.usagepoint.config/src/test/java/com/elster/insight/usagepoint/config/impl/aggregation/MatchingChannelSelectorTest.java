@@ -5,7 +5,6 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
-
 import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
 
 import java.util.Arrays;
@@ -13,7 +12,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Optional;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -103,11 +102,13 @@ public class MatchingChannelSelectorTest {
 
         // Asserts
         assertThat(preferredChannel).isPresent();
-        assertThat(preferredChannel).contains(hourly).as("Wrong match, found " + IntervalLength.from(preferredChannel.get().getMainReadingType()));
+        assertThat(preferredChannel)
+                .as("Wrong match, found " + IntervalLength.from(preferredChannel.get().getMainReadingType()) + " but got " + IntervalLength.from(hourly.getMainReadingType()))
+                .contains(hourly);
     }
 
     @Test
-    public void tenMinutesIsBestMatchForHourlyWhenOnly10And15MinAreAvailable() {
+    public void fifteenMinutesIsBestMatchForHourlyWhenOnly10And15MinAreAvailable() {
         Channel tenMinutes = this.mockChannelFor(this.mock10minReadingType());
         Channel fifteenMinutes = this.mockChannelFor(this.mock15minReadingType());
         MatchingChannelSelector testInstance = new MatchingChannelSelector(Arrays.asList(tenMinutes, fifteenMinutes));
@@ -116,7 +117,7 @@ public class MatchingChannelSelectorTest {
         Optional<Channel> preferredChannel = testInstance.getPreferredChannel(IntervalLength.HOUR1);
 
         // Asserts
-        assertThat(preferredChannel).contains(tenMinutes);
+        assertThat(preferredChannel).contains(fifteenMinutes);
     }
 
     @Test
@@ -185,7 +186,7 @@ public class MatchingChannelSelectorTest {
     }
 
     @Test
-    public void tenMinutesIntervalIsBestMatchForHourlyWhenOnly10And15MinAreAvailable() {
+    public void fifteenMinutesIntervalIsBestMatchForHourlyWhenOnly10And15MinAreAvailable() {
         Channel tenMinutes = this.mockChannelFor(this.mock10minReadingType());
         Channel fifteenMinutes = this.mockChannelFor(this.mock15minReadingType());
         MatchingChannelSelector testInstance = new MatchingChannelSelector(Arrays.asList(tenMinutes, fifteenMinutes));
@@ -194,7 +195,7 @@ public class MatchingChannelSelectorTest {
         Optional<IntervalLength> preferredInterval = testInstance.getPreferredInterval(IntervalLength.HOUR1);
 
         // Asserts
-        assertThat(preferredInterval).contains(IntervalLength.MINUTE10);
+        assertThat(preferredInterval).contains(IntervalLength.MINUTE15);
     }
 
     @Test

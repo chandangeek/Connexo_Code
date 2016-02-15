@@ -1,11 +1,5 @@
 package com.elster.insight.usagepoint.config.impl;
 
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.insight.usagepoint.config.impl.errors.CannotManageCustomPropertySetOnActiveMetrologyConfiguration;
-import com.elster.insight.usagepoint.config.impl.errors.MessageSeeds;
-import com.elster.insight.usagepoint.config.impl.validation.HasUniqueName;
-import com.elster.insight.usagepoint.config.impl.validation.UniqueName;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
@@ -15,11 +9,21 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.insight.usagepoint.config.MetrologyConfiguration;
+import com.elster.insight.usagepoint.config.MetrologyContract;
+import com.elster.insight.usagepoint.config.ReadingTypeDeliverable;
+import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.insight.usagepoint.config.impl.errors.CannotManageCustomPropertySetOnActiveMetrologyConfiguration;
+import com.elster.insight.usagepoint.config.impl.errors.MessageSeeds;
+import com.elster.insight.usagepoint.config.impl.validation.HasUniqueName;
+import com.elster.insight.usagepoint.config.impl.validation.UniqueName;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -65,15 +69,6 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
     private Instant createTime;
     private Instant modTime;
     private String userName;
-    private List<MetrologyConfigurationValidationRuleSetUsage> metrologyConfValidationRuleSetUsages = new ArrayList<MetrologyConfigurationValidationRuleSetUsage>();
-
-    @NotEmpty
-    @Size(max = Table.NAME_LENGTH)
-    private String name;
-
-    private final DataModel dataModel;
-    private final EventService eventService;
-    private final ValidationService validationService;
 
     @Inject
     MetrologyConfigurationImpl(DataModel dataModel, EventService eventService, ValidationService validationService, Thesaurus thesaurus, UsagePointConfigurationService usagePointConfigurationService) {
@@ -266,7 +261,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
         return version;
     }
 
-    protected DataModel getDataModel() {
+    DataModel getDataModel() {
         return dataModel;
     }
 

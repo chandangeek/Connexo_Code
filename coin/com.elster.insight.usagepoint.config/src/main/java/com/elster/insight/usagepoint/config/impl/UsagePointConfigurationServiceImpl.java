@@ -1,10 +1,5 @@
 package com.elster.insight.usagepoint.config.impl;
 
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
-import com.elster.insight.usagepoint.config.impl.errors.MessageSeeds;
-import com.elster.insight.usagepoint.config.security.Privileges;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.DefaultFinder;
@@ -25,6 +20,15 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.insight.usagepoint.config.Formula;
+import com.elster.insight.usagepoint.config.MetrologyConfiguration;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
+import com.elster.insight.usagepoint.config.impl.aggregation.ExpressionNode;
+import com.elster.insight.usagepoint.config.impl.aggregation.ServerFormulaImpl;
+import com.elster.insight.usagepoint.config.impl.errors.MessageSeeds;
+import com.elster.insight.usagepoint.config.security.Privileges;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -165,8 +169,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         formula.update();
         return formula;
     }
-
-
 
     @Override
     public Optional<MetrologyConfiguration> findMetrologyConfiguration(long id) {

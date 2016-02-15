@@ -1,16 +1,6 @@
 package com.elster.insight.usagepoint.config.impl;
 
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
-
-import com.elster.insight.usagepoint.config.Formula;
-import com.elster.insight.usagepoint.config.MetrologyConfigurationValidationRuleSetUsage;
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
-import com.elster.insight.usagepoint.config.impl.aggregation.AbstractNode;
-import com.elster.insight.usagepoint.config.impl.aggregation.ExpressionNode;
-import com.elster.insight.usagepoint.config.impl.aggregation.ServerFormulaImpl;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
@@ -18,6 +8,17 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.insight.usagepoint.config.Formula;
+import com.elster.insight.usagepoint.config.MetrologyConfiguration;
+import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
+import com.elster.insight.usagepoint.config.impl.aggregation.AbstractNode;
+import com.elster.insight.usagepoint.config.impl.aggregation.ExpressionNode;
+import com.elster.insight.usagepoint.config.impl.aggregation.ServerFormulaImpl;
+
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.DeleteRule.CASCADE;
+import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
 public enum TableSpecs {
     UPC_METROLOGYCONFIG {
@@ -160,7 +161,7 @@ public enum TableSpecs {
 
             table.primaryKey("UPC_PK_FORMULA_NODE").on(idColumn).add();
 
-            table.foreignKey("UPC_VALIDCHILD").references(UPC_FORMULA_NODE.name()).on(parentColumn).onDelete(DeleteRule.CASCADE)
+            table.foreignKey("UPC_VALIDCHILD").references(UPC_FORMULA_NODE.name()).on(parentColumn).onDelete(CASCADE)
                     .map("parent").reverseMap("children").reverseMapOrder("argumentIndex").add();
         }
     },
@@ -173,7 +174,7 @@ public enum TableSpecs {
             table.column("MODE").number().conversion(ColumnConversion.NUMBER2ENUM).map("mode").add();
             Column expressionNodeColumn = table.column("EXPRESSION_NODE_ID").number().conversion(NUMBER2LONG).add();
             table.primaryKey("UPC_PK_FORMULA").on(idColumn).add();
-            table.foreignKey("UPC_VALIDNODE").references(UPC_FORMULA_NODE.name()).on(expressionNodeColumn).onDelete(DeleteRule.CASCADE)
+            table.foreignKey("UPC_VALIDNODE").references(UPC_FORMULA_NODE.name()).on(expressionNodeColumn).onDelete(CASCADE)
                     .map("expressionNode").add();
         }
     };

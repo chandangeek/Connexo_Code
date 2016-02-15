@@ -100,7 +100,7 @@ public class InferAggregationInterval implements ServerExpressionNode.ServerVisi
         else {
             // Difference of opinions, try to compromise, start with the smallest interval
             List<IntervalLength> smallestToBiggest = new ArrayList<>(preferredIntervals);
-            Collections.sort(smallestToBiggest, new IntervalLengthComparator());
+            Collections.sort(smallestToBiggest);
             Optional<IntervalLength> compromise =
                     smallestToBiggest
                             .stream()

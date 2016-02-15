@@ -80,13 +80,13 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>search</artifactId>
-            <scope>test</scope>
+            <artifactId>ids</artifactId>
         </dependency>
 
+        <!-- Test dependencies -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>ids</artifactId>
+            <artifactId>search</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -164,16 +164,6 @@
             <artifactId>org.apache.felix.gogo.runtime</artifactId>
             <scope>provided</scope>
             <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>appserver</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>fileimport</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

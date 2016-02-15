@@ -2,7 +2,6 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
-
 import com.elster.insight.usagepoint.config.ReadingTypeRequirement;
 
 import java.util.Collections;
@@ -102,7 +101,6 @@ class MatchingChannelSelector {
      */
     private class ChannelComparator implements Comparator<Channel> {
         private final IntervalLength targetInterval;
-        private final Comparator<IntervalLength> delegate = new IntervalLengthComparator();
 
         private ChannelComparator(IntervalLength targetInterval) {
             super();
@@ -113,27 +111,48 @@ class MatchingChannelSelector {
         public int compare(Channel o1, Channel o2) {
             IntervalLength il1 = intervalLengthOf(o1);
             IntervalLength il2 = intervalLengthOf(o2);
-            if (il1 == this.targetInterval) {
-                if (il2 == this.targetInterval) {
-                    // Both match the target interval, consider them equal for now
+            int il1ComparedToTarget = il1.compareTo(this.targetInterval);
+            int il2ComparedToTarget = il2.compareTo(this.targetInterval);
+            if (compareSameToTargetInterval(il1ComparedToTarget, il2ComparedToTarget)) {
+                /* Both compare the same way to the target interval
+                 * so they are both smaller, bigger or equal to the target interval. */
+                if (il1ComparedToTarget == 0) {
+                    // Both are equal to the target interval, consider them equal for now
                     return 0;
                 }
-                else {
-                    // First Channel matches the target interval, sort it to the front
-                    return -1;
+                else if (il1ComparedToTarget < 0) {
+                    // Both are smaller, sort them in descending order
+                    return -il1.compareTo(il2);
                 }
+                else {
+                    // Both are bigger, sort them in ascending order
+                    return il1.compareTo(il2);
+                }
+            }
+            else if (il1ComparedToTarget == 0) {
+                // il2 != target interval
+                return -1;
+            }
+            else if (il2ComparedToTarget == 0) {
+                // il1 != target interval
+                return 1;
+            }
+            else if (il1ComparedToTarget < 0) {
+                // il1 < target interval < il2
+                return -1;
             }
             else {
-                if (il2 == this.targetInterval) {
-                    // Second Channel matches the target interval, sort it to the front
-                    return 1;
-                }
-                else {
-                    // None of the channels match the target interval, sort them by intervalLength
-                    return this.delegate.compare(il1, il2);
-                }
+                // il2 < target interval < il1
+                return 1;
             }
         }
+
+        private boolean compareSameToTargetInterval(int il1ComparedToTarget, int il2ComparedToTarget) {
+            return (il1ComparedToTarget < 0 && il2ComparedToTarget <0)
+                    || (il1ComparedToTarget == 0 && il2ComparedToTarget == 0)
+                    || (il1ComparedToTarget > 0 && il2ComparedToTarget > 0);
+        }
+
     }
 
 }
