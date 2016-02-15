@@ -1,7 +1,7 @@
 Ext.define('Sct.model.ServiceCallType', {
     extend: 'Uni.model.Version',
     fields: [
-        'type', 'versionName', 'loglevel','lifecycle',
+        'name', 'versionName', 'logLevel','serviceCallLifeCycle',
         {
             name: 'version',
             defaultValue: 0
@@ -20,12 +20,23 @@ Ext.define('Sct.model.ServiceCallType', {
                     return Uni.I18n.translate('general.inactive', 'SCT', 'Inactive');
                 }
             }
+        },
+        {
+            name: 'lifecycle',
+            persist: false,
+            mapping: function (data) {
+                if(data.serviceCallLifeCycle) {
+                    return data.serviceCallLifeCycle.name;
+                } else {
+                    return 'undefined';
+                }
+            }
         }
     ],
 /*
     proxy: {
         type: 'rest',
-        url: '/api/apr/appserver',
+        url: '/api/scs/servicecalltypes',
         reader: {
             type: 'json'
         }

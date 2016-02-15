@@ -13,7 +13,7 @@ Ext.define('Sct.view.PreviewForm', {
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.type', 'SCT', 'Type'),
-                name: 'type'
+                name: 'name'
             },
             {
                 xtype: 'displayfield',
@@ -28,12 +28,12 @@ Ext.define('Sct.view.PreviewForm', {
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.logLevel', 'SCT', 'Log level'),
-                name: 'loglevel'
+                name: 'logLevel'
             },
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.lifeCycle', 'SCT', 'Life cycle'),
-                name: 'lifecycle',
+                name: 'lifecycle'
             }
         ];
         me.callParent(arguments);

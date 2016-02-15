@@ -13,7 +13,7 @@ Ext.define('Sct.view.Grid', {
         me.columns = [
             {
                 header: Uni.I18n.translate('general.type', 'SCT', 'Type'),
-                dataIndex: 'type',
+                dataIndex: 'name',
                 flex: 1
             },
             {
@@ -28,7 +28,7 @@ Ext.define('Sct.view.Grid', {
             },
             {
                 header: Uni.I18n.translate('general.logLevel', 'SCT', 'Log level'),
-                dataIndex: 'loglevel',
+                dataIndex: 'logLevel',
                 flex: 1
             },
             {
