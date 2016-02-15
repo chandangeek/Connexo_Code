@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component(name = "com.elster.jupiter.metering.imports.impl.usagepointfileimporterfactory", service = {FileImporterFactory.class}, immediate = true, property = {})
+//@Component(name = "com.elster.jupiter.metering.imports.impl.usagepointfileimporterfactory", service = {FileImporterFactory.class}, immediate = true, property = {})
 public class UsagePointFileImporterFactory implements FileImporterFactory {
 
     static final String NAME = "UsagePointFileImporterFactory";

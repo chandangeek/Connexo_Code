@@ -11,7 +11,7 @@ import org.osgi.service.component.annotations.Component;
 import java.util.Arrays;
 import java.util.List;
 
-@Component(name = "com.elster.jupiter.metering.imports.impl.translations", service = {TranslationKeyProvider.class, MessageSeedProvider.class}, immediate = true)
+//@Component(name = "com.elster.jupiter.metering.imports.impl.translations", service = {TranslationKeyProvider.class, MessageSeedProvider.class}, immediate = true)
 public class Translations implements TranslationKeyProvider, MessageSeedProvider {
 
     @Override
