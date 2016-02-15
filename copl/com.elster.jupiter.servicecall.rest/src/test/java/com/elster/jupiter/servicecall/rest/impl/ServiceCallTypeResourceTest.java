@@ -1,6 +1,7 @@
 package com.elster.jupiter.servicecall.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.jayway.jsonpath.JsonModel;
@@ -29,6 +30,7 @@ public class ServiceCallTypeResourceTest extends ServiceCallApplicationTest {
         Finder<ServiceCallType> serviceCallTypeFinder = mockFinder(Collections.singletonList(serviceCallType));
         when(serviceCallService.getServiceCallTypes()).thenReturn(serviceCallTypeFinder);
         when(serviceCallType.getServiceCallLifeCycle()).thenReturn(Optional.empty());
+        when(serviceCallType.getLogLevel()).thenReturn(LogLevel.WARNING);
 
         Response response = target("/servicecalltypes").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
