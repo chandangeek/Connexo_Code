@@ -41,6 +41,7 @@ public class ServiceCategoryImpl implements ServiceCategory {
 	private ServiceKind kind;
 	private String aliasName;
 	private String description;
+    private boolean active;
 	@SuppressWarnings("unused")
 	private long version;
 	@SuppressWarnings("unused")
@@ -153,6 +154,16 @@ public class ServiceCategoryImpl implements ServiceCategory {
                 .filter(f -> f.getServiceCategory().getId() == this.getId())
                 .filter(f -> f.getRegisteredCustomPropertySet().getId() == registeredCustomPropertySet.getId())
                 .findAny().ifPresent(serviceCategoryCustomPropertySetUsages::remove);
+    }
+
+    @Override
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    @Override
+    public boolean isActive() {
+        return active;
     }
 
     private List<ServiceCategoryCustomPropertySetUsage> getServiceCategoryCustomPropertySetUsages(){
