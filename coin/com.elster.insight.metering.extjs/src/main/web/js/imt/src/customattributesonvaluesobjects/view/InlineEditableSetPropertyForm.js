@@ -111,13 +111,18 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                     text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
                     handler: function () {
                         Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(false);
-                        me.down('property-form').makeNotEditable(me.record);
-
-                        Ext.suspendLayouts();
-                        me.down('#bottom-buttons').hide();
-                        action.show();
-                        me.down('#pencil-btn').show();
-                        Ext.resumeLayouts(true);
+                        me.model.load(me.record.get('id'),{
+                            url: '/api/udr/usagepoints/' + me.parent.mRID + '/properties/',
+                            success: function(record){
+                                me.record = record;
+                                me.down('property-form').makeNotEditable(record);
+                                Ext.suspendLayouts();
+                                me.down('#bottom-buttons').hide();
+                                action.show();
+                                me.down('#pencil-btn').show();
+                                Ext.resumeLayouts(true);
+                            }
+                        });
                     }
                 }
             ]
