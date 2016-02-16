@@ -158,6 +158,7 @@ public class DeviceMessageEnablementResource {
      *
      * @param deviceTypeId Id of the device type
      * @param deviceConfigId Id of the device configuration
+     * @param info Values for the to-be-created device message enablement
      * @param uriInfo uriInfo
      * @return url to newly created device message enablement
      * @responseheader location href to newly created device message enablement

@@ -49,13 +49,17 @@ public class ComPortPoolResource {
      * One of those characteristics is the nature of the ComPort, i.e. if it is inbound or outbound.
      *
      * @summary Fetch a set of communication port pools
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public PagedInfoList<ComPortPoolInfo> getComPortPools(@BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
+    public PagedInfoList<ComPortPoolInfo> getComPortPools(@BeanParam JsonQueryParameters queryParameters,
+                                                          @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
         List<ComPortPoolInfo> page = ListPager.
                 of(engineConfigurationService.findAllComPortPools()).
                 from(queryParameters).stream().
@@ -72,6 +76,8 @@ public class ComPortPoolResource {
      *
      * @summary Fetch a set of communication port pools
      * @param id Id of the communication port pool
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
      * @return Uniquely identified communication port pool
      */
     @GET @Transactional
