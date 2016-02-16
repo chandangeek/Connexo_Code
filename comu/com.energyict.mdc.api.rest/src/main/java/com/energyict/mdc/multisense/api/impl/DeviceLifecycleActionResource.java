@@ -129,6 +129,7 @@ public class DeviceLifecycleActionResource {
      *
      * @summary Execute an action
      *
+     * @param mrid mRID of the device
      * @param actionId Id of the action
      * @param queryParameters queryParameters
      * @param info Payload describing the parameters for the action execution
