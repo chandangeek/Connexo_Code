@@ -14,6 +14,7 @@ import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.multisense.api.security.Privileges;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import javax.annotation.security.RolesAllowed;
@@ -49,6 +50,18 @@ public class DeviceMessageEnablementResource {
         this.exceptionFactory = exceptionFactory;
     }
 
+    /**
+     * a device message enablement enables the usage of a device message
+     * or an entire device message category
+     * on a device configuration.
+     *
+     * @summary Fetch a uniquely identified device message enablement
+     *
+     * @param deviceTypeId Id of the device type
+     * @param deviceConfigId Id of the device configuration
+     * @param deviceMessageEnablementId  Id of the device message enablement
+     * @return Uniquely identified device message enablement
+     */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
@@ -72,9 +85,14 @@ public class DeviceMessageEnablementResource {
     }
 
     /**
+     * a device message enablement enables the usage of a device message
+     * or an entire device message category
+     * on a device configuration.
      *
-     * @param deviceTypeId
-     * @param deviceConfigId
+     * @summary Fetch a set of device message enablements
+     *
+     * @param deviceTypeId Id of the device type
+     * @param deviceConfigId Id of the device configuration
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
@@ -127,9 +145,16 @@ public class DeviceMessageEnablementResource {
     }
 
     /**
+     * a device message enablement enables the usage of a device message
+     * or an entire device message category
+     * on a device configuration.
+     * <br>
+     * By enabling a device message on a device configuration, the message becomes available to device of that config.
      *
-     * @param deviceTypeId
-     * @param deviceConfigId
+     * @summary Enable a device message on a device configuration
+     *
+     * @param deviceTypeId Id of the device type
+     * @param deviceConfigId Id of the device configuration
      * @return url to newly created device message enablement
      * @responseheader location href to newly created device message enablement
      */
