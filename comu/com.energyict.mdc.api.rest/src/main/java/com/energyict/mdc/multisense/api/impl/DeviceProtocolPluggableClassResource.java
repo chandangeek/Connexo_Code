@@ -50,6 +50,8 @@ public class DeviceProtocolPluggableClassResource {
      *
      * @summary Fetch uniquely identified device protocol
      * @param deviceProtocolPluggableClassId identifies device protocol pluggable class
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
      * @return The device protocol pluggable class
      */
     @GET @Transactional
@@ -66,6 +68,9 @@ public class DeviceProtocolPluggableClassResource {
      * Get a list of all known device protocols pluggable classes
      *
      * @summary Get device protocols pluggable classes
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
