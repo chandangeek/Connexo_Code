@@ -64,6 +64,14 @@ public interface ServiceCallService {
      */
     Optional<ServiceCallType> findServiceCallType(String name, String versionName);
 
+    /**
+     * Fetch and lock a service call type by name, version name and version
+     * @param id The id of the service call type
+     * @param version This is the version number used for concurrency checks.
+     * @return
+     */
+    Optional<ServiceCallType> findAndLockServiceCallType(long id, long version);
+
     interface ServiceCallTypeBuilder {
         public ServiceCallTypeBuilder logLevel(LogLevel logLevel);
         public ServiceCallTypeBuilder customPropertySet(RegisteredCustomPropertySet customPropertySet);
