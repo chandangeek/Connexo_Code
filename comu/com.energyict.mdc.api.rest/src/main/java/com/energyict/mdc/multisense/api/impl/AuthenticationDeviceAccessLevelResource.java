@@ -47,9 +47,11 @@ public class AuthenticationDeviceAccessLevelResource {
      *
      * @summary Get a certain authentication access level.
      *
-     * @param deviceProtocolPluggableClassId
-     * @param authenticationDeviceAccessLevelId
-     * @return
+     * @param deviceProtocolPluggableClassId id of the device protocol pluggable class
+     * @param authenticationDeviceAccessLevelId  id of the authentication device access level
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @return Uniquely identified authentication device access level
      */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
@@ -77,6 +79,9 @@ public class AuthenticationDeviceAccessLevelResource {
      * @summary Get a list of all known authentication access levels.
      *
      * @param deviceProtocolPluggableClassId The ID of the device protocol pluggable class
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      * @return List of authentication access levels. Paged if paging parameters were provided in the call.
      */
     @GET @Transactional
