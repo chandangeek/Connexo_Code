@@ -3,7 +3,9 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
     alias: 'widget.add-usage-point-wizard',
 
     requires: [
-        'Imt.usagepointmanagement.view.forms.GeneralInfo'
+        'Imt.usagepointmanagement.view.forms.GeneralInfo',
+        'Imt.usagepointmanagement.view.forms.ElectricityInfo',
+        'Imt.usagepointmanagement.view.forms.Gas'
     ],
 
     layout: 'card',
@@ -20,7 +22,7 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
 
         me.items = [
             {
-                xtype: 'general-info-form',
+                xtype: 'electricity-info-form',
                 itemId: 'add-usage-point-step1',
                 title: Uni.I18n.translate('usagepoint.wizard.step1title', 'IMT', 'Step 1: General information'),
                 navigationIndex: 1,
@@ -66,9 +68,49 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
         };
 
         me.callParent(arguments);
-    }/*,
+    },
 
     updateRecord: function () {
-        var me = this;
-    }*/
+        var me = this,
+            step = me.getLayout().getActiveItem();
+
+        switch (step.navigationIndex) {
+            case 1:
+                me.callParent(arguments);
+                break;
+            case 2:
+                step.updateRecord();
+                me.getRecord().set('techInfo', step.getRecord().getData());
+                break;
+            default:
+                step.updateRecord();
+                me.getRecord().customProperties().add(step.getRecord());
+        }
+    },
+
+    markInvalid: function (errors) {
+        var me = this,
+            step = me.getLayout().getActiveItem(),
+            warning = step.down('uni-form-error-message');
+
+        Ext.suspendLayouts();
+        if (warning) {
+            warning.show()
+        }
+        step.getForm().markInvalid(errors);
+        Ext.resumeLayouts(true);
+    },
+
+    clearInvalid: function () {
+        var me = this,
+            step = me.getLayout().getActiveItem(),
+            warning = step.down('uni-form-error-message');
+
+        Ext.suspendLayouts();
+        if (warning) {
+            warning.hide()
+        }
+        step.getForm().clearInvalid();
+        Ext.resumeLayouts(true);
+    }
 });

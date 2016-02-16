@@ -16,13 +16,19 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
     stores: [
         'Imt.servicecategories.store.ServiceCategories',
         'Imt.servicecategories.store.CAS',
-        'Imt.usagepointmanagement.store.UsagePointTypes'
+        'Imt.usagepointmanagement.store.UsagePointTypes',
+        'Imt.usagepointmanagement.store.PhaseCodes',
+        'Imt.usagepointmanagement.store.BypassStatuses'
     ],
 
     refs: [
         {
             ref: 'wizard',
             selector: '#add-usage-point add-usage-point-wizard'
+        },
+        {
+            ref: 'navigationMenu',
+            selector: '#add-usage-point add-usage-point-navigation'
         }
     ],
 
@@ -53,11 +59,59 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         me.getWizard().loadRecord(Ext.create('Imt.usagepointmanagement.model.UsagePoint'));
     },
 
-    moveTo: function () {
+    moveTo: function (button) {
+        var me = this,
+            wizard = me.getWizard(),
+            wizardLayout = me.getWizard().getLayout(),
+            currentStep = wizardLayout.getActiveItem().navigationIndex,
+            direction,
+            nextStep,
+            changeStep = function () {
+                Ext.suspendLayouts();
+                me.prepareNextStep(nextStep);
+                wizardLayout.setActiveItem(nextStep - 1);
+                me.getNavigationMenu().moveToStep(nextStep);
+                Ext.resumeLayouts(true);
+            };
+
+        if (button.action === 'step-next') {
+            direction = 1;
+            nextStep = currentStep + direction;
+        } else {
+            direction = -1;
+            if (button.action === 'step-back') {
+                nextStep = currentStep + direction;
+            } else {
+                nextStep = button;
+            }
+        }
+
+        wizard.clearInvalid();
+        if (direction > 0) {
+            me.doRequest({
+                params: {
+                    step: currentStep
+                },
+                success: changeStep,
+                failure: function (record, options) {
+                    var response = options.response,
+                        errors = Ext.decode(response.responseText, true);
+
+                    if (errors && Ext.isArray(errors.errors)) {
+                        wizard.markInvalid(errors.errors);
+                    }
+                }
+            });
+        } else {
+            changeStep();
+        }
+    },
+
+    doRequest: function (options) {
         var me = this,
             wizard = me.getWizard();
 
         wizard.updateRecord();
-        wizard.getRecord().save();
+        wizard.getRecord().save(options);
     }
 });
