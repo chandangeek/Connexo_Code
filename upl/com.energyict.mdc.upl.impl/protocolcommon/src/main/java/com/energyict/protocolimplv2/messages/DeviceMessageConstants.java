@@ -74,6 +74,13 @@ public class DeviceMessageConstants {
     public static final String newManagementClientPasswordAttributeName = "SecurityMessage.newmanagementclientpassword";
     public static final String newFirmwareClientPasswordAttributeName = "SecurityMessage.newfirmwareclientpassword";
 
+    public static final String authenticatedRequestsAttributeName = "SecurityMessage.authenticatedRequests";
+    public static final String encryptedRequestsAttributeName = "SecurityMessage.encryptedRequests";
+    public static final String signedRequestsAttributeName = "SecurityMessage.signedRequests";
+    public static final String authenticatedResponsesAttributeName = "SecurityMessage.authenticatedResponses";
+    public static final String encryptedResponsesAttributeName = "SecurityMessage.encryptedResponses";
+    public static final String signedResponsesAttributeName = "SecurityMessage.signedResponses";
+
     public static final String eventLogResetSealBreakTimeAttributeName = "SecurityMessage.eventlogresetseal.breaktime";
     public static final String restoreFactorySettingsSealBreakTimeAttributeName = "SecurityMessage.restorefactorysettingsseal.breaktime";
     public static final String restoreDefaultSettingsSealBreakTimeAttributeName = "SecurityMessage.restoredefaultsettingsseal.breaktime";

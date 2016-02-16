@@ -78,7 +78,7 @@ public class Beacon3100Properties extends DlmsProperties {
      * 7 digitally signed response
      */
     @Override
-    public int getDataTransportSecurityLevel() {
+    protected int doGetDataTransportSecurityLevel() {
         if (getSecurityPropertySet() instanceof AdvancedDeviceProtocolSecurityPropertySet) {
             AdvancedDeviceProtocolSecurityPropertySet advancedSecurityPropertySet = (AdvancedDeviceProtocolSecurityPropertySet) getSecurityPropertySet();
             if (advancedSecurityPropertySet.getSecuritySuite() == 0) {

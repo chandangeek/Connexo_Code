@@ -5,10 +5,18 @@ import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.BusinessObject;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.ImageTransfer.RandomAccessFileImageBlockSupplier;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
+import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
+import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.encryption.asymetric.keyagreement.KeyAgreementImpl;
+import com.energyict.encryption.asymetric.signature.ECDSASignatureImpl;
+import com.energyict.encryption.asymetric.util.KeyUtils;
+import com.energyict.encryption.kdf.NIST_SP_800_56_KDF;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageStatus;
@@ -18,12 +26,14 @@ import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.ECCCurve;
 import com.energyict.mdw.core.Group;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -34,15 +44,20 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobject
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSync;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import com.energyict.util.function.Consumer;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.cert.X509Certificate;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +101,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER);
 
         supportedMessages.add(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL);
-        supportedMessages.add(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION);
+        supportedMessages.add(SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1);
+        supportedMessages.add(SecurityMessage.AGREE_NEW_ENCRYPTION_KEY);
+        supportedMessages.add(SecurityMessage.AGREE_NEW_AUTHENTICATION_KEY);
         supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS);
         supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS);
         supportedMessages.add(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD);
@@ -205,7 +222,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             for (BusinessObject businessObject : group.getMembers()) {
                 if (businessObject instanceof Device) {
                     Device device = (Device) businessObject;
-                    String callHomeId = device.getProtocolProperties().<String>getTypedProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
+                    String callHomeId = device.getProtocolProperties().getTypedProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
                     if (!callHomeId.isEmpty()) {
                         if (macAddresses.length() != 0) {
                             macAddresses.append(SEPARATOR);
@@ -396,8 +413,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         syncNTPServer(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL)) {
                         changeDlmAuthLevel(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION)) {
-                        activateDlmsEncryption(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1)) {
+                        activateAdvancedDlmsEncryption(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.AGREE_NEW_ENCRYPTION_KEY)) {
+                        collectedMessage = agreeNewKey(collectedMessage, 0);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.AGREE_NEW_AUTHENTICATION_KEY)) {
+                        collectedMessage = agreeNewKey(collectedMessage, 2);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS)) {
                         changeAuthKey(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS)) {
@@ -457,6 +478,93 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         }
 
         return result;
+    }
+
+    private CollectedMessage agreeNewKey(CollectedMessage collectedMessage, int keyId) throws IOException {
+        if (getProtocol().getDlmsSessionProperties().getSecuritySuite() == 0) {
+            throw new ProtocolException("Key agreement is not supported in DLMS suite 0.");
+        }
+        SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
+        ECCCurve eccCurve = securityContext.getECCCurve();
+
+        Structure keyAgreementData = new Structure();
+        keyAgreementData.addDataType(new TypeEnum(keyId));
+
+        //Holds a new ephemeral key pair. We send its public key to the server side.
+        //We use its private key here, combined with the received ephemeral public key of the server to derive the new key.
+        KeyAgreementImpl keyAgreement = new KeyAgreementImpl(eccCurve);
+        PublicKey ephemeralPublicKey = keyAgreement.getEphemeralPublicKey();
+        byte[] ephemeralPublicKeyEncoded = ephemeralPublicKey.getEncoded();
+
+        ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(eccCurve);
+        SecurityProvider securityProvider = getProtocol().getDlmsSessionProperties().getSecurityProvider();
+        if (!(securityProvider instanceof GeneralCipheringSecurityProvider)) {
+            throw CodingException.protocolImplementationError("General signing and ciphering is not yet supported in the protocol you are using");
+        }
+        byte[] signData = ProtocolTools.concatByteArrays(
+                new byte[]{(byte) keyId},
+                ephemeralPublicKeyEncoded
+        );
+        PrivateKey clientPrivateSigningKey = ((GeneralCipheringSecurityProvider) securityProvider).getClientPrivateSigningKey();
+        if (clientPrivateSigningKey == null) {
+            throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
+        }
+        byte[] signature = ecdsaSignature.sign(signData, clientPrivateSigningKey);
+
+        byte[] keyData = ProtocolTools.concatByteArrays(ephemeralPublicKeyEncoded, signature);
+        keyAgreementData.addDataType(OctetString.fromByteArray(keyData));
+
+        Array array = new Array();
+        array.addDataType(keyAgreementData);
+        byte[] response = getCosemObjectFactory().getSecuritySetup().keyAgreement(array);
+
+        //Now verify the received server ephemeral public key and use it to derive the shared secret.
+        byte[] serverKeyData = AXDRDecoder.decode(response, OctetString.class).getOctetStr();
+        int keySize = KeyUtils.getKeySize(eccCurve);
+        byte[] serverEphemeralPublicKeyBytes = ProtocolTools.getSubArray(serverKeyData, 0, keySize);
+        byte[] serverSignature = ProtocolTools.getSubArray(serverKeyData, keySize, serverKeyData.length);
+
+        byte[] serverSignData = ProtocolTools.concatByteArrays(
+                new byte[]{(byte) keyId},
+                serverEphemeralPublicKeyBytes
+        );
+        ecdsaSignature = new ECDSASignatureImpl(eccCurve);
+        X509Certificate serverSignatureCertificate = ((GeneralCipheringSecurityProvider) securityProvider).getServerSignatureCertificate();
+        if (serverSignatureCertificate == null) {
+            throw DeviceConfigurationException.missingProperty(SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString());
+        }
+        boolean verify = ecdsaSignature.verify(serverSignData, serverSignature, serverSignatureCertificate.getPublicKey());
+        if (!verify) {
+            throw new ProtocolException("Verification of the received signature failed, cannot agree on new key with server");
+        }
+
+        PublicKey serverEphemeralPublicKey = KeyUtils.toECPublicKey(eccCurve, serverEphemeralPublicKeyBytes);
+        byte[] secretZ = keyAgreement.generateSecret(serverEphemeralPublicKey);
+
+        byte[] agreedKey = NIST_SP_800_56_KDF.getInstance().derive(
+                securityContext.getKeyDerivingHashFunction(),
+                secretZ,
+                securityContext.getKeyDerivingEncryptionAlgorithm(),
+                securityContext.getSystemTitle(),
+                securityContext.getResponseSystemTitle()
+        );
+
+        String securityPropertyName = "";
+        if (keyId == 0) {
+            securityPropertyName = SecurityPropertySpecName.ENCRYPTION_KEY.toString();
+        } else if (keyId == 2) {
+            securityPropertyName = SecurityPropertySpecName.AUTHENTICATION_KEY.toString();
+        }
+
+        //Special kind of collected message: it includes the update of the relevant security property with the new, agreed key.
+        collectedMessage = MdcManager.getCollectedDataFactory().createCollectedMessageWithUpdateSecurityProperty(
+                new DeviceIdentifierById(getProtocol().getOfflineDevice().getId()),
+                collectedMessage.getMessageIdentifier(),
+                securityPropertyName,
+                ProtocolTools.getHexStringFromBytes(agreedKey, ""));
+
+        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+        return collectedMessage;
     }
 
     /**
@@ -731,8 +839,41 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(ProtocolTools.getBytesFromHexString(plainHexKey));
     }
 
-    private void activateDlmsEncryption(OfflineDeviceMessage pendingMessage) throws IOException {
-        getSecuritySetup().activateSecurity(new TypeEnum(getSingleIntegerAttribute(pendingMessage)));
+    private void activateAdvancedDlmsEncryption(OfflineDeviceMessage pendingMessage) throws IOException {
+        int securitySuite = getProtocol().getDlmsSessionProperties().getSecuritySuite();
+
+        boolean authenticatedRequests = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.authenticatedRequestsAttributeName).getDeviceMessageAttributeValue());
+        boolean encryptedRequests = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.encryptedRequestsAttributeName).getDeviceMessageAttributeValue());
+        boolean signedRequests = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.signedRequestsAttributeName).getDeviceMessageAttributeValue());
+        boolean authenticatedResponses = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.authenticatedResponsesAttributeName).getDeviceMessageAttributeValue());
+        boolean encryptedResponses = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.encryptedResponsesAttributeName).getDeviceMessageAttributeValue());
+        boolean signedResponse = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.signedResponsesAttributeName).getDeviceMessageAttributeValue());
+
+        int securityPolicy = 0;
+        if (securitySuite == 0) {
+            if ((authenticatedRequests != authenticatedResponses) || (encryptedRequests != encryptedResponses)) {
+                throw new ProtocolException("It is not possible to set a different security level for requests than for responses, in DLMS suite 0.");
+            }
+            if (signedRequests || signedResponse) {
+                throw new ProtocolException("It is not possible to apply digital signing in DLMS suite 0");
+            }
+
+            securityPolicy |= (authenticatedRequests ? 1 : 0);
+            securityPolicy |= (encryptedRequests ? 1 : 0) << 1;
+        } else {
+            securityPolicy |= (authenticatedRequests ? 1 : 0) << 2;
+            securityPolicy |= (encryptedRequests ? 1 : 0) << 3;
+            securityPolicy |= (signedRequests ? 1 : 0) << 4;
+            securityPolicy |= (authenticatedResponses ? 1 : 0) << 5;
+            securityPolicy |= (encryptedResponses ? 1 : 0) << 6;
+            securityPolicy |= (signedResponse ? 1 : 0) << 7;
+        }
+
+        getSecuritySetup().activateSecurity(new TypeEnum(securityPolicy));
+
+        //Start using the new security_policy immediately.
+        getProtocol().getDlmsSessionProperties().setDataTransportSecurityLevel(securityPolicy);
+        getProtocol().getDlmsSession().getAso().getSecurityContext().getSecurityPolicy().setDataTransportSecurityLevel(securityPolicy);
     }
 
     private void changeDlmAuthLevel(OfflineDeviceMessage pendingMessage) throws IOException {

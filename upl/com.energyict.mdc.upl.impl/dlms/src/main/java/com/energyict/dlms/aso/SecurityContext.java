@@ -358,7 +358,12 @@ public class SecurityContext {
     public byte[] applyGeneralSigning(byte[] securedRequest) throws UnsupportedException {
         ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
         byte[] generalCipheringHeader = createGeneralCipheringHeader();
-        byte[] signature = ecdsaSignature.sign(ProtocolTools.concatByteArrays(generalCipheringHeader, securedRequest), getGeneralCipheringSecurityProvider().getClientPrivateSigningKey());
+        PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
+        if (clientPrivateSigningKey == null) {
+            throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
+        }
+
+        byte[] signature = ecdsaSignature.sign(ProtocolTools.concatByteArrays(generalCipheringHeader, securedRequest), clientPrivateSigningKey);
 
         return ProtocolTools.concatByteArrays(
                 generalCipheringHeader,
@@ -650,7 +655,7 @@ public class SecurityContext {
         return dataTransportDecryption(fullCipherFrame, serverKeyType, generalCipheringHeader);
     }
 
-    private AlgorithmID getKeyDerivingEncryptionAlgorithm() {
+    public AlgorithmID getKeyDerivingEncryptionAlgorithm() {
         switch (securitySuite) {
             case 1:
                 return AlgorithmID.AES_GCM_128;
@@ -661,7 +666,7 @@ public class SecurityContext {
         }
     }
 
-    private KDF.HashFunction getKeyDerivingHashFunction() {
+    public KDF.HashFunction getKeyDerivingHashFunction() {
         switch (securitySuite) {
             case 1:
                 return KDF.HashFunction.SHA256;

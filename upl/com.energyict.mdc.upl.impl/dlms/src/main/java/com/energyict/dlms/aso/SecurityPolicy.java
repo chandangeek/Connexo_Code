@@ -20,7 +20,7 @@ public class SecurityPolicy {
     public static final int RESPONSES_AUTHENTICATED_FLAG = 5;
     public static final int RESPONSES_ENCRYPTED_FLAG = 6;
     public static final int RESPONSES_SIGNED_FLAG = 7;
-
+    private final int suite;
     /**
      * For suite 0, the dataTransportSecurityLevel is either 0, 1, 2 or 3.
      * <p/>
@@ -34,8 +34,7 @@ public class SecurityPolicy {
      * 6 encrypted response,
      * 7 digitally signed response
      */
-    private final int dataTransportSecurityLevel;
-    private final int suite;
+    private int dataTransportSecurityLevel;
 
     public SecurityPolicy(int suite, int dataTransportSecurityLevel) {
         this.suite = suite;
@@ -44,6 +43,10 @@ public class SecurityPolicy {
 
     public int getDataTransportSecurityLevel() {
         return dataTransportSecurityLevel;
+    }
+
+    public void setDataTransportSecurityLevel(int dataTransportSecurityLevel) {
+        this.dataTransportSecurityLevel = dataTransportSecurityLevel;
     }
 
     public boolean isRequestPlain() {

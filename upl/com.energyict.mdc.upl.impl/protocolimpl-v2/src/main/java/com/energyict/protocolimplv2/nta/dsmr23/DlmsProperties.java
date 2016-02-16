@@ -35,6 +35,7 @@ public class DlmsProperties implements DlmsSessionProperties {
     protected SecurityProvider securityProvider;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
     private String serialNumber = "";
+    private Integer dataTransportSecurityLevel = null;
 
     public DlmsProperties() {
         this.properties = TypedProperties.empty();
@@ -91,7 +92,19 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public int getDataTransportSecurityLevel() {
-        return securityPropertySet.getEncryptionDeviceAccessLevel();
+        if (dataTransportSecurityLevel == null) {
+            dataTransportSecurityLevel = doGetDataTransportSecurityLevel();
+        }
+        return dataTransportSecurityLevel;
+    }
+
+    @Override
+    public void setDataTransportSecurityLevel(int dataTransportSecurityLevel) {
+        this.dataTransportSecurityLevel = dataTransportSecurityLevel;
+    }
+
+    protected int doGetDataTransportSecurityLevel() {
+        return this.getSecurityPropertySet().getEncryptionDeviceAccessLevel();
     }
 
     @Override

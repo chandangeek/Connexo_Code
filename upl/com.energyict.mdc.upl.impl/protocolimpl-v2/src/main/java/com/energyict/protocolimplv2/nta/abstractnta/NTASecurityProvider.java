@@ -24,7 +24,7 @@ import java.util.Random;
  */
 public class NTASecurityProvider implements SecurityProvider {
 
-    protected int authenticationLevel;
+    protected final int authenticationLevel;
     protected byte[] cTOs;
     protected byte[] dedicatedKey;
     protected TypedProperties properties;

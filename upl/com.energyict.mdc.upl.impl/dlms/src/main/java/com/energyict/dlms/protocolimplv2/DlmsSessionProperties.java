@@ -56,6 +56,12 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
     int getDataTransportSecurityLevel();
 
     /**
+     * Set the current data transport security level with a new value.
+     * This is the exceptional case where, in an existing session, the security was raised.
+     */
+    void setDataTransportSecurityLevel(int level);
+
+    /**
      * The security suite.
      * Currently 3 suites defined in the DLMS blue book:
      * - 0 (AES-GCM-128)

@@ -235,10 +235,10 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
                 PrivateKey privateKey = alias.getPrivateKey();
                 if (privateKey instanceof ECPrivateKey) {
 
-                    int componentSize = KeyUtils.getKeySize(getECCCurve()) / 2;
-                    byte[] privateKeyBytes = trim(((ECPrivateKey) privateKey).getS().toByteArray(), componentSize);
+                    int keySize = KeyUtils.getKeySize(getECCCurve()) / 2;
+                    byte[] privateKeyBytes = trim(((ECPrivateKey) privateKey).getS().toByteArray(), keySize);
 
-                    if (privateKeyBytes.length != componentSize) {
+                    if (privateKeyBytes.length != keySize) {
                         throw DeviceConfigurationException.invalidPropertyFormat(
                                 propertyName,
                                 "Private key with alias '" + alias.getAlias() + "'",

@@ -2,7 +2,9 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
@@ -10,22 +12,22 @@ import java.io.IOException;
 public class SecuritySetup extends AbstractCosemObject {
 
 	static final byte[] LN=new byte[]{0,0,43,0,0,(byte)255};
-
-	/** Attributes */
-	private TypeEnum securityPolicy = null; 		//Enforces authentication and/or encryption algorithm provided with security_suite.
-	private TypeEnum securitySuite = null;			//Specifies authentication, encryption and key wrapping algorithm.
-	private OctetString clientSystemTitle = null;	//Carries the current client system title
-	private OctetString serverSystemTitle = null;	//Carries the server system title
-
 	/** Attribute numbers */
 	private static final int ATTRB_SECURITY_POLICY = 2;
 	private static final int ATTRB_SECURITY_SUITE = 3;
 	private static final int ATTRB_CLIENT_SYSTEM_TITLE = 4;
 	private static final int ATTRB_SERVER_SYSTEM_TITLE = 5;
-
 	/** Methods */
 	private static final int METHOD_SECURITY_ACTIVATE = 1;		// Activates and strengthens the security policy
 	private static final int METHOD_GLOBAL_KEY_TRANSFER = 2;	// Update one or more global keys
+	private static final int METHOD_KEY_AGREEMENT = 3;            // Agree on new symmetric keys
+	/**
+	 * Attributes
+	 */
+	private TypeEnum securityPolicy = null;        //Enforces authentication and/or encryption algorithm provided with security_suite.
+	private TypeEnum securitySuite = null;            //Specifies authentication, encryption and key wrapping algorithm.
+	private OctetString clientSystemTitle = null;    //Carries the current client system title
+	private OctetString serverSystemTitle = null;    //Carries the server system title
 
 	public SecuritySetup(ProtocolLink protocolLink,	ObjectReference objectReference) {
 		super(protocolLink, objectReference);
@@ -187,5 +189,15 @@ public class SecuritySetup extends AbstractCosemObject {
 			e.printStackTrace();
 			throw new NestedIOException(e, "Could not transfer the globalKey(s)" + e.getMessage());
 		}
+	}
+
+	/**
+	 * Used to agree on one or more symmetric keys using the key
+	 * agreement algorithm as specified by the security suite. In the case of
+	 * suites 1 and 2 the ECDH key agreement algorithm is used with the
+	 * Ephemeral Unified Model C(2e, 0s, ECC CDH) scheme.
+	 */
+	public byte[] keyAgreement(Array keyAgreementDatas) throws IOException {
+		return invoke(METHOD_KEY_AGREEMENT, keyAgreementDatas.getBEREncodedByteArray());
 	}
 }

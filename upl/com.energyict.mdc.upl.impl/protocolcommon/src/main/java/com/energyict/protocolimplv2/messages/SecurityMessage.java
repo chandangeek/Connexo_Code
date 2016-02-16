@@ -23,6 +23,10 @@ import java.util.List;
  */
 public enum SecurityMessage implements DeviceMessageSpec {
 
+    /**
+     * Note that this message will write the security_policy of the SecuritySetup object, DLMS version 0.
+     * It is not forwards compatible with DLMS version 1.
+     */
     ACTIVATE_DLMS_ENCRYPTION(0, PropertySpecFactory.stringPropertySpecWithValues(
             DeviceMessageConstants.encryptionLevelAttributeName,
             DlmsEncryptionLevelMessageValues.getNames())),
@@ -55,7 +59,7 @@ public enum SecurityMessage implements DeviceMessageSpec {
     /**
      * For backwards compatibility
      */
-    CHANGE_HLS_SECRET(12),
+            CHANGE_HLS_SECRET(12),
     CHANGE_HLS_SECRET_HEX(13, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),          //Password value parsed by protocols as hex string
     ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY(14,
             PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(
@@ -131,14 +135,33 @@ public enum SecurityMessage implements DeviceMessageSpec {
             PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newAuthenticationKeyAttributeName),
             PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName)
     ),
-    ;
+    /**
+     * Note that this message will write the security_policy of the SecuritySetup object, DLMS version 1.
+     * It is not backwards compatible with DLMS version 0.
+     */
+    ACTIVATE_DLMS_SECURITY_VERSION1(33,
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.authenticatedRequestsAttributeName),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.encryptedRequestsAttributeName),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.signedRequestsAttributeName),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.authenticatedResponsesAttributeName),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.encryptedResponsesAttributeName),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.signedResponsesAttributeName)
+    ),
+    /**
+     * Used to agree on one or more symmetric keys using the key
+     * agreement algorithm as specified by the security suite. In the case of
+     * suites 1 and 2 the ECDH key agreement algorithm is used with the
+     * Ephemeral Unified Model C(2e, 0s, ECC CDH) scheme.
+     */
+    AGREE_NEW_ENCRYPTION_KEY(34),
+    AGREE_NEW_AUTHENTICATION_KEY(35);
 
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;
 
-    private SecurityMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    SecurityMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
         this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
@@ -202,10 +225,6 @@ public enum SecurityMessage implements DeviceMessageSpec {
             this.description = description;
         }
 
-        public String getDescription() {
-            return description;
-        }
-
         public static Boolean fromDescription(String description) {
             for (SealActions actions : values()) {
                 if (actions.getDescription().equals(description)) {
@@ -215,16 +234,20 @@ public enum SecurityMessage implements DeviceMessageSpec {
             return null;
         }
 
-        public Boolean getAction() {
-            return action;
-        }
-
         public static String[] getAllDescriptions() {
             String[] result = new String[values().length];
             for (int index = 0; index < values().length; index++) {
                 result[index] = values()[index].getDescription();
             }
             return result;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public Boolean getAction() {
+            return action;
         }
     }
 
@@ -241,10 +264,6 @@ public enum SecurityMessage implements DeviceMessageSpec {
             this.description = description;
         }
 
-        public String getDescription() {
-            return description;
-        }
-
         public static Boolean fromDescription(String description) {
             for (KeyTUsage usage : values()) {
                 if (usage.getDescription().equals(description)) {
@@ -254,16 +273,20 @@ public enum SecurityMessage implements DeviceMessageSpec {
             return null;
         }
 
-        public boolean getStatus() {
-            return status;
-        }
-
         public static String[] getAllDescriptions() {
             String[] result = new String[values().length];
             for (int index = 0; index < values().length; index++) {
                 result[index] = values()[index].getDescription();
             }
             return result;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public boolean getStatus() {
+            return status;
         }
     }
 }
