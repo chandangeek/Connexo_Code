@@ -1,8 +1,9 @@
 package com.elster.insight.usagepoint.config.rest.impl;
 
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
 
 import javax.inject.Inject;
 import java.util.stream.Collectors;
@@ -23,9 +24,10 @@ public class MetrologyConfigurationInfoFactory {
         MetrologyConfigurationInfo info = new MetrologyConfigurationInfo(meterConfiguration);
         info.customPropertySets = meterConfiguration.getCustomPropertySets()
                 .stream()
-                .filter(rcps -> rcps.isViewableByCurrentUser())
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .map(this.customPropertySetInfoFactory::from)
                 .collect(Collectors.toList());
         return info;
     }
+
 }

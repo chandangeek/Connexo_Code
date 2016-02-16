@@ -1,18 +1,16 @@
 package com.elster.insight.usagepoint.config.rest.impl;
 
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
+import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -23,6 +21,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
@@ -59,7 +61,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         ruleSets.add(vrs);
         when(vrs.getName()).thenReturn("ValidationRuleSet");
         when(vrs.getId()).thenReturn(1L);
-        when(config1.getValidationRuleSets()).thenReturn(ruleSets);
+        when(usagePointConfigurationService.getValidationRuleSets(config1)).thenReturn(ruleSets);
 
         List<ValidationRuleSet> assignableRuleSets = new ArrayList<>();
         assignableRuleSets.add(vrs2);

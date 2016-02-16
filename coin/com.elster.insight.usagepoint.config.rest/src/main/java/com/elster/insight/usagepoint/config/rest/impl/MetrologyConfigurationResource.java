@@ -1,16 +1,13 @@
 package com.elster.insight.usagepoint.config.rest.impl;
 
-import com.elster.insight.common.services.ListPager;
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
-import com.elster.insight.usagepoint.config.security.Privileges;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -19,6 +16,9 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
+import com.elster.insight.common.services.ListPager;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -149,7 +149,6 @@ public class MetrologyConfigurationResource {
 
     private Boolean checkIfInUse(MetrologyConfiguration mc) {
         return !usagePointConfigurationService.findUsagePointsForMetrologyConfiguration(mc).isEmpty();
-
     }
 
     @GET
@@ -161,11 +160,13 @@ public class MetrologyConfigurationResource {
                                                                                 @BeanParam JsonQueryParameters queryParameters,
                                                                                 @BeanParam JsonQueryFilter filter) {
         MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        List<ValidationRuleSetInfo> validationRuleSetsInfos = ListPager.of(metrologyConfiguration.getValidationRuleSets())
-                .from(queryParameters)
-                .stream()
-                .map(ValidationRuleSetInfo::new)
-                .collect(Collectors.toList());
+        List<ValidationRuleSetInfo> validationRuleSetsInfos =
+                ListPager
+                        .of(usagePointConfigurationService.getValidationRuleSets(metrologyConfiguration))
+                        .from(queryParameters)
+                        .stream()
+                        .map(ValidationRuleSetInfo::new)
+                        .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("assignedvalidationrulesets", validationRuleSetsInfos, queryParameters);
     }
 
@@ -179,19 +180,19 @@ public class MetrologyConfigurationResource {
                                                                            @BeanParam JsonQueryParameters queryParameters,
                                                                            @BeanParam JsonQueryFilter filter) {
         MetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
-        List<ValidationRuleSet> currentRules = metrologyConfiguration.getValidationRuleSets();
+        List<ValidationRuleSet> currentRules = usagePointConfigurationService.getValidationRuleSets(metrologyConfiguration);
         for (ValidationRuleSetInfo vrsi : validationRuleSetInfos.ruleSets) {
-            ValidationRuleSet vrs = validationService.getValidationRuleSet(vrsi.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-            if (currentRules.contains(vrs)) {
-                currentRules.remove(vrs);
+            ValidationRuleSet validationRuleSet = validationService.getValidationRuleSet(vrsi.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+            if (currentRules.contains(validationRuleSet)) {
+                currentRules.remove(validationRuleSet);
             } else {
-                metrologyConfiguration.addValidationRuleSet(vrs);
+                usagePointConfigurationService.addValidationRuleSet(metrologyConfiguration, validationRuleSet);
             }
         }
 
         //remove rules that are no longer current
-        for (ValidationRuleSet vrs : currentRules) {
-            metrologyConfiguration.removeValidationRuleSet(vrs);
+        for (ValidationRuleSet currentRule : currentRules) {
+            usagePointConfigurationService.removeValidationRuleSet(metrologyConfiguration, currentRule);
         }
         return Response.status(Response.Status.CREATED).entity(metrologyConfigurationInfoFactory.asDetailedInfo(metrologyConfiguration)).build();
     }
@@ -204,7 +205,7 @@ public class MetrologyConfigurationResource {
                                                                                   @BeanParam JsonQueryParameters queryParameters,
                                                                                   @BeanParam JsonQueryFilter filter) {
         MetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
-        List<ValidationRuleSet> assigned = metrologyConfiguration.getValidationRuleSets();
+        List<ValidationRuleSet> assigned = usagePointConfigurationService.getValidationRuleSets(metrologyConfiguration);
         List<ValidationRuleSet> assignableValidationRuleSets = validationService.getValidationRuleSets().stream().filter(vrs -> !assigned.contains(vrs)).collect(Collectors.toList());
 
         List<ValidationRuleSetInfo> validationRuleSetsInfos = ListPager.of(assignableValidationRuleSets)
