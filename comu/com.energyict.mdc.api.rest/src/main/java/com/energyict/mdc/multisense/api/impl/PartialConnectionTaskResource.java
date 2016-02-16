@@ -63,6 +63,8 @@ public class PartialConnectionTaskResource {
      * @param deviceTypeId Id of the device type
      * @param deviceConfigId Id of the device configuration
      * @param id Id of the partial connection task
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
      *
      * @return Uniquely identified partial connection task
      */
@@ -103,6 +105,9 @@ public class PartialConnectionTaskResource {
 
      * @param deviceTypeId Id of the device type
      * @param deviceConfigId Id of the device configuration
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      *
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
