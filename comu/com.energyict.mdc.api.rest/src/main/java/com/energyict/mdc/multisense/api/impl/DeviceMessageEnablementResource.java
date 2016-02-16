@@ -9,12 +9,10 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.multisense.api.security.Privileges;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import javax.annotation.security.RolesAllowed;
