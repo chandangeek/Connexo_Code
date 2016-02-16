@@ -122,7 +122,7 @@ public enum TableSpecs {
             table.column("FUNCTION").number().conversion(ColumnConversion.NUMBER2ENUM).map("function").add();
 
             //ConstantNode constantValue
-            table.column("CONSTANTVALUE").number().conversion(NUMBER2LONG).map("constantValue").add();
+            table.column("CONSTANTVALUE").number().map("constantValue").add();
 
             // ReadingTypeDeliverableNode readingTypeDeliverable value
             //todo add foreign key

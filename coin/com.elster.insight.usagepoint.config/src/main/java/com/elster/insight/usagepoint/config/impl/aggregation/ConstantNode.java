@@ -1,5 +1,8 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
+import com.elster.jupiter.orm.DataModel;
+
+import javax.inject.Inject;
 import java.math.BigDecimal;
 
 /**
@@ -9,7 +12,10 @@ public class ConstantNode extends AbstractNode {
 
     static final String TYPE_IDENTIFIER = "CST";
 
-    private final BigDecimal constantValue;
+    private BigDecimal constantValue;
+
+    @Inject
+    public ConstantNode() {}
 
     public ConstantNode(BigDecimal value) {
         super();

@@ -9,7 +9,9 @@ public class OperationNode extends AbstractNode {
 
     static final String TYPE_IDENTIFIER = "OPR";
 
-    private final Operator operator;
+    private Operator operator;
+
+    public OperationNode() {}
 
     public OperationNode(Operator operator, AbstractNode operand1, AbstractNode operand2) {
         super(Arrays.asList(operand1, operand2));

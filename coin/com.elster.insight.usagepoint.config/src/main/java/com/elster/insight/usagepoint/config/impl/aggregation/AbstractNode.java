@@ -1,10 +1,12 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.google.common.collect.ImmutableMap;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +56,10 @@ public abstract class AbstractNode implements ServerExpressionNode {
         return children;
     }
 
+    /*public List<ExpressionNode> getChildren(DataModel dataModel) {
+        return dataModel.mapper(ExpressionNode.class).find("PARENTID", this.id);
+    }*/
+
     public void setParent(AbstractNode parent) {
         this.parent.set(parent);
     }
@@ -84,30 +90,29 @@ public abstract class AbstractNode implements ServerExpressionNode {
         return Objects.hash(id);
     }
 
-    /*@Override
-    public void delete() {
-        dataModel.remove(this);
-    }
 
     @Override
-    public void update() {
-        doSave();
-    }
-
-    void doSave() {
-        if (id == 0) {
-            persist();
-        } else {
-            doUpdate();
+    public void save(DataModel dataModel) {
+        doSave(dataModel);
+        for (AbstractNode node : children) {
+            node.save(dataModel);
         }
     }
 
-    private void persist() {
+    void doSave(DataModel dataModel) {
+        if (id == 0) {
+            persist(dataModel);
+        } else {
+            doUpdate(dataModel);
+        }
+    }
+
+    private void persist(DataModel dataModel) {
         Save.CREATE.save(dataModel, this);
     }
 
-    private void doUpdate() {
+    private void doUpdate(DataModel dataModel) {
         Save.UPDATE.save(dataModel, this);
-    }*/
+    }
 
 }

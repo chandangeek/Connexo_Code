@@ -2,6 +2,7 @@ package com.elster.insight.usagepoint.config.impl;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -147,11 +148,9 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Override
     public Formula newFormula(Formula.Mode mode, ExpressionNode node) {
         Formula formula = dataModel.getInstance(ServerFormulaImpl.class).init(mode, node);
-        formula.update();
+        formula.save();
         return formula;
     }
-
-
 
     @Override
     public Optional<MetrologyConfiguration> findMetrologyConfiguration(long id) {

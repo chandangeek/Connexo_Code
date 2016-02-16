@@ -75,7 +75,7 @@ public class ServerFormulaImpl implements ServerFormula {
     }
 
     @Override
-    public void update() {
+    public void save() {
         doSave();
     }
 
@@ -88,12 +88,14 @@ public class ServerFormulaImpl implements ServerFormula {
     }
 
     private void persist() {
-        Save.CREATE.save(dataModel, this.expressionNode.get());
+        this.expressionNode.get().save(dataModel);
+        //Save.CREATE.save(dataModel, this.expressionNode.get());
         Save.CREATE.save(dataModel, this);
     }
 
     private void doUpdate() {
-        Save.UPDATE.save(dataModel, this.expressionNode.get());
+        this.expressionNode.get().save(dataModel);
+        //Save.UPDATE.save(dataModel, this.expressionNode.get());
         Save.UPDATE.save(dataModel, this);
     }
 }

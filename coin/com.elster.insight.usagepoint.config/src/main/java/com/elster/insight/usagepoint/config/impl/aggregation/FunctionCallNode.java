@@ -1,5 +1,8 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
+import com.elster.jupiter.orm.DataModel;
+
+import javax.inject.Inject;
 import java.util.List;
 
 /**
@@ -13,6 +16,11 @@ public class FunctionCallNode extends AbstractNode {
     private String name;
 
     public FunctionCallNode() {}
+
+    public FunctionCallNode init(Function function) {
+        this.function = function;
+        return this;
+    }
 
     public FunctionCallNode(List<AbstractNode> children, Function function) {
         super(children);

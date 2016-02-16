@@ -1,5 +1,9 @@
 package com.elster.insight.usagepoint.config.impl.aggregation;
 
+import com.elster.jupiter.orm.DataModel;
+
+import java.util.List;
+
 /**
  * Models a node of expression that comply with the BNF below.
  * <pre><code>
@@ -54,6 +58,6 @@ public interface ExpressionNode {
     /**
      * Update this {@link ExpressionNode}
      */
-    //void update();
+    void save(DataModel dataModel);
 
 }
