@@ -1,16 +1,15 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
-import com.elster.insight.usagepoint.config.security.Privileges;
-import com.elster.insight.usagepoint.data.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
-import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.insight.usagepoint.data.UsagePointCustomPropertySetExtension;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -26,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
