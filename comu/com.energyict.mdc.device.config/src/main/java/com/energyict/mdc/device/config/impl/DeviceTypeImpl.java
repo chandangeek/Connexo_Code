@@ -260,7 +260,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public void addCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet) {
-        DeviceTypeCustomPropertySetUsageImpl deviceTypeCustomPropertySetUsage = getDataModel().getInstance(DeviceTypeCustomPropertySetUsageImpl.class).initialize(this, registeredCustomPropertySet);
+        DeviceTypeCustomPropertySetUsageImpl deviceTypeCustomPropertySetUsage = getDataModel().
+                getInstance(DeviceTypeCustomPropertySetUsageImpl.class).
+                initialize(this, registeredCustomPropertySet);
         this.deviceTypeCustomPropertySetUsages.add(deviceTypeCustomPropertySetUsage);
     }
 
