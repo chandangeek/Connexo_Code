@@ -266,10 +266,13 @@ public class JSonConverter {
         int activeThreadCount = 0;
 
         for (ComPort each : comServer.getComPorts()) {
-            Optional<ScheduledComPortMonitor> monitor = scheduledComportMonitors.stream().filter(m -> m.isMonitoring(each)).findFirst();
-            threadCount += getThreadCount(each);
-            if (monitor.isPresent()) {
-                activeThreadCount += getThreadCount(each);
+            if (!each.isInbound()) {
+                Optional<ScheduledComPortMonitor> monitor = scheduledComportMonitors.stream().filter(m -> m.isMonitoring(each)).findFirst();
+
+                threadCount += getThreadCount(each);
+                if (monitor.isPresent()) {
+                    activeThreadCount += getThreadCount(each);
+                }
             }
         }
 
