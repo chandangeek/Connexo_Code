@@ -2,13 +2,20 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
     extend: 'Ext.form.Panel',
     alias: 'widget.general-info-form',
     requires: [
-        'Uni.form.field.DateTime'
+        'Uni.util.FormErrorMessage',
+        'Uni.form.field.DateTime',
+        'Imt.usagepointmanagement.view.forms.fields.MeasureField'
     ],
     defaults: {
         labelWidth: 260,
         width: 595
     },
     items: [
+        {
+            itemId: 'general-info-warning',
+            xtype: 'uni-form-error-message',
+            hidden: true
+        },
         {
             xtype: 'textfield',
             name: 'mRID',
@@ -43,6 +50,15 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
             layout: 'hbox',
             dateConfig: {
                 flex: 1
+            },
+            dateTimeSeparatorConfig: {
+                html: Uni.I18n.translate('general.at', 'IMT', 'At').toLowerCase()
+            },
+            hoursConfig: {
+                width: 64
+            },
+            minutesConfig: {
+                width: 64
             }
         },
         {
@@ -64,8 +80,8 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
             listeners: {
                 change: {
                     fn: function (combo, newValue) {
-                        if (!newValue) {
-                            this.reset();
+                        if (Ext.isEmpty(newValue)) {
+                            combo.reset();
                         }
                     }
                 }
