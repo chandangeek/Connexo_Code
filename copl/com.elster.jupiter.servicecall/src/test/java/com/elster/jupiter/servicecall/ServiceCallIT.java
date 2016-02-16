@@ -2,6 +2,8 @@ package com.elster.jupiter.servicecall;
 
 import aQute.service.reporter.Messages;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.Expected;
@@ -79,6 +81,7 @@ public class ServiceCallIT {
     private MessageInterpolator messageInterpolator;
 
     private Clock clock;
+    private CustomPropertySetService customPropertySetService;
 
     private class MockModule extends AbstractModule {
 
@@ -109,6 +112,7 @@ public class ServiceCallIT {
                     new NlsModule(),
                     new DataVaultModule(),
                     new FiniteStateMachineModule(),
+                    new CustomPropertySetsModule(),
                     new ServiceCallModule()
             );
         } catch (Exception e) {
@@ -120,6 +124,7 @@ public class ServiceCallIT {
             @Override
             public Void perform() {
                 nlsService = injector.getInstance(NlsService.class);
+                customPropertySetService = injector.getInstance(CustomPropertySetService.class);
                 messageService = injector.getInstance(MessageService.class);
                 serviceCallService = injector.getInstance(ServiceCallService.class);
                 return null;

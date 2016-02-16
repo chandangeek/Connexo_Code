@@ -1,9 +1,11 @@
 package com.elster.jupiter.servicecall.impl;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallType;
@@ -49,6 +51,29 @@ public enum TableSpecs {
                     .add();
             table.primaryKey("SCT_PK_SERVICECALLTYPE").on(idColumn).add();
             table.unique("SCT_U_TYPE").on(name, versionName).add();
+        }
+    },
+    SCS_CPS_USAGE(ServiceCallTypeCustomPropertySetUsage.class) {
+        @Override
+        void describeTable(Table table) {
+            table.map(ServiceCallTypeCustomPropertySetUsageImpl.class);
+            Column serviceCallType = table.column("SERVICECALLTYPE").number().notNull().add();
+            Column customPropertySet = table.column("CUSTOMPROPERTYSET").number().notNull().add();
+            table.primaryKey("PK_SCS_CPS_USAGE").on(serviceCallType, customPropertySet).add();
+            table.foreignKey("FK_SCS_SERVICECALLTYPE")
+                    .references(SCS_SERVICE_CALL_TYPE.name())
+                    .on(serviceCallType)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map(ServiceCallTypeCustomPropertySetUsageImpl.Fields.ServciceCallType.fieldName())
+                    .reverseMap(ServiceCallTypeImpl.Fields.customPropertySets.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("FK_DTC_CPS")
+                    .references(RegisteredCustomPropertySet.class)
+                    .on(customPropertySet)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map(ServiceCallTypeCustomPropertySetUsageImpl.Fields.CustomPropertySet.fieldName())
+                    .add();
         }
     };
 

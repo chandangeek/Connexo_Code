@@ -1,5 +1,7 @@
 package com.elster.jupiter.servicecall;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Finder;
 
 import java.util.List;
@@ -64,6 +66,7 @@ public interface ServiceCallService {
 
     interface ServiceCallTypeBuilder {
         public ServiceCallTypeBuilder logLevel(LogLevel logLevel);
+        public ServiceCallTypeBuilder customPropertySet(RegisteredCustomPropertySet customPropertySet);
         public ServiceCallType add();
     }
 

@@ -2,6 +2,7 @@ package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -14,7 +15,12 @@ import com.elster.jupiter.servicecall.Status;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Class models the type of a service call. The type defines the life cycle its service calls will abide by and links to
@@ -28,6 +34,7 @@ public class ServiceCallTypeImpl implements ServiceCallType {
     private LogLevel logLevel;
     private Reference<ServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
     private DefaultState currentLifeCycleState;
+    private List<ServiceCallTypeCustomPropertySetUsage> customPropertySets = new ArrayList<>();
     @SuppressWarnings("unused")
     private Instant createTime;
     @SuppressWarnings("unused")
@@ -52,7 +59,8 @@ public class ServiceCallTypeImpl implements ServiceCallType {
         status("status"),
         versionName("versionName"),
         version("version"),
-        currentLifeCycleState("currentLifeCycleState");
+        currentLifeCycleState("currentLifeCycleState"),
+        customPropertySets("customPropertySets");
 
         private final String javaFieldName;
 
@@ -134,8 +142,29 @@ public class ServiceCallTypeImpl implements ServiceCallType {
         return Optional.empty();
     }
 
+    @Override
+    public List<RegisteredCustomPropertySet> getCustomPropertySets() {
+        return customPropertySets.stream().map(ServiceCallTypeCustomPropertySetUsage::getCustomPropertySet).collect(toList());
+    }
+
     void setServiceCallLifeCycle(ServiceCallLifeCycle serviceCallLifeCycle) {
         this.serviceCallLifeCycle.set(serviceCallLifeCycle);
+    }
+
+    @Override
+    public void addCustomPropertySet(RegisteredCustomPropertySet customPropertySet) {
+        Objects.requireNonNull(customPropertySet);
+        ServiceCallTypeCustomPropertySetUsageImpl usage = dataModel.getInstance(ServiceCallTypeCustomPropertySetUsageImpl.class);
+        usage.initialize(this, customPropertySet);
+    }
+
+    @Override
+    public void removeCustomPropertySet(RegisteredCustomPropertySet customPropertySet) {
+        Objects.requireNonNull(customPropertySet);
+        customPropertySets.stream()
+                .filter(usage -> usage.getServiceCallType().getId() == this.getId() && usage.getCustomPropertySet().getId() == customPropertySet.getId())
+                .findFirst()
+                .ifPresent(this.customPropertySets::remove);
     }
 
     @Override

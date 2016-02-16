@@ -1,5 +1,8 @@
 package com.elster.jupiter.servicecall.impl;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -28,6 +31,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -116,7 +120,10 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME, UserService.COMPONENTNAME, FiniteStateMachineService.COMPONENT_NAME);
+        return Arrays.asList(OrmService.COMPONENTNAME,
+                UserService.COMPONENTNAME,
+                FiniteStateMachineService.COMPONENT_NAME,
+                CustomPropertySetService.COMPONENT_NAME);
     }
 
     private Module getModule() {
@@ -173,6 +180,7 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
 
     class ServiceCallTypeBuilderImpl implements ServiceCallTypeBuilder {
         private final ServiceCallTypeImpl instance;
+        private List<RegisteredCustomPropertySet> toBeRegisteredCustomPropertySets = new ArrayList<>();
 
         public ServiceCallTypeBuilderImpl(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle) {
             instance = dataModel.getInstance(ServiceCallTypeImpl.class);
@@ -190,8 +198,18 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
         }
 
         @Override
+        public ServiceCallTypeBuilder customPropertySet(RegisteredCustomPropertySet customPropertySet) {
+            this.toBeRegisteredCustomPropertySets.add(customPropertySet);
+            return this;
+        }
+
+        @Override
         public ServiceCallType add() {
             instance.save();
+            for (RegisteredCustomPropertySet customPropertySet : toBeRegisteredCustomPropertySets) {
+                instance.addCustomPropertySet(customPropertySet);
+            }
+
             return instance;
         }
     }

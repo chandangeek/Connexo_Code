@@ -2,9 +2,11 @@ package com.elster.jupiter.servicecall;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -30,6 +32,16 @@ public interface ServiceCallType extends HasId, HasName {
     void setCurrentLifeCycleState(DefaultState currentLifeCycleState);
 
     Optional<CustomPropertySet<ServiceCall, ? extends PersistentDomainExtension<ServiceCall>>> getCustomPropertySet();
+
+    /**
+     * Returns the RegisteredCustomPropertySets linked to this ServiceCallType
+     * @return
+     */
+    List<RegisteredCustomPropertySet> getCustomPropertySets();
+
+    void addCustomPropertySet(RegisteredCustomPropertySet customPropertySet);
+
+    void removeCustomPropertySet(RegisteredCustomPropertySet customPropertySet);
 
     void save();
 }
