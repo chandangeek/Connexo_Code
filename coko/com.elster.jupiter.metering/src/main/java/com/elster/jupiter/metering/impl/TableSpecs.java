@@ -2,7 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
@@ -20,8 +20,11 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationImpl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -273,7 +276,7 @@ public enum TableSpecs {
                     add();
             table.foreignKey("FK_MTR_STATUS_STATE").
                     on(state).
-                    references(FiniteStateMachineService.COMPONENT_NAME, "FSM_STATE").
+                    references(State.class).
                     onDelete(RESTRICT).
                     map("state").
                     add();
@@ -524,7 +527,6 @@ public enum TableSpecs {
                     .add();
         }
     },
-
     MTR_USAGEPOINTDETAIL {
         void addTo(DataModel dataModel) {
             Table<UsagePointDetail> table = dataModel.addTable(name(), UsagePointDetail.class);
@@ -557,6 +559,30 @@ public enum TableSpecs {
                     .map("usagePoint")
                     .reverseMap("detail")
                     .composition()
+                    .add();
+        }
+    },
+    MTR_USAGEPOINTMTRCONFIG {
+        void addTo(DataModel dataModel) {
+            Table<UsagePointMetrologyConfiguration> table = dataModel.addTable(name(), UsagePointMetrologyConfiguration.class);
+            table.map(UsagePointMetrologyConfigurationImpl.class);
+            table.setJournalTableName("MTR_USAGEPOINTMTRCONFIGJRNL");
+            Column usagePoint = table.column("USAGEPOINT").type("number").notNull().add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            Column metrologyConfiguration = table.column("METROLOGYCONFIG").number().notNull().add();
+            table.primaryKey("MTR_PK_UPMTRCONFIG").on(usagePoint, intervalColumns.get(0)).add();
+            table.foreignKey("MTR_FK_UPMTRCONFIG_UP")
+                    .on(usagePoint)
+                    .references(UsagePoint.class)
+                    .onDelete(RESTRICT)
+                    .map("usagePoint")
+                    .reverseMap("metrologyConfiguration")
+                    .composition()
+                    .add();
+            table.foreignKey("MTR_FK_UPMTRCONFIG_MC")
+                    .on(metrologyConfiguration)
+                    .references(MetrologyConfiguration.class)
+                    .map("metrologyConfiguration")
                     .add();
         }
     },
