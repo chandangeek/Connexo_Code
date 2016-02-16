@@ -64,6 +64,24 @@ public class DeviceMessageResource {
     }
 
     /**
+     * Device message is used for infrequent adjustments of device parameters such as resetting a device. Device messages are only
+     * available when they are specified in a device protocol and this protocol is applied to the device type.
+     *
+     * Device messages are used to remotely adjust parameters of a device on a one-time basis. To make device messages
+     * available in the menu of a device, a device protocol must be applied to the device’s device type. Device messages
+     * also have a release date on which they become available (=pending) for sending to the device. Finally, the user
+     * must have sufficient privileges to be able to send device messages. This is specified in the roles management.
+     *
+     * Devices are split into categories. For each category and for each individual message the availability and execution
+     * level can be configured.
+     *
+     * The device interprets this message when it is communicated via the communication task and carries out the
+     * requested adjustments of the parameters.
+     *
+     * An external system or eiServer’s own communication tasks will communicate device messages to the device allowing
+     * them to execute the actions specified in their definition. The command Messages is used for this purpose. If it
+     * is not picked up by a communication task, it will simply remain in the system without impact.
+     *
      * @summary Retrieve a single device message
      *
      * @param mRID The device's mRID
@@ -86,6 +104,24 @@ public class DeviceMessageResource {
 
 
     /**
+     * Device message is used for infrequent adjustments of device parameters such as resetting a device. Device messages are only
+     * available when they are specified in a device protocol and this protocol is applied to the device type.
+     *
+     * Device messages are used to remotely adjust parameters of a device on a one-time basis. To make device messages
+     * available in the menu of a device, a device protocol must be applied to the device’s device type. Device messages
+     * also have a release date on which they become available (=pending) for sending to the device. Finally, the user
+     * must have sufficient privileges to be able to send device messages. This is specified in the roles management.
+     *
+     * Devices are split into categories. For each category and for each individual message the availability and execution
+     * level can be configured.
+     *
+     * The device interprets this message when it is communicated via the communication task and carries out the
+     * requested adjustments of the parameters.
+     *
+     * An external system or eiServer’s own communication tasks will communicate device messages to the device allowing
+     * them to execute the actions specified in their definition. The command Messages is used for this purpose. If it
+     * is not picked up by a communication task, it will simply remain in the system without impact.
+     *
      * @summary Retrieve all known device messages for a certain device
      *
      * @param mRID The device's mRID
