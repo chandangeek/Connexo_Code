@@ -228,7 +228,7 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
 
     @Override
     public long getVersion() {
-        return version;
+        return getBaseIssue().getVersion();
     }
 
     @Override
