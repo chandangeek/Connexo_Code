@@ -219,7 +219,7 @@ public class DeviceResource {
      * will be returned. If IDs are required in the URL for parent entities, then will be ignored when using the PROPFIND method.
      *
      * @summary List the fields available on this type of entity
-     * 
+     *
      * @return A list of field names that can be requested as parameter in the GET method on this entity type
      */
     @PROPFIND
