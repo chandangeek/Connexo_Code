@@ -74,6 +74,8 @@ public class DeviceResource {
      * @summary View device identified by mRID
      *
      * @param mRID The device's mRID
+     * @param uriInfo uriInfo
+     * @param fields field selection
      * @return Device information and links to related resources
      */
     @GET @Transactional
@@ -92,6 +94,9 @@ public class DeviceResource {
      * @summary View all devices
      *
      * @param queryParameters Paging parameters 'start' and 'limit'
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      * @return Device information and links to related resources
      */
     @GET @Transactional
@@ -110,6 +115,7 @@ public class DeviceResource {
      * @summary Create a new device
      *
      * @param info Payload describing the values for the to-be-created device
+     * @param uriInfo uriInfo
      *
      * @return location href to newly created device
      * @responseheader location href to newly created device
@@ -149,6 +155,7 @@ public class DeviceResource {
      *
      * @param mrid The device's mRID
      * @param info JSON description of new device field values
+     * @param uriInfo uriInfo
      * @return Device with updated fields or an error if something went wrong
      */
     @PUT @Transactional
