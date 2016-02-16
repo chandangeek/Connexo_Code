@@ -3,6 +3,7 @@ package com.elster.jupiter.issue.rest.response.issue;
 import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
 import com.elster.jupiter.issue.rest.response.IssueReasonInfo;
 import com.elster.jupiter.issue.rest.response.IssueStatusInfo;
+import com.elster.jupiter.issue.rest.response.IssueTypeInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -16,6 +17,7 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
     public IssueAssigneeInfo assignee;
     public DeviceInfo device;
     public String title;
+    public IssueTypeInfo issueType;
     public long creationDate;
     public long modTime;
     public long version;
@@ -40,6 +42,7 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
             } catch (ReflectiveOperationException e) {
             }
             this.title = issue.getTitle();
+            this.issueType = new IssueTypeInfo(issue.getReason().getIssueType());
             this.creationDate = issue.getCreateTime().toEpochMilli();
             this.modTime = issue.getModTime().toEpochMilli();
             this.version = issue.getVersion();

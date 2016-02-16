@@ -5,7 +5,6 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -24,8 +23,6 @@ public abstract class BaseResource {
     private IssueActionService issueActionService;
     private UserService userService;
     private MeteringService meteringService;
-    private MeteringGroupsService meteringGroupsService;
-
     private Thesaurus thesaurus;
 
     public BaseResource() {
@@ -72,17 +69,8 @@ public abstract class BaseResource {
         this.meteringService = meteringService;
     }
 
-    @Inject
-    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
-        this.meteringGroupsService = meteringGroupsService;
-    }
-
     protected MeteringService getMeteringService() {
         return meteringService;
-    }
-
-    protected MeteringGroupsService getMeteringGroupsService() {
-        return meteringGroupsService;
     }
 
     @Inject

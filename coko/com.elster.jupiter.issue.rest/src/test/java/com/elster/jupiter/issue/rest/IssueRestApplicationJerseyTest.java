@@ -9,17 +9,20 @@ import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
@@ -65,8 +68,6 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     @Mock
     MeteringService meteringService;
     @Mock
-    MeteringGroupsService meteringGroupsService;
-    @Mock
     UserService userService;
     @Mock
     NlsService nlsService;
@@ -104,7 +105,6 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(thesaurus);
         application.setIssueService(issueService);
         application.setMeteringService(meteringService);
-        application.setMeteringGroupsService(meteringGroupsService);
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setRestQueryService(restQueryService);
@@ -164,6 +164,55 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         return assignee;
     }
 
+    protected OpenIssue getDefaultIssue() {
+        return mockIssue(1L, getDefaultReason(), getDefaultStatus(), getDefaultAssignee(), getDefaultDevice());
+    }
+
+    protected User getDefaultUser() {
+        return mockUser(1, "Admin");
+    }
+
+    protected Meter getDefaultDevice() {
+        return mockDevice(1, "0.0.0.0.0.0.0.0");
+    }
+
+    protected Meter mockDevice(long id, String mrid) {
+        Meter meter = mock(Meter.class);
+        when(meter.getId()).thenReturn(id);
+        when(meter.getMRID()).thenReturn(mrid);
+        when(meter.getAmrId()).thenReturn(String.valueOf(id));
+        Optional<? extends MeterActivation> optionalMA = Optional.empty();
+        doReturn(optionalMA).when(meter).getCurrentMeterActivation();
+        AmrSystem amrSystem = mock(AmrSystem.class);
+        when(meter.getAmrSystem()).thenReturn(amrSystem);
+        when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);
+        return meter;
+    }
+
+    protected OpenIssue mockIssue(long id, IssueReason reason, IssueStatus status, IssueAssignee assingee, Meter meter) {
+        OpenIssue issue = mock(OpenIssue.class);
+        when(issue.getId()).thenReturn(id);
+        when(issue.getReason()).thenReturn(reason);
+        when(issue.getStatus()).thenReturn(status);
+        when(issue.getDueDate()).thenReturn(null);
+        when(issue.getAssignee()).thenReturn(assingee);
+        when(issue.getDevice()).thenReturn(meter);
+        when(issue.getCreateTime()).thenReturn(Instant.EPOCH);
+        when(issue.getModTime()).thenReturn(Instant.EPOCH);
+        when(issue.getVersion()).thenReturn(1L);
+        return issue;
+    }
+
+    protected IssueComment mockComment(long id, String text, User user) {
+        IssueComment comment = mock(IssueComment.class);
+        when(comment.getId()).thenReturn(id);
+        when(comment.getComment()).thenReturn(text);
+        when(comment.getCreateTime()).thenReturn(Instant.EPOCH);
+        when(comment.getVersion()).thenReturn(1L);
+        when(comment.getUser()).thenReturn(user);
+        return comment;
+    }
+
     protected IssueAssignee getDefaultAssignee(){
         return mockAssignee(1, "Admin", IssueAssignee.Types.USER);
     }
@@ -208,6 +257,13 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         return action;
     }
 
+    protected IssueAction mockIssueActionWithoutProperties(String name) {
+        IssueAction action = mock(IssueAction.class);
+        when(action.getDisplayName()).thenReturn(name);
+        when(action.getPropertySpecs()).thenReturn(Collections.emptyList());
+        return action;
+    }
+
     protected IssueActionType mockIssueActionType(long id, String name, IssueType issueType){
         IssueActionType type = mock(IssueActionType.class);
         IssueAction action = mockIssueAction(name);
@@ -217,9 +273,23 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         return type;
     }
 
+    protected IssueActionType mockIssueActionTypWithoutProperties(long id, String name, IssueType issueType){
+        IssueActionType type = mock(IssueActionType.class);
+        IssueAction action = mockIssueActionWithoutProperties(name);
+        when(type.getId()).thenReturn(id);
+        when(type.createIssueAction()).thenReturn(Optional.of(action));
+        when(type.getIssueType()).thenReturn(issueType);
+        return type;
+    }
+
     protected IssueActionType getDefaultIssueActionType(){
         IssueType issueType = getDefaultIssueType();
         return mockIssueActionType(1, "send", issueType);
+    }
+
+    protected IssueActionType getCloseIssueActionType(){
+        IssueType issueType = getDefaultIssueType();
+        return mockIssueActionTypWithoutProperties(1, "close", issueType);
     }
 
     protected CreationRule mockCreationRule(long id, String name) {

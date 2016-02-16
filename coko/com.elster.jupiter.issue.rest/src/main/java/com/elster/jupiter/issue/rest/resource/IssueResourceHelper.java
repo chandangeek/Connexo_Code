@@ -1,24 +1,35 @@
 package com.elster.jupiter.issue.rest.resource;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
+import com.elster.jupiter.issue.rest.request.IssueDueDateInfo;
+import com.elster.jupiter.issue.rest.request.IssueDueDateInfoAdapter;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
+import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
+import com.elster.jupiter.issue.rest.response.IssueAssigneeInfoAdapter;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.PropertyUtils;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueFilter;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
@@ -31,6 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -43,9 +55,11 @@ public class IssueResourceHelper {
     private final PropertyUtils propertyUtils;
     private final Thesaurus thesaurus;
     private final SecurityContext securityContext;
+    private final MeteringService meteringService;
+    private final UserService userService;
 
     @Inject
-    public IssueResourceHelper(TransactionService transactionService, IssueService issueService, IssueActionService issueActionService, IssueActionInfoFactory actionFactory, PropertyUtils propertyUtils, Thesaurus thesaurus, @Context SecurityContext securityContext) {
+    public IssueResourceHelper(TransactionService transactionService, IssueService issueService, IssueActionService issueActionService, MeteringService meteringService, UserService userService, IssueActionInfoFactory actionFactory, PropertyUtils propertyUtils, Thesaurus thesaurus, @Context SecurityContext securityContext) {
         this.transactionService = transactionService;
         this.issueService = issueService;
         this.issueActionService = issueActionService;
@@ -53,6 +67,8 @@ public class IssueResourceHelper {
         this.propertyUtils = propertyUtils;
         this.thesaurus = thesaurus;
         this.securityContext = securityContext;
+        this.meteringService = meteringService;
+        this.userService = userService;
     }
 
     public List<IssueActionTypeInfo> getListOfAvailableIssueActions(Issue issue) {
@@ -105,5 +121,56 @@ public class IssueResourceHelper {
         User author = (User) securityContext.getUserPrincipal();
         IssueComment comment = issue.addComment(request.getComment(), author).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
         return new IssueCommentInfo(comment);
+    }
+
+    public IssueFilter buildFilterFromQueryParameters(JsonQueryFilter jsonFilter) {
+        IssueFilter filter = new IssueFilter();
+        jsonFilter.getStringList(IssueRestModuleConst.STATUS).stream()
+                .flatMap(s -> issueService.findStatus(s).map(Stream::of).orElse(Stream.empty()))
+                .forEach(filter::addStatus);
+        if (jsonFilter.hasProperty(IssueRestModuleConst.REASON) && issueService.findReason(jsonFilter.getString(IssueRestModuleConst.REASON)).isPresent()) {
+            filter.setIssueReason(issueService.findReason(jsonFilter.getString(IssueRestModuleConst.REASON)).get());
+        }
+        if (jsonFilter.hasProperty(IssueRestModuleConst.METER) && meteringService.findEndDevice(jsonFilter.getString(IssueRestModuleConst.METER)).isPresent()) {
+            filter.addDevice(meteringService.findEndDevice(jsonFilter.getString(IssueRestModuleConst.METER)).get());
+        }
+        getAssignees(jsonFilter).stream().forEach(as -> {
+            String assigneeType = as.getType();
+            Long assigneeId = as.getId();
+            if (assigneeId != null && assigneeId > 0) {
+                if (IssueAssignee.Types.USER.equals(assigneeType)) {
+                    userService.getUser(assigneeId).ifPresent(filter::addAssignee);
+                }
+            } else if (assigneeId != null && assigneeId != 0) {
+                filter.setUnassignedSelected();
+            }
+        });
+        jsonFilter.getStringList(IssueRestModuleConst.ISSUE_TYPE).stream()
+                .flatMap(it -> issueService.findIssueType(it).map(Stream::of).orElse(Stream.empty()))
+                .forEach(filter::addIssueType);
+        getDueDates(jsonFilter).stream().forEach(dd -> filter.addDueDate(dd.startTime, dd.endTime));
+        return filter;
+    }
+
+    public List<IssueAssigneeInfo> getAssignees(JsonQueryFilter filter) {
+        IssueAssigneeInfoAdapter issueAssigneeInfoAdapter = new IssueAssigneeInfoAdapter();
+        return filter.getStringList(IssueRestModuleConst.ASSIGNEE).stream().map(ai -> {
+            try {
+                return issueAssigneeInfoAdapter.unmarshal(ai);
+            } catch (Exception ex){
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter");
+            }
+        }).collect(Collectors.toList());
+    }
+
+    public List<IssueDueDateInfo> getDueDates(JsonQueryFilter filter) {
+        IssueDueDateInfoAdapter issueDueDateInfoAdapter = new IssueDueDateInfoAdapter();
+        return filter.getStringList(IssueRestModuleConst.DUE_DATE).stream().map(dd -> {
+            try {
+                return issueDueDateInfoAdapter.unmarshal(dd);
+            } catch (Exception ex){
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter");
+            }
+        }).collect(Collectors.toList());
     }
 }
