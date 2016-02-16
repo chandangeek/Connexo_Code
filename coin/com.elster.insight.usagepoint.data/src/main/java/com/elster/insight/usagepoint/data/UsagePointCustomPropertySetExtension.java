@@ -89,4 +89,6 @@ public interface UsagePointCustomPropertySetExtension {
      * <li>current user has not sufficient privileges</li>
      */
     void setServiceCategoryCustomPropertySetValue(CustomPropertySet customPropertySet, CustomPropertySetValues customPropertySetValue);
+    Map<RegisteredCustomPropertySet, CustomPropertySetValues> getCustomPropertySetValues();
+    Map<RegisteredCustomPropertySet, CustomPropertySetValues> getCustomPropertySetValues(Instant effectiveTimeStamp);
 }

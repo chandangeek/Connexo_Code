@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +59,7 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
         return customPropertySets
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
-                .collect(Collectors.toMap(Function.identity(), rcps -> getCustomPropertySetValuesWithoutChecks(rcps, effectiveTimeStamp)));
+                .collect(Collectors.toMap(Function.identity(), rcps -> getCustomPropertySetValuesWithoutChecks(rcps, effectiveTimeStamp), (k1, k2) -> k1));
     }
 
     private CustomPropertySetValues getCustomPropertySetValuesWithoutChecks(RegisteredCustomPropertySet rcps, Instant effectiveTimeStamp) {
@@ -147,5 +148,17 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
                     .customPropertySetIsNotEditableByUser(this.thesaurus, customPropertySet.getName());
         }
         setCustomPropertySetValuesWithoutChecks(customPropertySet, customPropertySetValue);
+    }
+
+    @Override
+    public Map<RegisteredCustomPropertySet, CustomPropertySetValues> getCustomPropertySetValues() {
+        return getCustomPropertySetValues(this.clock.instant());
+    }
+
+    @Override
+    public Map<RegisteredCustomPropertySet, CustomPropertySetValues> getCustomPropertySetValues(Instant effectiveTimeStamp) {
+        List<RegisteredCustomPropertySet> allCustomPropertySets = new ArrayList<>(getServiceCategoryPropertySets());
+        allCustomPropertySets.addAll(getMetrologyCustomPropertySets());
+        return getCustomPropertySetValues(allCustomPropertySets, effectiveTimeStamp);
     }
 }
