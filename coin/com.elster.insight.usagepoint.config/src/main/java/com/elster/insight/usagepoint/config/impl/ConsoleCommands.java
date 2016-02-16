@@ -1,38 +1,36 @@
 package com.elster.insight.usagepoint.config.impl;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-
-import org.apache.felix.service.command.Descriptor;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+
+import org.apache.felix.service.command.Descriptor;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component(name = "com.elster.insight.usagepoint.config.console",
         service = ConsoleCommands.class,
@@ -55,7 +53,6 @@ public class ConsoleCommands {
 
     private volatile UsagePointConfigurationService usagePointConfigurationService;
     private volatile TransactionService transactionService;
-    private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MeteringService meteringService;
     private volatile ValidationService validationService;
 
@@ -134,13 +131,13 @@ public class ConsoleCommands {
             transactionService.builder()
                     .principal(() -> "console")
                     .run(() -> {
-                        MetrologyConfiguration mc = usagePointConfigurationService
+                        MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService
                                 .findMetrologyConfiguration(metrologyConfigName)
                                 .orElseThrow(() -> new IllegalArgumentException("Metrology configuration " + metrologyConfigName + " not found."));
-                        ValidationRuleSet vrs = validationService
+                        ValidationRuleSet validationRuleSet = validationService
                                 .getValidationRuleSet(ruleSetName)
                                 .orElseThrow(() -> new IllegalArgumentException("Rule set " + ruleSetName + " not found."));
-                        mc.addValidationRuleSet(vrs);
+                        usagePointConfigurationService.addValidationRuleSet(metrologyConfiguration, validationRuleSet);
                     });
         } catch (Exception e) {
             e.printStackTrace();
@@ -242,7 +239,7 @@ public class ConsoleCommands {
             e.printStackTrace();
         }
     }
-    
+
     @Descriptor("Activate Validation on a Usage Point")
     public void activateValidation(@Descriptor("Usage Point MRID") String mrid,
             @Descriptor("lastChecked (2015-05-14T10:15:30Z)") String lastChecked) {
@@ -263,7 +260,7 @@ public class ConsoleCommands {
             e.printStackTrace();
         }
     }
-    
+
     @Descriptor("Deactivate Validation on a Usage Point")
     public void deactivateValidation(@Descriptor("Usage Point MRID") String mrid) {
         try {
@@ -299,8 +296,8 @@ public class ConsoleCommands {
         return results;
     }
 
-    private ArrayList<IntervalReading> getLpReadings(String values, Instant timeStamp, int minutes) {
-        ArrayList<IntervalReading> results = new ArrayList<>();
+    private List<IntervalReading> getLpReadings(String values, Instant timeStamp, int minutes) {
+        List<IntervalReading> results = new ArrayList<>();
         for (String value : values.split(",")) {
             try {
                 results.add(IntervalReadingImpl.of(timeStamp, new BigDecimal(value)));
@@ -324,12 +321,7 @@ public class ConsoleCommands {
     }
 
     @Reference
-    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
-        this.threadPrincipalService = threadPrincipalService;
-    }
-
-    @Reference
-    public void setMetringService(MeteringService meteringService) {
+    public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
 
@@ -337,4 +329,5 @@ public class ConsoleCommands {
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
     }
+
 }

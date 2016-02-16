@@ -1,19 +1,19 @@
 package com.elster.insight.usagepoint.config.impl;
 
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.impl.errors.CannotManageCustomPropertySetOnActiveMetrologyConfiguration;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.impl.config.CannotManageCustomPropertySetOnActiveMetrologyConfiguration;
 import com.elster.jupiter.transaction.TransactionContext;
+
+import java.util.Optional;
+import java.util.function.Consumer;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.sql.SQLException;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,14 +31,14 @@ public class MetrologyConfigurationCPSUsageTestIT {
     }
 
     @AfterClass
-    public static void tearDown() throws SQLException {
+    public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 
     @After
     public void afterTest(){
         inTransaction(ctx -> {
-            findMetrologyConfiguration().ifPresent(mc -> mc.delete());
+            findMetrologyConfiguration().ifPresent(MetrologyConfiguration::delete);
             ctx.commit();
         });
     }

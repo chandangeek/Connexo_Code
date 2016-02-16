@@ -65,11 +65,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
-        </dependency>   
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cbo</artifactId>
-        </dependency> 
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>validation</artifactId>
@@ -82,23 +82,23 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>search</artifactId>
             <scope>test</scope>
-        </dependency> 
-        
+        </dependency>
+
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>ids</artifactId>
             <scope>test</scope>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>parties</artifactId>
             <scope>test</scope>
-        </dependency>  
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>fsm</artifactId>
             <scope>test</scope>
-        </dependency>              
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bootstrap</artifactId>
@@ -113,12 +113,12 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>messaging</artifactId>
             <scope>test</scope>
-        </dependency>         
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>messaging.h2</artifactId>
             <scope>test</scope>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>datavault</artifactId>
@@ -143,7 +143,7 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>properties</artifactId>
             <scope>test</scope>
-        </dependency>    
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time</artifactId>

@@ -3,35 +3,21 @@ package com.elster.insight.usagepoint.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 
-public class Installer {	
-	
-	final private DataModel dataModel;
-	final private EventService eventService;
-	
+public class Installer {
+
+	private final DataModel dataModel;
+
 	Installer(DataModel dataModel,EventService eventService) {
+        super();
 		this.dataModel = dataModel;
-		this.eventService = eventService;
 	}
-	
-	public void install(boolean executeDdl , boolean updateOrm , boolean createMasterData) {
+
+	public void install(boolean executeDdl, boolean updateOrm) {
         try {
             dataModel.install(executeDdl, updateOrm);
-            if (createMasterData) {
-                createMasterData();
-            }
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
-        }
-        createEventTypes();
-    }
-	
-	private void createMasterData() {
-	}
-
-    private void createEventTypes() {
-        for (EventType eventType : EventType.values()) {
-            eventType.install(eventService);
         }
     }
 
