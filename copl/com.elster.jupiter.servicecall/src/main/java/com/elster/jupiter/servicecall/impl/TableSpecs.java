@@ -68,7 +68,7 @@ public enum TableSpecs {
                     .reverseMap(ServiceCallTypeImpl.Fields.customPropertySets.fieldName())
                     .composition()
                     .add();
-            table.foreignKey("FK_DTC_CPS")
+            table.foreignKey("FK_SCS_CPS")
                     .references(RegisteredCustomPropertySet.class)
                     .on(customPropertySet)
                     .onDelete(DeleteRule.CASCADE)

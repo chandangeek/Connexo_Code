@@ -1,5 +1,8 @@
 package com.elster.jupiter.servicecall.impl.gogo;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -22,6 +25,7 @@ public class ServiceCallsCommands {
     private volatile ServiceCallService serviceCallService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile CustomPropertySetService customPropertySetService;
 
     @Reference
     public void setServiceCallService(ServiceCallService serviceCallService) {
@@ -38,6 +42,11 @@ public class ServiceCallsCommands {
         this.threadPrincipalService = threadPrincipalService;
     }
 
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
+
     public void serviceCallTypes() {
         serviceCallService.getServiceCallTypes().stream().forEach(sct -> System.out.println(sct.getName()+" "+sct.getVersionName()));
     }
@@ -50,7 +59,7 @@ public class ServiceCallsCommands {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            serviceCallService.createServiceCallType(name, versionName).add();
+            serviceCallService.createServiceCallType(name, versionName).customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).get(0)).add();
             context.commit();
         }
     }

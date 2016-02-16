@@ -1,10 +1,8 @@
 package com.elster.jupiter.servicecall.impl;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.EditPrivilege;
-import com.elster.jupiter.cps.PersistenceSupport;
-import com.elster.jupiter.cps.ViewPrivilege;
+import com.elster.jupiter.cps.*;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -30,8 +28,9 @@ public class ServiceCallTypeOneCustomPropertySet implements CustomPropertySet<Se
     }
 
     @Inject
-    public ServiceCallTypeOneCustomPropertySet(PropertySpecService propertySpecService) {
+    public ServiceCallTypeOneCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService) {
         this.propertySpecService = propertySpecService;
+        customPropertySetService.addCustomPropertySet(this);
     }
 
     public volatile PropertySpecService propertySpecService;

@@ -17,10 +17,13 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
+import com.elster.jupiter.servicecall.impl.ServiceCallTypeOneCustomPropertySet;
 import com.elster.jupiter.servicecall.impl.TranslationKeys;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -82,6 +85,7 @@ public class ServiceCallIT {
 
     private Clock clock;
     private CustomPropertySetService customPropertySetService;
+    private ServiceCallTypeOneCustomPropertySet serviceCallTypeOneCustomPropertySet;
 
     private class MockModule extends AbstractModule {
 
@@ -91,6 +95,7 @@ public class ServiceCallIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(MessageInterpolator.class).toInstance(messageInterpolator);
+//            bind(ServiceCallTypeOneCustomPropertySet.class).to(ServiceCallTypeOneCustomPropertySet.class);
         }
     }
 
@@ -113,6 +118,8 @@ public class ServiceCallIT {
                     new DataVaultModule(),
                     new FiniteStateMachineModule(),
                     new CustomPropertySetsModule(),
+                    new TimeModule(),
+                    new BasicPropertiesModule(),
                     new ServiceCallModule()
             );
         } catch (Exception e) {
@@ -127,6 +134,7 @@ public class ServiceCallIT {
                 customPropertySetService = injector.getInstance(CustomPropertySetService.class);
                 messageService = injector.getInstance(MessageService.class);
                 serviceCallService = injector.getInstance(ServiceCallService.class);
+                serviceCallTypeOneCustomPropertySet = injector.getInstance(ServiceCallTypeOneCustomPropertySet.class);
                 return null;
             }
         });
@@ -195,6 +203,20 @@ public class ServiceCallIT {
             assertThat(serviceCallTypes.get(0).getName()).isEqualTo("primer");
             assertThat(serviceCallTypes.get(0).getVersionName()).isEqualTo("v1");
             assertThat(serviceCallTypes.get(0).getLogLevel()).isEqualTo(LogLevel.WARNING);
+        }
+    }
+
+    @Test
+    public void testCreateServiceCallTypeWithCustomPropertySet() throws Exception {
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("CustomTest", "CustomVersion").
+                    customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).get(0)).add();
+
+            List<ServiceCallType> serviceCallTypes = serviceCallService.getServiceCallTypes().find();
+            assertThat(serviceCallTypes).hasSize(1);
+            assertThat(serviceCallTypes.get(0).getName()).isEqualTo("CustomTest");
+            assertThat(serviceCallTypes.get(0).getVersionName()).isEqualTo("CustomVersion");
+            assertThat(serviceCallTypes.get(0).getCustomPropertySets()).hasSize(1);
         }
     }
 

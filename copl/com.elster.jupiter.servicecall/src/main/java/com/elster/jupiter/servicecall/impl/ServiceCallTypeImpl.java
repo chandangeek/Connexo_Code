@@ -156,6 +156,7 @@ public class ServiceCallTypeImpl implements ServiceCallType {
         Objects.requireNonNull(customPropertySet);
         ServiceCallTypeCustomPropertySetUsageImpl usage = dataModel.getInstance(ServiceCallTypeCustomPropertySetUsageImpl.class);
         usage.initialize(this, customPropertySet);
+        this.customPropertySets.add(usage);
     }
 
     @Override

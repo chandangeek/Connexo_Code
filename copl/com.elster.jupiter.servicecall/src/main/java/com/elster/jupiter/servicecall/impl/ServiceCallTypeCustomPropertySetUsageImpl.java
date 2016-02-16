@@ -30,8 +30,8 @@ public class ServiceCallTypeCustomPropertySetUsageImpl implements ServiceCallTyp
     @IsPresent
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = ValueReference.absent();
 
-    ServiceCallTypeCustomPropertySetUsageImpl initialize(ServiceCallType deviceType, RegisteredCustomPropertySet registeredCustomPropertySet) {
-        this.serviceCallType.set(deviceType);
+    ServiceCallTypeCustomPropertySetUsageImpl initialize(ServiceCallType serviceCallType, RegisteredCustomPropertySet registeredCustomPropertySet) {
+        this.serviceCallType.set(serviceCallType);
         this.registeredCustomPropertySet.set(registeredCustomPropertySet);
         return this;
     }
