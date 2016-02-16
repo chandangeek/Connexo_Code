@@ -4,7 +4,6 @@ import com.elster.jupiter.properties.PropertySpec;
 
 public class ServiceCallTypeCustomPropertySetAttributeInfo {
     public String name;
-    public boolean required;
 
     public ServiceCallTypeCustomPropertySetAttributeInfo() {
     }
@@ -12,6 +11,5 @@ public class ServiceCallTypeCustomPropertySetAttributeInfo {
     public ServiceCallTypeCustomPropertySetAttributeInfo(PropertySpec propertySpec) {
         this();
         this.name = propertySpec.getName();
-        this.required = propertySpec.isRequired();
     }
 }

@@ -22,9 +22,6 @@ public class ServiceCallTypeCustomPropertySetInfo {
 
     public long id;
     public String name;
-    public boolean isVersioned;
-    public Set<ViewPrivilege> viewPrivileges;
-    public Set<EditPrivilege> editPrivileges;
     public List<ServiceCallTypeCustomPropertySetAttributeInfo> attributes;
     public ServiceCallTypeCustomPropertySetInfo() {
 
@@ -33,9 +30,6 @@ public class ServiceCallTypeCustomPropertySetInfo {
     public ServiceCallTypeCustomPropertySetInfo(RegisteredCustomPropertySet registeredCustomPropertySet) {
         this.id = registeredCustomPropertySet.getId();
         this.name = registeredCustomPropertySet.getCustomPropertySet().getName();
-        this.viewPrivileges = registeredCustomPropertySet.getViewPrivileges();
-        this.editPrivileges = registeredCustomPropertySet.getEditPrivileges();
-        this.isVersioned = registeredCustomPropertySet.getCustomPropertySet().isVersioned();
         this.attributes = getAttributes(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs());
     }
 
