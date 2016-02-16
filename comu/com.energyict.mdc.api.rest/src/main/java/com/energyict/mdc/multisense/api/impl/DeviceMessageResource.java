@@ -154,6 +154,7 @@ public class DeviceMessageResource {
      * @summary Create a new device message for a device
      *
      * @param mRID The device's mRID
+     * @param deviceMessageInfo payload describing the values for the to-be-created device messsage
      * @return url to newly created device message
      * @responseheader location href to newly created device message
      */

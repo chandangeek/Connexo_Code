@@ -56,10 +56,10 @@ public class ComTaskExecutionResource {
      * parameter was provided, all existing fields will be returned. Note that empty fields, that is, fields without value,
      * will not be included in the response.
      *
-     * @summary Fetch single communication task execution by unique id
+     * @summary Fetch single communication task execution 
      *
      * @param mRID The device's mRID
-     * @param comTaskExecutionId
+     * @param comTaskExecutionId Id of the communication task execution
      * @return Communication task execution
      */
     @GET @Transactional
