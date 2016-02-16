@@ -2,7 +2,7 @@ Ext.define('Idc.controller.Detail', {
     extend: 'Isu.controller.IssueDetail',
 
     stores: [
-        'Idc.store.Issues',
+        'Isu.store.Issues',
         'Isu.store.IssueActions',
         'Isu.store.Clipboard'
     ],
@@ -50,6 +50,6 @@ Ext.define('Idc.controller.Detail', {
     },
 
     showOverview: function (id) {
-        this.callParent([id, 'Idc.model.Issue', 'Idc.store.Issues', 'data-collection-issue-detail', 'workspace/datacollectionissues', 'datacollection']);
+        this.callParent([id, 'Idc.model.Issue', 'Isu.store.Issues', 'data-collection-issue-detail', 'workspace/datacollectionissues', 'datacollection']);
     }
 });

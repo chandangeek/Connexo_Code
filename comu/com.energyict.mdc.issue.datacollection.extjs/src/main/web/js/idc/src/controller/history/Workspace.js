@@ -15,7 +15,7 @@ Ext.define('Idc.controller.history.Workspace', {
             disabled: true,
             items: {
                 issues: {
-                    title: Uni.I18n.translate('breadcrumb.datacollectionissues', 'IDC', 'Data collection issues'),
+                    title: Uni.I18n.translate('general.issues', 'IDC', 'Issues'),
                     route: 'issues',
                     controller: 'Isu.controller.IssuesOverview',
                     action: 'showOverview',
