@@ -43,6 +43,17 @@ public class DeviceTypeResource {
         this.exceptionFactory = exceptionFactory;
     }
 
+    /**
+     * DeviceType defines the basic common attributes of a
+     * physical (or virtual) device type.
+     * Each physical device is an instance referring to
+     * a specific DeviceType.
+     *
+     * @summary Fetch device type
+     *
+     * @param id Id of the device type
+     * @return Uniquely identofied device type
+     */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{deviceTypeId}")
@@ -54,6 +65,12 @@ public class DeviceTypeResource {
     }
 
     /**
+     * DeviceType defines the basic common attributes of a
+     * physical (or virtual) device type.
+     * Each physical device is an instance referring to
+     * a specific DeviceType.
+     *
+     * @summary Fetch a set of device types
      *
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
