@@ -3,9 +3,12 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
 import com.elster.insight.usagepoint.config.Formula;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.insight.usagepoint.config.impl.MetrologyInMemoryBootstrapModule;
 import com.elster.insight.usagepoint.config.impl.UsagePointConfigModule;
+import com.elster.insight.usagepoint.config.impl.UsagePointTestCustomPropertySet;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -71,61 +74,12 @@ import static org.assertj.core.api.Assertions.fail;
 @RunWith(MockitoJUnitRunner.class)
 public class FormulaCrudTest {
 
-    private static Injector injector;
-    private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
-    @Mock
-    DataModel dataModel;
-
-
-    private static class MockModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(BundleContext.class).toInstance(mock(BundleContext.class));
-            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-            bind(SearchService.class).toInstance(mock(SearchService.class));
-            bind(FileImportService.class).toInstance(mock(FileImportService.class));
-        }
-    }
-
-    private static final boolean printSql = false;
+    private static MetrologyInMemoryBootstrapModule inMemoryBootstrapModule = new MetrologyInMemoryBootstrapModule();
 
     @BeforeClass
     public static void setUp() {
-        injector = Guice.createInjector(
-                new MockModule(),
-                inMemoryBootstrapModule,
-                new UsagePointConfigModule(),
-                new IdsModule(),
-                new MeteringModule(),
-                new PartyModule(),
-                new FiniteStateMachineModule(),
-                new UserModule(),
-                new EventsModule(),
-                new InMemoryMessagingModule(),
-                new DomainUtilModule(),
-                new OrmModule(),
-                new UtilModule(),
-                new ThreadSecurityModule(),
-                new DataVaultModule(),
-                new PubSubModule(),
-                new TransactionModule(printSql),
-                new NlsModule(),
-                new AppServiceModule(),
-                new ValidationModule(),
-                new MeteringGroupsModule(),
-                new TaskModule(),
-                new BasicPropertiesModule(),
-                new TimeModule()
-        );
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
-            injector.getInstance(ThreadPrincipalService.class);
-            injector.getInstance(FiniteStateMachineService.class);
-            injector.getInstance(ValidationService.class);
-            injector.getInstance(UsagePointConfigurationService.class);
-            ctx.commit();
-        }
-
+        inMemoryBootstrapModule.activate();
     }
 
     @AfterClass
@@ -134,15 +88,15 @@ public class FormulaCrudTest {
     }
 
     private UsagePointConfigurationService getUsagePointConfigurationService() {
-        return injector.getInstance(UsagePointConfigurationService.class);
+        return inMemoryBootstrapModule.getUsagePointConfigurationService();
     }
 
     private TransactionService getTransactionService() {
-        return injector.getInstance(TransactionService.class);
+        return inMemoryBootstrapModule.getTransactionService();
     }
 
     @Test
-    public void testSimpleFunctionCallCrud()  {
+    public void test3LevelNodeStructureCrud()  {
 
         Formula.Mode myMode = Formula.Mode.AUTO;
         Function myFunction = Function.MAX;
