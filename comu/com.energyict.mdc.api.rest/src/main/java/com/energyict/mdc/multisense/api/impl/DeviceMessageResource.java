@@ -86,7 +86,9 @@ public class DeviceMessageResource {
      *
      * @param mRID The device's mRID
      * @param messageId The device message identifier
-     * @return
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @return Uniquely identified device message
      */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
@@ -125,6 +127,9 @@ public class DeviceMessageResource {
      * @summary Retrieve all known device messages for a certain device
      *
      * @param mRID The device's mRID
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
@@ -155,6 +160,7 @@ public class DeviceMessageResource {
      *
      * @param mRID The device's mRID
      * @param deviceMessageInfo payload describing the values for the to-be-created device messsage
+     * @param uriInfo uriInfo
      * @return url to newly created device message
      * @responseheader location href to newly created device message
      */
@@ -208,6 +214,7 @@ public class DeviceMessageResource {
      *
      * @param mRID The device's mRID
      * @param messageId The device message identifier
+     * @param uriInfo uriInfo
      * @return Device message
      */
     @PUT @Transactional
@@ -257,6 +264,7 @@ public class DeviceMessageResource {
      *
      * @param mRID The device's mRID
      * @param messageId The device message identifier
+     * @param uriInfo uriInfo
      * @return Revoked device message
      * @statuscode 200 If the device message was revoked
      */

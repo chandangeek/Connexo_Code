@@ -50,6 +50,8 @@ public class DeviceMessageCategoryResource {
      * @summary Get a device message category
      *
      * @param messageCategoryId Id of the device message category
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
      * @return Uniquely identified device message category
      */
     @GET @Transactional
@@ -67,6 +69,9 @@ public class DeviceMessageCategoryResource {
      * Models the category of a device message.
      *
      * @summary Get a set of device message categories
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      *
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.

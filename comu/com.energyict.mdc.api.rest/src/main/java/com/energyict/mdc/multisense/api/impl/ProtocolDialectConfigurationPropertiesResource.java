@@ -55,6 +55,8 @@ public class ProtocolDialectConfigurationPropertiesResource {
      * @param deviceTypeId Id of the device type
      * @param deviceConfigId Id of the device configuration
      * @param id Id of the protocol property set
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
      * @return The uniquely identified property set
      */
     @GET
@@ -95,6 +97,9 @@ public class ProtocolDialectConfigurationPropertiesResource {
      *
      * @param deviceTypeId Id of the device type
      * @param deviceConfigId Id of the device configuration
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
