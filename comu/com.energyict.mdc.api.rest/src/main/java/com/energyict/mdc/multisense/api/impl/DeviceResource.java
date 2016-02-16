@@ -106,7 +106,10 @@ public class DeviceResource {
     }
 
     /**
+     * Adds a new device to the system
+     *
      * @summary Create a new device
+     *
      * @param info Payload describing the values for the to-be-created device
      * @param uriInfo added by framework
      * @return location href to newly created device
@@ -141,7 +144,10 @@ public class DeviceResource {
     }
 
     /**
+     * Update an existing device
+     *
      * @summary update a device with the provided values
+     *
      * @param mrid The device's mRID
      * @param info JSON description of new device field values
      * @return Device with updated fields or an error if something went wrong
