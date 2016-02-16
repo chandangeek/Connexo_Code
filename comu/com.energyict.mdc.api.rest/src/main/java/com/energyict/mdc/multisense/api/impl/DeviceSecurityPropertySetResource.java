@@ -70,6 +70,8 @@ public class DeviceSecurityPropertySetResource {
      *
      * @param mrid mRID of the device
      * @param deviceSecurityPropertySetId Id of the device's security set
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
      * @return Uniquely identified security property set
      */
     @GET
@@ -97,6 +99,9 @@ public class DeviceSecurityPropertySetResource {
      * @summary Fetch a SET OF device security property sets
      *
      * @param mrid mRID of the device
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      *
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
@@ -130,6 +135,7 @@ public class DeviceSecurityPropertySetResource {
      * @param mrid mRID of the device
      * @param deviceSecurityPropertySetId Id of the device's security set up update
      * @param propertySetInfo Payload describing the updated values for the security set
+     * @param uriInfo uriInfo
      * @return Updated security set
      */
     @PUT
