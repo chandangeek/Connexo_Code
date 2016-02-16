@@ -4,10 +4,7 @@ Ext.define('Scs.view.Setup', {
     router: null,
 
     requires: [
-        'Uni.view.notifications.NoItemsFoundPanel',
-        'Scs.view.Grid',
-        'Scs.view.Preview',
-        'Scs.view.ActionMenu',
+        'Scs.view.ServiceCallPreviewContainer',
         'Scs.view.ServiceCallFilter'
     ],
 
@@ -22,27 +19,12 @@ Ext.define('Scs.view.Setup', {
                     xtype: 'service-call-filter'
                 },
                 {
-                    xtype: 'preview-container',
-                    grid: {
-                        xtype: 'servicecalls-grid',
-                        itemId: 'grd-service-calls',
-                        router: me.router
-                    },
-                    emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        itemId: 'no-service-calls',
-                        title: Uni.I18n.translate('serviceCalls.empty.title', 'SCS', 'No service calls found'),
-                        reasons: [
-                            Uni.I18n.translate('serviceCalls.empty.list.item1', 'SCS', 'There are no service calls in the system')
-                        ]
-                    },
-                    previewComponent: {
-                        xtype: 'servicecalls-preview',
-                        itemId: 'pnl-servicecalls-preview'
-                    }
+                    xtype: 'service-call-preview-container',
+                    router: me.router
                 }
             ]
         };
+
 
         me.callParent(arguments);
     }

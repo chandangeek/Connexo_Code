@@ -16,7 +16,7 @@ Ext.define('Scs.view.Landing', {
             items: [
                 {
                     ui: 'large',
-                    title: me.serviceCallId,
+                    title: me.title === 'none' ? '' : me.serviceCallId,
                     flex: 1,
                     items: {
                         xtype: 'scs-landing-page-form',

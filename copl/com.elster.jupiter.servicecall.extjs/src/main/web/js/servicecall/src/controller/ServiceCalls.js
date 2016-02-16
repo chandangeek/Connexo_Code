@@ -3,7 +3,9 @@ Ext.define('Scs.controller.ServiceCalls', {
 
     views: [
         'Scs.view.Setup',
-        'Scs.view.Landing'
+        'Scs.view.Landing',
+        'Scs.view.SetupOverview',
+        'Scs.view.SetupContainer'
     ],
     stores: [
         'Scs.store.ServiceCalls'
@@ -14,13 +16,13 @@ Ext.define('Scs.controller.ServiceCalls', {
     refs: [
         {
             ref: 'page',
-            selector: 'servicecalls-setup'
+            selector: 'service-call-preview-container'
         }
     ],
 
     init: function () {
         this.control({
-            'servicecalls-setup servicecalls-grid': {
+            'service-call-preview-container servicecalls-grid': {
                 select: this.showPreview
             },
             'scs-action-menu': {
@@ -31,6 +33,7 @@ Ext.define('Scs.controller.ServiceCalls', {
 
     showServiceCalls: function() {
         var me = this,
+            store = Ext.getStore('Scs.store.ServiceCalls'),
             view = Ext.widget('servicecalls-setup', {
                 router: me.getController('Uni.controller.history.Router')
             });
@@ -50,15 +53,15 @@ Ext.define('Scs.controller.ServiceCalls', {
             me.getApplication().fireEvent('servicecallload', arguments);
             record = store.getAt(store.find('internalId', servicecallId));
             if (record.get('hasChildren')) {
-                view = Ext.widget('servicecalls-setup', {
-                    router: me.getController('Uni.controller.history.Router')
+                view = Ext.widget('servicecalls-setup-overview', {
+                    router: me.getController('Uni.controller.history.Router'),
+                    serviceCallId: servicecallId
                 });
             } else {
                 view = Ext.widget('scs-landing-page', {serviceCallId: servicecallId});
-                view.down('scs-landing-page-form').updateLandingPage(record);
 
             }
-
+            view.down('scs-landing-page-form').updateLandingPage(record);
             me.getApplication().fireEvent('changecontentevent', view);
         }
     },
