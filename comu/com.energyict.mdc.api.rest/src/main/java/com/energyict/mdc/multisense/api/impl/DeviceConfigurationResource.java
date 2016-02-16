@@ -45,6 +45,18 @@ public class DeviceConfigurationResource {
         this.exceptionFactory = exceptionFactory;
     }
 
+    /**
+     * Device configurations are used to customise or limit some of the functionality of the device type, but also
+     * configure additional parameters to interact with the physical device. The device configuration will determine
+     * the actual register specifications together with the number of channels. It also contains information on security
+     * levels, connection methods, etc.
+     *
+     * @summary Fetch a device configuration
+     *
+     * @param deviceTypeId Id of the devuce type
+     * @param id Id of the device configuration
+     * @return Uniquely identified device configuration
+     */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{deviceConfigId}")
@@ -61,8 +73,14 @@ public class DeviceConfigurationResource {
     }
 
     /**
+     * Device configurations are used to customise or limit some of the functionality of the device type, but also
+     * configure additional parameters to interact with the physical device. The device configuration will determine
+     * the actual register specifications together with the number of channels. It also contains information on security
+     * levels, connection methods, etc.
      *
-     * @param deviceTypeId
+     * @summary Fetch a set of device configurations
+     *
+     * @param deviceTypeId Id of the devuce type
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
