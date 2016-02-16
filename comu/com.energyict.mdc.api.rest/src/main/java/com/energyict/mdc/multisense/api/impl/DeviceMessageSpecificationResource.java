@@ -58,6 +58,8 @@ public class DeviceMessageSpecificationResource {
      *
      * @param deviceMessageCategoryId Id of the device message category
      * @param deviceMessageSpecificationId Id of the device message specification
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
      * @return Uniquely identified device message specification
      */
     @GET @Transactional
@@ -91,6 +93,9 @@ public class DeviceMessageSpecificationResource {
      * @summary Get a set of device message specifications
      *
      * @param deviceMessageCategoryId Id of the device message category
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
