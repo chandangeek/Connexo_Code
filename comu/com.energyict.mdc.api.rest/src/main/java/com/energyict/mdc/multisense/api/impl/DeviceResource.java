@@ -92,7 +92,6 @@ public class DeviceResource {
      * @summary View all devices
      *
      * @param queryParameters Paging parameters 'start' and 'limit'
-     * @param uriInfo added by Jersey framework
      * @return Device information and links to related resources
      */
     @GET @Transactional
@@ -111,7 +110,7 @@ public class DeviceResource {
      * @summary Create a new device
      *
      * @param info Payload describing the values for the to-be-created device
-     * @param uriInfo added by framework
+     *
      * @return location href to newly created device
      * @responseheader location href to newly created device
      */
@@ -187,8 +186,12 @@ public class DeviceResource {
 
 
     /**
-     * @summary Delete a device identified by mRID
+     * Delete a device identified by mRID
+     *
+     * @summary Delete a device
+     *
      * @param mrid The device's unique mRID identifier
+     *
      * @return No content
      */
     @DELETE @Transactional
@@ -216,6 +219,7 @@ public class DeviceResource {
      * will be returned. If IDs are required in the URL for parent entities, then will be ignored when using the PROPFIND method.
      *
      * @summary List the fields available on this type of entity
+     * 
      * @return A list of field names that can be requested as parameter in the GET method on this entity type
      */
     @PROPFIND
