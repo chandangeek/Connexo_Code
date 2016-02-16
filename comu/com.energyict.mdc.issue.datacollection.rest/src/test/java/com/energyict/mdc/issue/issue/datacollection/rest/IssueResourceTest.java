@@ -40,50 +40,6 @@ import static org.mockito.Mockito.*;
 public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest {
 
     @Test
-    public void testGetAllIssuesWithoutParameters() {
-        Response response = target("/issues").request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-    }
-
-    @Test
-    public void testGetAllIssuesWithoutStartParamter() {
-        Response response = target("/issues").queryParam(LIMIT, "10").request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-    }
-
-    @Test
-    public void testGetAllIssuesWithoutLimitParamter() {
-        Response response = target("/issues").queryParam(START, "0").request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-    }
-
-    @Test
-    public void testGetAllIssuesNominalCase() {
-        when(deviceService.findDeviceById(anyLong())).thenReturn(Optional.<Device>empty());
-        Optional<IssueStatus> status = Optional.of(getDefaultStatus());
-        when(issueService.findStatus("open")).thenReturn(status);
-
-        Finder<? extends IssueDataCollection> issueFinder = mock(Finder.class);
-        doReturn(issueFinder).when(issueDataCollectionService).findIssues(any(IssueDataCollectionFilter.class), anyVararg());
-
-        Optional<IssueType> issueType = Optional.of(getDefaultIssueType());
-        when(issueService.findIssueType("datacollection")).thenReturn(issueType);
-
-        List<? extends IssueDataCollection> issues = Arrays.asList(getDefaultIssue(), getDefaultIssue());
-        doReturn(issues).when(issueFinder).find();
-
-        String filter = URLEncoder.encode("[{\"property\":\"status\",\"value\":[\"open\"]}]");
-        Map<?, ?> map = target("/issues").queryParam(FILTER, filter).queryParam(START, "0").queryParam(LIMIT, "1").request().get(Map.class);
-        assertThat(map.get("total")).isEqualTo(2);
-
-        List<?> data = (List<?>) map.get("data");
-        assertThat(data).hasSize(1);
-
-        Map<?, ?> issueMap = (Map<?, ?>) data.get(0);
-        assertDefaultIssueMap(issueMap);
-    }
-
-    @Test
     public void testGetIssueById() {
         when(deviceService.findDeviceById(anyLong())).thenReturn(Optional.<Device>empty());
         Optional<IssueDataCollection> issue = Optional.of(getDefaultIssue());
@@ -103,67 +59,6 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
     }
 
     @Test
-    public void testGetAllComments() {
-        OpenIssueDataCollection issue = getDefaultIssue();
-        doReturn(Optional.of(issue)).when(issueDataCollectionService).findIssue(1);
-
-        List<IssueComment> comments = Arrays.asList(mockComment(1L, "My comment", getDefaultUser()));
-
-        Query<IssueComment> commentsQuery = mock(Query.class);
-        when(commentsQuery.select(Matchers.<Condition>anyObject(), Matchers.<Order>anyVararg())).thenReturn(comments);
-
-        when(issueService.query(IssueComment.class, User.class)).thenReturn(commentsQuery);
-        Map<?, ?> map = target("/issues/1/comments").request().get(Map.class);
-
-        assertThat(map.get("total")).isEqualTo(1);
-
-        Map<?, ?> commentMap = (Map<?, ?>) ((List<?>) map.get("comments")).get(0);
-
-        assertThat(commentMap.get("id")).isEqualTo(1);
-        assertThat(commentMap.get("comment")).isEqualTo("My comment");
-        assertThat(commentMap.get("creationDate")).isEqualTo(0);
-        assertThat(commentMap.get("version")).isEqualTo(1);
-
-        Map<?, ?> authorMap = (Map<?, ?>) commentMap.get("author");
-
-        assertThat(authorMap.get("id")).isEqualTo(1);
-        assertThat(authorMap.get("name")).isEqualTo("Admin");
-    }
-
-    @Test
-    public void testPostComment() {
-        OpenIssueDataCollection issue = mock(OpenIssueDataCollection.class);
-        doReturn(Optional.of(issue)).when(issueDataCollectionService).findIssue(1L);
-        IssueComment comment = mock(IssueComment.class);
-        when(issue.addComment(Matchers.anyString(), Matchers.any())).thenReturn(Optional.of(comment));
-        when(comment.getCreateTime()).thenReturn(Instant.now());
-        User user = mockUser(1, "user");
-        when(comment.getUser()).thenReturn(user);
-
-        Map<String, String> params = new HashMap<>(1);
-        params.put("comment", "Comment");
-        Entity<Map<String, String>> json = Entity.json(params);
-
-        Response response = target("/issues/1/comments").request().post(json);
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-    }
-
-    @Test
-    public void testPostEmptyComment() {
-        OpenIssueDataCollection issue = mock(OpenIssueDataCollection.class);
-        doReturn(Optional.of(issue)).when(issueDataCollectionService).findIssue(1L);
-        IssueComment comment = mock(IssueComment.class);
-        when(issue.addComment(Matchers.anyString(), Matchers.any())).thenReturn(Optional.empty());
-        Map<String, String> params = new HashMap<>(0);
-        Entity<Map<String, String>> json = Entity.json(params);
-
-        Response response = target("/issues/1/comments").request().post(json);
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-    }
-
-    @Test
     public void testCloseAction() {
         CloseIssueRequest request = new CloseIssueRequest();
         EntityReference issueRef = new EntityReference();
@@ -180,56 +75,6 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         Entity<CloseIssueRequest> json = Entity.json(request);
         Response response = target("issues/close").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-    }
-
-    @Test
-    public void testAssignAction() {
-        Entity<AssignIssueRequest> json = Entity.json(new AssignIssueRequest());
-        Response response = target("issues/assign").request().put(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-    }
-
-    @Test
-    public void testPerformAction() {
-        Optional<IssueDataCollection> issue = Optional.of(getDefaultIssue());
-        doReturn(issue).when(issueDataCollectionService).findIssue(1);
-        doReturn(issue).when(issueDataCollectionService).findAndLockIssueDataCollectionByIdAndVersion(1, 1);
-
-        Optional<IssueActionType> mockActionType = Optional.of(getDefaultIssueActionType());
-        when(issueActionService.findActionType(1)).thenReturn(mockActionType);
-
-        PerformActionRequest request = new PerformActionRequest();
-        request.id = 1;
-        request.issue = new IssueShortInfo();
-        request.issue.version = 1L;
-
-        Response response = target("issues/1/actions/1").request().put(Entity.json(request));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-    }
-
-    @Test
-    public void testPerformActionOnUnexistingIssue() {
-        when(issueDataCollectionService.findIssue(1123)).thenReturn(Optional.empty());
-        when(issueDataCollectionService.findAndLockIssueDataCollectionByIdAndVersion(1123, 1)).thenReturn(Optional.empty());
-
-        PerformActionRequest info = new PerformActionRequest();
-        info.issue = new IssueShortInfo();
-        info.issue.version = 1L;
-        Response response = target("issues/1123/actions/1").request().put(Entity.json(info));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-    }
-
-    @Test
-    public void testPerformUnexistingAction() {
-        Optional<IssueDataCollection> issue = Optional.of(getDefaultIssue());
-        doReturn(issue).when(issueDataCollectionService).findIssue(1);
-        when(issueActionService.findActionType(1)).thenReturn(Optional.empty());
-
-        PerformActionRequest request = new PerformActionRequest();
-        request.id = 1;
-
-        Response response = target("issues/1/action").request().put(Entity.json(request));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     private void assertDefaultIssueMap(Map<?, ?> issueMap) {

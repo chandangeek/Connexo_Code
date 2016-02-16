@@ -9,14 +9,7 @@ import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.rest.IssueDataCollectionApplication;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.issue.share.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.IssueAction;
-import com.elster.jupiter.issue.share.entity.AssignmentRule;
-import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.DueInType;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
-import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
@@ -28,15 +21,11 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
 import javax.ws.rs.core.Application;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import org.mockito.Mock;
@@ -151,97 +140,8 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         return mockAssignee(1, "Admin", IssueAssignee.Types.USER);
     }
 
-    protected AssignmentRule mockAssignmentRule(long id, String title, String description, long version, IssueAssignee assignee) {
-        AssignmentRule rule = mock(AssignmentRule.class);
-        when(rule.getId()).thenReturn(id);
-        when(rule.getTitle()).thenReturn(title);
-        when(rule.getDescription()).thenReturn(description);
-        when(rule.getVersion()).thenReturn(version);
-        when(rule.getAssignee()).thenReturn(assignee);
-        return rule;
-    }
-
-    protected AssignmentRule getDefaultAssignmentRule() {
-        IssueAssignee assignee = getDefaultAssignee();
-        return mockAssignmentRule(1, "Assignment Rule", "Description", 1, assignee);
-    }
-
-    protected CreationRuleTemplate mockCreationRuleTemplate(String uuid, String name, String description, IssueType issueType, List<PropertySpec> propertySpecs) {
-        CreationRuleTemplate template = mock(CreationRuleTemplate.class);
-        when(template.getName()).thenReturn(name);
-        when(template.getDescription()).thenReturn(description);
-        when(template.getIssueType()).thenReturn(issueType);
-        when(template.getPropertySpecs()).thenReturn(propertySpecs);
-        return template;
-    }
-
-    protected CreationRuleTemplate getDefaultCreationRuleTemplate() {
-        IssueType issueType = getDefaultIssueType();
-        return mockCreationRuleTemplate("0-1-2", "Template 1", "Description", issueType, null);
-    }
-
-    protected User mockUser(long id, String name) {
-        User user = mock(User.class);
-        when(user.getId()).thenReturn(id);
-        when(user.getName()).thenReturn(name);
-        return user;
-    }
-
-    protected User getDefaultUser() {
-        return mockUser(1, "Admin");
-    }
-
-    protected IssueAction mockIssueAction(String name) {
-        IssueAction action = mock(IssueAction.class);
-        when(action.getDisplayName()).thenReturn(name);
-        when(action.getPropertySpecs()).thenReturn(Collections.emptyList());
-        return action;
-    }
-
-    protected IssueAction getDefaultIssueAction() {
-        return mockIssueAction("Send To Inspect");
-    }
-
-    protected IssueActionType mockIssueActionType(long id, String name, IssueType issueType) {
-        IssueActionType type = mock(IssueActionType.class);
-        IssueAction action = mockIssueAction(name);
-        when(type.getId()).thenReturn(id);
-        when(type.createIssueAction()).thenReturn(Optional.of(action));
-        when(type.getIssueType()).thenReturn(issueType);
-        return type;
-    }
-
-    protected IssueActionType getDefaultIssueActionType() {
-        IssueType issueType = getDefaultIssueType();
-        return mockIssueActionType(1, "send", issueType);
-    }
-
     protected OpenIssueDataCollection getDefaultIssue() {
         return mockIssue(1L, getDefaultReason(), getDefaultStatus(), getDefaultAssignee(), getDefaultDevice());
-    }
-
-    protected CreationRule mockCreationRule(long id, String name) {
-        Instant now = Instant.now();
-        IssueReason reason = getDefaultReason();
-        CreationRuleTemplate template = getDefaultCreationRuleTemplate();
-        CreationRule rule = mock(CreationRule.class);
-        when(rule.getId()).thenReturn(id);
-        when(rule.getName()).thenReturn(name);
-        when(rule.getComment()).thenReturn("comment");
-        when(rule.getReason()).thenReturn(reason);
-        when(rule.getDueInType()).thenReturn(DueInType.DAY);
-        when(rule.getDueInValue()).thenReturn(5L);
-        when(rule.getActions()).thenReturn(Collections.emptyList());
-        when(rule.getPropertySpecs()).thenReturn(Collections.emptyList());
-        when(rule.getTemplate()).thenReturn(template);
-        when(rule.getModTime()).thenReturn(now);
-        when(rule.getCreateTime()).thenReturn(now);
-        when(rule.getVersion()).thenReturn(2L);
-        return rule;
-    }
-
-    protected CreationRule getDefaultCreationRule() {
-        return mockCreationRule(1, "Rule 1");
     }
 
     protected OpenIssueDataCollection mockIssue(long id, IssueReason reason, IssueStatus status, IssueAssignee assingee, Meter meter) {
@@ -257,14 +157,4 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         when(issue.getVersion()).thenReturn(1L);
         return issue;
     }
-
-    protected IssueComment mockComment(long id, String text, User user) {
-        IssueComment comment = mock(IssueComment.class);
-        when(comment.getId()).thenReturn(id);
-        when(comment.getComment()).thenReturn(text);
-        when(comment.getCreateTime()).thenReturn(Instant.EPOCH);
-        when(comment.getVersion()).thenReturn(1L);
-        when(comment.getUser()).thenReturn(user);
-        return comment;
-    }
-}
+ }
