@@ -58,6 +58,8 @@ public class DeviceMessageEnablementResource {
      * @param deviceTypeId Id of the device type
      * @param deviceConfigId Id of the device configuration
      * @param deviceMessageEnablementId  Id of the device message enablement
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
      * @return Uniquely identified device message enablement
      */
     @GET @Transactional
@@ -91,6 +93,9 @@ public class DeviceMessageEnablementResource {
      *
      * @param deviceTypeId Id of the device type
      * @param deviceConfigId Id of the device configuration
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
@@ -153,6 +158,7 @@ public class DeviceMessageEnablementResource {
      *
      * @param deviceTypeId Id of the device type
      * @param deviceConfigId Id of the device configuration
+     * @param uriInfo uriInfo
      * @return url to newly created device message enablement
      * @responseheader location href to newly created device message enablement
      */

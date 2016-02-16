@@ -71,6 +71,8 @@ public class DeviceLifecycleActionResource {
      *
      * @param mRID mRID of the device
      * @param actionId Id of the action
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
      * @return Returns a unqiuely identofied device action
      */
     @GET @Transactional
@@ -94,6 +96,9 @@ public class DeviceLifecycleActionResource {
      * @summary Fetch a set of device actions
      *
      * @param mRID mRID of the device
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
@@ -125,7 +130,7 @@ public class DeviceLifecycleActionResource {
      * @summary Execute an action
      *
      * @param actionId Id of the action
-
+     * @param queryParameters queryParameters
      * @param info Payload describing the parameters for the action execution
      * @return Returns OK(http 200) if the action was executed
      */

@@ -53,6 +53,8 @@ public class ComTaskResource {
      * @summary Fetch a communication task
      *
      * @param comTaskId Id of the communication task
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
      * @return Uniquely identified communication task
      */
     @GET @Transactional
@@ -73,6 +75,9 @@ public class ComTaskResource {
      * carry out a specific action, e.g. read registers, reset the clock, update firmware, etc.
      *
      * @summary Fetch a set of communication tasks
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      *
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
