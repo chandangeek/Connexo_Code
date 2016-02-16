@@ -215,6 +215,7 @@ public class DeviceMessageResource {
      * @param mRID The device's mRID
      * @param messageId The device message identifier
      * @param uriInfo uriInfo
+     * @param deviceMessageInfo Values to update the device message
      * @return Device message
      */
     @PUT @Transactional

@@ -84,7 +84,6 @@ public class EncryptionDeviceAccessLevelResource {
      * @summary Fetch a set of encryption device access levels
      *
      * @param deviceProtocolPluggableClassId Id of the device protocol pluggable class
-     * @param encryptionDeviceAccessLevelId Id of the encryption device access level
      * @param uriInfo uriInfo
      * @param fieldSelection field selection
      * @param queryParameters queryParameters
@@ -96,7 +95,6 @@ public class EncryptionDeviceAccessLevelResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<DeviceAccessLevelInfo> getEncryptionDeviceAccessLevels(
             @PathParam("deviceProtocolPluggableClassId") long deviceProtocolPluggableClassId,
-            @PathParam("encryptionDeviceAccessLevelId") long encryptionDeviceAccessLevelId,
             @BeanParam JsonQueryParameters queryParameters,
             @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         DeviceProtocolPluggableClass pluggableClass = protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId)
