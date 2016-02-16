@@ -1,5 +1,6 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
@@ -12,6 +13,9 @@ import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.multisense.api.security.Privileges;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -45,9 +49,17 @@ public class ConfigurationSecurityPropertySetResource {
     }
 
     /**
+     * Models named set of security properties whose values
+     * are managed against a Device.
+     * The exact set of PropertySpecs that are used is determined by the AuthenticationDeviceAccessLevel
+     * and/or EncryptionDeviceAccessLevel select in the SecurityPropertySet.
+     * That in turn depends on the actual DeviceProtocol.
      *
-     * @param deviceTypeId
-     * @param deviceConfigurationId
+     * @summary Fetch a set of pre-configured security sets
+     *
+     * @param deviceTypeId Id of the device type
+     * @param deviceConfigurationId Id of the device configuration
+     *
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
@@ -69,11 +81,27 @@ public class ConfigurationSecurityPropertySetResource {
         return PagedInfoList.from(securityPropertySetInfos, queryParameters, uriBuilder, uriInfo);
     }
 
+
+    /**
+     * Models named set of security properties whose values
+     * are managed against a Device.
+     * The exact set of PropertySpecs that are used is determined by the AuthenticationDeviceAccessLevel
+     * and/or EncryptionDeviceAccessLevel select in the SecurityPropertySet.
+     * That in turn depends on the actual DeviceProtocol.
+     *
+     * @summary Fetch a set of pre-configured security sets
+
+     * @param deviceTypeId Id of the device type
+     * @param deviceConfigId Id of the device configuration
+     * @param securityPropertySetId Id of the security set
+     * @return Uniquely identified security property set
+     */
     @GET @Transactional
     @Path("/{securityPropertySetId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public ConfigurationSecurityPropertySetInfo getSecurityPropertySet(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigId,
+    public ConfigurationSecurityPropertySetInfo getSecurityPropertySet(@PathParam("deviceTypeId") long deviceTypeId,
+                                                                       @PathParam("deviceConfigId") long deviceConfigId,
                                                                        @PathParam("securityPropertySetId") long securityPropertySetId,
                                                                        @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
         SecurityPropertySet securityPropertySet = findSecurityPropertySetOrThrowException(deviceTypeId, deviceConfigId, securityPropertySetId);
