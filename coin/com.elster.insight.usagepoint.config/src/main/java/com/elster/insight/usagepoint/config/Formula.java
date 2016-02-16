@@ -54,6 +54,6 @@ public interface Formula extends HasId {
     /**
      * Update this {@link Formula}
      */
-    void update();
+    void save();
 
 }

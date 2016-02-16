@@ -143,16 +143,21 @@ public class FormulaCrudTest {
 
     @Test
     public void testSimpleFunctionCallCrud()  {
+
         Formula.Mode myMode = Formula.Mode.AUTO;
         Function myFunction = Function.MAX;
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
             FunctionCallNode node =
                     new FunctionCallNode(
-                            Arrays.asList(new ConstantNode(BigDecimal.TEN), new ConstantNode(BigDecimal.ZERO)),
+                            Arrays.asList(new ConstantNode(BigDecimal.TEN),
+                                    new OperationNode(
+                                            Operator.PLUS,
+                                            new ConstantNode(BigDecimal.TEN),
+                                            new ConstantNode(BigDecimal.ZERO))
+                                    ),
                             myFunction);
             Formula formula = upcService.newFormula(myMode, node);
-            formula.update();
             context.commit();
             long formulaId = formula.getId();
             Optional<Formula> loadedFormula = upcService.findFormula(formulaId);
@@ -173,18 +178,18 @@ public class FormulaCrudTest {
             if (children.size() != 2) {
                 fail("2 children expected");
             }
-            AbstractNode child1 = children.get(0);
-            AbstractNode child2 = children.get(1);
+            ExpressionNode child1 = children.get(0);
+            ExpressionNode child2 = children.get(1);
             if (!(child1 instanceof ConstantNode)) {
                 fail("child1 should be a ConstantNode");
             }
-            if (!(child2 instanceof ConstantNode)) {
-                fail("child2 should be a ConstantNode");
+            if (!(child2 instanceof OperationNode)) {
+                fail("child2 should be a OperationNode");
             }
-            ConstantNode constant1 = (ConstantNode) child1;
-            assertThat(constant1.getValue().equals(BigDecimal.TEN));
-            ConstantNode constant2 = (ConstantNode) child2;
-            assertThat(constant2.getValue().equals(BigDecimal.ZERO));
+            ConstantNode constant = (ConstantNode) child1;
+            assertThat(constant.getValue().equals(BigDecimal.TEN));
+            OperationNode operation = (OperationNode) child2;
+            assertThat(operation.getOperator().equals(Operator.PLUS));
 
 
 
