@@ -543,8 +543,9 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 .forEach(listPer1000 -> dataModel.mapper(ReadingType.class).persist(listPer1000));
     }
 
-    ServiceCategoryImpl createServiceCategory(ServiceKind serviceKind) {
+    ServiceCategoryImpl createServiceCategory(ServiceKind serviceKind, boolean active) {
         ServiceCategoryImpl serviceCategory = dataModel.getInstance(ServiceCategoryImpl.class).init(serviceKind);
+        serviceCategory.setActive(active);
         dataModel.persist(serviceCategory);
         return serviceCategory;
     }

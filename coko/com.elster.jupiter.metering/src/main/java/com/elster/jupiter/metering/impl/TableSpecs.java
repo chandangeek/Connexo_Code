@@ -59,6 +59,7 @@ public enum TableSpecs {
             Column idColumn = table.column("ID").number().notNull().conversion(NUMBER2ENUMPLUSONE).map("kind").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
+            table.column("ACTIVE").type("char(1)").conversion(CHAR2BOOLEAN).map("active").notNull().add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_SERVICECATEGORY").on(idColumn).add();
         }
