@@ -53,6 +53,8 @@ public class EncryptionDeviceAccessLevelResource {
      *
      * @param deviceProtocolPluggableClassId Id of the device protocol pluggable class
      * @param encryptionDeviceAccessLevelId Id of the encryption device access level
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
      * @return Uniquely identified encryption device access level
      */
     @GET @Transactional
@@ -83,6 +85,9 @@ public class EncryptionDeviceAccessLevelResource {
      *
      * @param deviceProtocolPluggableClassId Id of the device protocol pluggable class
      * @param encryptionDeviceAccessLevelId Id of the encryption device access level
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */

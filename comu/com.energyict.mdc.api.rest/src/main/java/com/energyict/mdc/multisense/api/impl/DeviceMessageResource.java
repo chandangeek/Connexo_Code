@@ -274,7 +274,7 @@ public class DeviceMessageResource {
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     @Path("/{messageId}")
     public DeviceMessageInfo deleteDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long messageId,
-                                                 DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
+                                                 @Context UriInfo uriInfo) {
         Device device = deviceService.findByUniqueMrid(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == messageId).findFirst()

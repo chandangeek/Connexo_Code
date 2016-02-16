@@ -53,6 +53,7 @@ public class DeviceTypeResource {
      *
      * @param id Id of the device type
      * @param uriInfo uriInfo
+     * @param fields fields
      * @return Uniquely identofied device type
      */
     @GET @Transactional
@@ -74,6 +75,7 @@ public class DeviceTypeResource {
      * @summary Fetch a set of device types
      * @param uriInfo uriInfo
      * @param queryParameters queryParameters
+     * @param fields fields
      *
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
@@ -81,7 +83,8 @@ public class DeviceTypeResource {
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public PagedInfoList<DeviceTypeInfo> getHypermediaDeviceTypes(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
+    public PagedInfoList<DeviceTypeInfo> getHypermediaDeviceTypes(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldSelection fields,
+                                                                  @Context UriInfo uriInfo) {
         List<DeviceTypeInfo> infos = deviceConfigurationService.findAllDeviceTypes().from(queryParameters).stream().map(d -> deviceTypeInfoFactory.from(d, uriInfo, fields.getFields())).collect(toList());
 
         UriBuilder uri = uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class);
