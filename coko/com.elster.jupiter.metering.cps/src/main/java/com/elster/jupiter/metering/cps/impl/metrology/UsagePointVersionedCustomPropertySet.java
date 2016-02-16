@@ -27,7 +27,6 @@ public class UsagePointVersionedCustomPropertySet implements CustomPropertySet<U
     private volatile PropertySpecService propertySpecService;
     private volatile MeteringService meteringService;
     private volatile Thesaurus thesaurus;
-    private volatile PersistenceSupport<UsagePoint, UsagePointVersionedPersistentDomainExtension> persistentSupport;
 
     public UsagePointVersionedCustomPropertySet() {
     }
@@ -40,7 +39,7 @@ public class UsagePointVersionedCustomPropertySet implements CustomPropertySet<U
 
     @Activate
     public void activate(){
-        this.persistentSupport = new UsagePointVersionedPersistentSupport();
+
     }
 
     @Reference
@@ -60,7 +59,7 @@ public class UsagePointVersionedCustomPropertySet implements CustomPropertySet<U
 
     @Override
     public PersistenceSupport<UsagePoint, UsagePointVersionedPersistentDomainExtension> getPersistenceSupport() {
-        return this.persistentSupport;
+        return new UsagePointVersionedPersistentSupport(thesaurus);
     }
 
     @Override

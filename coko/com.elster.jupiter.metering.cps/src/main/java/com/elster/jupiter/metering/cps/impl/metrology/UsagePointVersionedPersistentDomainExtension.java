@@ -39,7 +39,7 @@ public class UsagePointVersionedPersistentDomainExtension implements PersistentD
     @IsPresent
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
     private Interval interval;
-    @NotEmpty
+    @NotEmpty(message = "{CanNotBeEmpty}")
     private String name;
     private boolean enhancedSupport;
 

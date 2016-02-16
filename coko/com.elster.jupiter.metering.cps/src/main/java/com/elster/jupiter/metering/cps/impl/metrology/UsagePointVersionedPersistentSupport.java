@@ -2,15 +2,24 @@ package com.elster.jupiter.metering.cps.impl.metrology;
 
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
+import javax.validation.MessageInterpolator;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 public class UsagePointVersionedPersistentSupport implements PersistenceSupport<UsagePoint, UsagePointVersionedPersistentDomainExtension> {
+
+    private Thesaurus thesaurus;
+
+    public UsagePointVersionedPersistentSupport(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+    }
 
     @Override
     public String componentName() {
@@ -39,7 +48,12 @@ public class UsagePointVersionedPersistentSupport implements PersistenceSupport<
 
     @Override
     public Optional<Module> module() {
-        return Optional.empty();
+        return Optional.of(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(MessageInterpolator.class).toInstance(thesaurus);
+            }
+        });
     }
 
     @Override

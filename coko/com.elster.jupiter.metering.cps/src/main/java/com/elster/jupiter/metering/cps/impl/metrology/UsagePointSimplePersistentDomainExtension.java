@@ -48,7 +48,7 @@ public class UsagePointSimplePersistentDomainExtension implements PersistentDoma
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
     @IsPresent
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
-    @NotEmpty
+    @NotEmpty(message = "{CanNotBeEmpty}")
     private String name;
     private String combobox;
     private boolean enhancedSupport;

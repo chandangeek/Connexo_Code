@@ -187,7 +187,6 @@ public class UsagePointOneCustomPropertySet implements CustomPropertySet<UsagePo
                     bind(MessageInterpolator.class).toInstance(thesaurus);
                 }
             });
-//            return Optional/.empty();
         }
 
         @Override
