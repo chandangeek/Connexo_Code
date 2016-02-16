@@ -87,7 +87,7 @@ public class DeviceMessageSpecificationResource {
      * Any DeviceMessageSpec that is created through the ComServer
      * API will by default be a non-standard DeviceMessage.
      * Note that non standard message can still be part
-     * of standard {@link DeviceMessageCategory DeviceMessageCategories}.
+     * of standard device message category.
      *
      * @summary Get a set of device message specifications
      *
