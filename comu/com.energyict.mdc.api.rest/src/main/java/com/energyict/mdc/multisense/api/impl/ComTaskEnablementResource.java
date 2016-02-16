@@ -44,9 +44,17 @@ public class ComTaskEnablementResource {
     }
 
     /**
+     * Enables the execution of a ComTask against devices of a device configuration and specifies the security
+     * requirements for that execution.
+     * <br>
+     * In addition, specifies preferred scheduling (e.g. every day or every week)
+     * and preferred PartialConnectionTask or if the execution of the ComTask
+     * should use the default ConnectionTask.
      *
-     * @param deviceTypeId
-     * @param deviceConfigId
+     * @summary Fetch a set of communication task enablements
+     *
+     * @param deviceTypeId Id of the device type
+     * @param deviceConfigId Id of the device configuration
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
@@ -54,7 +62,8 @@ public class ComTaskEnablementResource {
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<ComTaskEnablementInfo> getComTaskEnablements(
-            @PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigId,
+            @PathParam("deviceTypeId") long deviceTypeId,
+            @PathParam("deviceConfigId") long deviceConfigId,
             @BeanParam JsonQueryParameters queryParameters,
             @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
 
@@ -76,6 +85,21 @@ public class ComTaskEnablementResource {
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
+    /**
+     * Enables the execution of a ComTask against devices of a device configuration and specifies the security
+     * requirements for that execution.
+     * <br>
+     * In addition, specifies preferred scheduling (e.g. every day or every week)
+     * and preferred PartialConnectionTask or if the execution of the ComTask
+     * should use the default ConnectionTask.
+     *
+     * @summary Fetch a communication task enablement
+     *
+     * @param deviceTypeId Id of the device type
+     * @param deviceConfigId Id of the device configuration
+     * @param comTaskEnablementId Id of the comtask enablement
+     * @return Uniquely identified communication task enablement
+     */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{comTaskEnablementId}")
