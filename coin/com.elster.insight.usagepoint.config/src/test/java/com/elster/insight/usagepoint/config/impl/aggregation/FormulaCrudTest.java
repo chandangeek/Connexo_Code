@@ -96,9 +96,84 @@ public class FormulaCrudTest {
     }
 
     @Test
+    // formula = 10 (constant)
+    public void test1LevelNodeStructureCrud() {
+        Formula.Mode myMode = Formula.Mode.EXPERT;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
+            ConstantNode node = new ConstantNode(BigDecimal.TEN);
+            Formula formula = upcService.newFormula(myMode, node);
+            context.commit();
+            long formulaId = formula.getId();
+            Optional<Formula> loadedFormula = upcService.findFormula(formulaId);
+            if (!loadedFormula.isPresent()) {
+                fail("No formula found");
+            }
+            Formula myFormula = loadedFormula.get();
+            assertThat(myFormula.getId() == formulaId);
+            assertThat(myFormula.getMode().equals(myMode));
+            ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
+            assertThat(myNode.equals(node));
+            if (!(myNode instanceof ConstantNode)) {
+                fail("Node should be a ConstantNode");
+            }
+            ConstantNode constantNode = (ConstantNode) myNode;
+            assertThat(constantNode.getValue().equals(BigDecimal.TEN));
+        }
+    }
+
+    @Test
+    // formula = max(10, 0) function call + constants
+    public void test2LevelNodeStructureCrud() {
+        Formula.Mode myMode = Formula.Mode.EXPERT;
+        Function myFunction = Function.MAX;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
+            FunctionCallNode node =
+                    new FunctionCallNode(
+                            Arrays.asList(new ConstantNode(BigDecimal.TEN), new ConstantNode(BigDecimal.ZERO)),
+                            myFunction);
+            Formula formula = upcService.newFormula(myMode, node);
+            context.commit();
+            long formulaId = formula.getId();
+            Optional<Formula> loadedFormula = upcService.findFormula(formulaId);
+            if (!loadedFormula.isPresent()) {
+                fail("No formula found");
+            }
+            Formula myFormula = loadedFormula.get();
+            assertThat(myFormula.getId() == formulaId);
+            assertThat(myFormula.getMode().equals(myMode));
+            ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
+            assertThat(myNode.equals(node));
+            if (!(myNode instanceof FunctionCallNode)) {
+                fail("Node should be a FunctionCallNode");
+            }
+            FunctionCallNode functionCallNode = (FunctionCallNode) myNode;
+            assertThat(functionCallNode.getFunction().equals(myFunction));
+            List<AbstractNode> children = functionCallNode.getChildren();
+            if (children.size() != 2) {
+                fail("2 children expected");
+            }
+            AbstractNode child1 = children.get(0);
+            AbstractNode child2 = children.get(1);
+            if (!(child1 instanceof ConstantNode)) {
+                fail("child1 should be a ConstantNode");
+            }
+            if (!(child2 instanceof ConstantNode)) {
+                fail("child2 should be a ConstantNode");
+            }
+            ConstantNode constant1 = (ConstantNode) child1;
+            assertThat(constant1.getValue().equals(BigDecimal.TEN));
+            ConstantNode constant2 = (ConstantNode) child2;
+            assertThat(constant2.getValue().equals(BigDecimal.ZERO));
+        }
+    }
+
+    @Test
+    // formula = max(10, plus(10, 0)) function call + operator call + constants
     public void test3LevelNodeStructureCrud()  {
 
-        Formula.Mode myMode = Formula.Mode.AUTO;
+        Formula.Mode myMode = Formula.Mode.EXPERT;
         Function myFunction = Function.MAX;
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
