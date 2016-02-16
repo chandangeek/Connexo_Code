@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.share.service;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueActionFactory;
@@ -92,5 +93,9 @@ public interface IssueService {
     Map<String, CreationRuleTemplate> getCreationRuleTemplates();
     
     Map<String, IssueActionFactory> getIssueActionFactories();
+
+    Finder<? extends Issue> findIssues(IssueFilter filter, Class<?>... eagers);
+
+    Optional<? extends Issue> findAndLockIssueByIdAndVersion(long id, long version);
     
 }

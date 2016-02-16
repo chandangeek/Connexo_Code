@@ -1,5 +1,7 @@
 package com.elster.jupiter.issue.share.service;
 
+import com.elster.jupiter.issue.share.entity.DueDateRange;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -19,17 +21,15 @@ public final class IssueGroupFilter {
     private String mrid;
     private Set<String> issueTypes;
     private List<DueDateRange> dueDates;
-    private List<Long> deviceGroups;
 
     public IssueGroupFilter() {
         this.statuses = new HashSet<>();
         this.assignees = new ArrayList<>();
         this.issueTypes = new HashSet<>();
         this.dueDates = new ArrayList<>();
-        this.deviceGroups = new ArrayList<>();
     }
 
-    public class AssigneeDetails {
+    public static class AssigneeDetails {
         private long assigneeId;
         private String assigneeType;
 
@@ -52,32 +52,6 @@ public final class IssueGroupFilter {
 
         public void setAssigneeId(long assigneeId) {
             this.assigneeId = assigneeId;
-        }
-    }
-
-    public class DueDateRange {
-        private long startTime;
-        private long endTime;
-
-        public DueDateRange(long startTime, long endTime) {
-            this.startTime = startTime;
-            this.endTime = endTime;
-        }
-
-        public long getStartTime() {
-            return startTime;
-        }
-
-        public void setStartTime(long startTime) {
-            this.startTime = startTime;
-        }
-
-        public long getEndTime() {
-            return endTime;
-        }
-
-        public void setEndTime(long endTime) {
-            this.endTime = endTime;
         }
     }
 
@@ -164,7 +138,7 @@ public final class IssueGroupFilter {
     }
 
     public IssueGroupFilter withAssignee(long id, String type) {
-        this.assignees.add(new IssueGroupFilter.AssigneeDetails(id, type));
+        this.assignees.add(new AssigneeDetails(id, type));
         return this;
     }
 
@@ -174,17 +148,6 @@ public final class IssueGroupFilter {
 
     public List<DueDateRange> getDueDates() {
         return this.dueDates;
-    }
-
-    public List<Long> getDeviceGroups() {
-        return deviceGroups;
-    }
-
-    public IssueGroupFilter withDeviceGroups(List<Long> deviceGroups) {
-        if (deviceGroups != null) {
-            this.deviceGroups = deviceGroups;
-        }
-        return this;
     }
 
     public String getMeterMrid() {
@@ -204,7 +167,7 @@ public final class IssueGroupFilter {
     }
 
     public IssueGroupFilter withDueDate(long startTime, long endTime) {
-        this.dueDates.add(new IssueGroupFilter.DueDateRange(startTime, endTime));
+        this.dueDates.add(new DueDateRange(startTime, endTime));
         return this;
     }
 

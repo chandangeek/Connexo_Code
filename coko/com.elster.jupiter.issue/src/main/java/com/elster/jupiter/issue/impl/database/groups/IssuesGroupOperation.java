@@ -5,14 +5,12 @@ import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.records.IssueGroupImpl;
 
 import com.elster.jupiter.issue.share.entity.AssigneeType;
+import com.elster.jupiter.issue.share.entity.DueDateRange;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueGroup;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueGroupFilter;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -35,11 +33,10 @@ public abstract class IssuesGroupOperation {
     protected static final String GROUP_COUNT = "count0";
 
     private final DataModel dataModel;
-    private final MeteringGroupsService meteringGroupsService;
     private IssueGroupFilter filter;
     private Thesaurus thesaurus;
 
-    public static IssuesGroupOperation from(IssueGroupFilter filter, DataModel dataModel, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus) {
+    public static IssuesGroupOperation from(IssueGroupFilter filter, DataModel dataModel, Thesaurus thesaurus) {
         if (dataModel == null){
             throw new IllegalArgumentException("Data model can't be null");
         }
@@ -50,14 +47,13 @@ public abstract class IssuesGroupOperation {
         if (!groupByRealizationRef.isPresent()){
             throw new IllegalArgumentException("We can't group issues by this column: " + filter.getGroupBy());
         }
-        IssuesGroupOperation operation = groupByRealizationRef.get().getOperation(dataModel, thesaurus, meteringGroupsService);
+        IssuesGroupOperation operation = groupByRealizationRef.get().getOperation(dataModel, thesaurus);
         operation.setFilter(filter);
         return operation;
     }
 
-    protected IssuesGroupOperation(DataModel dataModel, Thesaurus thesaurus, MeteringGroupsService meteringGroupsService){
+    protected IssuesGroupOperation(DataModel dataModel, Thesaurus thesaurus){
         this.dataModel = dataModel;
-        this.meteringGroupsService = meteringGroupsService;
         this.thesaurus = thesaurus;
     }
 
@@ -174,7 +170,7 @@ public abstract class IssuesGroupOperation {
 
     protected String getDueDateCondition() {
             StringBuilder builder = new StringBuilder();
-            for (IssueGroupFilter.DueDateRange dueDateRange : getFilter().getDueDates()) {
+            for (DueDateRange dueDateRange : getFilter().getDueDates()) {
                 if (builder.length() != 0){
                     builder.append(" OR ");
                 }
@@ -190,24 +186,6 @@ public abstract class IssuesGroupOperation {
                 return builder.toString();
             }
         return "";
-    }
-
-    protected void appendDeviceGroupCondition(SqlBuilder sqlBuilder) {
-        if(!getFilter().getDeviceGroups().isEmpty()) {
-            sqlBuilder.append(" AND (1!=1");
-            for(Long deviceGroupId : getFilter().getDeviceGroups()) {
-                EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(deviceGroupId).orElse(null);
-                sqlBuilder.append(" OR isu.DEVICE_ID IN (");
-                if (endDeviceGroup != null && endDeviceGroup.isDynamic()) {
-                    sqlBuilder.add(((QueryEndDeviceGroup) endDeviceGroup).toFragment());
-                    sqlBuilder.append(") ");
-                } else {
-                    sqlBuilder.append("select ENDDEVICE_ID from MTG_ENUM_ED_IN_GROUP where GROUP_ID = ");
-                    sqlBuilder.append(deviceGroupId + ") ");
-                }
-                sqlBuilder.append(") ");
-            }
-        }
     }
 
     protected DataModel getDataModel() {

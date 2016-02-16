@@ -1,6 +1,8 @@
 package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
@@ -31,7 +33,6 @@ import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleTranslationKey;
@@ -58,7 +59,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.search.impl.SearchModule;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -141,7 +141,6 @@ public abstract class BaseTest {
                 new DataVaultModule(),
                 new IdsModule(),
                 new MeteringModule(),
-                new MeteringGroupsModule(),
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
@@ -155,11 +154,12 @@ public abstract class BaseTest {
                 new FiniteStateMachineModule(),
                 new IssueModule(),
                 new BasicPropertiesModule(),
-                new SearchModule()
+                new CustomPropertySetsModule()
         );
 
         TransactionService transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             issueService = injector.getInstance(IssueService.class);
             injector.getInstance(DummyIssueProvider.class);

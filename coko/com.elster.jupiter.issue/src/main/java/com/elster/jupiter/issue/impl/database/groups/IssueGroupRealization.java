@@ -1,6 +1,5 @@
 package com.elster.jupiter.issue.impl.database.groups;
 
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
@@ -14,8 +13,8 @@ public enum IssueGroupRealization {
         }
 
         @Override
-        IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus, MeteringGroupsService meteringGroupsService) {
-            return new GroupByReasonImpl(dataModel, thesaurus, meteringGroupsService);
+        IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus) {
+            return new GroupByReasonImpl(dataModel, thesaurus);
         }
     },
     STATUS {
@@ -25,8 +24,8 @@ public enum IssueGroupRealization {
         }
 
         @Override
-        IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus, MeteringGroupsService meteringGroupsService) {
-            return new GroupByStatusImpl(dataModel, thesaurus, meteringGroupsService);
+        IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus) {
+            return new GroupByStatusImpl(dataModel, thesaurus);
         }
     },
     ASSIGNEE {
@@ -36,8 +35,8 @@ public enum IssueGroupRealization {
         }
 
         @Override
-        IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus, MeteringGroupsService meteringGroupsService) {
-            return new GroupByAssigneeImpl(dataModel, thesaurus, meteringGroupsService);
+        IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus) {
+            return new GroupByAssigneeImpl(dataModel, thesaurus);
         }
     },
     TYPE {
@@ -47,14 +46,14 @@ public enum IssueGroupRealization {
         }
 
         @Override
-        IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus, MeteringGroupsService meteringGroupsService) {
-            return new GroupByIssueTypeImpl(dataModel, thesaurus, meteringGroupsService);
+        IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus) {
+            return new GroupByIssueTypeImpl(dataModel, thesaurus);
         }
     };
 
     abstract String getKey();
 
-    abstract IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus, MeteringGroupsService meteringGroupsService);
+    abstract IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus);
 
     public static Optional<IssueGroupRealization> of(String text) {
         if (text != null) {

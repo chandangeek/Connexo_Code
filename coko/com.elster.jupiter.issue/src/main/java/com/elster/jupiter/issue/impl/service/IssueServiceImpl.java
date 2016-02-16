@@ -1,5 +1,7 @@
 package com.elster.jupiter.issue.impl.service;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
@@ -30,12 +32,12 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueFilter;
 import com.elster.jupiter.issue.share.service.IssueGroupFilter;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -51,6 +53,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
@@ -94,7 +97,6 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     private volatile QueryService queryService;
     private volatile UserService userService;
     private volatile MeteringService meteringService;
-    private volatile MeteringGroupsService meteringGroupsService;
     private volatile MessageService messageService;
     private volatile TaskService taskService;
     private volatile TransactionService transactionService;
@@ -125,7 +127,6 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
                             NlsService nlsService,
                             MessageService messageService,
                             MeteringService meteringService,
-                            MeteringGroupsService meteringGroupsService,
                             TaskService taskService,
                             KnowledgeBuilderFactoryService knowledgeBuilderFactoryService,
                             KnowledgeBaseFactoryService knowledgeBaseFactoryService,
@@ -138,7 +139,6 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         setNlsService(nlsService);
         setMessageService(messageService);
         setMeteringService(meteringService);
-        setMeteringGroupsService(meteringGroupsService);
         setTaskService(taskService);
         setKnowledgeBuilderFactoryService(knowledgeBuilderFactoryService);
         setKnowledgeBaseFactoryService(knowledgeBaseFactoryService);
@@ -164,7 +164,6 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(MessageService.class).toInstance(messageService);
                 bind(MeteringService.class).toInstance(meteringService);
-                bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(UserService.class).toInstance(userService);
                 bind(TaskService.class).toInstance(taskService);
                 bind(KieResources.class).toInstance(resourceFactoryService);
@@ -210,11 +209,6 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     }
 
     @Reference
-    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
-        this.meteringGroupsService = meteringGroupsService;
-    }
-
-    @Reference
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
     }
@@ -256,7 +250,7 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("USR", "TSK", "MSG", "ORM", "NLS", "MTR", "MTG");
+        return Arrays.asList("USR", "TSK", "MSG", "ORM", "NLS", "MTR");
     }
 
     @Override
@@ -423,7 +417,7 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
 
     @Override
     public List<IssueGroup> getIssueGroupList(IssueGroupFilter filter) {
-        return IssuesGroupOperation.from(filter, this.dataModel, this.meteringGroupsService, thesaurus).execute();
+        return IssuesGroupOperation.from(filter, this.dataModel/*, this.meteringGroupsService*/, thesaurus).execute();
     }
 
     @Override
@@ -501,5 +495,79 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     @Override
     public List<IssueCreationValidator> getIssueCreationValidators() {
         return issueCreationValidators;
+    }
+
+    @Override
+    public Finder<? extends Issue> findIssues(IssueFilter filter, Class<?>... eagers) {
+        Condition condition = buildConditionFromFilter(filter);
+        List<Class<?>> eagerClasses = determineMainApiClass(filter);
+        if (eagers == null) {
+            eagerClasses.addAll(Arrays.asList(eagers));
+        } else {
+            eagerClasses.addAll(Arrays.asList(IssueStatus.class, EndDevice.class, User.class, IssueReason.class, IssueType.class));
+        }
+        return DefaultFinder.of((Class<Issue>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
+    }
+
+    @Override
+    public Optional<? extends Issue> findAndLockIssueByIdAndVersion(long id, long version) {
+        Optional<? extends Issue> issue = findOpenIssue(id);
+        if (issue.isPresent()) {
+            return dataModel.mapper(OpenIssue.class).lockObjectIfVersion(version, id);
+        }
+        return dataModel.mapper(HistoricalIssue.class).lockObjectIfVersion(version, id);
+    }
+
+    private List<Class<?>> determineMainApiClass(IssueFilter filter) {
+        List<Class<?>> eagerClasses = new ArrayList<>();
+        List<IssueStatus> statuses = filter.getStatuses();
+        if (!statuses.isEmpty() && statuses.stream().allMatch(status -> !status.isHistorical())) {
+            eagerClasses.add(OpenIssue.class);
+        } else if (!statuses.isEmpty() && statuses.stream().allMatch(IssueStatus::isHistorical)) {
+            eagerClasses.add(HistoricalIssue.class);
+        } else {
+            eagerClasses.add(Issue.class);
+        }
+        return eagerClasses;
+    }
+
+    private Condition buildConditionFromFilter(IssueFilter filter) {
+        Condition condition = Condition.TRUE;
+        //filter by assignee
+        if (!filter.getAssignees().isEmpty()) {
+            condition = condition.and(where("user").in(filter.getAssignees()));
+            if (filter.isUnassignedSelected()) {
+                condition = condition.or(where("user").isNull());
+            }
+        }
+        if (filter.getAssignees().isEmpty() && filter.isUnassignedSelected()) {
+            condition = condition.and(where("user").isNull());
+        }
+        //filter by reason
+        if (!filter.getIssueReasons().isEmpty()) {
+            condition = condition.and(where("reason").in(filter.getIssueReasons()));
+        }
+        //filter by device
+        if (!filter.getDevices().isEmpty()) {
+            condition = condition.and(where("device").in(filter.getDevices()));
+        }
+        //filter by statuses
+        if (!filter.getStatuses().isEmpty()) {
+            condition = condition.and(where("status").in(filter.getStatuses()));
+        }
+        //filter by issue types
+        if (!filter.getIssueTypes().isEmpty()) {
+            condition = condition.and(where("reason.issueType").in(filter.getIssueTypes()));
+        }
+        //filter by due dates
+        if (!filter.getDueDates().isEmpty()) {
+            Condition dueDateCondition = Condition.FALSE;
+            for(int i=0; i<filter.getDueDates().size(); i++) {
+                dueDateCondition = dueDateCondition.or(where("dueDate").isGreaterThanOrEqual(filter.getDueDates().get(i).getStartTimeAsInstant())
+                        .and(where("dueDate").isLessThan(filter.getDueDates().get(i).getEndTimeAsInstant())));
+            }
+            condition = condition.and(dueDateCondition);
+        }
+        return condition;
     }
 }

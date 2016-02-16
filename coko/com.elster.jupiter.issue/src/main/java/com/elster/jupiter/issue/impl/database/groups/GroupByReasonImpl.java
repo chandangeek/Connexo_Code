@@ -1,7 +1,6 @@
 package com.elster.jupiter.issue.impl.database.groups;
 
 import com.elster.jupiter.issue.impl.database.TableSpecs;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
@@ -10,8 +9,8 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 @LiteralSql
 public class GroupByReasonImpl extends IssuesGroupOperation {
 
-    protected GroupByReasonImpl(DataModel dataModel, Thesaurus thesaurus, MeteringGroupsService meteringGroupsService) {
-        super(dataModel, thesaurus, meteringGroupsService);
+    protected GroupByReasonImpl(DataModel dataModel, Thesaurus thesaurus) {
+        super(dataModel, thesaurus);
     }
 
     /**
@@ -43,7 +42,6 @@ public class GroupByReasonImpl extends IssuesGroupOperation {
         builder.append(getMeterCondition());
         builder.append(getAssigneeCondition());
         builder.append(getDueDateCondition());
-        appendDeviceGroupCondition(builder);
         if (getFilter().getGroupKey() != null) {
             builder.append(" AND reason.\"KEY\" = '" + getFilter().getGroupKey() + "'");
         }
