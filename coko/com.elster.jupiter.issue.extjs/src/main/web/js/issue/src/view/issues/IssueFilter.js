@@ -55,17 +55,6 @@ Ext.define('Isu.view.issues.IssueFilter', {
             },
             {
                 type: 'combobox',
-                itemId: 'issue-device-group-filter',
-                dataIndex: 'deviceGroup',
-                hidden: !me.isOverviewFilter,
-                emptyText: Uni.I18n.translate('general.deviceGroup', 'ISU', 'Device group'),
-                multiSelect: true,
-                displayField: 'name',
-                valueField: 'id',
-                store: 'Isu.store.DeviceGroups'
-            },
-            {
-                type: 'combobox',
                 itemId: 'issue-reason-filter',
                 dataIndex: 'reason',
                 emptyText: Uni.I18n.translate('general.reason', 'ISU', 'Reason'),
