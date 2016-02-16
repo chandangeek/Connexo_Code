@@ -97,5 +97,10 @@ Ext.define('Isu.controller.Main', {
         if (issuemanagement !== null) {
             Uni.store.PortalItems.add(issuemanagement);
         }
+
+        me.getApplication().on('initIssueType', function (type) {
+            me.getController('Isu.controller.IssuesOverview').dataCollectionActivated = type == 'datacollection';
+            me.getController('Isu.controller.IssuesOverview').dataValidationActivated = type == 'datavalidation';
+        });
     }
 });

@@ -96,10 +96,6 @@ Ext.define('Isu.controller.IssuesOverview', {
                 click: this.setFilterItem
             }
         });
-        this.getApplication.on('initIssueType', function (type) {
-            me.dataCollectionActivated = type == 'dataCollection';
-            me.dataValidationActivated = type == 'dataValidation';
-        });
     },
 
     showOverview: function (issueType, widgetXtype, callback) {

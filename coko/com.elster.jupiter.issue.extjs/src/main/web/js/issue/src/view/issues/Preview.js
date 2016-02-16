@@ -52,7 +52,6 @@ Ext.define('Isu.view.issues.Preview', {
                         xtype: 'filter-display',
                         itemId: 'issue-preview-reason',
                         fieldLabel: Uni.I18n.translate('general.title.reason', 'ISU', 'Reason'),
-                        hidden: me.dataValidationActivated,
                         name: 'reason',
                         renderer: function (value) {
                             return value.name ? Ext.String.htmlEncode(value.name) : '';
@@ -117,7 +116,6 @@ Ext.define('Isu.view.issues.Preview', {
                     {
                         itemId: 'data-validation-issue-preview-modification-date',
                         fieldLabel: Uni.I18n.translate('general.title.modificationDate', 'ISU', 'Modification date'),
-                        hidden: me.dataCollectionActivated,
                         name: 'modTime',
                         renderer: function (value) {
                             return value ? Uni.DateTime.formatDateShort(value) : '';

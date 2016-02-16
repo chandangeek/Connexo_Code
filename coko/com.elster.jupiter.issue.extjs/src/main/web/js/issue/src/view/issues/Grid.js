@@ -48,7 +48,7 @@ Ext.define('Isu.view.issues.Grid', {
                 itemId: 'issues-grid-type',
                 header: Uni.I18n.translate('general.type', 'ISU', 'Type'),
                 dataIndex: 'issueType_name',
-                flex: 1
+                width: 140
             },
             {
                 itemId: 'issues-grid-due-date',
