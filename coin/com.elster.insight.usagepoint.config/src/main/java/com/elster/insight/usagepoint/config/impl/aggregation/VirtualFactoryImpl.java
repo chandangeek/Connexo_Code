@@ -192,6 +192,9 @@ public class VirtualFactoryImpl implements VirtualFactory {
             return this.parent.meterActivationSequenceNumber();
         }
 
+        MeterActivation getMeterActivation() {
+            return meterActivation;
+        }
     }
 
     /**
@@ -214,11 +217,11 @@ public class VirtualFactoryImpl implements VirtualFactory {
         public VirtualReadingTypeRequirement requirementFor(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, IntervalLength intervalLength) {
             return this.requirements.computeIfAbsent(
                     deliverable,
-                    key -> this.newRequirement(requirement, intervalLength));
+                    key -> this.newRequirement(requirement, deliverable, intervalLength));
         }
 
-        private VirtualReadingTypeRequirement newRequirement(ReadingTypeRequirement requirement, IntervalLength intervalLength) {
-            return new VirtualReadingTypeRequirement(requirement, requirement.getMatchingChannelsFor(this.meterActivation), intervalLength, this.parent.meterActivationSequenceNumber());
+        private VirtualReadingTypeRequirement newRequirement(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, IntervalLength intervalLength) {
+            return new VirtualReadingTypeRequirement(requirement, deliverable, requirement.getMatchingChannelsFor(this.meterActivation), intervalLength, this.parent.getMeterActivation(), this.parent.meterActivationSequenceNumber());
         }
 
         public List<VirtualReadingTypeRequirement> allRequirements() {

@@ -30,7 +30,7 @@ public class ClauseAwareSqlBuilderImpl implements ClauseAwareSqlBuilder {
         }
         sqlBuilder.append(" AS (");
         comment.ifPresent(cmt -> this.appendWithClauseComment(cmt, sqlBuilder));
-        sqlBuilder.append("\n    SELECT ");
+        sqlBuilder.append("\n    ");
         this.withClauses.add(sqlBuilder);
         return sqlBuilder;
     }

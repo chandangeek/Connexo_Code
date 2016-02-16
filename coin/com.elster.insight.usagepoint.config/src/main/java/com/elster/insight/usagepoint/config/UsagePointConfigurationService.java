@@ -1,9 +1,5 @@
 package com.elster.insight.usagepoint.config;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
-
 import aQute.bnd.annotation.ProviderType;
 
 import com.elster.insight.usagepoint.config.impl.aggregation.ExpressionNode;
@@ -11,13 +7,17 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
+import java.util.List;
+import java.util.Optional;
+
 @ProviderType
 public interface UsagePointConfigurationService {
-    static String COMPONENTNAME = "UPC";
+    String COMPONENTNAME = "UPC";
 
     MetrologyConfiguration newMetrologyConfiguration(String name);
 
     Optional<MetrologyConfiguration> findMetrologyConfiguration(long id);
+
     Optional<MetrologyConfiguration> findMetrologyConfiguration(String name);
 
     List<MetrologyConfiguration> findAllMetrologyConfigurations();

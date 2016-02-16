@@ -19,7 +19,4 @@ interface ServerFormula extends Formula {
      */
     ExpressionNode expressionNode();
 
-
-
-
 }

@@ -2,6 +2,7 @@ package com.elster.insight.usagepoint.config.impl.aggregation;
 
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 
@@ -77,7 +78,7 @@ public class InferAggregationIntervalTest {
         IntervalLength preferredInterval = node.accept(infer);
 
         // Asserts
-        assertThat(preferredInterval).isEqualTo(IntervalLength.MINUTE15);
+        assertThat(preferredInterval).isEqualTo(IntervalLength.HOUR1);
     }
 
     @Test
@@ -96,7 +97,7 @@ public class InferAggregationIntervalTest {
         IntervalLength preferredInterval = node.accept(infer);
 
         // Asserts
-        assertThat(preferredInterval).isEqualTo(IntervalLength.MINUTE15);
+        assertThat(preferredInterval).isEqualTo(IntervalLength.HOUR1);
     }
 
     @Test
@@ -110,14 +111,17 @@ public class InferAggregationIntervalTest {
                         this.meterActivation);
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
-        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE60);    // Different from the target set in test instance
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);    // Different from the target set in test instance
+        Channel channel = mock(Channel.class);
+        when(channel.getMainReadingType()).thenReturn(readingType);
+        when(this.requirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(channel));
         when(this.requirement.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(readingType));
 
         // Business method
         IntervalLength preferredInterval = node.accept(infer);
 
         // Asserts
-        assertThat(preferredInterval).isEqualTo(IntervalLength.HOUR1);
+        assertThat(preferredInterval).isEqualTo(IntervalLength.MINUTE15);
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -205,10 +209,14 @@ public class InferAggregationIntervalTest {
 
         ReadingType hourlyReadingType = this.mockHourlyReadingType();
         when(this.deliverable.getReadingType()).thenReturn(hourlyReadingType);
+        Channel hourlyChannel = mock(Channel.class);
+        when(hourlyChannel.getMainReadingType()).thenReturn(hourlyReadingType);
         ReadingType fifteenMinReadingType = this.mock15minReadingType();
+        Channel fifteenMinChannel = mock(Channel.class);
+        when(fifteenMinChannel.getMainReadingType()).thenReturn(fifteenMinReadingType);
 
         ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
-        when(requirement1.getMatchesFor(this.meterActivation)).thenReturn(Arrays.asList(fifteenMinReadingType, hourlyReadingType));
+        when(requirement1.getMatchingChannelsFor(this.meterActivation)).thenReturn(Arrays.asList(fifteenMinChannel, hourlyChannel));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
                         this.virtualFactory,
@@ -216,7 +224,7 @@ public class InferAggregationIntervalTest {
                         this.deliverable,
                         this.meterActivation);
         ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
-        when(requirement2.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(hourlyReadingType));
+        when(requirement2.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(hourlyChannel));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
                         this.virtualFactory,
@@ -230,9 +238,9 @@ public class InferAggregationIntervalTest {
         IntervalLength intervalLength = multiply.accept(infer);
 
         // Asserts
-        assertThat(intervalLength).isEqualTo(IntervalLength.MINUTE15);
-        assertThat(requirementNode1.getTargetInterval()).isEqualByComparingTo(IntervalLength.MINUTE15);
-        assertThat(requirementNode2.getTargetInterval()).isEqualByComparingTo(IntervalLength.MINUTE15);
+        assertThat(intervalLength).isEqualTo(IntervalLength.HOUR1);
+        assertThat(requirementNode1.getTargetInterval()).isEqualByComparingTo(IntervalLength.HOUR1);
+        assertThat(requirementNode2.getTargetInterval()).isEqualByComparingTo(IntervalLength.HOUR1);
     }
 
     /**
@@ -243,11 +251,16 @@ public class InferAggregationIntervalTest {
         InferAggregationInterval infer = this.testInstance();
 
         ReadingType hourlyReadingType = this.mockHourlyReadingType();
+        Channel hourlyChannel = mock(Channel.class);
+        when(hourlyChannel.getMainReadingType()).thenReturn(hourlyReadingType);
         when(this.deliverable.getReadingType()).thenReturn(hourlyReadingType);
         ReadingType fifteenMinReadingType = this.mock15minReadingType();
+        Channel fifteenMinChannel = mock(Channel.class);
+        when(fifteenMinChannel.getMainReadingType()).thenReturn(fifteenMinReadingType);
 
         ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
-        when(requirement1.getMatchesFor(this.meterActivation)).thenReturn(Arrays.asList(fifteenMinReadingType, hourlyReadingType));
+
+        when(requirement1.getMatchingChannelsFor(this.meterActivation)).thenReturn(Arrays.asList(fifteenMinChannel, hourlyChannel));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
                         this.virtualFactory,
@@ -255,7 +268,7 @@ public class InferAggregationIntervalTest {
                         this.deliverable,
                         this.meterActivation);
         ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
-        when(requirement2.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(hourlyReadingType));
+        when(requirement2.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(hourlyChannel));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
                         this.virtualFactory,
@@ -268,9 +281,9 @@ public class InferAggregationIntervalTest {
         IntervalLength intervalLength = maximum.accept(infer);
 
         // Asserts
-        assertThat(intervalLength).isEqualTo(IntervalLength.MINUTE15);
-        assertThat(requirementNode1.getTargetInterval()).isEqualByComparingTo(IntervalLength.MINUTE15);
-        assertThat(requirementNode2.getTargetInterval()).isEqualByComparingTo(IntervalLength.MINUTE15);
+        assertThat(intervalLength).isEqualTo(IntervalLength.HOUR1);
+        assertThat(requirementNode1.getTargetInterval()).isEqualByComparingTo(IntervalLength.HOUR1);
+        assertThat(requirementNode2.getTargetInterval()).isEqualByComparingTo(IntervalLength.HOUR1);
     }
 
     private ReadingType mock15minReadingType() {
@@ -288,7 +301,7 @@ public class InferAggregationIntervalTest {
     }
 
     private InferAggregationInterval testInstance() {
-        return new InferAggregationInterval(IntervalLength.MINUTE15);
+        return new InferAggregationInterval(IntervalLength.HOUR1);
     }
 
 }
