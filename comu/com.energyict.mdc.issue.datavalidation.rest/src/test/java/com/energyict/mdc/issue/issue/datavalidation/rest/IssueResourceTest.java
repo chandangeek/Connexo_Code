@@ -11,109 +11,32 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
-import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
-import com.elster.jupiter.issue.rest.request.EntityReference;
-import com.elster.jupiter.issue.rest.request.PerformActionRequest;
-import com.elster.jupiter.issue.rest.response.issue.IssueShortInfo;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
-import com.elster.jupiter.issue.share.entity.IssueComment;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
-import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
-import org.mockito.Matchers;
 
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Currency;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest {
-
-    @Test
-    public void testGetAllIssuesNominalCase() {
-        mockStatus("open", "Open", false);
-        mockStatus("inprogress", "In progress", false);
-        mockDevice(2L, "Meter");
-        mockAssignee(3L, "User", "USER");
-        mockReason("IssueReason", "Reason", getDefaultIssueType());
-        OpenIssueDataValidation issue = getDefaultIssue();
-        Finder<? extends IssueDataValidation> finder = mock(Finder.class);
-        doAnswer(invocationOnMock -> {
-                DataValidationIssueFilter filter = (DataValidationIssueFilter) invocationOnMock.getArguments()[0];
-                assertThat(filter.getStatuses()).hasSize(2);
-                assertThat(filter.getStatuses().get(0).getKey()).isEqualTo("open");
-                assertThat(filter.getStatuses().get(1).getKey()).isEqualTo("inprogress");
-                assertThat(filter.getAssignee()).isPresent();
-                assertThat(filter.getAssignee().get().getId()).isEqualTo(3L);
-                assertThat(filter.getDevice()).isPresent();
-                assertThat(filter.getDevice().get().getId()).isEqualTo(2L);
-                assertThat(filter.getIssueReason()).isPresent();
-                assertThat(filter.getIssueReason().get().getKey()).isEqualTo("IssueReason");
-                return finder;
-        }).when(issueDataValidationService).findAllDataValidationIssues(Matchers.any());
-        doReturn(Collections.singletonList(issue)).when(finder).find();
-
-        String filter = URLEncoder.encode("[{\"property\":\"status\",\"value\":[\"open\",\"inprogress\"]},{\"property\":\"meter\",\"value\":\"Meter\"},{\"property\":\"assignee\",\"value\":\"3:USER\"},{\"property\":\"reason\",\"value\":\"IssueReason\"}]");
-
-
-        String response = target("/issues")
-                .queryParam("filter", filter)
-                .queryParam("start", 0)
-                .queryParam("limit", 10)
-                .queryParam("sort", "-modTime")
-                .request().get(String.class);
-
-
-        JsonModel jsonModel = JsonModel.model(response);
-        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<Number>get("$.dataValidationIssues[0].id")).isEqualTo(1);
-        assertThat(jsonModel.<Number>get("$.dataValidationIssues[0].version")).isEqualTo(1);
-        assertThat(jsonModel.<Number>get("$.dataValidationIssues[0].creationDate")).isEqualTo(0);
-        assertThat(jsonModel.<Number>get("$.dataValidationIssues[0].dueDate")).isEqualTo(0);
-        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].reason.id")).isEqualTo("1");
-        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].reason.name")).isEqualTo("Reason");
-        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].status.id")).isEqualTo("1");
-        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].status.name")).isEqualTo("open");
-        assertThat(jsonModel.<Boolean>get("$.dataValidationIssues[0].status.allowForClosing")).isEqualTo(false);
-        assertThat(jsonModel.<Number>get("$.dataValidationIssues[0].assignee.id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].assignee.name")).isEqualTo("Admin");
-        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].assignee.type")).isEqualTo(IssueAssignee.Types.USER);
-        assertThat(jsonModel.<Number>get("$.dataValidationIssues[0].device.id")).isEqualTo(1);
-        assertThat(jsonModel.<Number>get("$.dataValidationIssues[0].device.serialNumber")).isEqualTo("0.0.0.0.0.0.0.0");
-        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].device.name")).isNull();
-        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].device.usagePoint")).isNull();
-        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].device.serviceLocation")).isNull();
-        assertThat(jsonModel.<String>get("$.dataValidationIssues[0].device.serviceCategory")).isNull();
-    }
 
     @Test
     public void testGetIssueById() {
@@ -223,131 +146,6 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
 
         Response response = target("/issues/1").request().get();
 
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-    }
-
-    @Test
-    public void testGetAllComments() {
-        OpenIssueDataValidation issue = mock(OpenIssueDataValidation.class);
-        doReturn(Optional.of(issue)).when(issueDataValidationService).findIssue(1L);
-        List<IssueComment> comments = Arrays.asList(mockComment(1L, "My comment", getDefaultUser()));
-        Query<IssueComment> commentsQuery = mock(Query.class);
-        when(commentsQuery.select(Matchers.<Condition>anyObject(), Matchers.<Order>anyVararg())).thenReturn(comments);
-        when(issueService.query(IssueComment.class, User.class)).thenReturn(commentsQuery);
-
-        String response = target("/issues/1/comments").request().get(String.class);
-
-        JsonModel jsonModel = JsonModel.model(response);
-        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<List<?>>get("$.comments")).hasSize(1);
-        assertThat(jsonModel.<Number>get("$.comments[0].id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.comments[0].comment")).isEqualTo("My comment");
-        assertThat(jsonModel.<Number>get("$.comments[0].creationDate")).isEqualTo(0);
-        assertThat(jsonModel.<Number>get("$.comments[0].version")).isEqualTo(1);
-        assertThat(jsonModel.<Number>get("$.comments[0].author.id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.comments[0].author.name")).isEqualTo("Admin");
-    }
-
-    @Test
-    public void testPostComment() {
-        OpenIssueDataValidation issue = mock(OpenIssueDataValidation.class);
-        doReturn(Optional.of(issue)).when(issueDataValidationService).findIssue(1L);
-        IssueComment comment = mock(IssueComment.class);
-        when(issue.addComment(Matchers.anyString(), Matchers.any())).thenReturn(Optional.of(comment));
-        when(comment.getCreateTime()).thenReturn(Instant.now());
-        User user = mockUser(1, "user");
-        when(comment.getUser()).thenReturn(user);
-        Map<String, String> params = new HashMap<>(1);
-        params.put("comment", "Comment");
-        Entity<Map<String, String>> json = Entity.json(params);
-
-        Response response = target("/issues/1/comments").request().post(json);
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-    }
-
-    @Test
-    public void testPostEmptyComment() {
-        OpenIssueDataValidation issue = mock(OpenIssueDataValidation.class);
-        doReturn(Optional.of(issue)).when(issueDataValidationService).findIssue(1L);
-        mock(IssueComment.class);
-        when(issue.addComment(Matchers.anyString(), Matchers.any())).thenReturn(Optional.empty());
-        Map<String, String> params = new HashMap<>(0);
-        Entity<Map<String, String>> json = Entity.json(params);
-
-        Response response = target("/issues/1/comments").request().post(json);
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-    }
-
-    @Test
-    public void testCloseAction() {
-        CloseIssueRequest request = new CloseIssueRequest();
-        EntityReference issueRef = new EntityReference();
-        issueRef.setId(1L);
-        request.issues = Collections.singletonList(issueRef);
-        request.status = "resolved";
-        IssueStatus status = mockStatus("resolved", "Resolved", true);
-        OpenIssueDataValidation openIssueDataValidation = getDefaultIssue();
-        doReturn(Optional.of(openIssueDataValidation)).when(issueDataValidationService).findIssue(1L);
-        doReturn(Optional.of(openIssueDataValidation)).when(issueDataValidationService).findOpenIssue(1L);
-        Entity<CloseIssueRequest> json = Entity.json(request);
-
-        Response response = target("issues/close").request().put(json);
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(openIssueDataValidation).close(status);
-    }
-
-    @Test
-    public void testAssignAction() {
-        Entity<AssignIssueRequest> json = Entity.json(new AssignIssueRequest());
-        Response response = target("issues/assign").request().put(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-    }
-
-    @Test
-    public void testPerformAction() {
-        Optional<IssueDataValidation> issue = Optional.of(getDefaultIssue());
-        doReturn(issue).when(issueDataValidationService).findIssue(1);
-        doReturn(issue).when(issueDataValidationService).findAndLockIssueDataValidationByIdAndVersion(1, 1);
-
-        Optional<IssueActionType> mockActionType = Optional.of(getDefaultIssueActionType());
-        when(issueActionService.findActionType(1)).thenReturn(mockActionType);
-
-        PerformActionRequest request = new PerformActionRequest();
-        request.id = 1;
-        request.issue = new IssueShortInfo();
-        request.issue.version = 1L;
-
-        Response response = target("issues/1/actions/1").request().put(Entity.json(request));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-    }
-
-    @Test
-    public void testPerformActionOnUnexistingIssue() {
-        when(issueDataValidationService.findIssue(1123)).thenReturn(Optional.empty());
-        when(issueDataValidationService.findAndLockIssueDataValidationByIdAndVersion(1123, 1)).thenReturn(Optional.empty());
-
-        PerformActionRequest info = new PerformActionRequest();
-        info.issue = new IssueShortInfo();
-        info.issue.version = 1L;
-        Response response = target("issue/1123/actions/1").request().put(Entity.json(info));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-    }
-
-    @Test
-    public void testPerformNonexistingAction() {
-        Optional<IssueDataValidation> issue = Optional.of(getDefaultIssue());
-        doReturn(issue).when(issueDataValidationService).findIssue(1);
-        doReturn(issue).when(issueDataValidationService).findAndLockIssueDataValidationByIdAndVersion(1, 1);
-        when(issueActionService.findActionType(1)).thenReturn(Optional.empty());
-
-        PerformActionRequest request = new PerformActionRequest();
-        request.id = 1;
-        request.issue = new IssueShortInfo();
-        request.issue.version = 1L;
-        Response response = target("issue/1123/actions/1").request().put(Entity.json(request));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
