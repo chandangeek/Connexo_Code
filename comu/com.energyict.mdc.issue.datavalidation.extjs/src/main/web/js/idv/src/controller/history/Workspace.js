@@ -15,7 +15,7 @@ Ext.define('Idv.controller.history.Workspace', {
             disabled: true,
             items: {
                 issues: {
-                    title: Uni.I18n.translate('breadcrumb.datavalidationissues', 'IDV', 'Data validation issues'),
+                    title: Uni.I18n.translate('general.issues', 'IDV', 'Issues'),
                     route: 'issues',
                     controller: 'Isu.controller.IssuesOverview',
                     action: 'showOverview',

@@ -1,5 +1,5 @@
 Ext.define('Idv.store.IssuesBuffered', {
-    extend: 'Idv.store.Issues',
+    extend: 'Isu.store.Issues',
     buffered: true,
     pageSize: 200
 });

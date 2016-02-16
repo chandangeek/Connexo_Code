@@ -28,7 +28,7 @@ Ext.define('Idv.view.Detail', {
                         xtype: 'previous-next-navigation-toolbar',
                         margin: '10 0 0 0',
                         itemId: 'data-validation-issue-detail-previous-next-navigation-toolbar',
-                        store: 'Idv.store.Issues',
+                        store: 'Isu.store.Issues',
                         router: me.router,
                         routerIdArgument: 'issueId',
                         itemsName: me.issuesListLink

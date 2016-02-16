@@ -2,7 +2,7 @@ Ext.define('Idv.controller.Detail', {
     extend: 'Isu.controller.IssueDetail',
 
     stores: [
-        'Idv.store.Issues',
+        'Isu.store.Issues',
         'Isu.store.IssueActions',
         'Isu.store.Clipboard',
         'Idv.store.NonEstimatedDataStore'
@@ -78,7 +78,7 @@ Ext.define('Idv.controller.Detail', {
         var me = this,
             router = this.getController('Uni.controller.history.Router');
 
-        me.callParent([id, 'Idv.model.Issue', 'Idv.store.Issues', 'data-validation-issue-detail', 'workspace/datavalidationissues', 'datavalidation']);
+        me.callParent([id, 'Idv.model.Issue', 'Isu.store.Issues', 'data-validation-issue-detail', 'workspace/datavalidationissues', 'datavalidation']);
         me.getApplication().on('issueLoad', function(record) {
             if (record.raw.notEstimatedData) {
                 var data = [],
