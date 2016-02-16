@@ -6,6 +6,7 @@ Ext.define('Isu.view.overview.Section', {
         'Uni.view.widget.Bar'
     ],
     title: null,
+    minHeight: 235,
     itemsInCollapsedMode: 5,
     buttonAlign: 'left',
     buttons: [
@@ -29,7 +30,9 @@ Ext.define('Isu.view.overview.Section', {
             Ext.suspendLayouts();
             me.removeAll(true);
             me.down('button').setVisible(store.getCount() > me.itemsInCollapsedMode);
-
+            if (me.down('button').isVisible()) {
+                me.down('button').setText(Uni.I18n.translate('overview.issues.showMore', 'ISU', 'Show more'));
+            }
             if (section == 'assignee') {
                 var unassigned = store.findRecord('id', -1);
                 if (unassigned) {
@@ -82,7 +85,7 @@ Ext.define('Isu.view.overview.Section', {
                         view.collapsed = store.getCount() > me.itemsInCollapsedMode;
                         view.expandedHeight = view.getHeight();
                         view.collapsedHeight = view.expandedHeight / store.getCount() * me.itemsInCollapsedMode;
-                        if (view.collapsed) view.setHeight(view.collapsedHeight);
+                        if (view.collapsed) view.setHeight(view.collapsedHeight - 5);
                     }
                 }
             });
@@ -99,7 +102,7 @@ Ext.define('Isu.view.overview.Section', {
         view.animate({
             duration: 300,
             to: {
-                height: (view.collapsed ? view.expandedHeight : view.collapsedHeight)
+                height: (view.collapsed ? view.expandedHeight : view.collapsedHeight - 5)
             }
         });
         view.collapsed = !view.collapsed;

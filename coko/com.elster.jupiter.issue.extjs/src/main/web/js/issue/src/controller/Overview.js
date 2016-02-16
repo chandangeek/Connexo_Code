@@ -8,7 +8,6 @@ Ext.define('Isu.controller.Overview', {
     stores: [
         'Isu.store.Clipboard',
         'Isu.store.IssueStatuses',
-        'Isu.store.DeviceGroups',
         'Isu.store.DueDate'
     ],
 
