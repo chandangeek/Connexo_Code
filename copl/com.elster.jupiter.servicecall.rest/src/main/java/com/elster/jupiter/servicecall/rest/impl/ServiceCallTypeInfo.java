@@ -9,6 +9,8 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.Status;
 import sun.rmi.runtime.Log;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class ServiceCallTypeInfo {
@@ -19,6 +21,7 @@ public class ServiceCallTypeInfo {
     public Status status;
     public IdWithDisplayValueInfo<String> logLevel;
     public IdWithNameInfo serviceCallLifeCycle;
+    public List<ServiceCallTypeCustomPropertySetInfo> customPropertySets;
 
     public ServiceCallTypeInfo() {
     }
@@ -33,6 +36,10 @@ public class ServiceCallTypeInfo {
         Optional<ServiceCallLifeCycle> serviceCallLifeCycle = serviceCallType.getServiceCallLifeCycle();
         this.serviceCallLifeCycle = serviceCallLifeCycle.isPresent() ?
                 new IdWithNameInfo(serviceCallLifeCycle.get().getId(), serviceCallLifeCycle.get().getName()) : null;
+        customPropertySets = new ArrayList<>();
+        serviceCallType.getCustomPropertySets().stream()
+                .forEach(cps -> this.customPropertySets.add(new ServiceCallTypeCustomPropertySetInfo(cps)));
+        //this.customPropertySets = new ServiceCallTypeCustomPropertySetInfo;
     }
 
 }
