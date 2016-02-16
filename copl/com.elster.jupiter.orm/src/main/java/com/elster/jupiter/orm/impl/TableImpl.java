@@ -706,13 +706,13 @@ public class TableImpl<T> implements Table<T> {
 	private List<ForeignKeyConstraintImpl> getReverseConstraints() {
 		ImmutableList.Builder<ForeignKeyConstraintImpl> builder = new ImmutableList.Builder<>();
 		for (TableImpl<?> table : getDataModel().getTables()) {
-			if (!table.equals(this)) {
+			//if (!table.equals(this)) {
 				for (ForeignKeyConstraintImpl each : table.getForeignKeyConstraints()) {
 					if (each.getReferencedTable().equals(this)) {
 						builder.add(each);
 					}
 				}
-			}
+			//}
 		}
 		return builder.build();
 	}
