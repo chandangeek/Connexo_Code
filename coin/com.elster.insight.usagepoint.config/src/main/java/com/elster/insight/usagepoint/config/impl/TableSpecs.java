@@ -6,6 +6,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
+import java.util.List;
+
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
@@ -16,32 +18,33 @@ public enum TableSpecs {
                     .addTable(name(), MetrologyConfigurationValidationRuleSetUsage.class);
             table.map(MetrologyConfigurationValidationRuleSetUsageImpl.class);
             table.setJournalTableName("UPC_MCVALRULESETUSAGEJRNL");
-            Column validationRuleSetIdColumn = table
+            Column validationRule = table
                     .column("VALIDATIONRULESETID")
                     .type("number")
                     .notNull()
                     .conversion(NUMBER2LONG)
                     .add();
-            Column metrologyConfigurationIdColumn = table
+            Column metrologyConfiguration = table
                     .column("METROLOGYCONFIGID")
                     .type("number")
                     .notNull()
                     .conversion(NUMBER2LONG)
                     .add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
 
             table.primaryKey("UPC_PK_SETCONFIGUSAGE")
-                    .on(validationRuleSetIdColumn, metrologyConfigurationIdColumn)
+                    .on(validationRule, metrologyConfiguration, intervalColumns.get(0))
                     .add();
             table.foreignKey("UPC_FK_RULESET")
                     .references(ValidationRuleSet.class)
                     .onDelete(RESTRICT)
                     .map(MetrologyConfigurationValidationRuleSetUsageImpl.Fields.VALIDATION_RULE_SET.fieldName())
-                    .on(validationRuleSetIdColumn)
+                    .on(validationRule)
                     .add();
             table.foreignKey("UPC_FK_METROLOGYCONFIG")
                     .references(MetrologyConfiguration.class)
                     .map(MetrologyConfigurationValidationRuleSetUsageImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
-                    .on(metrologyConfigurationIdColumn)
+                    .on(metrologyConfiguration)
                     .add();
         }
     };

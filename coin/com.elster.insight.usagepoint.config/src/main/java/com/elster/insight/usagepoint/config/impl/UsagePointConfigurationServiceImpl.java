@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
@@ -203,13 +204,15 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public void addValidationRuleSet(MetrologyConfiguration metrologyConfiguration, ValidationRuleSet validationRuleSet) {
-        MetrologyConfigurationValidationRuleSetUsageImpl newUsage = this.dataModel.getInstance(MetrologyConfigurationValidationRuleSetUsageImpl.class).init(metrologyConfiguration, validationRuleSet);
-        getDataModel().persist(newUsage);
+        this.dataModel
+                .getInstance(MetrologyConfigurationValidationRuleSetUsageImpl.class)
+                .initAndSave(metrologyConfiguration, validationRuleSet, this.clock.instant());
     }
 
     @Override
     public void removeValidationRuleSet(MetrologyConfiguration metrologyConfiguration, ValidationRuleSet validationRuleSet) {
-        List<MetrologyConfigurationValidationRuleSetUsage> atMostOneUsage = this.dataModel
+        List<MetrologyConfigurationValidationRuleSetUsage> atMostOneUsage =
+            this.dataModel
                 .mapper(MetrologyConfigurationValidationRuleSetUsage.class)
                 .find(
                     MetrologyConfigurationValidationRuleSetUsageImpl.Fields.METROLOGY_CONFIGURATION.fieldName(), metrologyConfiguration,
@@ -224,9 +227,11 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public List<ValidationRuleSet> getValidationRuleSets(MetrologyConfiguration metrologyConfiguration) {
+        Condition condition = where(MetrologyConfigurationValidationRuleSetUsageImpl.Fields.INTERVAL.fieldName()).isEffective()
+                         .and(where(MetrologyConfigurationValidationRuleSetUsageImpl.Fields.METROLOGY_CONFIGURATION.fieldName()).isEqualTo(metrologyConfiguration));
         return this.dataModel
-                .mapper(MetrologyConfigurationValidationRuleSetUsage.class)
-                .find(MetrologyConfigurationValidationRuleSetUsageImpl.Fields.METROLOGY_CONFIGURATION.fieldName(), metrologyConfiguration)
+                .query(MetrologyConfigurationValidationRuleSetUsage.class)
+                .select(condition)
                 .stream()
                 .map(MetrologyConfigurationValidationRuleSetUsage::getValidationRuleSet)
                 .collect(Collectors.toList());

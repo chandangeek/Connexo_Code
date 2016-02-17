@@ -1,8 +1,8 @@
 package com.elster.insight.usagepoint.config.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.impl.config.MessageSeeds;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -20,7 +20,10 @@ class MetrologyConfigurationValidationRuleSetUsageImpl implements MetrologyConfi
 
     enum Fields {
         METROLOGY_CONFIGURATION("metrologyConfiguration"),
-        VALIDATION_RULE_SET("validationRuleSet");
+        VALIDATION_RULE_SET("validationRuleSet"),
+        INTERVAL("interval"),
+        INTERVAL_START("interval.start"),
+        INTERVAL_END("interval.end");
 
         private final String javaFieldName;
 
@@ -34,9 +37,9 @@ class MetrologyConfigurationValidationRuleSetUsageImpl implements MetrologyConfi
     }
 
     private Interval interval;
-    @NotEmpty(message = MessageSeeds.Keys.REQUIRED)
+    @NotEmpty(message = MessageSeeds.Constants.REQUIRED)
     private Reference<ValidationRuleSet> validationRuleSet = ValueReference.absent();
-    @NotEmpty(message = MessageSeeds.Keys.REQUIRED)
+    @NotEmpty(message = MessageSeeds.Constants.REQUIRED)
     private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
 
     private final DataModel dataModel;
@@ -46,9 +49,11 @@ class MetrologyConfigurationValidationRuleSetUsageImpl implements MetrologyConfi
         this.dataModel = dataModel;
     }
 
-    MetrologyConfigurationValidationRuleSetUsageImpl init(MetrologyConfiguration metrologyConfiguration, ValidationRuleSet validationRuleSet) {
+    MetrologyConfigurationValidationRuleSetUsageImpl initAndSave(MetrologyConfiguration metrologyConfiguration, ValidationRuleSet validationRuleSet, Instant start) {
         this.validationRuleSet.set(validationRuleSet);
         this.metrologyConfiguration.set(metrologyConfiguration);
+        this.interval = Interval.startAt(start);
+        this.dataModel.persist(this);
         return this;
     }
 
@@ -73,6 +78,7 @@ class MetrologyConfigurationValidationRuleSetUsageImpl implements MetrologyConfi
             throw new IllegalArgumentException();
         }
         this.interval = this.interval.withEnd(closingDate);
+        this.dataModel.update(this);
     }
 
 }
