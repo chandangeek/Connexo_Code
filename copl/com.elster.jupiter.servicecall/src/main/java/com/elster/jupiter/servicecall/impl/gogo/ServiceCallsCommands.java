@@ -1,16 +1,18 @@
 package com.elster.jupiter.servicecall.impl.gogo;
 
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import javax.inject.Inject;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by bvn on 2/12/16.
@@ -48,7 +50,13 @@ public class ServiceCallsCommands {
     }
 
     public void serviceCallTypes() {
-        serviceCallService.getServiceCallTypes().stream().forEach(sct -> System.out.println(sct.getName()+" "+sct.getVersionName()));
+        serviceCallService.getServiceCallTypes().stream()
+                .forEach(sct -> System.out.println(sct.getName() + " " + sct.getVersionName() + " custom property sets: " + String
+                        .join(" + ", sct.getCustomPropertySets()
+                                .stream()
+                                .map(RegisteredCustomPropertySet::getCustomPropertySet)
+                                .map(CustomPropertySet::getName)
+                                .collect(toList()))));
     }
 
     public void createServiceCallType() {

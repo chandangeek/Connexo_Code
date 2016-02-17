@@ -1,6 +1,5 @@
 package com.elster.jupiter.servicecall;
 
-import aQute.service.reporter.Messages;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
@@ -30,17 +29,10 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -52,6 +44,15 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -232,6 +233,26 @@ public class ServiceCallIT {
             Optional<ServiceCallType> serviceCallTypeReloadedAgain = serviceCallService.findServiceCallType("primer", "v1");
             assertThat(serviceCallTypeReloadedAgain).isPresent();
             assertThat(serviceCallTypeReloadedAgain.get().getLogLevel()).isEqualTo(LogLevel.SEVERE);
+        }
+    }
+
+    @Test
+    public void testLockServiceCallType() throws Exception {
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").add();
+            Optional<ServiceCallType> serviceCallTypeReloaded = serviceCallService.findAndLockServiceCallType(serviceCallType
+                    .getId(), serviceCallType.getVersion());
+            assertThat(serviceCallTypeReloaded.isPresent()).isTrue();
+        }
+    }
+
+    @Test
+    public void testLockServiceCallTypeIncorrectVersion() throws Exception {
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").add();
+            Optional<ServiceCallType> serviceCallTypeReloaded = serviceCallService.findAndLockServiceCallType(serviceCallType
+                    .getId(), serviceCallType.getVersion() - 1);
+            assertThat(serviceCallTypeReloaded).isEmpty();
         }
     }
 }

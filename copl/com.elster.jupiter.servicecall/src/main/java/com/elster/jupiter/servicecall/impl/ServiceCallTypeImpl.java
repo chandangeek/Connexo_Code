@@ -1,14 +1,11 @@
 package com.elster.jupiter.servicecall.impl;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
-import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.Status;
@@ -135,11 +132,6 @@ public class ServiceCallTypeImpl implements ServiceCallType {
     public void setCurrentLifeCycleState(DefaultState currentLifeCycleState) {
         // todo transition life cycle
         this.currentLifeCycleState = currentLifeCycleState;
-    }
-
-    @Override
-    public Optional<CustomPropertySet<ServiceCall, ? extends PersistentDomainExtension<ServiceCall>>> getCustomPropertySet() {
-        return Optional.empty();
     }
 
     @Override

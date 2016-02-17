@@ -1,12 +1,16 @@
 package com.elster.jupiter.servicecall.impl;
 
-import com.elster.jupiter.cps.*;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.PersistenceSupport;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -21,7 +25,7 @@ import java.util.Set;
 /**
  * Created by bvn on 2/15/16.
  */
-@Component(name = "com.elster.jupiter.RegisterTypeFiveCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+@Component(name = "com.elster.jupiter.ServcieCallTypeCustomPropertySet", service = CustomPropertySet.class, immediate = true)
 public class ServiceCallTypeOneCustomPropertySet implements CustomPropertySet<ServiceCallType, ServiceCallTypeDomainExtension> {
 
     public ServiceCallTypeOneCustomPropertySet() {
