@@ -6,7 +6,8 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
         'Imt.usagepointmanagement.view.forms.GeneralInfo',
         'Imt.usagepointmanagement.view.forms.ElectricityInfo',
         'Imt.usagepointmanagement.view.forms.GasInfo',
-        'Imt.usagepointmanagement.view.forms.WaterInfo'
+        'Imt.usagepointmanagement.view.forms.WaterInfo',
+        'Imt.usagepointmanagement.view.forms.ThermalInfo'
     ],
 
     layout: 'card',
