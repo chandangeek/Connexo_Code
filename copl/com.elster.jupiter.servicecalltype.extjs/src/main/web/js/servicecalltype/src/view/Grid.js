@@ -23,7 +23,7 @@ Ext.define('Sct.view.Grid', {
             },
             {
                 header: Uni.I18n.translate('general.status', 'SCT', 'Status'),
-                dataIndex: 'status',
+                dataIndex: 'statusName',
                 flex: 1
             },
             {

@@ -1,7 +1,7 @@
 Ext.define('Sct.model.ServiceCallType', {
     extend: 'Uni.model.Version',
     fields: [
-        'name', 'versionName', 'logLevel','serviceCallLifeCycle', 'customPropertySets',
+        'name', 'versionName', 'logLevel', 'status', 'serviceCallLifeCycle', 'customPropertySets',
         {
             name: 'version',
             defaultValue: 0
@@ -9,17 +9,6 @@ Ext.define('Sct.model.ServiceCallType', {
         {
             name: 'id',
             type: 'int'
-        },
-        {
-            name: 'status',
-            persist: false,
-            mapping: function (data) {
-                if (data.active) {
-                    return Uni.I18n.translate('general.active', 'SCT', 'Active');
-                } else {
-                    return Uni.I18n.translate('general.inactive', 'SCT', 'Inactive');
-                }
-            }
         },
         {
             name: 'lifecycle',
@@ -38,6 +27,18 @@ Ext.define('Sct.model.ServiceCallType', {
             mapping: function (data) {
                 if(data.logLevel) {
                     return data.logLevel.displayValue;
+                } else {
+                    return 'undefined';
+                }
+            }
+        }
+        ,
+        {
+            name: 'statusName',
+            persist: false,
+            mapping: function (data) {
+                if(data.status) {
+                    return data.status.displayValue;
                 } else {
                     return 'undefined';
                 }
