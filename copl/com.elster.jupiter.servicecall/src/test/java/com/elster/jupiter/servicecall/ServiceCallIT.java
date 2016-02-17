@@ -190,6 +190,7 @@ public class ServiceCallIT {
             assertThat(serviceCallTypes.get(0).getName()).isEqualTo("primer");
             assertThat(serviceCallTypes.get(0).getVersionName()).isEqualTo("v1");
             assertThat(serviceCallTypes.get(0).getLogLevel()).isEqualTo(LogLevel.INFO);
+            assertThat(serviceCallTypes.get(0).getStatus()).isEqualTo(Status.ACTIVE);
         }
 
     }
@@ -204,6 +205,7 @@ public class ServiceCallIT {
             assertThat(serviceCallTypes.get(0).getName()).isEqualTo("primer");
             assertThat(serviceCallTypes.get(0).getVersionName()).isEqualTo("v1");
             assertThat(serviceCallTypes.get(0).getLogLevel()).isEqualTo(LogLevel.WARNING);
+            assertThat(serviceCallTypes.get(0).getStatus()).isEqualTo(Status.ACTIVE);
         }
     }
 

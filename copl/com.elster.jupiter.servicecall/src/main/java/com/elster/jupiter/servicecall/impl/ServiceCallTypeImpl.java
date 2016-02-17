@@ -47,6 +47,7 @@ public class ServiceCallTypeImpl implements ServiceCallType {
     @Inject
     public ServiceCallTypeImpl(DataModel dataModel) {
         this.dataModel = dataModel;
+        this.status = Status.ACTIVE;
     }
 
     public enum Fields {
