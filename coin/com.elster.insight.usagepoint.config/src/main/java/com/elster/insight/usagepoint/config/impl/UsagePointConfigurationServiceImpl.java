@@ -1,85 +1,70 @@
 package com.elster.insight.usagepoint.config.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.math.BigDecimal;
-import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
-
-import com.elster.insight.usagepoint.config.Formula;
-import com.elster.insight.usagepoint.config.impl.aggregation.ExpressionNode;
-import com.elster.insight.usagepoint.config.impl.aggregation.ServerFormulaImpl;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.insight.usagepoint.config.impl.errors.MessageSeeds;
-import com.elster.insight.usagepoint.config.security.Privileges;
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Module;
-
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.insight.usagepoint.config.impl.UsagePointConfigurationServiceImpl",
-        service = {UsagePointConfigurationService.class, InstallService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
+        service = {UsagePointConfigurationService.class, InstallService.class},
         property = {"name=" + UsagePointConfigurationService.COMPONENTNAME},
         immediate = true)
-public class UsagePointConfigurationServiceImpl implements UsagePointConfigurationService, InstallService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
+public class UsagePointConfigurationServiceImpl implements UsagePointConfigurationService, InstallService {
 
     private volatile DataModel dataModel;
     private volatile Clock clock;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile EventService eventService;
     private volatile ValidationService validationService;
     private volatile UserService userService;
-    private volatile CustomPropertySetService customPropertySetService;
     private volatile Thesaurus thesaurus;
 
-    @SuppressWarnings("unused")
+    // For OSGi purpose
     public UsagePointConfigurationServiceImpl() {
+        super();
     }
 
+    // For testing purposes
     @Inject
     public UsagePointConfigurationServiceImpl(Clock clock, OrmService ormService, EventService eventService, UserService userService,
-                                              ValidationService validationService, NlsService nlsService,
-                                              CustomPropertySetService customPropertySetService) {
+                                              ValidationService validationService, NlsService nlsService, MetrologyConfigurationService metrologyConfigurationService) {
+        this();
         setClock(clock);
         setOrmService(ormService);
+        setMetrologyConfigurationService(metrologyConfigurationService);
         setEventService(eventService);
         setUserService(userService);
         setValidationService(validationService);
-        setCustomPropertySetService(customPropertySetService);
         setNlsService(nlsService);
         activate();
         if (!dataModel.isInstalled()) {
@@ -96,7 +81,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 bind(Clock.class).toInstance(clock);
                 bind(ValidationService.class).toInstance(validationService);
                 bind(UserService.class).toInstance(userService);
-                bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UsagePointConfigurationService.class).toInstance(UsagePointConfigurationServiceImpl.this);
@@ -111,7 +95,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public void install() {
-        new Installer(dataModel, eventService).install(true, true, true);
+        new Installer(dataModel, eventService).install(true, true);
     }
 
     @Override
@@ -122,6 +106,11 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Reference
@@ -148,11 +137,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Reference
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        this.customPropertySetService = customPropertySetService;
-    }
-
-    @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
@@ -163,84 +147,44 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public MetrologyConfiguration newMetrologyConfiguration(String name) {
-        MetrologyConfigurationImpl metrologyConfiguration = dataModel.getInstance(MetrologyConfigurationImpl.class).init(name);
-        metrologyConfiguration.update();
-        return metrologyConfiguration;
-    }
-
-    @Override
-    public Formula newFormula(Formula.Mode mode, ExpressionNode node) {
-        Formula formula = dataModel.getInstance(ServerFormulaImpl.class).init(mode, node);
-        formula.save();
-        return formula;
+        return this.metrologyConfigurationService.newMetrologyConfiguration(name);
     }
 
     @Override
     public Optional<MetrologyConfiguration> findMetrologyConfiguration(long id) {
-        return dataModel.mapper(MetrologyConfiguration.class).getUnique("id", id);
-    }
-
-    @Override
-    public Optional<Formula> findFormula(long id) {
-        return dataModel.mapper(Formula.class).getUnique("id", id);
+        return this.metrologyConfigurationService.findMetrologyConfiguration(id);
     }
 
     @Override
     public Optional<MetrologyConfiguration> findMetrologyConfiguration(String name) {
-        return dataModel.mapper(MetrologyConfiguration.class).getUnique("name", name);
+        return this.metrologyConfigurationService.findMetrologyConfiguration(name);
     }
 
     @Override
     public List<MetrologyConfiguration> findAllMetrologyConfigurations() {
-        return DefaultFinder.of(MetrologyConfiguration.class, this.getDataModel()).defaultSortColumn("lower(name)").find();
+        return this.metrologyConfigurationService.findAllMetrologyConfigurations();
     }
 
     @Override
-    public UsagePointMetrologyConfiguration link(UsagePoint up, MetrologyConfiguration mc) {
-        Optional<UsagePointMetrologyConfiguration> link = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(where("usagePoint").isEqualTo(up)).stream().findFirst();
-        if (link.isPresent()) {
-            link.get().updateMetrologyConfiguration(mc);
-            return link.get();
-        }
-        UsagePointMetrologyConfigurationImpl candidate = dataModel.getInstance(UsagePointMetrologyConfigurationImpl.class);
-        candidate.init(up, mc);
-        candidate.update();
-        return candidate;
+    public void link(UsagePoint usagePoint, MetrologyConfiguration metrologyConfiguration) {
+        usagePoint.apply(metrologyConfiguration, this.clock.instant());
     }
 
     @Override
-    public Boolean unlink(UsagePoint up, MetrologyConfiguration mc) {
-        Boolean result = false;
-        Optional<UsagePointMetrologyConfiguration> link = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(where("usagePoint").isEqualTo(up)).stream().findFirst();
-        if (link.isPresent()) {
-            UsagePointMetrologyConfiguration usage = link.get();
-            usage.getMetrologyConfiguration().getCustomPropertySets()
-                    .stream()
-                    .map(RegisteredCustomPropertySet::getCustomPropertySet)
-                    .forEach(cps -> customPropertySetService.removeValuesFor(cps, usage.getUsagePoint()));
-            usage.delete();
-            result = true;
-        }
-        return result;
+    public Boolean unlink(UsagePoint usagePoint, MetrologyConfiguration mc) {
+        usagePoint.removeMetrologyConfiguration(this.clock.instant());
+        return Boolean.TRUE;
     }
 
     @Override
-    public Optional<MetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint up) {
-        Optional<UsagePointMetrologyConfiguration> obj = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(where("usagePoint").isEqualTo(up)).stream().findFirst();
-        if (!obj.isPresent()) {
-            return Optional.empty();
-        }
-        return Optional.of(obj.get().getMetrologyConfiguration());
+    public Optional<MetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint usagePoint) {
+        return usagePoint.getMetrologyConfiguration();
     }
 
     @Override
-    public List<UsagePoint> findUsagePointsForMetrologyConfiguration(MetrologyConfiguration mc) {
-        return this.getDataModel()
-                .query(UsagePointMetrologyConfiguration.class)
-                .select(where("metrologyConfiguration").isEqualTo(mc))
-                .stream()
-                .map(UsagePointMetrologyConfiguration::getUsagePoint)
-                .collect(Collectors.toList());
+    public List<UsagePoint> findUsagePointsForMetrologyConfiguration(MetrologyConfiguration metrologyConfiguration) {
+        // This is
+        return Collections.emptyList();
     }
 
     @Override
@@ -259,36 +203,38 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Override
-    public String getModuleName() {
-        return UsagePointConfigurationService.COMPONENTNAME;
+    public void addValidationRuleSet(MetrologyConfiguration metrologyConfiguration, ValidationRuleSet validationRuleSet) {
+        this.dataModel
+                .getInstance(MetrologyConfigurationValidationRuleSetUsageImpl.class)
+                .initAndSave(metrologyConfiguration, validationRuleSet, this.clock.instant());
     }
 
     @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                Privileges.RESOURCE_METROLOGY_CONFIG.getKey(), Privileges.RESOURCE_METROLOGY_CONFIGURATION_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION)));
-        return resources;
+    public void removeValidationRuleSet(MetrologyConfiguration metrologyConfiguration, ValidationRuleSet validationRuleSet) {
+        List<MetrologyConfigurationValidationRuleSetUsage> atMostOneUsage =
+            this.dataModel
+                .mapper(MetrologyConfigurationValidationRuleSetUsage.class)
+                .find(
+                    MetrologyConfigurationValidationRuleSetUsageImpl.Fields.METROLOGY_CONFIGURATION.fieldName(), metrologyConfiguration,
+                    MetrologyConfigurationValidationRuleSetUsageImpl.Fields.VALIDATION_RULE_SET.fieldName(), validationRuleSet);
+        if (atMostOneUsage.isEmpty()) {
+            return; // ValidationRuletSet was not added to MetrologyConfiguration before
+        } else {
+            // There can be only 1 because of the primary key
+            atMostOneUsage.get(0).close(this.clock.instant());
+        }
     }
 
     @Override
-    public String getComponentName() {
-        return getModuleName();
+    public List<ValidationRuleSet> getValidationRuleSets(MetrologyConfiguration metrologyConfiguration) {
+        Condition condition = where(MetrologyConfigurationValidationRuleSetUsageImpl.Fields.INTERVAL.fieldName()).isEffective()
+                         .and(where(MetrologyConfigurationValidationRuleSetUsageImpl.Fields.METROLOGY_CONFIGURATION.fieldName()).isEqualTo(metrologyConfiguration));
+        return this.dataModel
+                .query(MetrologyConfigurationValidationRuleSetUsage.class)
+                .select(condition)
+                .stream()
+                .map(MetrologyConfigurationValidationRuleSetUsage::getValidationRuleSet)
+                .collect(Collectors.toList());
     }
 
-    @Override
-    public Layer getLayer() {
-        return Layer.DOMAIN;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        return Arrays.asList(Privileges.values());
-    }
-
-    @Override
-    public List<MessageSeed> getSeeds() {
-        return Arrays.asList(MessageSeeds.values());
-    }
 }
