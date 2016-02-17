@@ -15,7 +15,8 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
     ],
     views: [
         'Imt.usagepointmanagement.view.Setup',
-        'Imt.usagepointmanagement.view.MetrologyConfigurationSetup'
+        'Imt.usagepointmanagement.view.MetrologyConfigurationSetup',
+        'Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechnicalAttributesPanel'
     ],
     refs: [
         {ref: 'associatedDevices', selector: 'associated-devices'},
@@ -33,6 +34,12 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
     init: function () {
         this.control({
             'usage-point-management-setup inline-editable-set-property-form': {
+                saveClick: this.saveUsagePointAttributes
+            },
+            'usage-point-management-setup usage-point-main-attributes-panel': {
+                saveClick: this.saveUsagePointAttributes
+            },
+            'usage-point-management-setup usage-point-technical-attributes-panel': {
                 saveClick: this.saveUsagePointAttributes
             }
         });
@@ -129,18 +136,23 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         customAttributesStoreMetrology.getProxy().setUrl(record.get('mRID'));
         customAttributesModelMetrology.getProxy().setUrl(record.get('mRID'));
 
-        Ext.suspendLayouts();
+
 
         me.getUsagePointAttributes().setLoading(true);
+
+        Ext.suspendLayouts();
         me.getAttributesPanel().add({
             xtype: 'usage-point-main-attributes-panel',
             record: record
         });
-        me.getAttributesPanel().add({
-            xtype: 'usage-point-main-attributes-panel',
-            record: record,
-            category: record.get('serviceCategory')
-        });
+
+        if(record.get('techInfo')){
+            me.getAttributesPanel().add({
+                xtype: 'usage-point-technical-attributes-panel',
+                record: record,
+                category: record.get('serviceCategory')
+            });
+        }
         Ext.resumeLayouts(true);
 
         customAttributesStoreUsagePoint.load(function () {
@@ -155,43 +167,41 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         });
     },
 
-    showMetrologyConfiguration: function (mRID, id) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            metrologyConfigurationModel = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration'),
-            linkedStore = Ext.getStore('Imt.metrologyconfiguration.store.LinkedValidationRulesSet'),
-            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
-
-        linkedStore.getProxy().setUrl(id);
-    	linkedStore.load(function () {
-            if (this.getCount() === 0) {
-               this.add({id:'0', name:'-'});
-            }
-        });
-	
-        pageMainContent.setLoading(true);
-
-        metrologyConfigurationModel.load(id, {
-
-            success: function (record) {
-                me.getApplication().fireEvent('metrologyConfigurationLoaded', record);
-                var widget = Ext.widget('up-metrology-configuration-setup', {router: router});
-                var actualModel = Ext.create('Imt.metrologyconfiguration.model.MetrologyConfiguration', record.data);
-                var actualForm = Ext.create('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm', {router: router});
-                
-                me.getApplication().fireEvent('changecontentevent', widget);
-                me.getMcAttributesPanel().add(actualForm);
-                actualForm.getForm().loadRecord(actualModel);
-                pageMainContent.setLoading(false);
-            }
-        });
-    },
+    //showMetrologyConfiguration: function (mRID, id) {
+    //    var me = this,
+    //        router = me.getController('Uni.controller.history.Router'),
+    //        metrologyConfigurationModel = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration'),
+    //        linkedStore = Ext.getStore('Imt.metrologyconfiguration.store.LinkedValidationRulesSet'),
+    //        pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+    //
+    //    linkedStore.getProxy().setUrl(id);
+    //	linkedStore.load(function () {
+    //        if (this.getCount() === 0) {
+    //           this.add({id:'0', name:'-'});
+    //        }
+    //    });
+    //
+    //    pageMainContent.setLoading(true);
+    //
+    //    metrologyConfigurationModel.load(id, {
+    //
+    //        success: function (record) {
+    //            me.getApplication().fireEvent('metrologyConfigurationLoaded', record);
+    //            var widget = Ext.widget('up-metrology-configuration-setup', {router: router});
+    //            var actualModel = Ext.create('Imt.metrologyconfiguration.model.MetrologyConfiguration', record.data);
+    //            var actualForm = Ext.create('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm', {router: router});
+    //
+    //            me.getApplication().fireEvent('changecontentevent', widget);
+    //            me.getMcAttributesPanel().add(actualForm);
+    //            actualForm.getForm().loadRecord(actualModel);
+    //            pageMainContent.setLoading(false);
+    //        }
+    //    });
+    //},
 
     saveUsagePointAttributes: function(form, record){
         var me = this,
             router = me.getController('Uni.controller.history.Router');
-        form.updateRecord();
-        record.set('parent', me.parent);
 
         record.save({
             success: function (record, response, success) {

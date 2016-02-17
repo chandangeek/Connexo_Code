@@ -1,10 +1,8 @@
-Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAttributesPanel', {
+Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechnicalAttributesPanel', {
     extend: 'Ext.panel.Panel',
-    alias: 'widget.usage-point-main-attributes-panel',
-    itemId: 'GENERAL-attribute-set',
+    alias: 'widget.usage-point-technical-attributes-panel',
 
     requires: [
-        'Imt.usagepointmanagement.view.landingpageattributes.GeneralAttributesForm',
         'Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttributesFormElectricity',
         'Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttributesFormWater',
         'Imt.usagepointmanagement.view.SetupActionMenu'
@@ -13,26 +11,36 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
         type: 'vbox',
         align: 'stretch'
     },
-    record: null,
+    category: null,
+    //record: null,
 
     initComponent: function () {
         var me = this,
-            action = Ext.create('Ext.menu.Item', {
-                itemId: 'action-menu-general-attributes-form',
-                menuItemClass: 'inlineEditableAttributeSet',
+            config = Imt.usagepointmanagement.service.AttributesMaps.getTechnicalAttributesConfig(me.category),
+            action,
+            techInfoModel;
+
+        techInfoModel = Ext.create(
+            config.model,
+            me.record.get('techInfo')
+        );
+
+        action = Ext.create('Ext.menu.Item',{
+            itemId: 'action-menu-' + config.form,
+            menuItemClass: 'inlineEditableAttributeSet',
 //                    privileges: Imt.privileges.Device.administrateDeviceData,
-                text: Uni.I18n.translate('general.editGeneralInformation', 'IMT', "Edit 'General information'"),
-                handler: function () {
-                    me.toEditMode(true, this);
-                }
-            });
+            text: Uni.I18n.translate('general.editTechnicalInformation', 'IMT', "Edit 'Technical information'"),
+            handler: function () {
+                me.toEditMode(true, this);
+            }
+        });
 
         me.items = [
-            {
+                {
                 xtype: 'title-with-edit-button',
                 pencilBtnItemId: '',
-                title: Uni.I18n.translate('general.generalInformation', 'IMT', 'General information'),
-                editHandler: function () {
+                title: Uni.I18n.translate('general.technicalInformation', 'IMT', 'Technical information'),
+                editHandler: function(){
                     me.toEditMode(true, action);
                 }
             },
@@ -57,15 +65,19 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
                             click: me.onSaveClick,
                             scope: me
                         }
-                        //handler: function () {
-                        //    var record = me.down('#edit-form').getRecord();
+                        //handler: function(){
+                        //    var  record = me.down('#edit-form').getRecord();
                         //    var baseRecord = record.copy();
                         //
                         //    record.set(me.down('#edit-form').getValues());
                         //
-                        //    record.save({
+                        //    Ext.Ajax.request({
+                        //        url: Ext.String.format('/api/udr/usagepoints/{0}', encodeURIComponent(record.get('mRID'))),
+                        //        method: 'PUT',
+                        //        jsonData: Ext.encode(record.getData()),
+                        //        timeout: 300000,
                         //        success: function () {
-                        //        },
+                        //       },
                         //        failure: function (response) {
                         //            var responseText = Ext.decode(response.responseText, true);
                         //            if (responseText && Ext.isArray(responseText.errors)) {
@@ -73,24 +85,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
                         //            }
                         //            record.set(baseRecord.getData());
                         //        }
-                        //
                         //    });
-                        //
-                        //    //Ext.Ajax.request({
-                        //    //    url: Ext.String.format('/api/udr/usagepoints/{0}', encodeURIComponent(record.get('mRID'))),
-                        //    //    method: 'PUT',
-                        //    //    jsonData: Ext.encode(record.getData()),
-                        //    //    timeout: 300000,
-                        //    //    success: function () {
-                        //    //    },
-                        //    //    failure: function (response) {
-                        //    //        var responseText = Ext.decode(response.responseText, true);
-                        //    //        if (responseText && Ext.isArray(responseText.errors)) {
-                        //    //            me.down('#edit-form').markInvalid(responseText.errors);
-                        //    //        }
-                        //    //        record.set(baseRecord.getData());
-                        //    //    }
-                        //    //});
                         //}
                     },
                     {
@@ -106,13 +101,13 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
         ];
         me.callParent();
 
-        me.addAttributes('general-attributes-form', action);
+        me.addAttributes(config.form, techInfoModel, action);
     },
 
-    addAttributes: function (actualForm, action) {
+    addAttributes: function(form, record, action){
         var me = this,
-            actionMenuArray = Ext.ComponentQuery.query('usage-point-setup-action-menu');
-
+            actionMenuArray=Ext.ComponentQuery.query('usage-point-setup-action-menu');
+        me.itemId =  me.category + '-attribute-set';
 
         Ext.suspendLayouts();
 
@@ -120,21 +115,28 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
             menu.add(action);
         });
 
-        me.add(1, {
-            xtype: actualForm
+        me.add(1,{
+            xtype: form
         });
 
         Ext.resumeLayouts(true);
 
-        me.down('#edit-form').getForm().loadRecord(me.record);
-        me.down('#view-form').getForm().loadRecord(me.record);
+        me.down('#edit-form').getForm().loadRecord(record);
+        me.down('#view-form').getForm().loadRecord(record);
     },
 
-    toEditMode: function (isEdit, action) {
-        var me = this;
+    toEditMode: function(isEdit, action){
+        var me =this;
 
         Ext.suspendLayouts();
-        if (isEdit) {
+        if(isEdit){
+            //if(me.category){
+            //    Ext.each(me.record.fields.items, function(value){
+            //        if(value.customType && value.customType == 'quantity'){
+            //            me.record.get(value.name) && me.down('#' + value.name + '-quantity').setQuantityValue(me.record.get(value.name));
+            //        }
+            //    });
+            //}
             me.down('#pencil-btn').hide();
             me.down('#view-form').hide();
             me.down('#edit-form').show();
@@ -149,16 +151,16 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
         }
         Ext.resumeLayouts(true);
 
-        me.down('#edit-form').loadRecord(me.record);
+        //me.down('#edit-form').loadRecord(actualModel);
         Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(isEdit);
     },
 
     onSaveClick: function () {
         var me = this,
             form = me.down('#edit-form');
-        var values = form.getValues(),
-            record = me.record.copy(me.record.get('mRID'));
-        record.set(values);
-        me.fireEvent('saveClick', form, record);
+        var  techInfo = form.getRecord();
+
+        me.record.set('techInfo', techInfo);
+        me.fireEvent('saveClick', form, me.record);
     }
 });

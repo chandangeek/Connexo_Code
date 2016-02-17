@@ -112,7 +112,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                     handler: function () {
                         Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(false);
                         me.model.load(me.record.get('id'),{
-                            url: '/api/udr/usagepoints/' + me.parent.mRID + '/properties/',
+                            url: Ext.String.format('/api/udr/usagepoints/{0}/properties/', encodeURIComponent(me.parent.mRID)),
                             success: function(record){
                                 me.record = record;
                                 me.down('property-form').makeNotEditable(record);
@@ -168,7 +168,10 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
     },
 
     onSaveClick: function () {
-        var form = this.down('property-form');
-        this.fireEvent('saveClick', form, this.record);
+        var me =this,
+            form = this.down('property-form');
+        form.updateRecord();
+        me.record.set('parent', me.parent);
+        me.fireEvent('saveClick', form, this.record);
     }
 });

@@ -9,7 +9,9 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'mRID', type: 'string'},
         {name: 'serviceCategory', type: 'auto', defaultValue: null},
         {name: 'name', type: 'string'},
-        {name: 'createTime', type: 'date', dateFormat: 'time', defaultValue: new Date().getTime()},
+        {name: 'version', type: 'int'},
+        //{name: 'createTime', type: 'date', dateFormat: 'time', defaultValue: new Date().getTime()},
+        {name: 'createTime', type: 'int'},
         {name: 'location', type: 'string'},
         {
             name: 'typeOfUsagePoint',
@@ -54,7 +56,8 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
                     record.set('isVirtual', null);
                 }
                 return value;
-            }
+            },
+
         },
         {name: 'isSdp', type: 'boolean', useNull: true},
         {name: 'isVirtual', type: 'boolean', useNull: true},
@@ -63,27 +66,15 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'servicePriority', type: 'string'},
         {name: 'serviceDeliveryRemark', type: 'string'},
         {name: 'techInfo', type: 'auto', defaultValue: null},
-        {name: 'techInfoType', type: 'string'}
-    ],
-
-    initComponent: function () {
-        var me =this;
-        me.associations = [
-            {
-                name: 'customProperties',
-                associationKey: 'customProperties',
-                type: 'hasMany',
-                model: 'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'
-            },
-            {
-                name: 'technicalInfo',
-                associationKey: 'technicalInfo',
-                type: 'hasOne',
-
+        {name: 'techInfoType', type: 'string'},
+        {
+            name: 'created',
+            persist: false,
+            mapping: function(data){
+                return Uni.DateTime.formatDateTimeLong(new Date(data.createTime));
             }
-        ];
-        me.callParent();
-    },
+        },
+    ],
 
     associations: [
         {
@@ -91,13 +82,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
             associationKey: 'customProperties',
             type: 'hasMany',
             model: 'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'
-        },
-        //{
-        //    name: 'technicalInfo',
-        //    associationKey: 'technicalInfo',
-        //    type: 'hasOne',
-        //
-        //}
+        }
     ],
 
     proxy: {
