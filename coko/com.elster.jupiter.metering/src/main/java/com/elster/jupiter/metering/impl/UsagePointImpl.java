@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.MarketRoleKind;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -82,15 +84,18 @@ public class UsagePointImpl implements UsagePoint {
     private final EventService eventService;
     private final Provider<MeterActivationImpl> meterActivationFactory;
     private final Provider<UsagePointAccountabilityImpl> accountabilityFactory;
+    private final CustomPropertySetService customPropertySetService;
 
     @Inject
     UsagePointImpl(DataModel dataModel, EventService eventService,
-            Provider<MeterActivationImpl> meterActivationFactory,
-            Provider<UsagePointAccountabilityImpl> accountabilityFactory) {
+                   Provider<MeterActivationImpl> meterActivationFactory,
+                   Provider<UsagePointAccountabilityImpl> accountabilityFactory,
+                   CustomPropertySetService customPropertySetService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.meterActivationFactory = meterActivationFactory;
         this.accountabilityFactory = accountabilityFactory;
+        this.customPropertySetService = customPropertySetService;
     }
 
     UsagePointImpl init(String mRID, ServiceCategory serviceCategory) {
@@ -261,6 +266,10 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void delete() {
+        // Values for custom property sets on metrology configuration were removed during the unlink operation.
+        getServiceCategory().getCustomPropertySets().stream()
+                .map(RegisteredCustomPropertySet::getCustomPropertySet)
+                .forEach(cps -> customPropertySetService.removeValuesFor(cps, this));
         dataModel.remove(this);
         eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
     }
@@ -384,6 +393,7 @@ public class UsagePointImpl implements UsagePoint {
         touch();
     }
 
+    @Override
     public void touch() {
         if (id != 0) {
             dataModel.touch(this);

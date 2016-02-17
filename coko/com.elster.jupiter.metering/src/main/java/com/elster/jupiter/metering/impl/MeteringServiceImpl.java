@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
@@ -104,6 +105,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private volatile MessageService messageService;
     private volatile JsonService jsonService;
     private volatile FiniteStateMachineService finiteStateMachineService;
+    private volatile CustomPropertySetService customPropertySetService;
 
     private volatile boolean createAllReadingTypes;
     private volatile String[] requiredReadingTypes;
@@ -115,7 +117,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Inject
     public MeteringServiceImpl(
             Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, MessageService messageService, JsonService jsonService,
-            FiniteStateMachineService finiteStateMachineService, @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes) {
+            FiniteStateMachineService finiteStateMachineService, @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes, CustomPropertySetService customPropertySetService) {
         this.clock = clock;
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
@@ -129,6 +131,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         setMessageService(messageService);
         setJsonService(jsonService);
         setFiniteStateMachineService(finiteStateMachineService);
+        setCustomPropertySetService(customPropertySetService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -182,7 +185,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "IDS", "PRT", "USR", "EVT", "NLS", "FSM");
+        return Arrays.asList("ORM", "IDS", "PRT", "USR", "EVT", "NLS", "FSM", "CPS");
     }
 
     @Override
@@ -369,6 +372,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         this.finiteStateMachineService = service;
     }
 
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
+
     @Activate
     public final void activate() {
         dataModel.register(new AbstractModule() {
@@ -385,6 +393,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
+                bind(CustomPropertySetService.class).toInstance(customPropertySetService);
             }
         });
     }
@@ -607,6 +616,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                         Privileges.Constants.BROWSE_OWN, Privileges.Constants.ADMIN_OWN)));
         resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.PRIVILEGE_READING_TYPE_NAME.getKey(), DefaultTranslationKey.PRIVILEGE_READING_TYPE_DESCRIPTION.getKey(),
                 Arrays.asList(Privileges.Constants.ADMINISTRATE_READINGTYPE, Privileges.Constants.VIEW_READINGTYPE)));
+        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.PRIVILEGE_SERVICE_CATEGORY_NAME.getKey(), DefaultTranslationKey.PRIVILEGE_SERVICE_CATEGORY_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.VIEW_SERVICECATEGORY)));
         return resources;
     }
 

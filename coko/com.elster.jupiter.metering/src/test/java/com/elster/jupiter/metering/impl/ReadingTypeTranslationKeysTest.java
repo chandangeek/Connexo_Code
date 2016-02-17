@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -75,7 +76,9 @@ public class ReadingTypeTranslationKeysTest {
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new TransactionModule(),
-                new NlsModule());
+                new NlsModule(),
+                new CustomPropertySetsModule()
+        );
     }
 
     @After

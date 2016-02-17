@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -48,6 +49,7 @@ public class MeteringModule extends AbstractModule {
         requireBinding(QueryService.class);
         requireBinding(UserService.class);
         requireBinding(FiniteStateMachineService.class);
+        requireBinding(CustomPropertySetService.class);
 
         bindConstant().annotatedWith(Names.named("requiredReadingTypes")).to(readingTypes);
         bindConstant().annotatedWith(Names.named("createReadingTypes")).to(createReadingTypes);

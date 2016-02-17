@@ -1,10 +1,19 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
+import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,11 +24,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.inject.Provider;
 import javax.validation.ValidatorFactory;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,6 +50,8 @@ public class ServiceCategoryImplTest {
     @Mock
     private Provider<UsagePointAccountabilityImpl> accountabilityFactory;
     @Mock
+    private CustomPropertySetService customPropertySetService;
+    @Mock
     private ValidatorFactory validatorFactory;
     @Mock
     private javax.validation.Validator validator;
@@ -49,7 +62,7 @@ public class ServiceCategoryImplTest {
     	Provider<UsagePointImpl> usagePointFactory = new Provider<UsagePointImpl>() {
 			@Override
 			public UsagePointImpl get() {
-				return new UsagePointImpl(dataModel, eventService, meterActivationFactory, accountabilityFactory);
+				return new UsagePointImpl(dataModel, eventService, meterActivationFactory, accountabilityFactory, customPropertySetService);
 			}
     	};
         serviceCategory = new ServiceCategoryImpl(dataModel,usagePointFactory,thesaurus).init(ServiceKind.ELECTRICITY);
@@ -96,9 +109,62 @@ public class ServiceCategoryImplTest {
 
     @Test
     public void testNewUsagePoint() {
-        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(dataModel, eventService, () -> null, () -> null));
+        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(dataModel, eventService, () -> null, () -> null, customPropertySetService));
 
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId").create();
         assertThat(usagePoint).isInstanceOf(UsagePointImpl.class);
     }
+
+    @Test
+    public void testCustomPropertySet() {
+        RegisteredCustomPropertySet registeredCustomPropertySet = mockRegisteredCustomPropertySet();
+
+        ServiceCategoryCustomPropertySetUsage usage = new ServiceCategoryCustomPropertySetUsage();
+
+        when(dataModel.getInstance(ServiceCategoryCustomPropertySetUsage.class)).thenReturn(usage);
+
+        serviceCategory.addCustomPropertySet(registeredCustomPropertySet);
+
+        assertThat(serviceCategory.getCustomPropertySets()).isNotEmpty();
+        assertThat(serviceCategory.getCustomPropertySets()).contains(registeredCustomPropertySet);
+    }
+
+    @SuppressWarnings("unchecked")
+    PropertySpec mockPropertySpec() {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        ValueFactory valueFactory = mock(BigDecimalFactory.class);
+        when(propertySpec.getName()).thenReturn("customAttribute");
+        when(propertySpec.getValueFactory()).thenReturn(valueFactory);
+        when(propertySpec.getValueFactory().getValueType()).thenReturn(BigDecimalFactory.class);
+        when(propertySpec.isRequired()).thenReturn(true);
+        when(propertySpec.getDescription()).thenReturn("kw");
+        return propertySpec;
+    }
+
+    @SuppressWarnings("unchecked")
+    CustomPropertySet mockCustomPropertySet() {
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getName()).thenReturn("domainExtensionName");
+        when(customPropertySet.isRequired()).thenReturn(true);
+        when(customPropertySet.isVersioned()).thenReturn(false);
+        when(customPropertySet.defaultViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_3));
+        when(customPropertySet.defaultEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_4));
+        when(customPropertySet.getDomainClass()).thenReturn(BigDecimalFactory.class);
+        return customPropertySet;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected RegisteredCustomPropertySet mockRegisteredCustomPropertySet() {
+        PropertySpec propertySpec = mockPropertySpec();
+        CustomPropertySet customPropertySet = mockCustomPropertySet();
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getId()).thenReturn(100500L);
+        when(registeredCustomPropertySet.getViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_1));
+        when(registeredCustomPropertySet.getEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_2));
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        return registeredCustomPropertySet;
+    }
+
+
 }
