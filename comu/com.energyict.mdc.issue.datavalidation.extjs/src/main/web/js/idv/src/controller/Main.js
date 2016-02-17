@@ -22,8 +22,6 @@ Ext.define('Idv.controller.Main', {
         'Idv.controller.history.Workspace',
         'Idv.controller.MainOverview',
         'Idv.controller.Detail',
-        'Idv.controller.ApplyAction',
-        'Idv.controller.BulkChangeIssues',
         'Isu.controller.MessageWindow'
     ],
 

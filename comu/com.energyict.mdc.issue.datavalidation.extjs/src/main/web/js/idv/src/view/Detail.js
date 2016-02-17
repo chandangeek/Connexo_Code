@@ -42,7 +42,7 @@ Ext.define('Idv.view.Detail', {
             },
             {
                 xtype: 'data-validation-issue-detail-form',
-                itemId: 'data-validation-issue-detail-form',
+                itemId: 'issue-detail-form',
                 router: me.router
             },
             {
