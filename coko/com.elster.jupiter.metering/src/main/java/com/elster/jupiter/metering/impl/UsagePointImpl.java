@@ -24,6 +24,9 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.WaterDetailBuilder;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationImpl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
@@ -34,12 +37,14 @@ import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -65,13 +70,17 @@ public class UsagePointImpl implements UsagePoint {
     private String readCycle;
     private String readRoute;
     private String servicePriority;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
 
     private TemporalReference<UsagePointDetailImpl> detail = Temporals.absent();
+    private TemporalReference<UsagePointMetrologyConfiguration> metrologyConfiguration = Temporals.absent();
 
     // associations
     private final Reference<ServiceCategory> serviceCategory = ValueReference.absent();
@@ -80,6 +89,7 @@ public class UsagePointImpl implements UsagePoint {
     private final List<UsagePointAccountability> accountabilities = new ArrayList<>();
     private List<UsagePointConfigurationImpl> usagePointConfigurations = new ArrayList<>();
 
+    private final Clock clock;
     private final DataModel dataModel;
     private final EventService eventService;
     private final Provider<MeterActivationImpl> meterActivationFactory;
@@ -87,10 +97,12 @@ public class UsagePointImpl implements UsagePoint {
     private final CustomPropertySetService customPropertySetService;
 
     @Inject
-    UsagePointImpl(DataModel dataModel, EventService eventService,
-                   Provider<MeterActivationImpl> meterActivationFactory,
-                   Provider<UsagePointAccountabilityImpl> accountabilityFactory,
-                   CustomPropertySetService customPropertySetService) {
+    UsagePointImpl(
+            Clock clock, DataModel dataModel, EventService eventService,
+            Provider<MeterActivationImpl> meterActivationFactory,
+            Provider<UsagePointAccountabilityImpl> accountabilityFactory,
+            CustomPropertySetService customPropertySetService) {
+        this.clock = clock;
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.meterActivationFactory = meterActivationFactory;
@@ -266,12 +278,28 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void delete() {
-        // Values for custom property sets on metrology configuration were removed during the unlink operation.
-        getServiceCategory().getCustomPropertySets().stream()
-                .map(RegisteredCustomPropertySet::getCustomPropertySet)
-                .forEach(cps -> customPropertySetService.removeValuesFor(cps, this));
+        this.removeMetrologyConfigurationCustomPropertySetValues();
+        this.removeServiceCategoryCustomPropertySetValues();
         dataModel.remove(this);
         eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
+    }
+
+    private void removeMetrologyConfigurationCustomPropertySetValues() {
+        this.removeCustomPropertySetValues(
+                getMetrologyConfiguration()
+                        .map(MetrologyConfiguration::getCustomPropertySets)
+                        .orElse(Collections.emptyList()));
+    }
+
+    private void removeServiceCategoryCustomPropertySetValues() {
+        this.removeCustomPropertySetValues(getServiceCategory().getCustomPropertySets());
+    }
+
+    private void removeCustomPropertySetValues(List<RegisteredCustomPropertySet> registeredCustomPropertySets) {
+        registeredCustomPropertySets
+                .stream()
+                .map(RegisteredCustomPropertySet::getCustomPropertySet)
+                .forEach(cps -> customPropertySetService.removeValuesFor(cps, this));
     }
 
     @Override
@@ -369,6 +397,50 @@ public class UsagePointImpl implements UsagePoint {
             }
         }
         return false;
+    }
+
+    @Override
+    public Optional<MetrologyConfiguration> getMetrologyConfiguration() {
+        return this.getMetrologyConfiguration(this.clock.instant());
+    }
+
+    @Override
+    public Optional<MetrologyConfiguration> getMetrologyConfiguration(Instant when) {
+        return this.metrologyConfiguration.effective(when).map(UsagePointMetrologyConfiguration::getMetrologyConfiguration);
+    }
+
+    @Override
+    public List<MetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period) {
+        return this.metrologyConfiguration
+                .effective(period)
+                .stream()
+                .map(UsagePointMetrologyConfiguration::getMetrologyConfiguration)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void apply(MetrologyConfiguration metrologyConfiguration) {
+        this.apply(metrologyConfiguration, this.clock.instant());
+    }
+
+    @Override
+    public void apply(MetrologyConfiguration metrologyConfiguration, Instant when) {
+        this.removeMetrologyConfiguration(when);
+        this.metrologyConfiguration.add(
+            this.dataModel
+                .getInstance(UsagePointMetrologyConfigurationImpl.class)
+                .initAndSave(this, metrologyConfiguration, when));
+    }
+
+    @Override
+    public void removeMetrologyConfiguration(Instant when) {
+        Optional<UsagePointMetrologyConfiguration> current = this.metrologyConfiguration.effective(this.clock.instant());
+        if (current.isPresent()) {
+            if (!current.get().getRange().contains(when)) {
+                throw new IllegalArgumentException("Time of metrology configuration removal is before it was actually applied");
+            }
+            current.get().close(when);
+        }
     }
 
     @Override
