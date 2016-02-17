@@ -8,6 +8,7 @@ Ext.define('Imt.usagepointmanagement.view.Add', {
     ],
 
     returnLink: null,
+    isPossibleAdd: true,
 
     initComponent: function () {
         var me = this;
@@ -31,7 +32,8 @@ Ext.define('Imt.usagepointmanagement.view.Add', {
             {
                 xtype: 'add-usage-point-wizard',
                 itemId: 'add-usage-point-wizard',
-                returnLink: me.returnLink
+                returnLink: me.returnLink,
+                isPossibleAdd: me.isPossibleAdd
             }
         ];
 

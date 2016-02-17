@@ -3,29 +3,27 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
     alias: 'widget.add-usage-point-wizard',
 
     requires: [
-        'Imt.usagepointmanagement.view.forms.GeneralInfo',
-        'Imt.usagepointmanagement.view.forms.ElectricityInfo',
-        'Imt.usagepointmanagement.view.forms.Gas'
+        'Imt.usagepointmanagement.view.forms.GeneralInfo'
     ],
 
     layout: 'card',
 
     router: null,
     returnLink: null,
-
-    defaults: {
-        ui: 'large'
-    },
+    isPossibleAdd: true,
 
     initComponent: function () {
         var me = this;
 
         me.items = [
             {
-                xtype: 'electricity-info-form',
+                xtype: 'general-info-form',
                 itemId: 'add-usage-point-step1',
                 title: Uni.I18n.translate('usagepoint.wizard.step1title', 'IMT', 'Step 1: General information'),
+                isWizardStep: true,
                 navigationIndex: 1,
+                ui: 'large',
+                isPossibleAdd: me.isPossibleAdd,
                 defaults: {
                     labelWidth: 260,
                     width: 595
@@ -41,17 +39,19 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
                     text: Uni.I18n.translate('general.back', 'IMT', 'Back'),
                     action: 'step-back',
                     navigationBtn: true,
-                    disabled: true
+                    disabled: true,
+                    hidden: !me.isPossibleAdd
                 },
                 {
                     itemId: 'nextButton',
                     text: Uni.I18n.translate('general.next', 'IMT', 'Next'),
                     ui: 'action',
                     action: 'step-next',
-                    navigationBtn: true
+                    navigationBtn: true,
+                    hidden: !me.isPossibleAdd
                 },
                 {
-                    itemId: 'finishButton',
+                    itemId: 'addButton',
                     text: Uni.I18n.translate('general.add', 'IMT', 'Add'),
                     ui: 'action',
                     action: 'add',
@@ -72,7 +72,9 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
 
     updateRecord: function () {
         var me = this,
-            step = me.getLayout().getActiveItem();
+            step = me.getLayout().getActiveItem(),
+            customProperties,
+            cps;
 
         switch (step.navigationIndex) {
             case 1:
@@ -83,8 +85,13 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
                 me.getRecord().set('techInfo', step.getRecord().getData());
                 break;
             default:
+                customProperties = me.getRecord().customProperties();
                 step.updateRecord();
-                me.getRecord().customProperties().add(step.getRecord());
+                cps = step.getRecord();
+                if (customProperties.getById() === step.getRecord().getId()) {
+                    customProperties.remove(cps)
+                }
+                me.getRecord().customProperties().add(cps);
         }
     },
 
