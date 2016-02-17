@@ -44,7 +44,7 @@ public class ServiceCategoryResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getServiceCategories(@BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
         List<ServiceCategoryInfo> categories = Arrays.stream(ServiceKind.values())
-                .map(meteringService::getServiceCategory).flatMap(sc -> sc.isPresent() ? Stream.of(new ServiceCategoryInfo(sc.get())) : Stream.empty()).sorted((a, b) -> a.displayName.compareToIgnoreCase(b.displayName)).collect(Collectors.toList());
+                .map(meteringService::getServiceCategory).flatMap(sc -> sc.isPresent() && sc.get().isActive() ? Stream.of(new ServiceCategoryInfo(sc.get())) : Stream.empty()).sorted((a, b) -> a.displayName.compareToIgnoreCase(b.displayName)).collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("categories", categories, queryParameters);
     }
 
