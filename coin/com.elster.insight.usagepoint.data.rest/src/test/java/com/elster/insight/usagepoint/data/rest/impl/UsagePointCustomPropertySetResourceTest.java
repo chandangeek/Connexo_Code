@@ -175,7 +175,7 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List>get("$.customPropertySets")).hasSize(1);
-        verify(usagePointExtension).setMetrologyConfigurationCustomPropertySetValue(eq(customPropertySet), any());
+        verify(usagePointExtension).setCustomPropertySetValue(eq(customPropertySet), any());
     }
 
     // -----------------------------------------------------------------------------------------------------------------

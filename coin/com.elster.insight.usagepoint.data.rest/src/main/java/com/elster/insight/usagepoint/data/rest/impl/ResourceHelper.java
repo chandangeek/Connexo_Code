@@ -12,7 +12,11 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class ResourceHelper {
 
@@ -84,9 +88,12 @@ public class ResourceHelper {
                         .supplier());
     }
 
-    public RegisteredCustomPropertySet getRegisteredCustomPropertySetOrThrowException(String id){
-        return customPropertySetService.findActiveCustomPropertySet(id)
+    public RegisteredCustomPropertySet findRegisteredCustomPropertySetOnUsagePointOrThrowException(long id, UsagePointCustomPropertySetExtension usagePointExtension){
+        return usagePointExtension.getAllCustomPropertySets()
+                .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .filter(rcps -> rcps.getId() == id)
+                .findFirst()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, id));
     }
 }

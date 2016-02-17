@@ -1,12 +1,9 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
-import com.elster.insight.common.rest.ExceptionFactory;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -15,9 +12,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -25,7 +22,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -60,7 +56,8 @@ public class UsagePointApplication extends Application implements TranslationKey
                 UsagePointGroupResource.class,
                 UsagePointValidationResource.class,
                 RegisterDataResource.class,
-                UsagePointCustomPropertySetResource.class
+                UsagePointCustomPropertySetResource.class,
+                RestValidationExceptionMapper.class
         );
     }
 
@@ -89,10 +86,7 @@ public class UsagePointApplication extends Application implements TranslationKey
 
     @Override
     public List<TranslationKey> getKeys() {
-        Set<String> uniqueIds = new HashSet<>();
-        List<TranslationKey> keys = new ArrayList<>();
-        keys.addAll(Arrays.asList(DefaultTranslationKey.values()));
-        return keys;
+        return Arrays.asList(DefaultTranslationKey.values());
     }
 
     @Reference
@@ -161,19 +155,19 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(estimationService).to(EstimationService.class);
             bind(usagePointDataService).to(UsagePointDataService.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
-            bind(ExceptionFactory.class).to(ExceptionFactory.class);
-            bind(ResourceHelper.class).to(ResourceHelper.class);
-            bind(ChannelResourceHelper.class).to(ChannelResourceHelper.class);
-            bind(RegisterResourceHelper.class).to(RegisterResourceHelper.class);
-            bind(UsagePointDataInfoFactory.class).to(UsagePointDataInfoFactory.class);
-            bind(UsagePointGroupInfoFactory.class).to(UsagePointGroupInfoFactory.class);
-            bind(com.elster.jupiter.validation.rest.PropertyUtils.class).to(com.elster.jupiter.validation.rest.PropertyUtils.class);
-            bind(ValidationInfoFactory.class).to(ValidationInfoFactory.class);
-
-            bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
-            bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
-            bind(PropertyUtils.class).to(PropertyUtils.class);
-            bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
+//            bind(ExceptionFactory.class).to(ExceptionFactory.class);
+//            bind(ResourceHelper.class).to(ResourceHelper.class);
+//            bind(ChannelResourceHelper.class).to(ChannelResourceHelper.class);
+//            bind(RegisterResourceHelper.class).to(RegisterResourceHelper.class);
+//            bind(UsagePointDataInfoFactory.class).to(UsagePointDataInfoFactory.class);
+//            bind(UsagePointGroupInfoFactory.class).to(UsagePointGroupInfoFactory.class);
+//            bind(com.elster.jupiter.validation.rest.PropertyUtils.class).to(com.elster.jupiter.validation.rest.PropertyUtils.class);
+//            bind(ValidationInfoFactory.class).to(ValidationInfoFactory.class);
+//
+//            bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
+//            bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
+//            bind(PropertyUtils.class).to(PropertyUtils.class);
+//            bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
         }
     }
 }

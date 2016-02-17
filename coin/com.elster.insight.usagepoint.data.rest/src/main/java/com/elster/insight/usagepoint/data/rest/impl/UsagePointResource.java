@@ -54,6 +54,7 @@ public class UsagePointResource {
     private final Provider<RegisterResource> registersOnUsagePointResourceProvider;
     private final Provider<UsagePointValidationResource> usagePointValidationResourceProvider;
     private final Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider;
+    private final Provider<UsagePointCustomPropertySetHistoryResource> usagePointCustomPropertySetHistoryResourceProvider;
 
     @Inject
     public UsagePointResource(RestQueryService queryService, MeteringService meteringService,
@@ -62,7 +63,8 @@ public class UsagePointResource {
                               Provider<RegisterResource> registersOnUsagePointResourceProvider,
                               UsagePointConfigurationService usagePointConfigurationService,
                               Provider<UsagePointValidationResource> usagePointValidationResourceProvider,
-                              Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider) {
+                              Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider,
+                              Provider<UsagePointCustomPropertySetHistoryResource> usagePointCustomPropertySetHistoryResourceProvider) {
         this.queryService = queryService;
         this.meteringService = meteringService;
         this.clock = clock;
@@ -71,6 +73,7 @@ public class UsagePointResource {
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.usagePointValidationResourceProvider = usagePointValidationResourceProvider;
         this.usagePointCustomPropertySetResourceProvider = usagePointCustomPropertySetResourceProvider;
+        this.usagePointCustomPropertySetHistoryResourceProvider = usagePointCustomPropertySetHistoryResourceProvider;
     }
 
     @GET
@@ -191,11 +194,10 @@ public class UsagePointResource {
         return usagePointValidationResourceProvider.get();
     }
 
-    @Path("/{mrid}/properties")
+    @Path("/{mrid}/customproperties")
     public UsagePointCustomPropertySetResource getUsagePointCustomPropertySetResource() {
         return usagePointCustomPropertySetResourceProvider.get();
     }
-
 
     private Set<ReadingType> collectReadingTypes(UsagePoint usagePoint) {
         Set<ReadingType> readingTypes = new LinkedHashSet<>();
