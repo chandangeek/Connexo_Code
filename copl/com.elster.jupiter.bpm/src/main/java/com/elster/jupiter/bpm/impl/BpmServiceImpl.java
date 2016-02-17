@@ -284,6 +284,11 @@ public class BpmServiceImpl extends Application implements BpmService, InstallSe
     }
 
     @Override
+    public List<BpmProcessDefinition> getAllBpmProcessDefinitions(){
+        return dataModel.mapper(BpmProcessDefinition.class).find();
+    }
+
+    @Override
     public List<BpmProcessDefinition> getActiveBpmProcessDefinitions(){
         return dataModel.query(BpmProcessDefinition.class).select(Operator.EQUALIGNORECASE.compare("status", "ACTIVE"));
     }
