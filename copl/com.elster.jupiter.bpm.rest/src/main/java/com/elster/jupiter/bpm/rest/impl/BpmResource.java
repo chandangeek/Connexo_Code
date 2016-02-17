@@ -507,7 +507,7 @@ public class BpmResource {
                     List<String> privilegeNames = privileges.stream().collect(Collectors.toList());
                     List<BpmProcessDefinition> connexoProcesses = bpmService.getActiveBpmProcessDefinitions();
                     List<BpmProcessDefinition> filtredConnexoProcesses = connexoProcesses.stream()
-                            .filter(p -> p.getProcessDeviceStates().stream().anyMatch(s -> s.getDeviceStateId() == deviceStateId))
+                            .filter(p -> p.getAssociationData().stream().anyMatch(s -> Long.parseLong(s.get("deviceStateId")) == deviceStateId))
                             .filter(p -> p.getPrivileges().stream().anyMatch(s -> privilegeNames.stream().anyMatch(z -> z.equals(s.getPrivilegeName()))))
                             .filter(p -> p.getAssociation().toLowerCase().equals(filterProperties.get("type").get(0).toLowerCase()))
                             .collect(Collectors.toList());
