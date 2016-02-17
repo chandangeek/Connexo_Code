@@ -8,7 +8,7 @@ Ext.define('Scs.store.ServiceCalls', {
         timeout: 120000,
         reader: {
             type: 'json',
-            root: 'sct'
+            root: 'scs'
         }
     }*/
 

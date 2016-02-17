@@ -3,7 +3,8 @@ Ext.define('Scs.view.Landing', {
     alias: 'widget.scs-landing-page',
     requires: [
         'Scs.view.LandingPageForm',
-        'Scs.view.ActionMenu'
+        'Scs.view.ActionMenu',
+        'Scs.view.log.Setup'
     ],
     serviceCallId: null,
 
@@ -18,10 +19,16 @@ Ext.define('Scs.view.Landing', {
                     ui: 'large',
                     title: me.title === 'none' ? '' : me.serviceCallId,
                     flex: 1,
-                    items: {
-                        xtype: 'scs-landing-page-form',
-                        margin: '0 0 0 100'
-                    }
+                    items: [
+                        {
+                            xtype: 'scs-landing-page-form',
+                            margin: '0 0 0 100'
+                        },
+                        {
+                            xtype: 'scs-log-setup',
+                            itemId: 'serviceCallLog'
+                        }
+                    ]
                 },
                 {
                     xtype: 'button',

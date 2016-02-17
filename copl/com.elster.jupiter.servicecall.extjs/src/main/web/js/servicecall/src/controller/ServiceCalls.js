@@ -5,10 +5,11 @@ Ext.define('Scs.controller.ServiceCalls', {
         'Scs.view.Setup',
         'Scs.view.Landing',
         'Scs.view.SetupOverview',
-        'Scs.view.SetupContainer'
+        'Scs.view.ServiceCallPreviewContainer'
     ],
     stores: [
-        'Scs.store.ServiceCalls'
+        'Scs.store.ServiceCalls',
+        'Scs.store.Logs'
     ],
     models: [
     ],
