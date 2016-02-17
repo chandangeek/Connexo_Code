@@ -5,7 +5,8 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
     requires: [
         'Imt.usagepointmanagement.view.forms.GeneralInfo',
         'Imt.usagepointmanagement.view.forms.ElectricityInfo',
-        'Imt.usagepointmanagement.view.forms.Gas'
+        'Imt.usagepointmanagement.view.forms.GasInfo',
+        'Imt.usagepointmanagement.view.forms.WaterInfo'
     ],
 
     layout: 'card',

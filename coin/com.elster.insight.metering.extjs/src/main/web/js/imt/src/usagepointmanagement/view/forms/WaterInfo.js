@@ -1,6 +1,6 @@
-Ext.define('Imt.usagepointmanagement.view.forms.Gas', {
+Ext.define('Imt.usagepointmanagement.view.forms.WaterInfo', {
     extend: 'Ext.form.Panel',
-    alias: 'widget.gas-info-form',
+    alias: 'widget.water-info-form',
     requires: [
         'Uni.util.FormErrorMessage',
         'Imt.usagepointmanagement.view.forms.fields.MeasureField',
@@ -16,12 +16,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.Gas', {
             name: 'grounded',
             itemId: 'up-grounded-measurefield',
             fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
-        },
-        {
-            xtype: 'measurefield',
-            name: 'pressure',
-            itemId: 'up-pressure-measurefield',
-            fieldLabel: Uni.I18n.translate('general.label.pressure', 'IMT', 'Pressure')
         },
         {
             xtype: 'measurefield',
@@ -105,6 +99,12 @@ Ext.define('Imt.usagepointmanagement.view.forms.Gas', {
         },
         {
             xtype: 'threevaluesfield',
+            name: 'collar',
+            itemId: 'up-collar-combo',
+            fieldLabel: Uni.I18n.translate('general.label.collar', 'IMT', 'Collar')
+        },
+        {
+            xtype: 'threevaluesfield',
             name: 'capped',
             itemId: 'up-capped-combo',
             fieldLabel: Uni.I18n.translate('general.label.capped', 'IMT', 'Capped')
@@ -114,12 +114,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.Gas', {
             name: 'clamped',
             itemId: 'up-clamped-combo',
             fieldLabel: Uni.I18n.translate('general.label.clamped', 'IMT', 'Clamped')
-        },
-        {
-            xtype: 'checkbox',
-            name: 'interruptible',
-            itemId: 'up-interruptible-measurefield',
-            fieldLabel: Uni.I18n.translate('general.label.interruptible', 'IMT', 'Interruptible')
         }
     ]
 });
