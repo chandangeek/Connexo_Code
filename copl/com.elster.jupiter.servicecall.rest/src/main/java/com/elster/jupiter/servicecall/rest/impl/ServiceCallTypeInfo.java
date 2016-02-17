@@ -18,7 +18,7 @@ public class ServiceCallTypeInfo {
     public long version;
     public String name;
     public String versionName;
-    public Status status;
+    public IdWithDisplayValueInfo<String> status;
     public IdWithDisplayValueInfo<String> logLevel;
     public IdWithNameInfo serviceCallLifeCycle;
     public List<ServiceCallTypeCustomPropertySetInfo> customPropertySets;
@@ -31,7 +31,7 @@ public class ServiceCallTypeInfo {
         this.version = serviceCallType.getVersion();
         this.name = serviceCallType.getName();
         this.versionName = serviceCallType.getVersionName();
-        this.status = serviceCallType.getStatus();
+        this.status = new IdWithDisplayValueInfo<>(serviceCallType.getStatus().name(), serviceCallType.getStatus().getDisplayName(thesaurus));
         this.logLevel = new IdWithDisplayValueInfo<>(serviceCallType.getLogLevel().name(), serviceCallType.getLogLevel().getDisplayName(thesaurus));
         Optional<ServiceCallLifeCycle> serviceCallLifeCycle = serviceCallType.getServiceCallLifeCycle();
         this.serviceCallLifeCycle = serviceCallLifeCycle.isPresent() ?
