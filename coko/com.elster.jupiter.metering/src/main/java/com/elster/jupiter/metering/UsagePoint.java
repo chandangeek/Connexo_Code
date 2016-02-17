@@ -114,6 +114,15 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
 
     /**
      * Applies the specified {@link MetrologyConfiguration} to this UsagePoint
+     * from this point in time onward.
+     *
+     * @param metrologyConfiguration The MetrologyConfiguration
+     * @see #apply(MetrologyConfiguration, Instant)
+     */
+    void apply(MetrologyConfiguration metrologyConfiguration);
+
+    /**
+     * Applies the specified {@link MetrologyConfiguration} to this UsagePoint
      * from the specified instant in time onward.
      * Note that this may produce errors when e.g. the requirements
      * of the MetrologyConfiguration are not met by the Meter(s) that is/are

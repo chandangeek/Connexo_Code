@@ -34,7 +34,6 @@ public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrology
         this.usagePoint.set(usagePoint);
         this.metrologyConfiguration.set(metrologyConfiguration);
         this.interval = Interval.startAt(start);
-        this.dataModel.persist(this);
         return this;
     }
 

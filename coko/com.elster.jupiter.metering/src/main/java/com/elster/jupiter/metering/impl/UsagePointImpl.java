@@ -278,12 +278,28 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void delete() {
-        // Values for custom property sets on metrology configuration were removed during the unlink operation.
-        getServiceCategory().getCustomPropertySets().stream()
-                .map(RegisteredCustomPropertySet::getCustomPropertySet)
-                .forEach(cps -> customPropertySetService.removeValuesFor(cps, this));
+        this.removeMetrologyConfigurationCustomPropertySetValues();
+        this.removeServiceCategoryCustomPropertySetValues();
         dataModel.remove(this);
         eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
+    }
+
+    private void removeMetrologyConfigurationCustomPropertySetValues() {
+        this.removeCustomPropertySetValues(
+                getMetrologyConfiguration()
+                        .map(MetrologyConfiguration::getCustomPropertySets)
+                        .orElse(Collections.emptyList()));
+    }
+
+    private void removeServiceCategoryCustomPropertySetValues() {
+        this.removeCustomPropertySetValues(getServiceCategory().getCustomPropertySets());
+    }
+
+    private void removeCustomPropertySetValues(List<RegisteredCustomPropertySet> registeredCustomPropertySets) {
+        registeredCustomPropertySets
+                .stream()
+                .map(RegisteredCustomPropertySet::getCustomPropertySet)
+                .forEach(cps -> customPropertySetService.removeValuesFor(cps, this));
     }
 
     @Override
@@ -403,11 +419,17 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
+    public void apply(MetrologyConfiguration metrologyConfiguration) {
+        this.apply(metrologyConfiguration, this.clock.instant());
+    }
+
+    @Override
     public void apply(MetrologyConfiguration metrologyConfiguration, Instant when) {
         this.removeMetrologyConfiguration(when);
-        this.dataModel
+        this.metrologyConfiguration.add(
+            this.dataModel
                 .getInstance(UsagePointMetrologyConfigurationImpl.class)
-                .initAndSave(this, metrologyConfiguration, when);
+                .initAndSave(this, metrologyConfiguration, when));
     }
 
     @Override

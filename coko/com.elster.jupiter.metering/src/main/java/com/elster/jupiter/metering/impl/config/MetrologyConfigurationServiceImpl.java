@@ -3,32 +3,27 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,12 +42,9 @@ import java.util.Optional;
         immediate = false)
 public class MetrologyConfigurationServiceImpl implements MetrologyConfigurationService, InstallService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
 
-    private volatile DataModel dataModel;
-    private volatile Clock clock;
+    private volatile ServerMeteringService meteringService;
     private volatile EventService eventService;
     private volatile UserService userService;
-    private volatile CustomPropertySetService customPropertySetService;
-    private volatile Thesaurus thesaurus;
 
     // For OSGi purposes
     public MetrologyConfigurationServiceImpl() {
@@ -60,44 +52,17 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     }
 
     @Inject
-    public MetrologyConfigurationServiceImpl(Clock clock, OrmService ormService, EventService eventService, UserService userService, NlsService nlsService, CustomPropertySetService customPropertySetService) {
+    public MetrologyConfigurationServiceImpl(ServerMeteringService meteringService, EventService eventService, UserService userService) {
         this();
-        setClock(clock);
-        setOrmService(ormService);
+        setMeteringService(meteringService);
         setEventService(eventService);
         setUserService(userService);
-        setCustomPropertySetService(customPropertySetService);
-        setNlsService(nlsService);
-        activate();
-        if (!dataModel.isInstalled()) {
-            install();
-        }
-    }
-
-    Module getModule() {
-        return new AbstractModule() {
-            @Override
-            public void configure() {
-                bind(DataModel.class).toInstance(dataModel);
-                bind(EventService.class).toInstance(eventService);
-                bind(Clock.class).toInstance(clock);
-                bind(UserService.class).toInstance(userService);
-                bind(CustomPropertySetService.class).toInstance(customPropertySetService);
-                bind(Thesaurus.class).toInstance(thesaurus);
-                bind(MessageInterpolator.class).toInstance(thesaurus);
-                bind(MetrologyConfigurationService.class).toInstance(MetrologyConfigurationServiceImpl.this);
-            }
-        };
-    }
-
-    @Activate
-    public void activate() {
-        dataModel.register(getModule());
+        this.install();
     }
 
     @Override
     public void install() {
-        new Installer(dataModel, eventService).install(true, true, true);
+        new Installer(this.eventService).install();
     }
 
     @Override
@@ -143,9 +108,10 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
+
     @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
+    public void setMeteringService(ServerMeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Reference
@@ -158,43 +124,25 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
         this.userService = userService;
     }
 
-    @Reference
-    public void setOrmService(OrmService ormService) {
-        dataModel = ormService.newDataModel(getComponentName(), "Metrology Configuration");
-        for (TableSpecs spec : TableSpecs.values()) {
-            spec.addTo(dataModel);
-        }
-    }
-
-    @Reference
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        this.customPropertySetService = customPropertySetService;
-    }
-
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(getComponentName(), Layer.DOMAIN);
-    }
-
     DataModel getDataModel() {
-        return dataModel;
+        return this.meteringService.getDataModel();
     }
 
     @Override
     public MetrologyConfiguration newMetrologyConfiguration(String name) {
-        MetrologyConfigurationImpl metrologyConfiguration = dataModel.getInstance(MetrologyConfigurationImpl.class).init(name);
+        MetrologyConfigurationImpl metrologyConfiguration = this.getDataModel().getInstance(MetrologyConfigurationImpl.class).init(name);
         metrologyConfiguration.update();
         return metrologyConfiguration;
     }
 
     @Override
     public Optional<MetrologyConfiguration> findMetrologyConfiguration(long id) {
-        return dataModel.mapper(MetrologyConfiguration.class).getUnique("id", id);
+        return this.getDataModel().mapper(MetrologyConfiguration.class).getUnique("id", id);
     }
 
     @Override
     public Optional<MetrologyConfiguration> findMetrologyConfiguration(String name) {
-        return dataModel.mapper(MetrologyConfiguration.class).getUnique("name", name);
+        return this.getDataModel().mapper(MetrologyConfiguration.class).getUnique("name", name);
     }
 
     @Override

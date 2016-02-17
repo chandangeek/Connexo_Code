@@ -4,6 +4,8 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -22,7 +24,7 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.domain.util.Save.action;
 import static com.google.common.base.MoreObjects.toStringHelper;
 
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
 public final class MetrologyConfigurationImpl implements MetrologyConfiguration, HasUniqueName {
     public enum Fields {
         NAME("name"),
