@@ -1,7 +1,7 @@
 Ext.define('Sct.model.ServiceCallType', {
     extend: 'Uni.model.Version',
     fields: [
-        'name', 'versionName', 'logLevel','serviceCallLifeCycle',
+        'name', 'versionName', 'logLevel','serviceCallLifeCycle', 'customPropertySets',
         {
             name: 'version',
             defaultValue: 0
