@@ -5,6 +5,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         'Imt.usagepointmanagement.model.UsagePoint',
         'Imt.metrologyconfiguration.model.MetrologyConfiguration',
         'Imt.usagepointmanagement.service.AttributesMaps',
+        'Imt.usagepointmanagement.service.UnitsMap',
         'Ext.container.Container'
     ],
     stores: [

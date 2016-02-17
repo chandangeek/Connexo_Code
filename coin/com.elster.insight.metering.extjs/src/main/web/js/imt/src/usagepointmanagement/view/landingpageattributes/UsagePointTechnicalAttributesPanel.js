@@ -25,6 +25,8 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
             me.record.get('techInfo')
         );
 
+        me.techInfo = techInfoModel;
+
         action = Ext.create('Ext.menu.Item',{
             itemId: 'action-menu-' + config.form,
             menuItemClass: 'inlineEditableAttributeSet',
@@ -130,13 +132,6 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
 
         Ext.suspendLayouts();
         if(isEdit){
-            //if(me.category){
-            //    Ext.each(me.record.fields.items, function(value){
-            //        if(value.customType && value.customType == 'quantity'){
-            //            me.record.get(value.name) && me.down('#' + value.name + '-quantity').setQuantityValue(me.record.get(value.name));
-            //        }
-            //    });
-            //}
             me.down('#pencil-btn').hide();
             me.down('#view-form').hide();
             me.down('#edit-form').show();
@@ -148,19 +143,22 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
             me.down('#edit-form').hide();
             me.down('#bottom-buttons').hide();
             action.show();
+
         }
         Ext.resumeLayouts(true);
 
-        //me.down('#edit-form').loadRecord(actualModel);
+        me.down('#edit-form').loadRecord(me.techInfo);
         Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(isEdit);
     },
 
     onSaveClick: function () {
         var me = this,
             form = me.down('#edit-form');
-        var  techInfo = form.getRecord();
-
-        me.record.set('techInfo', techInfo);
-        me.fireEvent('saveClick', form, me.record);
+        var values = form.getValues(),
+            record = me.record.copy(me.record.get('mRID'));
+        record.set('techInfo', values);
+        //
+        //me.record.set('techInfo', techInfo);
+        me.fireEvent('saveClick', form, record);
     }
 });

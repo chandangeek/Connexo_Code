@@ -5,15 +5,8 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
 
     requires: [
         'Uni.form.field.Duration',
+        'Imt.usagepointmanagement.store.measurementunits.Voltage'
     ],
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
-    defaults: {
-        labelWidth: 150,
-        xtype: 'displayfield'
-    },
 
     initComponent: function () {
         var me = this;
@@ -31,7 +24,18 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         name: 'nominalServiceVoltage',
                         itemId: 'fld-up-service-voltage',
                         fieldLabel: Uni.I18n.translate('general.label.voltage', 'IMT', 'Nominal voltage'),
+                        //listeners: {
+                        //    beforerender: function (fld){
+                        //        console.log(Imt.usagepointmanagement.service.UnitsMap.getActual(3, 'V'));
+                        //    }
+                        //},
                         renderer: Ext.bind(me.renderValue, me)
+                        //renderer: function(data) {
+                        //    console.log(data.multiplier+ '');
+                        //    //return ;
+                        //    //return Imt.usagepointmanagement.service.AttributesMaps.getTypeOfUsagePoint('UNMEASURED')
+                        //    //return data.value + "&nbsp" + Imt.usagepointmanagement.service.UnitsMap.getActual(data.multiplier, data.unit);
+                        //}
 
                     },
                     {
@@ -85,13 +89,25 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                     {
                         name: 'loadLimiterType',
                         itemId: 'fld-up-loadLimiterType',
-                        fieldLabel: Uni.I18n.translate('general.label.loadLimiterType', 'IMT', 'Load limiter type')
+                        hidden: true,
+                        fieldLabel: Uni.I18n.translate('general.label.loadLimiterType', 'IMT', 'Load limiter type'),
+                        listeners: {
+                            beforerender: function (fld){
+                                fld.setVisible(me.down('#fld-up-limiter').getValue())
+                            }
+                        }
                     },
                     {
                         name: 'loadLimit',
                         itemId: 'fld-up-loadLimit',
+                        //hidden: me.down('#fld-up-limiter').getValue(),
                         fieldLabel: Uni.I18n.translate('general.label.loadLimit', 'IMT', 'Load limit'),
-                        renderer: Ext.bind(me.renderValue, me)
+                        renderer: Ext.bind(me.renderValue, me),
+                        listeners: {
+                            beforerender: function (fld){
+                                fld.setVisible(me.down('#fld-up-limiter').getValue())
+                            }
+                        }
                     },
                     {
                         name: 'collar',
@@ -193,12 +209,20 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
         me.callParent();
     },
     renderValue: function (data) {
-        if (data) {
-          if (data.multiplier == 0)
-              return data.value + ' ' + data.unit;
-           else
-               return data.value + '*10<span style="position: relative;top: -6px;font-size: 10px;">' + data.multiplier + '</span> ' + data.unit;
-
-        } else return '-';
+        var unit;
+        //if (data) {
+        //  if (data.multiplier == 0)
+        //      return data.value + ' ' + data.unit;
+        //   else
+        //       return data.value + '*10<span style="position: relative;top: -6px;font-size: 10px;">' + data.multiplier + '</span> ' + data.unit;
+        //
+        //} else return '-';
+        if(data){
+            unit = Imt.usagepointmanagement.service.UnitsMap.getActual(data.unit, data.multiplier);
+            return data.value + "&nbsp" + unit;
+        } else {
+            return '-'
+        }
     }
+
 });
