@@ -1,6 +1,6 @@
 package com.elster.insight.app.impl;
 
-import com.elster.insight.usagepoint.config.security.Privileges;
+import com.elster.jupiter.metering.security.Privileges;
 
 import java.util.Arrays;
 import java.util.List;
