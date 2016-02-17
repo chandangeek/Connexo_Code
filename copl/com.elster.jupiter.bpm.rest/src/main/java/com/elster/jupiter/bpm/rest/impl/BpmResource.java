@@ -870,7 +870,7 @@ public class BpmResource {
         if(!err.isEmpty()){
             return  Response.status(400).entity(new LocalizedFieldException(err)).build();
         }else{
-            return Response.ok().build();
+            return Response.ok().entity(taskContentInfos).build();
         }
     }
 
