@@ -13,19 +13,20 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+
 import com.google.common.collect.Sets;
-import org.junit.After;
+
+import javax.inject.Provider;
+import javax.validation.ValidatorFactory;
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import javax.inject.Provider;
-import javax.validation.ValidatorFactory;
-
-import java.util.Arrays;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -38,6 +39,7 @@ import static org.mockito.Mockito.when;
 public class ServiceCategoryImplTest {
 
     private ServiceCategoryImpl serviceCategory;
+    private Clock clock = Clock.systemUTC();
 
     @Mock
     private DataModel dataModel;
@@ -56,23 +58,13 @@ public class ServiceCategoryImplTest {
     @Mock
     private javax.validation.Validator validator;
 
-
     @Before
     public void setUp() {
-    	Provider<UsagePointImpl> usagePointFactory = new Provider<UsagePointImpl>() {
-			@Override
-			public UsagePointImpl get() {
-				return new UsagePointImpl(dataModel, eventService, meterActivationFactory, accountabilityFactory, customPropertySetService);
-			}
-    	};
+    	Provider<UsagePointImpl> usagePointFactory = () -> new UsagePointImpl(clock, dataModel, eventService, meterActivationFactory, accountabilityFactory, customPropertySetService);
         serviceCategory = new ServiceCategoryImpl(dataModel,usagePointFactory,thesaurus).init(ServiceKind.ELECTRICITY);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), anyVararg())).thenReturn(Collections.emptySet());
-    }
-
-    @After
-    public void tearDown() {
     }
 
     @Test
@@ -109,7 +101,7 @@ public class ServiceCategoryImplTest {
 
     @Test
     public void testNewUsagePoint() {
-        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(dataModel, eventService, () -> null, () -> null, customPropertySetService));
+        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, () -> null, () -> null, customPropertySetService));
 
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId").create();
         assertThat(usagePoint).isInstanceOf(UsagePointImpl.class);
@@ -165,6 +157,5 @@ public class ServiceCategoryImplTest {
         when(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         return registeredCustomPropertySet;
     }
-
 
 }

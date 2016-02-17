@@ -23,12 +23,20 @@ public enum MessageSeeds implements MessageSeed {
     READINGTYPE_CREATING_FAIL(2011, "readingtype.creatingFail", "Failed creating reading types.", Level.SEVERE),
     FIELD_NOT_FOUND(2012, "readingtype.fieldNotFound", "Cannot find field {0}", Level.SEVERE),
 
-    DUPLICATE_USAGEPOINT(3001, Constants.DUPLICATE_USAGEPOINT, "MRID must be unique", Level.SEVERE);
+    DUPLICATE_USAGEPOINT(3001, Constants.DUPLICATE_USAGEPOINT, "MRID must be unique", Level.SEVERE),
+
+    REQUIRED(4001, Constants.REQUIRED, "This field is required"),
+    FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION(4002, Constants.FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION, "You cannot manage custom attribute sets because metrology configuration is active."),
+    OBJECT_MUST_HAVE_UNIQUE_NAME(4003, Constants.OBJECT_MUST_HAVE_UNIQUE_NAME, "Name must be unique");
 
     private final int number;
     private final String key;
     private final String defaultFormat;
     private final Level level;
+
+    MessageSeeds(int number, String key, String defaultFormat) {
+        this(number, key, defaultFormat, Level.SEVERE);
+    }
 
     MessageSeeds(int number, String key, String defaultFormat, Level level) {
         this.number = number;
@@ -71,9 +79,13 @@ public enum MessageSeeds implements MessageSeed {
         NlsMessageFormat format = thesaurus.getFormat(this);
         logger.log(getLevel(), format.format(args), t);
     }
-    
+
     public enum Constants {
     	;
 		public static final String DUPLICATE_USAGEPOINT = "usagepoint.mridalreadyexists";
+        public static final String FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION = "fail.manage.cps.on.active.metrology.configuration";
+        public static final String OBJECT_MUST_HAVE_UNIQUE_NAME = "name.must.be.unique";
+        public static final String REQUIRED = "isRequired";
     }
+
 }

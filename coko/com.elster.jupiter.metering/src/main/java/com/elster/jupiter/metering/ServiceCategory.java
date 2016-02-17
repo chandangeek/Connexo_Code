@@ -21,4 +21,7 @@ public interface ServiceCategory extends HasTranslatableName, HasAuditInfo, HasI
 	void addCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet);
 
 	void removeCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet);
+
+	void setActive(boolean active);
+	boolean isActive();
 }

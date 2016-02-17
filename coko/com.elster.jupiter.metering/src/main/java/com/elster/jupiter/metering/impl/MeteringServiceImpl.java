@@ -35,7 +35,9 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
@@ -394,6 +396,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
+                bind(MetrologyConfigurationService.class).to(MetrologyConfigurationServiceImpl.class);
             }
         });
     }
@@ -543,8 +546,9 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 .forEach(listPer1000 -> dataModel.mapper(ReadingType.class).persist(listPer1000));
     }
 
-    ServiceCategoryImpl createServiceCategory(ServiceKind serviceKind) {
+    ServiceCategoryImpl createServiceCategory(ServiceKind serviceKind, boolean active) {
         ServiceCategoryImpl serviceCategory = dataModel.getInstance(ServiceCategoryImpl.class).init(serviceKind);
+        serviceCategory.setActive(active);
         dataModel.persist(serviceCategory);
         return serviceCategory;
     }
