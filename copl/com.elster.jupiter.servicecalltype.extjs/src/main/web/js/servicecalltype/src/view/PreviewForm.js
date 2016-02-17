@@ -9,33 +9,7 @@ Ext.define('Sct.view.PreviewForm', {
     },
     initComponent: function () {
         var me = this;
-        me.items = [
-           /* {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.type', 'SCT', 'Type'),
-                name: 'name'
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.version', 'SCT', 'Version'),
-                name: 'versionName'
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.status', 'SCT', 'Status'),
-                name: 'status'
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.logLevel', 'SCT', 'Log level'),
-                name: 'logLevelName'
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.lifeCycle', 'SCT', 'Life cycle'),
-                name: 'lifecycle'
-            }*/
-        ];
+        me.items = [];
         me.callParent(arguments);
     },
 
