@@ -1,10 +1,13 @@
 package com.elster.jupiter.metering.rest.impl;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
@@ -40,11 +43,13 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Path("/usagepoints")
