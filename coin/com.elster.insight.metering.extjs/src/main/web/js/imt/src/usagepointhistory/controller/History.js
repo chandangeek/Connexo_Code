@@ -109,7 +109,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
 
                 if (newCard.rendered) {
                     Ext.suspendLayouts();
-                    isEditable = record.get('editable');
+                    isEditable = record.get('isEditable');
                     addBtn = newCard.down('#custom-attribute-set-add-version-btn');
                     addBtnTop = newCard.down('#custom-attribute-set-add-version-btn-top');
                     actionColumn = newCard.down('#custom-attribute-set-versions-grid-action-column');

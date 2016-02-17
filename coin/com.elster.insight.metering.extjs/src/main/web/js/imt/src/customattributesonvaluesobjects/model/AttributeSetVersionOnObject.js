@@ -9,8 +9,8 @@ Ext.define('Imt.customattributesonvaluesobjects.model.AttributeSetVersionOnObjec
         {name: 'objectTypeId', type: 'integer'},
         {name: 'objectTypeVersion', type: 'integer'},
         {name: 'name', type: 'string'},
-        {name: 'editable', type: 'boolean'},
-        {name: 'timesliced', type: 'boolean'},
+        {name: 'isEditable', type: 'boolean'},
+        {name: 'isVersioned', type: 'boolean'},
         {name: 'startTime', type: 'timestamp'},
         {name: 'endTime', type: 'timestamp'},
         {
