@@ -6,10 +6,10 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.UsagePoint;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This interface provides functionality for custom property set management on usage points.
@@ -41,37 +41,55 @@ public interface UsagePointCustomPropertySetExtension {
     List<RegisteredCustomPropertySet> getAllCustomPropertySets();
 
     /**
-     * Returns a map with values for provided custom properties sets. If there is no persisted value for
-     * the given set, the resulting map will contain the <code>null</code> value. If a registered custom property
-     * set doesn't relate to the usage point the <code>null</code> value will be returned. If a registered custom property
-     * set has different domain (not a {@link UsagePoint}) the {@link UsagePointCustomPropertySetValuesManageException} will be thrown.
+     * Returns a value for provided custom properties set.
+     * <ul>
+     * <li>If there is no persisted value for the given set, the <code>null</code> value will be returned.</li>
+     * <li>If a registered custom property set doesn't relate to the usage point, the <code>null</code> value will be returned.</li>
+     * <li>If a registered custom property set domain differs from {@link UsagePoint} the
+     * {@link UsagePointCustomPropertySetValuesManageException} will be thrown.</li>
+     * </ul>
      *
-     * @param registeredCustomPropertySets Custom property sets whose values we want to read.
-     * @return Values for provided custom properties sets.
+     * @param registeredCustomPropertySet Custom property set whose value we want to read.
+     * @return Value for provided custom properties set.
      */
-    Map<RegisteredCustomPropertySet, CustomPropertySetValues> getCustomPropertySetValues(List<RegisteredCustomPropertySet> registeredCustomPropertySets);
+    CustomPropertySetValues getCustomPropertySetValue(RegisteredCustomPropertySet registeredCustomPropertySet);
 
     /**
-     * Returns a map with values for provided custom properties sets. If there is no persisted value for
-     * the given set, the resulting map will contain the <code>null</code> value. If a registered custom property
-     * set doesn't relate to the usage point the <code>null</code> value will be returned. If a registered custom property
-     * set has different domain (not a {@link UsagePoint}) the {@link IllegalArgumentException} will be thrown.
+     * Returns a value for provided custom properties set.
+     * <ul>
+     * <li>If there is no persisted value for the given set, the <code>null</code> value will be returned.</li>
+     * <li>If a registered custom property set doesn't relate to the usage point, the <code>null</code> value will be returned.</li>
+     * <li>If a registered custom property set domain differs from {@link UsagePoint} the
+     * {@link UsagePointCustomPropertySetValuesManageException} will be thrown.</li>
+     * </ul>
      *
-     * @param registeredCustomPropertySets Custom property sets whose values we want to read.
-     * @param effectiveTimeStamp           The point in time for time-sliced custom property sets values.
-     * @return Values for provided custom properties sets.
+     * @param registeredCustomPropertySet Custom property set whose value we want to read.
+     * @param effectiveTimeStamp          The point in time for time-sliced custom property sets values.
+     * @return Value for provided custom properties set.
      */
-    Map<RegisteredCustomPropertySet, CustomPropertySetValues> getCustomPropertySetValues(List<RegisteredCustomPropertySet> registeredCustomPropertySets, Instant effectiveTimeStamp);
+    CustomPropertySetValues getCustomPropertySetValue(RegisteredCustomPropertySet registeredCustomPropertySet, Instant effectiveTimeStamp);
 
     /**
      * Sets values for custom property sets
      *
-     * @param customPropertySet      custom property sets whose values we want to save.
-     * @param customPropertySetValue filled values for a custom properties set.
+     * @param customPropertySet      Custom property sets whose values we want to save.
+     * @param customPropertySetValue Filled values for a custom properties set.
      * @throws UsagePointCustomPropertySetValuesManageException in cases:
      *                                                          <li>there is no linked custom property set</li>
      *                                                          <li>current user has not sufficient privileges</li>
      */
     void setCustomPropertySetValue(CustomPropertySet<UsagePoint, ?> customPropertySet, CustomPropertySetValues customPropertySetValue);
+
+    /**
+     * Provides an interval for new version on time-sliced custom attribute set.
+     *
+     * @param registeredCustomPropertySet Custom property set for whom we want to calculate the interval.
+     * @return Interval for new version on time-sliced custom attribute set.
+     * @throws UsagePointCustomPropertySetValuesManageException in cases:
+     *                                                          <li>there is no linked custom property set</li>
+     *                                                          <li>custom property set is not versioned (time-sliced)</li>
+     *                                                          <li>custom property set domain differs from {@link UsagePoint}</li>
+     */
+    Range<Instant> getCurrentInterval(RegisteredCustomPropertySet registeredCustomPropertySet);
 
 }

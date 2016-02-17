@@ -25,4 +25,9 @@ public class UsagePointCustomPropertySetValuesManageException extends LocalizedE
         return new UsagePointCustomPropertySetValuesManageException(thesaurus,
                 MessageSeeds.CUSTOM_PROPERTY_SET_HAS_DIFFERENT_DOMAIN, cpsName);
     }
+
+    public static UsagePointCustomPropertySetValuesManageException customPropertySetIsNotVersioned(Thesaurus thesaurus, String cpsName){
+        return new UsagePointCustomPropertySetValuesManageException(thesaurus,
+                MessageSeeds.CUSTOM_PROPERTY_SET_IS_NOT_VERSIONED, cpsName);
+    }
 }
