@@ -1,10 +1,5 @@
 package com.elster.insight.usagepoint.data.impl;
 
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.data.UsagePointCustomPropertySetExtension;
-import com.elster.insight.usagepoint.data.impl.cps.CustomPropertySetAttributes;
-import com.elster.insight.usagepoint.data.impl.cps.UsagePointTestCustomPropertySet;
-import com.elster.insight.usagepoint.data.impl.exceptions.UsagePointCustomPropertySetValuesManageException;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.EditPrivilege;
@@ -15,8 +10,20 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
+import com.elster.insight.usagepoint.data.UsagePointCustomPropertySetExtension;
+import com.elster.insight.usagepoint.data.impl.cps.CustomPropertySetAttributes;
+import com.elster.insight.usagepoint.data.impl.cps.UsagePointTestCustomPropertySet;
+import com.elster.insight.usagepoint.data.impl.exceptions.UsagePointCustomPropertySetValuesManageException;
+
+import java.security.Principal;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -24,12 +31,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.security.Principal;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.BiConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -60,10 +61,9 @@ public class UsagePointCustomPropertySetExtensionImplTest {
     @After
     public void after() {
         UsagePoint usagePoint = getTestUsagePointInstance();
-        MetrologyConfiguration metrologyConfiguration = getTestMetrologyConfigurationInstance();
-        inMemoryBootstrapModule.getUsagePointConfigurationService().unlink(usagePoint, metrologyConfiguration);
-        metrologyConfiguration.delete();
         usagePoint.delete();
+        MetrologyConfiguration metrologyConfiguration = getTestMetrologyConfigurationInstance();
+        metrologyConfiguration.delete();
         getTestServiceCategory().removeCustomPropertySet(getRegisteredCustomPropertySet());
         inMemoryBootstrapModule.getThreadPrincipalService().set(() -> "Test");
     }
