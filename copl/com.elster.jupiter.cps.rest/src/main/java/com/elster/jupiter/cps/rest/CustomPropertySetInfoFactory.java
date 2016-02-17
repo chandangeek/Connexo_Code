@@ -3,6 +3,8 @@ package com.elster.jupiter.cps.rest;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.ValuesRangeConflict;
+import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.cps.rest.impl.SimplePropertyType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BooleanFactory;
@@ -13,9 +15,11 @@ import com.elster.jupiter.rest.util.properties.PredefinedPropertyValuesInfo;
 import com.elster.jupiter.rest.util.properties.PropertyType;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.Checks;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -35,18 +39,6 @@ public class CustomPropertySetInfoFactory {
         this.propertyValueInfoService.addPropertyValueInfoConverter(new NumberPropertyValueConverter());
     }
 
-    public CustomPropertySetInfo from(RegisteredCustomPropertySet rcps) {
-        CustomPropertySetInfo info = getGeneralInfo(rcps);
-        if (rcps != null) {
-            CustomPropertySet<?, ?> cps = rcps.getCustomPropertySet();
-            info.properties = cps.getPropertySpecs()
-                    .stream()
-                    .map(this::getPropertyInfo)
-                    .collect(Collectors.toList());
-        }
-        return info;
-    }
-
     public CustomPropertySetInfo getGeneralInfo(RegisteredCustomPropertySet rcps) {
         CustomPropertySetInfo info = new CustomPropertySetInfo();
         if (rcps != null) {
@@ -60,13 +52,50 @@ public class CustomPropertySetInfoFactory {
             info.name = cps.getName();
             String domainNameUntranslated = cps.getDomainClass().getName();
             info.domainName = thesaurus.getStringBeyondComponent(domainNameUntranslated, domainNameUntranslated);
-            info.isActive = true;
-            info.isRequired = cps.isRequired();
             info.isVersioned = cps.isVersioned();
+            info.isRequired = cps.isRequired();
             info.defaultViewPrivileges = cps.defaultViewPrivileges();
             info.defaultEditPrivileges = cps.defaultEditPrivileges();
         }
         return info;
+    }
+
+    public CustomPropertySetInfo getGeneralAndPropertiesInfo(RegisteredCustomPropertySet rcps) {
+        CustomPropertySetInfo info = getGeneralInfo(rcps);
+        if (rcps != null) {
+            CustomPropertySet<?, ?> cps = rcps.getCustomPropertySet();
+            info.properties = cps.getPropertySpecs()
+                    .stream()
+                    .map(this::getPropertyInfo)
+                    .collect(Collectors.toList());
+        }
+        return info;
+    }
+
+    public CustomPropertySetInfo getFullInfo(RegisteredCustomPropertySet rcps, CustomPropertySetValues customPropertySetValue) {
+        CustomPropertySetInfo info = getGeneralInfo(rcps);
+        if (rcps != null) {
+            if (info.isVersioned) {
+                addTimeSliceCustomPropertySetInfo(info, customPropertySetValue);
+            }
+            CustomPropertySet<?, ?> cps = rcps.getCustomPropertySet();
+            info.properties = cps.getPropertySpecs().stream()
+                    .map(propertySpec -> getPropertyInfo(propertySpec, key -> customPropertySetValue != null ? customPropertySetValue.getProperty(key) : null))
+                    .collect(Collectors.toList());
+        }
+        return info;
+    }
+
+    private void addTimeSliceCustomPropertySetInfo(CustomPropertySetInfo info, CustomPropertySetValues customPropertySetValue) {
+        if (customPropertySetValue != null) {
+            Range<Instant> effective = customPropertySetValue.getEffectiveRange();
+            info.versionId = effective.hasLowerBound() ? effective.lowerEndpoint().toEpochMilli() : 0;
+            info.startTime = effective.hasLowerBound() ? effective.lowerEndpoint().toEpochMilli() : null;
+            info.endTime = effective.hasUpperBound() ? effective.upperEndpoint().toEpochMilli() : null;
+            info.isActive = !customPropertySetValue.isEmpty() && !effective.hasLowerBound() && !effective.hasUpperBound();
+        } else {
+            info.isActive = false;
+        }
     }
 
     public CustomPropertySetAttributeInfo getPropertyInfo(PropertySpec propertySpec) {
@@ -141,7 +170,7 @@ public class CustomPropertySetInfoFactory {
         if (info != null && info.properties != null && propertySpecs != null) {
             Map<String, PropertySpec> propertySpecMap = propertySpecs
                     .stream()
-                    .collect(Collectors.toMap(propertySpec -> propertySpec.getName(), Function.identity()));
+                    .collect(Collectors.toMap(PropertySpec::getName, Function.identity()));
             for (CustomPropertySetAttributeInfo property : info.properties) {
                 PropertySpec propertySpec = propertySpecMap.get(property.key);
                 if (propertySpec != null && property.propertyValueInfo != null && property.propertyValueInfo.value != null) {
@@ -150,6 +179,17 @@ public class CustomPropertySetInfoFactory {
             }
         }
         return values;
+    }
+
+    public ValuesRangeConflictInfo getValuesRangeConflictInfo(ValuesRangeConflict valueRangeConflict) {
+        ValuesRangeConflictInfo info = new ValuesRangeConflictInfo();
+        if (valueRangeConflict != null) {
+            info.conflictType = valueRangeConflict.getType().name();
+            info.message = valueRangeConflict.getMessage();
+            info.conflictAtStart = valueRangeConflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_START);
+            info.conflictAtEnd = valueRangeConflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END);
+        }
+        return info;
     }
 
     interface PropertyValueInfoConverter {
@@ -252,7 +292,7 @@ public class CustomPropertySetInfoFactory {
 
         @Override
         public Object convertInfoToValue(Object infoValue, PropertySpec propertySpec) {
-            if (infoValue != null && infoValue instanceof String && !Checks.is((String)infoValue).emptyOrOnlyWhiteSpace()) {
+            if (infoValue != null && infoValue instanceof String && !Checks.is((String) infoValue).emptyOrOnlyWhiteSpace()) {
                 return propertySpec.getValueFactory().fromStringValue((String) infoValue);
             }
             return null;

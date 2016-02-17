@@ -28,11 +28,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Path("/custompropertysets")
 public class CustomPropertySetResource {
@@ -63,7 +60,7 @@ public class CustomPropertySetResource {
         List<CustomPropertySetInfo> infos = customPropertySetService.findActiveCustomPropertySets()
                 .stream()
                 .filter(rcps -> domainExtension == null || rcps.getCustomPropertySet().getDomainClass().getName().equals(domainExtension))
-                .map(customPropertySetInfoFactory::from)
+                .map(customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("customAttributeSets", infos, queryParameters);
     }
