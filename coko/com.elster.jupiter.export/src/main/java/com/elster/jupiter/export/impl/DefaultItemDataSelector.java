@@ -128,7 +128,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
         }
 
         try (TransactionContext context = transactionService.getContext()) {
-            MessageSeeds.ITEM_DOES_NOT_HAVE_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, mrid, item.getReadingType().getAliasName());
+            MessageSeeds.ITEM_DOES_NOT_HAVE_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, mrid, item.getReadingType().getFullAliasName());
             context.commit();
         }
 
