@@ -22,7 +22,7 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
 
         me.items = [
             {
-                xtype: 'electricity-info-form',
+                xtype: 'general-info-form',
                 itemId: 'add-usage-point-step1',
                 title: Uni.I18n.translate('usagepoint.wizard.step1title', 'IMT', 'Step 1: General information'),
                 navigationIndex: 1,

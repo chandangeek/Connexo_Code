@@ -79,9 +79,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
             forceSelection: true,
             listeners: {
                 change: {
-                    fn: function (combo, newValue) {
+                    fn: function (field, newValue) {
                         if (Ext.isEmpty(newValue)) {
-                            combo.reset();
+                            field.reset();
                         }
                     }
                 }

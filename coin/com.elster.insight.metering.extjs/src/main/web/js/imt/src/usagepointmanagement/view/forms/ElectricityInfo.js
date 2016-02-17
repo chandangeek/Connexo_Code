@@ -35,9 +35,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
             forceSelection: true,
             listeners: {
                 change: {
-                    fn: function (combo, newValue) {
+                    fn: function (field, newValue) {
                         if (Ext.isEmpty(newValue)) {
-                            combo.reset();
+                            field.reset();
                         }
                     }
                 }
@@ -68,11 +68,13 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
             fieldLabel: Uni.I18n.translate('general.label.limiter', 'IMT', 'Limiter'),
             listeners: {
                 change: {
-                    fn: function (checkbox, newValue) {
-                        Ext.suspendLayouts();
-                        checkbox.nextSibling('[name=loadLimiterType]').setVisible(newValue);
-                        checkbox.nextSibling('[name=loadLimit]').setVisible(newValue);
-                        Ext.resumeLayouts(true);
+                    fn: function (field, newValue) {
+                        if (field.rendered) {
+                            Ext.suspendLayouts();
+                            field.nextSibling('[name=loadLimiterType]').setVisible(newValue);
+                            field.nextSibling('[name=loadLimit]').setVisible(newValue);
+                            Ext.resumeLayouts(true);
+                        }
                     }
                 }
             }

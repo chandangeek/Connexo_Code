@@ -36,11 +36,13 @@ Ext.define('Imt.usagepointmanagement.view.forms.Gas', {
             fieldLabel: Uni.I18n.translate('general.label.limiter', 'IMT', 'Limiter'),
             listeners: {
                 change: {
-                    fn: function (checkbox, newValue) {
-                        Ext.suspendLayouts();
-                        checkbox.nextSibling('[name=loadLimiterType]').setVisible(newValue);
-                        checkbox.nextSibling('[name=loadLimit]').setVisible(newValue);
-                        Ext.resumeLayouts(true);
+                    fn: function (field, newValue) {
+                        if (field.rendered) {
+                            Ext.suspendLayouts();
+                            field.nextSibling('[name=loadLimiterType]').setVisible(newValue);
+                            field.nextSibling('[name=loadLimit]').setVisible(newValue);
+                            Ext.resumeLayouts(true);
+                        }
                     }
                 }
             }
@@ -63,7 +65,16 @@ Ext.define('Imt.usagepointmanagement.view.forms.Gas', {
             xtype: 'threevaluesfield',
             name: 'bypass',
             itemId: 'up-bypass-combo',
-            fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass')
+            fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass'),
+            listeners: {
+                change: {
+                    fn: function (field, newValue) {
+                        if (field.rendered) {
+                            field.nextSibling('[name=bypassStatus]').setVisible(newValue);
+                        }
+                    }
+                }
+            }
         },
         {
             xtype: 'combobox',
@@ -75,83 +86,34 @@ Ext.define('Imt.usagepointmanagement.view.forms.Gas', {
             valueField: 'id',
             queryMode: 'local',
             forceSelection: true,
+            hidden: true,
             listeners: {
                 change: {
-                    fn: function (combo, newValue) {
+                    fn: function (field, newValue) {
                         if (Ext.isEmpty(newValue)) {
-                            combo.reset();
-                        }
-                    }
-                }
-            }
-        },
-
-
-
-
-
-
-
-
-
-
-        {
-            xtype: 'combobox',
-            name: 'phaseCode',
-            itemId: 'up-phaseCode-combo',
-            fieldLabel: Uni.I18n.translate('general.label.phaseCode', 'IMT', 'Phase code'),
-            store: 'Imt.usagepointmanagement.store.PhaseCodes',
-            displayField: 'displayValue',
-            valueField: 'id',
-            queryMode: 'local',
-            forceSelection: true,
-            listeners: {
-                change: {
-                    fn: function (combo, newValue) {
-                        if (Ext.isEmpty(newValue)) {
-                            combo.reset();
+                            field.reset();
                         }
                     }
                 }
             }
         },
         {
-            xtype: 'measurefield',
-            name: 'ratedPower',
-            itemId: 'up-ratedPower-measurefield',
-            fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power')
+            xtype: 'threevaluesfield',
+            name: 'valve',
+            itemId: 'up-valve-combo',
+            fieldLabel: Uni.I18n.translate('general.label.valve', 'IMT', 'Valve')
         },
         {
-            xtype: 'measurefield',
-            name: 'estimatedLoad',
-            itemId: 'up-estimatedLoad-measurefield',
-            fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load')
+            xtype: 'threevaluesfield',
+            name: 'capped',
+            itemId: 'up-capped-combo',
+            fieldLabel: Uni.I18n.translate('general.label.capped', 'IMT', 'Capped')
         },
         {
-            xtype: 'measurefield',
-            name: 'estimatedLoad',
-            itemId: 'up-estimatedLoad-measurefield',
-            fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load')
-        },
-        {
-            xtype: 'combobox',
-            name: 'collar',
-            itemId: 'up-collar-combo',
-            fieldLabel: Uni.I18n.translate('general.label.collar', 'IMT', 'Collar'),
-            store: 'Imt.usagepointmanagement.store.CollarValues',
-            displayField: 'displayValue',
-            valueField: 'value',
-            queryMode: 'local',
-            forceSelection: true,
-            listeners: {
-                change: {
-                    fn: function (combo, newValue) {
-                        if (Ext.isEmpty(newValue)) {
-                            combo.reset();
-                        }
-                    }
-                }
-            }
+            xtype: 'threevaluesfield',
+            name: 'clamped',
+            itemId: 'up-clamped-combo',
+            fieldLabel: Uni.I18n.translate('general.label.clamped', 'IMT', 'Clamped')
         },
         {
             xtype: 'checkbox',

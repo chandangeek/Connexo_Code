@@ -10,7 +10,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.ThreeValuesField', {
         ['YES', Uni.I18n.translate('general.yes', 'IMT', 'Yes')],
         ['NO', Uni.I18n.translate('general.no', 'IMT', 'No')],
         ['UNKNOWN', Uni.I18n.translate('general.unknown', 'IMT', 'Unknown')]
-    ]/*,
+    ],
 
     setValue: function (value) {
         var me = this,
@@ -23,8 +23,11 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.ThreeValuesField', {
             case false:
                 valueToSet = 'NO';
                 break;
-            default:
+            case null:
                 valueToSet = 'UNKNOWN';
+                break;
+            default:
+                valueToSet = value;
         }
 
         me.callParent([valueToSet]);
@@ -47,5 +50,5 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.ThreeValuesField', {
         }
 
         return returnedValue;
-    }*/
+    }
 });
