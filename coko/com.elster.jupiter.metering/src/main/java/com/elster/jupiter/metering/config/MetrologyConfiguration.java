@@ -37,4 +37,10 @@ public interface MetrologyConfiguration {
 
     void removeCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet);
 
+    List<MetrologyContract> getContracts();
+
+    List<ReadingTypeRequirement> getRequirements();
+
+    List<ReadingTypeDeliverable> getDeliverables();
+
 }

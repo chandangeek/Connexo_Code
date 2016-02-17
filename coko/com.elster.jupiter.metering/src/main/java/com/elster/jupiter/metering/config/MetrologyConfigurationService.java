@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.config;
 
+import com.elster.jupiter.metering.impl.config.ExpressionNode;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -20,5 +22,15 @@ public interface MetrologyConfigurationService {
     Optional<MetrologyConfiguration> findMetrologyConfiguration(String name);
 
     List<MetrologyConfiguration> findAllMetrologyConfigurations();
+
+    /**
+     * Good for now but will need to be facaded with another API before final release.
+     */
+    Formula newFormula(Formula.Mode mode, ExpressionNode node);
+
+    /**
+     * Good for now but will need to be facaded with another API before final release.
+     */
+    Optional<Formula> findFormula(long id);
 
 }

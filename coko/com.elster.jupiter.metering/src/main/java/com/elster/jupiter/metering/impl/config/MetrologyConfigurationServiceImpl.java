@@ -4,6 +4,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
@@ -148,6 +149,18 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     @Override
     public List<MetrologyConfiguration> findAllMetrologyConfigurations() {
         return DefaultFinder.of(MetrologyConfiguration.class, this.getDataModel()).defaultSortColumn("lower(name)").find();
+    }
+
+    @Override
+    public Formula newFormula(Formula.Mode mode, ExpressionNode node) {
+        Formula formula = getDataModel().getInstance(FormulaImpl.class).init(mode, node);
+        formula.save();
+        return formula;
+    }
+
+    @Override
+    public Optional<Formula> findFormula(long id) {
+        return getDataModel().mapper(Formula.class).getOptional(id);
     }
 
 }
