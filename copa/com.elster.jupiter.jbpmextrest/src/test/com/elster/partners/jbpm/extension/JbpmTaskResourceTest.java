@@ -7,6 +7,7 @@ import org.jboss.resteasy.plugins.providers.jackson.ResteasyJacksonProvider;
 import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jbpm.kie.services.api.RuntimeDataService;
+import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
 import org.jbpm.kie.services.impl.model.ProcessInstanceDesc;
 import org.jbpm.services.task.impl.model.UserImpl;
 import org.junit.AfterClass;
@@ -17,6 +18,7 @@ import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskData;
 import org.kie.internal.task.api.InternalTaskService;
+import org.kie.internal.task.api.model.InternalTask;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -25,7 +27,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import javax.persistence.Query;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -106,11 +108,6 @@ public class JbpmTaskResourceTest {
         assertEquals(calendar.getTime(), response.getEntity().getCreatedOn());
         assertEquals(Status.InProgress, response.getEntity().getStatus());
         assertEquals("TestUser", response.getEntity().getActualOwner());
-
-        // No priority
-        // No due date
-        // No deployment id
-        // No process instance id
     }
 
     @Test
@@ -280,16 +277,132 @@ public class JbpmTaskResourceTest {
         assertEquals("TestContentValue", response.getEntity().content.get("TestContent"));
     }
 
+    @Test
+    public  void testGetTaskFormContent() throws Exception{
+        ConnexoForm form = mock(ConnexoForm.class);
+        String template = "\n" +
+                "<form id=\"1634463930\">\n" +
+                "<property name=\"subject\" value=\"\"/>\n" +
+                "<property name=\"name\" value=\"testForm-taskform.form\"/>\n" +
+                "<property name=\"displayMode\" value=\"default\"/>\n" +
+                "<property name=\"status\" value=\"0\"/>\n" +
+                "<field position=\"0\" name=\"542195483\" type=\"InputText\" id=\"542195483\">\n" +
+                "<property name=\"readonly\" value=\"true\"/>\n" +
+                "</field>\n" +
+                "</form>";
+        InternalTask task = mock(InternalTask.class);
+        TaskData taskData = mock(TaskData.class);
+        ProcessAssetDesc processAssetDesc = mock(ProcessAssetDesc.class);
+        Collection<ProcessAssetDesc> processesList = new HashSet<>();
+        Map<String, String> forms = new HashMap<>();
+        forms.put("FormName",template);
+        processesList.add(processAssetDesc);
 
-    // testAssignTask
-    // testSetDueDateAndPriority
-    // testGetProc
-    // testGetTaskContent
-    // testGetProcessForm
-    // testGetTaskContents
-    // testStartTaskContent
-    // testCompleteTaskContent
-    // testSaveTaskContent
-    // testManageTasks
-    //
+        when(task.getTaskData()).thenReturn(taskData);
+        when(taskData.getDeploymentId()).thenReturn("TestDeploymentID");
+        when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
+        when(runtimeDataService.getProcessesByDeploymentId(anyString())).thenReturn(processesList);
+        when(processAssetDesc.getDeploymentId()).thenReturn("TestDeploymentID");
+        when(task.getFormName()).thenReturn("FormName");
+        when(internalTaskService.getTaskById(anyLong()).getTaskData().getOutputContentId()).thenReturn(-1L);
+        when(processAssetDesc.getForms()).thenReturn(forms);
+
+        ClientRequest request = new ClientRequest(baseUri + "/1/content");
+
+        ClientResponse<ConnexoForm> response = request.get(ConnexoForm.class);
+
+        assertEquals("1634463930", response.getEntity().id);
+        assertEquals(true, response.getEntity().properties.stream().anyMatch(s->s.value.equals("testForm-taskform.form")));
+        assertEquals(true, response.getEntity().fields.stream().anyMatch(s-> s.type.equals("InputText") && s.properties.stream().anyMatch(p->p.name.equals("readonly") && p.value.equals("true"))));
+    }
+
+    @Test
+    public  void testGetProcessForm() throws Exception{
+        ProcessAssetDesc process = mock(ProcessAssetDesc.class);
+        String template = "\n" +
+                "<form id=\"1634463930\">\n" +
+                "<property name=\"subject\" value=\"\"/>\n" +
+                "<property name=\"name\" value=\"testForm-taskform.form\"/>\n" +
+                "<property name=\"displayMode\" value=\"default\"/>\n" +
+                "<property name=\"status\" value=\"0\"/>\n" +
+                "<field position=\"0\" name=\"542195483\" type=\"InputText\" id=\"542195483\">\n" +
+                "<property name=\"readonly\" value=\"true\"/>\n" +
+                "</field>\n" +
+                "</form>";
+        Collection<ProcessAssetDesc> processesList = new HashSet<>();
+        processesList.add(process);
+        Map<String, String> forms = new HashMap<>();
+        forms.put("processID",template);
+
+        when(process.getDeploymentId()).thenReturn("deploymentID");
+        when(runtimeDataService.getProcessById(anyString())).thenReturn(process);
+        when(runtimeDataService.getProcessesByDeploymentId(anyString())).thenReturn(processesList);
+        when(process.getId()).thenReturn("processID");
+        when(process.getForms()).thenReturn(forms);
+
+        ClientRequest request = new ClientRequest(baseUri + "/process/deploymentID/content/processID");
+
+        ClientResponse<ConnexoForm> response = request.get(ConnexoForm.class);
+        assertEquals("1634463930", response.getEntity().id);
+        assertEquals(true, response.getEntity().properties.stream().anyMatch(s->s.value.equals("testForm-taskform.form")));
+        assertEquals(true, response.getEntity().fields.stream().anyMatch(s-> s.type.equals("InputText") && s.properties.stream().anyMatch(p->p.name.equals("readonly") && p.value.equals("true"))));
+    }
+
+    @Test
+    public  void testGetMandatoryTasks() throws Exception{
+        ConnexoForm form = new ConnexoForm();
+        List<TaskGroupsInfo> taskGroups = new ArrayList<>();
+        List<Long> ids = new ArrayList<>();
+        ids.add(1L);
+        TaskGroupsInfo taskGroupsInfo = new TaskGroupsInfo("name", "processName", "1.0", ids, true, form);
+        taskGroups.add(taskGroupsInfo);
+        TaskGroupsInfos taskGroupInfos = new TaskGroupsInfos(taskGroups);
+        TaskData taskData = mock(TaskData.class);
+        InternalTask task = mock(InternalTask.class);
+        Collection<ProcessAssetDesc> processesList = new HashSet<>();
+        ProcessAssetDesc process = mock(ProcessAssetDesc.class);
+        processesList.add(process);
+        String template = "\n" +
+                "<form id=\"1634463930\">\n" +
+                "<property name=\"subject\" value=\"\"/>\n" +
+                "<property name=\"name\" value=\"testForm-taskform.form\"/>\n" +
+                "<property name=\"displayMode\" value=\"default\"/>\n" +
+                "<property name=\"status\" value=\"0\"/>\n" +
+                "<field position=\"0\" name=\"542195483\" type=\"InputText\" id=\"542195483\">\n" +
+                "<property name=\"readonly\" value=\"true\"/>\n" +
+                "<property name=\"fieldRequired\" value=\"true\"/>\n" +
+                "</field>\n" +
+                "</form>";
+        ProcessAssetDesc processAssetDesc = mock(ProcessAssetDesc.class);
+        Map<String, String> forms = new HashMap<>();
+        forms.put("FormName",template);
+        processesList.add(processAssetDesc);
+
+        when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
+        when(task.getTaskData()).thenReturn(taskData);
+        when(taskData.getDeploymentId()).thenReturn("deploymentID");
+        when(runtimeDataService.getProcessesByDeploymentId(anyString())).thenReturn(processesList);
+        when(process.getDeploymentId()).thenReturn("deploymentID");
+        when(task.getId()).thenReturn(1L);
+        when(task.getTaskData()).thenReturn(taskData);
+        when(taskData.getDeploymentId()).thenReturn("TestDeploymentID");
+        when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
+        when(runtimeDataService.getProcessesByDeploymentId(anyString())).thenReturn(processesList);
+        when(processAssetDesc.getDeploymentId()).thenReturn("TestDeploymentID");
+        when(task.getFormName()).thenReturn("FormName");
+        when(internalTaskService.getTaskById(anyLong()).getTaskData().getOutputContentId()).thenReturn(-1L);
+        when(processAssetDesc.getForms()).thenReturn(forms);
+        when(task.getName()).thenReturn("TestName");
+
+        ClientRequest request = new ClientRequest(baseUri + "/mandatory");
+        request.body(MediaType.APPLICATION_JSON_TYPE, taskGroupInfos);
+
+        ClientResponse<TaskGroupsInfos> response = request.post(TaskGroupsInfos.class);
+        assertEquals(true, response.getEntity().taskGroups.get(0).hasMandatory);
+        assertEquals(1L, response.getEntity().taskGroups.get(0).count);
+        assertEquals(true, response.getEntity().taskGroups.get(0).tasksForm.properties.stream().anyMatch(s->s.value.equals("testForm-taskform.form")));
+        assertEquals(true, response.getEntity().taskGroups.get(0).tasksForm.fields.stream().anyMatch(s-> s.type.equals("InputText") && s.properties.stream().anyMatch(p->p.name.equals("readonly") && p.value.equals("true"))));
+        assertEquals(true, response.getEntity().taskGroups.get(0).tasksForm.fields.stream().anyMatch(s-> s.type.equals("InputText") && s.properties.stream().anyMatch(p->p.name.equals("fieldRequired") && p.value.equals("true"))));
+    }
+
 }
