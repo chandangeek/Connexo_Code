@@ -270,7 +270,6 @@ public class BpmResource {
         } catch (RuntimeException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
         }
-<<<<<<< HEAD
         return new ProcessInstanceNodeInfos(jsnobject, thesaurus);
 
 
@@ -303,17 +302,6 @@ public class BpmResource {
             processDefinitionInfos.total = processDefinitionInfos.processes.size();
             return processDefinitionInfos;
         }
-=======
-        List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
-        ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos(arr);
-        processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
-                .filter(s -> activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version)))
-                .collect(Collectors.toList());
-        processDefinitionInfos.processes.stream()
-                .forEach(s -> s.id = s.id + " (" + s.deploymentId + ") ");
-        processDefinitionInfos.total = processDefinitionInfos.processes.size();
-        return processDefinitionInfos;
->>>>>>> c5ee578721cdc81f4a3a1392f2ae66206576fb59
     }
 
     @GET
@@ -489,23 +477,8 @@ public class BpmResource {
                     bpmProcessDefinition.get().setAssociationData(provider.get().getAssociationData(bpmProcessDefinition.get()));
                 }
                 return new ProcessDefinitionInfo(bpmProcessDefinition.get(), groups);
-<<<<<<< HEAD
             }else{
                 ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinition(auth);
-=======
-            } else {
-                String jsonContent;
-                JSONArray arr = null;
-                try {
-                    jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes", auth);
-                    if (!"".equals(jsonContent)) {
-                        JSONObject jsnobject = new JSONObject(jsonContent);
-                        arr = jsnobject.getJSONArray("processDefinitionList");
-                    }
-                } catch (JSONException e) {
-                }
-                ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos(arr);
->>>>>>> c5ee578721cdc81f4a3a1392f2ae66206576fb59
                 boolean check = processDefinitionInfos.processes.stream()
                         .anyMatch(s -> s.name.equals(id) && s.version.equals(queryParameters.get("version").get(0)));
                 if (!check) {
@@ -525,7 +498,6 @@ public class BpmResource {
     @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.ADMINISTRATE_BPM})
     public PagedInfoList getActiveBpmProcessesDefinitions(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth) {
         MultivaluedMap<String, String> filterProperties = uriInfo.getQueryParameters();
-<<<<<<< HEAD
         if(filterProperties.get("type") != null) {
             if (filterProperties.get("type").get(0).toLowerCase().equals("device")) {
                 if (filterProperties.get("devicestateid") != null && filterProperties.get("privileges") != null) {
@@ -546,17 +518,6 @@ public class BpmResource {
                     bpmProcesses.stream()
                             .forEach(s -> s.id = s.id + s.deploymentId);
                     return PagedInfoList.fromCompleteList("processes", bpmProcesses, queryParameters);
-=======
-        if (filterProperties.get("devicestateid") != null && filterProperties.get("privileges") != null) {
-            String jsonContent;
-            List<String> privileges = getPropertyList(filterProperties.get("privileges").get(0), "privilege");
-            JSONArray arr = null;
-            try {
-                jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes", auth);
-                if (!"".equals(jsonContent)) {
-                    JSONObject jsnobject = new JSONObject(jsonContent);
-                    arr = jsnobject.getJSONArray("processDefinitionList");
->>>>>>> c5ee578721cdc81f4a3a1392f2ae66206576fb59
                 }
             }else if(filterProperties.get("type").get(0).toLowerCase().equals("usagepoint") || filterProperties.get("type").get(0).toLowerCase().equals("issue")){
                 ProcessDefinitionInfos bpmProcessDefinition = getBpmProcessDefinition(auth);
@@ -571,24 +532,6 @@ public class BpmResource {
                         .forEach(s -> s.id = s.id + s.deploymentId);
                 return PagedInfoList.fromCompleteList("processes", bpmProcesses, queryParameters);
             }
-<<<<<<< HEAD
-=======
-            ProcessDefinitionInfos bpmProcessDefinition = new ProcessDefinitionInfos(arr);
-            long deviceStateId = Long.valueOf(filterProperties.get("devicestateid").get(0));
-            List<String> privilegeNames = privileges.stream().collect(Collectors.toList());
-            List<BpmProcessDefinition> connexoProcesses = bpmService.getActiveBpmProcessDefinitions();
-            List<BpmProcessDefinition> filtredConnexoProcesses = connexoProcesses.stream()
-                    .filter(p -> p.getAssociationData().stream().anyMatch(s -> Long.parseLong(s.get("deviceStateId")) == deviceStateId))
-                    .filter(p -> p.getPrivileges().stream().anyMatch(s -> privilegeNames.stream().anyMatch(z -> z.equals(s.getPrivilegeName()))))
-                    .collect(Collectors.toList());
-
-            List<ProcessDefinitionInfo> bpmProcesses = bpmProcessDefinition.processes.stream()
-                    .filter(s -> filtredConnexoProcesses.stream().anyMatch(x -> x.getProcessName().equals(s.name) && x.getVersion().equals(s.version)))
-                    .collect(Collectors.toList());
-            bpmProcesses.stream()
-                    .forEach(s -> s.id = s.id + s.deploymentId);
-            return PagedInfoList.fromCompleteList("processes", bpmProcesses, queryParameters);
->>>>>>> c5ee578721cdc81f4a3a1392f2ae66206576fb59
         }
         return null;
     }
@@ -852,13 +795,8 @@ public class BpmResource {
         if (!err.isEmpty()) {
             return Response.status(400).entity(new LocalizedFieldException(err)).build();
         }
-<<<<<<< HEAD
         if(taskContentInfos.deploymentId != null && taskContentInfos.businessObject.id != null && taskContentInfos.businessObject.value != null) {
             expectedParams.put(taskContentInfos.businessObject.id, taskContentInfos.businessObject.value);
-=======
-        if (taskContentInfos.deploymentId != null && taskContentInfos.mrid != null) {
-            expectedParams.put("mrid", taskContentInfos.mrid);
->>>>>>> c5ee578721cdc81f4a3a1392f2ae66206576fb59
             bpmService.startProcess(taskContentInfos.deploymentId, id, expectedParams, auth);
         }
         return Response.ok().build();
