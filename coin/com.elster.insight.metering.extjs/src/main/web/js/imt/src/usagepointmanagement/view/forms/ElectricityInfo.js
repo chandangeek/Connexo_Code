@@ -4,7 +4,10 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
     requires: [
         'Uni.util.FormErrorMessage',
         'Imt.usagepointmanagement.view.forms.fields.MeasureField',
-        'Imt.usagepointmanagement.view.forms.fields.ThreeValuesField'
+        'Imt.usagepointmanagement.view.forms.fields.ThreeValuesField',
+        'Imt.usagepointmanagement.view.forms.fields.LimiterCheckbox',
+        'Imt.usagepointmanagement.view.forms.fields.LoadLimiterTypeField',
+        'Imt.usagepointmanagement.view.forms.fields.LoadLimitField'
     ],
     defaults: {
         labelWidth: 260,
@@ -21,7 +24,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
             xtype: 'measurefield',
             name: 'nominalServiceVoltage',
             itemId: 'up-nominalServiceVoltage-measurefield',
-            fieldLabel: Uni.I18n.translate('general.label.nominalServiceVoltage', 'IMT', 'Nominal voltage')
+            fieldLabel: Uni.I18n.translate('general.label.nominalServiceVoltage', 'IMT', 'Nominal voltage'),
+            store: 'Imt.usagepointmanagement.store.measurementunits.Voltage',
+            value: {value: null, unit: 'V'}
         },
         {
             xtype: 'combobox',
@@ -33,6 +38,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
             valueField: 'id',
             queryMode: 'local',
             forceSelection: true,
+            emptyText: Uni.I18n.translate('usagepoint.add.emptyText.phaseCode', 'IMT', 'Select phase code...'),
             listeners: {
                 change: {
                     fn: function (field, newValue) {
@@ -62,35 +68,17 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
             fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load')
         },
         {
-            xtype: 'checkbox',
-            name: 'limiter',
-            itemId: 'up-limiter-measurefield',
-            fieldLabel: Uni.I18n.translate('general.label.limiter', 'IMT', 'Limiter'),
-            listeners: {
-                change: {
-                    fn: function (field, newValue) {
-                        if (field.rendered) {
-                            Ext.suspendLayouts();
-                            field.nextSibling('[name=loadLimiterType]').setVisible(newValue);
-                            field.nextSibling('[name=loadLimit]').setVisible(newValue);
-                            Ext.resumeLayouts(true);
-                        }
-                    }
-                }
-            }
+            xtype: 'limitercheckbox',
+            itemId: 'up-limiter-measurefield'
         },
         {
-            xtype: 'textfield',
-            name: 'loadLimiterType',
+            xtype: 'loadlimitertypefield',
             itemId: 'up-loadLimiterType-textfield',
-            fieldLabel: Uni.I18n.translate('general.label.loadLimiterType', 'IMT', 'Load limiter type'),
             hidden: true
         },
         {
-            xtype: 'measurefield',
-            name: 'loadLimit',
+            xtype: 'loadlimitfield',
             itemId: 'up-loadLimit-measurefield',
-            fieldLabel: Uni.I18n.translate('general.label.loadLimit', 'IMT', 'Load limit'),
             hidden: true
         },
         {

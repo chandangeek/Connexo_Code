@@ -4,7 +4,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.ThermalInfo', {
     requires: [
         'Uni.util.FormErrorMessage',
         'Imt.usagepointmanagement.view.forms.fields.MeasureField',
-        'Imt.usagepointmanagement.view.forms.fields.ThreeValuesField'
+        'Imt.usagepointmanagement.view.forms.fields.ThreeValuesField',
+        'Imt.usagepointmanagement.view.forms.fields.BypassField',
+        'Imt.usagepointmanagement.view.forms.fields.BypassStatusCombobox'
     ],
     defaults: {
         labelWidth: 260,
@@ -24,40 +26,13 @@ Ext.define('Imt.usagepointmanagement.view.forms.ThermalInfo', {
             fieldLabel: Uni.I18n.translate('general.label.physicalCapacity', 'IMT', 'Physical capacity')
         },
         {
-            xtype: 'threevaluesfield',
-            name: 'bypass',
-            itemId: 'up-bypass-combo',
-            fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass'),
-            listeners: {
-                change: {
-                    fn: function (field, newValue) {
-                        if (field.rendered) {
-                            field.nextSibling('[name=bypassStatus]').setVisible(newValue);
-                        }
-                    }
-                }
-            }
+            xtype: 'bypassfield',
+            itemId: 'up-bypass-combo'
         },
         {
-            xtype: 'combobox',
-            name: 'bypassStatus',
+            xtype: 'bypassstatuscombobox',
             itemId: 'up-bypassStatus-combo',
-            fieldLabel: Uni.I18n.translate('general.label.bypassStatus', 'IMT', 'Bypass status'),
-            store: 'Imt.usagepointmanagement.store.BypassStatuses',
-            displayField: 'displayValue',
-            valueField: 'id',
-            queryMode: 'local',
-            forceSelection: true,
-            hidden: true,
-            listeners: {
-                change: {
-                    fn: function (field, newValue) {
-                        if (Ext.isEmpty(newValue)) {
-                            field.reset();
-                        }
-                    }
-                }
-            }
+            hidden: true
         },
         {
             xtype: 'threevaluesfield',

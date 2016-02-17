@@ -41,13 +41,31 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.MeasureField', {
     setValue: function (value) {
         var me = this;
 
+
+        me.down('numberfield').setValue(value ? value.value : value);
+        if (value && value.unit) {
+            me.down('combobox').setValue(value.unit);
+        }
         me.value = value;
     },
 
     getValue: function () {
-        var me = this;
+        var me = this,
+            valueObject = {},
+            value = me.down('numberfield').getValue(),
+            measureCombo = me.down('combobox'),
+            measureComboValue = measureCombo.getValue(),
+            measure = !Ext.isEmpty(measureComboValue)
+                ? measureCombo.findRecordByValue(measureComboValue).getData()
+                : measureComboValue;
 
-        return me.value;
+        if (Ext.isEmpty(value)) {
+            return null;
+        }
+        valueObject.value = value;
+        valueObject.unit = measure ? measure.unit : measure;
+        valueObject.multiplier = measure ? measure.multiplier : measure;
+        return valueObject;
     },
 
     getRawValue: function () {

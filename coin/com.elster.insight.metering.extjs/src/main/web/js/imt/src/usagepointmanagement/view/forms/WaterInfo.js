@@ -4,7 +4,12 @@ Ext.define('Imt.usagepointmanagement.view.forms.WaterInfo', {
     requires: [
         'Uni.util.FormErrorMessage',
         'Imt.usagepointmanagement.view.forms.fields.MeasureField',
-        'Imt.usagepointmanagement.view.forms.fields.ThreeValuesField'
+        'Imt.usagepointmanagement.view.forms.fields.ThreeValuesField',
+        'Imt.usagepointmanagement.view.forms.fields.BypassField',
+        'Imt.usagepointmanagement.view.forms.fields.BypassStatusCombobox',
+        'Imt.usagepointmanagement.view.forms.fields.LimiterCheckbox',
+        'Imt.usagepointmanagement.view.forms.fields.LoadLimiterTypeField',
+        'Imt.usagepointmanagement.view.forms.fields.LoadLimitField'
     ],
     defaults: {
         labelWidth: 260,
@@ -24,72 +29,27 @@ Ext.define('Imt.usagepointmanagement.view.forms.WaterInfo', {
             fieldLabel: Uni.I18n.translate('general.label.physicalCapacity', 'IMT', 'Physical capacity')
         },
         {
-            xtype: 'checkbox',
-            name: 'limiter',
-            itemId: 'up-limiter-measurefield',
-            fieldLabel: Uni.I18n.translate('general.label.limiter', 'IMT', 'Limiter'),
-            listeners: {
-                change: {
-                    fn: function (field, newValue) {
-                        if (field.rendered) {
-                            Ext.suspendLayouts();
-                            field.nextSibling('[name=loadLimiterType]').setVisible(newValue);
-                            field.nextSibling('[name=loadLimit]').setVisible(newValue);
-                            Ext.resumeLayouts(true);
-                        }
-                    }
-                }
-            }
+            xtype: 'limitercheckbox',
+            itemId: 'up-limiter-measurefield'
         },
         {
-            xtype: 'textfield',
-            name: 'loadLimiterType',
+            xtype: 'loadlimitertypefield',
             itemId: 'up-loadLimiterType-textfield',
-            fieldLabel: Uni.I18n.translate('general.label.loadLimiterType', 'IMT', 'Load limiter type'),
             hidden: true
         },
         {
-            xtype: 'measurefield',
-            name: 'loadLimit',
+            xtype: 'loadlimitfield',
             itemId: 'up-loadLimit-measurefield',
-            fieldLabel: Uni.I18n.translate('general.label.loadLimit', 'IMT', 'Load limit'),
             hidden: true
         },
         {
-            xtype: 'threevaluesfield',
-            name: 'bypass',
-            itemId: 'up-bypass-combo',
-            fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass'),
-            listeners: {
-                change: {
-                    fn: function (field, newValue) {
-                        if (field.rendered) {
-                            field.nextSibling('[name=bypassStatus]').setVisible(newValue);
-                        }
-                    }
-                }
-            }
+            xtype: 'bypassfield',
+            itemId: 'up-bypass-combo'
         },
         {
-            xtype: 'combobox',
-            name: 'bypassStatus',
+            xtype: 'bypassstatuscombobox',
             itemId: 'up-bypassStatus-combo',
-            fieldLabel: Uni.I18n.translate('general.label.bypassStatus', 'IMT', 'Bypass status'),
-            store: 'Imt.usagepointmanagement.store.BypassStatuses',
-            displayField: 'displayValue',
-            valueField: 'id',
-            queryMode: 'local',
-            forceSelection: true,
-            hidden: true,
-            listeners: {
-                change: {
-                    fn: function (field, newValue) {
-                        if (Ext.isEmpty(newValue)) {
-                            field.reset();
-                        }
-                    }
-                }
-            }
+            hidden: true
         },
         {
             xtype: 'threevaluesfield',
