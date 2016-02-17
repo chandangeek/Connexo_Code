@@ -7,6 +7,10 @@ Ext.define('Idc.controller.Detail', {
         'Isu.store.Clipboard'
     ],
 
+    models: [
+        'Idc.model.Issue'
+    ],
+
     views: [
         'Idc.view.Detail'
     ],
@@ -47,9 +51,5 @@ Ext.define('Idc.controller.Detail', {
                 click: this.chooseAction
             }
         });
-    },
-
-    showOverview: function (id) {
-        this.callParent([id, 'Idc.model.Issue', 'Isu.store.Issues', 'data-collection-issue-detail', 'workspace/datacollectionissues', 'datacollection']);
     }
 });

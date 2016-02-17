@@ -16,8 +16,6 @@ Ext.define('Idc.controller.Main', {
         'Idc.controller.history.Workspace',
         'Idc.controller.MainOverview',
         'Idc.controller.Detail',
-        'Idc.controller.ApplyAction',
-        'Idc.controller.BulkChangeIssues',
         'Isu.controller.MessageWindow'
     ],
 
