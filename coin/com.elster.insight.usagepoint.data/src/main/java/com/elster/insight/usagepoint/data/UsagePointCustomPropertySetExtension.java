@@ -26,69 +26,52 @@ public interface UsagePointCustomPropertySetExtension {
      * @return List of all registered custom property sets for linked metrology configuration,
      * on an empty list if there is no linked metrology configuration
      */
-    List<RegisteredCustomPropertySet> getMetrologyCustomPropertySets();
-
-    /**
-     * Returns a map with values for custom properties sets inherited from linked metrology configuration.
-     * For time-sliced custom property sets it returns values which are actual at this moment.
-     * If the usage point has no linked metrology configuration, the empty map will be returned.
-     *
-     * @return Values for custom properties sets inherited from linked metrology configuration.
-     */
-    Map<RegisteredCustomPropertySet, CustomPropertySetValues> getMetrologyConfigurationCustomPropertySetValues();
-
-    /**
-     * Returns a map with values for custom properties sets inherited from linked metrology configuration.
-     * If the usage point has no linked metrology configuration, the empty map will be returned.
-     *
-     * @param effectiveTimeStamp The point in time for time-sliced custom property sets values.
-     * @return Values for custom properties sets inherited from linked metrology configuration.
-     */
-    Map<RegisteredCustomPropertySet, CustomPropertySetValues> getMetrologyConfigurationCustomPropertySetValues(Instant effectiveTimeStamp);
-
-    /**
-     * Sets values for custom property sets which was inherited from linked metrology configuration.
-     *
-     * @param customPropertySet      custom property sets whose values we want to save.
-     * @param customPropertySetValue filled values for a custom properties set.
-     * @throws UsagePointCustomPropertySetValuesManageException in cases:
-     * <li>there is no linked metrology configuration</li>
-     * <li>there is no linked custom property set on metrology configuration</li>
-     * <li>current user has not sufficient privileges</li>
-     */
-    void setMetrologyConfigurationCustomPropertySetValue(CustomPropertySet customPropertySet, CustomPropertySetValues customPropertySetValue);
+    List<RegisteredCustomPropertySet> getCustomPropertySetsOnMetrologyConfiguration();
 
     /**
      * @return List of all registered custom property sets from service category.
      */
-    List<RegisteredCustomPropertySet> getServiceCategoryPropertySets();
+    List<RegisteredCustomPropertySet> getCustomPropertySetsOnServiceCategory();
 
     /**
-     * Returns a map with values for custom properties sets from service category.
-     * For time-sliced custom property sets it returns values which are actual at this moment.
-     *
-     * @return Values for custom properties sets from service category.
+     * @return List of all registered custom property sets which are available for that usage point.
+     * In fact it is combination of {@link #getCustomPropertySetsOnMetrologyConfiguration()} and
+     * {@link #getCustomPropertySetsOnServiceCategory()}
      */
-    Map<RegisteredCustomPropertySet, CustomPropertySetValues> getServiceCategoryCustomPropertySetValues();
+    List<RegisteredCustomPropertySet> getAllCustomPropertySets();
 
     /**
-     * Returns a map with values for custom properties sets from service category.
+     * Returns a map with values for provided custom properties sets. If there is no persisted value for
+     * the given set, the resulting map will contain the <code>null</code> value. If a registered custom property
+     * set doesn't relate to the usage point the <code>null</code> value will be returned. If a registered custom property
+     * set has different domain (not a {@link UsagePoint}) the {@link UsagePointCustomPropertySetValuesManageException} will be thrown.
      *
-     * @param effectiveTimeStamp The point in time for time-sliced custom property sets values.
-     * @return Values for custom properties sets from service category.
+     * @param registeredCustomPropertySets Custom property sets whose values we want to read.
+     * @return Values for provided custom properties sets.
      */
-    Map<RegisteredCustomPropertySet, CustomPropertySetValues> getServiceCategoryCustomPropertySetValues(Instant effectiveTimeStamp);
+    Map<RegisteredCustomPropertySet, CustomPropertySetValues> getCustomPropertySetValues(List<RegisteredCustomPropertySet> registeredCustomPropertySets);
 
     /**
-     * Sets values for custom property sets on service category.
+     * Returns a map with values for provided custom properties sets. If there is no persisted value for
+     * the given set, the resulting map will contain the <code>null</code> value. If a registered custom property
+     * set doesn't relate to the usage point the <code>null</code> value will be returned. If a registered custom property
+     * set has different domain (not a {@link UsagePoint}) the {@link IllegalArgumentException} will be thrown.
+     *
+     * @param registeredCustomPropertySets Custom property sets whose values we want to read.
+     * @param effectiveTimeStamp           The point in time for time-sliced custom property sets values.
+     * @return Values for provided custom properties sets.
+     */
+    Map<RegisteredCustomPropertySet, CustomPropertySetValues> getCustomPropertySetValues(List<RegisteredCustomPropertySet> registeredCustomPropertySets, Instant effectiveTimeStamp);
+
+    /**
+     * Sets values for custom property sets
      *
      * @param customPropertySet      custom property sets whose values we want to save.
      * @param customPropertySetValue filled values for a custom properties set.
      * @throws UsagePointCustomPropertySetValuesManageException in cases:
-     * <li>there is no linked custom property set on service category</li>
-     * <li>current user has not sufficient privileges</li>
+     *                                                          <li>there is no linked custom property set</li>
+     *                                                          <li>current user has not sufficient privileges</li>
      */
-    void setServiceCategoryCustomPropertySetValue(CustomPropertySet customPropertySet, CustomPropertySetValues customPropertySetValue);
-    Map<RegisteredCustomPropertySet, CustomPropertySetValues> getCustomPropertySetValues();
-    Map<RegisteredCustomPropertySet, CustomPropertySetValues> getCustomPropertySetValues(Instant effectiveTimeStamp);
+    void setCustomPropertySetValue(CustomPropertySet<UsagePoint, ?> customPropertySet, CustomPropertySetValues customPropertySetValue);
+
 }

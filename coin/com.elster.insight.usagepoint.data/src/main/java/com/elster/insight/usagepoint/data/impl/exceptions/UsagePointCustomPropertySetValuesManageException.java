@@ -11,23 +11,18 @@ public class UsagePointCustomPropertySetValuesManageException extends LocalizedE
         super(thesaurus, messageSeed, args);
     }
 
-    public static UsagePointCustomPropertySetValuesManageException noLinkedCustomPropertySetOnMetrologyConfiguration(Thesaurus thesaurus, Object... args){
+    public static UsagePointCustomPropertySetValuesManageException customPropertySetIsNotEditableByUser(Thesaurus thesaurus, String cpsName){
         return new UsagePointCustomPropertySetValuesManageException(thesaurus,
-                MessageSeeds.NO_LINKED_CUSTOM_PROPERTY_SET_ON_METROLOGY_CONFIGURATION, args);
+                MessageSeeds.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, cpsName);
     }
 
-    public static UsagePointCustomPropertySetValuesManageException customPropertySetIsNotEditableByUser(Thesaurus thesaurus, Object... args){
+    public static UsagePointCustomPropertySetValuesManageException noLinkedCustomPropertySet(Thesaurus thesaurus, String cpsName){
         return new UsagePointCustomPropertySetValuesManageException(thesaurus,
-                MessageSeeds.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, args);
+                MessageSeeds.NO_LINKED_CUSTOM_PROPERTY_SET_ON_USAGE_POINT, cpsName);
     }
 
-    public static UsagePointCustomPropertySetValuesManageException noLinkedMetrologyConfiguration(Thesaurus thesaurus, Object... args){
+    public static UsagePointCustomPropertySetValuesManageException badDomainType(Thesaurus thesaurus, String cpsName){
         return new UsagePointCustomPropertySetValuesManageException(thesaurus,
-                MessageSeeds.NO_LINKED_METROLOGY_CONFIGURATION, args);
-    }
-
-    public static UsagePointCustomPropertySetValuesManageException noLinkedCustomPropertySetOnServiceCategory(Thesaurus thesaurus, Object... args){
-        return new UsagePointCustomPropertySetValuesManageException(thesaurus,
-                MessageSeeds.NO_LINKED_CUSTOM_PROPERTY_SET_ON_SERVICE_CATEGORY, args);
+                MessageSeeds.CUSTOM_PROPERTY_SET_HAS_DIFFERENT_DOMAIN, cpsName);
     }
 }
