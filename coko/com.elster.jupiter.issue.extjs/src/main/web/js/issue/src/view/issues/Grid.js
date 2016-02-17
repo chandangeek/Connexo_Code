@@ -26,7 +26,7 @@ Ext.define('Isu.view.issues.Grid', {
                 flex: 2,
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute(me.router.currentRoute + '/view').buildUrl({issueId: record.getId()});
-                    switch (record.get('issueType').id) {
+                    switch (record.get('issueType').uid) {
                         case 'datacollection':
                             if (me.dataCollectionActivated) {
                                 return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
@@ -87,6 +87,8 @@ Ext.define('Isu.view.issues.Grid', {
                 privileges: !!Isu.privileges.Issue.adminDevice,
                 menu: {
                     xtype: 'issues-action-menu',
+                    dataCollectionActivated: me.dataCollectionActivated,
+                    dataValidationActivated: me.dataValidationActivated,
                     itemId: 'issues-overview-action-menu',
                     router: me.router
                 }

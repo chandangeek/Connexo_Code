@@ -11,6 +11,8 @@ Ext.define('Isu.view.issues.ActionMenu', {
     shadow: false,
     defaultAlign: 'tr-br?',
     router: null,
+    dataCollectionActivated: false,
+    dataValidationActivated: false,
     mixins: {
         bindable: 'Ext.util.Bindable'
     },
@@ -29,7 +31,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                 me.removeAll();
                 if (me.record) {
                     me.setLoading(true);
-                    me.store.getProxy().url = me.record.getProxy().url + '/' + me.record.getId() + '/actions';
+                    me.store.getProxy().url = '/api/isu/issues/' + me.record.getId() + '/actions';
                     me.store.load(function () {
                         me.onLoad();
                         me.setLoading(false);

@@ -86,8 +86,6 @@ Ext.define('Isu.view.issues.Overview', {
                         },
                         previewComponent: {
                             xtype: 'issues-preview',
-                            dataCollectionActivated: me.dataCollectionActivated,
-                            dataValidationActivated: me.dataValidationActivated,
                             itemId: 'issues-preview',
                             router: me.router
                         }

@@ -14,14 +14,14 @@ Ext.define('Isu.controller.IssuesOverview', {
     ],
 
     stores: [
-        'Isu.store.Issues', // was idc
+        'Isu.store.Issues',
         'Isu.store.IssueActions',
         'Isu.store.IssueStatuses',
         'Isu.store.IssueAssignees',
         'Isu.store.IssueReasons',
         'Isu.store.Devices',
         'Isu.store.IssueGrouping',
-        'Isu.store.Groups', // was idc
+        'Isu.store.Groups',
         'Isu.store.Clipboard'
     ],
 
@@ -98,7 +98,7 @@ Ext.define('Isu.controller.IssuesOverview', {
         });
     },
 
-    showOverview: function (issueType, widgetXtype, callback) {
+    showOverview: function () {
         var me = this,
             queryString = Uni.util.QueryString.getQueryStringValues(false);
 
@@ -120,8 +120,7 @@ Ext.define('Isu.controller.IssuesOverview', {
             queryString.sort = ['dueDate', 'modTime'];
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
         } else {
-            //me.getStore('Isu.store.Clipboard').set(issueType + '-latest-issues-filter', queryString);
-
+            me.getStore('Isu.store.Clipboard').set('latest-issues-filter', queryString);
             me.getApplication().fireEvent('changecontentevent', Ext.widget('issues-overview', {
                 dataCollectionActivated: me.dataCollectionActivated,
                 dataValidationActivated: me.dataValidationActivated,
@@ -132,32 +131,17 @@ Ext.define('Isu.controller.IssuesOverview', {
             if (me.getGroupGrid()) {
                 me.setGrouping(true);
             }
-            callback ? callback() : null;
         }
     },
 
     showPreview: function (selectionModel, record) {
         var preview = this.getPreview();
-
-        preview.setLoading(true);
-
         Ext.getStore('Isu.store.Clipboard').set('issue', record);
-        this.getModel(record.$className).load(record.getId(), {
-            success: function (record) {
-                if (!preview.isDestroyed) {
-                    Ext.suspendLayouts();
-                    preview.loadRecord(record);
-                    preview.down('issues-action-menu').record = record;
-                    preview.setTitle(record.get('title'));
-                    Ext.resumeLayouts(true);
-                }
-            },
-            callback: function () {
-                if (!preview.isDestroyed) {
-                    preview.setLoading(false);
-                }
-            }
-        });
+        Ext.suspendLayouts();
+        preview.loadRecord(record);
+        preview.down('issues-action-menu').record = record;
+        preview.setTitle(record.get('title'));
+        Ext.resumeLayouts(true);
     },
 
     chooseAction: function (menu, menuItem) {
@@ -299,7 +283,7 @@ Ext.define('Isu.controller.IssuesOverview', {
                     Ext.suspendLayouts();
                     if (queryString.groupingValue && groupingRecord) {
                         groupGrid.getSelectionModel().select(groupingRecord);
-                        groupingTitle.setTitle(Uni.I18n.translate('general.issuesFor', 'ISU', 'Issues for {0}: {1}', [queryString.groupingType, groupingRecord.get('reason')]));
+                        groupingTitle.setTitle(Uni.I18n.translate('general.issuesFor', 'ISU', 'Issues for {0}: {1}', [queryString.groupingType, groupingRecord.get('description')]));
                         groupingTitle.show();
                     } else {
                         groupingTitle.hide();

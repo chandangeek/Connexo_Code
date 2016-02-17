@@ -5,7 +5,7 @@ Ext.define('Isu.store.Issues', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/idc/issues',
+        url: '/api/isu/issues',
         reader: {
             type: 'json',
             root: 'data'

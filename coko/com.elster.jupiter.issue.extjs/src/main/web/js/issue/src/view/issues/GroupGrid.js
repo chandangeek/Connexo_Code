@@ -9,7 +9,7 @@ Ext.define('Isu.view.issues.GroupGrid', {
         {
             itemId: 'reason',
             text: Uni.I18n.translate('general.reason', 'ISU', 'Reason'),
-            dataIndex: 'reason',
+            dataIndex: 'description',
             flex: 1
         },
         {
@@ -34,7 +34,7 @@ Ext.define('Isu.view.issues.GroupGrid', {
                 display = Uni.I18n.translate('issues.grouping.reason.displayMsg', 'ISU', '{0} - {1} of {2} reasons');
                 displayMore = Uni.I18n.translate('issues.groupingreason.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} reasons');
                 empty = Uni.I18n.translate('issues.grouping.reason.emptyMsg', 'ISU', '0 reasons');
-                itemsPerPage =  Uni.I18n.translate('issues.grouping.reason.itemsPerPageMsg', 'ISU', 'reasons per page');
+                itemsPerPage = Uni.I18n.translate('issues.grouping.reason.itemsPerPageMsg', 'ISU', 'reasons per page');
                 break;
         }
 
@@ -63,7 +63,11 @@ Ext.define('Isu.view.issues.GroupGrid', {
     updateGroupingType: function (groupingType) {
         var me = this,
             pagingToolbarTop = me.down('pagingtoolbartop'),
-            pagingToolbarBottom = me.down('pagingtoolbarbottom');
+            pagingToolbarBottom = me.down('pagingtoolbarbottom'),
+            display = '',
+            displayMore = '',
+            empty = '',
+            itemsPerPage = '';
 
         me.groupingType = groupingType;
 

@@ -18,7 +18,44 @@ Ext.define('Isu.controller.history.Administration', {
                     route: 'issues',
                     controller: 'Isu.controller.IssuesOverview',
                     action: 'showOverview',
-                    privileges: Isu.privileges.Issue.viewAdminDevice
+                    privileges: Isu.privileges.Issue.viewAdminDevice,
+                    items: {
+                        bulkaction: {
+                            title: Uni.I18n.translate('general.bulkAction','ISU','Bulk action'),
+                            route: 'bulkaction',
+                            privileges: Isu.privileges.Issue.closeOrAssing,
+                            controller: 'Isu.controller.BulkChangeIssues'
+                        },
+                        view: {
+                            title: Uni.I18n.translate('general.issueDetails', 'ISU', 'Issue details'),
+                            route: '{issueId}',
+                            controller: 'Isu.controller.IssueDetail',
+                            action: 'showOverview',
+                            privileges: Isu.privileges.Issue.viewAdminDevice,
+                            callback: function (route) {
+                                this.getApplication().on('issueLoad', function (record) {
+                                    route.setTitle(record.get('title'));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            },
+                            items: {
+                                action: {
+                                    title: Uni.I18n.translate('general.action', 'ISU', 'Action'),
+                                    route: 'action/{actionId}',
+                                    controller: 'Isu.controller.ApplyIssueAction',
+                                    privileges: Isu.privileges.Issue.viewAdminDevice,
+                                    callback: function (route) {
+                                        this.getApplication().on('issueActionLoad', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 },
                 issuesoverview: {
                     title: Uni.I18n.translate('workspace.issuesOverview', 'ISU', 'Issues overview'),

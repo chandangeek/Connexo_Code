@@ -14,8 +14,6 @@ Ext.define('Isu.view.issues.Preview', {
         columnWidth: 0.5
     },
     frame: true,
-    dataCollectionActivated: false,
-    dataValidationActivated: false,
     router: null,
 
     initComponent: function () {

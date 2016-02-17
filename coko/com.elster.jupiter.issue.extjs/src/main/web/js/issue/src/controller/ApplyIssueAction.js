@@ -5,11 +5,38 @@ Ext.define('Isu.controller.ApplyIssueAction', {
         'Isu.view.issues.ActionView'
     ],
 
-    showOverview: function (issueModelClass, issueId, actionId, widgetItemId) {
+    stores: [
+        'Isu.store.Issues'
+    ],
+
+    refs: [
+        {
+            ref: 'page',
+            selector: 'issue-action-view'
+        },
+        {
+            ref: 'form',
+            selector: 'issue-action-view #issue-action-view-form'
+        }
+    ],
+
+    dataCollectionActivated: false,
+    dataValidationActivated: false,
+
+    init: function () {
+        this.control({
+            'issue-action-view issue-action-form #issue-action-apply': {
+                click: this.applyAction
+            }
+        });
+    },
+
+    showOverview: function (issueId, actionId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            actionModel = Ext.create(issueModelClass).actions().model,
-            issueModel = me.getModel(issueModelClass),
+            issueType = me.getStore('Isu.store.Issues').getById(parseInt(issueId)).get('issueType').uid,
+            actionModel = Ext.create('Isu.model.Issue').actions().model,
+            issueModel = me.getModel('Isu.model.Issue'),
             fromOverview = router.queryParams.fromOverview === 'true',
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             dependenciesCounter = 2,
@@ -28,7 +55,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                         me.applyAction(null, null, actionRecord, clipboard.get('issue') || issueRecord);
                         clipboard.clear('issue');
                     } else {
-                        var widget = Ext.widget('issue-action-view', {router: router, itemId: widgetItemId}),
+                        var widget = Ext.widget('issue-action-view', {router: router}),
                             form = widget.down('#issue-action-view-form'),
                             cancelLink = form.down('#issue-action-cancel');
 
@@ -48,19 +75,30 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             issueRecord;
 
         mainView.setLoading();
-        actionModel.getProxy().url = issueModel.getProxy().url + '/' + issueId + '/actions';
+        actionModel.getProxy().url = '/api/isu/issues/' + issueId + '/actions';
         actionModel.load(actionId, {
             success: function (record) {
                 actionRecord = record;
                 onAllDependenciesLoad();
             }
         });
-        issueModel.load(issueId, {
-            success: function (record) {
-                issueRecord = record;
-                onAllDependenciesLoad();
-            }
-        });
+        if (issueType == 'datacollection' && me.dataCollectionActivated) {
+            issueModel.getProxy().url = '/api/idc/issues';
+            issueModel.load(issueId, {
+                success: function (record) {
+                    issueRecord = record;
+                    onAllDependenciesLoad();
+                }
+            });
+        } else if (issueType == 'datavalidation' && me.dataValidationActivated) {
+            issueModel.getProxy().url = '/api/idv/issues';
+            issueModel.load(issueId, {
+                success: function (record) {
+                    issueRecord = record;
+                    onAllDependenciesLoad();
+                }
+            });
+        }
     },
 
     applyAction: function (button, action, actionRecord, issueRecord) {

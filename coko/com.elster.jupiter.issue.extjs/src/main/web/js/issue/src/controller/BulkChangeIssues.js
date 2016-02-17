@@ -3,13 +3,62 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
     stores: [
         'Isu.store.IssueStatuses',
-        'Isu.store.UserList'
+        'Isu.store.UserList',
+        'Isu.store.IssuesBuffered',
+        'Isu.store.BulkChangeIssues'
     ],
 
     views: [
         'Isu.view.issues.bulk.Browse',
         'Isu.view.issues.MessagePanel'
     ],
+
+    refs: [
+        {
+            ref: 'page',
+            selector: 'bulk-browse'
+        },
+        {
+            ref: 'bulkNavigation',
+            selector: 'bulk-browse bulk-navigation'
+        }
+    ],
+
+    listeners: {
+        retryRequest: function (wizard, failedItems) {
+            this.setFailedBulkRecordIssues(failedItems);
+            this.onWizardFinishedEvent(wizard);
+        }
+    },
+
+    init: function () {
+        this.control({
+            'bulk-browse bulk-wizard': {
+                wizardnext: this.onWizardNextEvent,
+                wizardprev: this.onWizardPrevEvent,
+                wizardstarted: this.onWizardStartedEvent,
+                wizardfinished: this.onWizardFinishedEvent,
+                wizardcancelled: this.onWizardCancelledEvent
+            },
+            'bulk-browse bulk-navigation': {
+                movetostep: this.setActivePage
+            },
+            'bulk-browse bulk-wizard bulk-step2 radiogroup': {
+                change: this.onStep2RadiogroupChangeEvent,
+                afterrender: this.getDefaultStep2Operation
+            },
+            'bulk-browse bulk-wizard bulk-step3 issues-close-form radiogroup': {
+                change: this.onStep3RadiogroupCloseChangeEvent,
+                afterrender: this.getDefaultCloseStatus
+            },
+            'bulk-browse bulk-step4': {
+                beforeactivate: this.beforeStep4
+            },
+            'bulk-browse bulk-wizard bulk-step3 issues-close-form': {
+                beforerender: this.issueClosingFormBeforeRenderEvent
+            }
+        });
+    },
 
     issueClosingFormBeforeRenderEvent: function (form) {
         var statusesContainer = form.down('[name=status]'),
@@ -40,15 +89,14 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         }
     },
 
-    showOverview: function (issueType, bundlePrefix) {
+    showOverview: function () {
         var me = this,
-            issuesStore = this.getStore(bundlePrefix + '.store.IssuesBuffered'),
+            issuesStore = this.getStore('Isu.store.IssuesBuffered'),
             issuesStoreProxy = issuesStore.getProxy(),
             queryStringValues = Uni.util.QueryString.getQueryStringValues(false),
             filter = [],
             widget, grid;
 
-        me.bundlePrefix = bundlePrefix;
         issuesStoreProxy.extraParams = {};
         if (queryStringValues.sort) {
             issuesStoreProxy.setExtraParam('sort', queryStringValues.sort);
@@ -69,9 +117,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             });
         });
 
-        widget = Ext.widget('bulk-browse', {
-            itemId: issueType + '-bulk-browse'
-        });
+        widget = Ext.widget('bulk-browse');
         grid = widget.down('bulk-step1').down('issues-selection-grid');
         grid.reconfigure(issuesStore);
         grid.filterParams = Ext.clone(filter);
@@ -122,9 +168,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     },
 
     onBulkActionEvent: function (issueType) {
-        var widget = Ext.widget('bulk-browse', {
-            itemId: issueType + '-bulk-browse'
-        });
+        var widget = Ext.widget('bulk-browse');
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
@@ -153,7 +197,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             record = me.getBulkRecord(),
             requestData = me.getRequestData(record),
             operation = record.get('operation'),
-            requestUrl = '/api/' + me.bundlePrefix.toLowerCase() + '/issues/' + operation,
+            requestUrl = '/api/isu/issues/' + operation,
             warnIssues = [],
             failedIssues = [],
             params = [],
@@ -378,7 +422,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     },
 
     getBulkRecord: function () {
-        var bulkStore = Ext.getStore(this.bundlePrefix + '.store.BulkChangeIssues'),
+        var bulkStore = Ext.getStore('Isu.store.BulkChangeIssues'),
             bulkRecord = bulkStore.getAt(0);
 
         if (!bulkRecord) {

@@ -99,8 +99,13 @@ Ext.define('Isu.controller.Main', {
         }
 
         me.getApplication().on('initIssueType', function (type) {
-            me.getController('Isu.controller.IssuesOverview').dataCollectionActivated = type == 'datacollection';
-            me.getController('Isu.controller.IssuesOverview').dataValidationActivated = type == 'datavalidation';
+            if (type == 'datacollection') {
+                me.getController('Isu.controller.IssuesOverview').dataCollectionActivated = true;
+                me.getController('Isu.controller.ApplyIssueAction').dataCollectionActivated = true;
+            } else if (type == 'datavalidation') {
+                me.getController('Isu.controller.IssuesOverview').dataValidationActivated = true;
+                me.getController('Isu.controller.ApplyIssueAction').dataValidationActivated = true;
+            }
         });
     }
 });

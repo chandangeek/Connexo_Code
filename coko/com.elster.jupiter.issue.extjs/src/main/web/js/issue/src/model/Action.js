@@ -14,7 +14,7 @@ Ext.define('Isu.model.Action', {
         },
         {
             name: 'issueType',
-            type: 'text'
+            type: 'auto'
         }
     ],
     associations: [
@@ -28,7 +28,7 @@ Ext.define('Isu.model.Action', {
     ],
     proxy: {
         type: 'rest',
-        url: '/api/idc/actions',
+        url: '/api/isu/actions',
         reader: {
             type: 'json'
         }
