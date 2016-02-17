@@ -8,6 +8,8 @@ public interface ProcessAssociationProvider {
 
     String getName();
 
+    String getDisplayName();
+
     List<Map<String,String>> getAssociationData(BpmProcessDefinition bpmProcessDefinition);
 
     String getType();

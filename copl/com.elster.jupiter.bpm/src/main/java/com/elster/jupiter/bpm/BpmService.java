@@ -24,11 +24,7 @@ public interface BpmService {
 
     BpmServer getBpmServer();
 
-    BpmProcessDefinition findOrCreateBpmProcessDefinition(String processName, String association, String version, String status);
-
     Optional<BpmProcessDefinition> findProcess (String processName, String association, String version, String status);
-
-    Query<BpmProcessDefinition> getQueryBpmProcessDefinition();
 
     List<BpmProcessDefinition> getBpmProcessDefinitions();
 
@@ -47,6 +43,7 @@ public interface BpmService {
     BpmProcessDefinitionBuilder newProcessBuilder();
 
     List<ProcessAssociationProvider> getProcessAssociationProviders();
+
     Optional<ProcessAssociationProvider> getProcessAssociationProvider(String type);
 
 }
