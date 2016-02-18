@@ -65,55 +65,12 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                 itemId: 'edit-form',
                 hidden: true,
                 defaults: {
+                    width: 520,
                     labelWidth: 250
                 }
-            },
-            //{
-            //    xtype: 'form',
-            //    itemId: 'edit-form',
-            //    hidden: true,
-            //    defaults: {
-            //        xtype: 'textfield',
-            //        labelWidth: 250
-            //    },
-            //    items: [
-            //        {
-            //            name: 'pressure',
-            //            itemId: 'fld-up-pressure',
-            //            fieldLabel: Uni.I18n.translate('general.label.pressure', 'IMT', 'Pressure')
-            //        },
-            //        {
-            //            name: 'capacity',
-            //            itemId: 'fld-up-capacity',
-            //            fieldLabel: Uni.I18n.translate('general.label.capacity', 'IMT', 'Capacity')
-            //        },
-            //        {
-            //            xtype: 'checkbox',
-            //            name: 'grounded',
-            //            itemId: 'fld-up-grounded',
-            //            fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
-            //
-            //        },
-            //        {
-            //            name: 'bypass',
-            //            itemId: 'fld-up-bypass',
-            //            fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass')
-            //        },
-            //        {
-            //            xtype: 'checkbox',
-            //            name: 'limiter',
-            //            itemId: 'fld-up-limiter',
-            //            fieldLabel: Uni.I18n.translate('general.label.limiter', 'IMT', 'Limiter')
-            //        },
-            //        {
-            //            name: 'bypass',
-            //            itemId: 'fld-up-bypass',
-            //            fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass')
-            //        },
-            //    ]
-            //}
+            }
         ];
         me.callParent();
-    },
+    }
 
 });

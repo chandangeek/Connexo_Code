@@ -36,17 +36,7 @@ Ext.define('Imt.customattributesonvaluesobjects.service.VersionsManager', {
 
             });
 
-        //if (inline) {
-        //    container.add({
-        //        xtype: 'button',
-        //        margin: '0 0 0 7',
-        //        ui: 'plain',
-        //        iconCls: 'icon-pencil2',
-        //        tooltip: Uni.I18n.translate('general.tooltip.editVersion', 'IMT', 'Edit version'),
-        //        disabled: true, // timeslised are not ready yet
-        //        hidden: !(record.get('isEditable') && record.get('isActive'))
-        //    });
-        //} else {
+        if (!inline) {
             container.add({
                 xtype: 'button',
                 ui: 'link',
@@ -62,7 +52,7 @@ Ext.define('Imt.customattributesonvaluesobjects.service.VersionsManager', {
                     router.getRoute(versionRoute).forward(routeArguments, routeQueryParams);
                 }
             });
-        //}
+        }
 
         Ext.resumeLayouts(true);
     }

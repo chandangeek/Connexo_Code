@@ -4,7 +4,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
 
 
     requires: [
-        'Uni.form.field.Duration',
+
         'Imt.usagepointmanagement.view.forms.ElectricityInfo',
         'Imt.usagepointmanagement.view.forms.fields.MeasureDisplayField',
         'Imt.usagepointmanagement.view.forms.fields.ThreeValuesDisplayField'
@@ -112,87 +112,10 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                 itemId: 'edit-form',
                 hidden: true,
                 defaults: {
-                    xtype: 'textfield',
                     width: 520,
                     labelWidth: 250
-                },
-            },
-           /* {
-                xtype: 'form',
-                itemId: 'edit-form',
-                hidden: true,
-                defaults: {
-                    xtype: 'textfield',
-                    width: 520,
-                    labelWidth: 250
-                },
-                items: [
-                    {
-                        xtype: 'measurefield',
-                        itemId: 'nominalServiceVoltage-quantity',
-                        fieldLabel: Uni.I18n.translate('general.label.voltage', 'IMT', 'Nominal voltage')
-
-                    },
-                    {
-                        xtype: 'combobox',
-                        name: 'phaseCode',
-                        itemId: 'fld-up-phase',
-                        fieldLabel: Uni.I18n.translate('general.label.phaseCode', 'IMT', 'Phase code')
-                    },
-                    {
-                        xtype: 'measurefield',
-                        name: 'ratedCurrent',
-                        itemId: 'fld-up-rated-current',
-                        fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current')
-                    },
-                    {
-                        xtype: 'measurefield',
-                        name: 'ratedPower',
-                        itemId: 'fld-up-rated-power',
-                        fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power')
-                    },
-                    {
-                        xtype: 'checkbox',
-                        name: 'grounded',
-                        itemId: 'fld-up-grounded',
-                        fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
-                    },
-                    {
-                        xtype: 'measurefield',
-                        name: 'estimatedLoad',
-                        itemId: 'fld-up-estimated-load',
-                        fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load')
-                    },
-                    {
-                        name: 'estimationLoad',
-                        itemId: 'fld-up-estimationLoad',
-                        fieldLabel: Uni.I18n.translate('general.label.estimationLoad', 'IMT', 'Estimation load')
-                    },
-                    {
-                        xtype: 'checkbox',
-                        name: 'limiter',
-                        itemId: 'fld-up-limiter',
-                        fieldLabel: Uni.I18n.translate('general.label.limiter', 'IMT', 'Limiter')
-                    },
-                    {
-                        name: 'loadLimiterType',
-                        itemId: 'fld-up-loadLimiterType',
-                        fieldLabel: Uni.I18n.translate('general.label.loadLimiterType', 'IMT', 'Load limiter type')
-                    },
-                    {
-                        xtype: 'measurefield',
-                        name: 'loadLimit',
-                        itemId: 'fld-up-loadLimit',
-                        fieldLabel: Uni.I18n.translate('general.label.loadLimit', 'IMT', 'Load limit')
-                    },
-                    {
-                        xtype: 'checkbox',
-                        name: 'collar',
-                        itemId: 'fld-up-collar',
-                        fieldLabel: Uni.I18n.translate('general.label.collar', 'IMT', 'Collar')
-                    }
-                ]
-            }*/
+                }
+            }
         ];
         me.callParent();
     }

@@ -5,6 +5,8 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
     requires: [
         'Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttributesFormElectricity',
         'Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttributesFormWater',
+        'Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttributesFormGas',
+        'Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttributesFormThermal',
         'Imt.usagepointmanagement.view.SetupActionMenu'
     ],
     layout: {
@@ -13,9 +15,32 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
     },
     category: null,
 
+    technicalAttributesConfig: {
+        "ELECTRICITY": {
+            form : 'technical-attributes-form-electricity',
+            model: 'Imt.usagepointmanagement.model.technicalinfo.Electricity'
+        },
+        "GAS": {
+            form : 'technical-attributes-form-gas',
+            model: 'Imt.usagepointmanagement.model.technicalinfo.Gas'
+        },
+        "WATER": {
+            form : 'technical-attributes-form-water',
+            model: 'Imt.usagepointmanagement.model.technicalinfo.Water'
+        },
+        "THERMAL": {
+            form : 'technical-attributes-form-thermal',
+            model: 'Imt.usagepointmanagement.model.technicalinfo.Thermal'
+        }
+    },
+
+    getTechnicalAttributesConfig: function(category){
+        return this.technicalAttributesConfig[category]
+    },
+
     initComponent: function () {
         var me = this,
-            config = Imt.usagepointmanagement.service.AttributesMaps.getTechnicalAttributesConfig(me.category),
+            config = me.getTechnicalAttributesConfig(me.category),
             action,
             techInfoModel;
 
@@ -28,11 +53,16 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
 
         action = Ext.create('Ext.menu.Item',{
             itemId: 'action-menu-' + config.form,
+            editAvailable: true,
             menuItemClass: 'inlineEditableAttributeSet',
 //                    privileges: Imt.privileges.Device.administrateDeviceData,
             text: Uni.I18n.translate('general.editTechnicalInformation', 'IMT', "Edit 'Technical information'"),
             handler: function () {
-                me.toEditMode(true, this);
+                if(this.editAvailable){
+                    me.toEditMode(true, this);
+                } else {
+                    console.log('cant edit');
+                }
             }
         });
 
@@ -40,9 +70,15 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
                 {
                 xtype: 'title-with-edit-button',
                 pencilBtnItemId: '',
+                editAvailable: true,
                 title: Uni.I18n.translate('general.technicalInformation', 'IMT', 'Technical information'),
                 editHandler: function(){
-                    me.toEditMode(true, action);
+                    if(this.editAvailable){
+                        me.toEditMode(true, action);
+                    } else {
+                        console.log('cant edit');
+                    }
+
                 }
             },
             {
@@ -125,7 +161,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
         Ext.resumeLayouts(true);
 
         me.down('#edit-form').loadRecord(me.techInfo);
-        Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(isEdit);
+        Imt.customattributesonvaluesobjects.service.ActionMenuManager.setAvailableEditBtns(!isEdit);
     },
 
     onSaveClick: function () {
