@@ -1,13 +1,13 @@
 package com.elster.jupiter.servicecall.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.servicecall.LogLevel;
-import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
-import com.elster.jupiter.servicecall.ServiceCallType;
-import com.elster.jupiter.servicecall.Status;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
+import com.elster.jupiter.servicecall.*;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.Collections;
@@ -26,18 +26,39 @@ public class ServiceCallTypeResourceTest extends ServiceCallApplicationTest {
 
     @Test
     public void testGetAllServiceCallTypes() throws Exception {
-        ServiceCallType serviceCallType = mock(ServiceCallType.class);
-        when(serviceCallType.getName()).thenReturn("Mbus 1");
-        Finder<ServiceCallType> serviceCallTypeFinder = mockFinder(Collections.singletonList(serviceCallType));
-        when(serviceCallService.getServiceCallTypes()).thenReturn(serviceCallTypeFinder);
-        when(serviceCallType.getServiceCallLifeCycle()).thenReturn(Optional.empty());
-        when(serviceCallType.getLogLevel()).thenReturn(LogLevel.WARNING);
-        when(serviceCallType.getStatus()).thenReturn(Status.ACTIVE);
+        mockServiceCallType(1L);
 
         Response response = target("/servicecalltypes").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("total")).isEqualTo(1);
         assertThat(jsonModel.<String>get("serviceCallTypes[0].name")).isEqualTo("Mbus 1");
+    }
+
+    @Test
+    public void testChangeLogLevel() throws Exception {
+        ServiceCallType serviceCallType = mockServiceCallType(1L);
+
+        ServiceCallTypeInfo info = new ServiceCallTypeInfo(serviceCallType, mock(Thesaurus.class));
+        info.logLevel = new IdWithDisplayValueInfo<>();
+        info.logLevel.id = LogLevel.SEVERE.name();
+
+        Response response = target("/servicecalltypes/1").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+    }
+
+    private ServiceCallType mockServiceCallType(long id) {
+        ServiceCallType serviceCallType = mock(ServiceCallType.class);
+        when(serviceCallType.getName()).thenReturn("Mbus 1");
+        Finder<ServiceCallType> serviceCallTypeFinder = mockFinder(Collections.singletonList(serviceCallType));
+        when(serviceCallService.getServiceCallTypes()).thenReturn(serviceCallTypeFinder);
+        when(serviceCallService.findAndLockServiceCallType(id, 1L)).thenReturn(Optional.of(serviceCallType));
+        when(serviceCallType.getServiceCallLifeCycle()).thenReturn(Optional.empty());
+        when(serviceCallType.getLogLevel()).thenReturn(LogLevel.WARNING);
+        when(serviceCallType.getStatus()).thenReturn(Status.ACTIVE);
+        when(serviceCallType.getId()).thenReturn(id);
+        when(serviceCallType.getVersion()).thenReturn(1L);
+        return serviceCallType;
     }
 }
