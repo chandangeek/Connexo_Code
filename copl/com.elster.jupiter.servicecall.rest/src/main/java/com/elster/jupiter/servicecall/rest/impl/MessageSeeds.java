@@ -6,7 +6,6 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    BLA (1, "Bla", "Bla")
     ;
 
     private final int number;
