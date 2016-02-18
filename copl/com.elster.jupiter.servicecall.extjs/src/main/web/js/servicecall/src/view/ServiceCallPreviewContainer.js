@@ -16,8 +16,7 @@ Ext.define('Scs.view.ServiceCallPreviewContainer', {
         itemId: 'no-service-calls',
         title: Uni.I18n.translate('serviceCalls.empty.title', 'SCS', 'No service calls found'),
         reasons: [
-            Uni.I18n.translate('serviceCalls.empty.list.item1', 'SCS', 'No service call types have been defined yet.'),
-            Uni.I18n.translate('serviceCalls.empty.list.item2', 'SCS', 'Service call types exist, but you do not have permission to view them.')
+            Uni.I18n.translate('serviceCalls.empty.list.item1', 'SCS', 'No service calls have been registered.'),
         ]
     },
 
