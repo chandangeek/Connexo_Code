@@ -28,7 +28,6 @@ public class ServiceCallFieldResource {
     public PagedInfoList getLogLevels(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithDisplayValueInfo<String>> logLevels = Arrays.stream(LogLevel.values())
                 .map(logLevel -> new IdWithDisplayValueInfo<>(logLevel.name(), logLevel.getDisplayName(this.thesaurus)))
-                .sorted(Comparator.comparing(info -> info.displayValue))
                 .collect(toList());
         return PagedInfoList.fromCompleteList("logLevels", logLevels, queryParameters);
     }
