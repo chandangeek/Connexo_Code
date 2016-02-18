@@ -188,6 +188,7 @@ public class CustomPropertySetInfoFactory {
             info.message = valueRangeConflict.getMessage();
             info.conflictAtStart = valueRangeConflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_START);
             info.conflictAtEnd = valueRangeConflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END);
+            info.editable = valueRangeConflict.getType().equals(ValuesRangeConflictType.RANGE_INSERTED);
         }
         return info;
     }
