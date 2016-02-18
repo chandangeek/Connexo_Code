@@ -1,13 +1,13 @@
 Ext.define('Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets', {
     extend: 'Ext.data.Store',
     requires: [
-        'Imt.customattributesonvaluesobjects.model.AttributeSetOnMetrologyConfiguration'
+        'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'
     ],
-    model: 'Imt.customattributesonvaluesobjects.model.AttributeSetOnMetrologyConfiguration',
+    model: 'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint',
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/udr/usagepoints/{mRID}/properties/metrology',
+        urlTpl: '/api/udr/usagepoints/{mRID}/customproperties/metrologyconfiguration',
         reader: {
             type: 'json',
             root: 'customPropertySets'

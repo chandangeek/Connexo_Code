@@ -39,7 +39,10 @@ Ext.define('Imt.controller.Main', {
         'Imt.controller.History',
         'Imt.controller.Search',
         'Imt.validation.controller.UsagePointDataValidation',
-        'Imt.servicecategories.controller.ServiceCategories'
+        'Imt.servicecategories.controller.ServiceCategories',
+        'Imt.usagepointhistory.controller.History',
+        'Imt.usagepointhistory.controller.CasVersionEdit',
+        'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersions'
     ],
     stores: [
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',

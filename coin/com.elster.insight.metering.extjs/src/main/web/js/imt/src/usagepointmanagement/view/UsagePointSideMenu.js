@@ -8,9 +8,19 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
         var me = this;
         me.menuItems = [
             {
-                text: me.mRID,
-                itemId: 'usage-point-overview-link',
-                href: me.router.getRoute('usagepoints/view').buildUrl({mRID: me.mRID})
+                xtype: 'menu',
+                items: [
+                    {
+                        text: me.mRID,
+                        itemId: 'usage-point-overview-link',
+                        href: me.router.getRoute('usagepoints/view').buildUrl({mRID: me.mRID})
+                    },
+                    {
+                        text: Uni.I18n.translate('general.history', 'IMT', 'History'),
+                        itemId: 'usage-point-history-link',
+                        href: me.router.getRoute('usagepoints/view/history').buildUrl({mRID: me.mRID})
+                    }
+                ]
             },
             {
                 title: 'Data sources',
@@ -41,7 +51,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
   
                     }
                 ]
-            },
+            }
         ];
         me.callParent(arguments);
     }

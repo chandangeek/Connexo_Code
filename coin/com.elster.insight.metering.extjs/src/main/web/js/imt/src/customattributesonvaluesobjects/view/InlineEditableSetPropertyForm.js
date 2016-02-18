@@ -15,8 +15,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
         'Imt.util.TitleWithEditButton',
         'Imt.customattributesonvaluesobjects.service.ActionMenuManager',
         'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint',
-        'Imt.customattributesonvaluesobjects.service.VersionsManager',
-        'Imt.customattributesonvaluesobjects.model.AttributeSetOnMetrologyConfiguration'
+        'Imt.customattributesonvaluesobjects.service.VersionsManager'
     ],
 
     items: [],
@@ -57,7 +56,9 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                 ui: 'link',
                 text: Uni.I18n.translate('customattributesets.versions', 'IMT', 'Versions'),
                 hidden: true,
-                disabled: true, // timeslised are not ready yet
+                handler: function() {
+                    me.router.getRoute('usagepoints/view/history').forward(null, {customAttributeSetId: me.record.getId()});
+                },
                 margin: '-5 0 0 -10'
 
             },
@@ -112,7 +113,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                     handler: function () {
                         Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(false);
                         me.model.load(me.record.get('id'),{
-                            url: Ext.String.format('/api/udr/usagepoints/{0}/properties/', encodeURIComponent(me.parent.mRID)),
+                            url: Ext.String.format('/api/udr/usagepoints/{0}/customproperties/', encodeURIComponent(me.parent.mRID)),
                             success: function(record){
                                 me.record = record;
                                 me.down('property-form').makeNotEditable(record);
