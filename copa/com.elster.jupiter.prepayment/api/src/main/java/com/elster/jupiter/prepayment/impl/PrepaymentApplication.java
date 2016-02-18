@@ -14,6 +14,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -44,6 +46,7 @@ public class PrepaymentApplication extends Application implements TranslationKey
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
     private volatile TransactionService transactionService;
+    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile Clock clock;
 
     @Override
@@ -81,6 +84,11 @@ public class PrepaymentApplication extends Application implements TranslationKey
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
     @Override
@@ -121,6 +129,7 @@ public class PrepaymentApplication extends Application implements TranslationKey
             bind(thesaurus).to(Thesaurus.class);
             bind(nlsService).to(NlsService.class);
             bind(transactionService).to(TransactionService.class);
+            bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
             bind(clock).to(Clock.class);
 
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
