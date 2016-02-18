@@ -918,6 +918,8 @@ Ext.define('Mdc.controller.setup.Comtasks', {
 
             record.beginEdit();
             record.set('name', nameField.getValue());
+            record.set('commands', []);
+            record.set('messages', []);
             record.endEdit();
             formErrorsPanel.hide();
             record.save({
@@ -1588,7 +1590,6 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             logbooks.value.push(logbook);
         });
         action.parameters.push(logbooks);
-        self.commands.push(action);
     },
 
     fillRegisters: function (action, parametersContainer) {
@@ -1603,7 +1604,6 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             registers.value.push(register);
         });
         action.parameters.push(registers);
-        self.commands.push(action);
     },
 
     fillProfiles: function (action, parametersContainer) {
@@ -1649,7 +1649,6 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         minTimeValue.value = parseInt(parametersContainer.down('#disContNum').getValue());
         minTime.value = minTimeValue;
         action.parameters.push(minTime);
-        self.commands.push(action);
     },
 
     fillClockSet: function (action, parametersContainer) {
@@ -1668,7 +1667,6 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         setMaxTime.value = setMaxTimeValue;
         action.parameters.push(setMinTime);
         action.parameters.push(setMaxTime);
-        self.commands.push(action);
     },
 
     fillClockSync: function (action, parametersContainer) {
@@ -1694,7 +1692,6 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         action.parameters.push(syncMinTime);
         action.parameters.push(syncMaxTime);
         action.parameters.push(syncMaxTimeShift);
-        self.commands.push(action);
     },
 
     loadCommandToWindow: function (window, command) {
