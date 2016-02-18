@@ -7,49 +7,51 @@ Ext.define('Mdc.view.setup.comtasks.parameters.time.Set', {
     name: 'parameters',
     items: [
         {
-            xtype: 'container',
-            layout: 'column',
+            xtype: 'fieldcontainer',
+            fieldLabel: Uni.I18n.translate('comtask.minimum.clock.difference','MDC','Minimum clock difference'),
+            labelWidth: 300,
+            width: 500,
+            layout: 'hbox',
             margin: '0 0 5 0',
             items: [
                 {
                     xtype: 'textfield',
                     itemId: 'setMinNum',
                     name: 'minimumclockdifference',
-                    fieldLabel: Uni.I18n.translate('comtask.minimum.clock.difference','MDC','Minimum clock difference'),
-                    labelWidth: 197,
-                    width: 247,
                     maskRe: /[0-9]+/,
                     margin: '0 10 0 0',
                     value: 5,
-                    labelPad: 18
+                    flex: 1
                 },
                 {
                     xtype: 'communication-tasks-parameters-timecombo',
                     itemId: 'setMinTime',
-                    value: 'seconds'
+                    value: 'seconds',
+                    flex: 3
                 }
             ]
         },
         {
-            xtype: 'container',
-            layout: 'column',
+            xtype: 'fieldcontainer',
+            fieldLabel: Uni.I18n.translate('comtask.maximum.clock.difference','MDC','Maximum clock difference'),
+            labelWidth: 300,
+            width: 500,
+            layout: 'hbox',
             items: [
                 {
                     xtype: 'textfield',
                     itemId: 'setMaxNum',
                     name: 'maximumclockdifference',
-                    fieldLabel: Uni.I18n.translate('comtask.maximum.clock.difference','MDC','Maximum clock difference'),
-                    labelWidth: 197,
-                    width: 247,
                     maskRe: /[0-9]+/,
                     margin: '0 10 0 0',
                     value: 1,
-                    labelPad: 18
+                    flex: 1
                 },
                 {
                     xtype: 'communication-tasks-parameters-timecombo',
                     itemId: 'setMaxTime',
-                    value: 'hours'
+                    value: 'hours',
+                    flex: 3
                 }
             ]
         }

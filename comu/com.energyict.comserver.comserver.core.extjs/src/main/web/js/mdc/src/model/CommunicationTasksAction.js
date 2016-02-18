@@ -17,6 +17,9 @@ Ext.define('Mdc.model.CommunicationTasksAction', {
         reader: {
             type: 'json',
             root: 'data'
-        }
+        },
+        pageParam: false,
+        startParam: false,
+        limitParam: false
     }
 });
