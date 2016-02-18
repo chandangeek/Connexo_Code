@@ -42,10 +42,7 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
      */
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = new ArrayList<>(new DlmsSecuritySupport().getAuthenticationAccessLevels());
-        authenticationAccessLevels.add(new Sha256Authentication());
-        authenticationAccessLevels.add(new ECDSAAuthentication());
-        return authenticationAccessLevels;   //TODO remove this, replace by return new ArrayList<>();
+        return new ArrayList<>();
     }
 
     /**
@@ -53,7 +50,7 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
      */
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return new DlmsSecuritySupport().getEncryptionAccessLevels();   //TODO remove this, replace by return new ArrayList<>();
+        return new ArrayList<>();
     }
 
     @Override
