@@ -20,7 +20,7 @@ import java.util.stream.Stream;
  * <li>Energy balance</li>
  * <li>Grid stability</li>
  * </ul>
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 3/04/13
  * Time: 9:43
@@ -32,20 +32,20 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             Stream
-                .of(DeviceMessageAttributes.controlThreshold1dAttributeName, DeviceMessageAttributes.controlThreshold2dAttributeName, DeviceMessageAttributes.controlThreshold3dAttributeName, DeviceMessageAttributes.controlThreshold4dAttributeName, DeviceMessageAttributes.controlThreshold5dAttributeName, DeviceMessageAttributes.controlThreshold6dAttributeName)
-                .map(attributeName -> propertySpecService
+                    .of(DeviceMessageAttributes.controlThreshold1dAttributeName, DeviceMessageAttributes.controlThreshold2dAttributeName, DeviceMessageAttributes.controlThreshold3dAttributeName, DeviceMessageAttributes.controlThreshold4dAttributeName, DeviceMessageAttributes.controlThreshold5dAttributeName, DeviceMessageAttributes.controlThreshold6dAttributeName)
+                    .map(attributeName -> propertySpecService
                             .bigDecimalSpec()
                             .named(attributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish())
-                .forEach(propertySpecs::add);
+                    .forEach(propertySpecs::add);
             propertySpecs.add(
                     propertySpecService
-                        .specForValuesOf(new DateAndTimeFactory())
-                        .named(DeviceMessageAttributes.activationDatedAttributeName)
-                        .fromThesaurus(thesaurus)
-                        .markRequired().finish());
+                            .specForValuesOf(new DateAndTimeFactory())
+                            .named(DeviceMessageAttributes.activationDatedAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired().finish());
         }
     },
     SetDemandCloseToContractPowerThreshold(DeviceMessageId.LOAD_BALANCING_SET_DEMAND_CLOSE_TO_CONTRACT_POWER_THRESHOLD, "Set treshold for demand close to contract power") {
@@ -66,32 +66,32 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                        .bigDecimalSpec()
-                        .named(DeviceMessageAttributes.normalThresholdAttributeName)
-                        .fromThesaurus(thesaurus)
-                        .markRequired()
-                        .finish());
+                            .bigDecimalSpec()
+                            .named(DeviceMessageAttributes.normalThresholdAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
             propertySpecs.add(
                     propertySpecService
-                        .bigDecimalSpec()
-                        .named(DeviceMessageAttributes.emergencyThresholdAttributeName)
-                        .fromThesaurus(thesaurus)
-                        .markRequired()
-                        .finish());
+                            .bigDecimalSpec()
+                            .named(DeviceMessageAttributes.emergencyThresholdAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
             propertySpecs.add(
                     propertySpecService
-                        .timeDurationSpec()
-                        .named(DeviceMessageAttributes.overThresholdDurationAttributeName)
-                        .fromThesaurus(thesaurus)
-                        .finish());
+                            .timeDurationSpec()
+                            .named(DeviceMessageAttributes.overThresholdDurationAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .finish());
             Stream.of(DeviceMessageAttributes.emergencyProfileIdAttributeName, DeviceMessageAttributes.emergencyProfileActivationDateAttributeName, DeviceMessageAttributes.emergencyProfileDurationAttributeName)
-                .map(attributeName -> propertySpecService
-                        .bigDecimalSpec()
-                        .named(attributeName)
-                        .fromThesaurus(thesaurus)
-                        .markRequired()
-                        .finish())
-                .forEach(propertySpecs::add);
+                    .map(attributeName -> propertySpecService
+                            .bigDecimalSpec()
+                            .named(attributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish())
+                    .forEach(propertySpecs::add);
         }
     },
     CONFIGURE_LOAD_LIMIT_PARAMETERS_Z3(DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_PARAMETERS_Z3, "Configure load limit parameters") {
@@ -119,13 +119,13 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                             .fromThesaurus(thesaurus)
                             .finish());
             Stream.of(DeviceMessageAttributes.invertDigitalOutput1AttributeName, DeviceMessageAttributes.invertDigitalOutput2AttributeName)
-                .map(attributeName -> propertySpecService
-                        .booleanSpec()
-                        .named(attributeName)
-                        .fromThesaurus(thesaurus)
-                        .markRequired()
-                        .finish())
-                .forEach(propertySpecs::add);
+                    .map(attributeName -> propertySpecService
+                            .booleanSpec()
+                            .named(attributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish())
+                    .forEach(propertySpecs::add);
             propertySpecs.add(
                     propertySpecService
                             .booleanSpec()
@@ -141,7 +141,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                        .stringSpec()
+                            .stringSpec()
                             .named(DeviceMessageAttributes.monitoredValueAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -163,12 +163,12 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                             .markRequired()
                             .finish());
             Stream.of(DeviceMessageAttributes.overThresholdDurationAttributeName, DeviceMessageAttributes.underThresholdDurationAttributeName)
-                .map(attributeName -> propertySpecService
-                        .timeDurationSpec()
-                        .named(attributeName)
-                        .fromThesaurus(thesaurus)
-                        .finish())
-                .forEach(propertySpecs::add);
+                    .map(attributeName -> propertySpecService
+                            .timeDurationSpec()
+                            .named(attributeName)
+                            .fromThesaurus(thesaurus)
+                            .finish())
+                    .forEach(propertySpecs::add);
             Stream.of(DeviceMessageAttributes.emergencyProfileIdAttributeName, DeviceMessageAttributes.emergencyProfileActivationDateAttributeName, DeviceMessageAttributes.emergencyProfileDurationAttributeName, DeviceMessageAttributes.emergencyProfileGroupIdListAttributeName)
                     .map(attributeName -> propertySpecService
                             .bigDecimalSpec()
@@ -221,13 +221,13 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             Stream.of(DeviceMessageAttributes.loadLimitGroupIDAttributeName, DeviceMessageAttributes.powerLimitThresholdAttributeName, DeviceMessageAttributes.contractualPowerLimitAttributeName)
-                .map(attributeName -> propertySpecService
-                        .bigDecimalSpec()
-                        .named(attributeName)
-                        .fromThesaurus(thesaurus)
-                        .markRequired()
-                        .finish())
-                .forEach(propertySpecs::add);
+                    .map(attributeName -> propertySpecService
+                            .bigDecimalSpec()
+                            .named(attributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish())
+                    .forEach(propertySpecs::add);
         }
     },
     SET_EMERGENCY_PROFILE_GROUP_IDS(DeviceMessageId.LOAD_BALANCING_SET_EMERGENCY_PROFILE_GROUP_IDS, "Set the load limit emergency profiles") {
@@ -236,11 +236,11 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                        .stringSpec()
-                        .named(DeviceMessageAttributes.emergencyProfileGroupIdListAttributeName)
-                        .fromThesaurus(thesaurus)
-                        .markRequired()
-                        .finish());
+                            .stringSpec()
+                            .named(DeviceMessageAttributes.emergencyProfileGroupIdListAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     CLEAR_LOAD_LIMIT_CONFIGURATION(DeviceMessageId.LOAD_BALANCING_CLEAR_LOAD_LIMIT_CONFIGURATION, "Clear the load limit configuration"),
@@ -270,13 +270,13 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                             .markRequired()
                             .finish());
             Stream.of(DeviceMessageAttributes.loadLimitStartDateAttributeName, DeviceMessageAttributes.loadLimitEndDateAttributeName)
-                .map(attributeName -> propertySpecService
-                        .specForValuesOf(new DateAndTimeFactory())
-                        .named(attributeName)
-                        .fromThesaurus(thesaurus)
-                        .markRequired()
-                        .finish())
-                .forEach(propertySpecs::add);
+                    .map(attributeName -> propertySpecService
+                            .specForValuesOf(new DateAndTimeFactory())
+                            .named(attributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish())
+                    .forEach(propertySpecs::add);
         }
     },
     DISABLE_LOAD_LIMITING(DeviceMessageId.LOAD_BALANCING_DISABLE_LOAD_LIMITING, "Disable load limiting"),
@@ -330,6 +330,84 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                             .markRequired()
                             .finish());
         }
+    },
+    SET_LOAD_LIMIT_THRESHOLD_WITH_TARIFFS(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD_WITH_TARIFFS, "Set load limit threshold with tariffs") {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .bigDecimalSpec()
+                            .named(DeviceMessageAttributes.normalThresholdAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageAttributes.tariffsAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+        }
+    },
+    SET_LOAD_LIMIT_MEASUREMENT_VALUE(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_MEASUREMENT_READING_TYPE, "Set load limit measurement reading type") {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageAttributes.readingTypeAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+        }
+    },
+    CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION(DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION, "Configure the load limit threshold and duration") {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .bigDecimalSpec()
+                            .named(DeviceMessageAttributes.normalThresholdAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .timeDurationSpec()
+                            .named(DeviceMessageAttributes.overThresholdDurationAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .finish());
+        }
+    },
+    CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION_WITH_TARIFFS(DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION_WITH_TARIFFS, "Configure the load limit threshold and duration with tariffs") {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .bigDecimalSpec()
+                            .named(DeviceMessageAttributes.normalThresholdAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageAttributes.tariffsAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .timeDurationSpec()
+                            .named(DeviceMessageAttributes.overThresholdDurationAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .finish());
+        }
     };
 
     private DeviceMessageId id;
@@ -361,8 +439,8 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
         return propertySpecs;
     }
 
-    protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         // Default behavior is not to add anything
-    };
+    }
 
 }

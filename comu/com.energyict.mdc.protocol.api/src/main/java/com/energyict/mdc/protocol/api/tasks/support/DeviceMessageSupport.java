@@ -35,7 +35,10 @@ public interface DeviceMessageSupport {
      * If an OfflineDeviceMessage fails for any other reason <i>(ex. timeout, closed connection, ...)</i>,
      * which could lead to failing all other messages, then set the proper failure information
      * on the returning {@link CollectedMessageList}, the individual messages should <i>not</i> be
-     * marked as failed.
+     * marked as failed.<p/>
+     * <b>Note:</b> The provided list of {@link OfflineDeviceMessage}s should already be sorted
+     * (by default sorted on release date), so it is crucial to handle the messages in the same
+     * order as they are specified in the list.
      *
      * @param pendingMessages the pending messages on a Device
      * @return Message results for the provided pending messages.
@@ -58,7 +61,10 @@ public interface DeviceMessageSupport {
      * which could lead to failing all other messages, then set the proper failure information
      * on the returning {@link CollectedMessageList}, the individual messages should <i>not</i> be
      * marked as failed.
-     * .
+     * <p/>
+     * <b>Note:</b> The provided list of {@link OfflineDeviceMessage}s should already be sorted
+     * (by default sorted on release date), so it is crucial to handle the messages in the same
+     * order as they are specified in the list.
      *
      * @param sentMessages the sent messages
      * @return CollectedData containing update information about the sent messages
