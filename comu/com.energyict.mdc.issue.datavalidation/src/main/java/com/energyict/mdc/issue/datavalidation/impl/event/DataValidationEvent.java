@@ -15,6 +15,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+
 import com.google.inject.Inject;
 
 import java.util.Map;
@@ -49,8 +50,8 @@ public abstract class DataValidationEvent implements IssueEvent {
     }
 
     @Override
-    public EndDevice getEndDevice() {
-        return findMeter().orElse(null);
+    public Optional<EndDevice> getEndDevice() {
+        return Optional.of(findMeter().orElse(null));
     }
 
     public long getDeviceConfigurationId() {
@@ -63,7 +64,7 @@ public abstract class DataValidationEvent implements IssueEvent {
     @Override
     public Optional<? extends OpenIssue> findExistingIssue() {
         DataValidationIssueFilter filter = new DataValidationIssueFilter();
-        filter.setDevice(getEndDevice());
+        getEndDevice().ifPresent(filter::setDevice);
         filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
         Optional<? extends IssueDataValidation> foundIssue = issueDataValidationService.findAllDataValidationIssues(filter).find().stream().findFirst();//It is going to be only zero or one open issue per device
         if (foundIssue.isPresent()) {
