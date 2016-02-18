@@ -11,14 +11,16 @@ import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+
 import com.google.common.base.Strings;
+
+import java.sql.SQLException;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-
-import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -80,7 +82,8 @@ public class StateTransitionEventTypeIT {
         String symbol = "createCustomWithoutViolations";
 
         // Business method
-        CustomStateTransitionEventType eventType = this.getTestService().newCustomStateTransitionEventType(symbol);
+        CustomStateTransitionEventType eventType = this.getTestService()
+                .newCustomStateTransitionEventType(symbol, "COMP");
 
         // Asserts
         assertThat(eventType.getSymbol()).isEqualTo(symbol);
@@ -90,8 +93,10 @@ public class StateTransitionEventTypeIT {
     @Test
     public void createMultipleCustomWithoutViolations() {
         // Business method
-        CustomStateTransitionEventType eventType1 = this.getTestService().newCustomStateTransitionEventType("symbol1");
-        CustomStateTransitionEventType eventType2 = this.getTestService().newCustomStateTransitionEventType("symbol2");
+        CustomStateTransitionEventType eventType1 = this.getTestService()
+                .newCustomStateTransitionEventType("symbol1", "COMP");
+        CustomStateTransitionEventType eventType2 = this.getTestService()
+                .newCustomStateTransitionEventType("symbol2", "COMP");
 
         // Asserts
         assertThat(eventType1).isNotNull();
@@ -103,7 +108,8 @@ public class StateTransitionEventTypeIT {
     @Test
     public void createCustomWithNullSymbol() {
         // Business method
-        CustomStateTransitionEventType eventType = this.getTestService().newCustomStateTransitionEventType(null);
+        CustomStateTransitionEventType eventType = this.getTestService()
+                .newCustomStateTransitionEventType(null, "COMP");
 
         // Asserts: see expected constraint violation rule
     }
@@ -113,7 +119,29 @@ public class StateTransitionEventTypeIT {
     @Test
     public void createCustomWithEmptySymbol() {
         // Business method
-        CustomStateTransitionEventType eventType = this.getTestService().newCustomStateTransitionEventType("");
+        CustomStateTransitionEventType eventType = this.getTestService().newCustomStateTransitionEventType("", "COMP");
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "context")
+    @Test
+    public void createCustomWithNullContext() {
+        // Business method
+        CustomStateTransitionEventType eventType = this.getTestService()
+                .newCustomStateTransitionEventType("symbol", null);
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "context")
+    @Test
+    public void createCustomWithEmptyContext() {
+        // Business method
+        CustomStateTransitionEventType eventType = this.getTestService()
+                .newCustomStateTransitionEventType("SYmbol", "");
 
         // Asserts: see expected constraint violation rule
     }
@@ -123,7 +151,8 @@ public class StateTransitionEventTypeIT {
     @Test
     public void createCustomWithTooLongSymbol() {
         // Business method
-        CustomStateTransitionEventType eventType = this.getTestService().newCustomStateTransitionEventType(Strings.repeat("Symbol", 100));
+        CustomStateTransitionEventType eventType = this.getTestService()
+                .newCustomStateTransitionEventType(Strings.repeat("Symbol", 100), "COMP");
 
         // Asserts: see expected constraint violation rule
     }
@@ -133,10 +162,10 @@ public class StateTransitionEventTypeIT {
     @Test
     public void createCustomDuplicate() {
         String symbol = "First";
-        this.getTestService().newCustomStateTransitionEventType(symbol);
+        this.getTestService().newCustomStateTransitionEventType(symbol, "COMP");
 
         // Business method
-        this.getTestService().newCustomStateTransitionEventType(symbol);
+        this.getTestService().newCustomStateTransitionEventType(symbol, "COMP");
 
         // Asserts: see expected constraint violation rule
     }

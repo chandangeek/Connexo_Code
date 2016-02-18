@@ -1,13 +1,18 @@
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionEventTypeStillInUseException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+
 import com.google.common.collect.ImmutableMap;
 
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +28,7 @@ public abstract class StateTransitionEventTypeImpl implements StateTransitionEve
 
     public enum Fields {
         SYMBOL("symbol"),
+        CONTEXT("context"),
         EVENT_TYPE("eventType");
 
         private final String javaFieldName;
@@ -47,6 +53,9 @@ public abstract class StateTransitionEventTypeImpl implements StateTransitionEve
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final ServerFiniteStateMachineService stateMachineService;
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String context;
 
     @SuppressWarnings("unused")
     private long id;
@@ -64,6 +73,10 @@ public abstract class StateTransitionEventTypeImpl implements StateTransitionEve
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.stateMachineService = stateMachineService;
+    }
+
+    protected void initialize(String context) {
+        this.context = context;
     }
 
     @Override
@@ -97,6 +110,11 @@ public abstract class StateTransitionEventTypeImpl implements StateTransitionEve
     @Override
     public void update() {
         Save.UPDATE.save(this.dataModel, this);
+    }
+
+    @Override
+    public String getContext() {
+        return context;
     }
 
     @Override

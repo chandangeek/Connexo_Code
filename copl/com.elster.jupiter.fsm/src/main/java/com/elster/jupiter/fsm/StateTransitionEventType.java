@@ -43,6 +43,13 @@ public interface StateTransitionEventType {
 
     public void update();
 
+    /**
+     * The context (component for custom events, scope for standard events) this EventType can be used in.
+     *
+     * @return
+     */
+    public String getContext();
+
     public void delete();
 
 }

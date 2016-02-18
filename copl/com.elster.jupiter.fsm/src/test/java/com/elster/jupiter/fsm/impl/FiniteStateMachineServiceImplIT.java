@@ -10,12 +10,13 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.streams.Functions;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import java.sql.SQLException;
 import java.util.Optional;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -108,7 +109,7 @@ public class FiniteStateMachineServiceImplIT {
             service.addStandardEventPredicate(predicate);
 
             // Asserts
-            assertThat(service.getStateTransitionEventTypes()).hasSize(
+            assertThat(service.getStateTransitionEventTypes("System")).hasSize(
                     inMemoryPersistence.getService(EventService.class).getEventTypes().size());
         }
         finally {
@@ -143,7 +144,7 @@ public class FiniteStateMachineServiceImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             FiniteStateMachineServiceImpl service = this.getTestService();
             String symbol = "#findBySymbolForCustomEventType";
-            CustomStateTransitionEventType custom = service.newCustomStateTransitionEventType(symbol);
+            CustomStateTransitionEventType custom = service.newCustomStateTransitionEventType(symbol, "COMP");
 
             // Business method
             Optional<StateTransitionEventType> eventType = service.findStateTransitionEventTypeBySymbol(symbol);

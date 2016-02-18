@@ -29,17 +29,19 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+
 import com.google.common.base.Strings;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -2205,7 +2207,7 @@ public class FiniteStateMachineIT {
     }
 
     private StateTransitionEventType createNewStateTransitionEventType(String symbol) {
-        return this.getTestService().newCustomStateTransitionEventType(symbol);
+        return this.getTestService().newCustomStateTransitionEventType(symbol, "CMP");
     }
 
     private FiniteStateMachineServiceImpl getTestService() {

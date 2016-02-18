@@ -52,6 +52,7 @@ public enum TableSpecs {
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column symbol = table.column("SYMBOL").varChar().map(StateTransitionEventTypeImpl.Fields.SYMBOL.fieldName()).add();
             Column eventType = table.column("EVENTTYPE").varChar(NAME_LENGTH).add();
+            table.column("CONTEXT").varChar().map(StateTransitionEventTypeImpl.Fields.CONTEXT.fieldName()).add();
             table.unique("UK_FSM_EVENTTYPE_SYMBOL").on(symbol).add();
             table.unique("UK_FSM_EVENTTYPE").on(eventType).add();
             table.primaryKey("PK_FSM_EVENTTYPE").on(id).add();
