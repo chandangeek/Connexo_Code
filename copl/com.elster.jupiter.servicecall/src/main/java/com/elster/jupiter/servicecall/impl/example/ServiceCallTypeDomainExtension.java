@@ -1,4 +1,4 @@
-package com.elster.jupiter.servicecall.impl;
+package com.elster.jupiter.servicecall.impl.example;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
