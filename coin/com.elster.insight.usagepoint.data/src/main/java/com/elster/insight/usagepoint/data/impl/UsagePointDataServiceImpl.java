@@ -2,7 +2,6 @@ package com.elster.insight.usagepoint.data.impl;
 
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.data.UsagePointDataService;
-import com.elster.insight.usagepoint.data.UsagePointCustomPropertySetExtension;
 import com.elster.insight.usagepoint.data.exceptions.MessageSeeds;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.metering.MeteringService;
@@ -24,7 +23,6 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @Component(
         name = "com.elster.insight.usagepoint.data.impl.UsagePointDataServiceImpl",
@@ -125,17 +123,4 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     DataModel getDataModel() {
         return dataModel;
     }
-
-    @Override
-    public Optional<UsagePointCustomPropertySetExtension> findUsagePointExtensionByMrid(String mrid) {
-        return this.meteringService.findUsagePoint(mrid)
-                .map(up -> getDataModel().getInstance(UsagePointCustomPropertySetExtensionImpl.class).init(up));
-    }
-
-    @Override
-    public Optional<UsagePointCustomPropertySetExtension> findAndLockUsagePointExtensionByIdAndVersion(long id, long version) {
-        return this.meteringService.findAndLockUsagePointByIdAndVersion(id, version)
-                .map(up -> getDataModel().getInstance(UsagePointCustomPropertySetExtensionImpl.class).init(up));
-    }
-
 }
