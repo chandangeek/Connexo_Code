@@ -205,13 +205,11 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
 
         if (stepNumber === 1) {
             nextBtn.show();
-            backBtn.show();
             backBtn.disable();
             addBtn.hide();
         } else {
             nextBtn.setVisible(!isLastStep);
             addBtn.setVisible(isLastStep);
-            backBtn.show();
             backBtn.enable();
         }
     },

@@ -22,13 +22,17 @@ Ext.define('Imt.usagepointmanagement.view.forms.ThermalInfo', {
             xtype: 'measurefield',
             name: 'pressure',
             itemId: 'up-pressure-measurefield',
-            fieldLabel: Uni.I18n.translate('general.label.pressure', 'IMT', 'Pressure')
+            fieldLabel: Uni.I18n.translate('general.label.pressure', 'IMT', 'Pressure'),
+            store: 'Imt.usagepointmanagement.store.measurementunits.PressureExtended',
+            value: {value: null, unit: 'Pa', multiplier: 0}
         },
         {
             xtype: 'measurefield',
             name: 'physicalCapacity',
             itemId: 'up-physicalCapacity-measurefield',
-            fieldLabel: Uni.I18n.translate('general.label.physicalCapacity', 'IMT', 'Physical capacity')
+            fieldLabel: Uni.I18n.translate('general.label.physicalCapacity', 'IMT', 'Physical capacity'),
+            store: 'Imt.usagepointmanagement.store.measurementunits.Capacity',
+            value: {value: null, unit: 'Wh', multiplier: 0}
         },
         {
             xtype: 'bypassfield',
@@ -54,7 +58,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.ThermalInfo', {
         {
             xtype: 'checkbox',
             name: 'interruptible',
-            itemId: 'up-interruptible-measurefield',
+            itemId: 'up-interruptible-checkbox',
             fieldLabel: Uni.I18n.translate('general.label.interruptible', 'IMT', 'Interruptible')
         }
     ]
