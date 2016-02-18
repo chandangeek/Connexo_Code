@@ -6,6 +6,7 @@ Ext.define('Dbp.startprocess.view.StartProcess', {
     ],
     device: null,
     properties: null,
+    sidePanel: null,
     initComponent: function () {
         var me = this;
         me.side = [
@@ -20,8 +21,8 @@ Ext.define('Dbp.startprocess.view.StartProcess', {
                         ui: 'medium',
                         items: [
                             {
-                                xtype: 'deviceMenu',
-                                itemId: 'steps-Menu',
+                                xtype: me.sidePanel,
+                                //itemId: 'steps-Menu',
                                 device: me.device,
                                 toggleId: 'processesLink'
                             }

@@ -7,6 +7,8 @@ Ext.define('Dbp.monitorprocesses.view.DeviceProcessesMainView', {
     ],
     device: null,
     properties: null,
+    sidePanel: null,
+
     initComponent: function () {
         var me = this;
         me.side = [
@@ -21,8 +23,8 @@ Ext.define('Dbp.monitorprocesses.view.DeviceProcessesMainView', {
                         ui: 'medium',
                         items: [
                             {
-                                xtype: 'deviceMenu',
-                                itemId: 'steps-Menu',
+                                xtype: me.sidePanel,
+                                //itemId: 'steps-Menu',
                                 device: me.device,
                                 toggleId: 'processesLink'
                             }

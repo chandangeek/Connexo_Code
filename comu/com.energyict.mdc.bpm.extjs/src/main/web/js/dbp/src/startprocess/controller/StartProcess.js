@@ -17,14 +17,14 @@ Ext.define('Dbp.startprocess.controller.StartProcess', {
         me.getController('Bpm.startprocess.controller.StartProcess'); // Forces registration.
     },
 
-    showStartProcess: function (mRID) {
+    showStartProcess: function (mRID, model, sidePanel) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router');
 
         viewport.setLoading();
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        Ext.ModelManager.getModel(model).load(mRID, {
             success: function (device) {
                 var widget;
 
@@ -55,7 +55,8 @@ Ext.define('Dbp.startprocess.controller.StartProcess', {
                         additionalReasons: [Uni.I18n.translate('dbp.startProcess.empty.list.item', 'DBP', 'No processes are available for the current device state.')],
                         successLink: router.getRoute('devices/device/processes').buildUrl({mRID: mRID}),
                         cancelLink: router.getRoute('devices/device').buildUrl({mRID: mRID})
-                    }
+                    },
+                    side: sidePanel
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
 

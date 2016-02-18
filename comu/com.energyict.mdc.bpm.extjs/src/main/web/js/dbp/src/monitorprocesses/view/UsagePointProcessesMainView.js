@@ -8,6 +8,8 @@ Ext.define('Dbp.monitorprocesses.view.UsagePointProcessesMainView', {
     router: null,
     mRID: null,
     properties: null,
+    sidePanel: null,
+
     initComponent: function () {
         var me = this;
         me.side = [
@@ -22,8 +24,8 @@ Ext.define('Dbp.monitorprocesses.view.UsagePointProcessesMainView', {
                         ui: 'medium',
                         items: [
                             {
-                                xtype: 'usage-point-management-side-menu',
-                                itemId: 'usage-point-management-side-menu',
+                                xtype: me.sidePanel,
+                                //itemId: 'usage-point-management-side-menu',
                                 router: me.router,
                                 mRID: me.mRID
                             }

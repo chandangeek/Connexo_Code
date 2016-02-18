@@ -21,14 +21,14 @@ Ext.define('Dbp.monitorprocesses.controller.MonitorProcesses', {
         me.getController('Bpm.monitorprocesses.controller.MonitorProcesses'); // Forces registration.
     },
 
-    showDeviceProcesses: function (mRID) {
+    showDeviceProcesses: function (mRID, model, sidePanel) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router');
 
         viewport.setLoading();
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        Ext.ModelManager.getModel(model).load(mRID, {
             success: function (device) {
                 var widget;
 
@@ -41,7 +41,8 @@ Ext.define('Dbp.monitorprocesses.controller.MonitorProcesses', {
                         name: 'device',
                         value: mRID,
                         route: Dbp.privileges.DeviceProcesses.canAssignOrExecute()? 'workspace/tasks/performTask': null
-                    }
+                    },
+                    sidePanel: sidePanel
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
 
@@ -52,14 +53,14 @@ Ext.define('Dbp.monitorprocesses.controller.MonitorProcesses', {
         });
     },
 
-    showUsagePointProcesses: function (usagePointId) {
+    showUsagePointProcesses: function (usagePointId, model, sidePanel) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router');
 
         viewport.setLoading();
 
-        Ext.ModelManager.getModel('Mdc.usagepointmanagement.model.UsagePoint').load(usagePointId, {
+        Ext.ModelManager.getModel(model).load(usagePointId, {
             success: function (usagepoint) {
                 var widget;
 
@@ -73,8 +74,9 @@ Ext.define('Dbp.monitorprocesses.controller.MonitorProcesses', {
                         name: 'usagePoint',
                         value: usagePointId,
                         route: Dbp.privileges.DeviceProcesses.canAssignOrExecute()? 'workspace/tasks/performTask': null
-                    }
-                });
+                    },
+                    side: sidePanel
+            });
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getOverviewLink().setText(usagepoint.get('mRID'));
 
