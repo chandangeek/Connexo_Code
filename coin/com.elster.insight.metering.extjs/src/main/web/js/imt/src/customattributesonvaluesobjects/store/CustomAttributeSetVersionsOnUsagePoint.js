@@ -4,7 +4,7 @@ Ext.define('Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersions
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/udr/usagepoints/{mRID}/custompropertysets/{customPropertySetId}/versions',
+        urlTpl: '/api/udr/usagepoints/{mRID}/customproperties/{customPropertySetId}/versions',
         reader: {
             type: 'json',
             root: 'versions'

@@ -13,13 +13,13 @@ Ext.define('Imt.customattributesonvaluesobjects.store.ConflictedAttributeSetVers
         limitParam: false,
 
         setUsagePointUrl: function (mRID, customPropertySetId) {
-            var urlTpl = '/api/udr/usagepoints/{mRID}/custompropertysets/{customPropertySetId}/conflicts';
+            var urlTpl = '/api/udr/usagepoints/{mRID}/customproperties/{customPropertySetId}/conflicts';
 
             this.url = urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{customPropertySetId}', customPropertySetId);
         },
 
         setUsagePointEditUrl: function (mRID, customPropertySetId, versionId) {
-            var urlTpl = '/api/udr/usagepoints/{mRID}/custompropertysets/{customPropertySetId}/conflicts/{versionId}';
+            var urlTpl = '/api/udr/usagepoints/{mRID}/customproperties/{customPropertySetId}/conflicts/{versionId}';
 
             this.url = urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{customPropertySetId}', customPropertySetId).replace('{versionId}', versionId);
         }

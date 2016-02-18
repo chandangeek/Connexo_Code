@@ -10,7 +10,7 @@ Ext.define('Imt.customattributesonvaluesobjects.model.AttributeSetVersionPeriod'
         type: 'rest',
 
         setUsagePointUrl: function (mRID, customPropertySetId) {
-            var urlTpl = '/api/udr/usagepoints/{mRID}/custompropertysets/{customPropertySetId}';
+            var urlTpl = '/api/udr/usagepoints/{mRID}/customproperties/{customPropertySetId}';
 
             this.url = urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{customPropertySetId}', customPropertySetId);
         }
