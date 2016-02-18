@@ -209,20 +209,20 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
         me.callParent();
     },
     renderValue: function (data) {
-        var unit;
-        //if (data) {
-        //  if (data.multiplier == 0)
-        //      return data.value + ' ' + data.unit;
-        //   else
-        //       return data.value + '*10<span style="position: relative;top: -6px;font-size: 10px;">' + data.multiplier + '</span> ' + data.unit;
-        //
-        //} else return '-';
-        if(data){
-            unit = Imt.usagepointmanagement.service.UnitsMap.getActual(data.unit, data.multiplier);
-            return data.value + "&nbsp" + unit;
-        } else {
-            return '-'
-        }
+        //var unit;
+        ////if (data) {
+        ////  if (data.multiplier == 0)
+        ////      return data.value + ' ' + data.unit;
+        ////   else
+        ////       return data.value + '*10<span style="position: relative;top: -6px;font-size: 10px;">' + data.multiplier + '</span> ' + data.unit;
+        ////
+        ////} else return '-';
+        //if(data){
+        //    unit = Imt.usagepointmanagement.service.UnitsMap.getActual(data.unit, data.multiplier);
+        //    return data.value + "&nbsp" + unit;
+        //} else {
+        //    return '-'
+        //}
     }
 
 });
