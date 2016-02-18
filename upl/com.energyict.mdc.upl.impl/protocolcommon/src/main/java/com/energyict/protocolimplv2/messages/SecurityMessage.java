@@ -154,7 +154,10 @@ public enum SecurityMessage implements DeviceMessageSpec {
      * Ephemeral Unified Model C(2e, 0s, ECC CDH) scheme.
      */
     AGREE_NEW_ENCRYPTION_KEY(34),
-    AGREE_NEW_AUTHENTICATION_KEY(35);
+    AGREE_NEW_AUTHENTICATION_KEY(35),
+    CHANGE_SECURITY_SUITE(36,
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.securitySuiteAttributeName, BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.valueOf(2))
+    );
 
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;
 

@@ -104,6 +104,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         supportedMessages.add(SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1);
         supportedMessages.add(SecurityMessage.AGREE_NEW_ENCRYPTION_KEY);
         supportedMessages.add(SecurityMessage.AGREE_NEW_AUTHENTICATION_KEY);
+        supportedMessages.add(SecurityMessage.CHANGE_SECURITY_SUITE);
         supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS);
         supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS);
         supportedMessages.add(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD);
@@ -419,6 +420,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = agreeNewKey(collectedMessage, 0);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.AGREE_NEW_AUTHENTICATION_KEY)) {
                         collectedMessage = agreeNewKey(collectedMessage, 2);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_SECURITY_SUITE)) {
+                        changeSecuritySuite(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS)) {
                         changeAuthKey(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS)) {
@@ -478,6 +481,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         }
 
         return result;
+    }
+
+    private void changeSecuritySuite(OfflineDeviceMessage pendingMessage) throws IOException {
+        int securitySuite = getSingleIntegerAttribute(pendingMessage);
+        getCosemObjectFactory().getSecuritySetup().writeSecuritySuite(new TypeEnum(securitySuite));
     }
 
     private CollectedMessage agreeNewKey(CollectedMessage collectedMessage, int keyId) throws IOException {

@@ -17,7 +17,7 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
 
     private static final String authenticationTranslationKeyConstant = "DlmsSecuritySupport.authenticationlevel.";
     private static final String REQUEST_SECURITY_TRANSLATION_CONSTANT = "DlmsSecuritySuite1And2Support.request.security.";
-    private static final String RESPONSE_SECURITY_TRANSLATION_CONSTANT = "DlmsSecuritySuite1And2Support.response.security.";
+    private static final String RESPONSE_SECURITY_TRANSLATION_CONSTANT = "DlmsSecuritySuite1And2Support.responses.security.";
     private static final String SECURITY_SUITE_TRANSLATION_KEY_CONSTANT = "security.suite.";
 
     @Override

@@ -80,6 +80,7 @@ public class DeviceMessageConstants {
     public static final String authenticatedResponsesAttributeName = "SecurityMessage.authenticatedResponses";
     public static final String encryptedResponsesAttributeName = "SecurityMessage.encryptedResponses";
     public static final String signedResponsesAttributeName = "SecurityMessage.signedResponses";
+    public static final String securitySuiteAttributeName = "SecurityMessage.securitySuite";
 
     public static final String eventLogResetSealBreakTimeAttributeName = "SecurityMessage.eventlogresetseal.breaktime";
     public static final String restoreFactorySettingsSealBreakTimeAttributeName = "SecurityMessage.restorefactorysettingsseal.breaktime";
