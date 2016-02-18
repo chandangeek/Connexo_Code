@@ -34,7 +34,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
     showOverview: function (issueId, actionId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            issueType = me.getStore('Isu.store.Issues').getById(parseInt(issueId)).get('issueType').uid,
+            issueType = router.queryParams.issueType,
             actionModel = Ext.create('Isu.model.Issue').actions().model,
             issueModel = me.getModel('Isu.model.Issue'),
             fromOverview = router.queryParams.fromOverview === 'true',
@@ -57,9 +57,10 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                     } else {
                         var widget = Ext.widget('issue-action-view', {router: router}),
                             form = widget.down('#issue-action-view-form'),
-                            cancelLink = form.down('#issue-action-cancel');
+                            cancelLink = form.down('#issue-action-cancel'),
+                            queryParamsForCancel = fromOverview ? router.queryParams : null;
 
-                        cancelLink.href = router.getRoute(router.currentRoute.replace(fromOverview ? '/action' : '/view/action', '')).buildUrl();
+                        cancelLink.href = router.getRoute(router.currentRoute.replace(fromOverview ? '/action' : '/view/action', '')).buildUrl(null, queryParamsForCancel);
                         app.fireEvent('changecontentevent', widget);
                         form.loadRecord(actionRecord);
                         form.issue = issueRecord;

@@ -143,7 +143,8 @@ Ext.define('Isu.view.issues.ActionMenu', {
                         actionId: record.getId()
                     },
                     {
-                        fromOverview: me.router.currentRoute.match('view') != null
+                        fromOverview: me.router.currentRoute.match('view') != null,
+                        issueType: issueType
                     }
                 );
             }

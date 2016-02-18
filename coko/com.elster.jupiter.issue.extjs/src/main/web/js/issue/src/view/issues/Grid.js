@@ -25,7 +25,7 @@ Ext.define('Isu.view.issues.Grid', {
                 dataIndex: 'title',
                 flex: 2,
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute(me.router.currentRoute + '/view').buildUrl({issueId: record.getId()});
+                    var url = me.router.getRoute(me.router.currentRoute + '/view').buildUrl({issueId: record.getId()}, {issueType: record.get('issueType').uid});
                     switch (record.get('issueType').uid) {
                         case 'datacollection':
                             if (me.dataCollectionActivated) {
