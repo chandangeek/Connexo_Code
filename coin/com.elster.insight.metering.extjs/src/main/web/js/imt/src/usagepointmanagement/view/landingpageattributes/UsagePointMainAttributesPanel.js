@@ -57,41 +57,6 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
                             click: me.onSaveClick,
                             scope: me
                         }
-                        //handler: function () {
-                        //    var record = me.down('#edit-form').getRecord();
-                        //    var baseRecord = record.copy();
-                        //
-                        //    record.set(me.down('#edit-form').getValues());
-                        //
-                        //    record.save({
-                        //        success: function () {
-                        //        },
-                        //        failure: function (response) {
-                        //            var responseText = Ext.decode(response.responseText, true);
-                        //            if (responseText && Ext.isArray(responseText.errors)) {
-                        //                me.down('#edit-form').markInvalid(responseText.errors);
-                        //            }
-                        //            record.set(baseRecord.getData());
-                        //        }
-                        //
-                        //    });
-                        //
-                        //    //Ext.Ajax.request({
-                        //    //    url: Ext.String.format('/api/udr/usagepoints/{0}', encodeURIComponent(record.get('mRID'))),
-                        //    //    method: 'PUT',
-                        //    //    jsonData: Ext.encode(record.getData()),
-                        //    //    timeout: 300000,
-                        //    //    success: function () {
-                        //    //    },
-                        //    //    failure: function (response) {
-                        //    //        var responseText = Ext.decode(response.responseText, true);
-                        //    //        if (responseText && Ext.isArray(responseText.errors)) {
-                        //    //            me.down('#edit-form').markInvalid(responseText.errors);
-                        //    //        }
-                        //    //        record.set(baseRecord.getData());
-                        //    //    }
-                        //    //});
-                        //}
                     },
                     {
                         xtype: 'button',

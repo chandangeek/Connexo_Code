@@ -5,7 +5,10 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
 
     requires: [
         'Uni.form.field.Duration',
-        'Imt.usagepointmanagement.store.measurementunits.Voltage'
+        'Imt.usagepointmanagement.view.forms.ElectricityInfo',
+        'Imt.usagepointmanagement.view.forms.fields.MeasureDisplayField',
+        'Imt.usagepointmanagement.view.forms.fields.ThreeValuesDisplayField'
+
     ],
 
     initComponent: function () {
@@ -21,22 +24,11 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                 },
                 items: [
                     {
+                        xtype: 'measuredisplayfield',
                         name: 'nominalServiceVoltage',
                         itemId: 'fld-up-service-voltage',
                         fieldLabel: Uni.I18n.translate('general.label.voltage', 'IMT', 'Nominal voltage'),
-                        //listeners: {
-                        //    beforerender: function (fld){
-                        //        console.log(Imt.usagepointmanagement.service.UnitsMap.getActual(3, 'V'));
-                        //    }
-                        //},
-                        renderer: Ext.bind(me.renderValue, me)
-                        //renderer: function(data) {
-                        //    console.log(data.multiplier+ '');
-                        //    //return ;
-                        //    //return Imt.usagepointmanagement.service.AttributesMaps.getTypeOfUsagePoint('UNMEASURED')
-                        //    //return data.value + "&nbsp" + Imt.usagepointmanagement.service.UnitsMap.getActual(data.multiplier, data.unit);
-                        //}
-
+                        unitType: 'voltage'
                     },
                     {
                         name: 'phaseCode',
@@ -47,22 +39,26 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         }
                     },
                     {
+                        xtype: 'measuredisplayfield',
                         name: 'ratedCurrent',
                         itemId: 'fld-up-rated-current',
                         fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current'),
-                        renderer: Ext.bind(me.renderValue, me)
+                        unitType: 'amperage'
+
                     },
                     {
+                        xtype: 'measuredisplayfield',
                         name: 'ratedPower',
                         itemId: 'fld-up-rated-power',
                         fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power'),
-                        renderer: Ext.bind(me.renderValue, me)
+                        unitType: 'power'
                     },
                     {
+                        xtype: 'measuredisplayfield',
                         name: 'estimatedLoad',
                         itemId: 'fld-up-estimated-load',
                         fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load'),
-                        renderer: Ext.bind(me.renderValue, me)
+                        unitType: 'power'
                     },
                     {
                         name: 'grounded',
@@ -71,12 +67,6 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         renderer: function (value) {
                             return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
                         }
-                    },
-                    {
-                        name: 'estimationLoad',
-                        itemId: 'fld-up-estimationLoad',
-                        fieldLabel: Uni.I18n.translate('general.label.estimationLoad', 'IMT', 'Estimation load'),
-                        renderer: Ext.bind(me.renderValue, me)
                     },
                     {
                         name: 'limiter',
@@ -98,11 +88,11 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         }
                     },
                     {
+                        xtype: 'measuredisplayfield',
                         name: 'loadLimit',
                         itemId: 'fld-up-loadLimit',
-                        //hidden: me.down('#fld-up-limiter').getValue(),
                         fieldLabel: Uni.I18n.translate('general.label.loadLimit', 'IMT', 'Load limit'),
-                        renderer: Ext.bind(me.renderValue, me),
+                        unitType: 'power',
                         listeners: {
                             beforerender: function (fld){
                                 fld.setVisible(me.down('#fld-up-limiter').getValue())
@@ -110,12 +100,10 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         }
                     },
                     {
+                        xtype: 'threevaluesdisplayfield',
                         name: 'collar',
                         itemId: 'fld-up-collar',
-                        fieldLabel: Uni.I18n.translate('general.label.collar', 'IMT', 'Collar'),
-                        renderer: function (value) {
-                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
-                        }
+                        fieldLabel: Uni.I18n.translate('general.label.collar', 'IMT', 'Collar')
                     }
                 ]
             },
@@ -207,22 +195,5 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
             }*/
         ];
         me.callParent();
-    },
-    renderValue: function (data) {
-        //var unit;
-        ////if (data) {
-        ////  if (data.multiplier == 0)
-        ////      return data.value + ' ' + data.unit;
-        ////   else
-        ////       return data.value + '*10<span style="position: relative;top: -6px;font-size: 10px;">' + data.multiplier + '</span> ' + data.unit;
-        ////
-        ////} else return '-';
-        //if(data){
-        //    unit = Imt.usagepointmanagement.service.UnitsMap.getActual(data.unit, data.multiplier);
-        //    return data.value + "&nbsp" + unit;
-        //} else {
-        //    return '-'
-        //}
     }
-
 });

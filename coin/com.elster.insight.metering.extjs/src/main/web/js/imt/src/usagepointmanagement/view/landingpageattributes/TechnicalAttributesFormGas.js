@@ -1,10 +1,10 @@
-Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttributesFormWater', {
+Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttributesFormGas', {
     extend: 'Ext.panel.Panel',
-    alias: 'widget.technical-attributes-form-water',
+    alias: 'widget.technical-attributes-form-gas',
 
 
     requires: [
-        'Imt.usagepointmanagement.view.forms.WaterInfo',
+        'Imt.usagepointmanagement.view.forms.GasInfo',
         'Imt.usagepointmanagement.view.forms.fields.MeasureDisplayField',
         'Imt.usagepointmanagement.view.forms.fields.ThreeValuesDisplayField'
     ],
@@ -107,11 +107,19 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         itemId: 'fld-up-clamped',
                         fieldLabel: Uni.I18n.translate('general.label.clamped', 'IMT', 'Clamped'),
 
-                    }
+                    },
+                    {
+                        name: 'interruptible',
+                        itemId: 'fld-up-interruptible',
+                        fieldLabel: Uni.I18n.translate('general.label.interruptible', 'IMT', 'Interruptible'),
+                        renderer: function (value) {
+                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
+                        }
+                    },
                 ]
             },
             {
-                xtype: 'water-info-form',
+                xtype: 'gas-info-form',
                 itemId: 'edit-form',
                 hidden: true,
                 defaults: {

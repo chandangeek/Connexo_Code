@@ -5,7 +5,6 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         'Imt.usagepointmanagement.model.UsagePoint',
         'Imt.metrologyconfiguration.model.MetrologyConfiguration',
         'Imt.usagepointmanagement.service.AttributesMaps',
-        'Imt.usagepointmanagement.service.UnitsMap',
         'Ext.container.Container'
     ],
     stores: [
@@ -54,7 +53,6 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
        
         pageMainContent.setLoading(true);
-        Imt.usagepointmanagement.service.UnitsMap.getValue('V', 3);
 
         usagePointModel.load(mRID, {
             success: function (record) {

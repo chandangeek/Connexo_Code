@@ -1,10 +1,10 @@
-Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttributesFormWater', {
+Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttributesFormThermal', {
     extend: 'Ext.panel.Panel',
-    alias: 'widget.technical-attributes-form-water',
+    alias: 'widget.technical-attributes-form-thermal',
 
 
     requires: [
-        'Imt.usagepointmanagement.view.forms.WaterInfo',
+        'Imt.usagepointmanagement.view.forms.ThermalInfo',
         'Imt.usagepointmanagement.view.forms.fields.MeasureDisplayField',
         'Imt.usagepointmanagement.view.forms.fields.ThreeValuesDisplayField'
     ],
@@ -36,14 +36,6 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         unitType: 'volume'
                     },
                     {
-                        name: 'grounded',
-                        itemId: 'fld-up-grounded',
-                        fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded'),
-                        renderer: function (value) {
-                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
-                        }
-                    },
-                    {
                         xtype: 'threevaluesdisplayfield',
                         name: 'bypass',
                         itemId: 'fld-up-bypass',
@@ -53,36 +45,6 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         name: 'bypassStatus',
                         itemId: 'fld-up-bypass-status',
                         fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass status'),
-                    },
-                    {
-                        name: 'limiter',
-                        itemId: 'fld-up-limiter',
-                        fieldLabel: Uni.I18n.translate('general.label.limiter', 'IMT', 'Limiter'),
-                        renderer: function (value) {
-                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
-                        }
-                    },
-                    {
-                        name: 'loadLimiterType',
-                        itemId: 'fld-up-load-limiter-type',
-                        fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Load limiter type'),
-                        listeners: {
-                            beforerender: function (fld){
-                                fld.setVisible(me.down('#fld-up-limiter').getValue())
-                            }
-                        }
-                    },
-                    {
-                        xtype: 'measuredisplayfield',
-                        name: 'LoadLimit',
-                        itemId: 'fld-up-load-limit',
-                        fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Load limit'),
-                        unitType: 'volume',
-                        listeners: {
-                            beforerender: function (fld){
-                                fld.setVisible(me.down('#fld-up-limiter').getValue())
-                            }
-                        }
                     },
                     {
                         xtype: 'threevaluesdisplayfield',
@@ -95,23 +57,11 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         name: 'collar',
                         itemId: 'fld-up-collar',
                         fieldLabel: Uni.I18n.translate('general.label.collar', 'IMT', 'Collar')
-                    },
-                    {
-                        xtype: 'threevaluesdisplayfield',
-                        name: 'capped',
-                        itemId: 'fld-up-capped',
-                        fieldLabel: Uni.I18n.translate('general.label.capped', 'IMT', 'Capped')
-                    },
-                    {
-                        name: 'clamped',
-                        itemId: 'fld-up-clamped',
-                        fieldLabel: Uni.I18n.translate('general.label.clamped', 'IMT', 'Clamped'),
-
                     }
                 ]
             },
             {
-                xtype: 'water-info-form',
+                xtype: 'thermal-info-form',
                 itemId: 'edit-form',
                 hidden: true,
                 defaults: {

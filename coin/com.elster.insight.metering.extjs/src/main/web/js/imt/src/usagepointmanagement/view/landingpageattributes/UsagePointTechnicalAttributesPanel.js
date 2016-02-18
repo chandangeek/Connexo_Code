@@ -12,7 +12,6 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
         align: 'stretch'
     },
     category: null,
-    //record: null,
 
     initComponent: function () {
         var me = this,
@@ -67,28 +66,6 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
                             click: me.onSaveClick,
                             scope: me
                         }
-                        //handler: function(){
-                        //    var  record = me.down('#edit-form').getRecord();
-                        //    var baseRecord = record.copy();
-                        //
-                        //    record.set(me.down('#edit-form').getValues());
-                        //
-                        //    Ext.Ajax.request({
-                        //        url: Ext.String.format('/api/udr/usagepoints/{0}', encodeURIComponent(record.get('mRID'))),
-                        //        method: 'PUT',
-                        //        jsonData: Ext.encode(record.getData()),
-                        //        timeout: 300000,
-                        //        success: function () {
-                        //       },
-                        //        failure: function (response) {
-                        //            var responseText = Ext.decode(response.responseText, true);
-                        //            if (responseText && Ext.isArray(responseText.errors)) {
-                        //                me.down('#edit-form').markInvalid(responseText.errors);
-                        //            }
-                        //            record.set(baseRecord.getData());
-                        //        }
-                        //    });
-                        //}
                     },
                     {
                         xtype: 'button',
@@ -157,8 +134,6 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
         var values = form.getValues(),
             record = me.record.copy(me.record.get('mRID'));
         record.set('techInfo', values);
-        //
-        //me.record.set('techInfo', techInfo);
         me.fireEvent('saveClick', form, record);
     }
 });
