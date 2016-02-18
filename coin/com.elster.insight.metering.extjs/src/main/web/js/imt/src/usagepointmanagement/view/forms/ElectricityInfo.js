@@ -15,6 +15,11 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
     },
     items: [
         {
+            itemId: 'technical-info-warning',
+            xtype: 'uni-form-error-message',
+            hidden: true
+        },
+        {
             xtype: 'checkbox',
             name: 'grounded',
             itemId: 'up-grounded-measurefield',

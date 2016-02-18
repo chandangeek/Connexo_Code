@@ -14,6 +14,11 @@ Ext.define('Imt.usagepointmanagement.view.forms.ThermalInfo', {
     },
     items: [
         {
+            itemId: 'technical-info-warning',
+            xtype: 'uni-form-error-message',
+            hidden: true
+        },
+        {
             xtype: 'measurefield',
             name: 'pressure',
             itemId: 'up-pressure-measurefield',
