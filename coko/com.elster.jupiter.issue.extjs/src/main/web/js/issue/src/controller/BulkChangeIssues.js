@@ -24,6 +24,9 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         }
     ],
 
+    dataCollectionActivated: false,
+    dataValidationActivated: false,
+
     listeners: {
         retryRequest: function (wizard, failedItems) {
             this.setFailedBulkRecordIssues(failedItems);
@@ -118,6 +121,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         });
 
         widget = Ext.widget('bulk-browse');
+        widget.down('#Close').setVisible(me.dataCollectionActivated);
         grid = widget.down('bulk-step1').down('issues-selection-grid');
         grid.reconfigure(issuesStore);
         grid.filterParams = Ext.clone(filter);
@@ -197,7 +201,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             record = me.getBulkRecord(),
             requestData = me.getRequestData(record),
             operation = record.get('operation'),
-            requestUrl = '/api/isu/issues/' + operation,
+            requestUrl = operation == 'close' ? '/api/idc/issues/' + operation : '/api/isu/issues/' + operation,
             warnIssues = [],
             failedIssues = [],
             params = [],

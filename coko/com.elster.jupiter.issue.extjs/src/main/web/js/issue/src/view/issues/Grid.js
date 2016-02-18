@@ -11,8 +11,6 @@ Ext.define('Isu.view.issues.Grid', {
         'Isu.privileges.Issue'
     ],
     alias: 'widget.issues-grid',
-    dataCollectionActivated: false,
-    dataValidationActivated: false,
     router: null,
 
     initComponent: function () {
@@ -26,22 +24,7 @@ Ext.define('Isu.view.issues.Grid', {
                 flex: 2,
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute(me.router.currentRoute + '/view').buildUrl({issueId: record.getId()}, {issueType: record.get('issueType').uid});
-                    switch (record.get('issueType').uid) {
-                        case 'datacollection':
-                            if (me.dataCollectionActivated) {
-                                return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
-                            } else {
-                                return Ext.String.htmlEncode(value);
-                            }
-                            break;
-                        case 'datavalidation':
-                            if (me.dataValidationActivated) {
-                                return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
-                            } else {
-                                return Ext.String.htmlEncode(value);
-                            }
-                            break;
-                    }
+                    return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                 }
             },
             {
@@ -87,8 +70,6 @@ Ext.define('Isu.view.issues.Grid', {
                 privileges: !!Isu.privileges.Issue.adminDevice,
                 menu: {
                     xtype: 'issues-action-menu',
-                    dataCollectionActivated: me.dataCollectionActivated,
-                    dataValidationActivated: me.dataValidationActivated,
                     itemId: 'issues-overview-action-menu',
                     router: me.router
                 }

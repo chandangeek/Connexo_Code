@@ -153,13 +153,17 @@ Ext.define('Isu.view.issues.IssueFilter', {
 
         combo.value = value;
         combo.setHiddenValue(value);
-        store.model.load(value, {
-            success: function (record) {
-                store.loadData([record], false);
-                store.lastOptions = {};
-                store.fireEvent('load', store, [record], true)
-            }
-        });
+        if (store.getCount() && Ext.isArray(value)) {
+            combo.setValue(value);
+        } else {
+            store.model.load(value, {
+                success: function (record) {
+                    store.loadData([record], false);
+                    store.lastOptions = {};
+                    store.fireEvent('load', store, [record], true)
+                }
+            });
+        }
     },
 
     comboGetParamValue: function () {

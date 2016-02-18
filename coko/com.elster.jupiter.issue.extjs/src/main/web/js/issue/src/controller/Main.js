@@ -100,11 +100,9 @@ Ext.define('Isu.controller.Main', {
 
         me.getApplication().on('initIssueType', function (type) {
             if (type == 'datacollection') {
-                me.getController('Isu.controller.IssuesOverview').dataCollectionActivated = true;
-                me.getController('Isu.controller.ApplyIssueAction').dataCollectionActivated = true;
+                me.getController('Isu.controller.BulkChangeIssues').dataCollectionActivated = true;
             } else if (type == 'datavalidation') {
-                me.getController('Isu.controller.IssuesOverview').dataValidationActivated = true;
-                me.getController('Isu.controller.ApplyIssueAction').dataValidationActivated = true;
+                me.getController('Isu.controller.BulkChangeIssues').dataValidationActivated = true;
             }
         });
     }

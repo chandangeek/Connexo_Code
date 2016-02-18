@@ -46,6 +46,8 @@ Ext.define('Isu.view.overview.Section', {
                 } else {
                     queryString[section] = record.get('id');
                 }
+                queryString.groupingType = 'none';
+                queryString.sort = ['dueDate', 'modTime'];
                 var href = me.up('overview-of-issues').router.getRoute('workspace/issues').buildUrl(null, queryString);
                 record.set('href', href);
             });

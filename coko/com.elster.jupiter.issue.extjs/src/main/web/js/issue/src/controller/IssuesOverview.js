@@ -68,9 +68,6 @@ Ext.define('Isu.controller.IssuesOverview', {
         }
     ],
 
-    dataCollectionActivated: false,
-    dataValidationActivated: false,
-
     init: function () {
         var me = this;
         this.control({
@@ -122,8 +119,6 @@ Ext.define('Isu.controller.IssuesOverview', {
         } else {
             me.getStore('Isu.store.Clipboard').set('latest-issues-filter', queryString);
             me.getApplication().fireEvent('changecontentevent', Ext.widget('issues-overview', {
-                dataCollectionActivated: me.dataCollectionActivated,
-                dataValidationActivated: me.dataValidationActivated,
                 router: me.getController('Uni.controller.history.Router'),
                 groupingType: queryString.groupingType
             }));
@@ -245,10 +240,6 @@ Ext.define('Isu.controller.IssuesOverview', {
                     {
                         property: 'field',
                         value: groupingType || queryString.groupingType
-                    },
-                    {
-                        property: 'issueType',
-                        value: me.getStore('Isu.store.IssueStatuses').getProxy().extraParams.issueType
                     }
                 ]
             };

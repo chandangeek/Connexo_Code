@@ -20,9 +20,6 @@ Ext.define('Isu.controller.ApplyIssueAction', {
         }
     ],
 
-    dataCollectionActivated: false,
-    dataValidationActivated: false,
-
     init: function () {
         this.control({
             'issue-action-view issue-action-form #issue-action-apply': {
@@ -35,6 +32,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             issueType = router.queryParams.issueType,
+            issueTypePrefix,
             actionModel = Ext.create('Isu.model.Issue').actions().model,
             issueModel = me.getModel('Isu.model.Issue'),
             fromOverview = router.queryParams.fromOverview === 'true',
@@ -83,23 +81,19 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                 onAllDependenciesLoad();
             }
         });
-        if (issueType == 'datacollection' && me.dataCollectionActivated) {
-            issueModel.getProxy().url = '/api/idc/issues';
-            issueModel.load(issueId, {
-                success: function (record) {
-                    issueRecord = record;
-                    onAllDependenciesLoad();
-                }
-            });
-        } else if (issueType == 'datavalidation' && me.dataValidationActivated) {
-            issueModel.getProxy().url = '/api/idv/issues';
-            issueModel.load(issueId, {
-                success: function (record) {
-                    issueRecord = record;
-                    onAllDependenciesLoad();
-                }
-            });
+
+        if (issueType == 'datacollection') {
+            issueTypePrefix = 'idc';
+        } else if (issueType == 'datavalidation') {
+            issueTypePrefix = 'idv';
         }
+        issueModel.getProxy().url = '/api/' + issueTypePrefix + '/issues';
+        issueModel.load(issueId, {
+            success: function (record) {
+                issueRecord = record;
+                onAllDependenciesLoad();
+            }
+        });
     },
 
     applyAction: function (button, action, actionRecord, issueRecord) {

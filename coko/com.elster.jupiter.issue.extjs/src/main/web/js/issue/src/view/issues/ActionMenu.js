@@ -11,8 +11,6 @@ Ext.define('Isu.view.issues.ActionMenu', {
     shadow: false,
     defaultAlign: 'tr-br?',
     router: null,
-    dataCollectionActivated: false,
-    dataValidationActivated: false,
     mixins: {
         bindable: 'Ext.util.Bindable'
     },
@@ -92,17 +90,10 @@ Ext.define('Isu.view.issues.ActionMenu', {
             comTaskId,
             comTaskSessionId,
             connectionTaskId,
-            comSessionId,
-            addCommentsAllowed = false;
+            comSessionId;
 
         if (!me.router) {
             return
-        }
-
-        if (issueType == 'datavalidation' && me.dataValidationActivated) {
-            addCommentsAllowed = true;
-        } else if (issueType == 'datacollection' && me.dataCollectionActivated) {
-            addCommentsAllowed = true;
         }
 
         Ext.suspendLayouts();
@@ -152,7 +143,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
         });
 
         // add predefined actions
-        if (addCommentsAllowed && me.predefinedItems && me.predefinedItems.length) {
+        if (me.predefinedItems && me.predefinedItems.length) {
             Ext.Array.each(me.predefinedItems, function (menuItem) {
                 switch (menuItem.action) {
                     case 'addComment':
