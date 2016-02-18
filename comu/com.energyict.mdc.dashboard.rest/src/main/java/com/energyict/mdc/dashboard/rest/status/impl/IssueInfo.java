@@ -4,4 +4,5 @@ public class IssueInfo {
     public long id;
     public String title;
     public Long dueDate;
+    public String issueType;
 }

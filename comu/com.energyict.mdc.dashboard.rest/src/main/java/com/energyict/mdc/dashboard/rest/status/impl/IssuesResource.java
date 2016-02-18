@@ -86,6 +86,7 @@ public class IssuesResource {
             issueInfo.id = issue.getId();
             issueInfo.title = issue.getTitle();
             issueInfo.dueDate = issue.getDueDate() != null ? issue.getDueDate().toEpochMilli() : null;
+            issueInfo.issueType = issue.getReason().getIssueType().getKey();
             myOpenIssuesInfo.assignedToMeIssues.topMyIssues.add(issueInfo);
         }
     }
