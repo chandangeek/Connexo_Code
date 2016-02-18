@@ -213,7 +213,7 @@ public class ServiceCallIT {
     public void testCreateServiceCallTypeWithCustomPropertySet() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCallType serviceCallType = serviceCallService.createServiceCallType("CustomTest", "CustomVersion").
-                    customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).get(0)).add();
+                    customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCall.class).get(0)).add();
 
             List<ServiceCallType> serviceCallTypes = serviceCallService.getServiceCallTypes().find();
             assertThat(serviceCallTypes).hasSize(1);
