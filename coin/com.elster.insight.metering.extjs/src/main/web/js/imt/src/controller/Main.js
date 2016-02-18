@@ -44,6 +44,10 @@ Ext.define('Imt.controller.Main', {
         'Imt.usagepointhistory.controller.CasVersionEdit',
         'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersions'
     ],
+    stores: [
+        'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
+        'Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets'
+    ],
 
     refs: [
         {

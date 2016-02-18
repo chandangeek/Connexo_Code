@@ -10,6 +10,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
     stores: [
         'Imt.usagepointmanagement.store.MeterActivations',
         'Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets',
+        'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
         'Imt.metrologyconfiguration.store.MetrologyConfiguration'
     ],
     views: [
@@ -116,12 +117,15 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
     initAttributes: function(record){
         var me = this,
             customAttributesStoreUsagePoint = me.getStore('Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets'),
-            customAttributesModelUsagePoint = me.getStore('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
-            customAttributesStoreMetrology = me.getStore('Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets');
+            customAttributesModelUsagePoint = me.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
+            customAttributesStoreMetrology = me.getStore('Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets'),
+            customAttributesModelMetrology = me.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnMetrologyConfiguration');
+
 
         customAttributesStoreUsagePoint.getProxy().setUrl(record.get('mRID'));
         customAttributesModelUsagePoint.getProxy().setUrl(record.get('mRID'));
         customAttributesStoreMetrology.getProxy().setUrl(record.get('mRID'));
+        customAttributesModelMetrology.getProxy().setUrl(record.get('mRID'));
 
         Ext.suspendLayouts();
 
