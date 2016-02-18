@@ -1,15 +1,19 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
-import static com.elster.jupiter.util.streams.Predicates.not;
-
-import java.math.BigDecimal;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import com.elster.insight.common.services.ListPager;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.Ranges;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -24,21 +28,16 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-import com.elster.insight.common.rest.ExceptionFactory;
-import com.elster.insight.common.services.ListPager;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.security.Privileges;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.util.Ranges;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Range;
+import static com.elster.jupiter.util.streams.Predicates.not;
 
 public class RegisterDataResource {
 

@@ -1,7 +1,12 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
-import java.time.Clock;
-import java.time.Instant;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.Transactional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -15,14 +20,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import com.elster.insight.common.rest.ExceptionFactory;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.security.Privileges;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.Transactional;
+import java.time.Clock;
+import java.time.Instant;
 
 public class RegisterResource {
 

@@ -1,5 +1,20 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
+import com.elster.insight.common.services.ListPager;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationService;
+import com.google.common.collect.Range;
+
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -11,22 +26,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
-
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-
-import com.elster.insight.common.rest.ExceptionFactory;
-import com.elster.insight.common.services.ListPager;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationService;
-import com.google.common.collect.Range;
 
 public class ChannelResourceHelper {
 

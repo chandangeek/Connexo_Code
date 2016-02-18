@@ -1,7 +1,6 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
 import com.elster.insight.common.rest.IntervalInfo;
-import com.elster.insight.usagepoint.data.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -11,6 +10,7 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.cps.rest.ValuesRangeConflictInfo;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
@@ -81,12 +81,11 @@ public class UsagePointCustomPropertySetResource {
     }
 
     @GET
-    @Path("/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getAllCustomPropertySets(@PathParam("mrid") String usagePointMrid,
                                                   @BeanParam JsonQueryParameters queryParameters) {
         UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
-                .findUsagePointExtensionByMrIdOrThrowException(usagePointMrid);
+                .findUsagePointByMrIdOrThrowException(usagePointMrid).forCustomProperties();
         return getCustomPropertySetValues(usagePointExtension, usagePointExtension.getAllCustomPropertySets(), queryParameters);
     }
 
@@ -96,7 +95,7 @@ public class UsagePointCustomPropertySetResource {
     public PagedInfoList getCustomPropertySetsOnMetrologyConfiguration(@PathParam("mrid") String usagePointMrid,
                                                                        @BeanParam JsonQueryParameters queryParameters) {
         UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
-                .findUsagePointExtensionByMrIdOrThrowException(usagePointMrid);
+                .findUsagePointByMrIdOrThrowException(usagePointMrid).forCustomProperties();
         return getCustomPropertySetValues(usagePointExtension, usagePointExtension.getCustomPropertySetsOnMetrologyConfiguration(), queryParameters);
     }
 
@@ -106,7 +105,7 @@ public class UsagePointCustomPropertySetResource {
     public PagedInfoList getCustomPropertySetsOnServiceCategory(@PathParam("mrid") String usagePointMrid,
                                                                 @BeanParam JsonQueryParameters queryParameters) {
         UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
-                .findUsagePointExtensionByMrIdOrThrowException(usagePointMrid);
+                .findUsagePointByMrIdOrThrowException(usagePointMrid).forCustomProperties();
         return getCustomPropertySetValues(usagePointExtension, usagePointExtension.getCustomPropertySetsOnServiceCategory(), queryParameters);
     }
 
@@ -114,10 +113,10 @@ public class UsagePointCustomPropertySetResource {
     @Path("/{rcpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public CustomPropertySetInfo getCustomPropertySetByRegisteredId(@PathParam("mrid") String usagePointMrid,
-                                                                    @PathParam("id") long rcpsId,
+                                                                    @PathParam("rcpsId") long rcpsId,
                                                                     @BeanParam JsonQueryParameters queryParameters) {
         UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
-                .findUsagePointExtensionByMrIdOrThrowException(usagePointMrid);
+                .findUsagePointByMrIdOrThrowException(usagePointMrid).forCustomProperties();
         RegisteredCustomPropertySet registeredCustomPropertySet = resourceHelper
                 .findRegisteredCustomPropertySetOnUsagePointOrThrowException(rcpsId, usagePointExtension);
         return customPropertySetInfoFactory.getFullInfo(registeredCustomPropertySet,
@@ -130,16 +129,16 @@ public class UsagePointCustomPropertySetResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public CustomPropertySetInfo setCustomPropertySetValuesByRegisteredId(@PathParam("mrid") String usagePointMrid,
-                                                                          @PathParam("id") long rcpsId,
+                                                                          @PathParam("rcpsId") long rcpsId,
                                                                           @BeanParam JsonQueryParameters queryParameters,
                                                                           CustomPropertySetInfo<UsagePointInfo> info) {
         UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
-                .lockUsagePointCustomPropertySetExtensionOrThrowException(info.parent);
+                .lockUsagePointOrThrowException(info.parent).forCustomProperties();
         RegisteredCustomPropertySet registeredCustomPropertySet = resourceHelper
                 .findRegisteredCustomPropertySetOnUsagePointOrThrowException(rcpsId, usagePointExtension);
         CustomPropertySet<UsagePoint, ?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
-        CustomPropertySetValues values = this.customPropertySetInfoFactory.getCustomPropertySetValues(info, customPropertySet.getPropertySpecs());
-        usagePointExtension.setCustomPropertySetValue(customPropertySet, values);
+        usagePointExtension.setCustomPropertySetValue(customPropertySet, this.customPropertySetInfoFactory
+                .getCustomPropertySetValues(info, customPropertySet.getPropertySpecs()));
         return customPropertySetInfoFactory.getFullInfo(registeredCustomPropertySet,
                 usagePointExtension.getCustomPropertySetValue(registeredCustomPropertySet));
     }
@@ -148,10 +147,10 @@ public class UsagePointCustomPropertySetResource {
     @Path("{rcpsId}/currentinterval")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public IntervalInfo getCurrentTimeSlicedCustomPropertySetInterval(@PathParam("mrid") String usagePointMrid,
-                                                                      @PathParam("id") long rcpsId,
+                                                                      @PathParam("rcpsId") long rcpsId,
                                                                       @BeanParam JsonQueryParameters queryParameters) {
         UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
-                .findUsagePointExtensionByMrIdOrThrowException(usagePointMrid);
+                .findUsagePointByMrIdOrThrowException(usagePointMrid).forCustomProperties();
         RegisteredCustomPropertySet registeredCustomPropertySet = resourceHelper
                 .findRegisteredCustomPropertySetOnUsagePointOrThrowException(rcpsId, usagePointExtension);
         return IntervalInfo.from(usagePointExtension.getCurrentInterval(registeredCustomPropertySet));
@@ -161,10 +160,10 @@ public class UsagePointCustomPropertySetResource {
     @Path("{rcpsId}/versions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getAllTimeSlicedCustomPropertySetVersions(@PathParam("mrid") String usagePointMrid,
-                                                                   @PathParam("id") long rcpsId,
+                                                                   @PathParam("rcpsId") long rcpsId,
                                                                    @BeanParam JsonQueryParameters queryParameters) {
         UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
-                .findUsagePointExtensionByMrIdOrThrowException(usagePointMrid);
+                .findUsagePointByMrIdOrThrowException(usagePointMrid).forCustomProperties();
         RegisteredCustomPropertySet registeredCustomPropertySet = resourceHelper
                 .findRegisteredCustomPropertySetOnUsagePointOrThrowException(rcpsId, usagePointExtension);
         CustomPropertySet<UsagePoint, ?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
@@ -182,11 +181,11 @@ public class UsagePointCustomPropertySetResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public Response addNewVersionForTimeSlicedCustomAttributeSet(@PathParam("mrid") String usagePointMrid,
-                                                                 @PathParam("id") long rcpsId,
+                                                                 @PathParam("rcpsId") long rcpsId,
                                                                  @BeanParam JsonQueryParameters queryParameters,
                                                                  CustomPropertySetInfo<UsagePointInfo> info) {
         UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
-                .findUsagePointExtensionByMrIdOrThrowException(usagePointMrid);
+                .findUsagePointByMrIdOrThrowException(usagePointMrid).forCustomProperties();
         RegisteredCustomPropertySet registeredCustomPropertySet = resourceHelper
                 .findRegisteredCustomPropertySetOnUsagePointOrThrowException(rcpsId, usagePointExtension);
         CustomPropertySet<UsagePoint, ?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
@@ -207,7 +206,7 @@ public class UsagePointCustomPropertySetResource {
     @Path("{rcpsId}/versions/{timestamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getTimeSlicedCustomAttributeSetVersion(@PathParam("mrid") String usagePointMrid,
-                                                                @PathParam("id") long rcpsId,
+                                                                @PathParam("rcpsId") long rcpsId,
                                                                 @BeanParam JsonQueryParameters queryParameters) {
         return null;
     }
@@ -216,7 +215,7 @@ public class UsagePointCustomPropertySetResource {
     @Path("{rcpsId}/versions/{timestamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList updateTimeSlicedCustomAttributeSetVersion(@PathParam("mrid") String usagePointMrid,
-                                                                   @PathParam("id") long rcpsId,
+                                                                   @PathParam("rcpsId") long rcpsId,
                                                                    @BeanParam JsonQueryParameters queryParameters) {
         return null;
     }
@@ -225,12 +224,12 @@ public class UsagePointCustomPropertySetResource {
     @Path("{rcpsId}/conflicts")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getTimeSlicedCustomPropertySetVersionsConflicts(@PathParam("mrid") String usagePointMrid,
-                                                                         @PathParam("id") long rcpsId,
+                                                                         @PathParam("rcpsId") long rcpsId,
                                                                          @BeanParam JsonQueryParameters queryParameters,
                                                                          @QueryParam("startTime") Long startTime,
                                                                          @QueryParam("endTime") Long endTime) {
         UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
-                .findUsagePointExtensionByMrIdOrThrowException(usagePointMrid);
+                .findUsagePointByMrIdOrThrowException(usagePointMrid).forCustomProperties();
         RegisteredCustomPropertySet registeredCustomPropertySet = resourceHelper
                 .findRegisteredCustomPropertySetOnUsagePointOrThrowException(rcpsId, usagePointExtension);
         CustomPropertySet<UsagePoint, ?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
@@ -246,15 +245,5 @@ public class UsagePointCustomPropertySetResource {
                 })
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("conflicts", valuesRangeConflicts, queryParameters);
-    }
-
-    // WAT???
-    @GET
-    @Path("{rcpsId}/versions/{timestamp}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList some(@PathParam("mrid") String usagePointMrid,
-                              @PathParam("id") long rcpsId,
-                              @BeanParam JsonQueryParameters queryParameters) {
-        return null;
     }
 }

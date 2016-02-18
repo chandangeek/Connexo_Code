@@ -1,5 +1,8 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
+import com.elster.insight.common.services.ListPager;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.insight.usagepoint.data.exceptions.InvalidLastCheckedException;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
@@ -7,6 +10,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
@@ -15,11 +19,6 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.security.Privileges;
-import com.elster.insight.common.rest.ExceptionFactory;
-import com.elster.insight.common.services.ListPager;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.insight.usagepoint.data.exceptions.InvalidLastCheckedException;
-
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
