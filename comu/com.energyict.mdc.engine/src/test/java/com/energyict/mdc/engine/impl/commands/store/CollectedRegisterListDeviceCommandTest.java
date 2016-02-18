@@ -25,6 +25,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -99,6 +100,7 @@ public class CollectedRegisterListDeviceCommandTest {
         when(this.device.getId()).thenReturn(DEVICE_ID);
         when(this.meteringService.getReadingType(Matchers.<String>any())).thenReturn(Optional.empty());
         when(serviceProvider.mdcReadingTypeUtilService()).thenReturn(new MdcReadingTypeUtilServiceImpl(this.meteringService));
+        when(serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
     }
 
     @Test

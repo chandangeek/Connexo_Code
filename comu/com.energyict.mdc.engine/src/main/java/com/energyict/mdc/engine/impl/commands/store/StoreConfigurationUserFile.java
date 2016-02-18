@@ -3,12 +3,15 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.events.datastorage.StoreConfigurationEvent;
 import com.energyict.mdc.engine.impl.meterdata.DeviceUserFileConfigurationInformation;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
@@ -19,7 +22,9 @@ import java.time.format.DateTimeFormatter;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-16 (16:31)
  */
-public class StoreConfigurationUserFile extends DeviceCommandImpl {
+public class StoreConfigurationUserFile extends DeviceCommandImpl<StoreConfigurationEvent> {
+
+    private final static String DESCRIPTION_TITLE = "Store configuration user file";
 
     private DeviceIdentifier deviceIdentifier;
     private String fileExtension;
@@ -52,9 +57,19 @@ public class StoreConfigurationUserFile extends DeviceCommandImpl {
         }
     }
 
+    protected Optional<StoreConfigurationEvent> newEvent(Issue issue) {
+        StoreConfigurationEvent event  =  new StoreConfigurationEvent(new ComServerEventServiceProvider(), this.deviceIdentifier);
+        if (issue != null){
+            event.setIssue(issue);
+        }
+        return Optional.of(event);
+    }
+
+
     @Override
     public String getDescriptionTitle() {
-        return "Store configuration user file";
+        return DESCRIPTION_TITLE;
     }
+
 
 }

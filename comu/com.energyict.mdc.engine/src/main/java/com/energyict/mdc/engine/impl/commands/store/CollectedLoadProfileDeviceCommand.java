@@ -9,6 +9,8 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.events.datastorage.CollectedLoadProfileEvent;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
@@ -25,7 +27,9 @@ import java.util.Optional;
  * Date: 29/08/12
  * Time: 14:52
  */
-public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
+public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<CollectedLoadProfileEvent> {
+
+    private final static String DESCRIPTION_TITLE = "Collected load profile data";
 
     private final CollectedLoadProfile collectedLoadProfile;
     private final MeterDataStoreCommand meterDataStoreCommand;
@@ -86,9 +90,17 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
         }
     }
 
+    protected Optional<CollectedLoadProfileEvent> newEvent(Issue issue) {
+        CollectedLoadProfileEvent event  =  new CollectedLoadProfileEvent(new ComServerEventServiceProvider(), collectedLoadProfile);
+        if (issue != null){
+            event.setIssue(issue);
+        }
+        return Optional.of(event);
+    }
+
     @Override
     public String getDescriptionTitle() {
-        return "Collected load profile data";
+        return DESCRIPTION_TITLE;
     }
 
 }

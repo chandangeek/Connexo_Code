@@ -11,6 +11,7 @@ import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactor
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
 import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.HexService;
@@ -46,6 +47,8 @@ public class SingleThreadedComPortListenerTest {
 
     private static final TimeDuration TIME_DURATION = new TimeDuration(1, TimeDuration.TimeUnit.SECONDS);
 
+    @Mock
+    private ManagementBeanFactory managementBeanFactory;
     @Mock
     private DeviceCommandExecutor deviceCommandExecutor;
     @Mock
@@ -88,6 +91,7 @@ public class SingleThreadedComPortListenerTest {
         when(serviceProvider.threadFactory()).thenReturn(threadFactory);
         when(serviceProvider.inboundComPortConnectorFactory()).thenReturn(inboundComPortConnectorFactory);
         when(serviceProvider.clock()).thenReturn(this.clock);
+        when(serviceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
         SingleThreadedComPortListener singleThreadedComPortListener =
                 new SingleThreadedComPortListener(
                         inboundComPort,
@@ -115,6 +119,7 @@ public class SingleThreadedComPortListenerTest {
         when(serviceProvider.threadFactory()).thenReturn(threadFactory);
         when(serviceProvider.inboundComPortConnectorFactory()).thenReturn(inboundComPortConnectorFactory);
         when(serviceProvider.clock()).thenReturn(this.clock);
+        when(serviceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
         SingleThreadedComPortListener singleThreadedComPortListener =
                 new SingleThreadedComPortListener(
                         inboundComPort,
@@ -149,6 +154,7 @@ public class SingleThreadedComPortListenerTest {
         when(serviceProvider.inboundComPortConnectorFactory()).thenReturn(inboundComPortConnectorFactory);
         when(serviceProvider.clock()).thenReturn(this.clock);
         when(serviceProvider.userService()).thenReturn(this.userService);
+        when(serviceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
         LatchDrivenSingleThreadedComPortListener singleThreadedComPortListener =
                 spy(new LatchDrivenSingleThreadedComPortListener(
                         inboundComPort,

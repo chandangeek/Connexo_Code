@@ -10,7 +10,9 @@ import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
 import com.energyict.mdc.engine.impl.events.UnknownSlaveDeviceEvent;
+import com.energyict.mdc.engine.impl.events.datastorage.CollectedDeviceTopologyEvent;
 import com.energyict.mdc.engine.impl.meterdata.CollectedDeviceData;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
@@ -28,7 +30,9 @@ import java.util.Set;
 
 import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
 
-public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
+public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<CollectedDeviceTopologyEvent> {
+
+    private final static String DESCRIPTION_TITLE = "Collected device topology";
 
     private final CollectedTopology deviceTopology;
     private final MeterDataStoreCommand meterDataStoreCommand;
@@ -307,10 +311,17 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
         }
     }
 
+    protected Optional<CollectedDeviceTopologyEvent> newEvent(Issue issue) {
+        CollectedDeviceTopologyEvent event  =  new CollectedDeviceTopologyEvent(new ComServerEventServiceProvider(), deviceTopology);
+        if (issue != null){
+            event.setIssue(issue);
+        }
+        return Optional.of(event);
+    }
 
     @Override
     public String getDescriptionTitle() {
-        return "Collected device topology";
+        return DESCRIPTION_TITLE;
     }
 
 }

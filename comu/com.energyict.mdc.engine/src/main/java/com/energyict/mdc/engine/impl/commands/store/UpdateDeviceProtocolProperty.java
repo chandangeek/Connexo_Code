@@ -8,12 +8,16 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.events.datastorage.UpdateDeviceProtocolPropertyEvent;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolProperty;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
@@ -23,7 +27,9 @@ import com.elster.jupiter.properties.PropertySpec;
  * @author sva
  * @since 16/10/2014 - 16:19
  */
-public class UpdateDeviceProtocolProperty extends DeviceCommandImpl {
+public class UpdateDeviceProtocolProperty extends DeviceCommandImpl<UpdateDeviceProtocolPropertyEvent> {
+
+    private final static String DESCRIPTION_TITLE = "Update device protocol property";
 
     private final DeviceIdentifier deviceIdentifier;
     private final PropertySpec propertySpec;
@@ -67,8 +73,20 @@ public class UpdateDeviceProtocolProperty extends DeviceCommandImpl {
     }
 
     @Override
+    protected Optional<UpdateDeviceProtocolPropertyEvent> newEvent(Issue issue) {
+        UpdateDeviceProtocolPropertyEvent event  =  new UpdateDeviceProtocolPropertyEvent(new ComServerEventServiceProvider(),
+                deviceIdentifier,
+                propertySpec,
+                propertyValue);
+        if (issue != null){
+            event.setIssue(issue);
+        }
+        return Optional.of(event);
+    }
+
+    @Override
     public String getDescriptionTitle() {
-        return "Update device protocol property";
+        return DESCRIPTION_TITLE;
     }
 
 }

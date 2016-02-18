@@ -43,7 +43,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ComPortOperationsLogHandlerTest {
 
-
+    @Mock
+    EventPublisher eventPublisher;
     @Mock
     ServiceProvider serviceProvider;
     @Mock
@@ -72,11 +73,15 @@ public class ComPortOperationsLogHandlerTest {
     private ComPortOperationsLogHandler comportOperationsLogHandler;
     private ComPortOperationsLogger comPortOperationsLogger;
     private EmbeddedWebServerFactory embeddedWebServerFactory;
-    private String eventRegistrationURL = "ws://localhost:8282/events/registration";
+    private final static String eventRegistrationURL = "ws://localhost:8282/events/registration";
 
 
     @Before
     public void setupEmbeddedWebServerFactory() {
+        when(comServer.getEventRegistrationUriIfSupported()).thenReturn(eventRegistrationURL);
+        when(serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
+        when(serviceProvider.eventPublisher()).thenReturn(eventPublisher);
+
         comportOperationsLogHandler = new ComPortOperationsLogHandler(comPort, serviceProvider.eventPublisher(), serviceProvider);
         comPortOperationsLogger = LoggerFactory.getLoggerFor(ComPortOperationsLogger.class, this.getAnonymousLogger(comportOperationsLogHandler));
 
@@ -95,8 +100,6 @@ public class ComPortOperationsLogHandlerTest {
     @Test
     public void testStartedResultsInComPortOperationEvent(){
         comPortOperationsLogger.started("TheThreadName");
-
-
     }
 
     private Logger getAnonymousLogger (Handler handler) {
@@ -143,7 +146,7 @@ public class ComPortOperationsLogHandlerTest {
 
         @Override
         public EventPublisher eventPublisher() {
-            return null;
+            return eventPublisher;
         }
 
         @Override

@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -82,6 +83,8 @@ public interface DeviceCommand {
 
         NlsService nlsService();
 
+        EventPublisher eventPublisher();
+
     }
 
     /**
@@ -132,5 +135,6 @@ public interface DeviceCommand {
      * @return The human readable description of this DeviceCommand
      */
     String toJournalMessageDescription(ComServer.LogLevel serverLogLevel);
+
 
 }

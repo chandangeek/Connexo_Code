@@ -7,7 +7,9 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.events.datastorage.CollectedLogBookEvent;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import com.elster.jupiter.util.Pair;
@@ -20,7 +22,9 @@ import java.util.Optional;
  * @author sva
  * @since 10/12/12 - 11:13
  */
-public class CollectedLogBookDeviceCommand extends DeviceCommandImpl {
+public class CollectedLogBookDeviceCommand extends DeviceCommandImpl<CollectedLogBookEvent> {
+
+    private final static String DESCRIPTION_TITLE = "Collected logbook data";
 
     private final DeviceLogBook deviceLogBook;
     private final MeterDataStoreCommand meterDataStoreCommand;
@@ -68,9 +72,17 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl {
         return ComServer.LogLevel.INFO;
     }
 
+    protected Optional<CollectedLogBookEvent> newEvent(Issue issue) {
+        CollectedLogBookEvent event  =  new CollectedLogBookEvent(new ComServerEventServiceProvider(), deviceLogBook);
+        if (issue != null){
+            event.setIssue(issue);
+        }
+        return Optional.of(event);
+    }
+
     @Override
     public String getDescriptionTitle() {
-        return "Collected logbook data";
+        return DESCRIPTION_TITLE;
     }
 
 }

@@ -17,6 +17,8 @@ import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
  */
 public class ProvideInboundResponseDeviceCommandImpl extends DeviceCommandImpl implements ProvideInboundResponseDeviceCommand {
 
+    private final static String DESCRIPTION_TITLE = "Provide response to inbound device";
+
     private final InboundCommunicationHandler inboundCommunicationHandler;
     private final InboundDeviceProtocol inboundDeviceProtocol;
     private final ExecutionContext executionContext;
@@ -67,7 +69,7 @@ public class ProvideInboundResponseDeviceCommandImpl extends DeviceCommandImpl i
 
     @Override
     public String getDescriptionTitle() {
-        return "Provide response to inbound device";
+        return DESCRIPTION_TITLE;
     }
 
     @Override

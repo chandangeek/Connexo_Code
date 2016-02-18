@@ -9,6 +9,7 @@ import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -158,7 +159,7 @@ public class CollectedDeviceCacheCommandTest {
 
         @Override
         public Clock clock() {
-            return null;
+            return Clock.systemDefaultZone();
         }
 
         @Override
@@ -173,6 +174,11 @@ public class CollectedDeviceCacheCommandTest {
 
         @Override
         public NlsService nlsService() {
+            return null;
+        }
+
+        @Override
+        public EventPublisher eventPublisher() {
             return null;
         }
     }

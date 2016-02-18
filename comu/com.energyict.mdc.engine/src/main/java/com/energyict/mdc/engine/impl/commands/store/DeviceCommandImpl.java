@@ -7,7 +7,10 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -15,16 +18,19 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.elster.jupiter.events.EventService;
 
 import java.time.Clock;
+import java.util.Optional;
 
 /**
  * Serves as the root for all components that intend to implement
  * the {@link DeviceCommand} interface and will provide
  * code reuse opportunities.
  *
+ * @param <E> Event type that will be published once the DeviceCommand is executed
+ *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-08-23 (09:10)
  */
-public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDescriptionTitle {
+public abstract class DeviceCommandImpl<E extends CollectedDataProcessingEvent> implements DeviceCommand, CanProvideDescriptionTitle {
 
     private ExecutionLogger logger;
     private final ComTaskExecution comTaskExecution;
@@ -40,7 +46,7 @@ public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDesc
         return comTaskExecution;
     }
 
-    public ServiceProvider getServiceProvider() {
+    public DeviceCommand.ServiceProvider getServiceProvider() {
         return serviceProvider;
     }
 
@@ -48,7 +54,12 @@ public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDesc
     public final void execute(ComServerDAO comServerDAO) {
         try {
             this.doExecute(comServerDAO);
-        } finally {
+            //Event Mechanism
+            Optional<E> event = newEvent(null);
+            if (event.isPresent()) {
+                publish(event.get());
+            }
+         } finally {
             if (this.getExecutionLogger() != null) {
                 this.getExecutionLogger().executed(this);
             }
@@ -75,6 +86,16 @@ public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDesc
 
     protected EventService getEventService() {
         return this.serviceProvider.eventService();
+    }
+
+    protected void publish(E event){
+        // event will be null if the execution of the device command did not result in data storage
+        if (event != null) {
+            EventPublisher publisher = this.serviceProvider.eventPublisher();
+            if (publisher != null) {
+                publisher.publish(event);
+            }
+        }
     }
 
     @Override
@@ -107,6 +128,10 @@ public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDesc
      */
     protected void addIssue (CompletionCode completionCode, Issue issue) {
         this.getExecutionLogger().addIssue(completionCode, issue, this.getComTaskExecution());
+        Optional<E> event = newEvent(issue);
+        if (event.isPresent()) {
+            publish(event.get());
+        }
     }
 
     @Override
@@ -115,7 +140,10 @@ public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDesc
         toJournalMessageDescription(builder, serverLogLevel);
         return builder.toString();
     }
-
+    // Needs to be overriden by subclasses for which 'data storage' events should be thrown;
+    protected Optional<E> newEvent(Issue issue){
+        return Optional.empty();
+    };
     protected abstract void toJournalMessageDescription(DescriptionBuilder builder, ComServer.LogLevel serverLogLevel);
 
     /**
@@ -128,5 +156,12 @@ public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDesc
      */
     protected boolean isJournalingLevelEnabled(ComServer.LogLevel serverLogLevel, ComServer.LogLevel minimumLevel) {
         return serverLogLevel.compareTo(minimumLevel) >= 0;
+    }
+
+    protected class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return serviceProvider.clock();
+        }
     }
 }

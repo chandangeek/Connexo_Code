@@ -42,6 +42,9 @@ import com.energyict.mdc.engine.impl.core.InboundJobExecutionDataProcessor;
 import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
+import com.energyict.mdc.engine.impl.monitor.*;
+import com.energyict.mdc.engine.monitor.InboundComPortMonitor;
+import com.energyict.mdc.engine.monitor.InboundComPortOperationalStatistics;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -115,6 +118,12 @@ public class InboundCommunicationHandlerTest {
     private static final long INBOUND_COMPORT_POOL_ID = DEVICE_ID + 1;
 
     @Mock
+    private InboundComPortOperationalStatisticsImpl operationalStatistics;
+    @Mock
+    private InboundComPortMonitorImpl inboundComPortMonitor;
+    @Mock
+    private ManagementBeanFactory managementBeanFactory;
+    @Mock
     private ComPortDiscoveryLogger testDiscoveryLogger;
     @Mock
     private ComServer comServer;
@@ -184,6 +193,7 @@ public class InboundCommunicationHandlerTest {
         when(this.serviceProvider.protocolPluggableService()).thenReturn(this.protocolPluggableService);
         when(this.serviceProvider.deviceConfigurationService()).thenReturn(this.deviceConfigurationService);
         when(this.serviceProvider.engineService()).thenReturn(this.engineService);
+        when(this.serviceProvider.managementBeanFactory()).thenReturn(this.managementBeanFactory);
         when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
         when(this.serviceProvider.transactionService()).thenReturn(this.transactionService);
         when(this.protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(anyString())).thenReturn(Collections.<InboundDeviceProtocolPluggableClass>emptyList());
@@ -194,6 +204,8 @@ public class InboundCommunicationHandlerTest {
         when(this.comPort.getId()).thenReturn(Long.valueOf(COMPORT_ID));
         when(this.comPort.getComPortPool()).thenReturn(this.comPortPool);
         when(this.comPort.getComServer()).thenReturn(this.comServer);
+        when(this.managementBeanFactory.findFor(any(InboundComPort.class))).thenReturn(Optional.of(this.inboundComPortMonitor));
+        when(this.inboundComPortMonitor.getOperationalStatistics()).thenReturn(this.operationalStatistics);
         this.handler = new TestInboundCommunicationHandler(this.comPort, this.comServerDAO, this.deviceCommandExecutor);
 
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);

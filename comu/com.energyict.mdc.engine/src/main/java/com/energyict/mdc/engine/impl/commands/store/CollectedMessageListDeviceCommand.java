@@ -3,14 +3,17 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.events.datastorage.CollectedMessageListEvent;
 import com.energyict.mdc.engine.impl.meterdata.*;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides functionality to store {@link DeviceMessage DeviceMessage}
@@ -20,7 +23,9 @@ import java.util.List;
  * Date: 21/03/13
  * Time: 16:40
  */
-public class CollectedMessageListDeviceCommand extends DeviceCommandImpl {
+public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<CollectedMessageListEvent> {
+
+    private final static String DESCRIPTION_TITLE = "Collected message data";
 
     private final DeviceProtocolMessageList deviceProtocolMessageList;
     private final List<OfflineDeviceMessage> allDeviceMessages;
@@ -80,9 +85,17 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl {
         }
     }
 
+    protected Optional<CollectedMessageListEvent> newEvent(Issue issue) {
+        CollectedMessageListEvent event  =  new CollectedMessageListEvent(new ComServerEventServiceProvider(), deviceProtocolMessageList);
+        if (issue != null){
+            event.setIssue(issue);
+        }
+        return Optional.of(event);
+    }
+
     @Override
     public String getDescriptionTitle() {
-        return "Collected message data";
+        return DESCRIPTION_TITLE;
     }
 
     private void executeMessage(ComServerDAO comServerDAO, CollectedMessage collectedMessage){

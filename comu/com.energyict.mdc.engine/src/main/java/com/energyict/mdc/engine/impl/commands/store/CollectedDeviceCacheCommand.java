@@ -8,7 +8,9 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.events.datastorage.CollectedDeviceCacheEvent;
 import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
@@ -21,7 +23,9 @@ import java.util.Optional;
  * Date: 31/08/12
  * Time: 16:22
  */
-public class CollectedDeviceCacheCommand extends DeviceCommandImpl {
+public class CollectedDeviceCacheCommand extends DeviceCommandImpl<CollectedDeviceCacheEvent> {
+
+    private final static String DESCRIPTION_TITLE = "Collected device cache";
 
     private final UpdatedDeviceCache deviceCache;
 
@@ -49,12 +53,10 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl {
                 }
             }
             else {
-                this.addIssue(
-                        CompletionCode.ConfigurationWarning,
-                        this.getIssueService().newWarning(
-                                this,
-                                MessageSeeds.COLLECTED_DEVICE_CACHE_FOR_UNKNOWN_DEVICE.getKey(),
-                                deviceCache.getDeviceIdentifier()));
+                this.addIssue(CompletionCode.ConfigurationWarning,
+                                     this.getIssueService().newWarning(this,
+                                                                MessageSeeds.COLLECTED_DEVICE_CACHE_FOR_UNKNOWN_DEVICE.getKey(),
+                                                                deviceCache.getDeviceIdentifier()));
             }
         }
     }
@@ -69,9 +71,17 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl {
         builder.addProperty("deviceIdentifier").append(this.deviceCache.getDeviceIdentifier());
     }
 
+    protected Optional<CollectedDeviceCacheEvent> newEvent(Issue issue) {
+        CollectedDeviceCacheEvent event  =  new CollectedDeviceCacheEvent(new ComServerEventServiceProvider(), deviceCache);
+        if (issue != null){
+            event.setIssue(issue);
+        }
+        return Optional.of(event);
+    }
+
     @Override
     public String getDescriptionTitle() {
-        return "Collected device cache";
+        return DESCRIPTION_TITLE;
     }
 
 }

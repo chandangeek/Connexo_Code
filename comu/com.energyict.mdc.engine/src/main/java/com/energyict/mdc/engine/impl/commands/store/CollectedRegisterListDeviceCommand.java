@@ -6,14 +6,15 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.events.datastorage.CollectedRegisterListEvent;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 
 import com.elster.jupiter.metering.readings.Reading;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Provides functionality to store {@link com.energyict.mdc.protocol.api.device.BaseRegister} data into the system.
@@ -22,7 +23,9 @@ import java.util.Map;
  * @since 21/01/13 - 9:16
  */
 
-public class CollectedRegisterListDeviceCommand extends DeviceCommandImpl {
+public class CollectedRegisterListDeviceCommand extends DeviceCommandImpl<CollectedRegisterListEvent> {
+
+    private final static String DESCRIPTION_TITLE = "Collected register data";
 
     private final CollectedRegisterList collectedRegisterList;
     private final MeterDataStoreCommand meterDataStoreCommand;
@@ -67,9 +70,17 @@ public class CollectedRegisterListDeviceCommand extends DeviceCommandImpl {
         }
     }
 
+    protected Optional<CollectedRegisterListEvent> newEvent(Issue issue) {
+        CollectedRegisterListEvent event  =  new CollectedRegisterListEvent(new ComServerEventServiceProvider(), collectedRegisterList);
+        if (issue != null){
+            event.setIssue(issue);
+        }
+        return Optional.of(event);
+    }
+
     @Override
     public String getDescriptionTitle() {
-        return "Collected register data";
+        return DESCRIPTION_TITLE;
     }
 
 }

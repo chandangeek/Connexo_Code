@@ -726,6 +726,8 @@ public final class ExecutionContext implements JournalEntryFactory {
             return serviceProvider.eventService();
         }
 
+        public EventPublisher eventPublisher() { return serviceProvider.eventPublisher(); }
+
     }
 
 }

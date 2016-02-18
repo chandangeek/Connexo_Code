@@ -12,6 +12,8 @@ import com.energyict.mdc.engine.impl.core.ScheduledJob;
  */
 public class RescheduleSuccessfulExecution extends RescheduleExecutionDeviceCommand {
 
+    private final static String DESCRIPTION_TITLE = "Reschedule task";
+
     public RescheduleSuccessfulExecution(ScheduledJob scheduledJob) {
         super(scheduledJob);
     }
@@ -23,7 +25,7 @@ public class RescheduleSuccessfulExecution extends RescheduleExecutionDeviceComm
 
     @Override
     public String getDescriptionTitle() {
-        return "Reschedule task";
+        return DESCRIPTION_TITLE;
     }
 
 }

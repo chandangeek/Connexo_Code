@@ -5,9 +5,12 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.NoLogBooksForDeviceEvent;
+import com.energyict.mdc.engine.impl.events.datastorage.CollectedNoLogBooksForDeviceEvent;
 import com.energyict.mdc.engine.impl.meterdata.NoLogBooksForDevice;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.issues.Issue;
+
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
@@ -17,18 +20,20 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
  * @since 14/12/12 - 9:15
  */
 
-public class CreateNoLogBooksForDeviceEvent extends DeviceCommandImpl {
+public class CreateNoLogBooksForDeviceEvent extends DeviceCommandImpl<CollectedNoLogBooksForDeviceEvent> {
 
-    private final DeviceIdentifier deviceIdentifier;
+    private final static String DESCRIPTION_TITLE = "No logbooks for device event";
+
+    private final NoLogBooksForDevice collectedDeviceData;
 
     public CreateNoLogBooksForDeviceEvent(NoLogBooksForDevice collectedDeviceData, ComTaskExecution comTaskExecution, ServiceProvider serviceProvider) {
         super(comTaskExecution, serviceProvider);
-        deviceIdentifier = collectedDeviceData.getDeviceIdentifier();
+        this.collectedDeviceData = collectedDeviceData;
     }
 
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
-        comServerDAO.signalEvent(EventType.NO_LOGBOOKS_FOR_DEVICE.topic(), new NoLogBooksForDeviceEvent(this.deviceIdentifier));
+        comServerDAO.signalEvent(EventType.NO_LOGBOOKS_FOR_DEVICE.topic(), new NoLogBooksForDeviceEvent(this.collectedDeviceData.getDeviceIdentifier()));
     }
 
     @Override
@@ -39,13 +44,21 @@ public class CreateNoLogBooksForDeviceEvent extends DeviceCommandImpl {
     @Override
     protected void toJournalMessageDescription(DescriptionBuilder builder, ComServer.LogLevel serverLogLevel) {
         if (isJournalingLevelEnabled(serverLogLevel, ComServer.LogLevel.INFO)) {
-            builder.addProperty("deviceIdentifier").append(this.deviceIdentifier);
+            builder.addProperty("deviceIdentifier").append(this.collectedDeviceData.getDeviceIdentifier());
         }
+    }
+
+    protected Optional<CollectedNoLogBooksForDeviceEvent> newEvent(Issue issue) {
+        CollectedNoLogBooksForDeviceEvent event  =  new CollectedNoLogBooksForDeviceEvent(new ComServerEventServiceProvider(), collectedDeviceData);
+        if (issue != null){
+            event.setIssue(issue);
+        }
+        return Optional.of(event);
     }
 
     @Override
     public String getDescriptionTitle() {
-        return "No logbooks for device event";
+        return DESCRIPTION_TITLE;
     }
 
 }

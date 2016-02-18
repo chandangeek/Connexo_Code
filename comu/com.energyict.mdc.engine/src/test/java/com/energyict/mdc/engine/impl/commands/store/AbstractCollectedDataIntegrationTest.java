@@ -44,6 +44,7 @@ import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.engine.impl.EngineModule;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.firmware.impl.FirmwareModule;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MdcIOModule;
@@ -306,6 +307,11 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
         @Override
         public NlsService nlsService() {
+            return null;
+        }
+
+        @Override
+        public EventPublisher eventPublisher() {
             return null;
         }
     }

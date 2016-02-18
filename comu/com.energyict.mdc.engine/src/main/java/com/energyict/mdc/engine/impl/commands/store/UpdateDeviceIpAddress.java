@@ -4,9 +4,13 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.events.datastorage.UpdateDeviceIpAddressEvent;
 import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
@@ -16,7 +20,9 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-16 (15:48)
  */
-public class UpdateDeviceIpAddress extends DeviceCommandImpl {
+public class UpdateDeviceIpAddress extends DeviceCommandImpl<UpdateDeviceIpAddressEvent> {
+
+    private final static String DESCRIPTION_TITLE = "Update device IP address";
 
     private DeviceIdentifier deviceIdentifier;
     private String ipAddress;
@@ -49,9 +55,17 @@ public class UpdateDeviceIpAddress extends DeviceCommandImpl {
         }
     }
 
+    protected Optional<UpdateDeviceIpAddressEvent> newEvent(Issue issue) {
+        UpdateDeviceIpAddressEvent event  =  new UpdateDeviceIpAddressEvent(new ComServerEventServiceProvider(), this.deviceIdentifier);
+        if (issue != null){
+            event.setIssue(issue);
+        }
+        return Optional.of(event);
+    }
+
     @Override
     public String getDescriptionTitle() {
-        return "Update device IP address";
+        return DESCRIPTION_TITLE;
     }
 
 }

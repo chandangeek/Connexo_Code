@@ -4,14 +4,19 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.events.datastorage.CollectedFirmwareVersionEvent;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
  * Provides functionality to update the FirmwareVersion(s) of a Device
  */
-public class CollectedFirmwareVersionDeviceCommand extends DeviceCommandImpl {
+public class CollectedFirmwareVersionDeviceCommand extends DeviceCommandImpl<CollectedFirmwareVersionEvent> {
+
+    private final static String DESCRIPTION_TITLE = "Collected firmware version";
 
     private final CollectedFirmwareVersion collectedFirmwareVersions;
     private final ComTaskExecution comTaskExecution;
@@ -39,8 +44,16 @@ public class CollectedFirmwareVersionDeviceCommand extends DeviceCommandImpl {
         return fwVersion -> builder.addProperty(propertyName).append(fwVersion);
     }
 
+    protected Optional<CollectedFirmwareVersionEvent> newEvent(Issue issue) {
+        CollectedFirmwareVersionEvent event  =  new CollectedFirmwareVersionEvent(new ComServerEventServiceProvider(), collectedFirmwareVersions);
+        if (issue != null){
+            event.setIssue(issue);
+        }
+        return Optional.of(event);
+    }
+
     @Override
     public String getDescriptionTitle() {
-        return "Collected firmware version";
+        return DESCRIPTION_TITLE;
     }
 }

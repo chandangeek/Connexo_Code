@@ -16,6 +16,8 @@ import com.energyict.mdc.engine.config.ComServer;
  */
 public class UnlockScheduledJobDeviceCommand extends DeviceCommandImpl {
 
+    private final static String DESCRIPTION_TITLE = "Unlock task";
+
     private final ScheduledJob scheduledJob;
 
     public UnlockScheduledJobDeviceCommand(ScheduledJob scheduledJob, ServiceProvider serviceProvider) {
@@ -44,7 +46,7 @@ public class UnlockScheduledJobDeviceCommand extends DeviceCommandImpl {
 
     @Override
     public String getDescriptionTitle() {
-        return "Unlock task";
+        return DESCRIPTION_TITLE;
     }
 
 }

@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
@@ -24,7 +25,7 @@ public class NoDeviceCommandServices implements DeviceCommand.ServiceProvider {
 
     @Override
     public Clock clock() {
-        return null;
+        return Clock.systemDefaultZone();
     }
 
     @Override
@@ -44,6 +45,11 @@ public class NoDeviceCommandServices implements DeviceCommand.ServiceProvider {
 
     @Override
     public NlsService nlsService() {
+        return null;
+    }
+
+    @Override
+    public EventPublisher eventPublisher() {
         return null;
     }
 }
