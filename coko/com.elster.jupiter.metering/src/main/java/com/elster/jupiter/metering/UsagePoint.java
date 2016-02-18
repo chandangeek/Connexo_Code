@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
-
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -107,12 +106,6 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
     Optional<UsagePointConfiguration> getConfiguration(Instant time);
 
     /**
-     * @deprecated This is not the type of method that we want on a public API, the object should be in charge of its version number
-     */
-    @Deprecated
-    void touch();
-
-    /**
      * Applies the specified {@link MetrologyConfiguration} to this UsagePoint
      * from this point in time onward.
      *
@@ -160,6 +153,8 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
     List<MetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period);
 
     void removeMetrologyConfiguration(Instant when);
+
+    UsagePointCustomPropertySetExtension forCustomProperties();
 
     interface UsagePointConfigurationBuilder {
 
