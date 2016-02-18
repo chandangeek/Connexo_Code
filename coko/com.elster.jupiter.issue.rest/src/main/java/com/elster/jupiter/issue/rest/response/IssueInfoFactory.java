@@ -1,7 +1,6 @@
 package com.elster.jupiter.issue.rest.response;
 
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
-import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
 import com.elster.jupiter.issue.share.entity.Issue;
 
@@ -15,6 +14,6 @@ public class IssueInfoFactory {
     }
 
     public List<IssueInfo<? extends DeviceInfo, ? extends Issue>> asInfos(List<? extends Issue> issues) {
-        return issues.stream().map(issue -> this.asInfo(issue, DeviceShortInfo.class)).collect(Collectors.toList());
+        return issues.stream().map(issue -> this.asInfo(issue, DeviceInfo.class)).collect(Collectors.toList());
     }
 }
