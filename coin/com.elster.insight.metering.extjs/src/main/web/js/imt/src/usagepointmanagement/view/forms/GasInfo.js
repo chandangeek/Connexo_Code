@@ -24,24 +24,28 @@ Ext.define('Imt.usagepointmanagement.view.forms.GasInfo', {
         {
             xtype: 'checkbox',
             name: 'grounded',
-            itemId: 'up-grounded-measurefield',
+            itemId: 'up-grounded-checkbox',
             fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
         },
         {
             xtype: 'measurefield',
             name: 'pressure',
             itemId: 'up-pressure-measurefield',
-            fieldLabel: Uni.I18n.translate('general.label.pressure', 'IMT', 'Pressure')
+            fieldLabel: Uni.I18n.translate('general.label.pressure', 'IMT', 'Pressure'),
+            store: 'Imt.usagepointmanagement.store.measurementunits.Pressure',
+            value: {value: null, unit: 'Pa', multiplier: 0}
         },
         {
             xtype: 'measurefield',
             name: 'physicalCapacity',
             itemId: 'up-physicalCapacity-measurefield',
-            fieldLabel: Uni.I18n.translate('general.label.physicalCapacity', 'IMT', 'Physical capacity')
+            fieldLabel: Uni.I18n.translate('general.label.physicalCapacity', 'IMT', 'Physical capacity'),
+            store: 'Imt.usagepointmanagement.store.measurementunits.Volume',
+            value: {value: null, unit: 'm3/h', multiplier: 0}
         },
         {
             xtype: 'limitercheckbox',
-            itemId: 'up-limiter-measurefield'
+            itemId: 'up-limiter-checkbox'
         },
         {
             xtype: 'loadlimitertypefield',
@@ -51,6 +55,8 @@ Ext.define('Imt.usagepointmanagement.view.forms.GasInfo', {
         {
             xtype: 'loadlimitfield',
             itemId: 'up-loadLimit-measurefield',
+            store: 'Imt.usagepointmanagement.store.measurementunits.Volume',
+            value: {value: null, unit: 'm3/h', multiplier: 0},
             hidden: true
         },
         {
@@ -89,7 +95,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.GasInfo', {
         {
             xtype: 'checkbox',
             name: 'interruptible',
-            itemId: 'up-interruptible-measurefield',
+            itemId: 'up-interruptible-checkbox',
             fieldLabel: Uni.I18n.translate('general.label.interruptible', 'IMT', 'Interruptible')
         }
     ]

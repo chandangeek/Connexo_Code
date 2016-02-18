@@ -147,7 +147,8 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             }
             me.doRequest({
                 params: validationParams,
-                success: changeStep
+                success: changeStep,
+                failure: changeStep
             });
         } else {
             changeStep();
