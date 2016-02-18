@@ -167,7 +167,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         });
     },
 
-    onBulkActionEvent: function (issueType) {
+    onBulkActionEvent: function () {
         var widget = Ext.widget('bulk-browse');
         this.getApplication().fireEvent('changecontentevent', widget);
     },
@@ -407,8 +407,8 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         return requestData;
     },
 
-    onWizardCancelledEvent: function (issueType) {
-        this.getController('Uni.controller.history.Router').getRoute('workspace/' + issueType + 'issues').forward();
+    onWizardCancelledEvent: function () {
+        this.getController('Uni.controller.history.Router').getRoute('workspace/issues').forward();
     },
 
     setBulkActionListActiveItem: function (wizard) {

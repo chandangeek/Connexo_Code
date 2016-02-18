@@ -87,14 +87,22 @@ Ext.define('Isu.view.issues.ActionMenu', {
     onLoad: function () {
         var me = this,
             issueId = me.record.getId(),
+            issueType = me.record.get('issueType').uid,
             deviceMRID,
             comTaskId,
             comTaskSessionId,
             connectionTaskId,
-            comSessionId;
+            comSessionId,
+            addCommentsAllowed = false;
 
         if (!me.router) {
             return
+        }
+
+        if (issueType == 'datavalidation' && me.dataValidationActivated) {
+            addCommentsAllowed = true;
+        } else if (issueType == 'datacollection' && me.dataCollectionActivated) {
+            addCommentsAllowed = true;
         }
 
         Ext.suspendLayouts();
@@ -143,7 +151,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
         });
 
         // add predefined actions
-        if (me.predefinedItems && me.predefinedItems.length) {
+        if (addCommentsAllowed && me.predefinedItems && me.predefinedItems.length) {
             Ext.Array.each(me.predefinedItems, function (menuItem) {
                 switch (menuItem.action) {
                     case 'addComment':

@@ -70,7 +70,9 @@ Ext.define('Isu.controller.Overview', {
                 callback: function () {
                     me.getOverview().down('#overview-no-issues-found-panel').setVisible(!this.getCount());
                     me.getOverview().down('#sections-panel').setVisible(this.getCount());
+                    Ext.suspendLayouts();
                     sectionPanel.fillSection(this, section);
+                    Ext.resumeLayouts(true);
                 }
             });
         });
