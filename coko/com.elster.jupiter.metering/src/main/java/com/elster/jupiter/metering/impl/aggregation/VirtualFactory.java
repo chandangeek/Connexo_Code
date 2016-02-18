@@ -13,7 +13,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-05 (08:38)
  */
-interface VirtualFactory {
+public interface VirtualFactory {
 
     /**
      * Returns a new {@link VirtualReadingTypeRequirement} for the specified

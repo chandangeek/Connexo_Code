@@ -58,15 +58,15 @@ public class DataAggregationServiceImplCalculateTest {
      * Tests the simplest case:
      * Metrology configuration
      *    requirements:
-     *       A+ ::= any Wh with flow = forward (aka consumption)
-     *       A- ::= any Wh with flow = reverse (aka production)
+     *       A- ::= any Wh with flow = forward (aka consumption)
+     *       A+ ::= any Wh with flow = reverse (aka production)
      *    deliverables:
-     *       netConsumption (15m kWh) ::= A+ + A-
+     *       netConsumption (15m kWh) ::= A- + A+
      * Device:
      *    meter activations:
      *       Jan 1st 2015 -> forever
-     *           A+ -> 15 min kWh
      *           A- -> 15 min kWh
+     *           A+ -> 15 min kWh
      * In other words, simple sum of 2 requirements that are provided
      * by exactly one matching channel with a single meter activation.
      */
@@ -75,9 +75,9 @@ public class DataAggregationServiceImplCalculateTest {
         DataAggregationServiceImpl service = this.testInstance();
         // Setup configuration requirements
         ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
-        when(consumption.getName()).thenReturn("A+");
+        when(consumption.getName()).thenReturn("A-");
         ReadingTypeRequirement production = mock(ReadingTypeRequirement.class);
-        when(production.getName()).thenReturn("A-");
+        when(production.getName()).thenReturn("A+");
         when(this.configuration.getRequirements()).thenReturn(Arrays.asList(consumption, production));
         // Setup configuration deliverables
         ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
@@ -89,8 +89,8 @@ public class DataAggregationServiceImplCalculateTest {
         doReturn(
             new OperationNode(
                     Operator.PLUS,
-                    new ReadingTypeRequirementNode(consumption),
-                    new ReadingTypeRequirementNode(production)))
+                    new ReadingTypeRequirementNode(production),
+                    new ReadingTypeRequirementNode(consumption)))
             .when(formula).expressionNode();
         when(netConsumption.getFormula()).thenReturn(formula);
         // Setup contract deliverables
