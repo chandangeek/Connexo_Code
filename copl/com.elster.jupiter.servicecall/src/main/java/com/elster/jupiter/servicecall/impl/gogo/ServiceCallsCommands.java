@@ -4,6 +4,7 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -11,6 +12,9 @@ import com.elster.jupiter.transaction.TransactionService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
@@ -20,7 +24,8 @@ import static java.util.stream.Collectors.toList;
 @Component(name = "com.elster.jupiter.servicecall.gogo", service = ServiceCallsCommands.class,
         property = {"osgi.command.scope=scs",
                 "osgi.command.function=serviceCallTypes",
-                "osgi.command.function=createServiceCallType"
+                "osgi.command.function=createServiceCallType",
+                "osgi.command.function=customPropertySets"
         }, immediate = true)
 public class ServiceCallsCommands {
 
@@ -60,7 +65,7 @@ public class ServiceCallsCommands {
     }
 
     public void createServiceCallType() {
-        System.out.println("Usage: createServiceCallType <name> <version name>");
+        System.out.println("Usage: createServiceCallType <name> <version name> <optional:loglevel> <optional:cps ids>");
     }
 
     public void createServiceCallType(String name, String versionName) {
@@ -70,5 +75,26 @@ public class ServiceCallsCommands {
             serviceCallService.createServiceCallType(name, versionName).customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).get(0)).add();
             context.commit();
         }
+    }
+
+    public void createServiceCallType(String name, String versionName, String logLevel, Integer... cpsIds) {
+        List<Integer> ids = Arrays.asList(cpsIds);
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallService.ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName).logLevel(LogLevel.valueOf(logLevel));
+
+            customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).stream()
+                    .filter(cps -> ids.contains(cps.getId()))
+                    .forEach(builder::customPropertySet);
+            builder.add();
+            context.commit();
+        }
+    }
+
+    public void customPropertySets() {
+        customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).stream()
+                .map(cps -> cps.getId() + " " + cps.getCustomPropertySet().getName())
+                .forEach(System.out::println);
     }
 }
