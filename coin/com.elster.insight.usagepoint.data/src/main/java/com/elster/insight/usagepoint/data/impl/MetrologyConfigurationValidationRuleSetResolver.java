@@ -1,15 +1,15 @@
 package com.elster.insight.usagepoint.data.impl;
 
-import java.util.Collections;
-import java.util.List;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetResolver;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationRuleSetResolver;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -29,9 +29,10 @@ public class MetrologyConfigurationValidationRuleSetResolver implements Validati
     @Override
     public List<ValidationRuleSet> resolve(MeterActivation meterActivation) {
         if (meterActivation.getUsagePoint().isPresent()) {
-            return usagePointConfigurationService.findMetrologyConfigurationForUsagePoint(meterActivation.getUsagePoint().get())
-            .map(metrologyConfiguration -> metrologyConfiguration.getValidationRuleSets())
-            .orElse(Collections.emptyList());
+            return usagePointConfigurationService
+                    .findMetrologyConfigurationForUsagePoint(meterActivation.getUsagePoint().get())
+                    .map(metrologyConfiguration -> this.usagePointConfigurationService.getValidationRuleSets(metrologyConfiguration))
+                    .orElse(Collections.emptyList());
         }
         else {
             return Collections.emptyList();

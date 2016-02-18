@@ -1,15 +1,15 @@
 package com.elster.insight.usagepoint.data.impl;
 
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.insight.usagepoint.data.UsagePointCustomPropertySetExtension;
-import com.elster.insight.usagepoint.data.impl.exceptions.UsagePointCustomPropertySetValuesManageException;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.insight.usagepoint.data.UsagePointCustomPropertySetExtension;
+import com.elster.insight.usagepoint.data.impl.exceptions.UsagePointCustomPropertySetValuesManageException;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
