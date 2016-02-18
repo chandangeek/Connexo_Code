@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.metering.impl.RecordSpecs;
+
 /**
  * Defines a set of constants that will be used in the SQL
  * that will be generated to do data aggregation.
@@ -18,52 +20,57 @@ final class SqlConstants {
          * The identifier of the TimeSeries
          * @see com.elster.jupiter.ids.TimeSeries#getId()
          */
-        ID("id"),
+        ID("id", "TIMESERIESID"),
 
         /**
          * The timestamp of a TimeSeries interval.
          * @see com.elster.jupiter.ids.TimeSeriesEntry#getTimeStamp()
          */
-        TIMESTAMP("timestamp"),
+        TIMESTAMP("timestamp", "UTCSTAMP"),
 
         /**
          * The version of a TimeSeries interval.
          * @see com.elster.jupiter.ids.TimeSeriesEntry#getVersion()
          */
-        VERSIONCOUNT("versioncount"),
+        VERSIONCOUNT("versioncount", "VERSIONCOUNT"),
 
         /**
          * The version of a TimeSeries interval.
          * @see com.elster.jupiter.ids.TimeSeriesEntry#getRecordDateTime()
          */
-        RECORDTIME("recordtime"),
+        RECORDTIME("recordtime", "RECORDTIME"),
 
         /**
          * The local date of a TimeSeries interval
          */
-        LOCALDATE("localdate"),
+        LOCALDATE("localdate", "LOCALDATE"),
 
         /**
          * The version of a TimeSeries interval.
          * @see com.elster.jupiter.ids.TimeSeriesEntry#getLong(int)
          */
-        PROCESSSTATUS("processStatus"),
+        PROCESSSTATUS("processStatus", RecordSpecs.PROCESS_STATUS),
 
         /**
          * The value of a TimeSeries interval.
          * @see com.elster.jupiter.ids.TimeSeriesEntry#getValues()
          */
-        VALUE("value");
-
+        VALUE("Value", RecordSpecs.VALUE);
 
         private final String sqlName;
+        private final String fieldSpecName;
 
-        TimeSeriesColumnNames(String sqlName) {
+        TimeSeriesColumnNames(String sqlName, String fieldSpecName) {
             this.sqlName = sqlName;
+            this.fieldSpecName = fieldSpecName;
         }
 
         String sqlName() {
             return this.sqlName;
+        }
+
+        String fieldSpecName() {
+            return this.fieldSpecName;
         }
 
         static String[] names() {

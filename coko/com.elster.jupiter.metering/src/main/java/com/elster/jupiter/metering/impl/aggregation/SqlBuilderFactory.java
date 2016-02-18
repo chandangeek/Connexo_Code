@@ -6,7 +6,7 @@ package com.elster.jupiter.metering.impl.aggregation;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-11 (10:01)
  */
-interface SqlBuilderFactory {
+public interface SqlBuilderFactory {
 
     /**
      * Returns a new ClauseAwareSqlBuilder that is ready to

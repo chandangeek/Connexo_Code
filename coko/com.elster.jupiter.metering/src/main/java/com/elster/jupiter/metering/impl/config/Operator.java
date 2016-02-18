@@ -1,13 +1,39 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.util.sql.SqlBuilder;
+
 /**
- * Created by igh on 4/02/2016.
+ * Models the supported mathematical operators that can be used in {@link com.elster.jupiter.metering.config.Formula}'s
+ * of {@link com.elster.jupiter.metering.config.ReadingTypeDeliverable}s.
+ *
+ * @author Isabelle Gheysens (igh)
+ * @since 2016-02-04
  */
 public enum Operator {
-    PLUS(1),
-    MINUS(2),
-    MULTIPLY(3),
-    DIVIDE(4);
+    PLUS(1) {
+        @Override
+        public void appendTo(SqlBuilder sqlBuilder) {
+            sqlBuilder.append(" + ");
+        }
+    },
+    MINUS(2) {
+        @Override
+        public void appendTo(SqlBuilder sqlBuilder) {
+            sqlBuilder.append(" - ");
+        }
+    },
+    MULTIPLY(3) {
+        @Override
+        public void appendTo(SqlBuilder sqlBuilder) {
+            sqlBuilder.append(" * ");
+        }
+    },
+    DIVIDE(4) {
+        @Override
+        public void appendTo(SqlBuilder sqlBuilder) {
+            sqlBuilder.append(" / ");
+        }
+    };
 
     private final int id;
 
@@ -18,5 +44,7 @@ public enum Operator {
     public int getId() {
         return id;
     }
+
+    public abstract void appendTo(SqlBuilder sqlBuilder);
 
 }

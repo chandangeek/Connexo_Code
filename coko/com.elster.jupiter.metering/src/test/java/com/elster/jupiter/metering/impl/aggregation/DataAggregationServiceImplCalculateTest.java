@@ -11,25 +11,34 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.OperationNode;
 import com.elster.jupiter.metering.impl.config.Operator;
 import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.Range;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -53,6 +62,30 @@ public class DataAggregationServiceImplCalculateTest {
     private MetrologyConfiguration configuration;
     @Mock
     private MetrologyContract contract;
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    private ServerMeteringService meteringService;
+    @Mock
+    private Connection connection;
+    @Mock
+    private PreparedStatement preparedStatement;
+    @Mock
+    private ResultSet resultSet;
+    @Mock
+    private SqlBuilderFactory sqlBuilderFactory;
+    @Mock
+    private ClauseAwareSqlBuilder sqlBuilder;
+
+    @Before
+    public void initializeMocks() throws SQLException {
+        when(this.sqlBuilderFactory.newClauseAwareSqlBuilder()).thenReturn(this.sqlBuilder);
+        when(this.sqlBuilder.finish()).thenReturn(new SqlBuilder());
+        when(this.meteringService.getDataModel()).thenReturn(this.dataModel);
+        when(this.dataModel.getConnection(true)).thenReturn(this.connection);
+        when(this.connection.prepareStatement(anyString())).thenReturn(this.preparedStatement);
+        when(this.preparedStatement.executeQuery()).thenReturn(this.resultSet);
+    }
 
     /**
      * Tests the simplest case:
@@ -71,7 +104,7 @@ public class DataAggregationServiceImplCalculateTest {
      * by exactly one matching channel with a single meter activation.
      */
     @Test
-    public void simplestNetConsumptionOfProsumer() {
+    public void simplestNetConsumptionOfProsumer() throws SQLException {
         DataAggregationServiceImpl service = this.testInstance();
         // Setup configuration requirements
         ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
@@ -120,6 +153,11 @@ public class DataAggregationServiceImplCalculateTest {
         verify(this.virtualFactory).deliverableFor(any(ReadingTypeDeliverableForMeterActivation.class), eq(IntervalLength.MINUTE15));
         verify(this.virtualFactory).allRequirements();
         verify(this.virtualFactory).allDeliverables();
+        verify(this.dataModel).getConnection(true);
+        verify(this.resultSet).next();
+        verify(this.resultSet).close();
+        verify(this.preparedStatement).close();
+        verify(this.connection).close();
     }
 
     private Instant jan1st2015() {
@@ -145,7 +183,7 @@ public class DataAggregationServiceImplCalculateTest {
     }
 
     private DataAggregationServiceImpl testInstance() {
-        return new DataAggregationServiceImpl(this.virtualFactory);
+        return new DataAggregationServiceImpl(this.meteringService, this.virtualFactory, this.sqlBuilderFactory);
     }
 
 }

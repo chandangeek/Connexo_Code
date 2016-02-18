@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
 import com.elster.jupiter.metering.impl.config.ExpressionNode;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.util.Optional;
 
@@ -87,6 +88,16 @@ class VirtualRequirementNode extends AbstractNode {
     }
 
     /**
+     * Ensures that the {@link ReadingTypeRequirement} is virtualized
+     * @see #virtualize()
+     */
+    private void ensureVirtualized() {
+        if (this.virtualRequirement == null) {
+            this.virtualize();
+        }
+    }
+
+    /**
      * Creates the {@link VirtualReadingTypeRequirement} from the current target interval.
      * Postpone calls as long as possible and avoid changing the target interval after
      * calls to this method.
@@ -104,6 +115,22 @@ class VirtualRequirementNode extends AbstractNode {
     @Override
     public <T> T accept(ServerVisitor<T> visitor) {
         return visitor.visitVirtualRequirement(this);
+    }
+
+    /**
+     * Appends the necessary sql constructs to the specified {@link SqlBuilder}
+     * to get the value of this nodes's {@link ReadingTypeRequirement}.
+     *
+     * @param sqlBuilder The SqlBuilder
+     */
+    void appendTo(SqlBuilder sqlBuilder) {
+        this.ensureVirtualized();
+        this.virtualRequirement.appendReferenceTo(sqlBuilder);
+    }
+
+    String sqlName() {
+        this.ensureVirtualized();
+        return this.virtualRequirement.sqlName();
     }
 
 }

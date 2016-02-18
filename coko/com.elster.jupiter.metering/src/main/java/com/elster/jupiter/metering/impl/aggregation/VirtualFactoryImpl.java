@@ -4,6 +4,8 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 
+import org.osgi.service.component.annotations.Component;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +18,8 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-09 (15:53)
  */
+@Component(name = "com.elster.jupiter.metering.aggregation.impl.VirtualFactory", service = {VirtualFactory.class})
+@SuppressWarnings("unused")
 public class VirtualFactoryImpl implements VirtualFactory {
 
     private final Map<MeterActivation, VirtualFactory> factoriesPerMeterActivation = new HashMap<>();

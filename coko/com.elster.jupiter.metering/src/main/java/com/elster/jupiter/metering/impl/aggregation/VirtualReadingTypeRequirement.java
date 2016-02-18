@@ -62,11 +62,20 @@ public class VirtualReadingTypeRequirement {
         return this.requirement.getName() + " for " + this.deliverable.getName() + " in " + this.prettyPrintMeterActivationPeriod();
     }
 
-    void appendTo(ClauseAwareSqlBuilder sqlBuilder) {
+    private String prettyPrintMeterActivationPeriod() {
+        return this.meterActivation.getRange().toString();
+    }
+
+    void appendDefinitionTo(ClauseAwareSqlBuilder sqlBuilder) {
         SqlBuilder withClauseBuilder = sqlBuilder.with(this.sqlName(), Optional.of(sqlComment()), SqlConstants.TimeSeriesColumnNames.names());
-        // Todo: 1. clip the MeterActivation's range to the requested period
-        // Todo: 2. replace hard coded field spec names once this is moved into the metering bundle
-        withClauseBuilder.add(this.getPreferredChannel().getTimeSeries().getRawValuesSql(this.meterActivation.getRange(), "ProcessStatus", "Value"));
+        // Todo: clip the MeterActivation's range to the requested period
+        withClauseBuilder.add(
+                this.getPreferredChannel()
+                        .getTimeSeries()
+                        .getRawValuesSql(
+                                this.meterActivation.getRange(),
+                                SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.fieldSpecName(),
+                                SqlConstants.TimeSeriesColumnNames.VALUE.fieldSpecName()));
     }
 
     private ChannelContract getPreferredChannel() {
@@ -83,8 +92,10 @@ public class VirtualReadingTypeRequirement {
                     .orElseThrow(() -> new IllegalStateException("Calculation of preferred channel failed before"));
     }
 
-    private String prettyPrintMeterActivationPeriod() {
-        return this.meterActivation.getRange().toString();
+    void appendReferenceTo(SqlBuilder sqlBuilder) {
+        sqlBuilder.append(this.sqlName());
+        sqlBuilder.append(".");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
     }
 
 }

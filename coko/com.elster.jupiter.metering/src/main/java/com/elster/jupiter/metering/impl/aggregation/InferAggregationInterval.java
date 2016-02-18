@@ -5,8 +5,6 @@ import com.elster.jupiter.metering.impl.config.AbstractNode;
 import com.elster.jupiter.metering.impl.config.ConstantNode;
 import com.elster.jupiter.metering.impl.config.FunctionCallNode;
 import com.elster.jupiter.metering.impl.config.OperationNode;
-import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableNode;
-import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +23,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-08 (12:13)
  */
-public class InferAggregationInterval implements ServerExpressionNode.ServerVisitor<IntervalLength> {
+public class InferAggregationInterval extends VirtualVisitor<IntervalLength> {
 
     private final IntervalLength requestedInterval;
 
@@ -35,28 +33,8 @@ public class InferAggregationInterval implements ServerExpressionNode.ServerVisi
     }
 
     @Override
-    public IntervalLength visitRequirement(ReadingTypeRequirementNode requirement) {
-        this.unexpectedRequirementNode();
-        return null;    // Above will have thrown an exception so merely satisfying the compiler here
-    }
-
-    private void unexpectedRequirementNode() throws IllegalArgumentException {
-        throw new IllegalArgumentException("Not expecting formulas to contain actual requirement nodes, invoke this component when those have been replaced with VirtualReadingTypeRequirement");
-    }
-
-    @Override
     public IntervalLength visitVirtualRequirement(VirtualRequirementNode node) {
         return node.getPreferredInterval();
-    }
-
-    @Override
-    public IntervalLength visitDeliverable(ReadingTypeDeliverableNode deliverable) {
-        this.unexpectedDeliverableNode();
-        return null;    // Above will have thrown an exception so merely satisfying the compiler here
-    }
-
-    private IntervalLength unexpectedDeliverableNode() {
-        throw new IllegalArgumentException("Not expecting formulas to contain actual deliverable nodes, invoke this component when those have been replaced with VirtualReadingTypeDeliverable");
     }
 
     @Override
@@ -71,12 +49,12 @@ public class InferAggregationInterval implements ServerExpressionNode.ServerVisi
     }
 
     @Override
-    public IntervalLength visitOperation(OperationNode operatorNode) {
-        List<AbstractNode> operands = Arrays.asList(operatorNode.getLeftOperand(), operatorNode.getRightOperand());
+    public IntervalLength visitOperation(OperationNode operationNode) {
+        List<AbstractNode> operands = Arrays.asList(operationNode.getLeftOperand(), operationNode.getRightOperand());
         return this.visitChildren(
                 operands,
                 () -> new UnsupportedOperationException(
-                        "The 2 operands for " + operatorNode.getOperator().name() + " cannot support the same interval"));
+                        "The 2 operands for " + operationNode.getOperator().name() + " cannot support the same interval"));
     }
 
     @Override
@@ -144,7 +122,7 @@ public class InferAggregationInterval implements ServerExpressionNode.ServerVisi
      * {@link VirtualReadingTypeRequirement} if none of the backing channels
      * are capable of providing that interval.
      */
-    private class CheckEnforceAggregationInterval implements ServerExpressionNode.ServerVisitor<Boolean> {
+    private class CheckEnforceAggregationInterval extends VirtualVisitor<Boolean> {
         private final IntervalLength interval;
 
         private CheckEnforceAggregationInterval(IntervalLength interval) {
@@ -171,20 +149,8 @@ public class InferAggregationInterval implements ServerExpressionNode.ServerVisi
         }
 
         @Override
-        public Boolean visitRequirement(ReadingTypeRequirementNode requirement) {
-            unexpectedRequirementNode();
-            return Boolean.FALSE;    // Above will have thrown an exception so merely satisfying the compiler here
-        }
-
-        @Override
         public Boolean visitVirtualRequirement(VirtualRequirementNode requirement) {
             return requirement.supportsInterval(this.getInterval());
-        }
-
-        @Override
-        public Boolean visitDeliverable(ReadingTypeDeliverableNode deliverable) {
-            unexpectedRequirementNode();
-            return Boolean.FALSE;    // Above will have thrown an exception so merely satisfying the compiler here
         }
 
         @Override
@@ -194,8 +160,8 @@ public class InferAggregationInterval implements ServerExpressionNode.ServerVisi
         }
 
         @Override
-        public Boolean visitOperation(OperationNode operatorNode) {
-            return operatorNode.getLeftOperand().accept(this) && operatorNode.getRightOperand().accept(this);
+        public Boolean visitOperation(OperationNode operationNode) {
+            return operationNode.getLeftOperand().accept(this) && operationNode.getRightOperand().accept(this);
         }
 
         @Override
@@ -210,7 +176,7 @@ public class InferAggregationInterval implements ServerExpressionNode.ServerVisi
      *
      * @see CheckEnforceAggregationInterval
      */
-    private class EnforceAggregationInterval implements ServerExpressionNode.ServerVisitor<Void> {
+    private class EnforceAggregationInterval extends VirtualVisitor<Void> {
         private final IntervalLength interval;
 
         private EnforceAggregationInterval(IntervalLength interval) {
@@ -231,21 +197,9 @@ public class InferAggregationInterval implements ServerExpressionNode.ServerVisi
         }
 
         @Override
-        public Void visitRequirement(ReadingTypeRequirementNode requirement) {
-            unexpectedRequirementNode();
-            return null;    // Above will have thrown an exception so merely satisfying the compiler here
-        }
-
-        @Override
         public Void visitVirtualRequirement(VirtualRequirementNode requirement) {
             requirement.setTargetInterval(this.interval);
             return null;
-        }
-
-        @Override
-        public Void visitDeliverable(ReadingTypeDeliverableNode deliverable) {
-            unexpectedRequirementNode();
-            return null;    // Above will have thrown an exception so merely satisfying the compiler here
         }
 
         @Override
@@ -255,9 +209,9 @@ public class InferAggregationInterval implements ServerExpressionNode.ServerVisi
         }
 
         @Override
-        public Void visitOperation(OperationNode operatorNode) {
-            operatorNode.getLeftOperand().accept(this);
-            operatorNode.getRightOperand().accept(this);
+        public Void visitOperation(OperationNode operationNode) {
+            operationNode.getLeftOperand().accept(this);
+            operationNode.getRightOperand().accept(this);
             return null;
         }
 
@@ -267,4 +221,5 @@ public class InferAggregationInterval implements ServerExpressionNode.ServerVisi
             return null;
         }
     }
+
 }

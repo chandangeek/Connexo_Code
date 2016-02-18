@@ -5,8 +5,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
-import java.util.Optional;
-
 /**
  * Represents a {@link ReadingTypeDeliverable} for a {@link MeterActivation}.
  *
@@ -28,8 +26,18 @@ class VirtualReadingTypeDeliverable {
         return this.deliverable.getReadingType();
     }
 
-    void appendTo(ClauseAwareSqlBuilder sqlBuilder) {
-        SqlBuilder withClauseBuilder = sqlBuilder.with("ts7", Optional.empty(), "id", "value", "timestamp", "localdate");
+    void appendDefinitionTo(ClauseAwareSqlBuilder sqlBuilder) {
+        this.deliverable.appendDefinitionTo(sqlBuilder);
+    }
+
+    String sqlName() {
+        return this.deliverable.sqlName();
+    }
+
+    void appendReferenceTo(SqlBuilder sqlBuilder) {
+        sqlBuilder.append(this.sqlName());
+        sqlBuilder.append(".");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
     }
 
 }

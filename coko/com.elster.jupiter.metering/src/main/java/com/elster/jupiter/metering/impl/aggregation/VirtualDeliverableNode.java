@@ -1,8 +1,10 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
 import com.elster.jupiter.metering.impl.config.ExpressionNode;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 /**
  * Provides an implementation for the {@link ExpressionNode} interface
@@ -37,6 +39,16 @@ class VirtualDeliverableNode extends AbstractNode {
         this.targetInterval = targetInterval;
     }
 
+    /**
+     * Ensures that the {@link ReadingTypeRequirement} is virtualized
+     * @see #virtualize()
+     */
+    private void ensureVirtualized() {
+        if (this.virtualDeliverable == null) {
+            this.virtualize();
+        }
+    }
+
     private void virtualize() {
         this.virtualDeliverable = this.virtualFactory.deliverableFor(this.deliverable, this.targetInterval);
     }
@@ -49,6 +61,22 @@ class VirtualDeliverableNode extends AbstractNode {
     @Override
     public <T> T accept(ServerVisitor<T> visitor) {
         return visitor.visitVirtualDeliverable(this);
+    }
+
+    /**
+     * Appends the necessary sql constructs to the specified {@link SqlBuilder}
+     * to get the value of this nodes's {@link ReadingTypeRequirement}.
+     *
+     * @param sqlBuilder The SqlBuilder
+     */
+    void appendTo(SqlBuilder sqlBuilder) {
+        this.ensureVirtualized();
+        this.virtualDeliverable.appendReferenceTo(sqlBuilder);
+    }
+
+    String sqlName() {
+        this.ensureVirtualized();
+        return this.virtualDeliverable.sqlName();
     }
 
 }

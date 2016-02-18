@@ -7,16 +7,25 @@ import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.Range;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,10 +37,14 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-04 (12:56)
  */
+@Component(name = "com.elster.jupiter.metering.aggregation", service = {DataAggregationService.class})
 public class DataAggregationServiceImpl implements DataAggregationService, ReadingTypeDeliverableForMeterActivationProvider {
 
+    private ServerMeteringService meteringService;
     private VirtualFactory virtualFactory;
+    private SqlBuilderFactory sqlBuilderFactory;
     private Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation;
+    private ClauseAwareSqlBuilder sqlBuilder;
 
     // For OSGi only
     public DataAggregationServiceImpl() {
@@ -40,9 +53,16 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
 
     // For testing purposes only
     @Inject
-    public DataAggregationServiceImpl(VirtualFactory virtualFactory) {
+    public DataAggregationServiceImpl(ServerMeteringService meteringService, VirtualFactory virtualFactory, SqlBuilderFactory sqlBuilderFactory) {
         this();
+        this.setMeteringService(meteringService);
         this.setVirtualFactory(virtualFactory);
+        this.setSqlBuilderFactory(sqlBuilderFactory);
+    }
+
+    @Reference
+    public void setMeteringService(ServerMeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Reference
@@ -50,11 +70,21 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
         this.virtualFactory = virtualFactory;
     }
 
+    @Reference
+    public void setSqlBuilderFactory(SqlBuilderFactory sqlBuilderFactory) {
+        this.sqlBuilderFactory = sqlBuilderFactory;
+    }
+
     @Override
     public List<? extends BaseReadingRecord> calculate(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
         this.deliverablesPerMeterActivation = new HashMap<>();
         this.getOverlappingMeterActivations(usagePoint, period).forEach(meterActivation -> this.prepare(meterActivation, contract, period));
-        return Collections.emptyList();
+        try {
+            return this.execute(this.generateSql());
+        }
+        catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
     }
 
     private Stream<? extends MeterActivation> getOverlappingMeterActivations(UsagePoint usagePoint, Range<Instant> period) {
@@ -139,6 +169,46 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
                 .filter(candidate -> candidate.getDeliverable().equals(deliverable))
                 .findAny()
                 .orElseThrow(() -> new UnsupportedOperationException("Forward references to other deliverables is not supported yet"));
+    }
+
+    private SqlBuilder generateSql() {
+        this.sqlBuilder = this.sqlBuilderFactory.newClauseAwareSqlBuilder();
+        this.appendAllToSqlBuilder();
+        SqlBuilder fullSqlBuilder = this.sqlBuilder.finish();
+        fullSqlBuilder.append("order by 3 desc, 1");
+        return fullSqlBuilder;
+    }
+
+    private void appendAllToSqlBuilder() {
+        this.deliverablesPerMeterActivation
+                .values()
+                .stream()
+                .flatMap(Collection::stream)
+                .forEach(each -> each.appendDefinitionTo(this.sqlBuilder));
+        this.virtualFactory.allRequirements().stream().forEach(requirement -> requirement.appendDefinitionTo(this.sqlBuilder));
+        this.virtualFactory.allDeliverables().stream().forEach(requirement -> requirement.appendDefinitionTo(this.sqlBuilder));
+    }
+
+    private List<AggregatedReadingRecord> execute(SqlBuilder sqlBuilder) throws SQLException {
+        try (Connection connection = this.getDataModel().getConnection(true)) {
+            try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
+                return this.execute(statement);
+            }
+        }
+    }
+
+    private DataModel getDataModel() {
+        return this.meteringService.getDataModel();
+    }
+
+    private List<AggregatedReadingRecord> execute(PreparedStatement statement) throws SQLException {
+        List<AggregatedReadingRecord> aggregatedReadingRecords = new ArrayList<>();
+        try (ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                aggregatedReadingRecords.add(AggregatedReadingRecord.from(resultSet));
+            }
+        }
+        return aggregatedReadingRecords;
     }
 
 }
