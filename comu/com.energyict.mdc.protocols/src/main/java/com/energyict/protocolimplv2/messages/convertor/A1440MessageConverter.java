@@ -1,8 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.ArmLoadMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.ConnectLoadMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.DemandResetMessageEntry;
@@ -19,6 +21,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.powerQualityThresholdAttributeName;
 
 /**
@@ -41,8 +44,10 @@ public class A1440MessageConverter extends AbstractMessageConverter {
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(powerQualityThresholdAttributeName)) {
             return String.valueOf(((BigDecimal) messageAttribute).intValue());
+        } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)) {
+            return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
         }
-        return EMPTY_FORMAT;
+        return String.valueOf(messageAttribute);
     }
 
     protected Map<DeviceMessageId, MessageEntryCreator> getRegistry() {
@@ -63,6 +68,14 @@ public class A1440MessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.DEVICE_ACTIONS_REGISTERS_RESET, new RegistersResetMessageEntry());
         registry.put(DeviceMessageId.DEVICE_ACTIONS_EVENT_LOG_RESET, new LoadLogResetMessageEntry());
         registry.put(DeviceMessageId.DEVICE_ACTIONS_EVENT_LOG_RESET, new EventLogResetMessageEntry());
+
+        registry.put(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_DURATION, new MultipleAttributeMessageEntry("SET_LOAD_LIMIT_DURATION", "Duration"));
+        registry.put(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD, new MultipleAttributeMessageEntry("SET_LOAD_LIMIT_TRESHOLD", "Threshold"));
+        registry.put(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD_WITH_TARIFFS, new MultipleAttributeMessageEntry("SET_LOAD_LIMIT_TRESHOLD", "Threshold", "Tariff(s)"));
+        registry.put(DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION, new MultipleAttributeMessageEntry("CONFIGURE_LOAD_LIMIT", "Threshold", "Duration"));
+        registry.put(DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION_WITH_TARIFFS, new MultipleAttributeMessageEntry("CONFIGURE_LOAD_LIMIT", "Threshold", "Tariff(s)", "Duration"));
+        registry.put(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_MEASUREMENT_READING_TYPE, new MultipleAttributeMessageEntry("SET_LOAD_LIMIT_MEASUREMENT_VALUE", "MeasurementCode"));
+
         return registry;
     }
 

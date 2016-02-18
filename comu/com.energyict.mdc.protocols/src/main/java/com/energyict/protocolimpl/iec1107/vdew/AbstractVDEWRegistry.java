@@ -7,10 +7,11 @@
 package com.energyict.protocolimpl.iec1107.vdew;
 
 import com.energyict.mdc.protocol.api.MeterExceptionInfo;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -82,6 +83,14 @@ public abstract class AbstractVDEWRegistry {
         return getRegister(name,register.isCached());
     }
 
+    public Object getRegister(String name, Object requestParameter) throws IOException {
+        try {
+            VDEWRegister register = findRegister(name);
+            return (register.parse(register.readRegister(requestParameter)));
+        } catch (FlagIEC1107ConnectionException e) {
+            throw new IOException("AbstractVDEWRegistry, getRegister, " + e.getMessage());
+        }
+    }
 
     public Object getRegister(String name,boolean cached) throws IOException {
         try {

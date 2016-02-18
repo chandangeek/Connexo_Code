@@ -45,6 +45,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
@@ -83,6 +84,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     private static final int MIN_LOADPROFILE = 1;
     private static final int MAX_LOADPROFILE = 2;
+    private static final int ACTION_DELAY_PER_5_SEC = 5;
 
     private String strID;
     private String strPassword;
@@ -589,6 +591,28 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 return new RegisterValue(obis, getFirmwareVersion());
             }
 
+            if (ProtocolTools.setObisCodeField(obis, 2, (byte) 0).equals(ObisCode.fromString("1.1.0.0.11.255"))) {
+                return readLoadControlThresholdRegister(obis, obis.getC());
+            }
+            if ("1.1.0.0.12.255".equals(obis.toString())) {
+                try {
+                    BigDecimal actionDelay = new BigDecimal(Integer.parseInt((String) getA1440Registry().getRegister(A1440Registry.LOAD_CONTROL_ACTION_DELAY_REGISTER)) * ACTION_DELAY_PER_5_SEC);
+                    return new RegisterValue(obis, new Quantity(actionDelay, Unit.get(BaseUnit.SECOND)));
+                } catch (NumberFormatException e) {
+                    throw new NoSuchRegisterException(e.getMessage());
+                }
+            }
+            if ("1.1.0.0.13.255".equals(obis.toString())) {
+                try {
+                    LoadControlMeasurementQuantity measurementQuantity = LoadControlMeasurementQuantity.getLoadControlMeasurementQuantity(
+                            (String) getA1440Registry().getRegister(A1440Registry.LOAD_CONTROL_MEASUREMENT_QUANTITY_REGISTER)
+                    );
+                    return new RegisterValue(obis, measurementQuantity.getDescription());
+                } catch (NumberFormatException e) {
+                    throw new NoSuchRegisterException(e.getMessage());
+                }
+            }
+
             if ("1.1.0.0.1.255".equals(obis.toString())) {
                 return new RegisterValue(obis, readSpecialRegister((String) this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
             }
@@ -729,6 +753,25 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             String m = "getMeterReading() error, " + e.getMessage();
             throw new NoSuchRegisterException(m);
         }
+    }
+
+    private RegisterValue readLoadControlThresholdRegister(ObisCode obis, int tariff) throws IOException {
+        try {
+            LoadControlMeasurementQuantity measurementQuantity = LoadControlMeasurementQuantity.getLoadControlMeasurementQuantity(
+                    (String) getA1440Registry().getRegister(A1440Registry.LOAD_CONTROL_MEASUREMENT_QUANTITY_REGISTER)
+            );
+            BigDecimal loadControlThreshold = new BigDecimal((String) getA1440Registry().getRegister(A1440Registry.LOAD_CONTROL_THRESHOLD_REGISTER, getTariffCode(tariff)));
+            return new RegisterValue(obis, new Quantity(loadControlThreshold, measurementQuantity.getUnit()));
+        } catch (NumberFormatException e) {
+            throw new NoSuchRegisterException(e.getMessage());
+        }
+    }
+
+    private String getTariffCode(int tariff) {
+        if (tariff == 0) {
+            return "";
+        }
+        return String.format("%02X", 1 << (tariff - 1));
     }
 
     private byte[] read(String edisNotation) throws IOException {
