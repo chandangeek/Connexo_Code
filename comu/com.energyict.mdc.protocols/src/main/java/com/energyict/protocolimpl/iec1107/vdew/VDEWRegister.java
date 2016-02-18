@@ -7,6 +7,7 @@
 package com.energyict.protocolimpl.iec1107.vdew;
 
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
@@ -199,6 +200,18 @@ public class VDEWRegister extends VDEWRegisterDataParse {
         return regdata;
     }
 
+    /**
+     * Read register in the meter <br/>
+     * Remarks:
+     * <ul>
+     * <li>The request will include the given parameter</li>
+     * <li>Data is not cached, but always read out from the meter</li>
+     * </ul>
+     */
+    protected byte[] readRegister(Object requestParameter) throws IOException {
+        return doReadRawRegister(requestParameter);
+    }
+
     // read register in the meter
     private byte[] doReadDataReadoutRawRegister() throws FlagIEC1107ConnectionException,IOException {
         ByteArrayOutputStream ba = new ByteArrayOutputStream();
@@ -263,11 +276,15 @@ public class VDEWRegister extends VDEWRegisterDataParse {
 
     // read register in the meter
     private byte[] doReadRawRegister() throws IOException {
+        return doReadRawRegister(null);
+    }
+
+    private byte[] doReadRawRegister(Object requestParameter) throws IOException {
         try {
             ByteArrayOutputStream ba = new ByteArrayOutputStream();
             StringTokenizer st = new StringTokenizer(getObjectID()," ");
             while(st.countTokens() > 0) {
-                String token = st.nextToken()+"()";
+                String token = st.nextToken() + encodeRequestParameter(requestParameter);
                 getProtocolLink().getFlagIEC1107Connection().sendRawCommandFrame(getReadCommand(),token.getBytes());
                 byte[] data = null;
                 if (getType() == VDEW_DATE_VALUE_PAIR) {
@@ -287,7 +304,13 @@ public class VDEWRegister extends VDEWRegisterDataParse {
         }
     } // private byte[] doReadRawRegister()
 
-
+    private String encodeRequestParameter(Object requestParameter) throws IOException {
+        if (requestParameter == null) {
+            return "()";
+        } else {
+            return "(" + buildData(requestParameter) + ")";
+        }
+    }
 
     /**
      * Getter for property usePassword.

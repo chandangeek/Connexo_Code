@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
+import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageElement;
 import com.energyict.mdc.protocol.api.messaging.MessageSpec;
@@ -18,9 +19,11 @@ import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
-import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,6 +52,15 @@ public class A1440Messages implements MessageProtocol {
     //PQ threshold messages
     private static final A1440MessageType PQ_THRESHOLD = new A1440MessageType("CLASS_37_UPDATE", 37, 180 * 2, "Update MeterClass 37");
 
+    private static final A1440MessageType LOADLIMIT_DURATION = new A1440MessageType("SET_LOAD_LIMIT_DURATION", 0, 0, "Set load limit duration");
+    private static final A1440MessageType LOADLIMIT_THRESHOLD = new A1440MessageType("SET_LOAD_LIMIT_TRESHOLD", 0, 0, "Set load limit threshold");
+    private static final A1440MessageType LOADLIMIT_MEASUREMENT_VALUE = new A1440MessageType("SET_LOAD_LIMIT_MEASUREMENT_VALUE", 0, 0, "Set load limit measurement value");
+    private static final A1440MessageType LOADLIMIT_CONFIGURATION = new A1440MessageType("CONFIGURE_LOAD_LIMIT", 0, 0, "Configure the load limit settings");
+    private static final String DURATION_ATTRIBUTE = "Duration";
+    private static final String THRESHOLD_ATTRIBUTE = "Threshold";
+    private static final String TARIFFS_ATTRIBUTE = "Tariff(s)";
+    private static final String MEASUREMENT_CODE = "MeasurementCode";
+
     private A1440 a1440 = null;
 
     public A1440Messages(A1440 a1440) {
@@ -75,9 +87,17 @@ public class A1440Messages implements MessageProtocol {
         MessageCategorySpec catPowerQuality = new MessageCategorySpec("'Meter class update' Messages");
         catPowerQuality.addMessageSpec(addValueMsg(PQ_THRESHOLD, false));
 
+        //TODO: Note that these messages are for the Elster AS3000 device (which extends from A1440) - once we have a dedicated protocol for the AS3000, these messages should be moved to there.
+        MessageCategorySpec catLoadLimit = new MessageCategorySpec("'Load limitation' Messages");
+        catLoadLimit.addMessageSpec(addBasicMsgWithAttributes(LOADLIMIT_DURATION, false, DURATION_ATTRIBUTE));
+        catLoadLimit.addMessageSpec(addBasicMsgWithAttributes(LOADLIMIT_THRESHOLD, false, THRESHOLD_ATTRIBUTE, TARIFFS_ATTRIBUTE));
+        catLoadLimit.addMessageSpec(addBasicMsgWithAttributes(LOADLIMIT_MEASUREMENT_VALUE, false, MEASUREMENT_CODE));
+        catLoadLimit.addMessageSpec(addBasicMsgWithAttributes(LOADLIMIT_CONFIGURATION, false, true, THRESHOLD_ATTRIBUTE, TARIFFS_ATTRIBUTE, DURATION_ATTRIBUTE));
+
         theCategories.add(catContactor);
         theCategories.add(catResetMessages);
         theCategories.add(catPowerQuality);
+        theCategories.add(catLoadLimit);
         return theCategories;
     }
 
@@ -140,6 +160,23 @@ public class A1440Messages implements MessageProtocol {
                 doPowerQualityLimitMessage(messageEntry);
                 return MessageResult.createSuccess(messageEntry);
             }
+
+            if (isThisMessage(messageEntry, LOADLIMIT_DURATION)) {
+                doLoadLimitDurationMessage(messageEntry);
+                return MessageResult.createSuccess(messageEntry);
+            }
+            if (isThisMessage(messageEntry, LOADLIMIT_THRESHOLD)) {
+                doLoadLimitThresholdMessage(messageEntry);
+                return MessageResult.createSuccess(messageEntry);
+            }
+            if (isThisMessage(messageEntry, LOADLIMIT_MEASUREMENT_VALUE)) {
+                doLoadLimitMeasurementValueMessage(messageEntry);
+                return MessageResult.createSuccess(messageEntry);
+            }
+            if (isThisMessage(messageEntry, LOADLIMIT_CONFIGURATION)) {
+                doLoadLimitConfiguration(messageEntry);
+                return MessageResult.createSuccess(messageEntry);
+            }
         } catch (IOException e) {
             getLogger().severe(e.getMessage());
         }
@@ -191,7 +228,7 @@ public class A1440Messages implements MessageProtocol {
         }
 
         // d. Closing tag
-        builder.append("\n\n</");
+        builder.append("</");
         builder.append(tag.getName());
         builder.append(">");
 
@@ -199,9 +236,9 @@ public class A1440Messages implements MessageProtocol {
 
     }
 
-    private static MessageSpec addBasicMsg(A1440MessageType abba220MessageType, boolean advanced) {
-        MessageSpec msgSpec = new MessageSpec(abba220MessageType.getDisplayName(), advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(abba220MessageType.getTagName());
+    private static MessageSpec addBasicMsg(A1440MessageType a1440MessageType, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(a1440MessageType.getDisplayName(), advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(a1440MessageType.getTagName());
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -215,8 +252,29 @@ public class A1440Messages implements MessageProtocol {
         return msgSpec;
     }
 
+    private static MessageSpec addBasicMsgWithAttributes(A1440MessageType messageType, final boolean advanced, String requiredAttribute, String... optionalAttributes) {
+        return addBasicMsgWithAttributes(messageType, advanced, false, requiredAttribute, optionalAttributes);
+    }
+
+    private static MessageSpec addBasicMsgWithAttributes(A1440MessageType messageType, final boolean advanced, boolean optionalAttributesRequired, String requiredAttribute, String... optionalAttributes) {
+        MessageSpec msgSpec = new MessageSpec(messageType.getDisplayName(), advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(messageType.getTagName());
+
+        MessageAttributeSpec addAttribute = new MessageAttributeSpec(requiredAttribute, true);
+        tagSpec.add(addAttribute);
+        for (String attribute : optionalAttributes) {
+            addAttribute = new MessageAttributeSpec(attribute, optionalAttributesRequired);
+            tagSpec.add(addAttribute);
+        }
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" "); //Disable this field
+        tagSpec.add(msgVal);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
     private static boolean isThisMessage(MessageEntry messageEntry, A1440MessageType messagetype) {
-        return (A1440Utils.getXMLAttributeValue(messagetype.getTagName(), messageEntry.getContent()) != null);
+        return messageEntry.getContent().contains(messagetype.getTagName());
     }
 
     private Logger getLogger() {
@@ -373,9 +431,7 @@ public class A1440Messages implements MessageProtocol {
         if (message.length() != messageType.getLength()) {
             throw new IOException("Wrong length !!! Length should be " + messageType.getLength() + " but was " + message.length());
         }
-        if (!A1440Utils.containsOnlyTheseCharacters(message.toUpperCase(), "0123456789ABCDEF")) {
-            throw new IOException("Invalid characters in message. Only the following characters are allowed: '0123456789ABCDEFabcdef'");
-        }
+        checkSecurityLevelSufficient();
 
         do {
             last = first + MAX_PACKETSIZE;
@@ -401,5 +457,97 @@ public class A1440Messages implements MessageProtocol {
 
         } while (first < message.length());
 
+    }
+
+    private void doLoadLimitDurationMessage(MessageEntry messageEntry) throws IOException {
+        getLogger().fine("Received SET_LOAD_LIMIT_DURATION");
+        checkSecurityLevelSufficient();
+        doSetLoadLimitDuration(MessagingTools.getContentOfAttribute(messageEntry, DURATION_ATTRIBUTE));
+    }
+
+    private void doSetLoadLimitDuration(String loadLimitDuration) throws IOException {
+        try {
+            String value = String.format("%02X", Integer.parseInt(loadLimitDuration) / 5);
+            getA1440().getA1440Registry().setRegister(A1440Registry.LOAD_CONTROL_ACTION_DELAY_REGISTER, value);
+        } catch (NumberFormatException e) {
+            throw new IOException("Failed to parse duration '" + loadLimitDuration + "' - duration should contain a number indicating the number of seconds");
+        }
+    }
+
+    private void doLoadLimitThresholdMessage(MessageEntry messageEntry) throws IOException {
+        doSetLoadLimitThreshold(
+                MessagingTools.getContentOfAttribute(messageEntry, THRESHOLD_ATTRIBUTE),
+                MessagingTools.getContentOfAttribute(messageEntry, TARIFFS_ATTRIBUTE));
+    }
+
+    private void doSetLoadLimitThreshold(String threshold, String tariffs) throws IOException {
+        getLogger().fine("Received SET_LOAD_LIMIT_TRESHOLD");
+        checkSecurityLevelSufficient();
+        try {
+            float thresholdValue = Float.parseFloat(threshold);
+            LoadControlMeasurementQuantity measurementQuantity = LoadControlMeasurementQuantity.getLoadControlMeasurementQuantity(
+                    (String) getA1440().getA1440Registry()
+                            .getRegister(A1440Registry.LOAD_CONTROL_MEASUREMENT_QUANTITY_REGISTER)
+            );
+            String value = measurementQuantity.format(thresholdValue);
+            if (tariffs != null) {
+                value = value.concat(buildTariffMask(tariffs));
+            }
+
+            getA1440().getA1440Registry().setRegister(A1440Registry.LOAD_CONTROL_THRESHOLD_REGISTER, value);
+        } catch (NumberFormatException e) {
+            throw new IOException("Failed to parse the threshold value: " + e.getMessage());
+        }
+    }
+
+    private String buildTariffMask(String tariffs) throws IOException {
+        int tariffMask = 0;
+        String[] split = tariffs.split(",");
+        for (String s : split) {
+            try {
+                int tariffCode = Integer.parseInt(s.trim());
+                if (tariffCode < 1 || tariffCode > 8) {
+                    throw new IOException("Encountered invalid tariff '" + tariffCode + "'; only tariff 1 to 8 are supported");
+                }
+                tariffMask += 1 << (tariffCode - 1);
+            } catch (NumberFormatException e) {
+                throw new IOException("Encountered invalid tariff '" + s.trim() + "'; only tariff 1 to 8 are supported");
+            }
+        }
+        return String.format("%02X", tariffMask);
+    }
+
+    private void doLoadLimitMeasurementValueMessage(MessageEntry messageEntry) throws IOException {
+        getLogger().fine("Received SET_LOAD_LIMIT_MEASUREMENT_VALUE");
+        checkSecurityLevelSufficient();
+        doSetLoadLimitMeasurementValue(MessagingTools.getContentOfAttribute(messageEntry, MEASUREMENT_CODE));
+    }
+
+    private void doSetLoadLimitMeasurementValue(String measurementCode) throws IOException {
+        LoadControlMeasurementQuantity measurementQuantity = LoadControlMeasurementQuantity.getLoadControlMeasurementQuantity(measurementCode);
+        if (!measurementQuantity.equals(LoadControlMeasurementQuantity.INVALID)) {
+            getA1440().getA1440Registry()
+                    .setRegister(A1440Registry.LOAD_CONTROL_MEASUREMENT_QUANTITY_REGISTER, measurementQuantity.getMeasurementQuantityCode());
+        } else {
+            throw new IOException("'" + measurementCode + "' is not a valid measurement quantity code.");
+        }
+    }
+
+    private void doLoadLimitConfiguration(MessageEntry messageEntry) throws IOException {
+        getLogger().fine("Received CONFIGURE_LOAD_LIMIT");
+        checkSecurityLevelSufficient();
+        String threshold = MessagingTools.getContentOfAttribute(messageEntry, THRESHOLD_ATTRIBUTE);
+        String duration = MessagingTools.getContentOfAttribute(messageEntry, DURATION_ATTRIBUTE);
+        String tariffs = MessagingTools.getContentOfAttribute(messageEntry, TARIFFS_ATTRIBUTE);
+
+        doSetLoadLimitDuration(duration);
+        doSetLoadLimitThreshold(threshold, tariffs);
+    }
+
+    private void checkSecurityLevelSufficient() throws IOException {
+        if (a1440.getISecurityLevel() < 1) {
+            throw new IOException("Message " + LOADLIMIT_DURATION.getDisplayName() + " needs at least security level 1. Current level: " + a1440
+                    .getISecurityLevel());
+        }
     }
 }
