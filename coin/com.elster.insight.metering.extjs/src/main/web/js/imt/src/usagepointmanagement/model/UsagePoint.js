@@ -32,6 +32,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
             },
             // workaround for broken functionality of 'Ext.data.Field.serialize' in 'Uni.override.JsonWriterOverride.getRecordData'
             convert: function (value, record) {
+                record.beginEdit();
                 if (value) {
                     switch (value) {
                         case 'UNMEASURED':
@@ -55,6 +56,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
                     record.set('isSdp', null);
                     record.set('isVirtual', null);
                 }
+                record.endEdit();
                 return value;
             },
 

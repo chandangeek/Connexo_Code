@@ -2,6 +2,11 @@ Ext.define('Imt.usagepointmanagement.view.forms.CustomPropertySetInfo', {
     extend: 'Uni.property.form.Property',
     alias: 'widget.cps-info-form',
 
+    defaults: {
+        labelWidth: 260,
+        width: 320
+    },
+
     initComponent: function () {
         var me = this;
 
@@ -13,6 +18,19 @@ Ext.define('Imt.usagepointmanagement.view.forms.CustomPropertySetInfo', {
                 iconAlign: 'left',
                 handler: function () {
                     me.restoreAll();
+                }
+            }
+        ];
+
+        me.dockedItems = [
+            {
+                xtype: 'container', // to fix wrong rendering
+                items: {
+                    itemId: 'cps-info-warning-' + me.navigationIndex,
+                    xtype: 'uni-form-error-message',
+                    dock: 'top',
+                    width: me.defaults.labelWidth + me.defaults.width + 15,
+                    hidden: true
                 }
             }
         ];
