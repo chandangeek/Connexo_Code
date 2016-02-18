@@ -162,11 +162,17 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
 
     doRequest: function (options) {
         var me = this,
-            wizard = me.getWizard();
+            wizard = me.getWizard(),
+            record,
+            modelProxy;
 
         wizard.updateRecord();
         wizard.setLoading();
-        wizard.getRecord().save(Ext.apply({
+        record = wizard.getRecord();
+        modelProxy = record.getProxy();
+        record.phantom = true;       // force 'POST' method for request otherwise 'PUT' will be performed
+        modelProxy.appendId = false; // remove 'id' part from request url
+        record.save(Ext.apply({
             callback: function () {
                 wizard.setLoading(false);
             },
@@ -179,6 +185,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                 }
             }
         }, options));
+        modelProxy.appendId = true; // restore id for normal functionality
     },
 
     prepareNextStep: function (stepNumber) {
