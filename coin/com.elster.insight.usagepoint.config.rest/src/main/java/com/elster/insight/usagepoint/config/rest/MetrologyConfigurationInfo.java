@@ -1,17 +1,15 @@
 package com.elster.insight.usagepoint.config.rest;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+
+import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.rest.impl.ResourceHelper;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 
 @XmlRootElement
 public class MetrologyConfigurationInfo {
@@ -38,7 +36,7 @@ public class MetrologyConfigurationInfo {
         this.modTime = metrologyConfiguration.getModTime();
         this.userName = metrologyConfiguration.getUserName();
     }
-    
+
     public void writeTo(MetrologyConfiguration metrologyConfiguration) {
         metrologyConfiguration.updateName(this.name);
     }

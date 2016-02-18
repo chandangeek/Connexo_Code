@@ -1,12 +1,12 @@
 package com.elster.insight.usagepoint.config.rest.impl;
 
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
