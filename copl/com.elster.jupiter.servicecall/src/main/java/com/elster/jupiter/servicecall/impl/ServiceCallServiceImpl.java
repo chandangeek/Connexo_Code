@@ -1,6 +1,5 @@
 package com.elster.jupiter.servicecall.impl;
 
-import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.DefaultFinder;
@@ -23,6 +22,7 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -48,6 +48,7 @@ import java.util.Optional;
 public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
 
     private volatile FiniteStateMachineService finiteStateMachineService;
+    private volatile CustomPropertySetService customPropertySetService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
 
@@ -76,6 +77,11 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
             tableSpecs.addTo(this.dataModel);
         }
 
+    }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
     }
 
     @Reference
