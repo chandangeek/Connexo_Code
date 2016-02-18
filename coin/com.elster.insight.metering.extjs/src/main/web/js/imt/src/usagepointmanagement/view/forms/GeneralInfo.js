@@ -41,7 +41,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
                 name: 'techInfoType',
                 itemId: 'up-service-category-combo',
                 fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category'),
-                afterSubTpl: '<span style="color: #686868; font-style: italic">'
+                afterSubTpl: '<span class="field-additional-info" style="color: #686868; font-style: italic">'
                 + Uni.I18n.translate('usagepoint.add.clarification.serviceCategory', 'IMT', 'Service categories that you can\'t edit due to insufficient privileges are not included')
                 + '</span>',
                 required: true,
@@ -50,7 +50,16 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
                 valueField: 'name',
                 queryMode: 'local',
                 forceSelection: true,
-                emptyText: Uni.I18n.translate('usagepoint.add.emptyText.serviceCategory', 'IMT', 'Select service category...')
+                emptyText: Uni.I18n.translate('usagepoint.add.emptyText.serviceCategory', 'IMT', 'Select service category...'),
+                listeners: {
+                    errorchange: {
+                        fn: function (field, error) {
+                            if (field.rendered) {
+                                field.getEl().down('.field-additional-info').setDisplayed(Ext.isEmpty(error));
+                            }
+                        }
+                    }
+                }
             } :
             {
                 xtype: 'displayfield',
