@@ -119,7 +119,7 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
         statement.setLong(offset++, timeStamp);
         statement.setLong(offset++, now);
         if (getTimeSeries().getVault().hasLocalTime()) {
-            Calendar cal = ((TimeSeriesImpl) getTimeSeries()).getStartCalendar(getTimeStamp());
+            Calendar cal = getTimeSeries().getStartCalendar(getTimeStamp());
             statement.setTimestamp(offset++, new Timestamp(cal.getTime().getTime()), cal);
         }
         int i = 0;
