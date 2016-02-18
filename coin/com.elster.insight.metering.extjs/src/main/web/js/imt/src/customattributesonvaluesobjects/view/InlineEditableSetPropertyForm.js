@@ -15,8 +15,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
         'Imt.util.TitleWithEditButton',
         'Imt.customattributesonvaluesobjects.service.ActionMenuManager',
         'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint',
-        'Imt.customattributesonvaluesobjects.service.VersionsManager',
-        'Imt.customattributesonvaluesobjects.model.AttributeSetOnMetrologyConfiguration'
+        'Imt.customattributesonvaluesobjects.service.VersionsManager'
     ],
 
     items: [],
@@ -114,7 +113,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                     handler: function () {
                         Imt.customattributesonvaluesobjects.service.ActionMenuManager.setDisabledAllEditBtns(false);
                         me.model.load(me.record.get('id'),{
-                            url: '/api/udr/usagepoints/' + me.parent.mRID + '/properties/',
+                            url: '/api/udr/usagepoints/' + me.parent.mRID + '/customproperties/',
                             success: function(record){
                                 me.record = record;
                                 me.down('property-form').makeNotEditable(record);
