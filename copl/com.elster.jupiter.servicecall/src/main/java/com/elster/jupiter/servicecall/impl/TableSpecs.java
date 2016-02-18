@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallType;
 
@@ -28,7 +29,7 @@ public enum TableSpecs {
                     .map(ServiceCallLifeCycleImpl.Fields.finiteStateMachine.fieldName())
                     .on(finiteStateMachine)
                     .add();
-            table.primaryKey("SCS_PK_SERVICECALL").on(idColumn).add();
+            table.primaryKey("SCS_PK_SERVICECALL_LC").on(idColumn).add();
         }
     },
 
@@ -74,6 +75,31 @@ public enum TableSpecs {
                     .onDelete(DeleteRule.CASCADE)
                     .map(ServiceCallTypeCustomPropertySetUsageImpl.Fields.CustomPropertySet.fieldName())
                     .add();
+        }
+    },
+    SCS_SERVICE_CALL(ServiceCall.class) {
+        @Override
+        void describeTable(Table table) {
+            table.map(ServiceCallImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            Column name = table.column("NAME").varChar(NAME_LENGTH).notNull().map(ServiceCallImpl.Fields.name.fieldName()).add();
+            table.column("CREATIONDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).notNull().map(ServiceCallImpl.Fields.creationDate.fieldName()).add();
+            table.column("LASTMODIFICATIONDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).notNull().map(ServiceCallImpl.Fields.lastModificationDate.fieldName()).add();
+            table.column("LASTCOMPLETEDDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map(ServiceCallImpl.Fields.lastCompletedDate.fieldName()).add();
+            table.column("STATE").number().conversion(ColumnConversion.NUMBER2ENUM).map(ServiceCallImpl.Fields.state.fieldName()).add();
+            table.column("ORIGIN").varChar(NAME_LENGTH).map(ServiceCallImpl.Fields.origin.fieldName()).add();
+            table.column("EXTERNALREFERENCE").varChar(NAME_LENGTH).map(ServiceCallImpl.Fields.externalReference.fieldName()).add();
+            Column serviceCallType = table.column("SERVICECALLTYPE").number().notNull().add();
+            table.addAuditColumns();
+
+
+            table.foreignKey("FK_SCS_SERVICECALL_SCT").
+                    on(serviceCallType).
+                    references(ServiceCallType.class).
+                    map(ServiceCallImpl.Fields.type.fieldName()).
+                    add();
+            table.primaryKey("SCS_PK_SERVICECALL").on(idColumn).add();
+            table.unique("SCS_U_NAME").on(name).add();
         }
     };
 
