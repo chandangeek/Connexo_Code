@@ -107,7 +107,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             router = me.getController('Uni.controller.history.Router'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             fromOverview = router.queryParams.fromOverview === 'true',
-            backUrl = router.getRoute(router.currentRoute.replace(fromOverview ? '/action' : '/view/action', '')).buildUrl(),
+            queryParamsForBackUrl = fromOverview ? router.queryParams : null,
+            backUrl = router.getRoute(router.currentRoute.replace(fromOverview ? '/action' : '/view/action', '')).buildUrl(null, queryParamsForBackUrl),
             record,
             requestOptions;
 
