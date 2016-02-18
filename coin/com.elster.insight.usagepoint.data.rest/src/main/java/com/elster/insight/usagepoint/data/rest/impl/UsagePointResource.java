@@ -1,5 +1,7 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
+import com.elster.insight.common.services.ListPager;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -15,8 +17,6 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.users.User;
-import com.elster.insight.common.services.ListPager;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -54,7 +54,6 @@ public class UsagePointResource {
     private final Provider<RegisterResource> registersOnUsagePointResourceProvider;
     private final Provider<UsagePointValidationResource> usagePointValidationResourceProvider;
     private final Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider;
-    private final Provider<UsagePointCustomPropertySetHistoryResource> usagePointCustomPropertySetHistoryResourceProvider;
 
     @Inject
     public UsagePointResource(RestQueryService queryService, MeteringService meteringService,
@@ -63,8 +62,7 @@ public class UsagePointResource {
                               Provider<RegisterResource> registersOnUsagePointResourceProvider,
                               UsagePointConfigurationService usagePointConfigurationService,
                               Provider<UsagePointValidationResource> usagePointValidationResourceProvider,
-                              Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider,
-                              Provider<UsagePointCustomPropertySetHistoryResource> usagePointCustomPropertySetHistoryResourceProvider) {
+                              Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider) {
         this.queryService = queryService;
         this.meteringService = meteringService;
         this.clock = clock;
@@ -73,7 +71,6 @@ public class UsagePointResource {
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.usagePointValidationResourceProvider = usagePointValidationResourceProvider;
         this.usagePointCustomPropertySetResourceProvider = usagePointCustomPropertySetResourceProvider;
-        this.usagePointCustomPropertySetHistoryResourceProvider = usagePointCustomPropertySetHistoryResourceProvider;
     }
 
     @GET
