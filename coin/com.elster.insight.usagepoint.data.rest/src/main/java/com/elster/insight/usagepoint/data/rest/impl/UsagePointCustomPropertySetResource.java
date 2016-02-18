@@ -12,11 +12,13 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.cps.rest.ValuesRangeConflictInfo;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.google.common.collect.Range;
+import com.elster.insight.usagepoint.data.UsagePointCustomPropertySetExtension;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -31,7 +33,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class UsagePointCustomPropertySetResource {
@@ -257,5 +264,33 @@ public class UsagePointCustomPropertySetResource {
                               @PathParam("id") long rcpsId,
                               @BeanParam JsonQueryParameters queryParameters) {
         return null;
+    }
+
+    @GET
+    @Path("/{rcps_id}")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response getRegisteredCustomPropertySet(@PathParam("mrid") String usagePointMrid,
+                                                   @PathParam("rcps_id") long rcpsId,
+                                                   @BeanParam JsonQueryParameters queryParameters) {
+        UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper.findUsagePointExtensionByMrIdOrThrowException(usagePointMrid);
+        for (Map.Entry<RegisteredCustomPropertySet, CustomPropertySetValues> entry : usagePointExtension.getCustomPropertySetValues().entrySet()) {
+            RegisteredCustomPropertySet registeredCustomPropertySet = entry.getKey();
+            if (!registeredCustomPropertySet.isViewableByCurrentUser()){
+                continue;
+            }
+            if (registeredCustomPropertySet.getId() == rcpsId){
+                CustomPropertySet<?,?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
+                CustomPropertySetValues customPropertySetValue = entry.getValue();
+                CustomPropertySetInfo info = customPropertySetInfoFactory.getGeneralInfo(registeredCustomPropertySet);
+                info.properties = customPropertySet.getPropertySpecs()
+                        .stream()
+                        .map(propertySpec -> customPropertySetInfoFactory.getPropertyInfo(propertySpec,
+                                key -> customPropertySetValue != null ? customPropertySetValue.getProperty(key) : null))
+                        .collect(Collectors.toList());
+                return Response.ok(info).build();
+            }
+        }
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
 }

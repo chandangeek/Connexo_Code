@@ -1,13 +1,11 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
-import com.elster.insight.common.services.ListPager;
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -17,6 +15,8 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.users.User;
+import com.elster.insight.common.services.ListPager;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;

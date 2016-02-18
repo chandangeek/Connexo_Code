@@ -1,22 +1,5 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
-import static com.elster.jupiter.util.streams.Functions.asStream;
-import static java.util.Comparator.naturalOrder;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.TreeSet;
-import java.util.stream.Stream;
-
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.insight.usagepoint.data.exceptions.InvalidLastCheckedException;
-import com.elster.insight.usagepoint.data.exceptions.MessageSeeds;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -28,10 +11,27 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
-import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.insight.usagepoint.data.exceptions.InvalidLastCheckedException;
+import com.elster.insight.usagepoint.data.exceptions.MessageSeeds;
+
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.streams.Functions.asStream;
+import static java.util.Comparator.naturalOrder;
 
 /**
  */
@@ -153,7 +153,7 @@ public class UsagePointValidationImpl implements UsagePointValidation {
 
     @Override
     public List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Range<Instant> interval) {
-        
+
         return getEvaluator().getValidationStatus(channel, readings, channel.getMeterActivation().getRange().intersection(interval));
     }
 
@@ -186,14 +186,13 @@ public class UsagePointValidationImpl implements UsagePointValidation {
     }
 
     private boolean hasActiveRules(ReadingType readingType) {
-        
-        Optional<MetrologyConfiguration> holder = usagePointConfigurationService.findMetrologyConfigurationForUsagePoint(usagePoint);
-        List<ValidationRuleSet> validationRuleSets = new ArrayList<ValidationRuleSet>();
-        if (holder.isPresent())
-            validationRuleSets = holder.get().getValidationRuleSets();
-        return validationRuleSets.stream()
-                .flatMap(s -> s.getRules().stream())
-                .anyMatch(r -> r.getReadingTypes().contains(readingType));
+        return usagePointConfigurationService
+                .findMetrologyConfigurationForUsagePoint(usagePoint)
+                .map(usagePointConfigurationService::getValidationRuleSets)
+                .orElse(Collections.emptyList())
+                .stream()
+                .flatMap(validationRuleSet -> validationRuleSet.getRules().stream())
+                .anyMatch(validationRule -> validationRule.getReadingTypes().contains(readingType));
     }
 
     private Optional<Instant> getLastChecked(Meter meter) {
@@ -208,7 +207,7 @@ public class UsagePointValidationImpl implements UsagePointValidation {
     }
 
     private Stream<MeterActivation> getMeterActivationsMostRecentFirst(Meter meter) {
-        TreeSet<MeterActivation> meterActivations = new TreeSet<>(byInterval());
+        Set<MeterActivation> meterActivations = new TreeSet<>(byInterval());
         meterActivations.addAll(meter.getMeterActivations());
         return meterActivations.stream();
     }

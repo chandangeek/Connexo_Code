@@ -1,16 +1,22 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
+import com.elster.jupiter.cbo.PhaseCode;
+import com.elster.jupiter.metering.AmiBillingReadyKind;
+import com.elster.jupiter.metering.ElectricityDetail;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.util.units.Quantity;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
-import com.elster.jupiter.cbo.PhaseCode;
-import com.elster.jupiter.metering.*;
-import com.elster.jupiter.util.units.Quantity;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Clock;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -87,9 +93,9 @@ public class UsagePointInfo {
                 ratedPower = eDetail.getRatedPower();
             }
         }
-        
+
     }
-    
+
     public UsagePointInfo(UsagePoint usagePoint, Clock clock, UsagePointConfigurationService usagePointConfigurationService) {
         this.usagePoint = usagePoint;
         id = usagePoint.getId();
@@ -130,7 +136,7 @@ public class UsagePointInfo {
         if (metrologyConfiguration.isPresent()) {
             this.addMetrologyConfigurationInfo(new MetrologyConfigurationInfo(metrologyConfiguration.get()));
         }
-        
+
     }
 
     void addServiceLocationInfo() {
@@ -138,7 +144,7 @@ public class UsagePointInfo {
             serviceLocation = new ServiceLocationInfo(usagePoint.getServiceLocation().get());
         }
     }
-    
+
     void addMetrologyConfigurationInfo(MetrologyConfigurationInfo mci) {
         metrologyConfiguration = mci;
     }
