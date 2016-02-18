@@ -15,6 +15,8 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.time.RangeInstantBuilder;
+import com.elster.jupiter.util.time.RangeInstantComparator;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -64,20 +66,6 @@ public class UsagePointCustomPropertySetResource {
                 .check(endTime -> endTime == null || start == null || endTime > start)
                 .field("endTime")
                 .message(MessageSeeds.END_DATE_MUST_BE_AFTER_START_DATE).test().validate();
-    }
-
-    private Range<Instant> getInstantRange(Long start, Long end) {
-        Range<Instant> range;
-        if (start == null && end == null) {
-            range = Range.all();
-        } else if (start != null && end != null) {
-            range = Range.openClosed(Instant.ofEpochMilli(start), Instant.ofEpochMilli(end));
-        } else if (start != null) {
-            range = Range.atLeast(Instant.ofEpochMilli(start));
-        } else {
-            range = Range.lessThan(Instant.ofEpochMilli(end));
-        }
-        return range;
     }
 
     @GET
@@ -166,6 +154,7 @@ public class UsagePointCustomPropertySetResource {
                 .findUsagePointByMrIdOrThrowException(usagePointMrid).forCustomProperties();
         RegisteredCustomPropertySet registeredCustomPropertySet = resourceHelper
                 .findRegisteredCustomPropertySetOnUsagePointOrThrowException(rcpsId, usagePointExtension);
+        // TODO move into extension class
         CustomPropertySet<UsagePoint, ?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
         List<CustomPropertySetInfo> versions = customPropertySetService
                 .getAllVersionedValuesFor(customPropertySet, usagePointExtension.getUsagePoint())
@@ -190,7 +179,7 @@ public class UsagePointCustomPropertySetResource {
                 .findRegisteredCustomPropertySetOnUsagePointOrThrowException(rcpsId, usagePointExtension);
         CustomPropertySet<UsagePoint, ?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
         validateRangeSourceValues(info.startTime, info.endTime);
-        Range<Instant> range = getInstantRange(info.startTime, info.endTime);
+        Range<Instant> range = RangeInstantBuilder.openClosedRange(info.startTime, info.endTime);
         List<ValuesRangeConflict> valuesRangeConflicts = customPropertySetService
                 .calculateOverlapsFor(customPropertySet, usagePointExtension.getUsagePoint()).whenCreating(range);
         if (!valuesRangeConflicts.isEmpty()) {
@@ -205,18 +194,27 @@ public class UsagePointCustomPropertySetResource {
     @GET
     @Path("{rcpsId}/versions/{timestamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getTimeSlicedCustomAttributeSetVersion(@PathParam("mrid") String usagePointMrid,
-                                                                @PathParam("rcpsId") long rcpsId,
-                                                                @BeanParam JsonQueryParameters queryParameters) {
-        return null;
+    public CustomPropertySetInfo getTimeSlicedCustomAttributeSetVersion(@PathParam("mrid") String usagePointMrid,
+                                                                        @PathParam("rcpsId") long rcpsId,
+                                                                        @PathParam("timestamp") long timestamp,
+                                                                        @BeanParam JsonQueryParameters queryParameters) {
+        UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
+                .findUsagePointByMrIdOrThrowException(usagePointMrid).forCustomProperties();
+        RegisteredCustomPropertySet registeredCustomPropertySet = resourceHelper
+                .findRegisteredCustomPropertySetOnUsagePointOrThrowException(rcpsId, usagePointExtension);
+        return customPropertySetInfoFactory.getFullInfo(registeredCustomPropertySet,
+                usagePointExtension.getCustomPropertySetValue(registeredCustomPropertySet, Instant.ofEpochMilli(timestamp)));
     }
 
     @PUT
     @Path("{rcpsId}/versions/{timestamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList updateTimeSlicedCustomAttributeSetVersion(@PathParam("mrid") String usagePointMrid,
-                                                                   @PathParam("rcpsId") long rcpsId,
-                                                                   @BeanParam JsonQueryParameters queryParameters) {
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public CustomPropertySetInfo updateTimeSlicedCustomAttributeSetVersion(@PathParam("mrid") String usagePointMrid,
+                                                                           @PathParam("rcpsId") long rcpsId,
+                                                                           @BeanParam JsonQueryParameters queryParameters,
+                                                                           CustomPropertySetInfo<UsagePointInfo> info) {
         return null;
     }
 
@@ -234,10 +232,11 @@ public class UsagePointCustomPropertySetResource {
                 .findRegisteredCustomPropertySetOnUsagePointOrThrowException(rcpsId, usagePointExtension);
         CustomPropertySet<UsagePoint, ?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
         validateRangeSourceValues(startTime, endTime);
-        Range<Instant> range = getInstantRange(startTime, endTime);
+        Range<Instant> range = RangeInstantBuilder.openClosedRange(startTime, endTime);
         List valuesRangeConflicts = customPropertySetService
                 .calculateOverlapsFor(customPropertySet, usagePointExtension.getUsagePoint()).whenCreating(range)
                 .stream()
+                .sorted((c1, c2) -> new RangeInstantComparator().compare(c1.getConflictingRange(), c2.getConflictingRange()))
                 .map(conflict -> {
                     ValuesRangeConflictInfo conflictInfo = customPropertySetInfoFactory.getValuesRangeConflictInfo(conflict);
                     conflictInfo.customPropertySet = customPropertySetInfoFactory.getFullInfo(registeredCustomPropertySet, conflict.getValues());

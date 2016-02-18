@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +24,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -258,5 +260,20 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
 
         Response response = target("usagepoints/" + USAGE_POINT_MRID + "/customproperties/" + RCPS_ID).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void testGetCurrentTimeSlicedCustomPropertySetInterval() throws Exception {
+        when(meteringService.findUsagePoint(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePoint));
+        when(usagePointExtension.getAllCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
+        int start = 10000000;
+        int end = 2 * start;
+        when(usagePointExtension.getCurrentInterval(eq(registeredCustomPropertySet)))
+                .thenReturn(Range.closedOpen(Instant.ofEpochMilli(start), Instant.ofEpochMilli(end)));
+
+        String json = target("usagepoints/" + USAGE_POINT_MRID + "/customproperties/" + RCPS_ID + "/currentinterval").request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.start")).isEqualTo(start);
+        assertThat(jsonModel.<Number>get("$.end")).isEqualTo(end);
     }
 }
