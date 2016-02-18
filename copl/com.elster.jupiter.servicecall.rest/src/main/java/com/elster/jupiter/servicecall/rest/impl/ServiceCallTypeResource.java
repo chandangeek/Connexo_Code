@@ -43,7 +43,7 @@ public class ServiceCallTypeResource {
 
         List<ServiceCallType> allServiceCallTypes = serviceCallTypeFinder.from(queryParameters).find();
         allServiceCallTypes.stream()
-                .forEach(sct -> serviceCallTypeInfos.add(new ServiceCallTypeInfo(sct, thesaurus)));
+                .forEach(type -> serviceCallTypeInfos.add(new ServiceCallTypeInfo(type, thesaurus)));
 
         return PagedInfoList.fromPagedList("serviceCallTypes", serviceCallTypeInfos, queryParameters);
     }

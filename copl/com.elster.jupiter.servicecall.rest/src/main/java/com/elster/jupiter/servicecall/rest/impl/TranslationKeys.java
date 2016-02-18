@@ -4,7 +4,6 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
 
-    BLA ("Bla", "Bla"),
     ;
 
     private final String key;

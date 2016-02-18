@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
  * This is the setup to test all resource in the ServiceCallApplication
  * Created by bvn on 2/11/16.
  */
-public class ServiceCallApplicationTest extends FelixRestApplicationJerseyTest {
+public abstract class ServiceCallApplicationTest extends FelixRestApplicationJerseyTest {
     @Mock
     public ServiceCallService serviceCallService;
 
