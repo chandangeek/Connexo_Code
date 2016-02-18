@@ -1,5 +1,6 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
@@ -63,6 +64,17 @@ public class DeviceLifecycleActionResource {
         this.clock = clock;
     }
 
+    /**
+     * A device action models an action that can be authorized to initiate a StateTransition.
+     *
+     * @summary Fetch a device action
+     *
+     * @param mRID mRID of the device
+     * @param actionId Id of the action
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @return Returns a unqiuely identofied device action
+     */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
@@ -79,8 +91,14 @@ public class DeviceLifecycleActionResource {
     }
 
     /**
+     * A device action models an action that can be authorized to initiate a StateTransition.
      *
-     * @param mRID
+     * @summary Fetch a set of device actions
+     *
+     * @param mRID mRID of the device
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
@@ -105,6 +123,18 @@ public class DeviceLifecycleActionResource {
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
+    /**
+     * A device action models an action that can be authorized to initiate a StateTransition.
+     * This PUT method will not actually create an action, but execute it.
+     *
+     * @summary Execute an action
+     *
+     * @param mrid mRID of the device
+     * @param actionId Id of the action
+     * @param queryParameters queryParameters
+     * @param info Payload describing the parameters for the action execution
+     * @return Returns OK(http 200) if the action was executed
+     */
     @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")

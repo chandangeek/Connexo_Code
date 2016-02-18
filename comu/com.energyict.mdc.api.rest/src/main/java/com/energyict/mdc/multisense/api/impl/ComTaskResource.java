@@ -43,6 +43,20 @@ public class ComTaskResource {
         this.exceptionFactory = exceptionFactory;
     }
 
+    /**
+     * Models a set of protocol tasks which can be scheduled for a device.
+     * Multiple devices can use the same ComTask.
+     * <br>
+     * A communication task is a group of commands the user defines and communicates with the device to make the device
+     * carry out a specific action, e.g. read registers, reset the clock, update firmware, etc.
+     *
+     * @summary Fetch a communication task
+     *
+     * @param comTaskId Id of the communication task
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @return Uniquely identified communication task
+     */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{comTaskId}")
@@ -54,6 +68,16 @@ public class ComTaskResource {
     }
 
     /**
+     * Models a set of protocol tasks which can be scheduled for a device.
+     * Multiple devices can use the same ComTask.
+     * <br>
+     * A communication task is a group of commands the user defines and communicates with the device to make the device
+     * carry out a specific action, e.g. read registers, reset the clock, update firmware, etc.
+     *
+     * @summary Fetch a set of communication tasks
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      *
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.

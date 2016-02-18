@@ -64,11 +64,31 @@ public class DeviceMessageResource {
     }
 
     /**
+     * Device message is used for infrequent adjustments of device parameters such as resetting a device. Device messages are only
+     * available when they are specified in a device protocol and this protocol is applied to the device type.
+     *
+     * Device messages are used to remotely adjust parameters of a device on a one-time basis. To make device messages
+     * available in the menu of a device, a device protocol must be applied to the device’s device type. Device messages
+     * also have a release date on which they become available (=pending) for sending to the device. Finally, the user
+     * must have sufficient privileges to be able to send device messages. This is specified in the roles management.
+     *
+     * Devices are split into categories. For each category and for each individual message the availability and execution
+     * level can be configured.
+     *
+     * The device interprets this message when it is communicated via the communication task and carries out the
+     * requested adjustments of the parameters.
+     *
+     * An external system or eiServer’s own communication tasks will communicate device messages to the device allowing
+     * them to execute the actions specified in their definition. The command Messages is used for this purpose. If it
+     * is not picked up by a communication task, it will simply remain in the system without impact.
+     *
      * @summary Retrieve a single device message
      *
      * @param mRID The device's mRID
      * @param messageId The device message identifier
-     * @return
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @return Uniquely identified device message
      */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
@@ -86,9 +106,30 @@ public class DeviceMessageResource {
 
 
     /**
+     * Device message is used for infrequent adjustments of device parameters such as resetting a device. Device messages are only
+     * available when they are specified in a device protocol and this protocol is applied to the device type.
+     *
+     * Device messages are used to remotely adjust parameters of a device on a one-time basis. To make device messages
+     * available in the menu of a device, a device protocol must be applied to the device’s device type. Device messages
+     * also have a release date on which they become available (=pending) for sending to the device. Finally, the user
+     * must have sufficient privileges to be able to send device messages. This is specified in the roles management.
+     *
+     * Devices are split into categories. For each category and for each individual message the availability and execution
+     * level can be configured.
+     *
+     * The device interprets this message when it is communicated via the communication task and carries out the
+     * requested adjustments of the parameters.
+     *
+     * An external system or eiServer’s own communication tasks will communicate device messages to the device allowing
+     * them to execute the actions specified in their definition. The command Messages is used for this purpose. If it
+     * is not picked up by a communication task, it will simply remain in the system without impact.
+     *
      * @summary Retrieve all known device messages for a certain device
      *
      * @param mRID The device's mRID
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
@@ -118,6 +159,8 @@ public class DeviceMessageResource {
      * @summary Create a new device message for a device
      *
      * @param mRID The device's mRID
+     * @param deviceMessageInfo payload describing the values for the to-be-created device messsage
+     * @param uriInfo uriInfo
      * @return url to newly created device message
      * @responseheader location href to newly created device message
      */
@@ -171,6 +214,8 @@ public class DeviceMessageResource {
      *
      * @param mRID The device's mRID
      * @param messageId The device message identifier
+     * @param uriInfo uriInfo
+     * @param deviceMessageInfo Values to update the device message
      * @return Device message
      */
     @PUT @Transactional
@@ -220,6 +265,7 @@ public class DeviceMessageResource {
      *
      * @param mRID The device's mRID
      * @param messageId The device message identifier
+     * @param uriInfo uriInfo
      * @return Revoked device message
      * @statuscode 200 If the device message was revoked
      */
@@ -229,7 +275,7 @@ public class DeviceMessageResource {
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     @Path("/{messageId}")
     public DeviceMessageInfo deleteDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long messageId,
-                                                 DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
+                                                 @Context UriInfo uriInfo) {
         Device device = deviceService.findByUniqueMrid(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == messageId).findFirst()

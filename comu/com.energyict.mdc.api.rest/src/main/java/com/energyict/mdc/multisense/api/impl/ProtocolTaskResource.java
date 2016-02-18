@@ -43,6 +43,17 @@ public class ProtocolTaskResource {
         this.exceptionFactory = exceptionFactory;
     }
 
+    /**
+     * A protocol tasks describes an action that needs to be performed when communicating with a device.
+     * A ProtocolTask can be used by only one ComTask
+     *
+     * @summary fetch a list of all known protocol tasks
+     *
+     * @param protocolTaskId ID of the protocol task
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @return The identified protocol task
+     */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{protocolTaskId}")
@@ -54,7 +65,14 @@ public class ProtocolTaskResource {
     }
 
     /**
+     * A protocol tasks describes an action that needs to be performed when communicating with a device.
+     * A ProtocolTask can be used by only one ComTask
      *
+     * @summary fetch a list of all known protocol tasks
+     *
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */

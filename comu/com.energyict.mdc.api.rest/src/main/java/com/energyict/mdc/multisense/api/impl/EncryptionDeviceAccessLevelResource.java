@@ -1,5 +1,6 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
@@ -42,6 +43,20 @@ public class EncryptionDeviceAccessLevelResource {
         this.exceptionFactory = exceptionFactory;
     }
 
+
+    /**
+     * An encryption device access level models a level of security for a physical device
+     * and the PropertySpecs that the device will require to be specified before accessing the data that is
+     * secured by this level.
+     *
+     * @summary Fetch an encryption device access level
+     *
+     * @param deviceProtocolPluggableClassId Id of the device protocol pluggable class
+     * @param encryptionDeviceAccessLevelId Id of the encryption device access level
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @return Uniquely identified encryption device access level
+     */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{encryptionDeviceAccessLevelId}")
@@ -62,9 +77,16 @@ public class EncryptionDeviceAccessLevelResource {
     }
 
     /**
+     * An encryption device access level models a level of security for a physical device
+     * and the PropertySpecs that the device will require to be specified before accessing the data that is
+     * secured by this level.
      *
-     * @param deviceProtocolPluggableClassId
-     * @param encryptionDeviceAccessLevelId
+     * @summary Fetch a set of encryption device access levels
+     *
+     * @param deviceProtocolPluggableClassId Id of the device protocol pluggable class
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
@@ -73,7 +95,6 @@ public class EncryptionDeviceAccessLevelResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<DeviceAccessLevelInfo> getEncryptionDeviceAccessLevels(
             @PathParam("deviceProtocolPluggableClassId") long deviceProtocolPluggableClassId,
-            @PathParam("encryptionDeviceAccessLevelId") long encryptionDeviceAccessLevelId,
             @BeanParam JsonQueryParameters queryParameters,
             @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         DeviceProtocolPluggableClass pluggableClass = protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId)

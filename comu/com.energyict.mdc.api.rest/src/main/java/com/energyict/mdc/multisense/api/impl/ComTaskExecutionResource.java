@@ -56,17 +56,21 @@ public class ComTaskExecutionResource {
      * parameter was provided, all existing fields will be returned. Note that empty fields, that is, fields without value,
      * will not be included in the response.
      *
-     * @summary Fetch single communication task execution by unique id
+     * @summary Fetch single communication task execution
      *
      * @param mRID The device's mRID
-     * @param comTaskExecutionId
+     * @param comTaskExecutionId Id of the communication task execution
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     *
      * @return Communication task execution
      */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{comTaskExecutionId}")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public ComTaskExecutionInfo getComTaskExecution(@PathParam("mrid") String mRID, @PathParam("comTaskExecutionId") long comTaskExecutionId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+    public ComTaskExecutionInfo getComTaskExecution(@PathParam("mrid") String mRID, @PathParam("comTaskExecutionId") long comTaskExecutionId,
+                                                    @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
          return deviceService.findByUniqueMrid(mRID)
                  .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE))
                  .getComTaskExecutions().stream()
@@ -80,14 +84,20 @@ public class ComTaskExecutionResource {
      * Fetch all existing communication task executions of a certain device
      *
      * @summary Fetch a device's communication task executions
+     *
      * @param mRID mRID of device for which executions will be retrieved
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
+     *
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public PagedInfoList<ComTaskExecutionInfo> getComTaskExecutions(@PathParam("mrid") String mRID, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList<ComTaskExecutionInfo> getComTaskExecutions(@PathParam("mrid") String mRID, @BeanParam FieldSelection fieldSelection,
+                                                                    @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         List<ComTaskExecutionInfo> infoList = deviceService.findByUniqueMrid(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE))
                 .getComTaskExecutions().stream()
@@ -103,8 +113,11 @@ public class ComTaskExecutionResource {
      * Create a new communication task execution for a device
      *
      * @summary Create communication task execution
+     *
      * @param mrid mRID of device for which execution will be created
      * @param comTaskExecutionInfo Payload describing to-be-created communication task execution
+     * @param uriInfo uriInfo
+     *
      * @return no content
      * @responseheader location href to newly created device
      */
@@ -138,6 +151,8 @@ public class ComTaskExecutionResource {
      * @param mrid mRID of device for which execution will be updated
      * @param comTaskExecutionId Identifier of the device's communication task execution
      * @param comTaskExecutionInfo Contents for updated communication task execution
+     * @param uriInfo uriInfo
+     *
      * @return URI to updated communication task execution
      */
     @PUT @Transactional
@@ -173,8 +188,10 @@ public class ComTaskExecutionResource {
      * Delete an existing new communication task execution for a device
      *
      * @summary Delete communication task execution
+     *
      * @param mrid mRID of device whose communication task execution needs to be deleted
      * @param comTaskExecutionid The ID of the communication task execution that needs to be deleted
+     *
      * @return No content
      */
     @DELETE @Transactional

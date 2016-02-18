@@ -16,6 +16,9 @@ import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.multisense.api.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -56,6 +59,21 @@ public class DeviceSecurityPropertySetResource {
         this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
+
+    /**
+     * Models named set of security properties whose values are managed against a Device.
+     * The exact set of PropertySpecs that are used is determined by the AuthenticationDeviceAccessLevel
+     * and/or EncryptionDeviceAccessLevel select in the SecurityPropertySet.
+     * That in turn depends on the actual DeviceProtocol.
+     *
+     * @summary Fetch a uniquely identified device security property set
+     *
+     * @param mrid mRID of the device
+     * @param deviceSecurityPropertySetId Id of the device's security set
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @return Uniquely identified security property set
+     */
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
@@ -73,8 +91,18 @@ public class DeviceSecurityPropertySetResource {
     }
 
     /**
+     * Models named set of security properties whose values are managed against a Device.
+     * The exact set of PropertySpecs that are used is determined by the AuthenticationDeviceAccessLevel
+     * and/or EncryptionDeviceAccessLevel select in the SecurityPropertySet.
+     * That in turn depends on the actual DeviceProtocol.
      *
-     * @param mrid
+     * @summary Fetch a SET OF device security property sets
+     *
+     * @param mrid mRID of the device
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
+     *
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
@@ -96,6 +124,20 @@ public class DeviceSecurityPropertySetResource {
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
+    /**
+     * Models named set of security properties whose values are managed against a Device.
+     * The exact set of PropertySpecs that are used is determined by the AuthenticationDeviceAccessLevel
+     * and/or EncryptionDeviceAccessLevel select in the SecurityPropertySet.
+     * That in turn depends on the actual DeviceProtocol.
+     *
+     * @summary Uptdate a uniquely identified device security property set
+     *
+     * @param mrid mRID of the device
+     * @param deviceSecurityPropertySetId Id of the device's security set up update
+     * @param propertySetInfo Payload describing the updated values for the security set
+     * @param uriInfo uriInfo
+     * @return Updated security set
+     */
     @PUT
     @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")

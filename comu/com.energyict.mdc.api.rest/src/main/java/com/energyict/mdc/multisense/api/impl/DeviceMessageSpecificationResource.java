@@ -42,6 +42,26 @@ public class DeviceMessageSpecificationResource {
         this.exceptionFactory = exceptionFactory;
     }
 
+    /**
+     * Models the specification of a device message,
+     * i.e. the description of all of the attributes of the DeviceMessage
+     * and which of these attributes are required or optional.
+     * A DeviceMessage can be standard, meaning that it is supported
+     * off the shelve by the ComServer and was not added to the ComServer
+     * for the purpose of a single customer installation.
+     * Any DeviceMessageSpec that is created through the ComServer
+     * API will by default be a non-standard DeviceMessage.
+     * Note that non standard message can still be part
+     * of standard device message categories
+     *
+     * @summary Get a device message specification
+     *
+     * @param deviceMessageCategoryId Id of the device message category
+     * @param deviceMessageSpecificationId Id of the device message specification
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @return Uniquely identified device message specification
+     */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{deviceMessageSpecificationId}")
@@ -59,8 +79,23 @@ public class DeviceMessageSpecificationResource {
     }
 
     /**
+     * Models the specification of a device message,
+     * i.e. the description of all of the attributes of the DeviceMessage
+     * and which of these attributes are required or optional.
+     * A DeviceMessage can be standard, meaning that it is supported
+     * off the shelve by the ComServer and was not added to the ComServer
+     * for the purpose of a single customer installation.
+     * Any DeviceMessageSpec that is created through the ComServer
+     * API will by default be a non-standard DeviceMessage.
+     * Note that non standard message can still be part
+     * of standard device message category.
      *
-     * @param deviceMessageCategoryId
+     * @summary Get a set of device message specifications
+     *
+     * @param deviceMessageCategoryId Id of the device message category
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */

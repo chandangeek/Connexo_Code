@@ -74,6 +74,8 @@ public class DeviceResource {
      * @summary View device identified by mRID
      *
      * @param mRID The device's mRID
+     * @param uriInfo uriInfo
+     * @param fields field selection
      * @return Device information and links to related resources
      */
     @GET @Transactional
@@ -92,7 +94,9 @@ public class DeviceResource {
      * @summary View all devices
      *
      * @param queryParameters Paging parameters 'start' and 'limit'
-     * @param uriInfo added by Jersey framework
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      * @return Device information and links to related resources
      */
     @GET @Transactional
@@ -106,9 +110,13 @@ public class DeviceResource {
     }
 
     /**
+     * Adds a new device to the system
+     *
      * @summary Create a new device
+     *
      * @param info Payload describing the values for the to-be-created device
-     * @param uriInfo added by framework
+     * @param uriInfo uriInfo
+     *
      * @return location href to newly created device
      * @responseheader location href to newly created device
      */
@@ -141,9 +149,13 @@ public class DeviceResource {
     }
 
     /**
+     * Update an existing device
+     *
      * @summary update a device with the provided values
+     *
      * @param mrid The device's mRID
      * @param info JSON description of new device field values
+     * @param uriInfo uriInfo
      * @return Device with updated fields or an error if something went wrong
      */
     @PUT @Transactional
@@ -181,8 +193,12 @@ public class DeviceResource {
 
 
     /**
-     * @summary Delete a device identified by mRID
+     * Delete a device identified by mRID
+     *
+     * @summary Delete a device
+     *
      * @param mrid The device's unique mRID identifier
+     *
      * @return No content
      */
     @DELETE @Transactional
@@ -210,6 +226,7 @@ public class DeviceResource {
      * will be returned. If IDs are required in the URL for parent entities, then will be ignored when using the PROPFIND method.
      *
      * @summary List the fields available on this type of entity
+     *
      * @return A list of field names that can be requested as parameter in the GET method on this entity type
      */
     @PROPFIND

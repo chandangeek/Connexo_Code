@@ -5,12 +5,14 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.multisense.api.security.Privileges;
+import com.energyict.mdc.protocol.api.ConnectionType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -45,11 +47,34 @@ public class PartialConnectionTaskResource {
         this.exceptionFactory = exceptionFactory;
     }
 
+    /**
+     * Partial version of a ConnectionTask when it comes to
+     * the properties required to establish a connection with a device.
+     * It also enables the device's capability to use the ConnectionType
+     * on the DeviceConfiguration against which it is being created.
+     * As an example, a device might have the capability to communicate
+     * via TCP/IP, GPRS and infra-red but on the configuration level,
+     * the communication expert may decide to only enable TCP/IP and infra-red.
+     * This way, it will not be possible to create a ConnectionTask
+     * that uses GPRS because that was not enabled.
+     *
+     * @summary Fetch a partial connection task
+
+     * @param deviceTypeId Id of the device type
+     * @param deviceConfigId Id of the device configuration
+     * @param id Id of the partial connection task
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     *
+     * @return Uniquely identified partial connection task
+     */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{id}")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public PartialConnectionTaskInfo getPartialConnectionTask(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigId, @PathParam("id") long id,
+    public PartialConnectionTaskInfo getPartialConnectionTask(@PathParam("deviceTypeId") long deviceTypeId,
+                                                              @PathParam("deviceConfigId") long deviceConfigId,
+                                                              @PathParam("id") long id,
                                                               @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
         PartialConnectionTask partialConnectionTask = deviceConfigurationService.
                 findDeviceType(deviceTypeId)
@@ -66,9 +91,24 @@ public class PartialConnectionTaskResource {
     }
 
     /**
+     * Partial version of a ConnectionTask when it comes to
+     * the properties required to establish a connection with a device.
+     * It also enables the device's capability to use the ConnectionType
+     * on the DeviceConfiguration against which it is being created.
+     * As an example, a device might have the capability to communicate
+     * via TCP/IP, GPRS and infra-red but on the configuration level,
+     * the communication expert may decide to only enable TCP/IP and infra-red.
+     * This way, it will not be possible to create a ConnectionTask
+     * that uses GPRS because that was not enabled.
      *
-     * @param deviceTypeId
-     * @param deviceConfigId
+     * @summary Fetch a set of partial connection tasks
+
+     * @param deviceTypeId Id of the device type
+     * @param deviceConfigId Id of the device configuration
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
+     *
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */

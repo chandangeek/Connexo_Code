@@ -40,6 +40,16 @@ public class ComScheduleResource {
         this.exceptionFactory = exceptionFactory;
     }
 
+    /**
+     * A communication schedule defines time and recurrence for reading a particular set of meter data from a device or group of devices.
+     *
+     * @Summary Fetch a communication schedule
+     *
+     * @param comScheduleId Id of the communication schedule
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @return a uniquely identified communication schedule.
+     */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{comScheduleId}")
@@ -51,7 +61,14 @@ public class ComScheduleResource {
     }
 
     /**
+     * A communication schedule defines time and recurrence for reading a particular set of meter data from a device or group of devices.
      *
+     * @Summary Fetch a set of communication schedules
+     *
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
+
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */

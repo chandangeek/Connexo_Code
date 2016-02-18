@@ -67,7 +67,11 @@ public class ConnectionTaskResource {
      * Fetch a list of all known connection tasks of a device
      *
      * @summary Fetch all known connection tasks of a device
-     * @param mrid
+     * @param mrid mRID of the device
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
+     *
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
@@ -95,6 +99,8 @@ public class ConnectionTaskResource {
      *
      * @param mrid mRID of the device the connection task was defined for
      * @param id Id of the connection task
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
      * @return Connection task (AKA connection method) as identified
      */
     @GET @Transactional
@@ -104,8 +110,7 @@ public class ConnectionTaskResource {
     public ConnectionTaskInfo getConnectionTask(@PathParam("mrid") String mrid,
                                                 @PathParam("connectionTaskId") long id,
                                                 @Context UriInfo uriInfo,
-                                                @BeanParam FieldSelection fieldSelection,
-                                                @BeanParam JsonQueryParameters queryParameters) {
+                                                @BeanParam FieldSelection fieldSelection) {
         ConnectionTask<?,?> connectionTask = connectionTaskService.findConnectionTask(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CONNECTION_TASK));
         if (!connectionTask.getDevice().getmRID().equals(mrid)) {
@@ -125,6 +130,7 @@ public class ConnectionTaskResource {
      * @summary Create connection task
      * @param mrid mRID of device fow which a connection task will be created
      * @param connectionTaskInfo Values for the to-be-created connection task
+     * @param uriInfo uriInfo
      * @return url to newly created connection task
      * @responseheader location href to newly created connection task
      */
@@ -165,6 +171,7 @@ public class ConnectionTaskResource {
      * @param mrid mRID of the device the connection task was defined for
      * @param connectionTaskId Id of the connection task
      * @param connectionTaskInfo New values for all connection task fields
+     * @param uriInfo uriInfo
      * @return Updated connection task
      */
     @PUT @Transactional

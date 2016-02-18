@@ -42,6 +42,23 @@ public class ProtocolDialectConfigurationPropertiesResource {
         this.exceptionFactory = exceptionFactory;
     }
 
+    /**
+     * A protocol dialect is a communication protocol of which specific parameters can be changed so that certain tasks
+     * can be carried out. E.g. firmware dialect the parameter DatagramPDU size has a default value of 500 bytes however
+     * because firmware upgrades are often larger than this, the size of this parameter can be increased.
+     *
+     * The amount of protocol dialects and which parameters can be changed is determined by the protocol of which the
+     * dialect originates. Typically protocol dialects are used for defining communication tasks.
+     *
+     * @summary Defines a set of properties used to configure the protocol.
+
+     * @param deviceTypeId Id of the device type
+     * @param deviceConfigId Id of the device configuration
+     * @param id Id of the protocol property set
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @return The uniquely identified property set
+     */
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
@@ -49,14 +66,14 @@ public class ProtocolDialectConfigurationPropertiesResource {
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public ProtocolDialectConfigurationPropertiesInfo getProtocolDialectConfigurationProperty(
             @PathParam("deviceTypeId") long deviceTypeId,
-            @PathParam("deviceConfigId") long devicConfigId,
+            @PathParam("deviceConfigId") long deviceConfigId,
             @PathParam("id") long id,
             @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         ProtocolDialectConfigurationPropertiesInfo info = deviceConfigurationService.
                 findDeviceType(deviceTypeId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_TYPE))
                 .getConfigurations().stream()
-                .filter(dc -> dc.getId() == devicConfigId)
+                .filter(dc -> dc.getId() == deviceConfigId)
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG))
                 .getProtocolDialectConfigurationPropertiesList().stream()
@@ -69,9 +86,20 @@ public class ProtocolDialectConfigurationPropertiesResource {
     }
 
     /**
+     * A protocol dialect is a communication protocol of which specific parameters can be changed so that certain tasks
+     * can be carried out. E.g. firmware dialect the parameter DatagramPDU size has a default value of 500 bytes however
+     * because firmware upgrades are often larger than this, the size of this parameter can be increased.
      *
-     * @param deviceTypeId
-     * @param deviceConfigId
+     * The amount of protocol dialects and which parameters can be changed is determined by the protocol of which the
+     * dialect originates. Typically protocol dialects are used for defining communication tasks.
+     *
+     * @summary Defines a set of properties used to configure the protocol.
+     *
+     * @param deviceTypeId Id of the device type
+     * @param deviceConfigId Id of the device configuration
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
      * @return a sorted, pageable list of elements. Only fields mentioned in field-param will be provided, or all fields if no
      * field-param was provided. The list will be sorted according to db order.
      */
