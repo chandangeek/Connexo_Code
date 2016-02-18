@@ -1,6 +1,5 @@
 Ext.define('Imt.usagepointmanagement.store.measurementunits.Capacity', {
-    extend: 'Ext.data.Store',
-    model: 'Imt.usagepointmanagement.model.MeasurementUnit',
+    extend: 'Imt.usagepointmanagement.store.measurementunits.Base',
     data: [
         {id: 'Wh', unit: 'Wh', multiplier: 0, displayValue: Uni.I18n.translate('general.measurementunits.wattHours', 'IMT', 'Wh')},
         {id: 'kWh', unit: 'Wh', multiplier: 3, displayValue: Uni.I18n.translate('general.measurementunits.kiloWattHours', 'IMT', 'kWh')},

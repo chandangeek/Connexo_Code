@@ -1,6 +1,5 @@
 Ext.define('Imt.usagepointmanagement.store.measurementunits.Voltage', {
-    extend: 'Ext.data.Store',
-    model: 'Imt.usagepointmanagement.model.MeasurementUnit',
+    extend: 'Imt.usagepointmanagement.store.measurementunits.Base',
     data: [
         {id: 'V', unit: 'V', multiplier: 0, displayValue: Uni.I18n.translate('general.measurementunits.volt', 'IMT', 'V')},
         {id: 'kV', unit: 'V', multiplier: 3, displayValue: Uni.I18n.translate('general.measurementunits.kiloVolt', 'IMT', 'kV')},

@@ -39,12 +39,13 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.MeasureField', {
     },
 
     setValue: function (value) {
-        var me = this;
-
+        var me = this,
+            combo;
 
         me.down('numberfield').setValue(value ? value.value : value);
         if (value && value.unit) {
-            me.down('combobox').setValue(value.unit);
+            combo = me.down('combobox');
+            combo.setValue(combo.getStore().findUnit(value));
         }
         me.value = value;
     },

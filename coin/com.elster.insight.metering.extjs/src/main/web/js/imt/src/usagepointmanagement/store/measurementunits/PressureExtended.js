@@ -1,6 +1,5 @@
 Ext.define('Imt.usagepointmanagement.store.measurementunits.PressureExtended', {
-    extend: 'Ext.data.Store',
-    model: 'Imt.usagepointmanagement.model.MeasurementUnit',
+    extend: 'Imt.usagepointmanagement.store.measurementunits.Base',
     data: [
         {id: 'Pa', unit: 'Pa', multiplier: 0, displayValue: Uni.I18n.translate('general.measurementunits.pascal', 'IMT', 'Pa')},
         {id: 'kPa', unit: 'Pa', multiplier: 3, displayValue: Uni.I18n.translate('general.measurementunits.kiloPascal', 'IMT', 'kPa')},

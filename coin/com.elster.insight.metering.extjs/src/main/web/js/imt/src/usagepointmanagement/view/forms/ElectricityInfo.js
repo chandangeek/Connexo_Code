@@ -22,7 +22,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
         {
             xtype: 'checkbox',
             name: 'grounded',
-            itemId: 'up-grounded-measurefield',
+            itemId: 'up-grounded-checkbox',
             fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
         },
         {
@@ -31,7 +31,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
             itemId: 'up-nominalServiceVoltage-measurefield',
             fieldLabel: Uni.I18n.translate('general.label.nominalServiceVoltage', 'IMT', 'Nominal voltage'),
             store: 'Imt.usagepointmanagement.store.measurementunits.Voltage',
-            value: {value: null, unit: 'V'}
+            value: {value: null, unit: 'V', multiplier: 0}
         },
         {
             xtype: 'combobox',
@@ -58,23 +58,21 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
             xtype: 'measurefield',
             name: 'ratedPower',
             itemId: 'up-ratedPower-measurefield',
-            fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power')
+            fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power'),
+            store: 'Imt.usagepointmanagement.store.measurementunits.Power',
+            value: {value: null, unit: 'W', multiplier: 0}
         },
         {
             xtype: 'measurefield',
             name: 'estimatedLoad',
             itemId: 'up-estimatedLoad-measurefield',
-            fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load')
-        },
-        {
-            xtype: 'measurefield',
-            name: 'estimatedLoad',
-            itemId: 'up-estimatedLoad-measurefield',
-            fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load')
+            fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load'),
+            store: 'Imt.usagepointmanagement.store.measurementunits.Power',
+            value: {value: null, unit: 'W', multiplier: 0}
         },
         {
             xtype: 'limitercheckbox',
-            itemId: 'up-limiter-measurefield'
+            itemId: 'up-limiter-checkbox'
         },
         {
             xtype: 'loadlimitertypefield',
@@ -84,6 +82,8 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
         {
             xtype: 'loadlimitfield',
             itemId: 'up-loadLimit-measurefield',
+            store: 'Imt.usagepointmanagement.store.measurementunits.Power',
+            value: {value: null, unit: 'W', multiplier: 0},
             hidden: true
         },
         {
@@ -95,7 +95,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
         {
             xtype: 'checkbox',
             name: 'interruptible',
-            itemId: 'up-interruptible-measurefield',
+            itemId: 'up-interruptible-checkbox',
             fieldLabel: Uni.I18n.translate('general.label.interruptible', 'IMT', 'Interruptible')
         }
     ]
