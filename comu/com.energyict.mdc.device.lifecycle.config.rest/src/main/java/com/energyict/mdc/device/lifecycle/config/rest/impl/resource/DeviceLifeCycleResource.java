@@ -3,10 +3,10 @@ package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -213,7 +213,8 @@ public class DeviceLifeCycleResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getEventTypesList(@BeanParam JsonQueryParameters queryParams) {
-        List<StateTransitionEventTypeInfo> eventTypes = finiteStateMachineService.getStateTransitionEventTypes().stream()
+        List<StateTransitionEventTypeInfo> eventTypes = finiteStateMachineService.getStateTransitionEventTypes(DeviceLifeCycleConfigurationService.COMPONENT_NAME)
+                .stream()
                 .filter(eventType -> !eventTypesToExclude.contains(eventType.getSymbol()))//we exclude meter specific event types because in MDC we have other ones which duplicates base
                 .map(stateTransitionEventTypeFactory::from)
                 .collect(Collectors.toList());
