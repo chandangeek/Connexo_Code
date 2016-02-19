@@ -115,7 +115,7 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
 
     @Override
     public void install() {
-        new ServiceCallInstaller(finiteStateMachineService, dataModel).install();
+        dataModel.getInstance(ServiceCallInstaller.class).install();
     }
 
     @Override

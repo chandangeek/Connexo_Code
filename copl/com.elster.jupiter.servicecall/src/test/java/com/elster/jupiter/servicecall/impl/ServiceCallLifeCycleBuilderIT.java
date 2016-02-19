@@ -104,7 +104,6 @@ public class ServiceCallLifeCycleBuilderIT {
 
     private Clock clock;
     private CustomPropertySetService customPropertySetService;
-    private ServiceCallTypeOneCustomPropertySet serviceCallTypeOneCustomPropertySet;
 
     private class MockModule extends AbstractModule {
 
@@ -153,7 +152,6 @@ public class ServiceCallLifeCycleBuilderIT {
                 customPropertySetService = injector.getInstance(CustomPropertySetService.class);
                 messageService = injector.getInstance(MessageService.class);
                 serviceCallService = injector.getInstance(ServiceCallService.class);
-                serviceCallTypeOneCustomPropertySet = injector.getInstance(ServiceCallTypeOneCustomPropertySet.class);
                 return null;
             }
         });
