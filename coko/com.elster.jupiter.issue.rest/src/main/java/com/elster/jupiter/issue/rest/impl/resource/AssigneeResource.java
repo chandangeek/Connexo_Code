@@ -56,7 +56,11 @@ public class AssigneeResource extends BaseResource {
         }
         String searchText = params.getFirst(LIKE);
 
-        String dbSearchText = (searchText != null && !searchText.isEmpty()) ? ("*" + searchText + "*") : "*";
+        String dbSearchText = "*";
+        if (searchText != null && !searchText.isEmpty()) {
+            String[] users = searchText.split(",");
+            dbSearchText = "*" + users[users.length - 1].trim() + "*";
+        }
 
         Condition conditionUser = where("authenticationName").likeIgnoreCase(dbSearchText);
         Query<User> queryUser = getUserService().getUserQuery();
@@ -106,7 +110,8 @@ public class AssigneeResource extends BaseResource {
         String searchText = params.getFirst(LIKE);
         Condition condition = Condition.TRUE;
         if (searchText != null && !searchText.isEmpty()) {
-            String dbSearchText = "*" + searchText + "*";
+            String[] users = searchText.split(",");
+            String dbSearchText = "*" + users[users.length-1].trim() + "*";
             condition = condition.and(where("authenticationName").likeIgnoreCase(dbSearchText));
         }
         Query<User> query = getUserService().getUserQuery();
