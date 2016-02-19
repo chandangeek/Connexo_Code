@@ -51,7 +51,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
 
         me.techInfo = techInfoModel;
 
-        action = Ext.create('Ext.menu.Item',{
+        me.action = Ext.create('Ext.menu.Item',{
             itemId: 'action-menu-' + config.form,
             editAvailable: true,
             menuItemClass: 'inlineEditableAttributeSet',
@@ -59,7 +59,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
             text: Uni.I18n.translate('general.editTechnicalInformation', 'IMT', "Edit 'Technical information'"),
             handler: function () {
                 if(this.editAvailable){
-                    me.toEditMode(true, this);
+                    me.toEditMode(true);
                 } else {
                     console.log('cant edit');
                 }
@@ -74,7 +74,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
                 title: Uni.I18n.translate('general.technicalInformation', 'IMT', 'Technical information'),
                 editHandler: function(){
                     if(this.editAvailable){
-                        me.toEditMode(true, action);
+                        me.toEditMode(true);
                     } else {
                         console.log('cant edit');
                     }
@@ -108,7 +108,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
                         ui: 'link',
                         text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
                         handler: function () {
-                            me.toEditMode(false, action);
+                            me.toEditMode(false);
                         }
                     }
                 ]
@@ -116,10 +116,10 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
         ];
         me.callParent();
 
-        me.addAttributes(config.form, techInfoModel, action);
+        me.addAttributes(config.form, techInfoModel);
     },
 
-    addAttributes: function(form, record, action){
+    addAttributes: function(form, record){
         var me = this,
             actionMenuArray=Ext.ComponentQuery.query('usage-point-setup-action-menu');
         me.itemId =  me.category + '-attribute-set';
@@ -127,7 +127,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
         Ext.suspendLayouts();
 
         Ext.each(actionMenuArray, function (menu) {
-            menu.add(action);
+            menu.add(me.action);
         });
 
         me.add(1,{
@@ -140,7 +140,56 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
         me.down('#view-form').getForm().loadRecord(record);
     },
 
-    toEditMode: function(isEdit, action){
+    showConfirmationWindow: function(){
+        var me =this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                confirmText: Uni.I18n.translate('general.editGeneralInformation.discard', 'IMT', 'Discard'),
+                confirmation: function () {
+                    me.confirmationClick(confirmationWindow);
+                }
+            });
+        confirmationWindow.show({
+            width: 500,
+            msg: Uni.I18n.translate('general.editGeneralInformation.lostData', 'IMT', 'You will lost unsolved data.'),
+            title: Uni.I18n.translate('general.editGeneralInformation.discardChanges', 'IMT', "Discard 'General information' changes?")
+        });
+    },
+
+    confirmationClick: function(confirmationWindow){
+        var me = this,
+            cancelBtnArray = Ext.ComponentQuery.query('inline-editable-set-property-form');
+
+        Ext.each(cancelBtnArray, function (item) {
+            if(item.editMode){
+                item.model.load(me.record.get('id'),{
+                    url: Ext.String.format('/api/udr/usagepoints/{0}/customproperties/', encodeURIComponent(item.parent.mRID)),
+                    success: function(record){
+                        item.record = record;
+                        item.down('property-form').makeNotEditable(item.record);
+                        Ext.suspendLayouts();
+                        item.editMode = false;
+                        item.down('#bottom-buttons').hide();
+                        item.action.show();
+                        item.down('#pencil-btn').show();
+                        Ext.resumeLayouts(true);
+                        Imt.customattributesonvaluesobjects.service.ActionMenuManager.setAvailableEditBtns(false);
+                        me.toEditMode(true);
+                        console.log(this);
+                        confirmationWindow.destroy();
+                    }
+                });
+            }
+        });
+
+        var generalAttributesPanel = Ext.ComponentQuery.query('usage-point-main-attributes-panel')[0];
+        if(generalAttributesPanel && generalAttributesPanel.editMode){
+            generalAttributesPanel.toEditMode(false);
+            confirmationWindow.destroy();
+            me.toEditMode(true);
+        }
+    },
+
+    toEditMode: function(isEdit){
         var me =this;
 
         Ext.suspendLayouts();
@@ -149,13 +198,13 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
             me.down('#view-form').hide();
             me.down('#edit-form').show();
             me.down('#bottom-buttons').show();
-            action.hide();
+            me.action.hide();
         } else {
             me.down('#pencil-btn').show();
             me.down('#view-form').show();
             me.down('#edit-form').hide();
             me.down('#bottom-buttons').hide();
-            action.show();
+            me.action.show();
 
         }
         Ext.resumeLayouts(true);

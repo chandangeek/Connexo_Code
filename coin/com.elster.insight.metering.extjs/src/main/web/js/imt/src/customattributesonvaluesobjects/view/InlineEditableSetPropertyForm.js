@@ -37,9 +37,9 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                 editHandler: function () {
 
                     if(this.editAvailable){
-                        me.toEditMode(true,action);
+                        me.toEditMode(true);
                     } else {
-                        console.log('cant edit');
+                        me.showConfirmationWindow();
                     }
 
                 }
@@ -117,11 +117,10 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                                 url: Ext.String.format('/api/udr/usagepoints/{0}/customproperties/', encodeURIComponent(me.parent.mRID)),
                                 success: function(record){
                                     me.record = record;
-                                    me.toEditMode(false,action);
+                                    me.toEditMode(false);
                                 }
                             });
                         }
-
                     },
                     //handler: function () {
                     //    me.model.load(me.record.get('id'),{
@@ -149,16 +148,16 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
         }
         if (me.actionMenuXtype && me.record.get('isEditable')) {
 
-            action = Ext.create('Ext.menu.Item', {
+            me.action = Ext.create('Ext.menu.Item', {
                 itemId: 'action-menu-custom-attribute' + me.record.get('id'),
                 menuItemClass: 'inlineEditableAttributeSet',
                 editAvailable: true,
                 text: Uni.I18n.translate('general.edit', 'IMT', "Edit '{0}'", [Ext.String.htmlEncode(me.record.get('name'))]),
                 handler: function () {
                     if(this.editAvailable){
-                        me.toEditMode(true,this);
+                        me.toEditMode(true);
                     } else {
-                        console.log('cant edit');
+                        me.showConfirmationWindow();
                     }
                 }
             });
@@ -166,31 +165,87 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
             Ext.suspendLayouts();
             if (!(me.record.get('isVersioned') && !me.record.get('isActive'))) {
                 Ext.each(actionMenusArray, function (menu) {
-                    menu.add(action);
+                    menu.add(me.action);
                 });
             }
             Ext.resumeLayouts(true);
         }
     },
 
-    toEditMode: function(isEdit, action){
+    showConfirmationWindow: function(){
+        var me =this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                confirmText: Uni.I18n.translate('general.editGeneralInformation.discard', 'IMT', 'Discard'),
+                confirmation: function () {
+                    me.confirmationClick(confirmationWindow);
+                }
+            });
+        confirmationWindow.show({
+            width: 500,
+            msg: Uni.I18n.translate('general.editGeneralInformation.lostData', 'IMT', 'You will lost unsolved data.'),
+            title: Uni.I18n.translate('general.editGeneralInformation.discardChanges', 'IMT', "Discard '{0}' changes?",[Ext.String.htmlEncode(me.record.get('name'))])
+        });
+    },
+
+    confirmationClick: function(confirmationWindow){
+        var me = this,
+            cancelBtnArray = Ext.ComponentQuery.query('inline-editable-set-property-form');
+
+        Ext.each(cancelBtnArray, function (item) {
+            if(item.editMode){
+                item.model.load(me.record.get('id'),{
+                    url: Ext.String.format('/api/udr/usagepoints/{0}/customproperties/', encodeURIComponent(item.parent.mRID)),
+                    success: function(record){
+                        item.record = record;
+                        item.down('property-form').makeNotEditable(item.record);
+                        Ext.suspendLayouts();
+                        item.editMode = false;
+                        item.down('#bottom-buttons').hide();
+                        item.action.show();
+                        item.down('#pencil-btn').show();
+                        Ext.resumeLayouts(true);
+                        Imt.customattributesonvaluesobjects.service.ActionMenuManager.setAvailableEditBtns(false);
+                        me.toEditMode(true);
+                        console.log(this);
+                        confirmationWindow.destroy();
+                    }
+                });
+            }
+        });
+
+        var technicalAttributesPanel = Ext.ComponentQuery.query('usage-point-technical-attributes-panel')[0];
+        if(technicalAttributesPanel && technicalAttributesPanel.editMode){
+            technicalAttributesPanel.toEditMode(false);
+            confirmationWindow.destroy();
+            me.toEditMode(true);
+        }
+        var generalAttributesPanel = Ext.ComponentQuery.query('usage-point-main-attributes-panel')[0];
+        if(generalAttributesPanel && generalAttributesPanel.editMode){
+            generalAttributesPanel.toEditMode(false);
+            confirmationWindow.destroy();
+            me.toEditMode(true);
+        }
+    },
+
+    toEditMode: function(isEdit){
         var me = this;
         if(isEdit){
             me.down('property-form').makeEditable(me.record);
+            me.editMode = isEdit;
             Ext.suspendLayouts();
             me.down('#bottom-buttons').show();
-            action.hide();
+            me.action.hide();
             me.down('#pencil-btn').hide();
             Ext.resumeLayouts(true);
         } else {
             me.down('property-form').makeNotEditable(me.record);
             Ext.suspendLayouts();
+            me.editMode = isEdit;
             me.down('#bottom-buttons').hide();
-            action.show();
+            me.action.show();
             me.down('#pencil-btn').show();
             Ext.resumeLayouts(true);
         }
-
         Imt.customattributesonvaluesobjects.service.ActionMenuManager.setAvailableEditBtns(!isEdit);
 
     },
