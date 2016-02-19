@@ -14,8 +14,10 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
@@ -31,6 +33,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -216,6 +219,44 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
                 instance.addCustomPropertySet(customPropertySet);
             }
 
+            return instance;
+        }
+    }
+
+    class ServiceCallBuilderImpl implements ServiceCallBuilder {
+        private final ServiceCallImpl instance;
+
+        public ServiceCallBuilderImpl() {
+            instance = dataModel.getInstance(ServiceCallImpl.class);
+        }
+
+        @Override
+        public ServiceCallBuilder origin(String origin) {
+            instance.setOrigin(origin);
+            return this;
+        }
+
+        @Override
+        public ServiceCallBuilder externalReference(String externalReference) {
+            instance.setExternalReference(externalReference);
+            return this;
+        }
+
+        @Override
+        public ServiceCallBuilder targetObject(RefAny targetObject) {
+            instance.setTargetObject(targetObject);
+            return this;
+        }
+
+        @Override
+        public ServiceCallBuilder parent(ServiceCall parent) {
+            instance.setParent(parent);
+            return this;
+        }
+
+        @Override
+        public ServiceCall add() {
+            instance.save();
             return instance;
         }
     }

@@ -23,7 +23,7 @@ public interface ServiceCallType extends HasId, HasName {
 
     void setLogLevel(LogLevel logLevel);
 
-    Optional<ServiceCallLifeCycle> getServiceCallLifeCycle();
+    ServiceCallLifeCycle getServiceCallLifeCycle();
 
     Optional<DefaultState> getCurrentLifeCycleState();
 

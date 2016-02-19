@@ -23,13 +23,13 @@ import static java.util.stream.Collectors.toList;
  * Class models the type of a service call. The type defines the life cycle its service calls will abide by and links to
  * the custom properties that are available for use.
  */
-public class ServiceCallTypeImpl implements ServiceCallType {
+public class ServiceCallTypeImpl implements IServiceCallType {
     private long id;
     private String name;
     private String versionName;
     private Status status;
     private LogLevel logLevel;
-    private Reference<ServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
+    private Reference<IServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
     private DefaultState currentLifeCycleState;
     private List<ServiceCallTypeCustomPropertySetUsage> customPropertySets = new ArrayList<>();
     @SuppressWarnings("unused")
@@ -120,8 +120,8 @@ public class ServiceCallTypeImpl implements ServiceCallType {
     }
 
     @Override
-    public Optional<ServiceCallLifeCycle> getServiceCallLifeCycle() {
-        return serviceCallLifeCycle.getOptional();
+    public IServiceCallLifeCycle getServiceCallLifeCycle() {
+        return serviceCallLifeCycle.get();
     }
 
     @Override
@@ -140,7 +140,7 @@ public class ServiceCallTypeImpl implements ServiceCallType {
         return customPropertySets.stream().map(ServiceCallTypeCustomPropertySetUsage::getCustomPropertySet).collect(toList());
     }
 
-    void setServiceCallLifeCycle(ServiceCallLifeCycle serviceCallLifeCycle) {
+    void setServiceCallLifeCycle(IServiceCallLifeCycle serviceCallLifeCycle) {
         this.serviceCallLifeCycle.set(serviceCallLifeCycle);
     }
 

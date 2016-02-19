@@ -15,12 +15,15 @@ import java.util.Optional;
  *
  * Created by bvn on 2/4/16.
  */
-public interface ServiceCall extends HasId, HasName {
-    Instant getCreationDate();
+public interface ServiceCall extends HasId {
 
-    Instant getLastModificationDate();
+    String getNumber();
 
-    Optional<Instant> getLastCompletedDate();
+    Instant getCreationTime();
+
+    Instant getLastModificationTime();
+
+    Optional<Instant> getLastCompletedTime();
 
     DefaultState getState();
 

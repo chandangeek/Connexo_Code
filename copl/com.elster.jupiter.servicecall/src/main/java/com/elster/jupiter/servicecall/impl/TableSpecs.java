@@ -33,7 +33,7 @@ public enum TableSpecs {
         }
     },
 
-    SCS_SERVICE_CALL_TYPE(ServiceCallType.class) {
+    SCS_SERVICE_CALL_TYPE(IServiceCallType.class) {
         @Override
         void describeTable(Table table) {
             table.map(ServiceCallTypeImpl.class);
@@ -82,7 +82,6 @@ public enum TableSpecs {
         void describeTable(Table table) {
             table.map(ServiceCallImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            Column name = table.column("NAME").varChar(NAME_LENGTH).notNull().map(ServiceCallImpl.Fields.name.fieldName()).add();
             table.column("CREATIONDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).notNull().map(ServiceCallImpl.Fields.creationDate.fieldName()).add();
             table.column("LASTMODIFICATIONDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).notNull().map(ServiceCallImpl.Fields.lastModificationDate.fieldName()).add();
             table.column("LASTCOMPLETEDDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map(ServiceCallImpl.Fields.lastCompletedDate.fieldName()).add();
@@ -99,7 +98,6 @@ public enum TableSpecs {
                     map(ServiceCallImpl.Fields.type.fieldName()).
                     add();
             table.primaryKey("SCS_PK_SERVICECALL").on(idColumn).add();
-            table.unique("SCS_U_NAME").on(name).add();
         }
     };
 

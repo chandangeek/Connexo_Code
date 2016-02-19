@@ -1,32 +1,37 @@
 package com.elster.jupiter.servicecall.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallType;
 
 import javax.inject.Inject;
+import java.sql.Ref;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.time.Clock;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 public class ServiceCallImpl implements ServiceCall {
+    public static final NumberFormat NUMBER_PREFIX = new DecimalFormat("SC_00000000");
     private long id;
-    private String name;
-    private Instant creationDate;
-    private Instant lastModificationDate;
     private Instant lastCompletedDate;
-    private DefaultState state;
     private String origin;
     private String externalReference;
-    private List<RegisteredCustomPropertySet> customProperties;
     private RefAny targetObject;
     private ServiceCall parent;
-    private Reference<ServiceCallType> type;
+    private Reference<IServiceCallType> type = ValueReference.absent();
+    private Reference<State> state = ValueReference.absent();
 
     @SuppressWarnings("unused")
     private Instant createTime;
@@ -39,14 +44,25 @@ public class ServiceCallImpl implements ServiceCall {
 
 
     private final DataModel dataModel;
+    private final Clock clock;
 
     @Inject
-    public ServiceCallImpl(DataModel dataModel) {
+    ServiceCallImpl(DataModel dataModel, Clock clock) {
         this.dataModel = dataModel;
+        this.clock = clock;
+    }
+
+    static ServiceCallImpl from(DataModel dataModel, IServiceCallType type) {
+        return dataModel.getInstance(ServiceCallImpl.class).init(type);
+    }
+
+    private ServiceCallImpl init(IServiceCallType type) {
+        this.type.set(type);
+        this.state.set(asState(DefaultState.CREATED));
+        return this;
     }
 
     public enum Fields {
-        name("name"),
         creationDate("creationDate"),
         lastModificationDate("lastModificationDate"),
         lastCompletedDate("lastCompletedDate"),
@@ -71,28 +87,42 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     @Override
-    public Instant getCreationDate() {
-        return this.creationDate;
+    public String getNumber() {
+        return NUMBER_PREFIX.format(getId());
     }
 
     @Override
-    public Instant getLastModificationDate() {
-        return this.lastModificationDate;
+    public Instant getCreationTime() {
+        return this.createTime;
     }
 
     @Override
-    public Optional<Instant> getLastCompletedDate() {
+    public Instant getLastModificationTime() {
+        return this.modTime;
+    }
+
+    @Override
+    public Optional<Instant> getLastCompletedTime() {
         return  Optional.ofNullable(this.lastCompletedDate);
     }
 
     @Override
     public DefaultState getState() {
-        return this.state;
+        return Arrays.stream(DefaultState.values())
+                .filter(defaultState -> defaultState.getKey().equals(state.get().getName()))
+                .findAny()
+                .orElseThrow(IllegalStateException::new);
     }
 
     @Override
-    public void setState(DefaultState state) {
+    public void setState(DefaultState defaultState) {
+        // TODO invoke FSM checks, for now a plain setter
+        this.state.set(asState(defaultState));
 
+    }
+
+    private State asState(DefaultState state) {
+        return getType().getServiceCallLifeCycle().getState(state).orElseThrow(IllegalArgumentException::new);
     }
 
     @Override
@@ -100,14 +130,23 @@ public class ServiceCallImpl implements ServiceCall {
         return  Optional.ofNullable(this.origin);
     }
 
+    void setOrigin(String origin) {
+        this.origin = origin;
+    }
+
     @Override
     public Optional<String> getExternalReference() {
         return  Optional.ofNullable(this.externalReference);
     }
 
+    void setExternalReference(String externalReference) {
+        this.externalReference = externalReference;
+    }
+
     @Override
     public Optional<List<RegisteredCustomPropertySet>> getCustomProperties() {
-        return Optional.ofNullable(this.customProperties);
+        //return customPropertySetService.get;
+        return null;
     }
 
     @Override
@@ -115,9 +154,17 @@ public class ServiceCallImpl implements ServiceCall {
         return  Optional.ofNullable(this.targetObject);
     }
 
+    void setTargetObject(RefAny targetObject) {
+        this.targetObject = targetObject;
+    }
+
     @Override
     public Optional<ServiceCall> getParent() {
         return Optional.ofNullable(this.parent);
+    }
+
+    void setParent(ServiceCall parent) {
+        this.parent = parent;
     }
 
     @Override
@@ -126,18 +173,13 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     @Override
-    public ServiceCallType getType() {
+    public IServiceCallType getType() {
         return this.type.orNull();
     }
 
     @Override
     public long getId() {
         return this.id;
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.elster.jupiter.servicecall;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.orm.associations.RefAny;
 
 import java.util.List;
 import java.util.Optional;
@@ -76,6 +77,14 @@ public interface ServiceCallService {
         public ServiceCallTypeBuilder logLevel(LogLevel logLevel);
         public ServiceCallTypeBuilder customPropertySet(RegisteredCustomPropertySet customPropertySet);
         public ServiceCallType add();
+    }
+
+    interface ServiceCallBuilder {
+        public ServiceCallBuilder origin(String origin);
+        public ServiceCallBuilder externalReference(String externalReference);
+        public ServiceCallBuilder targetObject(RefAny targetObject);
+        public ServiceCallBuilder parent(ServiceCall parent);
+        public ServiceCall add();
     }
 
 }
