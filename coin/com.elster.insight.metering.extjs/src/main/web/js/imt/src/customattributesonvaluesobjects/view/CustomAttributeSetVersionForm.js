@@ -219,6 +219,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
         overlapContainer.hide();
         Ext.resumeLayouts(true);
 
+        propertyForm.clearInvalid();
         record.save({
             backUrl: me.backUrl,
             params: {
