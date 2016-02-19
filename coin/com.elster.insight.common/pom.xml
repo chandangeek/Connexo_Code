@@ -6,12 +6,12 @@
     <parent>
         <groupId>com.elster</groupId>
         <artifactId>insight.parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1-SNAPSHOT</version>
         <relativePath>../com.elster.insight.parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>insight.common</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>[Insight] insight.common</name>
     <description>
