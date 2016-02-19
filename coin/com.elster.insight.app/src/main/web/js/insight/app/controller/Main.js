@@ -7,7 +7,8 @@ Ext.define('InsightApp.controller.Main', {
     requires: [
         'Cfg.controller.Main',
         'Uni.controller.Navigation',
-        'Imt.controller.Main'
+        'Imt.controller.Main',
+        'Imt.privileges.ServiceCategory'
     ],
 
     applicationTitle: 'Connexo Insight',
@@ -16,7 +17,9 @@ Ext.define('InsightApp.controller.Main', {
     searchEnabled: true,
     onlineHelpEnabled: false,
 
-    privileges: [],
+    privileges: Ext.Array.merge(
+        Imt.privileges.ServiceCategory.all()
+    ),
 
     controllers: [
         'Cfg.controller.Main',
@@ -32,5 +35,5 @@ Ext.define('InsightApp.controller.Main', {
         });
 
         this.callParent(arguments);
-    },
+    }
 });

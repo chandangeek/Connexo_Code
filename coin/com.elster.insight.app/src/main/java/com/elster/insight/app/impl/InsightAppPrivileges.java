@@ -19,7 +19,11 @@ class InsightAppPrivileges {
                 com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
 
                 //metrology configuration
-                com.elster.insight.usagepoint.config.security.Privileges.Constants.ADMIN_ANY_METROLOGY_CONFIG,
-                com.elster.insight.usagepoint.config.security.Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG);
+                com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION,
+                com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION,
+
+                //service category
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY
+        );
     }
 }
