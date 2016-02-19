@@ -14,13 +14,12 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.kie.api.task.model.Status;
-import org.kie.api.task.model.Task;
-import org.kie.api.task.model.TaskData;
+import org.kie.api.task.model.*;
 import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.task.api.model.InternalTask;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.persistence.EntityManager;
@@ -28,12 +27,15 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 import javax.persistence.Query;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -405,4 +407,41 @@ public class JbpmTaskResourceTest {
         assertEquals(true, response.getEntity().taskGroups.get(0).tasksForm.fields.stream().anyMatch(s-> s.type.equals("InputText") && s.properties.stream().anyMatch(p->p.name.equals("fieldRequired") && p.value.equals("true"))));
     }
 
+    @Test
+    public  void testAssignTask() throws Exception{
+        Task task = mock(Task.class);
+        TaskData taskData = mock(TaskData.class);
+        PeopleAssignments peopleAssignments = mock(PeopleAssignments.class);
+        List<OrganizationalEntity> businessAdministrators = new ArrayList<>();
+        OrganizationalEntity org = mock(OrganizationalEntity.class);
+        businessAdministrators.add(org);
+
+        when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
+        when(task.getTaskData()).thenReturn(taskData);
+        when(taskData.getStatus())
+                .thenReturn(Status.Created)
+                .thenReturn(Status.Ready);
+        when(task.getPeopleAssignments()).thenReturn(peopleAssignments);
+        when(peopleAssignments.getBusinessAdministrators()).thenReturn(businessAdministrators);
+        when(org.getId()).thenReturn("userName");
+
+        ClientRequest request = new ClientRequest(baseUri + "/1/assign");
+        request.queryParameter("username", "userName");
+        request.queryParameter("currentuser", "currentUser");
+
+        ClientResponse<Response> response = request.post(Response.class);
+        assertEquals(200, response.getResponseStatus().getStatusCode());
+    }
+
+    @Test
+    public  void testSetDueDate() throws Exception{
+        Calendar calendar = new GregorianCalendar(2016, 1, 1, 10, 30, 0);
+
+        ClientRequest request = new ClientRequest(baseUri + "/1/set");
+        request.queryParameter("priority", "1");
+        request.queryParameter("duedate", calendar.getTimeInMillis());
+
+        ClientResponse<Response> response = request.post(Response.class);
+        assertEquals(200, response.getResponseStatus().getStatusCode());
+    }
 }
