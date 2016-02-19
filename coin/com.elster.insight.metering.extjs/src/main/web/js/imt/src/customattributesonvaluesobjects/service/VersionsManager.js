@@ -5,7 +5,7 @@ Ext.define('Imt.customattributesonvaluesobjects.service.VersionsManager', {
         'Imt.customattributesonvaluesobjects.service.RouteMap'
     ],
 
-    addVersion: function (record, container, router, attributeSetType, propertyForm) {
+    addVersion: function (record, container, router, attributeSetType, propertyForm, inline) {
         var htmlString = '',
             versionRoute = Imt.customattributesonvaluesobjects.service.RouteMap.getRoute(attributeSetType, true, 'version'),
             routeArguments = router.arguments,
@@ -30,13 +30,24 @@ Ext.define('Imt.customattributesonvaluesobjects.service.VersionsManager', {
         }
 
         Ext.suspendLayouts();
-        container.add([
-            {
+        container.add({
                 xtype: 'container',
                 html: '<span style="font-family: Lato, helvetica, arial, verdana, sans-serif; font-style: normal; color: #686868;">' + htmlString + '</span>'
 
-            },
-            {
+            });
+
+        if (inline) {
+            container.add({
+                xtype: 'button',
+                margin: '0 0 0 7',
+                ui: 'plain',
+                iconCls: 'icon-pencil2',
+                tooltip: Uni.I18n.translate('general.tooltip.editVersion', 'IMT', 'Edit version'),
+                disabled: true, // timeslised are not ready yet
+                hidden: !(record.get('isEditable') && record.get('isActive'))
+            });
+        } else {
+            container.add({
                 xtype: 'button',
                 ui: 'link',
                 text: Uni.I18n.translate('customattributesets.versions', 'IMT', 'Versions'),
@@ -50,8 +61,9 @@ Ext.define('Imt.customattributesonvaluesobjects.service.VersionsManager', {
 
                     router.getRoute(versionRoute).forward(routeArguments, routeQueryParams);
                 }
-            }
-        ]);
+            });
+        }
+
         Ext.resumeLayouts(true);
     }
 });

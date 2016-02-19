@@ -8,12 +8,20 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu', {
     title: Uni.I18n.translate('metrologyconfiguration.label.metrologyconfiguration', 'IMT', 'Metrology Configuration'),
     initComponent: function () {
         var me = this;
+        var casRoute = me.router.getRoute('administration/metrologyconfiguration/view/customAttributeSets');
+
         me.menuItems = [
             {
                 text: Uni.I18n.translate('general.label.overview', 'IMT', 'Overview'),
                 itemId: 'metrology-configuration-overview-link',
                 href: me.router.getRoute('administration/metrologyconfiguration/view').buildUrl({mcid: me.mcid})
-            },           
+            },
+            {
+                text: casRoute.getTitle(),
+                itemId: 'metrology-configuration-custom-attribute-sets-link',
+                priveleges: Imt.privileges.MetrologyConfig.view,
+                href: casRoute.buildUrl()
+            },
             {
                 title: 'Configurations',
                 xtype: 'menu',
@@ -23,7 +31,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu', {
                         privileges: Imt.privileges.UsagePoint.admin,
                         itemId: 'metrology-configuration-validation-rulesets-link',
                         href: me.router.getRoute('administration/metrologyconfiguration/view/manage').buildUrl({mcid: me.mcid})
-                    },
+                    }
                 ]
             }
         ];

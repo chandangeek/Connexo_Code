@@ -7,20 +7,19 @@ Ext.define('Imt.customattributesonvaluesobjects.service.ActionMenuManager', {
 
     addAction: function (xtype, record, router, attributeSetType) {
         var actionMenusArray = Ext.ComponentQuery.query(xtype),
-            route = Imt.customattributesonvaluesobjects.service.RouteMap.getRoute(attributeSetType, record.get('timesliced'), 'edit'),
+            route = Imt.customattributesonvaluesobjects.service.RouteMap.getRoute(attributeSetType, record.get('isVersioned'), 'edit'),
             routeArguments = router.arguments;
 
         Ext.suspendLayouts();
-        if (!record.get('timesliced') || record.get('isActive')) {
+        if (!record.get('isVersioned') || record.get('isActive')) {
             Ext.each(actionMenusArray, function (menu) {
                 menu.add({
                     itemId: 'action-menu-custom-attribute' + record.get('id'),
                     menuItemClass: 'customAttributeSet',
-//                    privileges: Imt.privileges.Device.administrateDeviceData,
                     text: Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [Ext.String.htmlEncode(record.get('name'))]),
                     handler: function () {
                         routeArguments.customAttributeSetId = record.get('id');
-                        if (record.get('timesliced')) {
+                        if (record.get('isVersioned')) {
                             routeArguments.versionId = record.get('versionId');
                         }
                         router.getRoute(route).forward(routeArguments);
@@ -37,5 +36,21 @@ Ext.define('Imt.customattributesonvaluesobjects.service.ActionMenuManager', {
         Ext.each(actionMenuItems, function (item) {
             item.destroy();
         });
+    },
+
+    setDisabledAllEditBtns: function (disabled) {
+        var actionMenuItems = Ext.ComponentQuery.query('[menuItemClass=inlineEditableAttributeSet]');
+
+        Ext.suspendLayouts();
+
+        Ext.each(actionMenuItems, function (item) {
+            item.setDisabled(disabled);
+        });
+        var pencilBtns = Ext.ComponentQuery.query('#pencil-btn');
+        Ext.each(pencilBtns, function(btn){
+            btn.setDisabled(disabled);
+        });
+
+        Ext.resumeLayouts(true);
     }
 });
