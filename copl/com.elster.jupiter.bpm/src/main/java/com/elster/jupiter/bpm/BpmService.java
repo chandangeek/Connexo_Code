@@ -30,6 +30,8 @@ public interface BpmService {
 
     List<BpmProcessDefinition> getBpmProcessDefinitions();
 
+    List<BpmProcessDefinition> getAllBpmProcessDefinitions();
+
     List<BpmProcessDefinition> getActiveBpmProcessDefinitions();
 
     BpmProcessPrivilege createBpmProcessPrivilege(BpmProcessDefinition bpmProcessDefinition, String privilegeName, String application);
