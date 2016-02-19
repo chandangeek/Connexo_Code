@@ -4,10 +4,12 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 import javax.validation.constraints.NotNull;
+import java.util.Optional;
 
 /**
  * Defines the minimal behavior for any component that will
@@ -58,6 +60,7 @@ public abstract class CommonBaseDeviceSecurityProperties implements PersistentDo
         public abstract String databaseName();
 
     }
+
     @NotNull
     @SuppressWarnings("unused")
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
@@ -72,13 +75,13 @@ public abstract class CommonBaseDeviceSecurityProperties implements PersistentDo
     @Override
     public void copyFrom(BaseDevice device, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.device.set(device);
-        SecurityPropertySpecProvider propertySpecProvider = (SecurityPropertySpecProvider) propertyValues.getProperty(Fields.PROPERTY_SPEC_PROVIDER.javaName());
+        SecurityPropertySpecProvider propertySpecProvider = (SecurityPropertySpecProvider) propertyValues.getProperty(Fields.PROPERTY_SPEC_PROVIDER
+                .javaName());
         this.propertySpecProvider.set(propertySpecProvider);
         Boolean complete = (Boolean) propertyValues.getProperty(Fields.COMPLETE.javaName());
         if (complete != null) {
             this.complete = complete;
-        }
-        else {
+        } else {
             this.complete = false;
         }
         this.copyActualPropertiesFrom(propertyValues);
@@ -95,4 +98,33 @@ public abstract class CommonBaseDeviceSecurityProperties implements PersistentDo
 
     protected abstract void copyActualPropertiesTo(CustomPropertySetValues propertySetValues);
 
+    protected void setTypedPropertyValueTo(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {
+        propertySpecProvider.get()
+                .getPropertySpecs()
+                .stream()
+                .filter(propertySpec -> propertySpec.getName().equals(propertyName))
+                .findAny()
+                .ifPresent(propertySpec -> propertySetValues.setProperty(propertySpec.getName(),
+                        propertySpec.getValueFactory().valueFromDatabase(propertyValue)));
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Object getTypedPropertyValue(CustomPropertySetValues propertySetValues, String propertyName) {
+        Optional<PropertySpec> propertySpec = propertySpecProvider.get()
+                .getPropertySpecs()
+                .stream()
+                .filter(ps -> ps.getName().equals(propertyName))
+                .findAny();
+        if (propertySpec.isPresent()) {
+            return propertySpec.get().getValueFactory().valueToDatabase(propertySetValues.getProperty(propertyName));
+        } else {
+            return null;
+        }
+    }
+
+    protected void setPropertyIfNotNull(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {
+        if (propertyValue != null) {
+            setTypedPropertyValueTo(propertySetValues, propertyName, propertyValue);
+        }
+    }
 }
