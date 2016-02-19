@@ -276,6 +276,7 @@ Ext.define('Imt.controller.History', {
                                 customattributesversionsedit: {
                                     title: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
                                     route: 'customattributes/{customAttributeSetId}/versions/{versionId}/edit',
+                                    privileges: Imt.privileges.UsagePoint.admin,
                                     controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
                                     action: 'editCasVersion',
                                     callback: function (route) {
@@ -290,6 +291,7 @@ Ext.define('Imt.controller.History', {
                                 customattributesversionsadd: {
                                     title: Uni.I18n.translate('general.add', 'IMT', 'Add'),
                                     route: 'customattributes/{customAttributeSetId}/versions/add',
+                                    privileges: Imt.privileges.UsagePoint.admin,
                                     controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
                                     action: 'editCasVersion',
                                     callback: function (route) {
@@ -304,6 +306,7 @@ Ext.define('Imt.controller.History', {
                                 customattributesversionsclone: {
                                     title: Uni.I18n.translate('general.clone', 'IMT', 'Clone'),
                                     route: 'customattributes/{customAttributeSetId}/versions/{versionId}/clone',
+                                    privileges: Imt.privileges.UsagePoint.admin,
                                     controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
                                     action: 'cloneCustomAttributeVersion',
                                     callback: function (route) {
