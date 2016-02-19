@@ -64,6 +64,9 @@ Ext.define('Isu.controller.Overview', {
                 sectionPanel.store = new Ext.data.Store({
                     model: 'Isu.model.Group'
                 });
+                sectionPanel.store.getProxy().pageParam = false;
+                sectionPanel.store.getProxy().startParam = false;
+                sectionPanel.store.getProxy().limitParam = false;
             }
             sectionPanel.store.load({
                 params: me.getGroupProxyParams(section),
