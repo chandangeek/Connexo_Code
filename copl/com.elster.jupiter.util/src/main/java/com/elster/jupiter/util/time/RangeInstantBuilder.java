@@ -22,7 +22,7 @@ public final class RangeInstantBuilder {
      * <td>NULL</td>
      * </tr>
      * <tr>
-     * <td>Range.openClosed</td>
+     * <td>Range.closedOpen</td>
      * <td>NOT NULL</td>
      * <td>NOT NULL</td>
      * </tr>
@@ -40,14 +40,14 @@ public final class RangeInstantBuilder {
      *
      * @param start start of interval in milliseconds, inclusive,  can be <code>null</code>
      * @param end   end of interval in milliseconds, exclusive, can be <code>null</code>
-     * @return
+     * @return a closed-open range
      */
-    public static Range<Instant> openClosedRange(Long start, Long end) {
+    public static Range<Instant> closedOpenRange(Long start, Long end) {
         Range<Instant> range;
         if (start == null && end == null) {
             range = Range.all();
         } else if (start != null && end != null) {
-            range = Range.openClosed(Instant.ofEpochMilli(start), Instant.ofEpochMilli(end));
+            range = Range.closedOpen(Instant.ofEpochMilli(start), Instant.ofEpochMilli(end));
         } else if (start != null) {
             range = Range.atLeast(Instant.ofEpochMilli(start));
         } else {
