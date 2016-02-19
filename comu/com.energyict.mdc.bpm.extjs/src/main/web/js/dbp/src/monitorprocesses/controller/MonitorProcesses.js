@@ -68,14 +68,14 @@ Ext.define('Dbp.monitorprocesses.controller.MonitorProcesses', {
                 viewport.setLoading(false);
                 widget = Ext.widget('dbp-usage-point-processes-main-view', {
                     router: router,
-                    mRID: usagepoint,
+                    mRID: usagepoint.get('mRID'),
                     properties: {
                         variableId: 'usagePointId',
                         name: 'usagePoint',
                         value: usagePointId,
                         route: Dbp.privileges.DeviceProcesses.canAssignOrExecute()? 'workspace/tasks/performTask': null
                     },
-                    side: sidePanel
+                    sidePanel: sidePanel
             });
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getOverviewLink().setText(usagepoint.get('mRID'));
