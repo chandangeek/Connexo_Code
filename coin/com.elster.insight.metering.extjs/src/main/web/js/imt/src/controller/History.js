@@ -269,6 +269,7 @@ Ext.define('Imt.controller.History', {
                         history: {
                             title: Uni.I18n.translate('general.history', 'IMT', 'History'),
                             route: 'history',
+                            privileges: Imt.privileges.UsagePoint.view,
                             controller: 'Imt.usagepointhistory.controller.History',
                             action: 'showHistory',
                             items: {
