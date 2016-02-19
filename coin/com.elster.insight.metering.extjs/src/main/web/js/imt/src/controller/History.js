@@ -279,7 +279,7 @@ Ext.define('Imt.controller.History', {
                                     action: 'editCasVersion',
                                     callback: function (route) {
                                         this.getApplication().on('loadCasVersionOnUsagePoint', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [record.get('period')]));
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [record.get('period')], false));
                                             return true;
                                         }, {single: true});
 
@@ -293,7 +293,7 @@ Ext.define('Imt.controller.History', {
                                     action: 'editCasVersion',
                                     callback: function (route) {
                                         this.getApplication().on('loadCasOnUsagePointAdd', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.addxversion', 'IMT', "Add '{0}' version", [record.get('name')]));
+                                            route.setTitle(Uni.I18n.translate('general.addxversion', 'IMT', "Add '{0}' version", [record.get('name')], false));
                                             return true;
                                         }, {single: true});
 
@@ -307,7 +307,7 @@ Ext.define('Imt.controller.History', {
                                     action: 'cloneCustomAttributeVersion',
                                     callback: function (route) {
                                         this.getApplication().on('loadCustomAttributeSetVersionOnUsagePointClone', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.clonex', 'IMT', "Clone '{0}'", [record.get('period')]));
+                                            route.setTitle(Uni.I18n.translate('general.clonex', 'IMT', "Clone '{0}'", [record.get('period')], false));
                                             return true;
                                         }, {single: true});
 
