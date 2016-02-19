@@ -15,6 +15,8 @@ import com.elster.jupiter.rest.util.properties.PredefinedPropertyValuesInfo;
 import com.elster.jupiter.rest.util.properties.PropertyType;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.RangeInstantBuilder;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -166,7 +168,12 @@ public class CustomPropertySetInfoFactory {
     }
 
     public CustomPropertySetValues getCustomPropertySetValues(CustomPropertySetInfo<?> info, List<PropertySpec> propertySpecs) {
-        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        CustomPropertySetValues values;
+        if (info.isVersioned) {
+            values = CustomPropertySetValues.emptyDuring(Interval.of(RangeInstantBuilder.closedOpenRange(info.startTime, info.endTime)));
+        } else {
+            values = CustomPropertySetValues.empty();
+        }
         if (info != null && info.properties != null && propertySpecs != null) {
             Map<String, PropertySpec> propertySpecMap = propertySpecs
                     .stream()
