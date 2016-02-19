@@ -41,15 +41,9 @@ Ext.define('Sct.view.LogLevelWindow', {
                     valueField: 'id',
                     displayField: 'displayValue',
                     queryMode: 'local',
+                    margin: '10 0 0 0',
                     value: me.record ? me.record.get('logLevelName') : "WARNING",
                     emptyText: Uni.I18n.translate('general.selectALogLevel', 'SCT', 'Select a log level...'),
-                },
-                {
-                    xtype: 'property-form',
-                    itemId: 'property-form',
-                    defaults: {
-                        labelWidth: 200
-                    }
                 },
                 {
                     xtype: 'fieldcontainer',
