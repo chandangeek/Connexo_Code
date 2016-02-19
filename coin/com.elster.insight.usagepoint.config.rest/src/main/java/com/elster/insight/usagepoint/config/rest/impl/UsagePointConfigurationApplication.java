@@ -1,7 +1,7 @@
 package com.elster.insight.usagepoint.config.rest.impl;
 
-import com.elster.insight.common.rest.ExceptionFactory;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -12,6 +12,9 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.insight.common.rest.ExceptionFactory;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -40,10 +43,13 @@ public class UsagePointConfigurationApplication extends Application implements T
     private volatile UsagePointConfigurationService usagePointConfigurationService;
     private volatile ValidationService validationService;
     private volatile License license;
+    private volatile CustomPropertySetService customPropertySetService;
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of(MetrologyConfigurationResource.class);
+        return ImmutableSet.of(
+                MetrologyConfigurationResource.class
+        );
     }
 
     @Override
@@ -72,7 +78,6 @@ public class UsagePointConfigurationApplication extends Application implements T
 
     @Override
     public List<TranslationKey> getKeys() {
-        Set<String> uniqueIds = new HashSet<>();
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Arrays.asList(DefaultTranslationKey.values()));
         return keys;
@@ -108,6 +113,11 @@ public class UsagePointConfigurationApplication extends Application implements T
         this.license = license;
     }
 
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -122,6 +132,10 @@ public class UsagePointConfigurationApplication extends Application implements T
             bind(clock).to(Clock.class);
             bind(usagePointConfigurationService).to(UsagePointConfigurationService.class);
             bind(validationService).to(ValidationService.class);
+            bind(customPropertySetService).to(CustomPropertySetService.class);
+            bind(ResourceHelper.class).to(ResourceHelper.class);
+            bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
+            bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
         }
     }
 }
