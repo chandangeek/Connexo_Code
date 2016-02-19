@@ -1,13 +1,7 @@
 package com.elster.jupiter.metering.security;
 
-/**
- * Not an enum, otherwise it won't work for RolesAllowed.
- */
-/*public interface Privileges {
-
-}*/
-
 import com.elster.jupiter.nls.TranslationKey;
+
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -19,7 +13,11 @@ public enum Privileges implements TranslationKey {
 	ADMIN_OWN(Constants.ADMIN_OWN, "Administrate own usage point"),
 	VIEW_READINGTYPE(Constants.VIEW_READINGTYPE, "View reading types"),
 	ADMINISTRATE_READINGTYPE(Constants.ADMINISTRATE_READINGTYPE, "Administer reading types"),
-	VIEW_SERVICECATEGORY(Constants.VIEW_SERVICECATEGORY, "View service categories");
+	VIEW_SERVICECATEGORY(Constants.VIEW_SERVICECATEGORY, "View service categories"),
+	RESOURCE_METROLOGY_CONFIG("usagePoint.metrologyConfiguration", "Metrology configuration"),
+	RESOURCE_METROLOGY_CONFIGURATION_DESCRIPTION("usagePoint.metrologyConfiguration.description", "Manage metrology configuration"),
+	ADMINISTER_ANY_METROLOGY_CONFIG(Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION, "Administer any metrology configuration"),
+	BROWSE_ANY_METROLOGY_CONFIG(Constants.BROWSE_ANY_METROLOGY_CONFIGURATION, "Browse any metrology configuration");
 
 	private final String key;
 	private final String description;
@@ -57,5 +55,8 @@ public enum Privileges implements TranslationKey {
 		String VIEW_READINGTYPE = "privilege.view.readingType";
 		String ADMINISTRATE_READINGTYPE = "privilege.administrate.readingType";
 		String VIEW_SERVICECATEGORY = "privilege.view.serviceCategory";
+		String ADMINISTER_ANY_METROLOGY_CONFIGURATION = "UCR_ADMINISTER_ANY_METROLOGY_CONFIG";
+		String BROWSE_ANY_METROLOGY_CONFIGURATION = "UCR_BROWSE_ANY_METROLOGY_CONFIG";
 	}
+
 }
