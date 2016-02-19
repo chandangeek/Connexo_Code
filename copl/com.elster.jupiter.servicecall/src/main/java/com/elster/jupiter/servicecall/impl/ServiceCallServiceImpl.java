@@ -1,6 +1,5 @@
 package com.elster.jupiter.servicecall.impl;
 
-import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.DefaultFinder;
@@ -17,12 +16,14 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
+import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -75,7 +76,6 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(this.dataModel);
         }
-
     }
 
     @Reference
@@ -134,6 +134,7 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
+                bind(ServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
             }
         };
     }
@@ -180,8 +181,8 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     }
 
     @Override
-    public ServiceCallLifeCycle createServiceCallLifeCycle(String name) {
-        return null; // TODO
+    public ServiceCallLifeCycleBuilder createServiceCallLifeCycle(String name) {
+        return dataModel.getInstance(ServiceCallLifeCycleBuilderImpl.class).setName(name);
     }
 
     class ServiceCallTypeBuilderImpl implements ServiceCallTypeBuilder {

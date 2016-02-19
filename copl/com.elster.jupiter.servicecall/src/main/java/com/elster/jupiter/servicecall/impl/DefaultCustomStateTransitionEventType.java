@@ -2,35 +2,38 @@ package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.servicecall.DefaultState;
 
 /**
  * Models the default {@link CustomStateTransitionEventType}
  * that are necessary to create the default service call life cycle.
  */
-public enum DefaultCustomStateTransitionEventType {
-    ENQUEUED("#enqueued"),
-    SCHEDULED("#scheduled"),
-    PENDING("#pending"),
-    PAUSED("#paused"),
-    WAITING("#waiting"),
-    ONGOING("#ongoing"),
-    CANCELLED("#cancelled"),
-    PARTIAL_SUCCESS("#partialsuccess"),
-    SUCCESSFUL("#successful"),
-    FAILED("#failed"),
-    REJECTED("#rejected");
+enum DefaultCustomStateTransitionEventType {
+    SCHEDULED("#scheduled", DefaultState.SCHEDULED),
+    PENDING("#pending", DefaultState.PENDING),
+    PAUSED("#paused", DefaultState.PAUSED),
+    WAITING("#waiting", DefaultState.WAITING),
+    ONGOING("#ongoing", DefaultState.ONGOING),
+    CANCELLED("#cancelled", DefaultState.CANCELLED),
+    PARTIAL_SUCCESS("#partialsuccess", DefaultState.PARTIAL_SUCCESS),
+    SUCCESSFUL("#successful", DefaultState.SUCCESSFUL),
+    FAILED("#failed", DefaultState.FAILED),
+    REJECTED("#rejected", DefaultState.REJECTED);
 
-    private String symbol;
+    private final String symbol;
+    private final DefaultState targetState;
 
-    DefaultCustomStateTransitionEventType(String symbol) {
+
+    DefaultCustomStateTransitionEventType(String symbol, DefaultState targetState) {
         this.symbol = symbol;
+        this.targetState = targetState;
     }
 
-    public String getSymbol() {
+    String getSymbol() {
         return this.symbol;
     }
 
-    public CustomStateTransitionEventType findOrCreate(FiniteStateMachineService service) {
+    CustomStateTransitionEventType findOrCreate(FiniteStateMachineService service) {
         return service
                 .findCustomStateTransitionEventType(this.symbol)
                 .orElseGet(() -> this.createNewStateTransitionEventType(service, this.symbol));
@@ -40,4 +43,7 @@ public enum DefaultCustomStateTransitionEventType {
         return service.newCustomStateTransitionEventType(symbol);
     }
 
+    DefaultState getTarget() {
+        return targetState;
+    }
 }
