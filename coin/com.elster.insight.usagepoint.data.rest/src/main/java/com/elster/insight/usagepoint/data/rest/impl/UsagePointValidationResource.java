@@ -1,14 +1,26 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
+import com.elster.jupiter.validation.security.Privileges;
+import com.elster.insight.common.rest.ExceptionFactory;
+import com.elster.insight.common.services.ListPager;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.insight.usagepoint.data.exceptions.InvalidLastCheckedException;
+
+import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -21,29 +33,15 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import com.elster.insight.common.rest.ExceptionFactory;
-import com.elster.insight.common.services.ListPager;
-import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.insight.usagepoint.data.UsagePointValidation;
-import com.elster.insight.usagepoint.data.UsagePointValidationImpl;
-import com.elster.insight.usagepoint.data.exceptions.InvalidLastCheckedException;
-import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
-import com.elster.jupiter.validation.security.Privileges;
-import com.google.common.collect.Range;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class UsagePointValidationResource {
     private final ResourceHelper resourceHelper;
@@ -55,12 +53,12 @@ public class UsagePointValidationResource {
     private final UsagePointConfigurationService usagePointConfigurationService;
 
     @Inject
-    public UsagePointValidationResource(ResourceHelper resourceHelper, 
-            ValidationService validationService, 
-            ExceptionFactory exceptionFactory, 
+    public UsagePointValidationResource(ResourceHelper resourceHelper,
+            ValidationService validationService,
+            ExceptionFactory exceptionFactory,
             Clock clock,
             Thesaurus thesaurus,
-            ValidationInfoFactory validationInfoFactory, 
+            ValidationInfoFactory validationInfoFactory,
             UsagePointConfigurationService usagePointConfigurationService) {
         this.resourceHelper = resourceHelper;
         this.validationService = validationService;
@@ -80,8 +78,8 @@ public class UsagePointValidationResource {
         Optional<? extends MeterActivation> activation = usagePoint.getCurrentMeterActivation();
         Optional<MetrologyConfiguration> OPTconfig = usagePointConfigurationService.findMetrologyConfigurationForUsagePoint(usagePoint);
         MetrologyConfiguration config = OPTconfig.get();
-        
-        List<ValidationRuleSet> linkedRuleSets = config.getValidationRuleSets();
+
+        List<ValidationRuleSet> linkedRuleSets = usagePointConfigurationService.getValidationRuleSets(config);
         fillValidationRuleSetStatus(linkedRuleSets, activation, result, usagePoint);
         Collections.sort(result, ValidationRuleSetInfo.VALIDATION_RULESET_NAME_COMPARATOR);
         return Response.ok(PagedInfoList.fromPagedList("rulesets",
@@ -263,7 +261,7 @@ public class UsagePointValidationResource {
 //
 //        return Response.status(Response.Status.OK).entity(registerStatus).build();
 //    }
-    
+
     public UsagePointValidation getUsagePointValidation(UsagePoint usagePoint) {
         return new UsagePointValidationImpl(validationService, clock, thesaurus, usagePoint, usagePointConfigurationService);
     }
@@ -289,7 +287,7 @@ public class UsagePointValidationResource {
     private void collectChannelData(UsagePoint usagePoint, UsagePointValidationStatusInfo usagePointValidationStatusInfo, ZonedDateTime end) {
         List<Channel> irregularChannels = new ArrayList<Channel>();
         List<Channel> regularChannels = new ArrayList<Channel>();
-        
+
         ZonedDateTime loadProfileStart = end.minusMonths(1);
         Range<Instant> loadProfileInterval = Range.openClosed(loadProfileStart.toInstant(), end.toInstant());
 
@@ -298,10 +296,10 @@ public class UsagePointValidationResource {
         for (Channel channel : channelCandidates) {
             if (!channel.isRegular())
                 irregularChannels.add(channel);
-            else 
+            else
                 regularChannels.add(channel);
         }
-        
+
         List<DataValidationStatus> statuses = regularChannels.stream()
                 .flatMap(c -> getUsagePointValidation(usagePoint).getValidationStatus(c, Collections.emptyList(), loadProfileInterval).stream())
                 .collect(Collectors.toList());
@@ -329,10 +327,10 @@ public class UsagePointValidationResource {
         for (Channel channel : channelCandidates) {
             if (!channel.isRegular())
                 irregularChannels.add(channel);
-            else 
+            else
                 regularChannels.add(channel);
         }
-        
+
         List<DataValidationStatus> statuses = irregularChannels.stream()
                 .flatMap(r -> getUsagePointValidation(usagePoint).getValidationStatus(r, Collections.emptyList(), registerRange).stream())
                 .collect(Collectors.toList());

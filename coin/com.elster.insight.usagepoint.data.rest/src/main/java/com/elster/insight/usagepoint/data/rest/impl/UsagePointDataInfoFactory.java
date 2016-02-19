@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import com.elster.insight.common.rest.IntervalInfo;
-import com.elster.insight.usagepoint.data.UsagePointValidation;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;

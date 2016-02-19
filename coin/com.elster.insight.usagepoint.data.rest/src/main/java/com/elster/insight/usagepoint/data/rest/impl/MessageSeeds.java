@@ -7,16 +7,17 @@ import com.elster.jupiter.util.exception.MessageSeed;
 
 public enum MessageSeeds implements MessageSeed, TranslationKey {
 
-    NO_DEVICE_FOR_MRID(101, Keys.NO_DEVICE_FOR_MRID, "No device with MRID {0}"),
-    NO_USAGE_POINT_FOR_MRID(102, Keys.NO_USAGE_POINT_FOR_MRID, "No usage point with MRID {0}"), 
-    NO_READING_TYPE_FOR_MRID(103, Keys.NO_READING_TYPE_FOR_MRID, "No reading type with MRID {0}"),
-    NO_CURRENT_ACTIVATION_FOR_USAGE_POINT_FOR_MRID(104, Keys.NO_CURRENT_ACTIVATION_FOR_USAGE_POINT_FOR_MRID, "No current meter activation for usage point with MRID {0}"), 
-    NO_REGISTER_FOR_USAGE_POINT_FOR_MRID(105, Keys.NO_REGISTER_FOR_USAGE_POINT_FOR_MRID, "No register for usage point with MRID {0} with reading type {1}"),
-    NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID(106, Keys.NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID, "No channel for usage point with MRID {0} with reading type {1}"),
-    NULL_DATE(107, Keys.NULL_DATE, "Date must be filled in"),
-    NO_ACTIVATION_FOR_USAGE_POINT_FOR_MRID_AT_TIME(108, Keys.NO_ACTIVATION_FOR_USAGE_POINT_FOR_MRID_AT_TIME, "No meter activation for usage point with MRID {0} at instant {1}"),
-    DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE(109, Keys.DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE, "Deactivate of validation rule set {0} is currently not possible."), 
-    NO_SUCH_READING_ON_REGISTER(110, Keys.NO_SUCH_READING_ON_REGISTER, "Register for reading type {0} has no reading with timestamp {1}"),
+    NO_DEVICE_FOR_MRID(1, Keys.NO_DEVICE_FOR_MRID, "No device with MRID {0}"),
+    NO_USAGE_POINT_FOR_MRID(2, Keys.NO_USAGE_POINT_FOR_MRID, "No usage point with MRID {0}"),
+    NO_READING_TYPE_FOR_MRID(3, Keys.NO_READING_TYPE_FOR_MRID, "No reading type with MRID {0}"),
+    NO_CURRENT_ACTIVATION_FOR_USAGE_POINT_FOR_MRID(4, Keys.NO_CURRENT_ACTIVATION_FOR_USAGE_POINT_FOR_MRID, "No current meter activation for usage point with MRID {0}"),
+    NO_REGISTER_FOR_USAGE_POINT_FOR_MRID(5, Keys.NO_REGISTER_FOR_USAGE_POINT_FOR_MRID, "No register for usage point with MRID {0} with reading type {1}"),
+    NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID(6, Keys.NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID, "No channel for usage point with MRID {0} with reading type {1}"),
+    NULL_DATE(7, Keys.NULL_DATE, "Date must be filled in"),
+    NO_ACTIVATION_FOR_USAGE_POINT_FOR_MRID_AT_TIME(8, Keys.NO_ACTIVATION_FOR_USAGE_POINT_FOR_MRID_AT_TIME, "No meter activation for usage point with MRID {0} at instant {1}"),
+    DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE(9, Keys.DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE, "Deactivate of validation rule set {0} is currently not possible."),
+    NO_SUCH_READING_ON_REGISTER(10, Keys.NO_SUCH_READING_ON_REGISTER, "Register for reading type {0} has no reading with timestamp {1}"),
+    NO_SUCH_CUSTOM_PROPERTY_SET(11, Keys.NO_SUCH_CUSTOM_PROPERTY_SET, "Custom property set with id ''{0}'' not found."),
     ;
     private final int number;
     private final String key;
@@ -64,7 +65,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID = "NoChannelForUsagePointForMRID";
         public static final String NO_ACTIVATION_FOR_USAGE_POINT_FOR_MRID_AT_TIME="NoActivationForUsagePointForMRIDAtTime";
         public static final String NO_SUCH_READING_ON_REGISTER = "NoSuchReadingOnRegister";
-        
+        public static final String NO_SUCH_CUSTOM_PROPERTY_SET = "NoSuchCustomPropertySet";
+
     }
 
 }

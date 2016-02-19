@@ -17,6 +17,8 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 
+import com.elster.insight.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import org.mockito.Mock;
 
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
@@ -51,15 +53,11 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     Clock clock;
     @Mock
-    JsonService jsonService;
-    @Mock
     MeteringService meteringService;
     @Mock
     RestQueryService restQueryService;
     @Mock
     PropertySpecService propertySpecService;
-    @Mock
-    MessageService messageService;
     @Mock
     MeteringGroupsService meteringGroupsService;
     @Mock
@@ -70,7 +68,10 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     ValidationService validationService;
     @Mock
     static SecurityContext securityContext;
-
+    @Mock
+    UsagePointDataService usagePointDataService;
+    @Mock
+    CustomPropertySetService customPropertySetService;
 
     @Provider
     @Priority(Priorities.AUTHORIZATION)
@@ -94,15 +95,15 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         };
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
-        application.setJsonService(jsonService);
         application.setMeteringService(meteringService);
         application.setRestQueryService(restQueryService);
-        application.setMessageService(messageService);
         application.setClockService(clock);
         application.setMeteringGroupService(meteringGroupsService);
         application.setUsagePointConfigurationService(usagePointConfigurationService);
         application.setEstimationService(estimationService);
         application.setValidationService(validationService);
+        application.setUsagePointDataService(usagePointDataService);
+        application.setCustomPropertySetService(customPropertySetService);
         return application;
     }
 
