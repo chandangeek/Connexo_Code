@@ -62,6 +62,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                 items: [
                     {
                         xtype: 'uni-form-error-message',
+                        itemId: 'form-errors',
                         name: 'errors',
                         hidden: true,
                         width: 600,
