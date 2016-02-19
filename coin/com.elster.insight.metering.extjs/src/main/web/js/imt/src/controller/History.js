@@ -299,6 +299,20 @@ Ext.define('Imt.controller.History', {
 
                                         return this;
                                     }
+                                },
+                                customattributesversionsclone: {
+                                    title: Uni.I18n.translate('general.clone', 'IMT', 'Clone'),
+                                    route: 'customattributes/{customAttributeSetId}/versions/{versionId}/clone',
+                                    controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
+                                    action: 'cloneCustomAttributeVersion',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadCustomAttributeSetVersionOnUsagePointClone', function (record) {
+                                            route.setTitle(Uni.I18n.translate('general.clonex', 'IMT', "Clone '{0}'", [record.get('period')]));
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
                                 }
                             }
                         }
