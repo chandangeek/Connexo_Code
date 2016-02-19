@@ -25,14 +25,7 @@ public interface UsagePointConfigurationService {
 
     Optional<MetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint up);
 
-    /**
-     * @deprecated This will potentially return millions of UsagePoints so we cannot support this in future
-     * @param metrologyConfiguration The MetrologyConfiguration
-     *
-     * @return The List of {@link UsagePoint}
-     */
-    @Deprecated
-    List<UsagePoint> findUsagePointsForMetrologyConfiguration(MetrologyConfiguration metrologyConfiguration);
+    boolean isInUse(MetrologyConfiguration metrologyConfiguration);
 
     List<MetrologyConfiguration> findMetrologyConfigurationsForValidationRuleSet(ValidationRuleSet rs);
 
