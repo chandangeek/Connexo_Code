@@ -22,11 +22,13 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationImpl;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
@@ -37,7 +39,6 @@ import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -96,19 +97,22 @@ public class UsagePointImpl implements UsagePoint {
     private final Clock clock;
     private final DataModel dataModel;
     private final EventService eventService;
+    private final Thesaurus thesaurus;
     private final Provider<MeterActivationImpl> meterActivationFactory;
     private final Provider<UsagePointAccountabilityImpl> accountabilityFactory;
     private final CustomPropertySetService customPropertySetService;
+    private transient UsagePointCustomPropertySetExtensionImpl customPropertySetExtension;
 
     @Inject
     UsagePointImpl(
             Clock clock, DataModel dataModel, EventService eventService,
-            Provider<MeterActivationImpl> meterActivationFactory,
+            Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory,
             Provider<UsagePointAccountabilityImpl> accountabilityFactory,
             CustomPropertySetService customPropertySetService) {
         this.clock = clock;
         this.dataModel = dataModel;
         this.eventService = eventService;
+        this.thesaurus = thesaurus;
         this.meterActivationFactory = meterActivationFactory;
         this.accountabilityFactory = accountabilityFactory;
         this.customPropertySetService = customPropertySetService;
@@ -468,6 +472,14 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
+    public UsagePointCustomPropertySetExtension forCustomProperties() {
+        if (this.customPropertySetExtension == null) {
+            this.customPropertySetExtension = new UsagePointCustomPropertySetExtensionImpl(this.clock, this.customPropertySetService, this.thesaurus, this);
+        }
+        return this.customPropertySetExtension;
+    }
+
+    @Override
     public Optional<UsagePointDetailImpl> getDetail(Instant instant) {
         return detail.effective(instant);
     }
@@ -489,8 +501,7 @@ public class UsagePointImpl implements UsagePoint {
         touch();
     }
 
-    @Override
-    public void touch() {
+    void touch() {
         if (id != 0) {
             dataModel.touch(this);
         }

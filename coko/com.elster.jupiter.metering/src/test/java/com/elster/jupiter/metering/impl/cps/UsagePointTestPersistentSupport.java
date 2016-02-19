@@ -1,10 +1,9 @@
-package com.elster.jupiter.metering.impl.config;
+package com.elster.jupiter.metering.impl.cps;
 
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
-
 import com.google.inject.Module;
 
 import java.util.Collections;
@@ -25,7 +24,7 @@ public class UsagePointTestPersistentSupport implements PersistenceSupport<Usage
 
     @Override
     public String domainFieldName() {
-        return UsagePointTestPersistentDomainExtension.Fields.METROLOGY_CONFIG.javaName();
+        return "usagePoint";
     }
 
     @Override
@@ -50,14 +49,14 @@ public class UsagePointTestPersistentSupport implements PersistenceSupport<Usage
 
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-        table.column(UsagePointTestPersistentDomainExtension.Fields.NAME.databaseName())
+        table.column(CustomPropertySetAttributes.NAME.databaseName())
                 .varChar(Table.NAME_LENGTH)
-                .map(UsagePointTestPersistentDomainExtension.Fields.NAME.javaName())
+                .map(CustomPropertySetAttributes.NAME.propertyKey())
                 .notNull()
                 .add();
-        table.column(UsagePointTestPersistentDomainExtension.Fields.ENHANCED_SUPPORT.databaseName())
+        table.column(CustomPropertySetAttributes.ENHANCED_SUPPORT.databaseName())
                 .bool()
-                .map(UsagePointTestPersistentDomainExtension.Fields.ENHANCED_SUPPORT.javaName())
+                .map(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey())
                 .add();
     }
 }
