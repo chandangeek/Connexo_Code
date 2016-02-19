@@ -20,7 +20,9 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.CannotRemoveStateException;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.NoPathLeftToSuccessFromStateException;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -272,8 +274,8 @@ public class ServiceCallLifeCycleBuilderIT {
             try {
                 builder.remove(DefaultState.ONGOING);
                 ServiceCallLifeCycleImpl serviceCallLifeCycle = (ServiceCallLifeCycleImpl) builder.create();
-                fail("Expected IllegalArgumentException");
-            } catch (IllegalArgumentException e) {
+                fail("Expected CannotRemoveStateException");
+            } catch (CannotRemoveStateException e) {
                 // expected behaviour
             }
 
@@ -288,8 +290,8 @@ public class ServiceCallLifeCycleBuilderIT {
             try {
                 builder.removeTransition(PENDING, ONGOING);
                 ServiceCallLifeCycleImpl serviceCallLifeCycle = (ServiceCallLifeCycleImpl) builder.create();
-                fail("Expected IllegalStateException");
-            } catch (IllegalStateException e) {
+                fail("Expected NoPathLeftToSuccessFromStateException");
+            } catch (NoPathLeftToSuccessFromStateException e) {
                 // expected behaviour
             }
 
@@ -304,8 +306,8 @@ public class ServiceCallLifeCycleBuilderIT {
             try {
                 builder.removeTransition(WAITING, ONGOING);
                 ServiceCallLifeCycleImpl serviceCallLifeCycle = (ServiceCallLifeCycleImpl) builder.create();
-                fail("Expected IllegalStateException");
-            } catch (IllegalStateException e) {
+                fail("Expected NoPathLeftToSuccessFromStateException");
+            } catch (NoPathLeftToSuccessFromStateException e) {
                 // expected behaviour
             }
 

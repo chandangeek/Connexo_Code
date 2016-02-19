@@ -5,8 +5,11 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.servicecall.CannotRemoveStateException;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.NoPathLeftToSuccessFromStateException;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -46,14 +49,16 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
     private final ServiceCallService serviceCallService;
     private final Set<DefaultState> criticalStates = EnumSet.of(CREATED, PENDING, ONGOING, SUCCESSFUL);
     private final Provider<ServiceCallLifeCycleImpl> serviceCallLifeCycleFactory;
+    private final Thesaurus thesaurus;
 
     private String name;
 
     @Inject
-    ServiceCallLifeCycleBuilderImpl(FiniteStateMachineService finiteStateMachineService, ServiceCallService serviceCallService, Provider<ServiceCallLifeCycleImpl> serviceCallLifeCycleFactory) {
+    ServiceCallLifeCycleBuilderImpl(FiniteStateMachineService finiteStateMachineService, ServiceCallService serviceCallService, Provider<ServiceCallLifeCycleImpl> serviceCallLifeCycleFactory, Thesaurus thesaurus) {
         this.finiteStateMachineService = finiteStateMachineService;
         this.serviceCallService = serviceCallService;
         this.serviceCallLifeCycleFactory = serviceCallLifeCycleFactory;
+        this.thesaurus = thesaurus;
     }
 
     ServiceCallLifeCycleBuilder setName(String name) {
@@ -112,7 +117,7 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
     @Override
     public ServiceCallLifeCycleBuilder remove(DefaultState state) {
         if (criticalStates.contains(state)) {
-            throw new IllegalArgumentException("Cannot remove " + state); // TODO proper exception
+            throw new CannotRemoveStateException(thesaurus, MessageSeeds.CANNOT_REMOVE_STATE_EXCEPTION, state);
         }
         graph.remove(state);
         return this;
@@ -178,7 +183,7 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
                 .filter(not(this::hasPathToSuccess))
                 .findAny()
                 .ifPresent(stuckState -> {
-                    throw new IllegalStateException("Cannot get to Successful state from " + stuckState);
+                    throw new NoPathLeftToSuccessFromStateException(thesaurus, MessageSeeds.NO_PATH_TO_SUCCESS_FROM ,stuckState);
                 });
     }
 
