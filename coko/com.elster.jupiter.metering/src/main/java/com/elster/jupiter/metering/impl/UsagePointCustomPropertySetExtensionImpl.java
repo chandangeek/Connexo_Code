@@ -73,10 +73,15 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
 
     private void setCustomPropertySetValuesWithoutChecks(CustomPropertySet<UsagePoint, ?> customPropertySet,
                                                          CustomPropertySetValues customPropertySetValue) {
-        if (customPropertySet.isVersioned()) {
-            this.customPropertySetService.setValuesFor(customPropertySet, getUsagePoint(), customPropertySetValue, this.clock.instant());
-        } else {
+        if (!customPropertySet.isVersioned()) {
             this.customPropertySetService.setValuesFor(customPropertySet, getUsagePoint(), customPropertySetValue);
+        } else {
+            Range<Instant> effectiveRange = customPropertySetValue.getEffectiveRange();
+            if (!effectiveRange.hasLowerBound() && !effectiveRange.hasUpperBound()) {
+                // Fallback case
+                effectiveRange = getCurrentIntervalInternal(customPropertySet);
+            }
+            this.customPropertySetService.setValuesVersionFor(customPropertySet, getUsagePoint(), customPropertySetValue, effectiveRange);
         }
         this.usagePoint.touch();
     }
@@ -144,22 +149,26 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
         if (registeredCustomPropertySet != null) {
             validateCustomPropertySetDomain(registeredCustomPropertySet);
             CustomPropertySet<UsagePoint, ?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
-            if (!customPropertySet.isVersioned()) {
-                throw UsagePointCustomPropertySetValuesManageException
-                        .customPropertySetIsNotVersioned(this.thesaurus, customPropertySet.getName());
-            }
-            Instant now = this.clock.instant();
-            List<Range<Instant>> versionIntervals = getCustomPropertySetValuesIntervals(customPropertySet);
-            // Do we have an active version now?
-            Optional<?> currentVersionValue = customPropertySetService.getUniqueValuesEntityFor(customPropertySet, getUsagePoint(), now);
-            if (currentVersionValue.isPresent()) {
-                // yep, we have an active version, so let's create a new version from the now till the active version end.
-                return getCurrentIntervalWithActiveVersion(versionIntervals, now);
-            }
-            // no active version right now
-            return getCurrentIntervalNoActiveVersion(versionIntervals, now);
+            return getCurrentIntervalInternal(customPropertySet);
         }
         return null;
+    }
+
+    private Range<Instant> getCurrentIntervalInternal(CustomPropertySet<UsagePoint, ?> customPropertySet) {
+        if (!customPropertySet.isVersioned()) {
+            throw UsagePointCustomPropertySetValuesManageException
+                    .customPropertySetIsNotVersioned(this.thesaurus, customPropertySet.getName());
+        }
+        Instant now = this.clock.instant();
+        List<Range<Instant>> versionIntervals = getCustomPropertySetValuesIntervals(customPropertySet);
+        // Do we have an active version now?
+        Optional<?> currentVersionValue = customPropertySetService.getUniqueValuesEntityFor(customPropertySet, getUsagePoint(), now);
+        if (currentVersionValue.isPresent()) {
+            // yep, we have an active version, so let's create a new version from the now till the active version end.
+            return getCurrentIntervalWithActiveVersion(versionIntervals, now);
+        }
+        // no active version right now
+        return getCurrentIntervalNoActiveVersion(versionIntervals, now);
     }
 
     private Range<Instant> getCurrentIntervalWithActiveVersion(List<Range<Instant>> versionIntervals, Instant currentTime) {
