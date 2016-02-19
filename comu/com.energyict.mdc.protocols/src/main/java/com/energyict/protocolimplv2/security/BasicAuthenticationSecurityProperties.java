@@ -5,7 +5,6 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.Password;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 import com.energyict.protocols.naming.SecurityPropertySpecName;
@@ -60,10 +59,10 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
 
         public void addTo(Table table) {
             table
-                .column(this.databaseName())
-                .varChar()
-                .map(this.javaName())
-                .add();
+                    .column(this.databaseName())
+                    .varChar()
+                    .map(this.javaName())
+                    .add();
         }
 
         public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
@@ -76,29 +75,21 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
     private String password;
     @Size(max = Table.MAX_STRING_LENGTH)
     private String userName;
-    @Size(max = Table.MAX_STRING_LENGTH)
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
-        Password password = (Password) propertyValues.getProperty(DeviceSecurityProperty.PASSWORD.javaName());
-        if (password != null) {
-            this.password = password.getValue();
-        }
-        this.userName = (String) propertyValues.getProperty(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.getKey());
+        this.password = (String) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.PASSWORD.javaName());
+        this.userName = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER
+                .getKey());
     }
 
     @Override
     protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
         if (!is(this.password).empty()) {
-            propertySetValues.setProperty(DeviceSecurityProperty.PASSWORD.javaName(), new Password(this.password));
+            setTypedPropertyValueTo(propertySetValues, DeviceSecurityProperty.PASSWORD.javaName(), this.password);
+
         }
         this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.getKey(), this.userName);
-    }
-
-    private void setPropertyIfNotNull(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {
-        if (propertyValue != null) {
-            propertySetValues.setProperty(propertyName, propertyValue);
-        }
     }
 
     @Override

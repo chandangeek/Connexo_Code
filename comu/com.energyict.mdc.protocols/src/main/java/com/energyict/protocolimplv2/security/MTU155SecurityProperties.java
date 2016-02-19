@@ -132,11 +132,7 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
         public abstract PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus);
 
         public void copyPropertyTo(CustomPropertySetValues propertySetValues, MTU155SecurityProperties perClientProperties) {
-            perClientProperties.setPropertyIfNotNull(propertySetValues, this.propertySpecName().toString(), this.getValue(perClientProperties));
-        }
-
-        public void copyPropertyFrom(CustomPropertySetValues propertySetValues, MTU155SecurityProperties perClientProperties) {
-            this.setValue(perClientProperties, (String) propertySetValues.getProperty(this.propertySpecName().toString()));
+            perClientProperties.setPropertyIfNotNull(propertySetValues, this.propertySpecName(), this.getValue(perClientProperties));
         }
 
         protected abstract String getValue(MTU155SecurityProperties perClientProperties);
@@ -151,13 +147,12 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
     private String factoryEncryptionKey;
     @Size(max = Table.MAX_STRING_LENGTH)
     private String temporaryEncryptionKey;
-    @Size(max = Table.MAX_STRING_LENGTH)
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
         Stream
             .of(ActualFields.values())
-            .forEach(field -> field.copyPropertyFrom(propertyValues, this));
+                .forEach(field -> field.setValue(this, (String) getTypedPropertyValue(propertyValues, field.propertySpecName())));
     }
 
     @Override
@@ -165,12 +160,6 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
         Stream
             .of(ActualFields.values())
             .forEach(field -> field.copyPropertyTo(propertySetValues, this));
-    }
-
-    private void setPropertyIfNotNull(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {
-        if (propertyValue != null) {
-            propertySetValues.setProperty(propertyName, propertyValue);
-        }
     }
 
     @Override

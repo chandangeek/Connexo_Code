@@ -292,10 +292,6 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
             perClientProperties.setPropertyIfNotNull(propertySetValues, this.propertySpecName().getKey(), this.getValue(perClientProperties));
         }
 
-        public void copyPropertyFrom(CustomPropertySetValues propertySetValues, DlmsSecurityPerClientProperties perClientProperties) {
-            this.setValue(perClientProperties, (String) propertySetValues.getProperty(this.propertySpecName().getKey()));
-        }
-
         protected abstract String getValue(DlmsSecurityPerClientProperties perClientProperties);
         protected abstract void setValue(DlmsSecurityPerClientProperties perClientProperties, String value);
     }
@@ -341,7 +337,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
         Stream
             .of(ActualFields.values())
-            .forEach(field -> field.copyPropertyFrom(propertyValues, this));
+                .forEach(field -> field.setValue(this, (String) getTypedPropertyValue(propertyValues, field.propertySpecName().getKey())));
     }
 
     @Override
@@ -349,12 +345,6 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
         Stream
             .of(ActualFields.values())
             .forEach(field -> field.copyPropertyTo(propertySetValues, this));
-    }
-
-    private void setPropertyIfNotNull(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {
-        if (propertyValue != null) {
-            propertySetValues.setProperty(propertyName, propertyValue);
-        }
     }
 
     @Override

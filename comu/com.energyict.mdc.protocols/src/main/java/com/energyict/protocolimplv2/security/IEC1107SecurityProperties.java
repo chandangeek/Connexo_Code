@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.security;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.common.Password;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 
 import javax.validation.constraints.Size;
@@ -42,16 +41,13 @@ public class IEC1107SecurityProperties extends CommonBaseDeviceSecurityPropertie
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
-        Password password = (Password) propertyValues.getProperty(DeviceSecurityProperty.PASSWORD.javaName());
-        if (password != null) {
-            this.password = password.getValue();
-        }
+        this.password = (String) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.PASSWORD.javaName());
     }
 
     @Override
     protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
         if (!is(this.password).empty()) {
-            propertySetValues.setProperty(DeviceSecurityProperty.PASSWORD.javaName(), new Password(this.password));
+            setTypedPropertyValueTo(propertySetValues, DeviceSecurityProperty.PASSWORD.javaName(), this.password);
         }
     }
 

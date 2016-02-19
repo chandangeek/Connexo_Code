@@ -62,20 +62,14 @@ public class GarnetSecurityProperties extends CommonBaseDeviceSecurityProperties
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
-        this.customerEncryptionKey = (String) propertyValues.getProperty(DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.javaName());
-        this.manufacturerEncryptionKey = (String) propertyValues.getProperty(DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.javaName());
+        this.customerEncryptionKey = (String) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.javaName());
+        this.manufacturerEncryptionKey = (String) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.javaName());
     }
 
     @Override
     protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
         this.setPropertyIfNotNull(propertySetValues, DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.javaName(), this.customerEncryptionKey);
         this.setPropertyIfNotNull(propertySetValues, DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.javaName(), this.manufacturerEncryptionKey);
-    }
-
-    private void setPropertyIfNotNull(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {
-        if (propertyValue != null) {
-            propertySetValues.setProperty(propertyName, propertyValue);
-        }
     }
 
     @Override

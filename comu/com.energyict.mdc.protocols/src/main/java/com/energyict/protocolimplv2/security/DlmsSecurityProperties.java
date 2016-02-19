@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.security;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.common.Password;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 
 import javax.validation.constraints.Size;
@@ -45,10 +44,10 @@ public class DlmsSecurityProperties extends CommonBaseDeviceSecurityProperties {
             @Override
             public void addTo(Table table) {
                 table
-                    .column(this.databaseName())
-                    .number()
-                    .map(this.javaName())
-                    .add();
+                        .column(this.databaseName())
+                        .number()
+                        .map(this.javaName())
+                        .add();
             }
         },
         AUTHENTICATION_KEY {
@@ -80,10 +79,10 @@ public class DlmsSecurityProperties extends CommonBaseDeviceSecurityProperties {
 
         public void addTo(Table table) {
             table
-                .column(this.databaseName())
-                .varChar()
-                .map(this.javaName())
-                .add();
+                    .column(this.databaseName())
+                    .varChar()
+                    .map(this.javaName())
+                    .add();
         }
 
     }
@@ -98,29 +97,22 @@ public class DlmsSecurityProperties extends CommonBaseDeviceSecurityProperties {
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
-        Password password = (Password) propertyValues.getProperty(DeviceSecurityProperty.PASSWORD.javaName());
-        if (password != null) {
-            this.password = password.getValue();
-        }
-        this.clientMacAddress = (BigDecimal) propertyValues.getProperty(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.javaName());
-        this.authenticationKey = (String) propertyValues.getProperty(DeviceSecurityProperty.AUTHENTICATION_KEY.javaName());
-        this.encryptionKey = (String) propertyValues.getProperty(DeviceSecurityProperty.ENCRYPTION_KEY.javaName());
+        this.password = (String) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.PASSWORD.javaName());
+        this.clientMacAddress = (BigDecimal) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.CLIENT_MAC_ADDRESS
+                .javaName());
+        this.authenticationKey = (String) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.AUTHENTICATION_KEY
+                .javaName());
+        this.encryptionKey = (String) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.ENCRYPTION_KEY.javaName());
     }
 
     @Override
     protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
         if (!is(this.password).empty()) {
-            propertySetValues.setProperty(DeviceSecurityProperty.PASSWORD.javaName(), new Password(this.password));
+            setTypedPropertyValueTo(propertySetValues, DeviceSecurityProperty.PASSWORD.javaName(), this.password);
         }
         this.setPropertyIfNotNull(propertySetValues, DeviceSecurityProperty.CLIENT_MAC_ADDRESS.javaName(), this.clientMacAddress);
         this.setPropertyIfNotNull(propertySetValues, DeviceSecurityProperty.AUTHENTICATION_KEY.javaName(), this.authenticationKey);
         this.setPropertyIfNotNull(propertySetValues, DeviceSecurityProperty.ENCRYPTION_KEY.javaName(), this.encryptionKey);
-    }
-
-    private void setPropertyIfNotNull(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {
-        if (propertyValue != null) {
-            propertySetValues.setProperty(propertyName, propertyValue);
-        }
     }
 
     @Override
