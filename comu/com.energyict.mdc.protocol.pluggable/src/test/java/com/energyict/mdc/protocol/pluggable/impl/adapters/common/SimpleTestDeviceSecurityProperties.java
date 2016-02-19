@@ -95,12 +95,6 @@ public class SimpleTestDeviceSecurityProperties extends CommonBaseDeviceSecurity
         this.setPropertyIfNotNull(propertySetValues, ActualFields.THIRD.javaName(), this.third);
     }
 
-    private void setPropertyIfNotNull(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {
-        if (propertyValue != null) {
-            propertySetValues.setProperty(propertyName, propertyValue);
-        }
-    }
-
     @Override
     public void validateDelete() {
         // Nothing to validate
