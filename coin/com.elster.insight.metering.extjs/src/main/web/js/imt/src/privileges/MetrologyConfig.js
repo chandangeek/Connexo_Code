@@ -3,8 +3,8 @@ Ext.define('Imt.privileges.MetrologyConfig', {
         'Uni.Auth'
     ],
     singleton: true,
-    view : ['ADMIN_ANY_METROLOGY_CONFIG','BROWSE_ANY_METROLOGY_CONFIG'],
-    admin: ['ADMIN_ANY_METROLOGY_CONFIG'],
+    view : ['UCR_ADMINISTER_ANY_METROLOGY_CONFIG','UCR_BROWSE_ANY_METROLOGY_CONFIG'],
+    admin: ['UCR_ADMINISTER_ANY_METROLOGY_CONFIG'],
 
     all: function() {
         return Ext.Array.merge(Imt.privileges.MetrologyConfig.view, Imt.privileges.MetrologyConfig.admin);
@@ -14,6 +14,5 @@ Ext.define('Imt.privileges.MetrologyConfig', {
     },
     canAdministrate:function(){
         return Uni.Auth.checkPrivileges(Imt.privileges.MetrologyConfig.admin);
-    },
-
+    }
 });

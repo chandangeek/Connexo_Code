@@ -65,7 +65,7 @@ Ext.define('Imt.customattributesets.view.Grid', {
                 var addBtn = {
                     text: Uni.I18n.translate('customattributesets.addattributesets', 'IMT', 'Add custom attribute sets'),
                     itemId: 'add-custom-attribute-set',
-                    //privileges: Mdc.privileges.DeviceType.admin,
+                    privileges: Imt.privileges.MetrologyConfig.admin,
                     xtype: 'button',
                     action: 'addAttributeSets'
                 };

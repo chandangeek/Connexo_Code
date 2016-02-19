@@ -4,14 +4,5 @@ Ext.define('Imt.usagepointmanagement.view.SetupActionMenu', {
     plain: true,
     border: false,
     shadow: false,
-    items: [],
-
-    initComponent: function() {
-        var me = this;
-
-        me.items = [
-
-        ];
-        me.callParent(arguments);
-    }
+    items: []
 });

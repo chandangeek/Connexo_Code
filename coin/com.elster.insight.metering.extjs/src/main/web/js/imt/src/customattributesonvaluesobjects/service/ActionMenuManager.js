@@ -16,7 +16,6 @@ Ext.define('Imt.customattributesonvaluesobjects.service.ActionMenuManager', {
                 menu.add({
                     itemId: 'action-menu-custom-attribute' + record.get('id'),
                     menuItemClass: 'customAttributeSet',
-//                    privileges: Imt.privileges.Device.administrateDeviceData,
                     text: Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [Ext.String.htmlEncode(record.get('name'))]),
                     handler: function () {
                         routeArguments.customAttributeSetId = record.get('id');
@@ -42,6 +41,8 @@ Ext.define('Imt.customattributesonvaluesobjects.service.ActionMenuManager', {
     setDisabledAllEditBtns: function (disabled) {
         var actionMenuItems = Ext.ComponentQuery.query('[menuItemClass=inlineEditableAttributeSet]');
 
+        Ext.suspendLayouts();
+
         Ext.each(actionMenuItems, function (item) {
             item.setDisabled(disabled);
         });
@@ -49,5 +50,7 @@ Ext.define('Imt.customattributesonvaluesobjects.service.ActionMenuManager', {
         Ext.each(pencilBtns, function(btn){
             btn.setDisabled(disabled);
         });
+
+        Ext.resumeLayouts(true);
     }
 });

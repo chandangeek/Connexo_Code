@@ -10,19 +10,19 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
     stores: [
         'Imt.usagepointmanagement.store.MeterActivations',
         'Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets',
+        'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
         'Imt.metrologyconfiguration.store.MetrologyConfiguration'
     ],
     views: [
         'Imt.usagepointmanagement.view.Setup',
-        'Imt.usagepointmanagement.view.MetrologyConfigurationSetup',
-        //'Imt.usagepointmanagement.view.UsagePointAttributesFormMain',
-        //'Imt.usagepointmanagement.view.UsagePointAttributesFormTechnicalElectricity'
+        'Imt.usagepointmanagement.view.MetrologyConfigurationSetup'
     ],
     refs: [
         {ref: 'associatedDevices', selector: 'associated-devices'},
         {ref: 'associatedMetrologyConfiguration', selector: 'associated-metrology-configuration'},
         {ref: 'overviewLink', selector: '#usage-point-overview-link'},
-        {ref: 'attributesPanel', selector: '#usage-point-attributes-panel'},
+        {ref: 'attributesPanel', selector: '#usage-point-main-attributes-panel'},
+        {ref: 'usagePointAttributes', selector: '#usage-point-attributes-panel'},
         {ref: 'usagePointTechnicalAttributesDeviceLink', selector: '#usagePointTechnicalAttributesDeviceLink'},
         {ref: 'usagePointTechnicalAttributesDeviceDates', selector: '#usagePointTechnicalAttributesDeviceDates'},
         {ref: 'mcAttributesPanel', selector: '#up-metrology-configuration-attributes-panel'},
@@ -31,6 +31,11 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
     ],
 
     init: function () {
+        this.control({
+            'usage-point-management-setup inline-editable-set-property-form': {
+                saveClick: this.saveUsagePointAttributes
+            }
+        });
     },
 
     showUsagePoint: function (mRID) {
@@ -46,44 +51,17 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
             success: function (record) {
                 me.getApplication().fireEvent('usagePointLoaded', record);
                 var widget = Ext.widget('usage-point-management-setup', {router: router, parent: record.getData()});
-
+                me.parent = record.getData();
 
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.initAttributes(record);
                 me.getOverviewLink().setText(record.get('mRID'));
-                //me.getAttributesPanel().add(actualForm);
-                //generalForm.getForm().loadRecord(actualModel);
-                //actualForm.getForm().loadRecord(actualModel);
-                //me.getGeneralForm().loadRecord(me.record);
+                if(record.get('metrologyConfiguration') && record.get('metrologyConfiguration').name){
+                    widget.down('#fld-mc-name').setValue(record.get('metrologyConfiguration').name);
+                }
 
 
 
-
-
-                //var associatedMetrologyConfiguration = me.getAssociatedMetrologyConfiguration();
-                //associatedMetrologyConfiguration.down('#associatedMetrologyConfiguration').removeAll();
-
-//                if (  record.get('metrologyConfiguration') === null ||  record.get('metrologyConfiguration') === "" ) {
-//                	associatedMetrologyConfiguration.down('#associatedMetrologyConfiguration').add(
-//                            {
-//                                xtype: 'component',
-//                                cls: 'x-form-display-field',
-//                                html: '-'
-//                            });
-//                } else {
-//                	associatedMetrologyConfiguration.down('#associatedMetrologyConfiguration').add(
-//                    {
-//                        xtype: 'component',
-//                        cls: 'x-form-display-field',
-//                        autoEl: {
-//                            tag: 'a',
-////                            href: router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl({mRID: mRID, mcid: record.get('metrologyConfiguration').id}),
-//                            href: router.getRoute('administration/metrologyconfiguration/view').buildUrl({mcid: record.get('metrologyConfiguration').id}),
-//                            html: record.get('metrologyConfiguration').name
-//                        }
-//                    });
-//                }
-                
                 //var store = me.getStore('Imt.usagepointmanagement.store.MeterActivations'),
                 //		associatedDevices = me.getAssociatedDevices();
                 //store.getProxy().setExtraParam('usagePointMRID', mRID);
@@ -139,17 +117,19 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
     initAttributes: function(record){
         var me = this,
             customAttributesStoreUsagePoint = me.getStore('Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets'),
-            customAttributesModelUsagePoint = me.getStore('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
+            customAttributesModelUsagePoint = me.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
             customAttributesStoreMetrology = me.getStore('Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets'),
-            customAttributesModelMetrology = me.getStore('Imt.customattributesonvaluesobjects.model.AttributeSetOnMetrologyConfiguration');
+            customAttributesModelMetrology = me.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnMetrologyConfiguration');
 
 
         customAttributesStoreUsagePoint.getProxy().setUrl(record.get('mRID'));
         customAttributesModelUsagePoint.getProxy().setUrl(record.get('mRID'));
-        customAttributesStoreMetrology.getProxy().setUrl(record.get('mRID')); //TODO Put metrology id
-        customAttributesModelMetrology.getProxy().setUrl(record.get('mRID')); //TODO Put metrology id
+        customAttributesStoreMetrology.getProxy().setUrl(record.get('mRID'));
+        customAttributesModelMetrology.getProxy().setUrl(record.get('mRID'));
 
         Ext.suspendLayouts();
+
+        me.getUsagePointAttributes().setLoading(true);
         me.getAttributesPanel().add({
             xtype: 'usage-point-main-attributes-panel',
             record: record
@@ -159,15 +139,18 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
             record: record,
             category: record.get('serviceCategory')
         });
+        Ext.resumeLayouts(true);
 
-        customAttributesStoreMetrology.load(function () {
-            me.getOverview().down('#metrology-custom-attribute-sets-placeholder-form-id').loadStore(this);
-        });
         customAttributesStoreUsagePoint.load(function () {
             me.getOverview().down('#custom-attribute-sets-placeholder-form-id').loadStore(this);
+            me.getUsagePointAttributes().setLoading(false);
         });
 
-        Ext.resumeLayouts(true);
+        me.getAssociatedMetrologyConfiguration().setLoading(true);
+        customAttributesStoreMetrology.load(function () {
+            me.getOverview().down('#metrology-custom-attribute-sets-placeholder-form-id').loadStore(this);
+            me.getAssociatedMetrologyConfiguration().setLoading(false);
+        });
     },
 
     showMetrologyConfiguration: function (mRID, id) {
@@ -175,9 +158,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
             router = me.getController('Uni.controller.history.Router'),
             metrologyConfigurationModel = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration'),
             linkedStore = Ext.getStore('Imt.metrologyconfiguration.store.LinkedValidationRulesSet'),
-            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            actualModel,
-            actualForm;
+            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
         linkedStore.getProxy().setUrl(id);
     	linkedStore.load(function () {
@@ -202,8 +183,26 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                 pageMainContent.setLoading(false);
             }
         });
+    },
+
+    saveUsagePointAttributes: function(form, record){
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+        form.updateRecord();
+        record.set('parent', me.parent);
+
+        record.save({
+            success: function (record, response, success) {
+                router.getRoute().forward();
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePoint.acknowledge.updateSuccess', 'IMT', 'Usage point saved'));
+            },
+            failure: function (record, response, success) {
+                var responseText = Ext.decode(response.response.responseText, true);
+                if (responseText && Ext.isArray(responseText.errors)) {
+                    form.markInvalid(responseText.errors);
+                }
+            }
+        });
     }
-
-
 });
 

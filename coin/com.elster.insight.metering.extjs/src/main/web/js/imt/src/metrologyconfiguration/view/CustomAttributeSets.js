@@ -28,21 +28,33 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
             items: [
                 {
                     xtype: 'uni-form-empty-message',
-                    text: Uni.I18n.translate('Imt.metrologyconfiguration.error.active', 'IMT', 'You cannot add custom attribute set because the metrology configuration is active/in use'),
+                    text: Uni.I18n.translate('Imt.metrologyconfiguration.error.active', 'IMT', 'You cannot edit custom attribute set because the metrology configuration is active'),
                     hidden: !isActive
                 },
                 {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'cas-grid',
+                        itemId: 'cas-grid',
                         store: 'Imt.metrologyconfiguration.store.CustomAttributeSets',
                         actionColumnConfig: {
-                            //privileges: Imt.privileges.MetrologyConfig.admin,
-                            xtype: 'uni-actioncolumn',
-                            disabled: isActive,
-                            menu: {
-                                //privileges: Imt.privileges.MetrologyConfig.admin,
-                                xtype: 'custom-attribute-sets-actions'
+                            header: Uni.I18n.translate('general.actions', 'UNI', 'Actions'),
+                            privileges: Imt.privileges.MetrologyConfig.admin,
+                            xtype: 'actioncolumn',
+                            align: 'right',
+                            width: 80,
+                            items: [
+                                {
+                                    tooltip: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                                    iconCls: ' uni-icon-delete',
+                                    disabled: isActive,
+                                    handler: function (grid, rowIndex, colIndex, item, e, record, row) {
+                                        this.fireEvent('deleteCAS', record);
+                                    }
+                                }
+                            ],
+                            isDisabled: function() {
+                                return isActive;
                             }
                         },
                         dockedConfig: {
@@ -53,7 +65,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        itemId: 'ctr-no-comservers',
+                        itemId: 'cas-no-items-found-panel',
                         title: Uni.I18n.translate('Imt.metrologyconfiguration.empty.title', 'IMT', 'No custom attribute sets found'),
                         reasons: [
                             Uni.I18n.translate('Imt.metrologyconfiguration.empty.list.item1', 'IMT', 'No custom attribute sets added yet'),
@@ -63,7 +75,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
                             {
                                 text: casAddRoute.getTitle(),
                                 itemId: 'add-custom-attribute-set',
-                                //privileges: Mdc.privileges.Communication.admin,
+                                privileges: Imt.privileges.MetrologyConfig.admin,
                                 action: 'addCustomAttributeSet',
                                 href: casAddRoute.buildUrl()
                             }
@@ -75,6 +87,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
                         tools: [
                             {
                                 xtype: 'button',
+                                privileges: Imt.privileges.MetrologyConfig.admin,
                                 disabled: isActive,
                                 text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
                                 itemId: 'actionButton',
@@ -105,8 +118,11 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
         ];
 
         me.callParent(arguments);
-        me.down('button[action="addAttributeSets"]').on('click', function () {
-            casAddRoute.forward()
-        });
+        var btn = me.down('button[action="addAttributeSets"]');
+        if (btn) {
+            btn.on('click', function () {
+                casAddRoute.forward()
+            });
+        }
     }
 });

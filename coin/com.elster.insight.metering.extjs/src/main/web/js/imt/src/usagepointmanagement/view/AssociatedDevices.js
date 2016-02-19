@@ -37,7 +37,7 @@ Ext.define('Imt.usagepointmanagement.view.AssociatedDevices', {
                 itemId: 'associatedDevicesHistory',
                 hidden: true,
                 items: []
-            },
+            }
 
         ];
         me.callParent(arguments);

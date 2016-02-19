@@ -6,13 +6,13 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         'Imt.usagepointmanagement.view.AssociatedDevices',
         'Imt.usagepointmanagement.view.AssociatedMetrologyConfiguration',
         'Imt.usagepointmanagement.view.UsagePointSideMenu',
-        //'Imt.usagepointmanagement.view.UsagePointAttributesFormMain',
         'Imt.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm',
         'Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAttributesPanel',
         'Imt.usagepointmanagement.view.SetupActionMenu'
     ],
     parent: null,
     router: null,
+    minWidth: 1600,
     content: [
         {
             xtype: 'panel',
@@ -33,12 +33,11 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
             {
                 xtype: 'toolbar',
                 margin: '0 20 0 0',
-                //minWidth: 1200,
                 items: [
                     {
                         xtype: 'button',
                         itemId: 'usage-point-setup-actions-btn',
-                        //iconCls: 'x-uni-action-iconD',
+                        iconCls: 'x-uni-action-iconD',
                         style: {
                             'background-color': '#71adc7'
                         },
@@ -72,23 +71,23 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         this.callParent(arguments);
 
         me.down('#usagePointSetupPanel').add(
+
             {
-                xtype: 'panel',
+                xtype: 'container',
+                padding: 5,
                 layout: {
                     type: 'hbox',
                 },
                 defaults: {
-                    //minWidth: 600,
                     flex: 1
                 },
                 items: [
                     {
-                        //xtype: 'panel',
-                        ui: 'tile',
                         style: {
                             marginRight: '20px',
                             padding: '20px'
                         },
+                        ui: 'tile',
                         parent: me.parent,
                         title: Uni.I18n.translate('usagepoint.metrologyconfiguration', 'IMT', 'Metrology configuration'),
                         xtype: 'associated-metrology-configuration',
@@ -103,6 +102,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                     },
                     {
                         xtype: 'panel',
+                        itemId: 'usage-point-attributes-panel',
                         ui: 'tile',
                         style: {
                             marginRight: '20px',
@@ -111,7 +111,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         items: [
                             {
                                 xtype: 'panel',
-                                itemId: 'usage-point-attributes-panel',
+                                itemId: 'usage-point-main-attributes-panel',
                                 router: me.router
                             },
                             {

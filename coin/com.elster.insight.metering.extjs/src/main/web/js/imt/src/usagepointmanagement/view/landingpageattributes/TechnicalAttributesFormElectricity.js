@@ -6,17 +6,6 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
     requires: [
         'Uni.form.field.Duration'
     ],
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
-    defaults: {
-        labelWidth: 150,
-        xtype: 'displayfield'
-    },
-
-    //panelTitle: null,
-    //record: null,
 
     initComponent: function () {
         var me = this;
@@ -42,9 +31,8 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         name: 'nominalServiceVoltage',
                         itemId: 'fld-up-service-voltage',
                         fieldLabel: Uni.I18n.translate('general.label.voltage', 'IMT', 'Nominal voltage'),
-                        renderer: function (data) {
-                            return me.renderValue(data);
-                        }
+                        renderer: Ext.bind(me.renderValue, me)
+
                     },
                     {
                         name: 'phaseCode',
@@ -58,25 +46,19 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         name: 'ratedCurrent',
                         itemId: 'fld-up-rated-current',
                         fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current'),
-                        renderer: function (data) {
-                            return me.renderValue(data);
-                        }
+                        renderer: Ext.bind(me.renderValue, me)
                     },
                     {
                         name: 'ratedPower',
                         itemId: 'fld-up-rated-power',
                         fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power'),
-                        renderer: function (data) {
-                            return me.renderValue(data);
-                        }
+                        renderer: Ext.bind(me.renderValue, me)
                     },
                     {
                         name: 'estimatedLoad',
                         itemId: 'fld-up-estimated-load',
                         fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load'),
-                        renderer: function (data) {
-                            return me.renderValue(data);
-                        }
+                        renderer: Ext.bind(me.renderValue, me)
                     }
                 ]
             },
@@ -86,57 +68,39 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                 hidden: true,
                 defaults: {
                     xtype: 'textfield',
-                    labelWidth: 250,
-                    //width: 600
+                    labelWidth: 250
                 },
                 items: [
                     {
+                        xtype: 'checkbox',
                         name: 'grounded',
-                        itemId: 'fld-up-grounded',
-                        fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded'),
-                        //renderer: function (value) {
-                        //    return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
-                        //}
+                        itemId: 'up-grounded-textfield',
+                        fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
                     },
                     {
                         name: 'nominalServiceVoltage',
-                        itemId: 'fld-up-service-voltage',
-                        fieldLabel: Uni.I18n.translate('general.label.voltage', 'IMT', 'Nominal voltage'),
-                        //renderer: function (data) {
-                        //    return me.renderValue(data);
-                        //}
+                        itemId: 'up-service-voltage-textfield',
+                        fieldLabel: Uni.I18n.translate('general.label.voltage', 'IMT', 'Nominal voltage')
                     },
                     {
                         name: 'phaseCode',
-                        itemId: 'fld-up-phase',
-                        fieldLabel: Uni.I18n.translate('general.label.phaseCode', 'IMT', 'Phase code'),
-                        //renderer: function (value) {
-                        //    return value ? value : '-';
-                        //}
+                        itemId: 'up-phase-textfield',
+                        fieldLabel: Uni.I18n.translate('general.label.phaseCode', 'IMT', 'Phase code')
                     },
                     {
                         name: 'ratedCurrent',
-                        itemId: 'fld-up-rated-current',
-                        fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current'),
-                        //renderer: function (data) {
-                        //    return me.renderValue(data);
-                        //}
+                        itemId: 'up-rated-current-textfield',
+                        fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current')
                     },
                     {
                         name: 'ratedPower',
-                        itemId: 'fld-up-rated-power',
-                        fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power'),
-                        //renderer: function (data) {
-                        //    return me.renderValue(data);
-                        //}
+                        itemId: 'up-rated-power-textfield',
+                        fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power')
                     },
                     {
                         name: 'estimatedLoad',
-                        itemId: 'fld-up-estimated-load',
-                        fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load'),
-                        //renderer: function (data) {
-                        //    return me.renderValue(data);
-                        //}
+                        itemId: 'up-estimated-load-textfield',
+                        fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load')
                     }
                 ]
             }
@@ -148,7 +112,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
         if (data.multiplier == 0)
             return data.value + ' ' + data.unit;
         else
-            return data.value + '*10<sup style="vertical-align: top; position: relative; top: -0.5em;">' + data.multiplier + '</sup> ' + data.unit;
+            return data.value + '*10<span style="position: relative;top: -6px;font-size: 10px;">' + data.multiplier + '</span> ' + data.unit;
 
     } else return '-';
 }

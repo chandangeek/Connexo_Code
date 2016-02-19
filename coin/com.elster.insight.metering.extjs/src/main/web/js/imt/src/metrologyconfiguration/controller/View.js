@@ -28,7 +28,7 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
     init: function () {
         this.control({
             '#custom-attribute-sets cas-grid actioncolumn': {
-                removeCustomAttributeSet: this.removeCustomAttributeSet
+                deleteCAS: this.removeCustomAttributeSet
             },
             '#custom-attribute-sets cas-detail-form menuitem[action=removeCustomAttributeSet]': {
                 click: function(elm) {
@@ -71,7 +71,7 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getAttributesPanel().add(actualForm);
                 actualForm.getForm().loadRecord(actualModel);
-                widget.down('metrologyConfigurationActionMenu').record=record;
+                widget.down('metrology-configuration-side-menu').record=record;
                 pageMainContent.setLoading(false);
 
             }
@@ -93,11 +93,11 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 store.getProxy().extraParams.id = id;
                 store.getProxy().extraParams.linked = true;
-                store.load(function(){
+                store.on('load', (function(){
                     store.each(function(r) {
                         r.set('parent', record.getRecordData()); return record});
-                });
-                //debugger;
+                }));
+                store.load();
                 pageMainContent.setLoading(false);
 
                 widget.down('cas-grid').on('select', me.showCasPreview.bind(me, widget.down('cas-detail-form')));
@@ -150,16 +150,11 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
 
         mc.set('customPropertySets', mc.get('customPropertySets').concat(sets));
         mc.save({
-            //failure: function(record, operation) {
-            //    debugger;
-            //    // do something if the load failed
-            //},
             success: function(record, operation) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.label.CAS.added', 'IMT', 'Custom attribute sets added'));
-            },
-            callback: function(record, operation, success) {
                 router.getRoute('administration/metrologyconfiguration/view/customAttributeSets').forward();
-            }
+            },
+            backUrl: router.getRoute('administration/metrologyconfiguration/view/customAttributeSets').buildUrl()
         });
     },
 
