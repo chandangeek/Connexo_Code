@@ -55,8 +55,10 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCommandCategoriesGrid', {
                         href: me.router.getRoute('administration/communicationtasks/view/commandcategories/add').buildUrl()
                     }
                 ],
-                updateInfo: function () {
-                    ; // Don't show a message like "1 - 6 of 6 command categories" in this case (quite redundant)
+                updateInfo: function() {
+                    this.child('#displayItem').setText(
+                        Uni.I18n.translate('general.xCommangCategories', 'MDC', '{0} command categories', this.store.getCount())
+                    );
                 }
             }
         ];

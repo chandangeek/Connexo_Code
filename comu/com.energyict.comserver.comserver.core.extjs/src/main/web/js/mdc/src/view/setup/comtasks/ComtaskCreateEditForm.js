@@ -2,8 +2,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.comtaskCreateEdit',
     requires: [
-        'Mdc.view.setup.comtasks.ComtaskCommand',
-        'Uni.view.grid.ConnectedGrid'
+        'Uni.util.FormErrorMessage'
     ],
 
     content: [

@@ -58,8 +58,10 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskActionsGrid', {
                         href: me.router.getRoute('administration/communicationtasks/view/actions/add').buildUrl()
                     }
                 ],
-                updateInfo: function () {
-                    ; // Don't show a message like "1 - 6 of 6 actions" in this case (quite redundant)
+                updateInfo: function() {
+                    this.child('#displayItem').setText(
+                        Uni.I18n.translate('general.xActions', 'MDC', '{0} actions', this.store.getCount())
+                    );
                 }
             }
         ];
