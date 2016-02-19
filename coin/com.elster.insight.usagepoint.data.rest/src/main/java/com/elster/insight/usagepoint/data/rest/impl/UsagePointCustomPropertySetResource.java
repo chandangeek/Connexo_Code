@@ -264,8 +264,9 @@ public class UsagePointCustomPropertySetResource {
                 .findRegisteredCustomPropertySetOnUsagePointOrThrowException(rcpsId, usagePointExtension);
         CustomPropertySet<UsagePoint, ?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
         validateRangeSourceValues(info.startTime, info.endTime);
+        Instant versionStartTime = Instant.ofEpochMilli(info.versionId);
         Function<OverlapCalculatorBuilder, List<ValuesRangeConflict>> conflictValuesSupplier =
-                builder -> builder.whenUpdating(Instant.ofEpochMilli(info.versionId), RangeInstantBuilder.closedOpenRange(info.startTime, info.endTime));
+                builder -> builder.whenUpdating(versionStartTime, RangeInstantBuilder.closedOpenRange(info.startTime, info.endTime));
         List<ValuesRangeConflict> valuesRangeConflicts = getValuesRangeConflicts(usagePointExtension, customPropertySet, forced, conflictValuesSupplier);
         if (!valuesRangeConflicts.isEmpty()) {
             UsagePointAddVersionFailResponse errorInfo = new UsagePointAddVersionFailResponse(valuesRangeConflicts);
@@ -273,10 +274,9 @@ public class UsagePointCustomPropertySetResource {
         }
         CustomPropertySetValues values = customPropertySetInfoFactory
                 .getCustomPropertySetValues(info, customPropertySet.getPropertySpecs());
-        usagePointExtension.setCustomPropertySetValue(customPropertySet, values);
+        usagePointExtension.setCustomPropertySetValue(customPropertySet, values, versionStartTime);
         return Response.ok(customPropertySetInfoFactory.getFullInfo(registeredCustomPropertySet,
-                usagePointExtension.getCustomPropertySetValue(registeredCustomPropertySet,
-                        info.startTime != null ? Instant.ofEpochMilli(info.startTime) : null))).build();
+                usagePointExtension.getCustomPropertySetValue(registeredCustomPropertySet, versionStartTime))).build();
     }
 
     @GET
