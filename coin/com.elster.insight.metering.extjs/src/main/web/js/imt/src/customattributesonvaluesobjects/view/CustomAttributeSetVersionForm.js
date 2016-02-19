@@ -105,7 +105,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                             {
                                 xtype: 'button',
                                 text: Uni.I18n.translate('general.restoretodefaults', 'IMT', 'Restore to defaults'),
-                                icon: '../sky/build/resources/images/form/restore.png',
+                                iconCls: 'icon-spinner12',
                                 itemId: 'custom-attributes-versions-restore-to-default-btn',
                                 handler: function () {
                                     me.restoreDefaultCustomAttributes();
