@@ -3,7 +3,9 @@ Ext.define('InsightApp.Application', {
 
     requires:[
         'Imt.privileges.ServiceCategory',
-        'Imt.privileges.MetrologyConfig'
+        'Imt.privileges.MetrologyConfig',
+        'Bpm.privileges.BpmManagement',
+        'Dbp.privileges.DeviceProcesses'
     ],
 
     controllers: [
