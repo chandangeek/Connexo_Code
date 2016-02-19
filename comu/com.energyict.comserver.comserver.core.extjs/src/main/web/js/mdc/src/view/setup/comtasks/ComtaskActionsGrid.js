@@ -60,7 +60,8 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskActionsGrid', {
                 ],
                 updateInfo: function() {
                     this.child('#displayItem').setText(
-                        Uni.I18n.translate('general.xActions', 'MDC', '{0} actions', this.store.getCount())
+                        Uni.I18n.translatePlural('general.xActions', this.store.getCount(), 'MDC',
+                            'No actions', '{0} action', '{0} actions')
                     );
                 }
             }

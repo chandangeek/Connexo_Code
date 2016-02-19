@@ -57,7 +57,8 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCommandCategoriesGrid', {
                 ],
                 updateInfo: function() {
                     this.child('#displayItem').setText(
-                        Uni.I18n.translate('general.xCommangCategories', 'MDC', '{0} command categories', this.store.getCount())
+                        Uni.I18n.translatePlural('general.xCommangCategories', this.store.getCount(), 'MDC',
+                            'No command categories', '{0} command category', '{0} command categories')
                     );
                 }
             }
