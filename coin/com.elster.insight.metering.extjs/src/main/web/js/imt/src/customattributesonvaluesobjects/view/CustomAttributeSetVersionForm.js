@@ -284,6 +284,8 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                 callback: function () {
                     if (this.getCount() === 0) {
                         Ext.suspendLayouts();
+                        me.minWidth = 1160;
+                        me.up('viewport').updateLayout();
                         overlapContainer.hide();
                         me.down('uni-form-error-message').hide();
                         startDateField.enableWithText();
