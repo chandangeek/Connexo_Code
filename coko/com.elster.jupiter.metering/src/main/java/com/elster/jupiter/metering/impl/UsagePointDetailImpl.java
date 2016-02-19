@@ -6,12 +6,14 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
 import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.GasDetailBuilder;
+import com.elster.jupiter.metering.HeatDetailBuilder;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
@@ -20,6 +22,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.units.Quantity;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
@@ -35,11 +39,7 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
                 .put("D", DefaultDetailImpl.class).build();
     }
 
-    private AmiBillingReadyKind amiBillingReady;
-    private boolean checkBilling;
-    private UsagePointConnectedKind connectionState;
-    private boolean minimalUsageExpected;
-    private String serviceDeliveryRemark;
+    private Boolean collar;
 
     @SuppressWarnings("unused")
     private long version;
@@ -67,41 +67,34 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
     UsagePointDetailImpl init(UsagePoint usagePoint, Interval interval) {
         this.usagePoint.set(usagePoint);
         this.interval = Objects.requireNonNull(interval);
-        this.amiBillingReady = AmiBillingReadyKind.UNKNOWN;
-        this.connectionState = UsagePointConnectedKind.UNKNOWN;
         return this;
     }
 
     UsagePointDetailImpl init(UsagePoint usagePoint, ElectricityDetailBuilder builder, Interval interval) {
         this.usagePoint.set(usagePoint);
         this.interval = Objects.requireNonNull(interval);
-        this.amiBillingReady = builder.getAmiBillingReady();
-        this.checkBilling = builder.isCheckBilling();
-        this.connectionState = builder.getConnectionState();
-        this.minimalUsageExpected = builder.isMinimalUsageExpected();
-        this.serviceDeliveryRemark = builder.getServiceDeliveryRemark();
+        this.setCollar(builder.getCollar());
         return this;
     }
 
     UsagePointDetailImpl init(UsagePoint usagePoint, GasDetailBuilder builder, Interval interval) {
         this.usagePoint.set(usagePoint);
         this.interval = Objects.requireNonNull(interval);
-        this.amiBillingReady = builder.getAmiBillingReady();
-        this.checkBilling = builder.isCheckBilling();
-        this.connectionState = builder.getConnectionState();
-        this.minimalUsageExpected = builder.isMinimalUsageExpected();
-        this.serviceDeliveryRemark = builder.getServiceDeliveryRemark();
+        setCollar(builder.getCollar());
         return this;
     }
 
     UsagePointDetailImpl init(UsagePoint usagePoint, WaterDetailBuilder builder, Interval interval) {
         this.usagePoint.set(usagePoint);
         this.interval = Objects.requireNonNull(interval);
-        this.amiBillingReady = builder.getAmiBillingReady();
-        this.checkBilling = builder.isCheckBilling();
-        this.connectionState = builder.getConnectionState();
-        this.minimalUsageExpected = builder.isMinimalUsageExpected();
-        this.serviceDeliveryRemark = builder.getServiceDeliveryRemark();
+        setCollar(builder.getCollar());
+        return this;
+    }
+
+    UsagePointDetailImpl init(UsagePoint usagePoint, HeatDetailBuilder builder, Interval interval) {
+        this.usagePoint.set(usagePoint);
+        this.interval = Objects.requireNonNull(interval);
+        setCollar(builder.getCollar());
         return this;
     }
 
@@ -126,56 +119,6 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
     }
 
     @Override
-    public AmiBillingReadyKind getAmiBillingReady() {
-        return amiBillingReady;
-    }
-
-    @Override
-    public boolean isCheckBilling() {
-        return checkBilling;
-    }
-
-    @Override
-    public UsagePointConnectedKind getConnectionState() {
-        return connectionState;
-    }
-
-    @Override
-    public boolean isMinimalUsageExpected() {
-        return minimalUsageExpected;
-    }
-
-    @Override
-    public String getServiceDeliveryRemark() {
-        return serviceDeliveryRemark;
-    }
-
-    @Override
-    public void setAmiBillingReady(AmiBillingReadyKind amiBillingReady) {
-        this.amiBillingReady = amiBillingReady;
-    }
-
-    @Override
-    public void setCheckBilling(boolean checkBilling) {
-        this.checkBilling = checkBilling;
-    }
-
-    @Override
-    public void setConnectionState(UsagePointConnectedKind connectionState) {
-        this.connectionState = connectionState;
-    }
-
-    @Override
-    public void setMinimalUsageExpected(boolean minimalUsageExpected) {
-        this.minimalUsageExpected = minimalUsageExpected;
-    }
-
-    @Override
-    public void setServiceDeliveryRemark(String serviceDeliveryRemark) {
-        this.serviceDeliveryRemark = serviceDeliveryRemark;
-    }
-
-    @Override
     public UsagePoint getUsagePoint() {
         return usagePoint.get();
     }
@@ -192,4 +135,11 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
         interval = Interval.of(Range.closedOpen(getRange().lowerEndpoint(), date));
     }
 
+    public Optional<Boolean> getCollar() {
+        return Optional.ofNullable(collar);
+    }
+
+    public void setCollar(Optional<Boolean> collar) {
+        this.collar = collar.isPresent() ? collar.get() : null;
+    }
 }

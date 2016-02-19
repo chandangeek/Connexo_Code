@@ -126,6 +126,8 @@ public class ServiceCategoryImpl implements ServiceCategory {
             return GasDetailImpl.from(dataModel, usagePoint, interval);
         } else if (kind.equals(ServiceKind.WATER)) {
             return WaterDetailImpl.from(dataModel, usagePoint, interval);
+        } else if (kind.equals(ServiceKind.HEAT)) {
+            return HeatDetailImpl.from(dataModel, usagePoint, interval);
         } else {
             return DefaultDetailImpl.from(dataModel, usagePoint, interval);
         }

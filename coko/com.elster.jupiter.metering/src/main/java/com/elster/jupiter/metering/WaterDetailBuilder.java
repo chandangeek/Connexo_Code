@@ -1,26 +1,58 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.util.units.Quantity;
+
+import java.util.Optional;
+
 public interface WaterDetailBuilder {
 
-    WaterDetailBuilder withAmiBillingReady(AmiBillingReadyKind amiBillingReady);
+    WaterDetailBuilder withCollar(Boolean collar);
 
-    WaterDetailBuilder withCheckBilling(Boolean checkBilling);
+    WaterDetailBuilder withGrounded(Boolean grounded);
 
-    WaterDetailBuilder withConnectionState(UsagePointConnectedKind connectionState);
+    WaterDetailBuilder withPressure(Quantity pressure);
 
-    WaterDetailBuilder withMinimalUsageExpected(Boolean minimalUsageExpected);
+    WaterDetailBuilder withPhysicalCapacity(Quantity physicalCapacity);
 
-    WaterDetailBuilder withServiceDeliveryRemark(String serviceDeliveryRemark);
+    WaterDetailBuilder withLimiter(Boolean limiter);
 
-    AmiBillingReadyKind getAmiBillingReady();
+    WaterDetailBuilder withLoadLimit(Quantity loadLimit);
 
-    boolean isCheckBilling();
+    WaterDetailBuilder withLoadLimiterType(String loadLimiterType);
 
-    UsagePointConnectedKind getConnectionState();
+    WaterDetailBuilder withBypass(Boolean bypass);
 
-    boolean isMinimalUsageExpected();
+    WaterDetailBuilder withBypassStatus(BypassStatus bypassStatus);
 
-    String getServiceDeliveryRemark();
+    WaterDetailBuilder withValve(Boolean valve);
+
+    WaterDetailBuilder withCapped(Boolean capped);
+
+    WaterDetailBuilder withClamped(Boolean clamped);
+
+    Optional<Boolean> getCollar();
+
+    Optional<Boolean> getClamped();
+
+    Boolean isGrounded();
+
+    Quantity getPressure();
+
+    Quantity getPhysicalCapacity();
+
+    Boolean isLimiter();
+
+    String getLoadLimiterType();
+
+    Quantity getLoadLimit();
+
+    Optional<Boolean> getBypass();
+
+    BypassStatus getBypassStatus();
+
+    Optional<Boolean> getValve();
+
+    Optional<Boolean> getCapped();
 
     WaterDetail build();
 

@@ -20,6 +20,13 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
 
     String getOutageRegion();
 
+    @Deprecated
+    String getAliasName();
+
+    @Deprecated
+    String getDescription();
+
+    @Deprecated
     String getReadCycle();
 
     String getReadRoute();
@@ -36,12 +43,21 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
 
     ServiceCategory getServiceCategory();
 
+    public Instant getInstallationTime();
+
+    public void setInstallationTime(Instant installationTime);
+
+    String getServiceDeliveryRemark();
+
+    void setServiceDeliveryRemark(String serviceDeliveryRemark);
+
     void setServiceLocation(ServiceLocation serviceLocation);
 
     void setServicePriority(String servicePriority);
 
     void setReadRoute(String readRoute);
 
+    @Deprecated
     void setReadCycle(String readCycle);
 
     void setOutageRegion(String outageRegion);
@@ -54,8 +70,10 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
 
     void setMRID(String mRID);
 
+    @Deprecated
     void setDescription(String description);
 
+    @Deprecated
     void setAliasName(String aliasName);
 
     void update();

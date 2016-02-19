@@ -59,12 +59,17 @@ public class UsagePointImpl implements UsagePoint {
     @NotNull
     private String mRID;
     private String name;
+    @NotNull
     private boolean isSdp;
+    @NotNull
     private boolean isVirtual;
     private String outageRegion;
     private String readCycle;
     private String readRoute;
     private String servicePriority;
+    @NotNull
+    private Instant installationTime;
+    private String serviceDeliveryRemark;
     private long version;
     private Instant createTime;
     private Instant modTime;
@@ -195,13 +200,28 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
+    public String getServiceDeliveryRemark() {
+        return serviceDeliveryRemark;
+    }
+
+    @Override
+    public Instant getInstallationTime() {
+        return installationTime;
+    }
+
+    @Override
+    public void setInstallationTime(Instant installationTime) {
+        this.installationTime = installationTime;
+    }
+
+    @Override
     public void setAliasName(String aliasName) {
-        this.aliasName = aliasName;
+        throw new UnsupportedOperationException("aliasName field is deprecated");
     }
 
     @Override
     public void setDescription(String description) {
-        this.description = description;
+        throw new UnsupportedOperationException("description field is deprecated");
     }
 
     @Override
@@ -231,7 +251,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void setReadCycle(String readCycle) {
-        this.readCycle = readCycle;
+        throw new UnsupportedOperationException("readCycle field is deprecated");
     }
 
     @Override
@@ -247,6 +267,11 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public void setServiceLocation(ServiceLocation serviceLocation) {
         this.serviceLocation.set(serviceLocation);
+    }
+
+    @Override
+    public void setServiceDeliveryRemark(String serviceDeliveryRemark) {
+        this.serviceDeliveryRemark = serviceDeliveryRemark;
     }
 
     @Override

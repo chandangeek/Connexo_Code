@@ -11,14 +11,7 @@ import java.util.Optional;
  * Time: 9:13
  * To change this template use File | Settings | File Templates.
  */
-public interface GasDetail extends UsagePointDetail {
-    Boolean isGrounded();
-
-    Boolean isLimiter();
-
-    String getLoadLimiterType();
-
-    Quantity getLoadLimit();
+public interface HeatDetail extends UsagePointDetail {
 
     Quantity getPhysicalCapacity();
 
@@ -30,19 +23,7 @@ public interface GasDetail extends UsagePointDetail {
 
     Optional<Boolean> getValve();
 
-    Optional<Boolean> getCapped();
-
-    Optional<Boolean> getClamped();
-
     Boolean isInterruptible();
-
-    void setGrounded(Boolean grounded);
-
-    void setLimiter(Boolean limiter);
-
-    void setLoadLimiterType(String loadLimiterType);
-
-    void setLoadLimit(Quantity loadLimit);
 
     void setPressure(Quantity pressure);
 
@@ -53,10 +34,6 @@ public interface GasDetail extends UsagePointDetail {
     void setBypassStatus(BypassStatus bypassStatus);
 
     void setValve(Optional<Boolean> valve);
-
-    void setCapped(Optional<Boolean> capped);
-
-    void setClamped(Optional<Boolean> clamped);
 
     void setInterruptible(Boolean interruptible);
 }

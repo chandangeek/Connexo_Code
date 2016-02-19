@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering;
 
+import java.time.Instant;
+
 public interface UsagePointBuilder {
 
     UsagePointBuilder withAliasName(String aliasName);
@@ -23,6 +25,8 @@ public interface UsagePointBuilder {
     UsagePointBuilder withServicePriority(String servicePriority);
 
     UsagePointBuilder setServiceLocation(ServiceLocation location);
+
+    UsagePointBuilder withInstallationTime(Instant installationTime);
 
     UsagePoint create();
 }

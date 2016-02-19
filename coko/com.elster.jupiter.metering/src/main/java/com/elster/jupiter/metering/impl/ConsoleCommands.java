@@ -10,11 +10,15 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.util.units.Unit;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -175,10 +179,12 @@ public class ConsoleCommands {
         System.out.println("Usage: createUsagePoint <mRID>");
 
     }
-    public void createUsagePoint(String mrId) {
+    public void createUsagePoint(String mrId, String timestamp) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            UsagePointImpl usagePoint = (UsagePointImpl) meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint(mrId).create();
+            UsagePointImpl usagePoint = (UsagePointImpl) meteringService.getServiceCategory(ServiceKind.WATER).get().newUsagePoint(mrId).withInstallationTime(Instant.parse(timestamp)).create();
+            usagePoint.newWaterDetailBuilder(Instant.now()).withCapped(true).withBypass(true).withBypassStatus(BypassStatus.OPEN).withCollar(true).withGrounded(true)
+                    .withLimiter(true).withLoadLimit(Unit.ACRE.amount(BigDecimal.TEN)).withLoadLimiterType("type").withPhysicalCapacity(Unit.ANGSTROM.amount(BigDecimal.ONE)).build();
             context.commit();
         } finally {
             threadPrincipalService.clear();

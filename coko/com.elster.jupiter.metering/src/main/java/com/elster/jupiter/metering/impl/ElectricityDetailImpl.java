@@ -12,15 +12,16 @@ import javax.inject.Inject;
 
 public class ElectricityDetailImpl extends UsagePointDetailImpl implements ElectricityDetail {
 
-    private boolean grounded;
+    private Boolean grounded;
     private Quantity nominalServiceVoltage;
     private PhaseCode phaseCode;
     private Quantity ratedCurrent;
-
-    // last two fields currently only on E
-    // we may want to generalize them later
     private Quantity ratedPower;
     private Quantity estimatedLoad;
+    private Boolean limiter;
+    private String loadLimiterType;
+    private Quantity loadLimit;
+    private Boolean interruptible;
 
     @Inject
     ElectricityDetailImpl(Clock clock, DataModel dataModel) {
@@ -45,54 +46,103 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
         this.ratedCurrent = builder.getRatedCurrent();
         this.ratedPower = builder.getRatedPower();
         this.estimatedLoad = builder.getEstimatedLoad();
+        this.limiter = builder.isLimiter();
+        this.loadLimiterType = builder.getLoadLimiterType();
+        this.loadLimit = builder.getLoadLimit();
+        this.interruptible = builder.isInterruptible();
         return this;
     }
-
-    public boolean isGrounded() {
+    @Override
+    public Boolean isGrounded() {
         return grounded;
     }
-
+    @Override
     public Quantity getNominalServiceVoltage() {
         return nominalServiceVoltage;
     }
-
+    @Override
     public PhaseCode getPhaseCode() {
         return phaseCode;
     }
-
+    @Override
     public Quantity getRatedCurrent() {
         return ratedCurrent;
     }
-
+    @Override
     public Quantity getRatedPower() {
         return ratedPower;
     }
-
+    @Override
     public Quantity getEstimatedLoad() {
         return estimatedLoad;
     }
 
-    public void setGrounded(boolean grounded) {
+    @Override
+    public Boolean isLimiter() {
+        return limiter;
+    }
+
+    @Override
+    public String getLoadLimiterType() {
+        return loadLimiterType;
+    }
+
+    @Override
+    public Quantity getLoadLimit() {
+        return loadLimit;
+    }
+
+    @Override
+    public Boolean isInterruptible() {
+        return interruptible;
+    }
+
+    @Override
+    public void setGrounded(Boolean grounded) {
         this.grounded = grounded;
     }
 
+    @Override
     public void setNominalServiceVoltage(Quantity nominalServiceVoltage) {
         this.nominalServiceVoltage = nominalServiceVoltage;
     }
-
+    @Override
     public void setPhaseCode(PhaseCode phaseCode) {
         this.phaseCode = phaseCode;
     }
 
+    @Override
     public void setRatedCurrent(Quantity ratedCurrent) {
         this.ratedCurrent = ratedCurrent;
     }
 
+    @Override
     public void setRatedPower(Quantity ratedPower) {
         this.ratedPower = ratedPower;
     }
 
+    @Override
     public void setEstimatedLoad(Quantity estimatedLoad) {
         this.estimatedLoad = estimatedLoad;
+    }
+
+    @Override
+    public void setLimiter(Boolean limiter) {
+        this.limiter = limiter;
+    }
+
+    @Override
+    public void setLoadLimiterType(String loadLimiterType) {
+        this.loadLimiterType = loadLimiterType;
+    }
+
+    @Override
+    public void setLoadLimit(Quantity loadLimit) {
+        this.loadLimit = loadLimit;
+    }
+
+    @Override
+    public void setInterruptible(Boolean interruptible) {
+        this.interruptible = interruptible;
     }
 }

@@ -159,13 +159,11 @@ public class UsagePointQueryTest {
                 .setServiceLocation(location).create();
         usagePoint.setServiceLocation(location);
         ElectricityDetail detail = (ElectricityDetail) serviceCategory.newUsagePointDetail(usagePoint, Instant.now());
-        detail.setAmiBillingReady(AmiBillingReadyKind.AMICAPABLE);
         detail.setRatedPower(Unit.WATT_HOUR.amount(BigDecimal.valueOf(1000),3));
         usagePoint.addDetail(detail);
 //        usagePoint.save();
         Query<UsagePoint> query = meteringService.getUsagePointQuery();
-        Condition condition = where("detail.amiBillingReady").isEqualTo(AmiBillingReadyKind.AMICAPABLE);
-        condition = condition.and(where("serviceLocation.mainAddress.townDetail.country").isEqualTo("BE"));
+        Condition condition = where("serviceLocation.mainAddress.townDetail.country").isEqualTo("BE");
         condition = condition.and(where("detail.ratedPower.value").between(BigDecimal.valueOf(999)).and(BigDecimal.valueOf(1001)));
         assertThat(query.select(condition)).hasSize(1);
         assertThat(query.select(condition).get(0).getServiceCategory().getKind()).isEqualTo(ServiceKind.ELECTRICITY);

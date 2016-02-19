@@ -1,26 +1,62 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.util.units.Quantity;
+
+import java.util.Optional;
+
 public interface GasDetailBuilder {
 
-    GasDetailBuilder withAmiBillingReady(AmiBillingReadyKind amiBillingReady);
+    GasDetailBuilder withCollar(Boolean collar);
 
-    GasDetailBuilder withCheckBilling(Boolean checkBilling);
+    GasDetailBuilder withGrounded(Boolean grounded);
 
-    GasDetailBuilder withConnectionState(UsagePointConnectedKind connectionState);
+    GasDetailBuilder withPressure(Quantity pressure);
 
-    GasDetailBuilder withMinimalUsageExpected(Boolean minimalUsageExpected);
+    GasDetailBuilder withPhysicalCapacity(Quantity physicalCapacity);
 
-    GasDetailBuilder withServiceDeliveryRemark(String serviceDeliveryRemark);
+    GasDetailBuilder withLimiter(Boolean limiter);
 
-    AmiBillingReadyKind getAmiBillingReady();
+    GasDetailBuilder withLoadLimit(Quantity loadLimit);
 
-    boolean isCheckBilling();
+    GasDetailBuilder withLoadLimiterType(String loadLimiterType);
 
-    UsagePointConnectedKind getConnectionState();
+    GasDetailBuilder withBypass(Boolean bypass);
 
-    boolean isMinimalUsageExpected();
+    GasDetailBuilder withBypassStatus(BypassStatus bypassStatus);
 
-    String getServiceDeliveryRemark();
+    GasDetailBuilder withValve(Boolean valve);
+
+    GasDetailBuilder withCapped(Boolean capped);
+
+    GasDetailBuilder withClamped(Boolean clamped);
+
+    GasDetailBuilder withInterruptible(Boolean interruptible);
+
+    Optional<Boolean> getCollar();
+
+    Optional<Boolean> getClamped();
+
+    Boolean isGrounded();
+
+    Quantity getPressure();
+
+    Quantity getPhysicalCapacity();
+
+    Boolean isLimiter();
+
+    String getLoadLimiterType();
+
+    Quantity getLoadLimit();
+
+    Optional<Boolean> getBypass();
+
+    BypassStatus getBypassStatus();
+
+    Optional<Boolean> getValve();
+
+    Optional<Boolean> getCapped();
+
+    Boolean isInterruptible();
 
     GasDetail build();
 

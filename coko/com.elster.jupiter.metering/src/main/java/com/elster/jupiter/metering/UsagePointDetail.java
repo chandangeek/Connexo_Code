@@ -2,6 +2,8 @@ package com.elster.jupiter.metering;
 
 import com.elster.jupiter.orm.associations.Effectivity;
 
+import java.util.Optional;
+
 /**
  * Created with IntelliJ IDEA.
  * User: igh
@@ -11,25 +13,9 @@ import com.elster.jupiter.orm.associations.Effectivity;
  */
 public interface UsagePointDetail extends Effectivity {
 
-    AmiBillingReadyKind getAmiBillingReady();
+    Optional<Boolean> getCollar();
 
-    boolean isCheckBilling();
-
-    UsagePointConnectedKind getConnectionState();
-
-    boolean isMinimalUsageExpected();
-
-    String getServiceDeliveryRemark();
-
-    void setAmiBillingReady(AmiBillingReadyKind amiBillingReady);
-
-    void setCheckBilling(boolean checkBilling);
-
-    void setConnectionState(UsagePointConnectedKind connectionState);
-
-    void setMinimalUsageExpected(boolean minimalUsageExpected);
-
-    void setServiceDeliveryRemark(String serviceDeliveryRemark);
+    void setCollar(Optional<Boolean> collar);
 
     boolean isCurrent();
 

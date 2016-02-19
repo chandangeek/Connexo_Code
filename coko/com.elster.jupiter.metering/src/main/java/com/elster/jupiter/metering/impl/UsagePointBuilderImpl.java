@@ -6,6 +6,8 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.orm.DataModel;
 
+import java.time.Instant;
+
 public class UsagePointBuilderImpl implements UsagePointBuilder {
 
     private DataModel dataModel;
@@ -20,6 +22,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     private String readCycle;
     private String readRoute;
     private String servicePriority;
+    private Instant installationTime;
 
     private ServiceCategory serviceCategory;
     private ServiceLocation serviceLocation;
@@ -97,19 +100,26 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
+    public UsagePointBuilder withInstallationTime(Instant installationTime) {
+        this.installationTime = installationTime;
+        return this;
+    }
+
+    @Override
     public UsagePoint create() {
         UsagePointImpl usagePoint = dataModel.getInstance(UsagePointImpl.class).init(mRID, serviceCategory);
 
-        usagePoint.setAliasName(aliasName);
-        usagePoint.setDescription(description);
+//        usagePoint.setAliasName(aliasName);
+//        usagePoint.setDescription(description);
         usagePoint.setName(name);
         usagePoint.setSdp(isSdp);
         usagePoint.setVirtual(isVirtual);
         usagePoint.setOutageRegion(outageRegion);
-        usagePoint.setReadCycle(readCycle);
+//        usagePoint.setReadCycle(readCycle);
         usagePoint.setReadRoute(readRoute);
         usagePoint.setServicePriority(servicePriority);
         usagePoint.setServiceLocation(serviceLocation);
+        usagePoint.setInstallationTime(installationTime);
         usagePoint.doSave();
         return usagePoint;
     }
