@@ -75,12 +75,6 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
         this.setPropertyIfNotNull(propertySetValues, ActualFields.USER_NAME.javaName(), this.userName);
     }
 
-    private void setPropertyIfNotNull(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {
-        if (propertyValue != null) {
-            propertySetValues.setProperty(propertyName, propertyValue);
-        }
-    }
-
     @Override
     public void validateDelete() {
         // Nothing to validate
