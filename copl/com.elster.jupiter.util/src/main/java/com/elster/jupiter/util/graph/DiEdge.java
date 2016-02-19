@@ -7,21 +7,21 @@ import java.util.Objects;
 
 public final class DiEdge<T> {
 
-    private final Node<T> from;
-    private final Node<T> to;
+    private final T from;
+    private final T to;
     private final long weight;
 
-    private DiEdge(Node<T> from, Node<T> to, long weight) {
+    private DiEdge(T from, T to, long weight) {
         this.from = from;
         this.to = to;
         this.weight = weight;
     }
 
-    public Node<T> from() {
+    public T from() {
         return from;
     }
 
-    public Node<T> to() {
+    public T to() {
         return to;
     }
 
@@ -39,8 +39,12 @@ public final class DiEdge<T> {
         return Objects.hash(from, to);
     }
 
-    public List<Node<T>> nodes() {
-        return ImmutableList.of(from, to);
+    public List<T> nodes() {
+        return ImmutableList.of(from(), to());
+    }
+
+    public boolean touches(T data) {
+        return from.equals(data) || to.equals(data);
     }
 
     @Override
@@ -55,12 +59,8 @@ public final class DiEdge<T> {
         return Edge.between(from, to);
     }
 
-    public static <S> DiEdge<S> between(Node<S> a, Node<S> b) {
-        return new DiEdge<>(a, b, 1L);
-    }
-
     public static <S> DiEdge<S> between(S a, S b) {
-        return new DiEdge<>(Node.of(a), Node.of(b), 1L);
+        return new DiEdge<>(a, b, 1L);
     }
 
     public DiEdge<T> withWeight(long weight) {

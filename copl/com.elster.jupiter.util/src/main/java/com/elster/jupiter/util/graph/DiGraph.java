@@ -9,29 +9,28 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
+
+import static com.elster.jupiter.util.streams.Currying.test;
 
 public class DiGraph<T> {
 
-    private final Set<Node<T>> vertices = new HashSet<>();
+    private final Set<T> vertices = new HashSet<>();
     private final Set<DiEdge<T>> edges = new HashSet<>();
-    private final Map<Node<T>, List<DiEdge<T>>> adjacency = new HashMap<>();
+    private final Map<T, List<DiEdge<T>>> adjacency = new HashMap<>();
 
     public void addVertex(T data) {
-        Node<T> vertex = Node.of(data);
-        doAddVertex(vertex);
-    }
-
-    private void doAddVertex(Node<T> vertex) {
-        if (vertices.add(vertex)) {
-            adjacency.put(vertex, new ArrayList<>());
+        if (vertices.add(data)) {
+            adjacency.put(data, new ArrayList<>());
         }
     }
 
     private void addEdge(DiEdge<T> edge) {
-        doAddVertex(edge.from());
-        doAddVertex(edge.to());
+        addVertex(edge.from());
+        addVertex(edge.to());
         if (edges.add(edge)) {
             adjacency.computeIfAbsent(edge.from(), vertex -> new ArrayList<>())
                     .add(edge);
@@ -46,12 +45,12 @@ public class DiGraph<T> {
         addEdge(DiEdge.between(from, to).withWeight(weight));
     }
 
-    private boolean isCyclic(Node<T> vertex, Set<Node<T>> visited, Set<Node<T>> recursionStack) {
+    private boolean isCyclic(T vertex, Set<T> visited, Set<T> recursionStack) {
         if (visited.add(vertex)) {
             recursionStack.add(vertex);
 
             for (DiEdge<T> diEdge : adjacency.get(vertex)) {
-                Node<T> otherVertex = diEdge.to();
+                T otherVertex = diEdge.to();
                 if (!visited.contains(otherVertex) && isCyclic(otherVertex, visited, recursionStack)) {
                     return true;
                 } else if (recursionStack.contains(otherVertex)) {
@@ -64,8 +63,8 @@ public class DiGraph<T> {
     }
 
     public boolean isCyclic() {
-        Set<Node<T>> visited = new HashSet<>();
-        Set<Node<T>> recursionStack = new HashSet<>();
+        Set<T> visited = new HashSet<>();
+        Set<T> recursionStack = new HashSet<>();
 
         return vertices.stream()
                 .anyMatch(v -> isCyclic(v, visited, recursionStack));
@@ -95,17 +94,13 @@ public class DiGraph<T> {
     }
 
     public Optional<List<T>> shortestPath(T start, T end) {
-        return shortestPath(Node.of(start), Node.of(end));
-    }
-
-    private Optional<List<T>> shortestPath(Node<T> start, Node<T> end) {
         if (!vertices.contains(start) || !vertices.contains(end)) {
             return Optional.empty();
         }
-        Set<Node<T>> remainingVertices = new HashSet<>(vertices);
+        Set<T> remainingVertices = new HashSet<>(vertices);
 
-        Map<Node<T>, Distance> distance = new HashMap<>();
-        Map<Node<T>, Node<T>> previous = new HashMap<>();
+        Map<T, Distance> distance = new HashMap<>();
+        Map<T, T> previous = new HashMap<>();
 
         vertices.forEach(vertex -> {
                     distance.put(vertex, Infinity.INFINITY);
@@ -113,16 +108,16 @@ public class DiGraph<T> {
         distance.put(start, LongDistance.ZERO);
 
         while (!remainingVertices.isEmpty()) {
-            Node<T> nextClosestVertex = remainingVertices.stream()
+            T nextClosestVertex = remainingVertices.stream()
                     .min(Comparator.comparing(distance::get))
                     .get();
 
-            if (end.equals(nextClosestVertex)) {
+            if (end.equals(nextClosestVertex) && !distance.get(nextClosestVertex).isInfinite()) {
                 ArrayList<T> result = new ArrayList<>();
-                result.add(end.getData());
+                result.add(end);
                 while (previous.get(nextClosestVertex) != null) {
-                    Node<T> prev = previous.get(nextClosestVertex);
-                    result.add(prev.getData());
+                    T prev = previous.get(nextClosestVertex);
+                    result.add(prev);
                     nextClosestVertex = prev;
                 }
                 Collections.reverse(result);
@@ -131,12 +126,12 @@ public class DiGraph<T> {
 
             remainingVertices.remove(nextClosestVertex);
 
-            Node<T> u = nextClosestVertex;
+            T u = nextClosestVertex;
             adjacency.get(u)
                     .stream()
                     .forEach(edge -> {
                         Distance alt = distance.get(u).plus(edge.weight());
-                        Node<T> vertex = edge.to();
+                        T vertex = edge.to();
                         if (alt.isSmallerThan(distance.get(vertex))) {
                             distance.put(vertex, alt);
                             previous.put(vertex, u);
@@ -147,11 +142,11 @@ public class DiGraph<T> {
         return Optional.empty();
     }
 
-    private Pair<Map<Node<T>, Distance>, Map<Node<T>, Node<T>>> minimalSpanningTree(Node<T> start) {
-        Set<Node<T>> remainingVertices = new HashSet<>(vertices);
+    private Pair<Map<T, Distance>, Map<T, T>> minimalSpanningTree(T start) {
+        Set<T> remainingVertices = new HashSet<>(vertices);
 
-        Map<Node<T>, Distance> distance = new HashMap<>();
-        Map<Node<T>, Node<T>> previous = new HashMap<>();
+        Map<T, Distance> distance = new HashMap<>();
+        Map<T, T> previous = new HashMap<>();
 
         vertices.forEach(vertex -> {
             distance.put(vertex, Infinity.INFINITY);
@@ -159,7 +154,7 @@ public class DiGraph<T> {
         distance.put(start, LongDistance.ZERO);
 
         while (!remainingVertices.isEmpty()) {
-            Node<T> nextClosestVertex = remainingVertices.stream()
+            T nextClosestVertex = remainingVertices.stream()
                     .min(Comparator.comparing(distance::get))
                     .get();
 
@@ -169,7 +164,7 @@ public class DiGraph<T> {
                     .stream()
                     .forEach(edge -> {
                         Distance alt = distance.get(nextClosestVertex).plus(edge.weight());
-                        Node<T> vertex = edge.to();
+                        T vertex = edge.to();
                         if (alt.isSmallerThan(distance.get(vertex))) {
                             distance.put(vertex, alt);
                             previous.put(vertex, nextClosestVertex);
@@ -195,12 +190,26 @@ public class DiGraph<T> {
                 .orElse(Infinity.INFINITY);
     }
 
-    private Distance eccentricity(Node<T> vertex) {
+    private Distance eccentricity(T vertex) {
         return minimalSpanningTree(vertex).getFirst().values().stream().max(Comparator.naturalOrder()).orElse(Infinity.INFINITY);
     }
 
-    private Distance distance(Node<T> one, Node<T> other) {
+    private Distance distance(T one, T other) {
         return minimalSpanningTree(one).getFirst().get(other);
+    }
+
+    public void remove(T vertex) {
+        vertices.removeIf(node -> Objects.equals(node, vertex));
+        Predicate<DiEdge<T>> touches = test(DiEdge<T>::touches).with(vertex);
+        edges.removeIf(touches);
+        adjacency.entrySet().removeIf(entry -> entry.getKey().equals(vertex));
+        adjacency.values().forEach(list -> list.removeIf(touches));
+    }
+
+    public void removeEdge(T from, T to) {
+        Predicate<DiEdge<T>> isEdge = edge -> edge.from().equals(from) && edge.to().equals(to);
+        edges.removeIf(isEdge);
+        adjacency.values().forEach(list -> list.removeIf(isEdge));
     }
 
     public interface Distance extends Comparable<Distance> {
@@ -276,17 +285,14 @@ public class DiGraph<T> {
         }
     }
 
-    Set<Node<T>> vertices() {
+    public Set<T> vertices() {
         return Collections.unmodifiableSet(vertices);
     }
 
-    Set<DiEdge<T>> edges() {
+    public Set<DiEdge<T>> edges() {
         return Collections.unmodifiableSet(edges);
     }
 
-    private List<Tree<T>> getTrees() {
-        return Collections.emptyList();
-    }
  }
 
 

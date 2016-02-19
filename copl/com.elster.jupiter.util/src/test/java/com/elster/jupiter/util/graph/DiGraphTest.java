@@ -1,8 +1,8 @@
 package com.elster.jupiter.util.graph;
 
-import org.junit.Test;
-
 import java.util.Arrays;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -68,6 +68,62 @@ public class DiGraphTest {
 
         assertThat(graph.isCyclic()).isTrue();
     }
+
+    @Test
+    public void testRemoveVertex() {
+
+        DiGraph<String> graph = new DiGraph<>();
+
+        graph.addEdge("A", "B");
+        graph.addEdge("B", "C");
+        graph.addEdge("C", "D");
+
+        graph.addEdge("D", "M");
+        graph.addEdge("M", "N");
+        graph.addEdge("N", "O");
+        graph.addEdge("D", "P");
+        graph.addEdge("P", "Q");
+        graph.addEdge("Q", "R");
+        graph.addEdge("R", "O");
+
+
+        graph.addEdge("D", "E");
+        graph.addEdge("E", "F");
+        graph.addEdge("F", "A");
+
+        graph.remove("E");
+
+        assertThat(graph.shortestPath("D", "F")).isEmpty();
+    }
+
+    @Test
+    public void testRemoveEdge() {
+
+        DiGraph<String> graph = new DiGraph<>();
+
+        graph.addEdge("A", "B");
+        graph.addEdge("B", "C");
+        graph.addEdge("C", "D");
+
+        graph.addEdge("D", "M");
+        graph.addEdge("M", "N");
+        graph.addEdge("N", "O");
+        graph.addEdge("D", "P");
+        graph.addEdge("P", "Q");
+        graph.addEdge("Q", "R");
+        graph.addEdge("R", "O");
+
+
+        graph.addEdge("D", "E");
+        graph.addEdge("E", "F");
+        graph.addEdge("F", "A");
+
+        graph.removeEdge("D", "E");
+
+        assertThat(graph.shortestPath("D", "F")).isEmpty();
+    }
+
+
 
     @Test
     public void testLargerLoopAndSideTrackWithoutCyclicReference() {

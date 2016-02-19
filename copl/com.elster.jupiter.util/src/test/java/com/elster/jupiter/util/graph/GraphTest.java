@@ -11,7 +11,7 @@ public class GraphTest {
 
         Graph<String> graph = new Graph<>();
 
-        graph.addEdge(Edge.between(Node.of("A"), Node.of("A")));
+        graph.addEdge(Edge.between("A", "A"));
 
         assertThat(graph.isCyclic()).isTrue();
     }
@@ -21,8 +21,8 @@ public class GraphTest {
 
         Graph<String> graph = new Graph<>();
 
-        graph.addEdge(Edge.between(Node.of("A"), Node.of("B")));
-        graph.addEdge(Edge.between(Node.of("B"), Node.of("A")));
+        graph.addEdge(Edge.between("A", "B"));
+        graph.addEdge(Edge.between("B", "A"));
 
         assertThat(graph.isCyclic()).isFalse();
     }
@@ -32,12 +32,12 @@ public class GraphTest {
 
         Graph<String> graph = new Graph<>();
 
-        graph.addEdge(Edge.between(Node.of("A"), Node.of("B")));
-        graph.addEdge(Edge.between(Node.of("B"), Node.of("C")));
-        graph.addEdge(Edge.between(Node.of("C"), Node.of("D")));
-        graph.addEdge(Edge.between(Node.of("D"), Node.of("E")));
-        graph.addEdge(Edge.between(Node.of("E"), Node.of("F")));
-        graph.addEdge(Edge.between(Node.of("F"), Node.of("A")));
+        graph.addEdge(Edge.between("A", "B"));
+        graph.addEdge(Edge.between("B", "C"));
+        graph.addEdge(Edge.between("C", "D"));
+        graph.addEdge(Edge.between("D", "E"));
+        graph.addEdge(Edge.between("E", "F"));
+        graph.addEdge(Edge.between("F", "A"));
 
         assertThat(graph.isCyclic()).isTrue();
     }
@@ -47,22 +47,22 @@ public class GraphTest {
 
         Graph<String> graph = new Graph<>();
 
-        graph.addEdge(Edge.between(Node.of("A"), Node.of("B")));
-        graph.addEdge(Edge.between(Node.of("B"), Node.of("C")));
-        graph.addEdge(Edge.between(Node.of("C"), Node.of("D")));
+        graph.addEdge(Edge.between("A", "B"));
+        graph.addEdge(Edge.between("B", "C"));
+        graph.addEdge(Edge.between("C", "D"));
 
-        graph.addEdge(Edge.between(Node.of("D"), Node.of("M")));
-        graph.addEdge(Edge.between(Node.of("M"), Node.of("N")));
-        graph.addEdge(Edge.between(Node.of("N"), Node.of("O")));
-        graph.addEdge(Edge.between(Node.of("D"), Node.of("P")));
-        graph.addEdge(Edge.between(Node.of("P"), Node.of("Q")));
-        graph.addEdge(Edge.between(Node.of("Q"), Node.of("R")));
-        graph.addEdge(Edge.between(Node.of("R"), Node.of("O")));
+        graph.addEdge(Edge.between("D", "M"));
+        graph.addEdge(Edge.between("M", "N"));
+        graph.addEdge(Edge.between("N", "O"));
+        graph.addEdge(Edge.between("D", "P"));
+        graph.addEdge(Edge.between("P", "Q"));
+        graph.addEdge(Edge.between("Q", "R"));
+        graph.addEdge(Edge.between("R", "O"));
 
 
-        graph.addEdge(Edge.between(Node.of("D"), Node.of("E")));
-        graph.addEdge(Edge.between(Node.of("E"), Node.of("F")));
-        graph.addEdge(Edge.between(Node.of("F"), Node.of("A")));
+        graph.addEdge(Edge.between("D", "E"));
+        graph.addEdge(Edge.between("E", "F"));
+        graph.addEdge(Edge.between("F", "A"));
 
         assertThat(graph.isCyclic()).isTrue();
     }
@@ -72,19 +72,19 @@ public class GraphTest {
 
         Graph<String> graph = new Graph<>();
 
-        graph.addEdge(Edge.between(Node.of("A"), Node.of("B")));
-        graph.addEdge(Edge.between(Node.of("B"), Node.of("C")));
-        graph.addEdge(Edge.between(Node.of("C"), Node.of("D")));
+        graph.addEdge(Edge.between("A", "B"));
+        graph.addEdge(Edge.between("B", "C"));
+        graph.addEdge(Edge.between("C", "D"));
 
-        graph.addEdge(Edge.between(Node.of("D"), Node.of("M")));
-        graph.addEdge(Edge.between(Node.of("M"), Node.of("N")));
-        graph.addEdge(Edge.between(Node.of("N"), Node.of("O")));
-        graph.addEdge(Edge.between(Node.of("D"), Node.of("P")));
-        graph.addEdge(Edge.between(Node.of("P"), Node.of("Q")));
-        graph.addEdge(Edge.between(Node.of("Q"), Node.of("R")));
+        graph.addEdge(Edge.between("D", "M"));
+        graph.addEdge(Edge.between("M", "N"));
+        graph.addEdge(Edge.between("N", "O"));
+        graph.addEdge(Edge.between("D", "P"));
+        graph.addEdge(Edge.between("P", "Q"));
+        graph.addEdge(Edge.between("Q", "R"));
 
-        graph.addEdge(Edge.between(Node.of("E"), Node.of("F")));
-        graph.addEdge(Edge.between(Node.of("F"), Node.of("A")));
+        graph.addEdge(Edge.between("E", "F"));
+        graph.addEdge(Edge.between("F", "A"));
 
         assertThat(graph.isCyclic()).isFalse();
     }

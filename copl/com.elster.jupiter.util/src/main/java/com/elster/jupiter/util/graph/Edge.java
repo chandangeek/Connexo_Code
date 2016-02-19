@@ -2,15 +2,16 @@ package com.elster.jupiter.util.graph;
 
 import com.google.common.collect.ImmutableSet;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
 public final class Edge<T> {
 
-    private final Set<Node<T>> nodes;
+    private final Set<T> nodes;
     private final long weight;
 
-    private Edge(Node<T> from, Node<T> to) {
+    private Edge(T from, T to) {
         this.nodes = ImmutableSet.of(from, to);
         this.weight = 1L;
     }
@@ -33,8 +34,8 @@ public final class Edge<T> {
         return Objects.hash(nodes());
     }
 
-    public Set<Node<T>> nodes() {
-        return nodes;
+    public Set<T> nodes() {
+        return Collections.unmodifiableSet(nodes);
     }
 
     @Override
@@ -44,7 +45,7 @@ public final class Edge<T> {
                 '}';
     }
 
-    public static <S> Edge<S> between(Node<S> a, Node<S> b) {
+    public static <S> Edge<S> between(S a, S b) {
         return new Edge<>(a, b);
     }
 

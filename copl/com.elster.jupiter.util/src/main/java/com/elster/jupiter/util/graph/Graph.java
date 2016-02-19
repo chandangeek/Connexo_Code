@@ -14,11 +14,11 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 
 public class Graph<T> {
 
-    private final Set<Node<T>> vertices = new HashSet<>();
+    private final Set<T> vertices = new HashSet<>();
     private final Set<Edge<T>> edges = new HashSet<>();
-    private final Map<Node<T>, List<Edge<T>>> adjacency = new HashMap<>();
+    private final Map<T, List<Edge<T>>> adjacency = new HashMap<>();
 
-    public void addVertex(Node<T> vertex) {
+    public void addVertex(T vertex) {
         if (vertices.add(vertex)) {
             adjacency.put(vertex, new ArrayList<>());
         }
@@ -36,18 +36,18 @@ public class Graph<T> {
     }
 
     public boolean isCyclic() {
-        Set<Node<T>> visited = new HashSet<>();
+        Set<T> visited = new HashSet<>();
         Set<Edge<T>> edgesLeft = new HashSet<>(edges);
 
         return vertices.stream().anyMatch(vertex -> {
             if (!visited.contains(vertex)) {
-                Set<Node<T>> marked = new HashSet<>();
+                Set<T> marked = new HashSet<>();
                 visited.add(vertex);
-                Deque<Node<T>> toExpand = new ArrayDeque<>();
+                Deque<T> toExpand = new ArrayDeque<>();
                 toExpand.add(vertex);
 
-                for (Node<T> next = toExpand.poll(); next != null; next = toExpand.poll()) {
-                    Node<T> current = next;
+                for (T next = toExpand.poll(); next != null; next = toExpand.poll()) {
+                    T current = next;
                     if (!marked.add(current)) {
                         return true;
                     }
@@ -75,13 +75,13 @@ public class Graph<T> {
             return true;
         }
 
-        Node<T> vertex = vertices.iterator().next();
+        T vertex = vertices.iterator().next();
 
-        Deque<Node<T>> toExpand = new ArrayDeque<Node<T>>();
+        Deque<T> toExpand = new ArrayDeque<T>();
         toExpand.add(vertex);
 
-        for (Node<T> next = toExpand.poll(); next != null; next = toExpand.poll()) {
-            Node<T> current = next;
+        for (T next = toExpand.poll(); next != null; next = toExpand.poll()) {
+            T current = next;
             adjacency.get(current)
                     .stream()
                     .filter(edgesLeft::contains)
