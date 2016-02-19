@@ -94,7 +94,7 @@ public class CustomPropertySetInfoFactory {
             info.versionId = effective.hasLowerBound() ? effective.lowerEndpoint().toEpochMilli() : 0;
             info.startTime = effective.hasLowerBound() ? effective.lowerEndpoint().toEpochMilli() : null;
             info.endTime = effective.hasUpperBound() ? effective.upperEndpoint().toEpochMilli() : null;
-            info.isActive = !customPropertySetValue.isEmpty() && !effective.hasLowerBound() && !effective.hasUpperBound();
+            info.isActive = !customPropertySetValue.isEmpty();
         } else {
             info.isActive = false;
         }
