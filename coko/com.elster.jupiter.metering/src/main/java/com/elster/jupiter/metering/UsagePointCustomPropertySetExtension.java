@@ -55,17 +55,18 @@ public interface UsagePointCustomPropertySetExtension {
     /**
      * Returns a value for provided custom properties set.
      * <ul>
-     * <li>If there is no persisted value for the given set, the <code>null</code> value will be returned.</li>
+     * <li>If there is no active version value for the given versionStartTime, the <code>null</code> value will be returned.</li>
      * <li>If a registered custom property set doesn't relate to the usage point, the <code>null</code> value will be returned.</li>
      * <li>If a registered custom property set domain differs from {@link UsagePoint} the
      * {@link UsagePointCustomPropertySetValuesManageException} will be thrown.</li>
      * </ul>
      *
      * @param registeredCustomPropertySet Custom property set whose value we want to read.
-     * @param effectiveTimeStamp          The point in time for time-sliced custom property sets values.
+     * @param versionStartTime            The version start time for time-sliced custom attribute sets.
+     *                                    For regular custom property sets this parameter is ignored.
      * @return Value for provided custom properties set.
      */
-    CustomPropertySetValues getCustomPropertySetValue(RegisteredCustomPropertySet registeredCustomPropertySet, Instant effectiveTimeStamp);
+    CustomPropertySetValues getCustomPropertySetValue(RegisteredCustomPropertySet registeredCustomPropertySet, Instant versionStartTime);
 
     /**
      * Sets values for custom property sets
@@ -77,6 +78,8 @@ public interface UsagePointCustomPropertySetExtension {
      *                                                          <li>current user has not sufficient privileges</li>
      */
     void setCustomPropertySetValue(CustomPropertySet<UsagePoint, ?> customPropertySet, CustomPropertySetValues customPropertySetValue);
+
+    void setCustomPropertySetValue(CustomPropertySet<UsagePoint, ?> customPropertySet, CustomPropertySetValues customPropertySetValue, Instant effectiveTimeStamp);
 
     /**
      * Provides an interval for new version on time-sliced custom attribute set.

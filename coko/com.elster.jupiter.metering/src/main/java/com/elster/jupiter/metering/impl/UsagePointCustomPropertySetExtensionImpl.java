@@ -56,13 +56,13 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
 
     @SuppressWarnings("unchecked")
     private CustomPropertySetValues getCustomPropertySetValueWithoutChecks(RegisteredCustomPropertySet rcps,
-                                                                           Instant effectiveTimeStamp) {
+                                                                           Instant versionStartTime) {
         CustomPropertySet<UsagePoint, ?> customPropertySet = rcps.getCustomPropertySet();
         CustomPropertySetValues values;
         if (customPropertySet.isVersioned()) {
-            values = this.customPropertySetService.getUniqueValuesFor(customPropertySet, getUsagePoint(), effectiveTimeStamp);
+            values = this.customPropertySetService.getUniqueValuesFor(customPropertySet, getUsagePoint(), versionStartTime);
             if (values.isEmpty() && !this.customPropertySetService
-                    .getUniqueValuesEntityFor(customPropertySet, getUsagePoint(), effectiveTimeStamp).isPresent()) {
+                    .getUniqueValuesEntityFor(customPropertySet, getUsagePoint(), versionStartTime).isPresent()) {
                 values = null;
             }
         } else {
@@ -72,7 +72,8 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
     }
 
     private void setCustomPropertySetValuesWithoutChecks(CustomPropertySet<UsagePoint, ?> customPropertySet,
-                                                         CustomPropertySetValues customPropertySetValue) {
+                                                         CustomPropertySetValues customPropertySetValue,
+                                                         Instant effectiveTimestamp) {
         if (!customPropertySet.isVersioned()) {
             this.customPropertySetService.setValuesFor(customPropertySet, getUsagePoint(), customPropertySetValue);
         } else {
@@ -81,7 +82,11 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
                 // Fallback case
                 effectiveRange = getCurrentIntervalInternal(customPropertySet);
             }
-            this.customPropertySetService.setValuesVersionFor(customPropertySet, getUsagePoint(), customPropertySetValue, effectiveRange);
+            if (effectiveTimestamp == null) {
+                this.customPropertySetService.setValuesVersionFor(customPropertySet, getUsagePoint(), customPropertySetValue, effectiveRange);
+            } else {
+                this.customPropertySetService.setValuesVersionFor(customPropertySet, getUsagePoint(), customPropertySetValue, effectiveRange, effectiveTimestamp);
+            }
         }
         this.usagePoint.touch();
     }
@@ -116,19 +121,23 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
     }
 
     @Override
-    public CustomPropertySetValues getCustomPropertySetValue(RegisteredCustomPropertySet registeredCustomPropertySet, Instant effectiveTimeStamp) {
-        if (effectiveTimeStamp == null) {
-            effectiveTimeStamp = this.clock.instant();
+    public CustomPropertySetValues getCustomPropertySetValue(RegisteredCustomPropertySet registeredCustomPropertySet, Instant versionStartTime) {
+        if (versionStartTime == null) {
+            versionStartTime = this.clock.instant();
         }
         if (registeredCustomPropertySet != null) {
             validateCustomPropertySetDomain(registeredCustomPropertySet);
-            return getCustomPropertySetValueWithoutChecks(registeredCustomPropertySet, effectiveTimeStamp);
+            return getCustomPropertySetValueWithoutChecks(registeredCustomPropertySet, versionStartTime);
         }
         return null;
     }
 
     @Override
     public void setCustomPropertySetValue(CustomPropertySet customPropertySet, CustomPropertySetValues customPropertySetValue) {
+        setCustomPropertySetValue(customPropertySet, customPropertySetValue, null);
+    }
+
+    public void setCustomPropertySetValue(CustomPropertySet customPropertySet, CustomPropertySetValues customPropertySetValue, Instant effectiveTimestamp) {
         // TODO maybe it will be better to cache all sets here
         RegisteredCustomPropertySet registeredCustomPropertySet = getAllCustomPropertySets()
                 .stream()
@@ -140,7 +149,7 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
             throw UsagePointCustomPropertySetValuesManageException
                     .customPropertySetIsNotEditableByUser(this.thesaurus, customPropertySet.getName());
         }
-        setCustomPropertySetValuesWithoutChecks(customPropertySet, customPropertySetValue);
+        setCustomPropertySetValuesWithoutChecks(customPropertySet, customPropertySetValue, effectiveTimestamp);
     }
 
     @Override
