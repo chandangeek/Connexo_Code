@@ -105,14 +105,12 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
 
         Ext.suspendLayouts();
         if (isEdit) {
-            me.editMode = isEdit;
             me.down('#pencil-btn').hide();
             me.down('#view-form').hide();
             me.down('#edit-form').show();
             me.down('#bottom-buttons').show();
             me.action.hide();
         } else {
-            me.editMode = isEdit;
             me.down('#pencil-btn').show();
             me.down('#view-form').show();
             me.down('#edit-form').hide();
@@ -121,6 +119,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
         }
         Ext.resumeLayouts(true);
 
+        me.editMode = isEdit;
         me.down('#edit-form').loadRecord(me.record);
         Imt.customattributesonvaluesobjects.service.ActionMenuManager.setAvailableEditBtns(!isEdit);
     },

@@ -44,7 +44,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         }
                     },
                     {
-                        xtype: 'threevaluesdisplayfield',
+                        //xtype: 'threevaluesdisplayfield',
                         name: 'bypass',
                         itemId: 'fld-up-bypass',
                         fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass')
@@ -53,6 +53,11 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         name: 'bypassStatus',
                         itemId: 'fld-up-bypass-status',
                         fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass status'),
+                        listeners: {
+                            beforerender: function (fld){
+                                fld.setVisible(me.down('#fld-up-bypass').getValue())
+                            }
+                        }
                     },
                     {
                         name: 'limiter',

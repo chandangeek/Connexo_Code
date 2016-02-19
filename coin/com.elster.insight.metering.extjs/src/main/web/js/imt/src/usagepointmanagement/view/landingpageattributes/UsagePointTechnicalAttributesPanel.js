@@ -58,10 +58,10 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
 //                    privileges: Imt.privileges.Device.administrateDeviceData,
             text: Uni.I18n.translate('general.editTechnicalInformation', 'IMT', "Edit 'Technical information'"),
             handler: function () {
-                if(this.editAvailable){
+                if (this.editAvailable) {
                     me.toEditMode(true);
                 } else {
-                    console.log('cant edit');
+                    me.showConfirmationWindow();
                 }
             }
         });
@@ -73,10 +73,10 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
                 editAvailable: true,
                 title: Uni.I18n.translate('general.technicalInformation', 'IMT', 'Technical information'),
                 editHandler: function(){
-                    if(this.editAvailable){
+                    if (this.editAvailable) {
                         me.toEditMode(true);
                     } else {
-                        console.log('cant edit');
+                        me.showConfirmationWindow();
                     }
 
                 }
@@ -209,16 +209,21 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
         }
         Ext.resumeLayouts(true);
 
+        me.editMode = isEdit;
         me.down('#edit-form').loadRecord(me.techInfo);
         Imt.customattributesonvaluesobjects.service.ActionMenuManager.setAvailableEditBtns(!isEdit);
     },
 
     onSaveClick: function () {
         var me = this,
+            record,
             form = me.down('#edit-form');
-        var values = form.getValues(),
+        //var values = form.getValues(),
+        form.updateRecord();
+
             record = me.record.copy(me.record.get('mRID'));
-        record.set('techInfo', values);
+
+        record.set('techInfo', form.getRecord().data);
         me.fireEvent('saveClick', form, record);
     }
 });

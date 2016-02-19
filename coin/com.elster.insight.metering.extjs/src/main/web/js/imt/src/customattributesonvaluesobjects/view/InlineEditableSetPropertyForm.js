@@ -231,7 +231,6 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
         var me = this;
         if(isEdit){
             me.down('property-form').makeEditable(me.record);
-            me.editMode = isEdit;
             Ext.suspendLayouts();
             me.down('#bottom-buttons').show();
             me.action.hide();
@@ -240,14 +239,13 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
         } else {
             me.down('property-form').makeNotEditable(me.record);
             Ext.suspendLayouts();
-            me.editMode = isEdit;
             me.down('#bottom-buttons').hide();
             me.action.show();
             me.down('#pencil-btn').show();
             Ext.resumeLayouts(true);
         }
+        me.editMode = isEdit;
         Imt.customattributesonvaluesobjects.service.ActionMenuManager.setAvailableEditBtns(!isEdit);
-
     },
 
     onSaveClick: function () {
