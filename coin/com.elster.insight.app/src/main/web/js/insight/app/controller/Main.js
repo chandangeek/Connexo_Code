@@ -8,6 +8,7 @@ Ext.define('InsightApp.controller.Main', {
         'Cfg.controller.Main',
         'Uni.controller.Navigation',
         'Imt.controller.Main',
+        'Imt.privileges.UsagePoint',
         'Imt.privileges.ServiceCategory'
     ],
 
@@ -18,7 +19,8 @@ Ext.define('InsightApp.controller.Main', {
     onlineHelpEnabled: false,
 
     privileges: Ext.Array.merge(
-        Imt.privileges.ServiceCategory.all()
+        Imt.privileges.ServiceCategory.all(),
+        Imt.privileges.UsagePoint.all()
     ),
 
     controllers: [

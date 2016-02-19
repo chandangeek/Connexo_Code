@@ -2,6 +2,7 @@ Ext.define('InsightApp.Application', {
     extend: 'Ext.app.Application',
 
     requires:[
+        'Imt.privileges.UsagePoint',
         'Imt.privileges.ServiceCategory',
         'Imt.privileges.MetrologyConfig'
     ],
