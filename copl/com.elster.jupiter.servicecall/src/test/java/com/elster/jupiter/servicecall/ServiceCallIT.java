@@ -20,7 +20,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
-import com.elster.jupiter.servicecall.impl.ServiceCallTypeOneCustomPropertySet;
+import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeOneCustomPropertySet;
 import com.elster.jupiter.servicecall.impl.TranslationKeys;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.Transaction;
