@@ -1,26 +1,27 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
-import com.elster.jupiter.metering.impl.config.AbstractNode;
-import com.elster.jupiter.metering.impl.config.ConstantNode;
-import com.elster.jupiter.metering.impl.config.FunctionCallNode;
-import com.elster.jupiter.metering.impl.config.OperationNode;
-
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link com.elster.jupiter.metering.impl.aggregation.ServerExpressionNode.ServerVisitor}
+ * Provides an implementation for the {@link com.elster.jupiter.metering.impl.aggregation.ServerExpressionNode.Visitor}
  * and returns a SQL construct (as String) that provides a LOCALDATE for the visited
  * {@link com.elster.jupiter.metering.impl.config.ExpressionNode}
  * or <code>null</code> if the ExpressionNode cannot provide such a LOCALDATE.
- * A {@link ConstantNode} is a good example of that.
+ * A {@link NumericalConstantNode} is a good example of that.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-18 (13:28)
  */
-public class LocalDateFromExpressionNode extends VirtualVisitor<String> {
+public class LocalDateFromExpressionNode implements ServerExpressionNode.Visitor<String> {
+
     @Override
-    public String visitConstant(ConstantNode constant) {
+    public String visitConstant(NumericalConstantNode constant) {
+        return null;
+    }
+
+    @Override
+    public String visitConstant(StringConstantNode constant) {
         return null;
     }
 
@@ -43,10 +44,10 @@ public class LocalDateFromExpressionNode extends VirtualVisitor<String> {
 
     @Override
     public String visitFunctionCall(FunctionCallNode functionCall) {
-        return this.findFirst(functionCall.getChildren());
+        return this.findFirst(functionCall.getArguments());
     }
 
-    private String findFirst(List<AbstractNode> children) {
+    private String findFirst(List<ServerExpressionNode> children) {
         return children
                 .stream()
                 .map(child -> child.accept(this))

@@ -1,10 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.impl.config.AbstractNode;
-import com.elster.jupiter.metering.impl.config.ConstantNode;
-import com.elster.jupiter.metering.impl.config.FunctionCallNode;
-import com.elster.jupiter.metering.impl.config.OperationNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +19,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-08 (12:13)
  */
-public class InferAggregationInterval extends VirtualVisitor<IntervalLength> {
+public class InferAggregationInterval implements  ServerExpressionNode.Visitor<IntervalLength> {
 
     private final IntervalLength requestedInterval;
 
@@ -44,13 +40,18 @@ public class InferAggregationInterval extends VirtualVisitor<IntervalLength> {
     }
 
     @Override
-    public IntervalLength visitConstant(ConstantNode constant) {
+    public IntervalLength visitConstant(NumericalConstantNode constant) {
+        return this.requestedInterval;
+    }
+
+    @Override
+    public IntervalLength visitConstant(StringConstantNode constant) {
         return this.requestedInterval;
     }
 
     @Override
     public IntervalLength visitOperation(OperationNode operationNode) {
-        List<AbstractNode> operands = Arrays.asList(operationNode.getLeftOperand(), operationNode.getRightOperand());
+        List<ServerExpressionNode> operands = Arrays.asList(operationNode.getLeftOperand(), operationNode.getRightOperand());
         return this.visitChildren(
                 operands,
                 () -> new UnsupportedOperationException(
@@ -67,12 +68,12 @@ public class InferAggregationInterval extends VirtualVisitor<IntervalLength> {
          * In both cases, we should visit the arguments (if any)
          * and keep the integration interval of each argument consistent. */
         return this.visitChildren(
-                functionCall.getChildren(),
+                functionCall.getArguments(),
                 () -> new UnsupportedOperationException(
                         "Not all arguments of the function " + this.getFunctionName(functionCall) + " can support the same interval"));
     }
 
-    private IntervalLength visitChildren(List<AbstractNode> children, Supplier<UnsupportedOperationException> unsupportedOperationExceptionSupplier) {
+    private IntervalLength visitChildren(List<ServerExpressionNode> children, Supplier<UnsupportedOperationException> unsupportedOperationExceptionSupplier) {
         Set<IntervalLength> preferredIntervals = children.stream().map(this::getPreferredInterval).collect(Collectors.toSet());
         if (preferredIntervals.size() == 1) {
             // All child nodes are fine with the same interval, now enforce that interval
@@ -103,15 +104,10 @@ public class InferAggregationInterval extends VirtualVisitor<IntervalLength> {
 
     }
     private String getFunctionName(FunctionCallNode functionCall) {
-        if (functionCall.getFunction() != null) {
-            return functionCall.getFunction().name();
-        }
-        else {
-            return functionCall.getName();
-        }
+        return functionCall.getFunction().name();
     }
 
-    private IntervalLength getPreferredInterval(AbstractNode expression) {
+    private IntervalLength getPreferredInterval(ServerExpressionNode expression) {
         return expression.accept(this);
     }
 
@@ -122,7 +118,7 @@ public class InferAggregationInterval extends VirtualVisitor<IntervalLength> {
      * {@link VirtualReadingTypeRequirement} if none of the backing channels
      * are capable of providing that interval.
      */
-    private class CheckEnforceAggregationInterval extends VirtualVisitor<Boolean> {
+    private class CheckEnforceAggregationInterval implements ServerExpressionNode.Visitor<Boolean> {
         private final IntervalLength interval;
 
         private CheckEnforceAggregationInterval(IntervalLength interval) {
@@ -134,7 +130,7 @@ public class InferAggregationInterval extends VirtualVisitor<IntervalLength> {
             return interval;
         }
 
-        private Boolean forAll(List<AbstractNode> expressions) {
+        private Boolean forAll(List<ServerExpressionNode> expressions) {
             if (IntervalLength.NOT_SUPPORTED.equals(this.interval)) {
                 return Boolean.FALSE;
             }
@@ -144,7 +140,12 @@ public class InferAggregationInterval extends VirtualVisitor<IntervalLength> {
         }
 
         @Override
-        public Boolean visitConstant(ConstantNode constant) {
+        public Boolean visitConstant(NumericalConstantNode constant) {
+            return Boolean.TRUE;
+        }
+
+        @Override
+        public Boolean visitConstant(StringConstantNode constant) {
             return Boolean.TRUE;
         }
 
@@ -166,7 +167,7 @@ public class InferAggregationInterval extends VirtualVisitor<IntervalLength> {
 
         @Override
         public Boolean visitFunctionCall(FunctionCallNode functionCall) {
-            return this.forAll(functionCall.getChildren());
+            return this.forAll(functionCall.getArguments());
         }
     }
 
@@ -176,23 +177,28 @@ public class InferAggregationInterval extends VirtualVisitor<IntervalLength> {
      *
      * @see CheckEnforceAggregationInterval
      */
-    private class EnforceAggregationInterval extends VirtualVisitor<Void> {
+    private class EnforceAggregationInterval implements  ServerExpressionNode.Visitor<Void> {
         private final IntervalLength interval;
 
         private EnforceAggregationInterval(IntervalLength interval) {
             this.interval = interval;
         }
 
-        private void onto(AbstractNode expression) {
+        private void onto(ServerExpressionNode expression) {
             expression.accept(this);
         }
 
-        private void enforceOntoAll(List<AbstractNode> expressions) {
+        private void enforceOntoAll(List<ServerExpressionNode> expressions) {
             expressions.stream().forEach(expression -> expression.accept(this));
         }
 
         @Override
-        public Void visitConstant(ConstantNode constant) {
+        public Void visitConstant(NumericalConstantNode constant) {
+            return null;
+        }
+
+        @Override
+        public Void visitConstant(StringConstantNode constant) {
             return null;
         }
 
@@ -217,7 +223,7 @@ public class InferAggregationInterval extends VirtualVisitor<IntervalLength> {
 
         @Override
         public Void visitFunctionCall(FunctionCallNode functionCall) {
-            this.enforceOntoAll(functionCall.getChildren());
+            this.enforceOntoAll(functionCall.getArguments());
             return null;
         }
     }

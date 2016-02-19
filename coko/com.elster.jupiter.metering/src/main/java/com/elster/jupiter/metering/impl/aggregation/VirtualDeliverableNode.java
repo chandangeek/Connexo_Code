@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.impl.config.AbstractNode;
 import com.elster.jupiter.metering.impl.config.ExpressionNode;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -21,7 +20,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-04 (15:24)
  */
-class VirtualDeliverableNode extends AbstractNode {
+class VirtualDeliverableNode implements ServerExpressionNode {
 
     private final VirtualFactory virtualFactory;
     private final ReadingTypeDeliverableForMeterActivation deliverable;
@@ -55,11 +54,6 @@ class VirtualDeliverableNode extends AbstractNode {
 
     @Override
     public <T> T accept(Visitor<T> visitor) {
-        throw new UnsupportedOperationException("ExpressionNode.Visitor is not expected to visit expression trees that contain VirtualDeliverableNodes");
-    }
-
-    @Override
-    public <T> T accept(ServerVisitor<T> visitor) {
         return visitor.visitVirtualDeliverable(this);
     }
 

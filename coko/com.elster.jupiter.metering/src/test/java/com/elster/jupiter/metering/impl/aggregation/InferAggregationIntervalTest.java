@@ -7,13 +7,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.impl.config.ConstantNode;
-import com.elster.jupiter.metering.impl.config.Function;
-import com.elster.jupiter.metering.impl.config.FunctionCallNode;
-import com.elster.jupiter.metering.impl.config.OperationNode;
-import com.elster.jupiter.metering.impl.config.Operator;
-import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableNode;
-import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNode;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -54,32 +47,22 @@ public class InferAggregationIntervalTest {
         when(this.requirement.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(readingType));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void requirementNotSupported() {
+    @Test
+    public void inferNumericalConstantOnly() {
         InferAggregationInterval infer = this.testInstance();
-        ReadingTypeRequirementNode node = new ReadingTypeRequirementNode(this.requirement);
+        NumericalConstantNode node = new NumericalConstantNode(BigDecimal.TEN);
 
         // Business method
-        node.accept(infer);
+        IntervalLength preferredInterval = node.accept(infer);
 
-        // Asserts: see expected exception rule
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void deliverableNotSupported() {
-        InferAggregationInterval infer = this.testInstance();
-        ReadingTypeDeliverableNode node = new ReadingTypeDeliverableNode(this.deliverable);
-
-        // Business method
-        node.accept(infer);
-
-        // Asserts: see expected exception rule
+        // Asserts
+        assertThat(preferredInterval).isEqualTo(IntervalLength.HOUR1);
     }
 
     @Test
-    public void inferConstantOnly() {
+    public void inferStringConstantOnly() {
         InferAggregationInterval infer = this.testInstance();
-        ConstantNode node = new ConstantNode(BigDecimal.TEN);
+        StringConstantNode node = new StringConstantNode("BigDecimal.TEN");
 
         // Business method
         IntervalLength preferredInterval = node.accept(infer);
@@ -94,11 +77,11 @@ public class InferAggregationIntervalTest {
         OperationNode node =
                 new OperationNode(
                         Operator.PLUS,
-                        new ConstantNode(BigDecimal.valueOf(123L)),
-                        new FunctionCallNode(Arrays.asList(
-                                new ConstantNode(BigDecimal.ZERO),
-                                new ConstantNode(BigDecimal.TEN)),
-                                Function.MAX));
+                        new NumericalConstantNode(BigDecimal.valueOf(123L)),
+                        new FunctionCallNode(
+                                Function.MAX,
+                                new NumericalConstantNode(BigDecimal.ZERO),
+                                new NumericalConstantNode(BigDecimal.TEN)));
 
         // Business method
         IntervalLength preferredInterval = node.accept(infer);
@@ -158,7 +141,7 @@ public class InferAggregationIntervalTest {
                         this.deliverable,
                         this.meterActivation);
         OperationNode sum = new OperationNode(Operator.PLUS, requirementNode1, requirementNode2);
-        OperationNode multiply = new OperationNode(Operator.MULTIPLY, sum, new ConstantNode(BigDecimal.TEN));
+        OperationNode multiply = new OperationNode(Operator.MULTIPLY, sum, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
         multiply.accept(infer);
@@ -192,7 +175,12 @@ public class InferAggregationIntervalTest {
                         requirement2,
                         this.deliverable,
                         this.meterActivation);
-        FunctionCallNode maximum = new FunctionCallNode(Arrays.asList(requirementNode1, requirementNode2, new ConstantNode(BigDecimal.TEN)), Function.MAX);
+        FunctionCallNode maximum =
+                new FunctionCallNode(
+                        Function.MAX,
+                        requirementNode1,
+                        requirementNode2,
+                        new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
         maximum.accept(infer);
@@ -239,7 +227,7 @@ public class InferAggregationIntervalTest {
                         this.deliverable,
                         this.meterActivation);
         OperationNode sum = new OperationNode(Operator.PLUS, requirementNode1, requirementNode2);
-        OperationNode multiply = new OperationNode(Operator.MULTIPLY, sum, new ConstantNode(BigDecimal.TEN));
+        OperationNode multiply = new OperationNode(Operator.MULTIPLY, sum, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
         IntervalLength intervalLength = multiply.accept(infer);
@@ -282,7 +270,12 @@ public class InferAggregationIntervalTest {
                         requirement2,
                         this.deliverable,
                         this.meterActivation);
-        FunctionCallNode maximum = new FunctionCallNode(Arrays.asList(requirementNode1, requirementNode2, new ConstantNode(BigDecimal.TEN)), Function.MAX);
+        FunctionCallNode maximum =
+                new FunctionCallNode(
+                        Function.MAX,
+                        requirementNode1,
+                        requirementNode2,
+                        new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
         IntervalLength intervalLength = maximum.accept(infer);

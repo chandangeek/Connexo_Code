@@ -35,9 +35,4 @@ public class OperationNode extends AbstractNode {
         return visitor.visitOperation(this);
     }
 
-    @Override
-    public <T> T accept(ServerVisitor<T> visitor) {
-        return visitor.visitOperation(this);
-    }
-
 }

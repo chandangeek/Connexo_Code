@@ -1,17 +1,12 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
-import com.elster.jupiter.metering.impl.config.AbstractNode;
-import com.elster.jupiter.metering.impl.config.ConstantNode;
-import com.elster.jupiter.metering.impl.config.FunctionCallNode;
-import com.elster.jupiter.metering.impl.config.OperationNode;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Provides an implementation for the {@link ServerExpressionNode.ServerVisitor}
+ * Provides an implementation for the {@link ServerExpressionNode.Visitor}
  * and returns the name of the SQL table (as String) that holds the data
  * of the visited {@link com.elster.jupiter.metering.impl.config.ExpressionNode}
  * or <code>null</code> if the ExpressionNode is not backed by a SQL table.
@@ -19,7 +14,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-18 (13:28)
  */
-public class JoinClausesForExpressionNode extends VirtualVisitor<Void> {
+public class JoinClausesForExpressionNode implements ServerExpressionNode.Visitor<Void> {
 
     private final String joinPrefix;
     private String fromTableName;
@@ -51,7 +46,12 @@ public class JoinClausesForExpressionNode extends VirtualVisitor<Void> {
         }
     }
     @Override
-    public Void visitConstant(ConstantNode constant) {
+    public Void visitConstant(NumericalConstantNode constant) {
+        return null;
+    }
+
+    @Override
+    public Void visitConstant(StringConstantNode constant) {
         return null;
     }
 
@@ -77,11 +77,11 @@ public class JoinClausesForExpressionNode extends VirtualVisitor<Void> {
 
     @Override
     public Void visitFunctionCall(FunctionCallNode functionCall) {
-        this.visitAll(functionCall.getChildren());
+        this.visitAll(functionCall.getArguments());
         return null;
     }
 
-    private String visitAll(List<AbstractNode> children) {
+    private String visitAll(List<ServerExpressionNode> children) {
         children.stream().forEach(child -> child.accept(this));
         return null;
     }

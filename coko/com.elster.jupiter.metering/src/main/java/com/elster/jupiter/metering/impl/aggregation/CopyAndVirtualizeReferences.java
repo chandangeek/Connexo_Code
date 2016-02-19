@@ -2,12 +2,8 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.impl.config.AbstractNode;
 import com.elster.jupiter.metering.impl.config.ConstantNode;
 import com.elster.jupiter.metering.impl.config.ExpressionNode;
-import com.elster.jupiter.metering.impl.config.Function;
-import com.elster.jupiter.metering.impl.config.FunctionCallNode;
-import com.elster.jupiter.metering.impl.config.OperationNode;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNode;
 
@@ -15,8 +11,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Provides an implementation for the {@link ServerExpressionNode.ServerVisitor} interface
- * that copies {@link ExpressionNode}s but applies the following replacements:
+ * Provides an implementation for the {@link ExpressionNode.Visitor} interface
+ * that copies {@link ExpressionNode}s to the corresponding {@link ServerExpressionNode}
+ * and applies the following replacements:
  * <ul>
  * <li>{@link ReadingTypeRequirementNode} -&gt; {@link VirtualRequirementNode}</li>
  * <li>{@link ReadingTypeDeliverableNode} -&gt; {@link VirtualDeliverableNode}</li>
@@ -25,7 +22,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-05 (13:04)
  */
-class CopyAndVirtualizeReferences implements ServerExpressionNode.ServerVisitor<AbstractNode> {
+class CopyAndVirtualizeReferences implements ExpressionNode.Visitor<ServerExpressionNode> {
 
     private final VirtualFactory virtualFactory;
     private final ReadingTypeDeliverableForMeterActivationProvider deliverableProvider;
@@ -41,12 +38,12 @@ class CopyAndVirtualizeReferences implements ServerExpressionNode.ServerVisitor<
     }
 
     @Override
-    public AbstractNode visitConstant(ConstantNode constant) {
-        return new ConstantNode(constant.getValue());
+    public ServerExpressionNode visitConstant(ConstantNode constant) {
+        return new NumericalConstantNode(constant.getValue());
     }
 
     @Override
-    public AbstractNode visitRequirement(ReadingTypeRequirementNode node) {
+    public ServerExpressionNode visitRequirement(ReadingTypeRequirementNode node) {
         // Replace this one with a VirtualRequirementNode
         return new VirtualRequirementNode(
                 this.virtualFactory,
@@ -56,7 +53,7 @@ class CopyAndVirtualizeReferences implements ServerExpressionNode.ServerVisitor<
     }
 
     @Override
-    public AbstractNode visitDeliverable(ReadingTypeDeliverableNode node) {
+    public ServerExpressionNode visitDeliverable(ReadingTypeDeliverableNode node) {
         // Replace this one with a VirtualDeliverableNode
         return new VirtualDeliverableNode(
                 this.virtualFactory,
@@ -66,33 +63,18 @@ class CopyAndVirtualizeReferences implements ServerExpressionNode.ServerVisitor<
     }
 
     @Override
-    public AbstractNode visitVirtualRequirement(VirtualRequirementNode requirement) {
-        throw new IllegalArgumentException("Not expecting actual formulas to contain virtual requirement nodes");
-    }
-
-    @Override
-    public AbstractNode visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
-        throw new IllegalArgumentException("Not expecting actual formulas to contain virtual requirement nodes");
-    }
-
-    @Override
-    public AbstractNode visitOperation(OperationNode operationNode) {
+    public ServerExpressionNode visitOperation(com.elster.jupiter.metering.impl.config.OperationNode operationNode) {
         return new OperationNode(
-                operationNode.getOperator(),
+                Operator.from(operationNode.getOperator()),
                 operationNode.getLeftOperand().accept(this),
                 operationNode.getRightOperand().accept(this));
     }
 
     @Override
-    public AbstractNode visitFunctionCall(FunctionCallNode functionCall) {
-        List<AbstractNode> arguments = functionCall.getChildren().stream().map(child -> child.accept(this)).collect(Collectors.toList());
-        Function function = functionCall.getFunction();
-        if (function == null) {
-            return new FunctionCallNode(arguments, functionCall.getName());
-        }
-        else {
-            return new FunctionCallNode(arguments, function);
-        }
+    public ServerExpressionNode visitFunctionCall(com.elster.jupiter.metering.impl.config.FunctionCallNode functionCall) {
+        List<ServerExpressionNode> arguments = functionCall.getChildren().stream().map(child -> child.accept(this)).collect(Collectors.toList());
+        Function function = Function.from(functionCall.getFunction());
+        return new FunctionCallNode(function, arguments);
     }
 
 }

@@ -8,7 +8,6 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.AbstractNode;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -117,7 +116,7 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
      * @param period The requested period in time
      */
     private void prepare(MeterActivation meterActivation, ReadingTypeDeliverable deliverable, Range<Instant> period) {
-        AbstractNode preparedExpression = this.copyAndVirtualizeReferences(deliverable, meterActivation);
+        ServerExpressionNode preparedExpression = this.copyAndVirtualizeReferences(deliverable, meterActivation);
         this.deliverablesPerMeterActivation
                 .get(meterActivation)
                 .add(new ReadingTypeDeliverableForMeterActivation(
@@ -138,7 +137,7 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
      * @param meterActivation The MeterActivation
      * @return The copied formula with virtual requirements and deliverables
      */
-    private AbstractNode copyAndVirtualizeReferences(ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
+    private ServerExpressionNode copyAndVirtualizeReferences(ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
         ServerFormula formula = (ServerFormula) deliverable.getFormula();
         CopyAndVirtualizeReferences visitor = new CopyAndVirtualizeReferences(this.virtualFactory, this, deliverable, meterActivation);
         return formula.expressionNode().accept(visitor);
@@ -157,7 +156,7 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
      * @param expressionTree The expression tree that defines how the ReadingTypeDeliverable should be calculated
      * @return The most appropriate aggregation interval for all expressions in the tree
      */
-    private IntervalLength inferAggregationInterval(ReadingTypeDeliverable deliverable, AbstractNode expressionTree) {
+    private IntervalLength inferAggregationInterval(ReadingTypeDeliverable deliverable, ServerExpressionNode expressionTree) {
         return expressionTree.accept(new InferAggregationInterval(IntervalLength.from(deliverable.getReadingType())));
     }
 
@@ -191,6 +190,8 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
 
     private List<AggregatedReadingRecord> execute(SqlBuilder sqlBuilder) throws SQLException {
         try (Connection connection = this.getDataModel().getConnection(true)) {
+            String sqlText = sqlBuilder.getText();
+            System.out.println("Calculate aggregation with: " + sqlText);
             try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
                 return this.execute(statement);
             }

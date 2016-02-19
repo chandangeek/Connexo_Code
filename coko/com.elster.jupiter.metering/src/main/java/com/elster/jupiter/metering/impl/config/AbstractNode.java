@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.metering.impl.aggregation.ServerExpressionNode;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -16,7 +15,7 @@ import java.util.Objects;
 /**
  * Created by igh on 5/02/2016.
  */
-public abstract class AbstractNode implements ServerExpressionNode {
+public abstract class AbstractNode implements ExpressionNode {
 
     // ORM inheritance map
     public static final Map<String, Class<? extends ExpressionNode>> IMPLEMENTERS =
@@ -32,7 +31,6 @@ public abstract class AbstractNode implements ServerExpressionNode {
     private Reference<AbstractNode> parent = ValueReference.absent();
     private List<AbstractNode> children = new ArrayList<>();
     private long argumentIndex;
-
 
     public AbstractNode() {
         super();

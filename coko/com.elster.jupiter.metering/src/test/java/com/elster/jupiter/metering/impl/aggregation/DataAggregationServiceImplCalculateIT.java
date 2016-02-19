@@ -180,9 +180,9 @@ public class DataAggregationServiceImplCalculateIT {
     }
 
     private void activateMeters() {
-        this.productionMeterActivation = this.productionMeter.activate(this.usagePoint, jan1st2016);
+        this.productionMeterActivation = this.usagePoint.activate(this.productionMeter, jan1st2016);
         this.production15MinChannel = this.productionMeterActivation.createChannel(fifteenMinuteskWh);
-        this.consumptionMeterActivation = this.consumptionMeter.activate(this.usagePoint, jan1st2016);
+        this.consumptionMeterActivation = this.usagePoint.activate(this.consumptionMeter, jan1st2016);
         this.consumption15MinChannel = this.consumptionMeterActivation.createChannel(fifteenMinuteskWh);
     }
 

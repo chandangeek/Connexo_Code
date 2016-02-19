@@ -29,9 +29,4 @@ public class ConstantNode extends AbstractNode {
         return visitor.visitConstant(this);
     }
 
-    @Override
-    public <T> T accept(ServerVisitor<T> visitor) {
-        return visitor.visitConstant(this);
-    }
-
 }
