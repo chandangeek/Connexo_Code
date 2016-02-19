@@ -45,7 +45,7 @@ Ext.define('Imt.usagepointhistory.controller.CasVersionEdit', {
         });
         attributeSetModel.getProxy().setUrl(mRID);
 
-        if (versionId) {
+        if (Ext.isDefined(versionId)) {
             attributeSetModel.load(customAttributeSetId, {
                 success: function (customattributeset) {
                     app.fireEvent('loadCasOnUsagePoint', customattributeset);
@@ -75,6 +75,7 @@ Ext.define('Imt.usagepointhistory.controller.CasVersionEdit', {
                             widget.down('form').setTitle(router.getRoute().getTitle());
                             widget.setLoading(false);
                             Ext.resumeLayouts(true);
+                            widget.restoreDefaultCustomAttributes();
                         }
                     });
                 }

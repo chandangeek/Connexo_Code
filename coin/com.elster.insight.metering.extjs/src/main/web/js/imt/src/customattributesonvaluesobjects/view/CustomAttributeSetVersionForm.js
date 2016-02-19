@@ -256,6 +256,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                                 break;
                         }
                     });
+                    propertyForm.markInvalid(response.errors);
                 }
             },
             callback: function () {
