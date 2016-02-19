@@ -13,6 +13,12 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
                 href: me.router.getRoute('usagepoints/view').buildUrl({mRID: me.mRID})
             },
             {
+                text: Uni.I18n.translate('usagepoint.processes', 'IMT', 'Processes'),
+                privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                itemId: 'usage-point-processes-link',
+                href: me.router.getRoute('usagepoints/view/processes').buildUrl({mRID: me.mRID})
+            },
+            {
                 title: 'Data sources',
                 xtype: 'menu',
                 items: [

@@ -265,6 +265,40 @@ Ext.define('Imt.controller.History', {
                                }, {single: true});       
                                return this;
                            }  
+                        },
+                        'processes': {
+                            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+                            route: 'processes',
+                            controller: 'Dbp.monitorprocesses.controller.MonitorProcesses',
+                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                            action: 'showUsagePointProcesses',
+                            params: {
+                                model: 'Imt.usagepointmanagement.model.UsagePoint',
+                                sidePanel: 'usage-point-management-side-menu'
+                            }
+                        },
+                        'processesrunning': {
+                            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+                            route: 'running',
+                            controller: 'Dbp.monitorprocesses.controller.MonitorProcesses',
+                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                            action: 'showUsagePointProcesses',
+                            params: {
+                                model: 'Imt.usagepointmanagement.model.UsagePoint',
+                                sidePanel: 'usage-point-management-side-menu'
+                            }
+                        },
+                        'processeshistory': {
+                            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+                            route: 'processes/history',
+                            controller: 'Dbp.monitorprocesses.controller.MonitorProcesses',
+                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                            filter: 'Bpm.monitorprocesses.model.HistoryProcessesFilter',
+                            action: 'showUsagePointProcesses',
+                            params: {
+                                model: 'Imt.usagepointmanagement.model.UsagePoint',
+                                sidePanel: 'usage-point-management-side-menu'
+                            }
                         }
            			}
            		},
