@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>1.1.0</version>
+        <version>1.1.1-SNAPSHOT</version>
     </parent>
 
     <groupId>com.energyict</groupId>
     <artifactId>mdc.parent</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1-SNAPSHOT</version>
     <inceptionYear>2013</inceptionYear>
     <packaging>pom</packaging>
 
@@ -51,7 +51,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.bom</artifactId>
-                <version>1.1.0</version>
+                <version>1.1.1-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
