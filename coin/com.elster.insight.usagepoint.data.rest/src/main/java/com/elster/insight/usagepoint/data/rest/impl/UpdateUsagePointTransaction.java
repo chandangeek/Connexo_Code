@@ -89,7 +89,7 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
     }
 
     private boolean hasEditAllPrivilege() {
-        return securityContext.isUserInRole(Privileges.Constants.ADMIN_ANY);
+        return securityContext.isUserInRole(Privileges.Constants.ADMINISTER_ANY_USAGEPOINT);
     }
 
     private boolean isOwn(UsagePoint usagePoint) {

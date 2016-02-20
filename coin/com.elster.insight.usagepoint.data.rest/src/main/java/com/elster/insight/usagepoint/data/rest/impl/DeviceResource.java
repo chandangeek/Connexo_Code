@@ -40,7 +40,7 @@ public class DeviceResource {
     }
 
     @GET
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public MeterInfos getDevices(@Context UriInfo uriInfo, @Context SecurityContext securityContext) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
@@ -58,7 +58,7 @@ public class DeviceResource {
     }
 
     private boolean maySeeAny(SecurityContext securityContext) {
-        return securityContext.isUserInRole(Privileges.Constants.BROWSE_ANY);
+        return securityContext.isUserInRole(Privileges.Constants.VIEW_ANY_USAGEPOINT);
     }
 
     private List<Meter> queryDevices(boolean maySeeAny, QueryParameters queryParameters) {
@@ -81,7 +81,7 @@ public class DeviceResource {
 
 
     @GET
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Path("/{mRID}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public MeterInfos getDevice(@PathParam("mRID") String mRID, @Context SecurityContext securityContext) {

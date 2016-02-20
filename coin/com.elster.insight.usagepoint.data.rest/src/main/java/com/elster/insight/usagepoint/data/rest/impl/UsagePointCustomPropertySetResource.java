@@ -67,7 +67,7 @@ public class UsagePointCustomPropertySetResource {
 
     @GET
     @Path("/metrology")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getMetrologyConfigurationCustomPropertySetsWithValues(@PathParam("mrid") String usagePointMrid,
                                                                                @BeanParam JsonQueryParameters queryParameters) {
@@ -77,7 +77,7 @@ public class UsagePointCustomPropertySetResource {
 
     @PUT
     @Path("/metrology/{cpsId}")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
@@ -91,7 +91,7 @@ public class UsagePointCustomPropertySetResource {
 
 
     @GET
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getServiceCategoryCustomPropertySetsWithValues(@PathParam("mrid") String usagePointMrid,
                                                                         @BeanParam JsonQueryParameters queryParameters) {
@@ -102,7 +102,7 @@ public class UsagePointCustomPropertySetResource {
 
     @PUT
     @Path("/{cpsId}")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
@@ -116,7 +116,7 @@ public class UsagePointCustomPropertySetResource {
 
     @GET
     @Path("/{rcps_id}")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response getRegisteredCustomPropertySet(@PathParam("mrid") String usagePointMrid,
                                                    @PathParam("rcps_id") long rcpsId,

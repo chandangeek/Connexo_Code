@@ -1,7 +1,12 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
-import java.time.Clock;
-import java.time.Instant;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.Transactional;
+import com.elster.insight.common.rest.ExceptionFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -15,14 +20,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import com.elster.insight.common.rest.ExceptionFactory;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.security.Privileges;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.Transactional;
+import java.time.Clock;
+import java.time.Instant;
 
 public class RegisterResource {
 
@@ -46,7 +45,7 @@ public class RegisterResource {
 
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     public Response getRegisters(@PathParam("mrid") String mrid, @BeanParam JsonQueryParameters queryParameters) {
         return registerHelper.getRegisters(mrid, queryParameters);
     }
@@ -54,7 +53,7 @@ public class RegisterResource {
     @GET @Transactional
     @Path("/{rt_mrid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     public Response getRegister(@PathParam("mrid") String mrid, @PathParam("rt_mrid") String rt_mrid) {
         Channel channel = registerHelper.findRegisterOnUsagePoint(mrid, rt_mrid)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_REGISTER_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
