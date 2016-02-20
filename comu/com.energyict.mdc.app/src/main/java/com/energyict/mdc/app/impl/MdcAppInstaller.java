@@ -3,6 +3,7 @@ package com.energyict.mdc.app.impl;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.app.MdcAppService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -141,8 +142,8 @@ public class MdcAppInstaller implements InstallService {
                 com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD,
 
                 //Usage points
-                com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_ANY,
-                com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_OWN,
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ANY_USAGEPOINT,
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_OWN_USAGEPOINT,
 
                 //User tasks
                 com.elster.jupiter.bpm.security.Privileges.Constants.EXECUTE_TASK,
