@@ -92,7 +92,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
 
         mainView.setLoading();
         me.getStore('Imt.usagepointmanagement.store.ServiceCategories').load(function (records) {
-            var isPossibleAdd = !!records.length;
+            var isPossibleAdd = records && records.length;
 
             me.getApplication().fireEvent('changecontentevent', Ext.widget('add-usage-point', {
                 itemId: 'add-usage-point',
