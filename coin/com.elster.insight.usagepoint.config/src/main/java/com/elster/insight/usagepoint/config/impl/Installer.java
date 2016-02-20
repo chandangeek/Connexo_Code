@@ -5,14 +5,14 @@ import com.elster.jupiter.orm.DataModel;
 
 public class Installer {
 
-	private final DataModel dataModel;
+    private final DataModel dataModel;
 
-	Installer(DataModel dataModel,EventService eventService) {
+    Installer(DataModel dataModel, EventService eventService) {
         super();
-		this.dataModel = dataModel;
-	}
+        this.dataModel = dataModel;
+    }
 
-	public void install(boolean executeDdl, boolean updateOrm) {
+    public void install(boolean executeDdl, boolean updateOrm) {
         try {
             dataModel.install(executeDdl, updateOrm);
         } catch (Exception e) {
@@ -20,5 +20,4 @@ public class Installer {
             throw e;
         }
     }
-
 }
