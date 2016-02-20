@@ -52,7 +52,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                     app.fireEvent('changecontentevent',widget);
                     mainView.setLoading(false);
                     tabPanel = widget.down('#usage-point-history-tab-panel');
-                    tabPanel.fireEvent('beforetabchange', tabPanel, tabPanel.getActiveTab());
+                    tabPanel.fireEvent('beforetabchange', tabPanel, tabPanel.getActiveTab(), undefined, undefined, true);
                 }
             };
 
@@ -67,7 +67,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
         });
     },
 
-    onBeforeHistoryTabChange: function (tabPanel, newCard, oldCard) {
+    onBeforeHistoryTabChange: function (tabPanel, newCard, oldCard, eOpts, isInit) {
         if (!newCard) {
             return
         }
@@ -76,13 +76,19 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             versionsStore = me.getStore('Imt.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnUsagePoint'),
             attributeSetModel = Ext.ModelManager.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
             mRID = router.arguments.mRID,
-            customAttributeSetId = newCard.customAttributeSetId;
+            customAttributeSetId = newCard.customAttributeSetId,
+            url;
 
         if (customAttributeSetId != router.queryParams.customAttributeSetId) {
+            url = router.getRoute().buildUrl(router.arguments, router.queryParams);
             Uni.util.History.setParsePath(false);
             Uni.util.History.suspendEventsForNextCall();
             router.queryParams.customAttributeSetId = customAttributeSetId;
-            router.getRoute().forward(router.arguments, router.queryParams);
+            if (isInit) {
+                window.location.replace(url);
+            } else {
+                window.location.href = url;
+            }
         }
 
         versionsStore.getProxy().setUrl(mRID, customAttributeSetId);
