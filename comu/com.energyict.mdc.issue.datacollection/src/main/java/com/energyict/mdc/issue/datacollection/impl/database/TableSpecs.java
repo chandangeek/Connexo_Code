@@ -15,6 +15,7 @@ import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollecti
 import java.util.Arrays;
 import java.util.ListIterator;
 
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.*;
@@ -84,6 +85,9 @@ public enum TableSpecs {
             Column comTaskColRef = table.column(IDC_COMMUNICATION_TASK).number().conversion(NUMBER2LONG).add();
             Column comSessionColRef = table.column(IDC_COM_SESSION).type("number").conversion(NUMBER2LONG).add();
             table.column(IDC_DEVICE_MRID).varChar(NAME_LENGTH).map("deviceMRID").add();
+            table.column(IDC_FIRST_TRY).number().conversion(NUMBER2INSTANT).map("firstConnectionAttempt").add();
+            table.column(IDC_LAST_TRY).number().conversion(NUMBER2INSTANT).map("lastConnectionAttempt").add();
+            table.column(IDC_NUMBER_TRIES).number().conversion(NUMBER2LONG).map("connectionAttemptsNumber").add();
 
             table.primaryKey(pkKey).on(idColumn).add();
             if (fkKeys == null || fkKeys.length != EXPECTED_FK_KEYS_LENGTH){

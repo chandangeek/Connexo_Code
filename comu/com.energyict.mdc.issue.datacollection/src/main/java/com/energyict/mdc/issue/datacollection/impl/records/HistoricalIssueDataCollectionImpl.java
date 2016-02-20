@@ -35,5 +35,8 @@ public class HistoricalIssueDataCollectionImpl extends IssueDataCollectionImpl i
         this.setConnectionTask(source.getConnectionTask().orElse(null));
         this.setComSession(source.getComSession().orElse(null));
         this.setDeviceMRID(source.getDeviceMRID());
+        this.setFirstConnectionAttempt(source.getFirstConnectionAttempt());
+        this.setLastConnectionAttempt(source.getLastConnectionAttempt());
+        this.setConnectionAttemptsNumber(source.getConnectionAttemptsNumber());
     }
 }

@@ -32,6 +32,9 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     private Reference<ConnectionTask> connectionTask = ValueReference.absent();
     private Reference<ComSession> comSession = ValueReference.absent();
     private String deviceMRID;
+    private Instant firstConnectionAttempt;
+    private Instant lastConnectionAttempt;
+    private long connectionAttemptsNumber;
 
     private long id;//do we need this id ? we have a reference to base issue instead...
     // Audit fields
@@ -198,6 +201,42 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     public void setComSession(ComSession comSession) {
         this.comSession.set(comSession);
     }
+
+    @Override
+    public Instant getLastConnectionAttempt() {
+        return lastConnectionAttempt;
+    }
+
+    @Override
+    public void setLastConnectionAttempt(Instant lastConnectionAttempt) {
+        this.lastConnectionAttempt = lastConnectionAttempt;
+    }
+
+    @Override
+    public Instant getFirstConnectionAttempt() {
+        return firstConnectionAttempt;
+    }
+
+    @Override
+    public void setFirstConnectionAttempt(Instant firstConnectionAttempt) {
+        this.firstConnectionAttempt = firstConnectionAttempt;
+    }
+
+    @Override
+    public long getConnectionAttemptsNumber() {
+        return connectionAttemptsNumber;
+    }
+
+    @Override
+    public void setConnectionAttemptsNumber(long connectionAttemptsNumber) {
+        this.connectionAttemptsNumber = connectionAttemptsNumber;
+    }
+
+    @Override
+    public void incrementConnectionAttemptsNumber() {
+        this.connectionAttemptsNumber = this.connectionAttemptsNumber + 1;
+    }
+
 
     public void save() {
         if (getBaseIssue() != null) {

@@ -8,6 +8,7 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
 import com.energyict.mdc.issue.datacollection.impl.database.TableSpecs;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
@@ -52,6 +53,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -209,6 +211,11 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
         OpenIssueDataCollectionImpl issue = dataModel.getInstance(OpenIssueDataCollectionImpl.class);
         issue.setIssue(baseIssue);
         issueEvent.apply(issue);
+        if (issueEvent instanceof DataCollectionEvent) {
+            issue.setFirstConnectionAttempt(DataCollectionEvent.class.cast(issueEvent).getTimestamp());
+            issue.setLastConnectionAttempt(DataCollectionEvent.class.cast(issueEvent).getTimestamp());
+            issue.setConnectionAttemptsNumber(1L);
+        }
         issue.save();
         return issue;
     }
@@ -234,7 +241,8 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
         } else {
             eagerClasses.addAll(Arrays.asList(IssueStatus.class, EndDevice.class, User.class, IssueReason.class, IssueType.class));
         }
-        return DefaultFinder.of((Class<IssueDataCollection>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
+        return DefaultFinder.of((Class<IssueDataCollection>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses
+                .size()]));
     }
 
     private List<Class<?>> determineMainApiClass(IssueDataCollectionFilter filter) {

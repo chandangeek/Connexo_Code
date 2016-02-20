@@ -12,6 +12,8 @@ import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
 
@@ -110,7 +112,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     public void updateIssue(OpenIssue openIssue, IssueEvent event) {
         if (IssueStatus.IN_PROGRESS.equals(openIssue.getStatus().getKey())) {
             openIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).get());
-            openIssue.update();
+            updateConnectionAttempts(openIssue, event).update();
         }
     }
 
@@ -119,7 +121,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
         Optional<? extends Issue> issue = event.findExistingIssue();
         if (issue.isPresent() && !issue.get().getStatus().isHistorical()) {
             OpenIssue openIssue = (OpenIssue) issue.get();
-            issue = Optional.of(openIssue.close(issueService.findStatus(IssueStatus.RESOLVED).get()));
+            issue = Optional.of(updateConnectionAttempts(openIssue, event).close(issueService.findStatus(IssueStatus.RESOLVED).get()));
         }
         return issue;
     }
@@ -148,6 +150,16 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     @Override
     public String getDisplayName() {
         return getThesaurus().getFormat(TranslationKeys.BASIC_TEMPLATE_DATACOLLECTION_NAME).format();
+    }
+
+    private OpenIssue updateConnectionAttempts(OpenIssue openIssue, IssueEvent event) {
+        if (openIssue instanceof OpenIssueDataCollection && event instanceof DataCollectionEvent) {
+            OpenIssueDataCollection dcIssue = OpenIssueDataCollection.class.cast(openIssue);
+            dcIssue.setLastConnectionAttempt(DataCollectionEvent.class.cast(event).getTimestamp());
+            dcIssue.incrementConnectionAttemptsNumber();
+            return dcIssue;
+        }
+        return openIssue;
     }
 
 }

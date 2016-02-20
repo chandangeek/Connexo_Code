@@ -46,6 +46,7 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     private final Thesaurus thesaurus;
 
     private Device device;
+    private Instant timestamp;
     private EventDescription eventDescription;
     private Optional<? extends OpenIssue> existingIssue;
     private Injector injector;
@@ -99,9 +100,18 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
         this.eventDescription = eventDescription;
     }
 
+    public Instant getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Instant timestamp) {
+        this.timestamp = timestamp;
+    }
+
     public void wrap(Map<?, ?> rawEvent, EventDescription eventDescription){
         this.eventDescription = eventDescription;
         getEventDevice(rawEvent);
+        getEventTimestamp(rawEvent);
         wrapInternal(rawEvent, eventDescription);
     }
 
@@ -110,6 +120,11 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     protected void getEventDevice(Map<?, ?> rawEvent) {
         Optional<Long> amrId = getLong(rawEvent, ModuleConstants.DEVICE_IDENTIFIER);
         device = getDeviceService().findDeviceById(amrId.orElse(0L)).orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId));
+    }
+
+    protected void getEventTimestamp(Map<?, ?> rawEvent) {
+        Long timestampMilli = getLong(rawEvent, ModuleConstants.EVENT_TIMESTAMP).orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_TIMESTAMP));
+        timestamp = Instant.ofEpochMilli(timestampMilli);
     }
 
     private EndDevice findEndDeviceByMdcDevice() {
