@@ -46,7 +46,8 @@ public class LicenseInfoFactory {
 
     private void setCommonInfo(License license, LicenseShortInfo info) {
         info.applicationkey = license.getApplicationKey();
-        info.applicationname = nlsService.getThesaurus(license.getApplicationKey(), Layer.REST).getString(license.getApplicationKey(), license.getApplicationKey());
+        info.applicationname = nlsService.getThesaurus(license.getApplicationKey(), Layer.DOMAIN)
+                .getString(license.getApplicationKey(), license.getApplicationKey());
         info.status = thesaurus.getFormat(LicenseStatusTranslationKeys.getTranslatedName(license.getStatus())).format();
         info.expires = license.getExpiration();
     }
