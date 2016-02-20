@@ -1,8 +1,9 @@
 package com.elster.insight.app.impl;
 
-import com.elster.insight.app.InsightAppService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
+import com.elster.insight.app.InsightAppService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -58,14 +59,17 @@ public class InsightAppInstaller implements InstallService {
     private String[] getPrivilegesMeterOperator() {
         return new String[]{
                 //usage point
-                com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_ANY,
-                com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_OWN,
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ANY_USAGEPOINT,
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_OWN_USAGEPOINT,
 
                 //validation
                 com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
 
                 //metrology configuration
-                com.elster.insight.usagepoint.config.security.Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIG
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_METROLOGY_CONFIGURATION,
+
+                //service category
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY
         };
     }
 }
