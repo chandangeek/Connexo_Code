@@ -1,0 +1,16 @@
+package com.energyict.mdc.issue.datacollection.rest.response;
+
+import com.energyict.mdc.engine.config.ComServer;
+
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.time.Instant;
+
+public class JournalEntryInfo {
+    public Instant timestamp;
+    public String details;
+    public String errorDetails;
+    @XmlJavaTypeAdapter(LogLevelAdapter.class)
+    public ComServer.LogLevel logLevel;
+
+
+}

@@ -2,20 +2,22 @@ package com.energyict.mdc.issue.datacollection.rest.response;
 
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
+
+import java.time.Instant;
 
 public class DataCollectionIssueInfo<T extends DeviceInfo> extends IssueInfo<T, IssueDataCollection> {
 
     //MDC device mRID
     public String deviceMRID;
-    
-    //for view connection log
-    public Long connectionTaskId;
-    public Long comSessionId;
-    
-    //for view communication log
-    public Long comTaskId;
-    public Long comTaskSessionId;
+    public IdWithNameInfo deviceState;
+    public IdWithNameInfo deviceType;
+    public IdWithNameInfo deviceConfiguration;
+
+    public Instant firstConnectionAttempt;
+    public Instant lastConnectionAttempt;
+    public Long connectionAttemptsNumber;
 
     public DataCollectionIssueInfo(IssueDataCollection issue, Class<T> deviceInfoClass){
         super(issue, deviceInfoClass);

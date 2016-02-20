@@ -6,7 +6,11 @@ import com.elster.jupiter.nls.*;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.rest.i18n.ComSessionSuccessIndicatorTranslationKeys;
+import com.energyict.mdc.issue.datacollection.rest.i18n.CompletionCodeTranslationKeys;
+import com.energyict.mdc.issue.datacollection.rest.i18n.ConnectionTaskSuccessIndicatorTranslationKeys;
 import com.energyict.mdc.issue.datacollection.rest.i18n.DataCollectionIssueTranslationKeys;
 import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.rest.resource.IssueResource;
@@ -50,6 +54,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
     private volatile MessageService messageService;
     private volatile AppService appService;
     private volatile JsonService jsonService;
+    private volatile CommunicationTaskService communicationTaskService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -92,6 +97,11 @@ public class IssueDataCollectionApplication extends Application implements Messa
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.REST);
+    }
+
+    @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
     }
 
     @Reference
@@ -138,7 +148,12 @@ public class IssueDataCollectionApplication extends Application implements Messa
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(DataCollectionIssueTranslationKeys.values());
+        List<TranslationKey> translationKeys = new ArrayList<>();
+        translationKeys.addAll(Arrays.asList(DataCollectionIssueTranslationKeys.values()));
+        translationKeys.addAll(Arrays.asList(CompletionCodeTranslationKeys.values()));
+        translationKeys.addAll(Arrays.asList(ComSessionSuccessIndicatorTranslationKeys.values()));
+        translationKeys.addAll(Arrays.asList(ConnectionTaskSuccessIndicatorTranslationKeys.values()));
+        return translationKeys;
     }
 
     @Override
@@ -169,6 +184,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
             bind(PropertyUtils.class).to(PropertyUtils.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(communicationTaskService).to(CommunicationTaskService.class);
         }
     }
 }
