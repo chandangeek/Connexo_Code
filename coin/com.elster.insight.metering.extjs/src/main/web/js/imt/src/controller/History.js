@@ -299,6 +299,17 @@ Ext.define('Imt.controller.History', {
                                 model: 'Imt.usagepointmanagement.model.UsagePoint',
                                 sidePanel: 'usage-point-management-side-menu'
                             }
+                        },
+                        'processstart': {
+                            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+                            route: 'processes/start',
+                            controller: 'Dbp.startprocess.controller.StartProcess',
+                            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
+                            action: 'showUsagePointStartProcess',
+                            params: {
+                                model: 'Imt.usagepointmanagement.model.UsagePoint',
+                                sidePanel: 'usage-point-management-side-menu'
+                            }
                         }
            			}
            		},

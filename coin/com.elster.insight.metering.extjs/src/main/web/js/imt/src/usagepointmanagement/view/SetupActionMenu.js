@@ -4,5 +4,23 @@ Ext.define('Imt.usagepointmanagement.view.SetupActionMenu', {
     plain: true,
     border: false,
     shadow: false,
-    items: []
+    mRID: null,
+    router: null,
+
+    initComponent: function() {
+        var me = this;
+
+        if (Dbp.privileges.DeviceProcesses.canAssignOrExecute()) {
+            me.items = [
+                {
+                    itemId: 'action-menu-item-start-proc',
+                    privileges: Dbp.privileges.DeviceProcesses.assignOrExecute,
+                    text: Uni.I18n.translate('usagepoint.process.startProcess', 'IMT', 'Start process'),
+                    href: me.router.getRoute('usagepoints/view/processstart').buildUrl({mRID: me.mRID})
+                }
+            ];
+        }
+
+        me.callParent(arguments);
+    }
 });
