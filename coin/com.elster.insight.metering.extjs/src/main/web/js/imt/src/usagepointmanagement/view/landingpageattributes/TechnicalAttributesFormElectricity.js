@@ -24,6 +24,14 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                 },
                 items: [
                     {
+                        name: 'grounded',
+                        itemId: 'fld-up-grounded',
+                        fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded'),
+                        renderer: function (value) {
+                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
+                        }
+                    },
+                    {
                         xtype: 'measuredisplayfield',
                         name: 'nominalServiceVoltage',
                         itemId: 'fld-up-service-voltage',
@@ -38,14 +46,14 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                             return value ? value : '-';
                         }
                     },
-                    {
-                        xtype: 'measuredisplayfield',
-                        name: 'ratedCurrent',
-                        itemId: 'fld-up-rated-current',
-                        fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current'),
-                        unitType: 'amperage'
-
-                    },
+                    //{
+                    //    xtype: 'measuredisplayfield',
+                    //    name: 'ratedCurrent',
+                    //    itemId: 'fld-up-rated-current',
+                    //    fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current'),
+                    //    unitType: 'amperage'
+                    //
+                    //},
                     {
                         xtype: 'measuredisplayfield',
                         name: 'ratedPower',
@@ -60,14 +68,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load'),
                         unitType: 'power'
                     },
-                    {
-                        name: 'grounded',
-                        itemId: 'fld-up-grounded',
-                        fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded'),
-                        renderer: function (value) {
-                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
-                        }
-                    },
+
                     {
                         name: 'limiter',
                         itemId: 'fld-up-limiter',
@@ -104,6 +105,14 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         name: 'collar',
                         itemId: 'fld-up-collar',
                         fieldLabel: Uni.I18n.translate('general.label.collar', 'IMT', 'Collar')
+                    },
+                    {
+                        name: 'interruptible',
+                        itemId: 'fld-up-interruptible',
+                        fieldLabel: Uni.I18n.translate('general.label.interruptible', 'IMT', 'Interruptible'),
+                        renderer: function (value) {
+                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
+                        }
                     }
                 ]
             },

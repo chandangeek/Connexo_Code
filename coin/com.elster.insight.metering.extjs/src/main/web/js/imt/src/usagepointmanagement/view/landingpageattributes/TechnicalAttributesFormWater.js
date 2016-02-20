@@ -22,6 +22,14 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                 },
                 items: [
                     {
+                        name: 'grounded',
+                        itemId: 'fld-up-grounded',
+                        fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded'),
+                        renderer: function (value) {
+                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
+                        }
+                    },
+                    {
                         xtype: 'measuredisplayfield',
                         name: 'pressure',
                         itemId: 'fld-up-pressure',
@@ -32,32 +40,8 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         xtype: 'measuredisplayfield',
                         name: 'capacity',
                         itemId: 'fld-up-capacity',
-                        fieldLabel: Uni.I18n.translate('general.label.capacity', 'IMT', 'Capacity'),
+                        fieldLabel: Uni.I18n.translate('general.label.capacity', 'IMT', 'Physical capacity'),
                         unitType: 'volume'
-                    },
-                    {
-                        name: 'grounded',
-                        itemId: 'fld-up-grounded',
-                        fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded'),
-                        renderer: function (value) {
-                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
-                        }
-                    },
-                    {
-                        //xtype: 'threevaluesdisplayfield',
-                        name: 'bypass',
-                        itemId: 'fld-up-bypass',
-                        fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass')
-                    },
-                    {
-                        name: 'bypassStatus',
-                        itemId: 'fld-up-bypass-status',
-                        fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass status'),
-                        listeners: {
-                            beforerender: function (fld){
-                                fld.setVisible(me.down('#fld-up-bypass').getValue())
-                            }
-                        }
                     },
                     {
                         name: 'limiter',
@@ -86,6 +70,21 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         listeners: {
                             beforerender: function (fld){
                                 fld.setVisible(me.down('#fld-up-limiter').getValue());
+                            }
+                        }
+                    },
+                    {
+                        name: 'bypass',
+                        itemId: 'fld-up-bypass',
+                        fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass')
+                    },
+                    {
+                        name: 'bypassStatus',
+                        itemId: 'fld-up-bypass-status',
+                        fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass status'),
+                        listeners: {
+                            beforerender: function (fld){
+                                fld.setVisible(me.down('#fld-up-bypass').getValue())
                             }
                         }
                     },
