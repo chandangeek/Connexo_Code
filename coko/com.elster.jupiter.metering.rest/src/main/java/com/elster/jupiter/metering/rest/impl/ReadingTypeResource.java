@@ -1,25 +1,11 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -32,6 +18,18 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -59,7 +57,7 @@ public class ReadingTypeResource {
     }
 
     @GET
-    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getReadingTypes(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
         List<ReadingTypeInfo> readingTypeInfos = meteringService.findReadingTypes(ReadingTypeFilterFactory.from(jsonQueryFilter))
@@ -73,8 +71,8 @@ public class ReadingTypeResource {
     
     @GET
 	@Path("/{mRID}/")
-    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
-	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	public ReadingTypeInfos getReadingType(@PathParam("mRID") String mRID) {
     	return meteringService.getReadingType(mRID)
     		.map(readingType -> readingTypeInfoFactory.from(Collections.singletonList(readingType)))
@@ -83,7 +81,7 @@ public class ReadingTypeResource {
 
     @GET
     @Path("/{mRID}/calculated")
-    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public ReadingTypeInfos getCalculatedReadingType(@PathParam("mRID") String mRID) {
         return meteringService.getReadingType(mRID)
@@ -107,7 +105,7 @@ public class ReadingTypeResource {
 
     @POST
     @Path("/count")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_READINGTYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response createReadingTypeCount(CreateReadingTypeInfo createReadingTypeInfo) {
 
@@ -134,7 +132,7 @@ public class ReadingTypeResource {
     }
 
     @POST
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_READINGTYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response createReadingType(CreateReadingTypeInfo createReadingTypeInfo) {
         List<String> mRIDs = new ArrayList<>();
@@ -170,7 +168,7 @@ public class ReadingTypeResource {
 
     @PUT
     @Path("/{mRID}/activate/")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_READINGTYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public ReadingType activateReadingType(@PathParam("mRID") String mRID, ReadingTypeInfo readingTypeInfo) {
         try (TransactionContext context = transactionService.getContext()) {
@@ -191,7 +189,7 @@ public class ReadingTypeResource {
 
     @PUT
     @Path("/activate/")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_READINGTYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response activateReadingTypesByList(ReadingTypeBulkEditInfo readingTypeBulkEditInfo, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
         List<ReadingType> readingTypes;
@@ -225,7 +223,7 @@ public class ReadingTypeResource {
 
     @PUT
     @Path("/{mRID}")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_READINGTYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public ReadingType updateReadingType(@PathParam("mRID") String mRID, ReadingTypeInfo readingTypeInfo) {
         try (TransactionContext context = transactionService.getContext()) {
@@ -245,7 +243,7 @@ public class ReadingTypeResource {
     }
 
     @PUT
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_READINGTYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response updateReadingTypesByList(ReadingTypeBulkEditInfo readingTypeBulkEditInfo, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
         List<ReadingType> readingTypes;

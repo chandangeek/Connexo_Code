@@ -53,7 +53,7 @@ public class MeteringFieldResource {
 
     @GET
     @Path("/unitsofmeasure")
-    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getUnitsOfMeasure(@BeanParam JsonQueryParameters queryParameters) {
         return PagedInfoList.fromCompleteList(
@@ -68,7 +68,7 @@ public class MeteringFieldResource {
 
     @GET
     @Path("/intervals")
-    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public IntervalFieldInfos getIntervals() {
         IntervalFieldInfos intervalFieldInfos = new IntervalFieldInfos();
@@ -85,7 +85,7 @@ public class MeteringFieldResource {
 
     @GET
     @Path("/timeofuse")
-    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getTou(@BeanParam JsonQueryParameters queryParameters) {
         List<TimeOfUseFieldInfo> touList = IntStream.rangeClosed(0, 8)
@@ -96,7 +96,7 @@ public class MeteringFieldResource {
 
     @GET
     @Path("/readingtypes")
-    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response getReadingTypes(@BeanParam JsonQueryFilter queryFilter, @BeanParam QueryParameters queryParameters) {
         List<ReadingType> readingTypes = meteringService.getAvailableReadingTypes().stream()
@@ -140,7 +140,7 @@ public class MeteringFieldResource {
 
     @GET
     @Path("/connectionstates")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getConnectionStates(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithDisplayValueInfo<String>> connectionStates = Arrays.stream(UsagePointConnectedKind.values())
@@ -152,7 +152,7 @@ public class MeteringFieldResource {
 
     @GET
     @Path("/amibilling")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getAmiBillings(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithDisplayValueInfo<String>> billings = Arrays.stream(AmiBillingReadyKind.values())
@@ -164,7 +164,7 @@ public class MeteringFieldResource {
 
     @GET
     @Path("/servicecategory")
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getServiceCategories(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithDisplayValueInfo<String>> categories = Arrays.stream(ServiceKind.values())

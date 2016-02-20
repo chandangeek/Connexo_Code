@@ -85,7 +85,7 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
     }
 
     private boolean hasEditAllPrivilege() {
-        return principal instanceof User && ((User) principal).hasPrivilege("MDC", Privileges.Constants.ADMIN_ANY);
+        return principal instanceof User && ((User) principal).hasPrivilege("MDC", Privileges.Constants.ADMINISTER_ANY_USAGEPOINT);
     }
 
     private boolean isOwn(UsagePoint usagePoint) {
