@@ -614,13 +614,16 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.PRIVILEGE_USAGE_POINT_NAME.getKey(), DefaultTranslationKey.PRIVILEGE_USAGE_POINT_DESCRIPTION.getKey(),
+        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.RESOURCE_USAGE_POINT
+                        .getKey(), DefaultTranslationKey.RESOURCE_USAGE_POINT_DESCRIPTION.getKey(),
                 Arrays.asList(
-                        Privileges.Constants.BROWSE_ANY, Privileges.Constants.ADMIN_ANY,
-                        Privileges.Constants.BROWSE_OWN, Privileges.Constants.ADMIN_OWN)));
-        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.PRIVILEGE_READING_TYPE_NAME.getKey(), DefaultTranslationKey.PRIVILEGE_READING_TYPE_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.ADMINISTRATE_READINGTYPE, Privileges.Constants.VIEW_READINGTYPE)));
-        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.PRIVILEGE_SERVICE_CATEGORY_NAME.getKey(), DefaultTranslationKey.PRIVILEGE_SERVICE_CATEGORY_DESCRIPTION.getKey(),
+                        Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT,
+                        Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT)));
+        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.RESOURCE_READING_TYPE
+                        .getKey(), DefaultTranslationKey.RESOURCE_READING_TYPE_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.ADMINISTER_READINGTYPE, Privileges.Constants.VIEW_READINGTYPE)));
+        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.RESOURCE_SERVICE_CATEGORY
+                        .getKey(), DefaultTranslationKey.RESOURCE_SERVICE_CATEGORY_DESCRIPTION.getKey(),
                 Arrays.asList(Privileges.Constants.VIEW_SERVICECATEGORY)));
         return resources;
     }

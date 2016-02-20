@@ -17,6 +17,8 @@ public interface MetrologyConfigurationService {
 
     Optional<MetrologyConfiguration> findMetrologyConfiguration(long id);
 
+    Optional<MetrologyConfiguration> findAndLockMetrologyConfiguration(long id, long version);
+
     Optional<MetrologyConfiguration> findMetrologyConfiguration(String name);
 
     List<MetrologyConfiguration> findAllMetrologyConfigurations();

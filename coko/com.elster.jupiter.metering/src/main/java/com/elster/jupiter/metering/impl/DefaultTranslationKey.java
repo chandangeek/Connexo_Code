@@ -2,15 +2,18 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
 
-public enum DefaultTranslationKey implements TranslationKey{
-    PRIVILEGE_USAGE_POINT_NAME("metering.usage.points", "Usage points"),
-    PRIVILEGE_USAGE_POINT_DESCRIPTION("metering.usage.points.description", "Administer usage points"),
-    PRIVILEGE_READING_TYPE_NAME("metering.reading.types", "Reading types"),
-    PRIVILEGE_READING_TYPE_DESCRIPTION("metering.reading.types.description", "Administer reading types"),
-    PRIVILEGE_SERVICE_CATEGORY_NAME("metering.service.category", "Service categories"),
-    PRIVILEGE_SERVICE_CATEGORY_DESCRIPTION("metering.service.category.description", "Administer service categories"),
-    SUBSCRIBER_TRANSLATION(SwitchStateMachineEvent.SUBSCRIBER, SwitchStateMachineEvent.SUBSCRIBER_TRANSLATION),
-    ;
+public enum DefaultTranslationKey implements TranslationKey {
+    //Resources
+    RESOURCE_USAGE_POINT("metering.usagePoint", "Usage points"),
+    RESOURCE_USAGE_POINT_DESCRIPTION("metering.usagePoint.description", "Manage usage points"),
+    RESOURCE_READING_TYPE("metering.readingTypes", "Reading types"),
+    RESOURCE_READING_TYPE_DESCRIPTION("metering.readingTypes.description", "Manage reading types"),
+    RESOURCE_SERVICE_CATEGORY("metering.serviceCategory", "Service categories"),
+    RESOURCE_SERVICE_CATEGORY_DESCRIPTION("metering.serviceCategory.description", "Manage service categories"),
+    RESOURCE_METROLOGY_CONFIGURATION("usagePoint.metrologyConfiguration", "Metrology configurations"),
+    RESOURCE_METROLOGY_CONFIGURATION_DESCRIPTION("usagePoint.metrologyConfiguration.description", "Manage metrology configurations"),
+
+    SUBSCRIBER_TRANSLATION(SwitchStateMachineEvent.SUBSCRIBER, SwitchStateMachineEvent.SUBSCRIBER_TRANSLATION),;
 
     private String key;
     private String format;
