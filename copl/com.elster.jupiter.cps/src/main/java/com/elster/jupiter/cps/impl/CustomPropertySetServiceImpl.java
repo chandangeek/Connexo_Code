@@ -500,6 +500,12 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     @Override
+    public <D, T extends PersistentDomainExtension<D>> void validateCustomPropertySetValues(CustomPropertySet<D, T> customPropertySet, CustomPropertySetValues values) {
+        ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+        activeCustomPropertySet.validateValuesEntity(values);
+    }
+
+    @Override
     public <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getAllVersionedValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues) {
         return this.getAllVersionedValuesEntitiesFor(customPropertySet, businesObject, additionalPrimaryKeyValues)
                 .stream()

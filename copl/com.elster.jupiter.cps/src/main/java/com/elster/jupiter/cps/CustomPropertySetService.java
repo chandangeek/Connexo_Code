@@ -389,4 +389,5 @@ public interface CustomPropertySetService {
         List<T> andEffectiveAt(Instant effectiveTimestamp);
     }
 
+    <D, T extends PersistentDomainExtension<D>> void validateCustomPropertySetValues(CustomPropertySet<D, T> customPropertySet, CustomPropertySetValues values);
 }

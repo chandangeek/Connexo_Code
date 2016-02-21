@@ -307,6 +307,15 @@ class ActiveCustomPropertySet {
         this.createExtension(businessObject, values, range, additionalPrimaryKeyValues);
     }
 
+    @SuppressWarnings("unchecked")
+    public <T extends PersistentDomainExtension<D>, D> void validateValuesEntity(CustomPropertySetValues values) {
+        T domainExtension = (T) this.customPropertySetDataModel.getInstance(this.customPropertySet.getPersistenceSupport()
+                .persistenceClass());
+        DomainExtensionAccessor.setRegisteredCustomPropertySet(domainExtension, this.registeredCustomPropertySet);
+        domainExtension.copyFrom(null, values);
+        Save.CREATE.validate(this.customPropertySetDataModel, domainExtension);
+    }
+
     <T extends PersistentDomainExtension<D>, D> void alignTimeSlicedValues(D businessObject, Instant effectiveTimestamp, Range<Instant> range, Object... additionalPrimaryKeyValues) {
         Optional<T> domainExtension = this.getVersionedValuesEntityFor(businessObject, effectiveTimestamp, additionalPrimaryKeyValues);
         if (domainExtension.isPresent()) {
