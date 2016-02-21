@@ -51,7 +51,6 @@ final class CreateUsagePointTransaction implements Transaction<UsagePoint> {
                 .withIsVirtual(info.isVirtual)
                 .withName(info.name)
                 .withOutageRegion(info.outageRegion)
-                .withReadCycle(info.readCycle)
                 .withReadRoute(info.readRoute)
                 .withServicePriority(info.servicePriority)
                 .create();
@@ -83,37 +82,25 @@ final class CreateUsagePointTransaction implements Transaction<UsagePoint> {
 
     private void doPopulateElectricityDetails(UsagePoint usagePoint) {
         ElectricityDetailBuilder builder = usagePoint.newElectricityDetailBuilder(clock.instant());
-        ElectricityDetail detail = builder.withAmiBillingReady(info.amiBillingReady)
-                .withCheckBilling(info.checkBilling)
-                .withConnectionState(info.connectionState)
+        ElectricityDetail detail = builder
                 .withEstimatedLoad(info.estimatedLoad)
                 .withGrounded(info.grounded)
-                .withMinimalUsageExpected(info.minimalUsageExpected)
                 .withNominalServiceVoltage(info.nominalServiceVoltage)
                 .withPhaseCode(info.phaseCode)
                 .withRatedCurrent(info.ratedCurrent)
                 .withRatedPower(info.ratedPower)
-                .withServiceDeliveryRemark(info.serviceDeliveryRemark)
                 .build();
     }
 
     private void doPopulateGasDetails(UsagePoint usagePoint) {
         GasDetailBuilder builder = usagePoint.newGasDetailBuilder(clock.instant());
-        GasDetail detail = builder.withAmiBillingReady(info.amiBillingReady)
-                .withCheckBilling(info.checkBilling)
-                .withConnectionState(info.connectionState)
-                .withMinimalUsageExpected(info.minimalUsageExpected)
-                .withServiceDeliveryRemark(info.serviceDeliveryRemark)
+        GasDetail detail = builder
                 .build();
     }
 
     private void doPopulateWaterDetails(UsagePoint usagePoint) {
         WaterDetailBuilder builder = usagePoint.newWaterDetailBuilder(clock.instant());
-        WaterDetail detail = builder.withAmiBillingReady(info.amiBillingReady)
-                .withCheckBilling(info.checkBilling)
-                .withConnectionState(info.connectionState)
-                .withMinimalUsageExpected(info.minimalUsageExpected)
-                .withServiceDeliveryRemark(info.serviceDeliveryRemark)
+        WaterDetail detail = builder
                 .build();
     }
 }

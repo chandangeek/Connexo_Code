@@ -47,20 +47,13 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
     private UsagePoint doPerform(UsagePoint usagePoint) {
         if (isAllowedToEdit(usagePoint)) {
             usagePoint.setMRID(info.mRID);
-            usagePoint.setAliasName(info.aliasName);
-            usagePoint.setDescription(info.description);
             usagePoint.setName(info.name);
             usagePoint.setSdp(info.isSdp);
             usagePoint.setVirtual(info.isVirtual);
             usagePoint.setOutageRegion(info.outageRegion);
-            usagePoint.setReadCycle(info.readCycle);
             usagePoint.setReadRoute(info.readRoute);
             usagePoint.setServicePriority(info.servicePriority);
             UsagePointDetail detail = usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, clock.instant());
-            detail.setAmiBillingReady(info.amiBillingReady);
-            detail.setCheckBilling(info.checkBilling);
-            detail.setConnectionState(info.connectionState);
-            detail.setMinimalUsageExpected(info.minimalUsageExpected);
             if (detail instanceof ElectricityDetail) {
                 ElectricityDetail eDetail = (ElectricityDetail) detail;
                 eDetail.setEstimatedLoad(info.estimatedLoad);
@@ -69,7 +62,6 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
                 eDetail.setPhaseCode(info.phaseCode);
                 eDetail.setRatedCurrent(info.ratedCurrent);
                 eDetail.setRatedPower(info.ratedPower);
-                eDetail.setServiceDeliveryRemark(info.serviceDeliveryRemark);
                 eDetail.setPhaseCode(info.phaseCode);
                 eDetail.setRatedPower(info.ratedPower);
             }

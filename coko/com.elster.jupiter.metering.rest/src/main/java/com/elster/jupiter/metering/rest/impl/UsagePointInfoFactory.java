@@ -43,45 +43,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     @Override
     public Object from(UsagePoint usagePoint) {
-        UsagePointTranslatedInfo info = new UsagePointTranslatedInfo();
-        info.id = usagePoint.getId();
-        info.mRID = usagePoint.getMRID();
-        info.serviceCategory = usagePoint.getServiceCategory().getKind();
+        UsagePointTranslatedInfo info = new UsagePointTranslatedInfo(usagePoint, clock);
         info.displayServiceCategory = usagePoint.getServiceCategory().getKind().getDisplayName(valueThesaurus);
-        info.serviceLocationId = usagePoint.getServiceLocationId();
-        info.aliasName = usagePoint.getAliasName();
-        info.description = usagePoint.getDescription();
-        info.name = usagePoint.getName();
-        info.isSdp = usagePoint.isSdp();
-        info.isVirtual = usagePoint.isVirtual();
-        info.outageRegion = usagePoint.getOutageRegion();
-        info.readCycle = usagePoint.getReadCycle();
-        info.readRoute = usagePoint.getReadRoute();
-        info.servicePriority = usagePoint.getServicePriority();
-        info.version = usagePoint.getVersion();
-        info.createTime = usagePoint.getCreateDate().toEpochMilli();
-        info.modTime = usagePoint.getModificationDate().toEpochMilli();
-        Optional<? extends UsagePointDetail> detailHolder = usagePoint.getDetail(clock.instant());
-        if (detailHolder.isPresent()) {
-            UsagePointDetail detail = detailHolder.get();
-            info.minimalUsageExpected = detail.isMinimalUsageExpected();
-            info.amiBillingReady = detail.getAmiBillingReady();
-            info.displayAmiBillingReady = detail.getAmiBillingReady().getDisplayName(valueThesaurus);
-            info.checkBilling = detail.isCheckBilling();
-            info.connectionState = detail.getConnectionState();
-            info.displayConnectionState = detail.getConnectionState().getDisplayName(valueThesaurus);
-            info.serviceDeliveryRemark = detail.getServiceDeliveryRemark();
-            if (detail instanceof ElectricityDetail) {
-                ElectricityDetail eDetail = (ElectricityDetail) detail;
-                info.estimatedLoad = eDetail.getEstimatedLoad();
-                info.grounded = eDetail.isGrounded();
-                info.nominalServiceVoltage = eDetail.getNominalServiceVoltage();
-                info.phaseCode = eDetail.getPhaseCode();
-                info.ratedCurrent = eDetail.getRatedCurrent();
-                info.ratedPower = eDetail.getRatedPower();
-            }
-        }
-
         return info;
     }
 
@@ -90,8 +53,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         List<PropertyDescriptionInfo> infos = new ArrayList<>();
         infos.add(createDescription(TranslationSeeds.MRID, String.class));
         infos.add(createDescription(TranslationSeeds.SERVICE_CATEGORY_DISPLAY, String.class));
-        infos.add(createDescription(TranslationSeeds.ALIAS_NAME, String.class));
-        infos.add(createDescription(TranslationSeeds.DESCRIPTION, String.class));
         infos.add(createDescription(TranslationSeeds.NAME, String.class));
         infos.add(createDescription(TranslationSeeds.BILLING_READY_DISPLAY, String.class));
         infos.add(createDescription(TranslationSeeds.CHECK_BILLING, Boolean.class));
@@ -106,7 +67,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         infos.add(createDescription(TranslationSeeds.PHASE_CODE, String.class));
         infos.add(createDescription(TranslationSeeds.RATED_CURRENT, Quantity.class));
         infos.add(createDescription(TranslationSeeds.RATED_POWER, Quantity.class));
-        infos.add(createDescription(TranslationSeeds.READ_CYCLE, String.class));
         infos.add(createDescription(TranslationSeeds.READ_ROUTE, String.class));
         infos.add(createDescription(TranslationSeeds.REMARK, String.class));
         infos.add(createDescription(TranslationSeeds.PRIORITY, String.class));

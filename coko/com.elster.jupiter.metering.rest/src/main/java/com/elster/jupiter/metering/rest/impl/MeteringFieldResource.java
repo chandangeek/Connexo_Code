@@ -1,8 +1,10 @@
 package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.AmiBillingReadyKind;
+import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceKind;
@@ -172,5 +174,21 @@ public class MeteringFieldResource {
                 .sorted(Comparator.comparing(sk -> sk.displayValue))
                 .collect(toList());
         return PagedInfoList.fromCompleteList("categories", categories, queryParameters);
+    }
+
+    @GET
+    @Path("/phasecodes")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getPhaseCodes(@BeanParam JsonQueryParameters queryParameters) {
+        return PagedInfoList.fromCompleteList("phaseCodes", Arrays.stream(PhaseCode.values()).distinct().collect(Collectors.toList()), queryParameters);
+    }
+
+    @GET
+    @Path("/bypassstatus")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getBypassStatus(@BeanParam JsonQueryParameters queryParameters) {
+        return PagedInfoList.fromCompleteList("bypassStatus", Arrays.asList(BypassStatus.values()), queryParameters);
     }
 }

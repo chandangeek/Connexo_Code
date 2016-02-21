@@ -73,17 +73,12 @@ public class CreateUsagePointTransactionTest {
         when(serviceCategory.getKind()).thenReturn(ServiceKind.ELECTRICITY);
         when(serviceCategory.newUsagePoint(MR_ID)).thenReturn(usagePointBuilder);
         when(usagePoint.newElectricityDetailBuilder(Matchers.any())).thenReturn(edBuilder);
-        when(edBuilder.withAmiBillingReady(Matchers.any())).thenReturn(edBuilder);
-        when(edBuilder.withCheckBilling(Matchers.anyBoolean())).thenReturn(edBuilder);
-        when(edBuilder.withConnectionState(Matchers.any())).thenReturn(edBuilder);
         when(edBuilder.withEstimatedLoad(Matchers.any())).thenReturn(edBuilder);
         when(edBuilder.withGrounded(Matchers.anyBoolean())).thenReturn(edBuilder);
-        when(edBuilder.withMinimalUsageExpected(Matchers.anyBoolean())).thenReturn(edBuilder);
         when(edBuilder.withNominalServiceVoltage(Matchers.any())).thenReturn(edBuilder);
         when(edBuilder.withPhaseCode(Matchers.any())).thenReturn(edBuilder);
         when(edBuilder.withRatedCurrent(Matchers.any())).thenReturn(edBuilder);
         when(edBuilder.withRatedPower(Matchers.any())).thenReturn(edBuilder);
-        when(edBuilder.withServiceDeliveryRemark(Matchers.anyString())).thenReturn(edBuilder);
 
         when(edBuilder.build()).thenReturn(electricityDetail);
 
