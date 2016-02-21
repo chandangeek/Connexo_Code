@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.security.Principal;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -83,6 +84,7 @@ public class UsagePointCustomPropertySetExtensionImplTestIT {
                 .getServiceCategory(ServiceKind.ELECTRICITY)
                 .get()
                 .newUsagePoint(USAGE_POINT_MRID)
+                .withInstallationTime(Instant.EPOCH)
                 .create();
     }
 

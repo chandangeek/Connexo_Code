@@ -156,6 +156,7 @@ public class UsagePointQueryTest {
                 .setName("EnergyICT")
                 .create();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID")
+                .withInstallationTime(Instant.EPOCH)
                 .setServiceLocation(location).create();
         usagePoint.setServiceLocation(location);
         ElectricityDetail detail = (ElectricityDetail) serviceCategory.newUsagePointDetail(usagePoint, Instant.now());
@@ -170,7 +171,7 @@ public class UsagePointQueryTest {
         query.setEager();
         assertThat(query.select(condition)).hasSize(1);
         for (int i = 0 ; i < 10 ; i++) {
-        	usagePoint = serviceCategory.newUsagePoint("mrID" + i).create();
+        	usagePoint = serviceCategory.newUsagePoint("mrID" + i).withInstallationTime(Instant.EPOCH).create();
         }
         assertThat(query.select(Condition.TRUE)).hasSize(11);
         assertThat(query.select(Condition.TRUE,1,5)).hasSize(5);

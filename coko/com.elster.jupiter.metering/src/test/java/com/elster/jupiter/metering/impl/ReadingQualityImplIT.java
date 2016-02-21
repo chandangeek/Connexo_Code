@@ -191,7 +191,7 @@ public class ReadingQualityImplIT {
 
     private ReadingQualityRecord doTest(MeteringService meteringService, Instant date) {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID").create();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID").withInstallationTime(Instant.EPOCH).create();
         ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         MeterActivation meterActivation = usagePoint.activate(date);
         Channel channel = meterActivation.createChannel(readingType);

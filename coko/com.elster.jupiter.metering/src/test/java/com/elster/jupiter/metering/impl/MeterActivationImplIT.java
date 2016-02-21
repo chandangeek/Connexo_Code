@@ -149,7 +149,7 @@ public class MeterActivationImplIT {
             Meter meter = amrSystem.newMeter("1").create();
             meterId = meter.getId();
             UsagePoint up = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
-                    .orElseThrow(IllegalArgumentException::new).newUsagePoint("abcd")
+                    .orElseThrow(IllegalArgumentException::new).newUsagePoint("abcd").withInstallationTime(Instant.EPOCH)
                     .create();
             usagePointId = up.getId();
 
