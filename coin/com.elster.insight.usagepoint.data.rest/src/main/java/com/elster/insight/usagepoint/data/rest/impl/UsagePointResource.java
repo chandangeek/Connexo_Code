@@ -1,9 +1,16 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
@@ -29,6 +36,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -36,11 +44,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/usagepoints")
 public class UsagePointResource {
@@ -49,11 +60,15 @@ public class UsagePointResource {
     private final MeteringService meteringService;
     private final UsagePointConfigurationService usagePointConfigurationService;
     private final Clock clock;
+    private final CustomPropertySetService customPropertySetService;
+    private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
 
     private final Provider<ChannelResource> channelsOnUsagePointResourceProvider;
     private final Provider<RegisterResource> registersOnUsagePointResourceProvider;
     private final Provider<UsagePointValidationResource> usagePointValidationResourceProvider;
     private final Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider;
+
+    private final UsagePointInfoFactory usagePointInfoFactory;
 
     @Inject
     public UsagePointResource(RestQueryService queryService, MeteringService meteringService,
@@ -62,7 +77,10 @@ public class UsagePointResource {
                               Provider<RegisterResource> registersOnUsagePointResourceProvider,
                               UsagePointConfigurationService usagePointConfigurationService,
                               Provider<UsagePointValidationResource> usagePointValidationResourceProvider,
-                              Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider) {
+                              Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider,
+                              CustomPropertySetService customPropertySetService,
+                              UsagePointInfoFactory usagePointInfoFactory,
+                              CustomPropertySetInfoFactory customPropertySetInfoFactory) {
         this.queryService = queryService;
         this.meteringService = meteringService;
         this.clock = clock;
@@ -71,6 +89,9 @@ public class UsagePointResource {
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.usagePointValidationResourceProvider = usagePointValidationResourceProvider;
         this.usagePointCustomPropertySetResourceProvider = usagePointCustomPropertySetResourceProvider;
+        this.customPropertySetService = customPropertySetService;
+        this.usagePointInfoFactory = usagePointInfoFactory;
+        this.customPropertySetInfoFactory = customPropertySetInfoFactory;
     }
 
     @GET
@@ -85,7 +106,7 @@ public class UsagePointResource {
         List<UsagePointInfo> usagePointInfos = ListPager.of(list)
                 .from(queryParameters)
                 .stream()
-                .map(m -> new UsagePointInfo(m, clock, usagePointConfigurationService))
+                .map(usagePointInfoFactory::from)
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("usagePoints", usagePointInfos, queryParameters);
@@ -137,9 +158,23 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     public UsagePointInfo getUsagePoint(@PathParam("mrid") String mRid, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(mRid, securityContext);
-        UsagePointInfo result = new UsagePointInfo(usagePoint, clock, usagePointConfigurationService);
+        UsagePointInfo result = usagePointInfoFactory.from(usagePoint);
         result.addServiceLocationInfo();
         return result;
+    }
+
+    @GET
+    @RolesAllowed({Privileges.Constants.VIEW_SERVICECATEGORY})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/servicecategory")
+    public PagedInfoList getServiceCategories(@BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
+        List<ServiceCategoryInfo> categories = Arrays.stream(ServiceKind.values())
+                .map(meteringService::getServiceCategory).flatMap(sc -> sc.isPresent() && sc.get().isActive() ? Stream.of(sc.get()) : Stream.empty()).sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName()))
+                .filter(sc -> !sc.getCustomPropertySets().stream().anyMatch(rcps -> !rcps.isEditableByCurrentUser()))
+                .map(sc -> new ServiceCategoryInfo(sc, sc.getCustomPropertySets().stream().map(customPropertySetInfoFactory::getGeneralAndPropertiesInfo).collect(Collectors.toList())))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("categories", categories, queryParameters);
     }
 
     @POST
@@ -147,14 +182,41 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMIN_ANY})
     @Transactional
+    @SuppressWarnings("unchecked")
     public Response createUsagePoint(UsagePointInfo info) {
-        UsagePoint usagePoint = new CreateUsagePointTransaction(info, meteringService, clock).perform();
-        if (info.metrologyConfiguration != null) {
-            MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(info.metrologyConfiguration.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-            usagePointConfigurationService.link(usagePoint, metrologyConfiguration);
+        UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
+        info.techInfo.getUsagePointDetailBuilder(usagePoint,clock).build();
+
+        for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
+            CustomPropertySet set = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class).stream()
+                    .filter(rcps -> customPropertySetInfo.id == rcps.getId()).findFirst().orElseThrow(IllegalArgumentException::new).getCustomPropertySet();
+            customPropertySetService.setValuesFor(set,usagePoint,customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo, set.getPropertySpecs()));
         }
-        UsagePointInfo result = new UsagePointInfo(usagePoint, clock, usagePointConfigurationService);
-        return Response.status(Response.Status.CREATED).entity(result).build();
+        return Response.status(Response.Status.CREATED).entity(usagePointInfoFactory.from(usagePoint)).build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMIN_ANY})
+    @Path("/validation")
+    @Transactional
+    @SuppressWarnings("unchecked")
+    public Response validateUsagePoint(UsagePointInfo info, @QueryParam("step") long step) {
+
+        if(step==1) {
+            usagePointInfoFactory.newUsagePointBuilder(info).validate();
+        }
+        else if (step==2){
+            info.techInfo.getUsagePointDetailBuilder(usagePointInfoFactory.newUsagePointBuilder(info).validate(),clock).validate();
+        } else {
+            RegisteredCustomPropertySet set = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class).stream().filter(rcps -> rcps.getId()==step).findAny().orElseThrow(IllegalArgumentException::new);
+
+            CustomPropertySetInfo customPropertySetInfo = info.customPropertySets.stream().filter(cps -> cps.id==set.getId()).findFirst().orElseThrow(IllegalArgumentException::new);
+            customPropertySetService.validateCustomPropertySetValues(set.getCustomPropertySet(),customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo, set.getCustomPropertySet().getPropertySpecs()));
+        }
+
+        return Response.accepted().build();
     }
 
     @GET
@@ -195,7 +257,6 @@ public class UsagePointResource {
     public UsagePointCustomPropertySetResource getUsagePointCustomPropertySetResource() {
         return usagePointCustomPropertySetResourceProvider.get();
     }
-
 
     private Set<ReadingType> collectReadingTypes(UsagePoint usagePoint) {
         Set<ReadingType> readingTypes = new LinkedHashSet<>();

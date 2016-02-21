@@ -1,8 +1,5 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
-import com.elster.insight.common.rest.ExceptionFactory;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.insight.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.estimation.EstimationService;
@@ -18,6 +15,10 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
+import com.elster.insight.common.rest.ExceptionFactory;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.insight.usagepoint.data.UsagePointDataService;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -174,6 +175,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
             bind(PropertyUtils.class).to(PropertyUtils.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
+            bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
         }
     }
 }

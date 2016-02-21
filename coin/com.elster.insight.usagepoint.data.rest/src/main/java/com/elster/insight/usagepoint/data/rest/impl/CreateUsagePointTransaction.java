@@ -1,7 +1,5 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.metering.ElectricityDetail;
-import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.GasDetailBuilder;
 import com.elster.jupiter.metering.MeteringService;
@@ -44,13 +42,11 @@ final class CreateUsagePointTransaction implements Transaction<UsagePoint> {
     private UsagePoint doPerform(ServiceCategory serviceCategory) {
 
         UsagePointBuilder upb = serviceCategory.newUsagePoint(info.mRID);
-        UsagePoint usagePoint = upb.withAliasName(info.aliasName)
-                .withDescription(info.description)
+        UsagePoint usagePoint = upb
                 .withIsSdp(info.isSdp)
                 .withIsVirtual(info.isVirtual)
                 .withName(info.name)
                 .withOutageRegion(info.outageRegion)
-                .withReadCycle(info.readCycle)
                 .withReadRoute(info.readRoute)
                 .withServicePriority(info.servicePriority)
                 .create();
@@ -81,38 +77,17 @@ final class CreateUsagePointTransaction implements Transaction<UsagePoint> {
     }
 
     private void doPopulateElectricityDetails(UsagePoint usagePoint) {
-        ElectricityDetailBuilder builder = usagePoint.newElectricityDetailBuilder(clock.instant());
-        ElectricityDetail detail = builder.withAmiBillingReady(info.amiBillingReady)
-                .withCheckBilling(info.checkBilling)
-                .withConnectionState(info.connectionState)
-                .withEstimatedLoad(info.estimatedLoad)
-                .withGrounded(info.grounded)
-                .withMinimalUsageExpected(info.minimalUsageExpected)
-                .withNominalServiceVoltage(info.nominalServiceVoltage)
-                .withPhaseCode(info.phaseCode)
-                .withRatedCurrent(info.ratedCurrent)
-                .withRatedPower(info.ratedPower)
-                .withServiceDeliveryRemark(info.serviceDeliveryRemark)
-                .build();
     }
 
     private void doPopulateGasDetails(UsagePoint usagePoint) {
         GasDetailBuilder builder = usagePoint.newGasDetailBuilder(clock.instant());
-        GasDetail detail = builder.withAmiBillingReady(info.amiBillingReady)
-                .withCheckBilling(info.checkBilling)
-                .withConnectionState(info.connectionState)
-                .withMinimalUsageExpected(info.minimalUsageExpected)
-                .withServiceDeliveryRemark(info.serviceDeliveryRemark)
+        GasDetail detail = builder
                 .build();
     }
 
     private void doPopulateWaterDetails(UsagePoint usagePoint) {
         WaterDetailBuilder builder = usagePoint.newWaterDetailBuilder(clock.instant());
-        WaterDetail detail = builder.withAmiBillingReady(info.amiBillingReady)
-                .withCheckBilling(info.checkBilling)
-                .withConnectionState(info.connectionState)
-                .withMinimalUsageExpected(info.minimalUsageExpected)
-                .withServiceDeliveryRemark(info.serviceDeliveryRemark)
+        WaterDetail detail = builder
                 .build();
     }
 }
