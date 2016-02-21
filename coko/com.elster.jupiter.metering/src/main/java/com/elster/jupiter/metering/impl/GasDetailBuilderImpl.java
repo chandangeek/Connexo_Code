@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.GasDetailBuilder;
@@ -187,4 +188,9 @@ public class GasDetailBuilderImpl implements GasDetailBuilder {
         return gd;
     }
 
+    @Override
+    public void validate() {
+        GasDetail gd = dataModel.getInstance(GasDetailImpl.class).init(usagePoint, this, interval);
+        Save.CREATE.validate(dataModel, gd);
+    }
 }

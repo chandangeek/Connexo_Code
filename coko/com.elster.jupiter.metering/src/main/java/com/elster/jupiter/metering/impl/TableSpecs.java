@@ -547,12 +547,14 @@ public enum TableSpecs {
             table.column("GROUNDED").type("char(1)").conversion(CHAR2BOOLEAN).map("grounded").add();
             table.addQuantityColumns("NOMINALVOLTAGE", false, "nominalServiceVoltage");
             table.column("PHASECODE").type("varchar2(7)").conversion(CHAR2ENUM).map("phaseCode").add();
+            table.addQuantityColumns("PHYSICALCAPACITY", false, "physicalCapacity");
             table.addQuantityColumns("RATEDCURRENT", false, "ratedCurrent");
             table.addQuantityColumns("RATEDPOWER", false, "ratedPower");
             table.addQuantityColumns("ESTIMATEDLOAD", false, "estimatedLoad");
-            table.addQuantityColumns("LOADLIMIT", false, "loadLimit");
             table.column("LIMITER").type("char(1)").conversion(CHAR2BOOLEAN).map("limiter").add();
             table.column("LOADLIMITERTYPE").varChar(NAME_LENGTH).map("loadLimiterType").add();
+            table.addQuantityColumns("LOADLIMIT", false, "loadLimit");
+            table.addQuantityColumns("PRESSURE", false, "pressure");
             table.column("INTERRUPTIBLE").type("char(1)").conversion(CHAR2BOOLEAN).map("interruptible").add();
             table.column("COLLAR").type("char(1)").conversion(CHAR2BOOLEAN).map("collar").add();
             table.column("BYPASS").type("char(1)").conversion(CHAR2BOOLEAN).map("bypass").add();

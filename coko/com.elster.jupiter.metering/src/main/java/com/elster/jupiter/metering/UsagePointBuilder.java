@@ -24,9 +24,13 @@ public interface UsagePointBuilder {
 
     UsagePointBuilder withServicePriority(String servicePriority);
 
+    UsagePointBuilder withServiceDeliveryRemark(String serviceDeliveryRemark);
+
     UsagePointBuilder setServiceLocation(ServiceLocation location);
 
     UsagePointBuilder withInstallationTime(Instant installationTime);
 
     UsagePoint create();
+
+    UsagePoint validate();
 }

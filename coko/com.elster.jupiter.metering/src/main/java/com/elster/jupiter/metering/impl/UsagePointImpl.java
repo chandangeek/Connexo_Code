@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.GasDetailBuilder;
+import com.elster.jupiter.metering.HeatDetailBuilder;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
@@ -141,6 +142,12 @@ public class UsagePointImpl implements UsagePoint {
     public WaterDetailBuilder newWaterDetailBuilder(Instant start) {
         Interval interval = Interval.of(Range.atLeast(start));
         return new WaterDetailBuilderImpl(dataModel, this, interval);
+    }
+
+    @Override
+    public HeatDetailBuilder newHeatDetailBuilder(Instant start) {
+        Interval interval = Interval.of(Range.atLeast(start));
+        return new HeatDetailBuilderImpl(dataModel, this, interval);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
@@ -22,6 +23,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     private String readCycle;
     private String readRoute;
     private String servicePriority;
+    private String serviceDeliveryRemark;
     private Instant installationTime;
 
     private ServiceCategory serviceCategory;
@@ -94,6 +96,12 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
+    public UsagePointBuilder withServiceDeliveryRemark(String serviceDeliveryRemark) {
+        this.serviceDeliveryRemark = serviceDeliveryRemark;
+        return this;
+    }
+
+    @Override
     public UsagePointBuilder setServiceLocation(ServiceLocation location) {
         this.serviceLocation = location;
         return this;
@@ -108,21 +116,32 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     @Override
     public UsagePoint create() {
         UsagePointImpl usagePoint = dataModel.getInstance(UsagePointImpl.class).init(mRID, serviceCategory);
-
-//        usagePoint.setAliasName(aliasName);
-//        usagePoint.setDescription(description);
         usagePoint.setName(name);
         usagePoint.setSdp(isSdp);
         usagePoint.setVirtual(isVirtual);
         usagePoint.setOutageRegion(outageRegion);
-//        usagePoint.setReadCycle(readCycle);
         usagePoint.setReadRoute(readRoute);
         usagePoint.setServicePriority(servicePriority);
         usagePoint.setServiceLocation(serviceLocation);
         usagePoint.setInstallationTime(installationTime);
+        usagePoint.setServiceDeliveryRemark(serviceDeliveryRemark);
         usagePoint.doSave();
         return usagePoint;
     }
 
-
+    @Override
+    public UsagePoint validate() {
+        UsagePointImpl usagePoint = dataModel.getInstance(UsagePointImpl.class).init(mRID, serviceCategory);
+        usagePoint.setName(name);
+        usagePoint.setSdp(isSdp);
+        usagePoint.setVirtual(isVirtual);
+        usagePoint.setOutageRegion(outageRegion);
+        usagePoint.setReadRoute(readRoute);
+        usagePoint.setServicePriority(servicePriority);
+        usagePoint.setServiceLocation(serviceLocation);
+        usagePoint.setInstallationTime(installationTime);
+        usagePoint.setServiceDeliveryRemark(serviceDeliveryRemark);
+        Save.CREATE.validate(dataModel,usagePoint);
+        return usagePoint;
+    }
 }

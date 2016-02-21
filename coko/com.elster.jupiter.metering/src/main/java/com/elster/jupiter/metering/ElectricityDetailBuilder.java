@@ -5,7 +5,7 @@ import com.elster.jupiter.util.units.Quantity;
 
 import java.util.Optional;
 
-public interface ElectricityDetailBuilder {
+public interface ElectricityDetailBuilder extends UsagePointDetailBuilder{
 
     ElectricityDetailBuilder withCollar(Boolean collar);
 

@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.HeatDetailBuilder;
@@ -113,4 +114,9 @@ public class HeatDetailBuilderImpl implements HeatDetailBuilder {
         return hd;
     }
 
+    @Override
+    public void validate() {
+        HeatDetail hd = dataModel.getInstance(HeatDetailImpl.class).init(usagePoint, this, interval);
+        Save.CREATE.validate(dataModel, hd);
+    }
 }

@@ -4,7 +4,7 @@ import com.elster.jupiter.util.units.Quantity;
 
 import java.util.Optional;
 
-public interface HeatDetailBuilder {
+public interface HeatDetailBuilder  extends UsagePointDetailBuilder{
 
     HeatDetailBuilder withCollar(Boolean collar);
 

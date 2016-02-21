@@ -4,7 +4,7 @@ import com.elster.jupiter.util.units.Quantity;
 
 import java.util.Optional;
 
-public interface WaterDetailBuilder {
+public interface WaterDetailBuilder  extends UsagePointDetailBuilder{
 
     WaterDetailBuilder withCollar(Boolean collar);
 

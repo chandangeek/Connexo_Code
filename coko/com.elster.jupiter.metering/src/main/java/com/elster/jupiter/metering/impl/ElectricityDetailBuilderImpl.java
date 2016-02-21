@@ -1,12 +1,14 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.PhaseCode;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.GasDetailBuilder;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
@@ -166,4 +168,9 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
         return ed;
     }
 
+    @Override
+    public void validate() {
+        ElectricityDetail ed = dataModel.getInstance(ElectricityDetailImpl.class).init(usagePoint, this, interval);
+        Save.CREATE.validate(dataModel,ed);
+    }
 }

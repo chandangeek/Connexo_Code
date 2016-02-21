@@ -4,7 +4,7 @@ import com.elster.jupiter.util.units.Quantity;
 
 import java.util.Optional;
 
-public interface GasDetailBuilder {
+public interface GasDetailBuilder  extends UsagePointDetailBuilder{
 
     GasDetailBuilder withCollar(Boolean collar);
 

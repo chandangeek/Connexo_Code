@@ -117,6 +117,8 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
 
     WaterDetailBuilder newWaterDetailBuilder(Instant instant);
 
+    HeatDetailBuilder newHeatDetailBuilder(Instant start);
+
     List<? extends BaseReadingRecord> getReadingsWithFill(Range<Instant> range, ReadingType readingType);
 
     UsagePointConfigurationBuilder startingConfigurationOn(Instant startTime);
