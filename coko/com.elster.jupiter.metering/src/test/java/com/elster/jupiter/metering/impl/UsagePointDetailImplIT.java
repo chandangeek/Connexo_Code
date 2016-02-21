@@ -284,7 +284,7 @@ public class UsagePointDetailImplIT {
         //general properties
         gasDetail.setCollar(Optional.ofNullable(true));
 
-        //gas specific properties: none defined yet
+        //gas specific properties
         gasDetail.setClamped(Optional.ofNullable(true));
         gasDetail.setCapped(Optional.ofNullable(true));
         gasDetail.setValve(Optional.ofNullable(true));
@@ -318,7 +318,7 @@ public class UsagePointDetailImplIT {
         assertThat(gasDetail.getCollar().isPresent()).isTrue();
         assertThat(gasDetail.getCollar().get()).isTrue();
 
-        //gas specific properties: none defined yet
+        //gas specific properties
         assertThat(gasDetail.getCapped().isPresent()).isTrue();
         assertThat(gasDetail.getCapped().get()).isTrue();
         assertThat(gasDetail.getClamped().isPresent()).isTrue();

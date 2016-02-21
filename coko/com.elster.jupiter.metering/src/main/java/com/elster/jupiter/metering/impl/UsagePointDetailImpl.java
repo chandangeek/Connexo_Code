@@ -36,6 +36,7 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
                 .put("E", ElectricityDetailImpl.class)
                 .put("G", GasDetailImpl.class)
                 .put("W", WaterDetailImpl.class)
+                .put("H", HeatDetailImpl.class)
                 .put("D", DefaultDetailImpl.class).build();
     }
 
