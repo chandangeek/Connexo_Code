@@ -306,7 +306,16 @@ public final class VaultImpl implements IVault {
 
     private SqlBuilder selectSql(TimeSeriesImpl timeSeries, Set<String> limitedRecordSpecFieldNames) {
         RecordSpecImpl recordSpec = timeSeries.getRecordSpec();
-        List<String> columnNames = recordSpec.getFieldSpecs().stream().filter(each -> limitedRecordSpecFieldNames.contains(each.getName())).map(recordSpec::columnName).collect(Collectors.toList());
+        List<String> columnNames =
+                recordSpec
+                        .getFieldSpecs()
+                        .stream()
+                        .filter(each -> limitedRecordSpecFieldNames.contains(each.getName()))
+                        .map(recordSpec::columnName)
+                        .collect(Collectors.toList());
+        if (this.hasLocalTime() && limitedRecordSpecFieldNames.contains("LOCALDATE")) {
+            columnNames.add("LOCALDATE");
+        }
         SqlBuilder builder = selectSql(columnNames);
         builder.append(" TIMESERIESID =");
         builder.addLong(timeSeries.getId());
@@ -428,7 +437,6 @@ public final class VaultImpl implements IVault {
     private SqlBuilder rangeSql(TimeSeriesImpl timeSeries, Range<Instant> range, Set<String> recordSpecFieldNames) {
         SqlBuilder builder = selectSql(timeSeries, recordSpecFieldNames);
         this.appendRange(range, builder);
-        builder.append(" order by UTCSTAMP");
         return builder;
     }
 
@@ -447,7 +455,7 @@ public final class VaultImpl implements IVault {
             builder.append("=");
         }
         builder.addLong(range.hasLowerBound() ? range.lowerEndpoint().toEpochMilli() : Long.MIN_VALUE);
-        builder.append("and UTCSTAMP <");
+        builder.append("AND UTCSTAMP <");
         if (range.hasUpperBound() && range.upperBoundType() == BoundType.CLOSED) {
             builder.append("=");
         }
