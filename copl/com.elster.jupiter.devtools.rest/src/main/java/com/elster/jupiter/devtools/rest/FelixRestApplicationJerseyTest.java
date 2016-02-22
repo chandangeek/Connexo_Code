@@ -114,6 +114,7 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
         when(thesaurus.getFormat(any(MessageSeed.class)))
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
         when(thesaurus.interpolate(any(String.class), any(MessageInterpolator.Context.class))).thenAnswer(invocation -> getTranslationByKey(((String) invocation.getArguments()[0]).substring(1, ((String) invocation.getArguments()[0]).length()-1), "xxx"));
+        when(thesaurus.join(any())).thenReturn(thesaurus);
         when(transactionService.getContext()).thenReturn(transactionContext);
 
     }
