@@ -9,6 +9,8 @@ Ext.define('Mdc.view.setup.comtasks.parameters.time.Synchronize', {
         {
             xtype: 'fieldcontainer',
             fieldLabel: Uni.I18n.translate('comtask.minimum.clock.difference','MDC','Minimum clock difference'),
+            itemId: 'mdc-minimumClockDiff',
+            msgTarget: 'under',
             labelWidth: 300,
             width: 500,
             layout: 'hbox',
@@ -34,6 +36,8 @@ Ext.define('Mdc.view.setup.comtasks.parameters.time.Synchronize', {
         {
             xtype: 'fieldcontainer',
             fieldLabel: Uni.I18n.translate('comtask.maximum.clock.difference','MDC','Maximum clock difference'),
+            itemId: 'mdc-maximumClockDiff',
+            msgTarget: 'under',
             labelWidth: 300,
             width: 500,
             layout: 'hbox',
@@ -59,6 +63,8 @@ Ext.define('Mdc.view.setup.comtasks.parameters.time.Synchronize', {
         {
             xtype: 'fieldcontainer',
             fieldLabel: Uni.I18n.translate('comtask.maximum.clock.shift','MDC','Maximum clock shift'),
+            itemId: 'mdc-maximumClockShift',
+            msgTarget: 'under',
             labelWidth: 300,
             width: 500,
             layout: 'hbox',

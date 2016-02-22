@@ -1094,7 +1094,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 break;
         }
         if (xtype) {
-            return Ext.widget(xtype, {labelWidth: 300, width: 500});
+            return Ext.widget(xtype, {labelWidth: 300, width: 700});
         }
         return null;
     },
@@ -1233,9 +1233,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                                 var errorMessagesAlreadyProcessed = [];
                                 parameterErrorMsgPnl.removeAll();
                                 Ext.Array.each(result.errors, function(error) {
-                                    if (error.id === 'protocolTasks' ||
-                                        error.id === 'minimumClockDiff' ||
-                                        error.id === 'maximumClockDiff') {
+                                    if (error.id === 'protocolTasks') {
                                         if (errorMessagesAlreadyProcessed.indexOf(error.msg) === -1) {
                                             errorMessagesAlreadyProcessed.push(error.msg);
                                             parameterErrorMsgPnl.add({
@@ -1244,6 +1242,14 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                                             });
                                             parameterErrorMsgPnl.show();
                                         }
+                                    } else if (error.id === 'minClockDiffBeforeBadTime' ||
+                                               error.id === 'minimumClockDiff' ||
+                                               error.id === 'maximumClockDiff' ||
+                                               error.id === 'maximumClockShift') {
+                                        var field = form.down('#mdc-' + error.id);
+                                        field.unsetActiveError();
+                                        field.setActiveError(error.msg);
+                                        field.doComponentLayout();
                                     }
                                 });
                                 form.getForm().markInvalid(result.errors);

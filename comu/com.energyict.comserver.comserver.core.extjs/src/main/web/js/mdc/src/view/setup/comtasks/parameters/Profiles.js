@@ -34,9 +34,9 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
                 change: function () {
                     var radioYes = Ext.getCmp('radioYes');
                     if (radioYes.getValue()) {
-                        this.up().down('#disCont').setDisabled(false);
+                        this.up().down('#mdc-minClockDiffBeforeBadTime').setDisabled(false);
                     } else {
-                        this.up().down('#disCont').setDisabled(true);
+                        this.up().down('#mdc-minClockDiffBeforeBadTime').setDisabled(true);
                     }
                 }
             }
@@ -44,9 +44,11 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
         {
             xtype: 'fieldcontainer',
             layout: 'hbox',
-            itemId: 'disCont',
+            itemId: 'mdc-minClockDiffBeforeBadTime',
+            msgTarget: 'under',
             fieldLabel: Uni.I18n.translate('comtask.minimum.clock.difference','MDC','Minimum clock difference'),
             labelWidth: 300,
+            width: 500,
             disabled: true,
             items: [
                 {
