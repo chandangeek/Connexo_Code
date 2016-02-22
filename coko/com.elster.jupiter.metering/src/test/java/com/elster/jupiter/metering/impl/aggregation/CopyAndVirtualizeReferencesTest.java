@@ -6,11 +6,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.impl.config.ConstantNode;
-import com.elster.jupiter.metering.impl.config.Function;
-import com.elster.jupiter.metering.impl.config.FunctionCallNode;
-import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableNode;
-import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNode;
 
 import com.google.common.collect.Range;
 
@@ -60,21 +55,24 @@ public class CopyAndVirtualizeReferencesTest {
     @Test
     public void copyConstantNode() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
-        ConstantNode node = new ConstantNode(BigDecimal.TEN);
+        com.elster.jupiter.metering.impl.config.ConstantNode node = new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.TEN);
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
 
         // Asserts
         assertThat(copied).isNotNull();
-        assertThat(copied).isInstanceOf(ConstantNode.class);
-        assertThat(((ConstantNode) copied).getValue()).isEqualTo(BigDecimal.TEN);
+        assertThat(copied).isInstanceOf(NumericalConstantNode.class);
+        assertThat(((NumericalConstantNode) copied).getValue()).isEqualTo(BigDecimal.TEN);
     }
 
     @Test
     public void copyMinimumFunctionCallNodeWithoutArguments() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
-        FunctionCallNode node = new FunctionCallNode(Collections.emptyList(), Function.MIN);
+        com.elster.jupiter.metering.impl.config.FunctionCallNode node =
+                new com.elster.jupiter.metering.impl.config.FunctionCallNode(
+                        Collections.emptyList(),
+                        com.elster.jupiter.metering.impl.config.Function.MIN);
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -84,13 +82,16 @@ public class CopyAndVirtualizeReferencesTest {
         assertThat(copied).isInstanceOf(FunctionCallNode.class);
         FunctionCallNode copiedFunctionCallNode = (FunctionCallNode) copied;
         assertThat(copiedFunctionCallNode.getFunction()).isEqualTo(Function.MIN);
-        assertThat(copiedFunctionCallNode.getChildren()).isEmpty();
+        assertThat(copiedFunctionCallNode.getArguments()).isEmpty();
     }
 
     @Test
     public void copyFunctionCallNodeWithoutArguments() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
-        FunctionCallNode node = new FunctionCallNode(Collections.emptyList(), Function.MAX);
+        com.elster.jupiter.metering.impl.config.FunctionCallNode node =
+                new com.elster.jupiter.metering.impl.config.FunctionCallNode(
+                        Collections.emptyList(),
+                        com.elster.jupiter.metering.impl.config.Function.MAX);
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -100,13 +101,17 @@ public class CopyAndVirtualizeReferencesTest {
         assertThat(copied).isInstanceOf(FunctionCallNode.class);
         FunctionCallNode copiedFunctionCallNode = (FunctionCallNode) copied;
         assertThat(copiedFunctionCallNode.getFunction()).isEqualTo(com.elster.jupiter.metering.impl.aggregation.Function.MAX);
-        assertThat(copiedFunctionCallNode.getChildren()).isEmpty();
+        assertThat(copiedFunctionCallNode.getArguments()).isEmpty();
     }
 
     @Test
     public void copyFunctionCallNodeWithOneArgument() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
-        FunctionCallNode node = new FunctionCallNode(Collections.singletonList(new ConstantNode(BigDecimal.TEN)), Function.MIN);
+        com.elster.jupiter.metering.impl.config.FunctionCallNode node =
+                new com.elster.jupiter.metering.impl.config.FunctionCallNode(
+                        Collections.singletonList(
+                                new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.TEN)),
+                                com.elster.jupiter.metering.impl.config.Function.MIN);
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -114,18 +119,22 @@ public class CopyAndVirtualizeReferencesTest {
         // Asserts
         assertThat(copied).isNotNull();
         assertThat(copied).isInstanceOf(FunctionCallNode.class);
-        com.elster.jupiter.metering.impl.aggregation.FunctionCallNode copiedFunctionCallNode = (com.elster.jupiter.metering.impl.aggregation.FunctionCallNode) copied;
+        FunctionCallNode copiedFunctionCallNode = (FunctionCallNode) copied;
         assertThat(copiedFunctionCallNode.getFunction()).isEqualTo(com.elster.jupiter.metering.impl.aggregation.Function.MIN);
         assertThat(copiedFunctionCallNode.getArguments()).hasSize(1);
         ServerExpressionNode onlyChild = copiedFunctionCallNode.getArguments().get(0);
-        assertThat(onlyChild).isInstanceOf(ConstantNode.class);
-        assertThat(((ConstantNode) onlyChild).getValue()).isEqualTo(BigDecimal.TEN);
+        assertThat(onlyChild).isInstanceOf(NumericalConstantNode.class);
+        assertThat(((NumericalConstantNode) onlyChild).getValue()).isEqualTo(BigDecimal.TEN);
     }
 
     @Test
     public void copyFunctionCallNodeWithTwoArguments() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
-        FunctionCallNode node = new FunctionCallNode(Arrays.asList(new ConstantNode(BigDecimal.TEN), new ConstantNode(BigDecimal.ZERO)), Function.MAX);
+        com.elster.jupiter.metering.impl.config.FunctionCallNode node =
+                new com.elster.jupiter.metering.impl.config.FunctionCallNode(Arrays.asList(
+                        new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.TEN),
+                        new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.ZERO)),
+                        com.elster.jupiter.metering.impl.config.Function.MAX);
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -133,26 +142,26 @@ public class CopyAndVirtualizeReferencesTest {
         // Asserts
         assertThat(copied).isNotNull();
         assertThat(copied).isInstanceOf(FunctionCallNode.class);
-        com.elster.jupiter.metering.impl.aggregation.FunctionCallNode copiedFunctionCallNode = (com.elster.jupiter.metering.impl.aggregation.FunctionCallNode) copied;
-        assertThat(copiedFunctionCallNode.getFunction()).isEqualTo(com.elster.jupiter.metering.impl.aggregation.Function.MAX);
+        FunctionCallNode copiedFunctionCallNode = (FunctionCallNode) copied;
+        assertThat(copiedFunctionCallNode.getFunction()).isEqualTo(Function.MAX);
         assertThat(copiedFunctionCallNode.getArguments()).hasSize(2);
         ServerExpressionNode firstArgument = copiedFunctionCallNode.getArguments().get(0);
-        assertThat(firstArgument).isInstanceOf(ConstantNode.class);
-        assertThat(((ConstantNode) firstArgument).getValue()).isEqualTo(BigDecimal.TEN);
+        assertThat(firstArgument).isInstanceOf(NumericalConstantNode.class);
+        assertThat(((NumericalConstantNode) firstArgument).getValue()).isEqualTo(BigDecimal.TEN);
         ServerExpressionNode secondArgument = copiedFunctionCallNode.getArguments().get(1);
-        assertThat(secondArgument).isInstanceOf(ConstantNode.class);
-        assertThat(((ConstantNode) secondArgument).getValue()).isEqualTo(BigDecimal.ZERO);
+        assertThat(secondArgument).isInstanceOf(NumericalConstantNode.class);
+        assertThat(((NumericalConstantNode) secondArgument).getValue()).isEqualTo(BigDecimal.ZERO);
     }
 
     @Test
     public void copyFunctionCallNodeWithThreeArguments() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
-        FunctionCallNode node = new FunctionCallNode(
-                Arrays.asList(
-                        new ConstantNode(BigDecimal.TEN),
-                        new ConstantNode(BigDecimal.valueOf(1000L)),
-                        new ConstantNode(BigDecimal.ONE)),
-                Function.MAX);
+        com.elster.jupiter.metering.impl.config.FunctionCallNode node =
+                new com.elster.jupiter.metering.impl.config.FunctionCallNode(Arrays.asList(
+                            new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.TEN),
+                            new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.valueOf(1000L)),
+                            new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.ONE)),
+                        com.elster.jupiter.metering.impl.config.Function.MAX);
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -164,14 +173,14 @@ public class CopyAndVirtualizeReferencesTest {
         assertThat(copiedFunctionCallNode.getFunction()).isEqualTo(com.elster.jupiter.metering.impl.aggregation.Function.MAX);
         assertThat(copiedFunctionCallNode.getArguments()).hasSize(3);
         ServerExpressionNode firstArgument = copiedFunctionCallNode.getArguments().get(0);
-        assertThat(firstArgument).isInstanceOf(ConstantNode.class);
-        assertThat(((ConstantNode) firstArgument).getValue()).isEqualTo(BigDecimal.TEN);
+        assertThat(firstArgument).isInstanceOf(NumericalConstantNode.class);
+        assertThat(((NumericalConstantNode) firstArgument).getValue()).isEqualTo(BigDecimal.TEN);
         ServerExpressionNode secondArgument = copiedFunctionCallNode.getArguments().get(1);
-        assertThat(secondArgument).isInstanceOf(ConstantNode.class);
-        assertThat(((ConstantNode) secondArgument).getValue()).isEqualTo(BigDecimal.valueOf(1000L));
+        assertThat(secondArgument).isInstanceOf(NumericalConstantNode.class);
+        assertThat(((NumericalConstantNode) secondArgument).getValue()).isEqualTo(BigDecimal.valueOf(1000L));
         ServerExpressionNode thirdArgument = copiedFunctionCallNode.getArguments().get(2);
-        assertThat(thirdArgument).isInstanceOf(ConstantNode.class);
-        assertThat(((ConstantNode) thirdArgument).getValue()).isEqualTo(BigDecimal.ONE);
+        assertThat(thirdArgument).isInstanceOf(NumericalConstantNode.class);
+        assertThat(((NumericalConstantNode) thirdArgument).getValue()).isEqualTo(BigDecimal.ONE);
     }
 
     @Test
@@ -179,8 +188,8 @@ public class CopyAndVirtualizeReferencesTest {
         CopyAndVirtualizeReferences visitor = getTestInstance();
         com.elster.jupiter.metering.impl.config.OperationNode node = new com.elster.jupiter.metering.impl.config.OperationNode(
                 com.elster.jupiter.metering.impl.config.Operator.PLUS,
-                new ConstantNode(BigDecimal.TEN),
-                new ConstantNode(BigDecimal.ZERO));
+                new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.TEN),
+                new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.ZERO));
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -191,11 +200,11 @@ public class CopyAndVirtualizeReferencesTest {
         OperationNode copiedOperationNode = (OperationNode) copied;
         assertThat(copiedOperationNode.getOperator()).isEqualTo(Operator.PLUS);
         ServerExpressionNode leftOperand = copiedOperationNode.getLeftOperand();
-        assertThat(leftOperand).isInstanceOf(ConstantNode.class);
-        assertThat(((ConstantNode) leftOperand).getValue()).isEqualTo(BigDecimal.TEN);
+        assertThat(leftOperand).isInstanceOf(NumericalConstantNode.class);
+        assertThat(((NumericalConstantNode) leftOperand).getValue()).isEqualTo(BigDecimal.TEN);
         ServerExpressionNode rightOperand = copiedOperationNode.getRightOperand();
-        assertThat(rightOperand).isInstanceOf(ConstantNode.class);
-        assertThat(((ConstantNode) rightOperand).getValue()).isEqualTo(BigDecimal.ZERO);
+        assertThat(rightOperand).isInstanceOf(NumericalConstantNode.class);
+        assertThat(((NumericalConstantNode) rightOperand).getValue()).isEqualTo(BigDecimal.ZERO);
     }
 
     @Test
@@ -209,11 +218,11 @@ public class CopyAndVirtualizeReferencesTest {
         com.elster.jupiter.metering.impl.config.OperationNode node =
                 new com.elster.jupiter.metering.impl.config.OperationNode(
                         com.elster.jupiter.metering.impl.config.Operator.PLUS,
-                    new ReadingTypeRequirementNode(mock(ReadingTypeRequirement.class)),
-                    new FunctionCallNode(Arrays.asList(
-                            new ReadingTypeDeliverableNode(readingTypeDeliverable),
-                            new ConstantNode(BigDecimal.TEN)),
-                        Function.MAX));
+                    new com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNode(mock(ReadingTypeRequirement.class)),
+                    new com.elster.jupiter.metering.impl.config.FunctionCallNode(Arrays.asList(
+                                new com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableNode(readingTypeDeliverable),
+                                new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.TEN)),
+                            com.elster.jupiter.metering.impl.config.Function.MAX));
         ReadingTypeDeliverableForMeterActivation readingTypeDeliverableForMeterActivation =
                 new ReadingTypeDeliverableForMeterActivation(
                         readingTypeDeliverable,
@@ -240,8 +249,8 @@ public class CopyAndVirtualizeReferencesTest {
         List<ServerExpressionNode> maxFunctionArguments = functionCallNode.getArguments();
         assertThat(maxFunctionArguments).hasSize(2);
         assertThat(maxFunctionArguments.get(0)).isInstanceOf(VirtualDeliverableNode.class);
-        assertThat(maxFunctionArguments.get(1)).isInstanceOf(ConstantNode.class);
-        assertThat(((ConstantNode) maxFunctionArguments.get(1)).getValue()).isEqualTo(BigDecimal.TEN);
+        assertThat(maxFunctionArguments.get(1)).isInstanceOf(NumericalConstantNode.class);
+        assertThat(((NumericalConstantNode) maxFunctionArguments.get(1)).getValue()).isEqualTo(BigDecimal.TEN);
     }
 
     private CopyAndVirtualizeReferences getTestInstance() {
