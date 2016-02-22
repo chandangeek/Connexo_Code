@@ -12,7 +12,7 @@ public interface BpmProcessDefinitionBuilder {
     BpmProcessDefinitionBuilder setAssociation(String association);
     BpmProcessDefinitionBuilder setVersion(String version);
     BpmProcessDefinitionBuilder setStatus(String status);
-    BpmProcessDefinitionBuilder setAssociatedData(List<Map<String,String>> associatedData);
+    BpmProcessDefinitionBuilder setProperties(Map<String, Object> properties);
     BpmProcessDefinitionBuilder setPrivileges(List<BpmProcessPrivilege> privileges);
     BpmProcessDefinition create();
     }

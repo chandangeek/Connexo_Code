@@ -128,10 +128,6 @@ public class BpmServiceImpl extends Application implements BpmService, InstallSe
         processAssociationProviders.remove(app);
     }
 
-    /*@Override
-    public String findAppNameByKey(String appKey) {
-        return processAssociationProviders.stream().filter(app -> app.getKey().equals(appKey)).map(ProcessAssociationProvider::getName).findFirst().orElse(appKey);
-    } */
     @Reference
     public void setQueryService(QueryService queryService) {
         this.queryService = queryService;
@@ -248,18 +244,6 @@ public class BpmServiceImpl extends Application implements BpmService, InstallSe
     }
 
     @Override
-    public BpmProcessDefinition findOrCreateBpmProcessDefinition(String processName, String association, String version, String status){
-        Condition nameCondition = Operator.EQUALIGNORECASE.compare("processName", processName);
-        Condition versionCondition = Operator.EQUALIGNORECASE.compare("version", version);
-        List<BpmProcessDefinition> bpmProcessDefinitions = dataModel.query(BpmProcessDefinition.class).select(nameCondition.and(versionCondition));
-        if(bpmProcessDefinitions.isEmpty()){
-            return BpmProcessDefinitionImpl.from(dataModel, processName, association, version, status);
-        }
-        bpmProcessDefinitions.get(0).setStatus(status);
-        return bpmProcessDefinitions.get(0);
-    }
-
-    @Override
     public Optional<BpmProcessDefinition> findProcess (String processName, String association, String version, String status){
         Condition nameCondition = Operator.EQUALIGNORECASE.compare("processName", processName);
         Condition versionCondition = Operator.EQUALIGNORECASE.compare("version", version);
@@ -274,13 +258,13 @@ public class BpmServiceImpl extends Application implements BpmService, InstallSe
     }
 
     @Override
-    public Query<BpmProcessDefinition> getQueryBpmProcessDefinition(){
-        return getQueryService().wrap(dataModel.query(BpmProcessDefinition.class));
+    public List<BpmProcessDefinition> getBpmProcessDefinitions(){
+        return dataModel.query(BpmProcessDefinition.class).select(Operator.NOTEQUAL.compare("status", "UNDEPLOYED"));
     }
 
     @Override
-    public List<BpmProcessDefinition> getBpmProcessDefinitions(){
-        return dataModel.query(BpmProcessDefinition.class).select(Operator.NOTEQUAL.compare("status", "UNDEPLOYED"));
+    public List<BpmProcessDefinition> getAllBpmProcessDefinitions(){
+        return dataModel.mapper(BpmProcessDefinition.class).find();
     }
 
     @Override
@@ -321,16 +305,6 @@ public class BpmServiceImpl extends Application implements BpmService, InstallSe
     public BpmProcessDefinitionBuilder newProcessBuilder() {
         return new BpmProcessDefinitionBuilderImpl(dataModel, this);
     }
-
-
-
-   /* public Optional<ProcessAssociationProvider> getProcessAssociationProvider(String type) throws InterruptedException {
-        return processAssociationProviders.get(withType(type));
-    }
-
-    private Predicate<ProcessAssociationProvider> withType(String type) {
-        return p -> p.getType().equals(type);
-    } */
 
     @Override
     public Optional<ProcessAssociationProvider> getProcessAssociationProvider(String type){

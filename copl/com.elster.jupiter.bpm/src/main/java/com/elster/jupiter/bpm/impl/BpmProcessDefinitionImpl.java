@@ -119,6 +119,10 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
         return processPrivileges;
     }
 
+    void setPrivileges(List<BpmProcessPrivilege> privileges) {
+        this.processPrivileges = privileges;
+    }
+
     @Override
     public List<BpmProcessProperty> getProcessDefinitionProperties() {
         return Collections.unmodifiableList(properties);

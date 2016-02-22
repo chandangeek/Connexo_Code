@@ -3,6 +3,7 @@ package com.elster.jupiter.bpm.impl;
 import com.elster.jupiter.bpm.*;
 import com.elster.jupiter.orm.DataModel;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +17,7 @@ public class BpmProcessDefinitionBuilderImpl implements BpmProcessDefinitionBuil
     private String version;
     private String status;
     private List<BpmProcessPrivilege> processPrivileges = new ArrayList<>();
-    private List<Map<String,String>> associatedData = new ArrayList<>();
+    private Map<String, Object> properties = new HashMap<>();
     private final BpmService bpmService;
 
 
@@ -57,8 +58,8 @@ public class BpmProcessDefinitionBuilderImpl implements BpmProcessDefinitionBuil
     }
 
     @Override
-    public BpmProcessDefinitionBuilder setAssociatedData(List<Map<String,String>> associatedData) {
-        this.associatedData = associatedData;
+    public BpmProcessDefinitionBuilder setProperties(Map<String, Object> properties) {
+        this.properties = properties;
         return this;
     }
 
@@ -71,6 +72,8 @@ public class BpmProcessDefinitionBuilderImpl implements BpmProcessDefinitionBuil
     @Override
     public BpmProcessDefinition create() {
         BpmProcessDefinitionImpl process = BpmProcessDefinitionImpl.from(dataModel, processName, association, version, status);
+        process.setProperties(properties);
+        process.setPrivileges(processPrivileges);
         process.update();
         return process;
     }
