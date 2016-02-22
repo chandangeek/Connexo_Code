@@ -49,14 +49,12 @@ Ext.define('Mdc.controller.setup.Comtasks', {
     ],
 
     timeUnitsStore: null,
-    loadProfileTypesStore: null,
-    logbookTypesStore: null,
-    registerGroupsStore: null,
     categoriesStore: null,
     commandCategoriesStore: null,
     ACTIONS: 'commands',            // Don't ask me why
     COMMAND_CATEGORIES: 'messages', // idem
     ERROR_MESSAGE_FIELD_REQUIRED: Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'),
+    goToTaskOverview: false,
 
     init: function () {
         this.control({
@@ -64,10 +62,10 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 select: this.showTaskDetails
             },
             'comtaskSetup comtaskGrid uni-actioncolumn': {
-                menuclick: this.chooseCommunicationTasksActionFromGrid
+                menuclick: this.chooseCommunicationTasksAction
             },
             'comtaskActionMenu': {
-                click: this.chooseCommunicationTasksActionFromOverview
+                click: this.chooseCommunicationTasksAction
             },
             '#mdc-comtask-addAction-command-category-combo': {
                 change: this.addActionComboBox
@@ -110,16 +108,13 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             router: this.getController('Uni.controller.history.Router')
         });
         this.getApplication().fireEvent('changecontentevent', widget);
+        this.goToTaskOverview = false;
     },
 
-    chooseCommunicationTasksActionFromOverview: function (menu, item) {
-        this.comingFromTaskOverview = true;
-        this.performMenuAction(item.action, menu.communicationTask);
-    },
+    chooseCommunicationTasksAction: function (menu, item) {
+        var tasksGrid = this.getTasksGrid(),
+            comTask = tasksGrid ? tasksGrid.getView().getSelectionModel().getLastSelected() : menu.communicationTask
 
-    chooseCommunicationTasksActionFromGrid: function (menu, item) {
-        var comTask = this.getTasksGrid().getView().getSelectionModel().getLastSelected();
-        this.comingFromTaskOverview = false;
         this.performMenuAction(item.action, comTask);
     },
 
@@ -240,6 +235,8 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         );
         if (taskId) {
             me.loadModelToEditForm(taskId, widget);
+        } else {
+            me.goToTaskOverview = true;
         }
     },
 
@@ -278,6 +275,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 widget.down('#mdc-comtask-overview-sidemenu #mdc-comtask-sidemenu-overviewLink').setText(taskName);
                 widget.down('#mdc-comtask-overview-form').loadRecord(communicationTask);
                 me.getApplication().fireEvent('changecontentevent', widget);
+                me.goToTaskOverview = true;
             }
         });
     },
@@ -424,7 +422,10 @@ Ext.define('Mdc.controller.setup.Comtasks', {
     doShowComTaskActionDetails: function(grid, actionRecord) {
         var me = this,
             preview = me.getComTaskActionsView().down('#mdc-comtask-action-preview'),
-            previewForm = preview.down('#mdc-comtask-action-preview-form');
+            previewForm = preview.down('#mdc-comtask-action-preview-form'),
+            loadProfileTypesStore = me.getStore('Mdc.store.LoadProfileTypes'),
+            logbookTypesStore = me.getStore('Mdc.store.LogbookTypes'),
+            registerGroupsStore = me.getStore('Mdc.store.RegisterGroups');
 
         preview.setTitle(
             Uni.I18n.translate('general.parameters.actionX', 'MDC', "Parameters of the action '{0}'",
@@ -449,7 +450,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                     Ext.Array.each(actionRecord.get('parameters'), function (parameter) {
                         if (parameter.name === 'loadprofiletypeids') {
                             Ext.Array.each(parameter.value, function(value) {
-                                loadProfileTypes += Ext.String.htmlEncode(me.loadProfileTypesStore.findRecord('id', value.value).get('name'));
+                                loadProfileTypes += Ext.String.htmlEncode(loadProfileTypesStore.findRecord('id', value.value).get('name'));
                                 loadProfileTypes += '\n'
                             });
                             if (Ext.isEmpty(loadProfileTypes)) {
@@ -491,15 +492,11 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         failOnMismatch ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No')
                     );
                 };
-                if (Ext.isEmpty(me.loadProfileTypesStore)) {
-                    me.loadProfileTypesStore = me.getStore('Mdc.store.LoadProfileTypes');
-                    me.loadProfileTypesStore.getProxy().pageParam = false;
-                    me.loadProfileTypesStore.getProxy().startParam = false;
-                    me.loadProfileTypesStore.getProxy().limitParam = false;
-                    me.loadProfileTypesStore.load(executeAfterStoreLoad);
-                } else {
-                    executeAfterStoreLoad();
-                }
+
+                loadProfileTypesStore.getProxy().pageParam = false;
+                loadProfileTypesStore.getProxy().startParam = false;
+                loadProfileTypesStore.getProxy().limitParam = false;
+                loadProfileTypesStore.load(executeAfterStoreLoad);
                 break;
 
             case 'logbooks':
@@ -507,7 +504,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         Ext.Array.each(actionRecord.get('parameters'), function (parameter) {
                             if (parameter.name === 'logbooktypeids') {
                                 Ext.Array.each(parameter.value, function(value) {
-                                    logbookTypes += Ext.String.htmlEncode(me.logbookTypesStore.findRecord('id', value.value).get('name'));
+                                    logbookTypes += Ext.String.htmlEncode(logbookTypesStore.findRecord('id', value.value).get('name'));
                                     logbookTypes += '\n'
                                 });
                                 if (Ext.isEmpty(logbookTypes)) {
@@ -521,15 +518,11 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                             }
                         });
                     };
-                if (Ext.isEmpty(me.logbookTypesStore)) {
-                    me.logbookTypesStore = me.getStore('Mdc.store.LogbookTypes');
-                    me.logbookTypesStore.getProxy().pageParam = false;
-                    me.logbookTypesStore.getProxy().startParam = false;
-                    me.logbookTypesStore.getProxy().limitParam = false;
-                    me.logbookTypesStore.load(executeAfterStoreLoad);
-                } else {
-                    executeAfterStoreLoad();
-                }
+
+                logbookTypesStore.getProxy().pageParam = false;
+                logbookTypesStore.getProxy().startParam = false;
+                logbookTypesStore.getProxy().limitParam = false;
+                logbookTypesStore.load(executeAfterStoreLoad);
                 break;
 
             case 'registers':
@@ -537,7 +530,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         Ext.Array.each(actionRecord.get('parameters'), function (parameter) {
                             if (parameter.name === 'registergroupids') {
                                 Ext.Array.each(parameter.value, function(value) {
-                                    registerGroups += Ext.String.htmlEncode(me.registerGroupsStore.findRecord('id', value.value).get('name'));
+                                    registerGroups += Ext.String.htmlEncode(registerGroupsStore.findRecord('id', value.value).get('name'));
                                     registerGroups += '\n'
                                 });
                                 if (Ext.isEmpty(registerGroups)) {
@@ -551,15 +544,11 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                             }
                         });
                     };
-                if (Ext.isEmpty(me.registerGroupsStore)) {
-                    me.registerGroupsStore = me.getStore('Mdc.store.RegisterGroups');
-                    me.registerGroupsStore.getProxy().pageParam = false;
-                    me.registerGroupsStore.getProxy().startParam = false;
-                    me.registerGroupsStore.getProxy().limitParam = false;
-                    me.registerGroupsStore.load(executeAfterStoreLoad);
-                } else {
-                    executeAfterStoreLoad();
-                }
+
+                registerGroupsStore.getProxy().pageParam = false;
+                registerGroupsStore.getProxy().startParam = false;
+                registerGroupsStore.getProxy().limitParam = false;
+                registerGroupsStore.load(executeAfterStoreLoad);
                 break;
 
             case 'clock':
@@ -587,7 +576,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 if (actionRecord.get('actionId') === 'synchronize') {
                     previewForm.addParameter(
                         Uni.I18n.translate('comtask.maximum.clock.shift', 'MDC', 'Maximum clock shift'),
-                        minimumClockDifference
+                        maximumClockShift
                     );
                 }
                 break;
@@ -662,6 +651,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                             );
                             view.setLoading(false);
                             grid.getStore().removeAt(rowIndex);
+                            view.down('pagingtoolbartop').updateInfo();
                             view.down('#add-command-category-action').setDisabled(false);
                         },
                         callback: function () {
@@ -760,6 +750,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                             );
                             view.setLoading(false);
                             grid.getStore().removeAt(rowIndex);
+                            view.down('pagingtoolbartop').updateInfo();
                             view.down('#add-communication-task-action').setDisabled(
                                 grid.getStore().getCount() === me.categoriesStore.totalCount
                             );
@@ -780,23 +771,13 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             taskModel = me.getModel('Mdc.model.CommunicationTask'),
             comTaskId = router.arguments['id'],
             currentCommunicationTask = null,
-            //filter = function(categoryRecord) {
-            //    var match = false;
-            //    Ext.Array.each(currentCommunicationTask.get(me.ACTIONS), function(actionRecord) {
-            //        match = match || (actionRecord.categoryId === categoryRecord.get('id'));
-            //    });
-            //    return !match;
-            //},
             onCategoriesLoaded = function() {
-                //me.categoriesStore.removeFilter(); // remove all previous filters
-                //me.categoriesStore.filterBy(filter, me); // apply the one desired
                 widget = Ext.widget('comtaskAddActionContainer', {
                     router: router,
                     cancelRoute: 'administration/communicationtasks/view/actions',
                     communicationTask: currentCommunicationTask,
                     btnAction: 'addComTaskAction',
                     btnText: Uni.I18n.translate('general.add', 'MDC', 'Add')
-                    //categoriesStore: me.categoriesStore //categoriesForCombo
                 });
                 me.getApplication().fireEvent('loadCommunicationTask', currentCommunicationTask);
                 me.getApplication().fireEvent('changecontentevent', widget);
@@ -894,7 +875,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                     me.getApplication().fireEvent('acknowledge',
                         Uni.I18n.translate('comtask.saved', 'MDC', 'Communication task saved')
                     );
-                    window.location.href = me.comingFromTaskOverview
+                    window.location.href = me.goToTaskOverview
                         ? router.getRoute('administration/communicationtasks/view').
                             buildUrl({ id: newComTaskRecord.get('id')})
                         : router.getRoute('administration/communicationtasks').buildUrl();
@@ -1023,7 +1004,6 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             parametersLabelField = form.down('#mdc-comtask-addAction-parameters-label'),
             addActionBtn = form.down('#mdc-comtask-addAction-actionBtn'),
             category = form.down('#mdc-comtask-addAction-command-category-combo').getValue(),
-            valuesArr = [],
             parametersContainer = me.chooseCommandParameters(category, newValue),
             parametersComponent;
 
@@ -1035,29 +1015,15 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             parametersComponent = form.insert(4, parametersContainer);
             switch (parametersContainer.xtype) {
                 case 'communication-tasks-logbookscombo':
-                    if (btnAction === 'addComTaskAction') {
-                        Ext.Array.each(me.logbookTypesStore.getRange(), function (record) {
-                            valuesArr.push(record.data.id);
-                        });
-                        parametersComponent.setValue(valuesArr);
-                    }
-                    view.setLoading(false);
-                    break;
                 case 'communication-tasks-registerscombo':
                     if (btnAction === 'addComTaskAction') {
-                        Ext.Array.each(me.registerGroupsStore.getRange(), function (record) {
-                            valuesArr.push(record.data.id);
-                        });
-                        parametersComponent.setValue(valuesArr);
+                        parametersComponent.setValue([]);
                     }
                     view.setLoading(false);
                     break;
                 case 'communication-tasks-profilescombo':
                     if (btnAction === 'addComTaskAction') {
-                        Ext.Array.each(me.loadProfileTypesStore.getRange(), function (record) {
-                            valuesArr.push(record.data.id);
-                        });
-                        parametersComponent.down('#checkProfileTypes').setValue(valuesArr);
+                        parametersComponent.down('#checkProfileTypes').setValue([]);
                     }
                     view.setLoading(false);
                     break;
@@ -1083,33 +1049,27 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             xtype;
         switch (category) {
             case 'logbooks':
-                if (Ext.isEmpty(me.logbookTypesStore)) {
-                    me.logbookTypesStore = me.getStore('Mdc.store.LogbookTypes');
-                    me.logbookTypesStore.getProxy().pageParam = false;
-                    me.logbookTypesStore.getProxy().startParam = false;
-                    me.logbookTypesStore.getProxy().limitParam = false;
-                    me.logbookTypesStore.load();
-                }
+                var logbookTypesStore = me.getStore('Mdc.store.LogbookTypes');
+                logbookTypesStore.getProxy().pageParam = false;
+                logbookTypesStore.getProxy().startParam = false;
+                logbookTypesStore.getProxy().limitParam = false;
+                logbookTypesStore.load();
                 xtype = 'communication-tasks-logbookscombo';
                 break;
             case 'registers':
-                if (Ext.isEmpty(me.registerGroupsStore)) {
-                    me.registerGroupsStore = me.getStore('Mdc.store.RegisterGroups');
-                    me.registerGroupsStore.getProxy().pageParam = false;
-                    me.registerGroupsStore.getProxy().startParam = false;
-                    me.registerGroupsStore.getProxy().limitParam = false;
-                    me.registerGroupsStore.load();
-                }
+                var registerGroupsStore = me.getStore('Mdc.store.RegisterGroups');
+                registerGroupsStore.getProxy().pageParam = false;
+                registerGroupsStore.getProxy().startParam = false;
+                registerGroupsStore.getProxy().limitParam = false;
+                registerGroupsStore.load();
                 xtype = 'communication-tasks-registerscombo';
                 break;
             case 'loadprofiles':
-                if (Ext.isEmpty(me.loadProfileTypesStore)) {
-                    me.loadProfileTypesStore = me.getStore('Mdc.store.LoadProfileTypes');
-                    me.loadProfileTypesStore.getProxy().pageParam = false;
-                    me.loadProfileTypesStore.getProxy().startParam = false;
-                    me.loadProfileTypesStore.getProxy().limitParam = false;
-                    me.loadProfileTypesStore.load();
-                }
+                var loadProfileTypesStore = me.getStore('Mdc.store.LoadProfileTypes');
+                loadProfileTypesStore.getProxy().pageParam = false;
+                loadProfileTypesStore.getProxy().startParam = false;
+                loadProfileTypesStore.getProxy().limitParam = false;
+                loadProfileTypesStore.load();
                 if (Ext.isEmpty(me.timeUnitsStore)) {
                     me.timeUnitsStore = me.getStore('Mdc.store.TimeUnits');
                     me.timeUnitsStore.load();
@@ -1158,7 +1118,8 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             allValid = true,
             newAction = {},
             parametersContainer,
-            backUrl = router.getRoute('administration/communicationtasks/view/actions').buildUrl();
+            backUrl = router.getRoute('administration/communicationtasks/view/actions').buildUrl(),
+            item2Remove;
 
         view.setLoading(true);
         errorMsgPnl.hide();
@@ -1240,7 +1201,6 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                     comTaskRecord.get(me.ACTIONS).push(newAction);
                 } else {
                     // Replace the old with the new action
-                    var item2Remove;
                     Ext.Array.each(comTaskRecord.get(me.ACTIONS), function(action) {
                         if (action.categoryId === newAction.categoryId) {
                             item2Remove = action;
@@ -1260,20 +1220,33 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         view.setLoading(false);
                     },
                     failure: function (record, requestObject) {
+                        if (busyAdding) {
+                            comTaskRecord.get(me.ACTIONS).pop();
+                        } else {
+                            comTaskRecord.get(me.ACTIONS).pop();
+                            comTaskRecord.get(me.ACTIONS).push(item2Remove);
+                        }
                         if (requestObject.error.status === 400) {
                             errorMsgPnl.show();
                             var result = Ext.decode(requestObject.response.responseText, true);
                             if (result) {
+                                var errorMessagesAlreadyProcessed = [];
+                                parameterErrorMsgPnl.removeAll();
                                 Ext.Array.each(result.errors, function(error) {
-                                    if (error.id === 'protocolTasks') {
-                                        parameterErrorMsgPnl.add({
-                                            xtype: 'container',
-                                            html: '<span style="color: #eb5642">' + Ext.String.htmlEncode(error.msg) + '</span>'
-                                        });
-                                        parameterErrorMsgPnl.show();
+                                    if (error.id === 'protocolTasks' ||
+                                        error.id === 'minimumClockDiff' ||
+                                        error.id === 'maximumClockDiff') {
+                                        if (errorMessagesAlreadyProcessed.indexOf(error.msg) === -1) {
+                                            errorMessagesAlreadyProcessed.push(error.msg);
+                                            parameterErrorMsgPnl.add({
+                                                xtype: 'container',
+                                                html: '<span style="color: #eb5642">' + Ext.String.htmlEncode(error.msg) + '</span>'
+                                            });
+                                            parameterErrorMsgPnl.show();
+                                        }
                                     }
                                 });
-                                form.markInvalid(result.errors);
+                                form.getForm().markInvalid(result.errors);
                             }
                         }
                         view.setLoading(false);
@@ -1403,12 +1376,10 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             actionsStore = Ext.getStore('Mdc.store.CommunicationTasksActions');
 
         widget.down('comtaskCommandCategoryCombo').setValue(command.categoryId);
-        widget.down('comtaskCommandCategoryCombo').setRawValue(command.category);
         widget.down('comtaskCommandCategoryCombo').disable();
         actionsStore.load({
             callback: function () {
                 widget.down('comtaskCommandCategoryActionCombo').setValue(command.actionId);
-                widget.down('comtaskCommandCategoryActionCombo').setRawValue(command.action);
                 widget.down('comtaskCommandCategoryActionCombo').disable();
                 if (!Ext.isEmpty(command.parameters)) {
                     me.setValuesToForm(command, widget);

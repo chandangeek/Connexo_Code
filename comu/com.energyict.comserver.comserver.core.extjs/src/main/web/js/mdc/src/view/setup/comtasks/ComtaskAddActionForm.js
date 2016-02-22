@@ -7,7 +7,6 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskAddActionForm', {
     ],
     router: null,
     cancelRoute: null,
-    categoriesStore: null,
     btnAction: null,
     btnText: null,
     ui: 'large',
@@ -47,7 +46,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskAddActionForm', {
             },
             {
                 xtype: 'container',
-                margin: '-25 0 30 215',
+                margin: '0 0 30 215',
                 itemId: 'mdc-comtask-addAction-parameter-error-message',
                 hidden: true
             },

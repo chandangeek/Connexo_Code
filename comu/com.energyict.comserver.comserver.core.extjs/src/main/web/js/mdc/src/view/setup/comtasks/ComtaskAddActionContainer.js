@@ -9,7 +9,6 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskAddActionContainer', {
     router: null,
     communicationTask: null,
     cancelRoute : null,
-    categoriesStore: null,
     btnAction: null,
     btnText: null,
 
@@ -21,7 +20,6 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskAddActionContainer', {
                 itemId: 'mdc-comtask-addAction-form',
                 router: me.router,
                 cancelRoute: me.cancelRoute,
-                categoriesStore: me.categoriesStore,
                 btnAction: me.btnAction,
                 btnText: me.btnText,
                 hideInfoMsg: true
