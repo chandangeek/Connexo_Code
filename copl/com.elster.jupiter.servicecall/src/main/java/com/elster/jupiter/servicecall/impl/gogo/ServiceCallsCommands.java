@@ -4,9 +4,7 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.servicecall.LogLevel;
-import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.*;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
@@ -25,7 +23,8 @@ import static java.util.stream.Collectors.toList;
         property = {"osgi.command.scope=scs",
                 "osgi.command.function=serviceCallTypes",
                 "osgi.command.function=createServiceCallType",
-                "osgi.command.function=customPropertySets"
+                "osgi.command.function=customPropertySets",
+                "osgi.command.function=createServiceCallLifeCycle"
         }, immediate = true)
 public class ServiceCallsCommands {
 
@@ -96,5 +95,27 @@ public class ServiceCallsCommands {
         customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).stream()
                 .map(cps -> cps.getId() + " " + cps.getCustomPropertySet().getName())
                 .forEach(System.out::println);
+    }
+
+    public void createServiceCallLifeCycle() {
+        System.out.println("Usage: createServiceCallLifeCycle <name> <operations>");
+        System.out.println("Operations: removeState:<state> removeTransition:<fromState>:<toState>");
+    }
+
+    public void createServiceCallLifeCycle(String name, String... operations) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallLifeCycleBuilder serviceCallLifeCycle = serviceCallService.createServiceCallLifeCycle(name);
+            for (String operation : operations) {
+                if (operation.contains("removeState:")) {
+                    serviceCallLifeCycle.remove(DefaultState.valueOf(operation.split(":")[1]));
+                } else if (operation.contains("removeTransition:")) {
+                    serviceCallLifeCycle.removeTransition(DefaultState.valueOf(operation.split(":")[1]),DefaultState.valueOf(operation.split(":")[2]));
+                }
+            }
+            serviceCallLifeCycle.create();
+            context.commit();
+        }
     }
 }
