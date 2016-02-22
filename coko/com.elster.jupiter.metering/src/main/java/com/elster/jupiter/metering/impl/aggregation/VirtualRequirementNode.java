@@ -86,6 +86,10 @@ class VirtualRequirementNode implements ServerExpressionNode {
         this.targetInterval = targetInterval;
     }
 
+    void finish() {
+        this.ensureVirtualized();
+    }
+
     /**
      * Ensures that the {@link ReadingTypeRequirement} is virtualized
      * @see #virtualize()

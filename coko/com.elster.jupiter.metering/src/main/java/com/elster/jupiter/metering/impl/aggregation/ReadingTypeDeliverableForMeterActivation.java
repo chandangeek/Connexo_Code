@@ -70,7 +70,7 @@ class ReadingTypeDeliverableForMeterActivation {
      * @return The id for SQL statements
      */
     String sqlName () {
-        return "rid" + this.getId() + "_" + this.getMeterActivationSequenceNumber();
+        return "rod" + this.getId() + "_" + this.getMeterActivationSequenceNumber();
     }
 
     private String sqlComment() {
@@ -81,6 +81,10 @@ class ReadingTypeDeliverableForMeterActivation {
         return this.getRange().toString();
     }
 
+    void finish() {
+        this.expressionNode.accept(new FinishRequirementAndDeliverableNodes());
+    }
+
     void appendDefinitionTo(ClauseAwareSqlBuilder sqlBuilder) {
         SqlBuilder withClauseBuilder = sqlBuilder.with(this.sqlName(), Optional.of(sqlComment()), SqlConstants.TimeSeriesColumnNames.names());
         // Todo: 1. clip the MeterActivation's range to the requested period
@@ -88,24 +92,23 @@ class ReadingTypeDeliverableForMeterActivation {
         if (this.expressionAggregationInterval != IntervalLength.from(this.deliverable.getReadingType())) {
             throw new UnsupportedOperationException("Aggregating " + ReadingTypeDeliverableForMeterActivation.class.getSimpleName() + " to IntervalLength different from expression interval length is not supported yet");
         }
-        this.appendSelectClause(withClauseBuilder);
-        this.appendFromClause(withClauseBuilder);
-        this.appendJoinClauses(withClauseBuilder);
+        this.appendWithSelectClause(withClauseBuilder);
+        this.appendWithFromClause(withClauseBuilder);
+        this.appendWithJoinClauses(withClauseBuilder);
+        this.appendSelectClause(sqlBuilder.select());
     }
 
-    private void appendSelectClause(SqlBuilder withClauseBuilder) {
-        withClauseBuilder.append("SELECT -1, ");
-        withClauseBuilder.add(this.expressionNode.accept(new ExpressionNodeToSql()));
-        withClauseBuilder.append(", ");
-        withClauseBuilder.append(this.expressionNode.accept(new LocalDateFromExpressionNode()));
+    private void appendWithSelectClause(SqlBuilder withClauseBuilder) {
+        withClauseBuilder.append("SELECT ");
+        SqlConstants.TimeSeriesColumnNames.appendAllDeliverableSelectValues(this.expressionNode, withClauseBuilder);
     }
 
-    private void appendFromClause(SqlBuilder sqlBuilderBuilder) {
+    private void appendWithFromClause(SqlBuilder sqlBuilderBuilder) {
         sqlBuilderBuilder.append("  FROM ");
         sqlBuilderBuilder.append(this.expressionNode.accept(new FromClauseForExpressionNode()));
     }
 
-    private void appendJoinClauses(SqlBuilder sqlBuilder) {
+    private void appendWithJoinClauses(SqlBuilder sqlBuilder) {
         JoinClausesForExpressionNode visitor = new JoinClausesForExpressionNode("  JOIN ");
         this.expressionNode.accept(visitor);
         Iterator<String> iterator = visitor.joinClauses().iterator();
@@ -115,6 +118,62 @@ class ReadingTypeDeliverableForMeterActivation {
             if (iterator.hasNext()) {
                 sqlBuilder.append("\n  ");
             }
+        }
+    }
+
+    private void appendSelectClause(SqlBuilder sqlBuilder) {
+        sqlBuilder.append("'");
+        sqlBuilder.append(this.deliverable.getReadingType().getMRID());
+        sqlBuilder.append("', ");
+        this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder);
+        sqlBuilder.append(", ");
+        this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.TIMESTAMP, sqlBuilder);
+        sqlBuilder.append("\n  FROM ");
+        sqlBuilder.append(this.sqlName());
+    }
+
+    private void appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames columnName, SqlBuilder sqlBuilder) {
+        sqlBuilder.append(this.sqlName());
+        sqlBuilder.append(".");
+        sqlBuilder.append(columnName.sqlName());
+    }
+
+    private class FinishRequirementAndDeliverableNodes implements ServerExpressionNode.Visitor<Void> {
+        @Override
+        public Void visitVirtualRequirement(VirtualRequirementNode requirement) {
+            requirement.finish();
+            return null;
+        }
+
+        @Override
+        public Void visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
+            deliverable.finish();
+            return null;
+        }
+
+        @Override
+        public Void visitConstant(NumericalConstantNode constant) {
+            // Nothing to finish here
+            return null;
+        }
+
+        @Override
+        public Void visitConstant(StringConstantNode constant) {
+            // Nothing to finish here
+            return null;
+        }
+
+        @Override
+        public Void visitOperation(OperationNode operation) {
+            operation.getLeftOperand().accept(this);
+            operation.getRightOperand().accept(this);
+            return null;
+        }
+
+        @Override
+        public Void visitFunctionCall(FunctionCallNode functionCall) {
+            functionCall.getArguments().forEach(child -> child.accept(this));
+            return null;
         }
     }
 

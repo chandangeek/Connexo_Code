@@ -74,6 +74,7 @@ public class VirtualReadingTypeRequirement {
                         .getTimeSeries()
                         .getRawValuesSql(
                                 this.meterActivation.getRange(),
+                                SqlConstants.TimeSeriesColumnNames.LOCALDATE.fieldSpecName(),
                                 SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.fieldSpecName(),
                                 SqlConstants.TimeSeriesColumnNames.VALUE.fieldSpecName()));
     }

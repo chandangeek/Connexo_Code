@@ -174,18 +174,31 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
         this.sqlBuilder = this.sqlBuilderFactory.newClauseAwareSqlBuilder();
         this.appendAllToSqlBuilder();
         SqlBuilder fullSqlBuilder = this.sqlBuilder.finish();
-        fullSqlBuilder.append("order by 3 desc, 1");
+        fullSqlBuilder.append("\n ORDER BY 3 DESC, 1");
         return fullSqlBuilder;
     }
 
     private void appendAllToSqlBuilder() {
+        /* Oracle requires that all WITH clauses are generated in the correct order,
+         * i.e. one WITH clause can only refer to an already defined with clause.
+         * It suffices to append the definition for all requirements and deliverables
+         * first but therefore we need to virtualize them all first. */
+        this.deliverablesPerMeterActivation
+                .values()
+                .stream()
+                .flatMap(Collection::stream)
+                .forEach(this::finish);
+        this.virtualFactory.allRequirements().stream().forEach(requirement -> requirement.appendDefinitionTo(this.sqlBuilder));
+        this.virtualFactory.allDeliverables().stream().forEach(requirement -> requirement.appendDefinitionTo(this.sqlBuilder));
         this.deliverablesPerMeterActivation
                 .values()
                 .stream()
                 .flatMap(Collection::stream)
                 .forEach(each -> each.appendDefinitionTo(this.sqlBuilder));
-        this.virtualFactory.allRequirements().stream().forEach(requirement -> requirement.appendDefinitionTo(this.sqlBuilder));
-        this.virtualFactory.allDeliverables().stream().forEach(requirement -> requirement.appendDefinitionTo(this.sqlBuilder));
+    }
+
+    private void finish(ReadingTypeDeliverableForMeterActivation readingTypeDeliverableForMeterActivation) {
+        readingTypeDeliverableForMeterActivation.finish();
     }
 
     private List<AggregatedReadingRecord> execute(SqlBuilder sqlBuilder) throws SQLException {

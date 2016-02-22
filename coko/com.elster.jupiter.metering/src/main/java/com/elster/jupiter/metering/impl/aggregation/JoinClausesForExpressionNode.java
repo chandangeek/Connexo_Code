@@ -33,7 +33,7 @@ public class JoinClausesForExpressionNode implements ServerExpressionNode.Visito
     }
 
     private String toJoinClause(String joinTableName) {
-        return this.joinPrefix + joinTableName + " on " + joinTableName + "." + SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName() + " = " + this.fromTableName + "." + SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName();
+        return this.joinPrefix + joinTableName + " ON " + joinTableName + "." + SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName() + " = " + this.fromTableName + "." + SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName();
     }
 
     private void visitTableName(String tableName) {

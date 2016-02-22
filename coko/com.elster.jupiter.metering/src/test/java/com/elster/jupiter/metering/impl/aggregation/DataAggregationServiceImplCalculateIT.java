@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
@@ -85,8 +86,12 @@ public class DataAggregationServiceImplCalculateIT {
 
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private static Injector injector;
-    private static ReadingType fifteenMinuteskWh;
+    private static ReadingType fifteenMinuteskWhForward;
+    private static ReadingType fifteenMinuteskWhReverse;
     private static Instant jan1st2016 = Instant.ofEpochMilli(1420070400000L);
+    private static long PRODUCTION_REQUIREMENT_ID = 97L;
+    private static long CONSUMPTION_REQUIREMENT_ID = PRODUCTION_REQUIREMENT_ID + 1;
+    private static long NET_CONSUMPTION_DELIVERABLE_ID = CONSUMPTION_REQUIREMENT_ID + 1;
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(injector.getInstance(TransactionService.class));
@@ -95,11 +100,9 @@ public class DataAggregationServiceImplCalculateIT {
     private MetrologyConfiguration configuration;
     @Mock
     private MetrologyContract contract;
-    private Meter productionMeter;
-    private MeterActivation productionMeterActivation;
-    private Meter consumptionMeter;
+    private Meter meter;
+    private MeterActivation meterActivation;
     private Channel production15MinChannel;
-    private MeterActivation consumptionMeterActivation;
     private Channel consumption15MinChannel;
     private UsagePoint usagePoint;
 
@@ -127,7 +130,9 @@ public class DataAggregationServiceImplCalculateIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new MeteringModule(
-                            "0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.0.72.0"   // no macro period, measuring period =  15 min, primary metered
+                            "0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.0.72.0",    // no macro period, measuring period =  15 min, primary metered, forward
+                            "0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.0.72.0",   // no macro period, measuring period =  15 min, primary metered, reverse
+                            "0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0"     // no macro period, measuring period =  15 min, primary metered, net
                     ),
                     new UserModule(),
                     new PartyModule(),
@@ -163,27 +168,26 @@ public class DataAggregationServiceImplCalculateIT {
 
     private static void setupReadingTypes() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            fifteenMinuteskWh = getMeteringService().getReadingType("0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.0.72.0").get();
+            fifteenMinuteskWhForward = getMeteringService().getReadingType("0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.0.72.0").get();
+            fifteenMinuteskWhReverse = getMeteringService().getReadingType("0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.0.72.0").get();
             ctx.commit();
         }
     }
 
-    private void setupMeters(String amrIdBase) {
+    private void setupMeter(String amrIdBase) {
         AmrSystem mdc = getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        this.productionMeter = mdc.newMeter(amrIdBase + "A+").create();
-        this.consumptionMeter = mdc.newMeter(amrIdBase + "A-").create();
+        this.meter = mdc.newMeter(amrIdBase).create();
     }
 
-    private void setupUsagePoints(String mRID) {
+    private void setupUsagePoint(String mRID) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         this.usagePoint = electricity.newUsagePoint(mRID).create();
     }
 
-    private void activateMeters() {
-        this.productionMeterActivation = this.usagePoint.activate(this.productionMeter, jan1st2016);
-        this.production15MinChannel = this.productionMeterActivation.createChannel(fifteenMinuteskWh);
-        this.consumptionMeterActivation = this.usagePoint.activate(this.consumptionMeter, jan1st2016);
-        this.consumption15MinChannel = this.consumptionMeterActivation.createChannel(fifteenMinuteskWh);
+    private void activateMeter() {
+        this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
+        this.production15MinChannel = this.meterActivation.createChannel(fifteenMinuteskWhForward);
+        this.consumption15MinChannel = this.meterActivation.createChannel(fifteenMinuteskWhReverse);
     }
 
     @AfterClass
@@ -211,18 +215,21 @@ public class DataAggregationServiceImplCalculateIT {
     @Transactional
     public void simplestNetConsumptionOfProsumer() {
         DataAggregationService service = this.testInstance();
-        this.setupMeters("simplestNetConsumptionOfProsumer");
-        this.setupUsagePoints("simplestNetConsumptionOfProsumer");
-        this.activateMeters();
+        this.setupMeter("simplestNetConsumptionOfProsumer");
+        this.setupUsagePoint("simplestNetConsumptionOfProsumer");
+        this.activateMeter();
 
         // Setup configuration requirements
         ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
         when(consumption.getName()).thenReturn("A-");
+        when(consumption.getId()).thenReturn(CONSUMPTION_REQUIREMENT_ID);
         ReadingTypeRequirement production = mock(ReadingTypeRequirement.class);
         when(production.getName()).thenReturn("A+");
+        when(production.getId()).thenReturn(PRODUCTION_REQUIREMENT_ID);
         when(this.configuration.getRequirements()).thenReturn(Arrays.asList(consumption, production));
         // Setup configuration deliverables
         ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
+        when(netConsumption.getId()).thenReturn(NET_CONSUMPTION_DELIVERABLE_ID);
         when(netConsumption.getName()).thenReturn("consumption");
         ReadingType netConsumptionReadingType = this.mock15minReadingType();
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
@@ -238,10 +245,10 @@ public class DataAggregationServiceImplCalculateIT {
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));
         // Setup meter activations
-        when(consumption.getMatchesFor(this.consumptionMeterActivation)).thenReturn(Collections.singletonList(fifteenMinuteskWh));
-        when(consumption.getMatchingChannelsFor(this.consumptionMeterActivation)).thenReturn(Collections.singletonList(this.consumption15MinChannel));
-        when(production.getMatchesFor(this.productionMeterActivation)).thenReturn(Collections.singletonList(fifteenMinuteskWh));
-        when(production.getMatchingChannelsFor(this.productionMeterActivation)).thenReturn(Collections.singletonList(this.production15MinChannel));
+        when(consumption.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinuteskWhForward));
+        when(consumption.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(this.consumption15MinChannel));
+        when(production.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinuteskWhReverse));
+        when(production.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(this.production15MinChannel));
 
         // Business method
         List<? extends BaseReadingRecord> aggregatedRecords = service.calculate(this.usagePoint, this.contract, year2016());
@@ -255,17 +262,12 @@ public class DataAggregationServiceImplCalculateIT {
     }
 
     private ReadingType mock15minReadingType() {
-        ReadingType meterActivationReadingType = mock(ReadingType.class);
-        when(meterActivationReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
-        when(meterActivationReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
-        return meterActivationReadingType;
-    }
-
-    private ReadingType mockHourlyReadingType() {
-        ReadingType meterActivationReadingType = mock(ReadingType.class);
-        when(meterActivationReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
-        when(meterActivationReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE60);
-        return meterActivationReadingType;
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(readingType.getFlowDirection()).thenReturn(FlowDirection.NET);
+        when(readingType.getMRID()).thenReturn("0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0");
+        return readingType;
     }
 
     private DataAggregationService testInstance() {

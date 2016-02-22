@@ -4,34 +4,45 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link ServerExpressionNode.Visitor}
- * and returns the name of the SQL table (as String) that holds the data
- * of the visited {@link com.elster.jupiter.metering.impl.config.ExpressionNode}
- * or <code>null</code> if the ExpressionNode is not backed by a SQL table.
+ * Provides an implementation for the {@link ServerExpressionNode.Visitor} interface
+ * and returns a SQL construct (as String) that provides the UTC timestamp for the visited
+ * {@link com.elster.jupiter.metering.impl.config.ExpressionNode}
+ * or <code>0</code> if the ExpressionNode cannot provide a UTC timestamp.
+ * A {@link NumericalConstantNode} is a good example of that.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-18 (13:28)
  */
-public class FromClauseForExpressionNode implements ServerExpressionNode.Visitor<String> {
+public class TimeStampFromExpressionNode implements ServerExpressionNode.Visitor<String> {
+
+    /**
+     * The value that will be used for expression that cannot support UTC timestamps.
+     * Good examples of such expressions are:
+     * <ul>
+     * <li>NumericalConstantNode</li>
+     * <li>StringConstantNode</li>
+     * </ul>
+     */
+    private static final String FIXED_TIMESTAMP_VALUE = "0";
 
     @Override
     public String visitConstant(NumericalConstantNode constant) {
-        return null;
+        return FIXED_TIMESTAMP_VALUE;
     }
 
     @Override
     public String visitConstant(StringConstantNode constant) {
-        return null;
+        return FIXED_TIMESTAMP_VALUE;
     }
 
     @Override
     public String visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
-        return deliverable.sqlName();
+        return deliverable.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName();
     }
 
     @Override
     public String visitVirtualRequirement(VirtualRequirementNode requirement) {
-        return requirement.sqlName();
+        return requirement.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName();
     }
 
     @Override
