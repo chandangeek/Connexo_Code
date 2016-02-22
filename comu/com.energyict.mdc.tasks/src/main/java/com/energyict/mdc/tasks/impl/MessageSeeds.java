@@ -1,8 +1,7 @@
 package com.energyict.mdc.tasks.impl;
 
-import com.energyict.mdc.tasks.TaskService;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.tasks.TaskService;
 
 import java.util.logging.Level;
 
@@ -21,9 +20,7 @@ public enum MessageSeeds implements MessageSeed {
     MIN_ABOVE_MAX(6, Keys.MIN_MUST_BE_BELOW_MAX, "Invalid range: minimum value exceeds maximum value"),
     MIN_EQUALS_MAX(7, Keys.MIN_EQUALS_MAX, "Invalid range: minimum value equals maximum value "),
     TIMEDURATION_IS_NULL(8, Keys.TIMEDURATION_MUST_BE_POSITIVE, "Field must denote non-0 duration"),
-    SIZE_TOO_LONG(9, Keys.SIZE_TOO_LONG, "Field exceeds max size of {max} characters"),
-    DUPLICATE_COMTASK_NAME(10, Keys.DUPLICATE_COMTASK_NAME, "A ComTask by this name already exists"),
-    FIELD_SIZE_INCORRECT(12, Keys.FIELD_TOO_LONG, "Field size should be exceed {max} characters"),
+    DUPLICATE_COMTASK_NAME(10, Keys.DUPLICATE_COMTASK_NAME, "Name must be unique"),
     DUPLICATE_PROTOCOL_TASK_TYPE_IN_COMTASK(13, Keys.DUPLICATE_PROTOCOL_TASK_TYPE_IN_COM_TASK, "ComTask contains multiple ProtocolTasks of the same type"),
     VETO_LOG_BOOK_TYPE_DELETION(14, Keys.VETO_LOG_BOOK_TYPE_DELETION, "Log book type ''{0}'' is still in use by the following communication task(s): ''{1}''"),
     VETO_LOAD_PROFILE_TYPE_DELETION(15, Keys.VETO_LOAD_PROFILE_TYPE_DELETION, "Load profile type ''{0}'' is still in use by the following communication task(s): ''{1}''"),
