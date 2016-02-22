@@ -5,11 +5,13 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskActionActionMenu', {
     items: [
         {
             text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-            action: 'editComTaskAction'
+            action: 'editComTaskAction',
+            privileges: Mdc.privileges.Communication.admin
         },
         {
             text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-            action: 'deleteComTaskAction'
+            action: 'deleteComTaskAction',
+            privileges: Mdc.privileges.Communication.admin
         }
     ]
 });

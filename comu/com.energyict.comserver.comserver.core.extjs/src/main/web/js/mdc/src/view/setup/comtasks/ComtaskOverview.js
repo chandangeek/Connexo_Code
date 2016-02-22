@@ -30,6 +30,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskOverview', {
                     xtype: 'button',
                     text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                     iconCls: 'x-uni-action-iconD',
+                    privileges: Mdc.privileges.Communication.admin,
                     margin: '20 0 0 0',
                     menu: {
                         xtype: 'comtaskActionMenu',

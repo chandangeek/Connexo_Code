@@ -306,7 +306,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                     }),
                     widget,
                     onCategoriesLoaded = function() {
-                        if (actionsStore.getCount() < me.categoriesStore.totalCount) {
+                        if ( widget.down('#add-communication-task-action') && actionsStore.getCount() < me.categoriesStore.totalCount) {
                             widget.down('#add-communication-task-action').setDisabled(false);
                         }
                     },
@@ -376,7 +376,8 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         me.getApplication().fireEvent('changecontentevent', widget);
 
                         var onCommandCategoriesLoaded = function() {
-                            if (categoriesStore.getCount() < me.commandCategoriesStore.totalCount) {
+                            if ( widget.down('#add-command-category-action') &&
+                                 categoriesStore.getCount() < me.commandCategoriesStore.totalCount ) {
                                 widget.down('#add-command-category-action').setDisabled(false);
                             }
                         };

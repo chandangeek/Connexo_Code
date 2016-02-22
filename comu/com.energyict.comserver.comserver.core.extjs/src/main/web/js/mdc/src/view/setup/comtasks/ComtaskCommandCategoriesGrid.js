@@ -28,6 +28,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCommandCategoriesGrid', {
                 header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 iconCls: 'uni-icon-delete',
                 width: 90,
+                privileges: Mdc.privileges.Communication.admin,
                 items: [
                     {
                         tooltip: Uni.I18n.translate('general.remove', 'DLC', 'Remove'),
