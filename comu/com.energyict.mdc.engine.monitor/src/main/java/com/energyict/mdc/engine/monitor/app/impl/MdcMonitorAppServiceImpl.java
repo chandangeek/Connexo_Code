@@ -84,6 +84,7 @@ public class MdcMonitorAppServiceImpl implements MdcMonitorAppService , Translat
         this.engineConfigurationService = engineConfigurationService;
     }
 
+    @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
