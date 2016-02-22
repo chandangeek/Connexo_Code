@@ -874,7 +874,9 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             record.save({
                 success: function (newComTaskRecord) {
                     me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translate('comtask.saved', 'MDC', 'Communication task saved')
+                        btn.action === 'save'
+                        ? Uni.I18n.translate('comtask.saved', 'MDC', 'Communication task saved')
+                        : Uni.I18n.translate('comtask.created', 'MDC', 'Communication task created')
                     );
                     window.location.href = me.goToTaskOverview
                         ? router.getRoute('administration/communicationtasks/view').
