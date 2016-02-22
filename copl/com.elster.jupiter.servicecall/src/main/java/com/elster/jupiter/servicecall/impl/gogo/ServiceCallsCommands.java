@@ -64,7 +64,7 @@ public class ServiceCallsCommands {
     }
 
     public void createServiceCallType() {
-        System.out.println("Usage: createServiceCallType <name> <version name> <optional:loglevel> <optional:cps ids>");
+        System.out.println("Usage: createServiceCallType <name> <version name> <optional:log level> <optional:cps ids>");
     }
 
     public void createServiceCallType(String name, String versionName) {
@@ -98,7 +98,7 @@ public class ServiceCallsCommands {
     }
 
     public void createServiceCallLifeCycle() {
-        System.out.println("Usage: createServiceCallLifeCycle <name> <operations>");
+        System.out.println("Usage: createServiceCallLifeCycle <name> <optional:operations>");
         System.out.println("Operations: removeState:<state> removeTransition:<fromState>:<toState>");
     }
 
