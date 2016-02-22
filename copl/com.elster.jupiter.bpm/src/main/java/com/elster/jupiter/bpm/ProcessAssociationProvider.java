@@ -1,16 +1,18 @@
 package com.elster.jupiter.bpm;
 
 
+import com.elster.jupiter.properties.HasDynamicProperties;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.HasName;
+
+import aQute.bnd.annotation.ProviderType;
+
+import javax.ws.rs.Produces;
 import java.util.List;
 import java.util.Map;
 
-public interface ProcessAssociationProvider {
-
-    String getName();
-
-    List<Map<String,String>> getDataProperties(BpmProcessDefinition bpmProcessDefinition);
+@ProviderType
+public interface ProcessAssociationProvider extends HasName, HasDynamicProperties {
 
     String getType();
-
-    void update(BpmProcessDefinition bpmProcessDefinition, List<Map<String,String>> associationData);
 }

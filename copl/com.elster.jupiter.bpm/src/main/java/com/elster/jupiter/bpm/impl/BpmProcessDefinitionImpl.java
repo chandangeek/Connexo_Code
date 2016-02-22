@@ -6,7 +6,10 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.collections.ArrayDiffList;
+import com.elster.jupiter.util.collections.DiffList;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -16,29 +19,33 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
 
     private long id;
     private String type;
-    private final DataModel dataModel;
     private String processName;
     private String association;
     private String version;
     private String status;
-    private List<BpmProcessPrivilege> processPrivileges = new ArrayList<>();
-    private List<Map<String, String>> associationData;
 
+    @Valid
+    private List<BpmProcessPrivilege> processPrivileges = new ArrayList<>();
+
+    @Valid
+    private List<BpmProcessProperty> properties = new ArrayList<>();
 
     private final BpmService bpmService;
-    private final UserService userService;
+    private final DataModel dataModel;
 
     @Inject
-    public BpmProcessDefinitionImpl(DataModel dataModel,BpmService bpmService, UserService userService){
+    public BpmProcessDefinitionImpl(DataModel dataModel,BpmService bpmService){
         this.dataModel = dataModel;
         this.bpmService = bpmService;
-        this.userService = userService;
     }
 
     static BpmProcessDefinitionImpl from(DataModel dataModel, String processName, String association, String version, String status ){
@@ -55,12 +62,12 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
 
     @Override
     public void revokePrivileges(List<BpmProcessPrivilege> processPrivileges){
-            processPrivileges.stream().forEach(BpmProcessPrivilege::delete);
+        processPrivileges.stream().forEach(BpmProcessPrivilege::delete);
     }
 
     @Override
     public void grantPrivileges(List<BpmProcessPrivilege> targetPrivileges){
-            targetPrivileges.stream().forEach(BpmProcessPrivilege::persist);
+        targetPrivileges.stream().forEach(BpmProcessPrivilege::persist);
     }
 
     @Override
@@ -74,8 +81,8 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     }
 
     @Override
-    public String getAssociation() {
-        return association;
+    public Optional<ProcessAssociationProvider> getAssociation() {
+        return bpmService.getProcessAssociationProvider(association);
     }
 
     @Override
@@ -113,14 +120,49 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     }
 
     @Override
-    public List<Map<String, String>> getAssociationData() {
-        return associationData;
+    public List<BpmProcessProperty> getProcessDefinitionProperties() {
+        return Collections.unmodifiableList(properties);
     }
 
     @Override
-    public void setAssociationData(List<Map<String, String>> associationData) {
-        this.associationData = associationData;
+    public Map<String, Object> getProperties() {
+        return properties.stream().collect(Collectors.toMap(BpmProcessProperty::getName, BpmProcessProperty::getValue));
     }
 
+    void setProperties(Map<String, Object> propertyMap) {
+        Map<String, BpmProcessProperty> originalProps = properties.stream().collect(Collectors.toMap(BpmProcessProperty::getName, Function.identity()));
+        DiffList<String> entryDiff = ArrayDiffList.fromOriginal(originalProps.keySet());
+        entryDiff.clear();
+        entryDiff.addAll(propertyMap.keySet());
 
+        for (String property : entryDiff.getRemovals()) {
+            BpmProcessProperty bpmProcessProperty = originalProps.get(property);
+            properties.remove(bpmProcessProperty);
+        }
+
+        for (String property : entryDiff.getRemaining()) {
+            BpmProcessProperty bpmProcessProperty = originalProps.get(property);
+            bpmProcessProperty.setValue(propertyMap.get(property));
+            dataModel.mapper(BpmProcessProperty.class).update(bpmProcessProperty);
+        }
+
+        for (String property : entryDiff.getAdditions()) {
+            addProperty(property, propertyMap.get(property));
+        }
+    }
+
+    BpmProcessProperty addProperty(String name, Object value) {
+        BpmProcessProperty newProperty = dataModel.getInstance(BpmProcessPropertyImpl.class).init(this, name, value);
+        properties.add(newProperty);
+        return newProperty;
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        Optional<ProcessAssociationProvider> processAssociationProvider  =getAssociation();
+        if(processAssociationProvider.isPresent()) {
+            return processAssociationProvider.get().getPropertySpecs();
+        }
+        return Collections.EMPTY_LIST;
+    }
 }

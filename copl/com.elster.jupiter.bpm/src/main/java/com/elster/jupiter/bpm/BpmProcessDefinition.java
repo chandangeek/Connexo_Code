@@ -1,10 +1,13 @@
 package com.elster.jupiter.bpm;
 
 
+import com.elster.jupiter.properties.HasDynamicPropertiesWithValues;
+
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-public interface BpmProcessDefinition {
+public interface BpmProcessDefinition extends HasDynamicPropertiesWithValues {
 
     void revokePrivileges(List<BpmProcessPrivilege> processPrivileges);
 
@@ -14,7 +17,7 @@ public interface BpmProcessDefinition {
 
     String getProcessName();
 
-    String getAssociation();
+    Optional<ProcessAssociationProvider> getAssociation();
 
     String getVersion();
 
@@ -28,8 +31,5 @@ public interface BpmProcessDefinition {
 
     List<BpmProcessPrivilege> getPrivileges();
 
-    List<Map<String, String>> getAssociationData();
-
-    void setAssociationData(List<Map<String, String>> associationData);
-
+    List<BpmProcessProperty> getProcessDefinitionProperties();
 }

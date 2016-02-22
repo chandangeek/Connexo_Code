@@ -75,15 +75,19 @@ public class BpmProcessPrivilegeImpl implements BpmProcessPrivilege {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         BpmProcessPrivilegeImpl that = (BpmProcessPrivilegeImpl) o;
 
-        if (processId != that.processId) return false;
-        if (!privilegeName.equals(that.privilegeName)) return false;
+        if (processId != that.processId || !privilegeName.equals(that.privilegeName)) {
+            return false;
+        }
         return application.equals(that.application);
-
     }
 
     @Override

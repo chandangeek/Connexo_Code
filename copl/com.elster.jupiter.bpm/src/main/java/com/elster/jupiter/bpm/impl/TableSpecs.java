@@ -3,12 +3,15 @@ package com.elster.jupiter.bpm.impl;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmProcessPrivilege;
+import com.elster.jupiter.bpm.BpmProcessProperty;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 
 public enum TableSpecs {
@@ -23,6 +26,21 @@ public enum TableSpecs {
             table.column("VERSION").varChar(NAME_LENGTH).notNull().map("version").add();
             table.column("STATUS").varChar(NAME_LENGTH).notNull().map("status").add();
             table.primaryKey("BPM_PK_PROCESS").on(idColumn).add();
+        }
+    },
+    BPM_PROCESS_PROPERTIES(BpmProcessProperty.class) {
+        @Override
+        void describeTable(Table table) {
+            table.map(BpmProcessPropertyImpl.class);
+
+            Column nameColumn = table.column("NAME").map("name").varChar(NAME_LENGTH).notNull().add();
+            Column processColumn = table.column("PROCESSID").type("number").conversion(NUMBER2LONG).notNull().add();
+            table.column("VALUE").map("value").varChar(SHORT_DESCRIPTION_LENGTH).notNull().add();
+            table.addAuditColumns();
+
+            table.primaryKey("BPM_PROPS_PK_NAME").on(nameColumn, processColumn).add();
+            table.foreignKey("BPM_PROPS_FK_TO_PROCESS").on(processColumn).references(BPM_PROCESS.name())
+                    .map("rule").reverseMap("properties").composition().onDelete(DeleteRule.CASCADE).add();
         }
     },
     BPM_PROCESS_PRIVILEGE(BpmProcessPrivilege.class) {
