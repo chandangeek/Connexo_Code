@@ -627,34 +627,39 @@ public class JbpmTaskResource {
     public TaskGroupsInfos checkMandatoryTask(TaskGroupsInfos taskGroupsInfos, @Context UriInfo uriInfo){
         List<TaskGroupsInfo> taskGroups = new ArrayList<>();
         List<Long> taskIds = taskGroupsInfos.taskGroups.get(0).taskIds;
-        Map<ProcessAssetDesc, List<Task>> groupedTasks = new HashMap<>();
+        Map<Map<ProcessAssetDesc,String>, List<Task>> groupedTasks = new HashMap<>();
         for(Long id: taskIds){
             Task task = internalTaskService.getTaskById(id);
-            if(task != null) {
-                ProcessAssetDesc process = null;
-                Collection<ProcessAssetDesc> processesList = runtimeDataService.getProcessesByDeploymentId(task.getTaskData().getDeploymentId());
-                for (ProcessAssetDesc each : processesList) {
-                    if (each.getDeploymentId().equals(task.getTaskData().getDeploymentId())) {
-                        process = each;
+                if (task != null) {
+                    if(!task.getTaskData().getStatus().equals(Status.Completed)) {
+                    ProcessAssetDesc process = null;
+                    Collection<ProcessAssetDesc> processesList = runtimeDataService.getProcessesByDeploymentId(task.getTaskData().getDeploymentId());
+                    for (ProcessAssetDesc each : processesList) {
+                        if (each.getDeploymentId().equals(task.getTaskData().getDeploymentId())) {
+                            process = each;
+                        }
                     }
-                }
-                if (groupedTasks.containsKey(process)) {
-                    List<Task> listOfTasks = new ArrayList<>(groupedTasks.get(process));
-                    listOfTasks.add(task);
-                    groupedTasks.put(process, listOfTasks);
-                } else {
-                    groupedTasks.put(process, Collections.singletonList(task));
+                    Map<ProcessAssetDesc, String> proc = new HashMap<>();
+                    proc.put(process, ((InternalTask) task).getFormName());
+                    if (groupedTasks.containsKey(proc)) {
+                        List<Task> listOfTasks = new ArrayList<>(groupedTasks.get(proc));
+                        listOfTasks.add(task);
+                        groupedTasks.put(proc, listOfTasks);
+                    } else {
+                        groupedTasks.put(proc, Collections.singletonList(task));
+                    }
                 }
             }
         }
-        for (Map.Entry<ProcessAssetDesc, List<Task>> entry : groupedTasks.entrySet()){
+        for (Map.Entry<Map<ProcessAssetDesc,String>, List<Task>> entry : groupedTasks.entrySet()){
             ConnexoForm form = getTaskContent(entry.getValue().get(0).getId());
             List<Long> ids = new ArrayList<>();
             for(Task each : entry.getValue()){
                 ids.add(each.getId());
             }
             form.taskStatus = Status.InProgress;
-            taskGroups.add(new TaskGroupsInfo(entry.getValue().get(0).getName(), entry.getKey().getName(), entry.getKey().getVersion(), ids, hasFormMandatoryFields(form), form));
+            Map.Entry<ProcessAssetDesc, String> entryKey = entry.getKey().entrySet().iterator().next();
+            taskGroups.add(new TaskGroupsInfo(entry.getValue().get(0).getName(), entryKey.getKey().getName(), entryKey.getKey().getVersion(), ids, hasFormMandatoryFields(form), form));
         }
         return new TaskGroupsInfos(taskGroups);
     }
@@ -709,26 +714,28 @@ public class JbpmTaskResource {
             if (getQueryValue(uriInfo, "currentuser") != null) {
                 for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
                     for(Long taskId: taskGroup.taskIds){
-                        if(internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Ready)) {
-                            assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId);
-                        }
-                        if(internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Created)) {
-                            assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId);
-                            internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
-                        }
-                        if(internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Reserved)){
-                            if(!internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId().equals(getQueryValue(uriInfo, "currentuser"))){
-                                assignTaskToUser(getQueryValue(uriInfo, "currentuser"), internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId(), taskId);
+                        if(!internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Completed)) {
+                            if (internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Ready)) {
+                                assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId);
                             }
-                            internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
-                        }
-                        if(internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.InProgress)){
-                            if(!internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId().equals(getQueryValue(uriInfo, "currentuser"))) {
+                            if (internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Created)) {
                                 assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId);
                                 internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
                             }
+                            if (internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Reserved)) {
+                                if (!internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId().equals(getQueryValue(uriInfo, "currentuser"))) {
+                                    assignTaskToUser(getQueryValue(uriInfo, "currentuser"), internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId(), taskId);
+                                }
+                                internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
+                            }
+                            if (internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.InProgress)) {
+                                if (!internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId().equals(getQueryValue(uriInfo, "currentuser"))) {
+                                    assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId);
+                                    internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
+                                }
+                            }
+                            internalTaskService.complete(taskId, getQueryValue(uriInfo, "currentuser"), taskGroup.outputBindingContents);
                         }
-                        internalTaskService.complete(taskId, getQueryValue(uriInfo, "currentuser"), taskGroup.outputBindingContents);
                     }
                 }
             }
