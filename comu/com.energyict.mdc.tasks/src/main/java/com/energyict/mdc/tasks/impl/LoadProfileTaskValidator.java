@@ -21,7 +21,7 @@ public class LoadProfileTaskValidator implements ConstraintValidator<ValidLoadPr
             else {
                 if (value.getMinClockDiffBeforeBadTime().get().getCount() <= 0) {
                     context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.VALUE_TOO_SMALL +"}").addPropertyNode(LoadProfilesTaskImpl.Fields.MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()).addConstraintViolation();
+                    context.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.TIMEDURATION_MUST_BE_POSITIVE +"}").addPropertyNode(LoadProfilesTaskImpl.Fields.MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()).addConstraintViolation();
                     valid = false;
                 }
             }
