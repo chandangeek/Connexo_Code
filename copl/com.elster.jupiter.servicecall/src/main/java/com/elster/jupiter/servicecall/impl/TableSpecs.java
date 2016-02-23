@@ -82,15 +82,13 @@ public enum TableSpecs {
         void describeTable(Table table) {
             table.map(ServiceCallImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("CREATIONDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).notNull().map(ServiceCallImpl.Fields.creationDate.fieldName()).add();
-            table.column("LASTMODIFICATIONDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).notNull().map(ServiceCallImpl.Fields.lastModificationDate.fieldName()).add();
-            table.column("LASTCOMPLETEDDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map(ServiceCallImpl.Fields.lastCompletedDate.fieldName()).add();
+            table.column("PARENT").number().add();
+            table.column("LASTCOMPLETEDTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map(ServiceCallImpl.Fields.lastCompletedTime.fieldName()).add();
             table.column("STATE").number().conversion(ColumnConversion.NUMBER2ENUM).map(ServiceCallImpl.Fields.state.fieldName()).add();
             table.column("ORIGIN").varChar(NAME_LENGTH).map(ServiceCallImpl.Fields.origin.fieldName()).add();
             table.column("EXTERNALREFERENCE").varChar(NAME_LENGTH).map(ServiceCallImpl.Fields.externalReference.fieldName()).add();
             Column serviceCallType = table.column("SERVICECALLTYPE").number().notNull().add();
             table.addAuditColumns();
-
 
             table.foreignKey("FK_SCS_SERVICECALL_SCT").
                     on(serviceCallType).

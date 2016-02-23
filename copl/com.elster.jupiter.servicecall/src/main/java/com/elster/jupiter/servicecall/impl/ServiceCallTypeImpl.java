@@ -6,8 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
-import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
-import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.Status;
 
 import javax.inject.Inject;
@@ -15,7 +14,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -125,17 +123,6 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     }
 
     @Override
-    public Optional<DefaultState> getCurrentLifeCycleState() {
-        return Optional.ofNullable(currentLifeCycleState);
-    }
-
-    @Override
-    public void setCurrentLifeCycleState(DefaultState currentLifeCycleState) {
-        // todo transition life cycle
-        this.currentLifeCycleState = currentLifeCycleState;
-    }
-
-    @Override
     public List<RegisteredCustomPropertySet> getCustomPropertySets() {
         return customPropertySets.stream().map(ServiceCallTypeCustomPropertySetUsage::getCustomPropertySet).collect(toList());
     }
@@ -169,5 +156,10 @@ public class ServiceCallTypeImpl implements IServiceCallType {
             Save.CREATE.save(this.dataModel, this, Save.Create.class);
         }
 
+    }
+
+    @Override
+    public ServiceCallBuilder newServiceCall() {
+        return ServiceCallBuilderImpl.from(dataModel, this);
     }
 }

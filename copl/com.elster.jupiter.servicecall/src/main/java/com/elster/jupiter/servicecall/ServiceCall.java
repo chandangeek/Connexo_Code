@@ -1,12 +1,10 @@
 package com.elster.jupiter.servicecall;
 
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.HasName;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -15,6 +13,7 @@ import java.util.Optional;
  *
  * Created by bvn on 2/4/16.
  */
+@ProviderType
 public interface ServiceCall extends HasId {
 
     String getNumber();
@@ -33,13 +32,13 @@ public interface ServiceCall extends HasId {
 
     Optional<String> getExternalReference();
 
-    Optional<List<RegisteredCustomPropertySet>> getCustomProperties();
-
-    Optional<RefAny> getTargetObject();
+    Optional<?> getTargetObject();
 
     Optional<ServiceCall> getParent();
 
     ServiceCallType getType();
+
+    ServiceCallBuilder newChildCall(ServiceCallType serviceCallType);
 
     void cancel();
 

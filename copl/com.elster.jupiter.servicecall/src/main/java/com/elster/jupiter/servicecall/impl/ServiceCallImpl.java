@@ -1,7 +1,6 @@
 package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.DataModel;
@@ -10,26 +9,25 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallType;
 
 import javax.inject.Inject;
-import java.sql.Ref;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 public class ServiceCallImpl implements ServiceCall {
     public static final NumberFormat NUMBER_PREFIX = new DecimalFormat("SC_00000000");
     private long id;
-    private Instant lastCompletedDate;
+    private Instant lastCompletedTime;
     private String origin;
     private String externalReference;
     private RefAny targetObject;
-    private ServiceCall parent;
+    private Reference<ServiceCall> parent = ValueReference.absent();
     private Reference<IServiceCallType> type = ValueReference.absent();
     private Reference<State> state = ValueReference.absent();
 
@@ -45,35 +43,20 @@ public class ServiceCallImpl implements ServiceCall {
 
     private final DataModel dataModel;
     private final Clock clock;
+    private final CustomPropertySetService customPropertySetService;
 
-    @Inject
-    ServiceCallImpl(DataModel dataModel, Clock clock) {
-        this.dataModel = dataModel;
-        this.clock = clock;
-    }
-
-    static ServiceCallImpl from(DataModel dataModel, IServiceCallType type) {
-        return dataModel.getInstance(ServiceCallImpl.class).init(type);
-    }
-
-    private ServiceCallImpl init(IServiceCallType type) {
-        this.type.set(type);
-        this.state.set(asState(DefaultState.CREATED));
-        return this;
-    }
-
-    public enum Fields {
-        creationDate("creationDate"),
-        lastModificationDate("lastModificationDate"),
-        lastCompletedDate("lastCompletedDate"),
-        state("state"),
+    enum Fields {
+        lastCompletedTime("lastCompletedTime"),
         origin("origin"),
         externalReference("externalReference"),
-        customProperties("customProperties"),
         targetObject("targetObject"),
         parent("parent"),
-        type("type");
-
+        type("type"),
+        state("state"),
+        createTime("createTime"),
+        modTime("modTime"),
+        userName("userName"),
+        version("version");
 
         private final String javaFieldName;
 
@@ -84,6 +67,29 @@ public class ServiceCallImpl implements ServiceCall {
         public String fieldName() {
             return javaFieldName;
         }
+    }
+
+
+    @Inject
+    ServiceCallImpl(DataModel dataModel, Clock clock, CustomPropertySetService customPropertySetService) {
+        this.dataModel = dataModel;
+        this.clock = clock;
+        this.customPropertySetService = customPropertySetService;
+    }
+
+    static ServiceCallImpl from(DataModel dataModel, IServiceCallType type) {
+        return dataModel.getInstance(ServiceCallImpl.class).init(null, type);
+    }
+
+    static ServiceCallImpl from(DataModel dataModel, ServiceCall parent, IServiceCallType type) {
+        return dataModel.getInstance(ServiceCallImpl.class).init(parent, type);
+    }
+
+    private ServiceCallImpl init(ServiceCall parent, IServiceCallType type) {
+        this.parent.set(parent);
+        this.type.set(type);
+        this.state.set(asState(DefaultState.CREATED));
+        return this;
     }
 
     @Override
@@ -103,7 +109,7 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public Optional<Instant> getLastCompletedTime() {
-        return  Optional.ofNullable(this.lastCompletedDate);
+        return  Optional.ofNullable(this.lastCompletedTime);
     }
 
     @Override
@@ -144,27 +150,17 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     @Override
-    public Optional<List<RegisteredCustomPropertySet>> getCustomProperties() {
-        //return customPropertySetService.get;
-        return null;
+    public Optional<?> getTargetObject() {
+        return this.targetObject.getOptional();
     }
 
-    @Override
-    public Optional<RefAny> getTargetObject() {
-        return  Optional.ofNullable(this.targetObject);
-    }
-
-    void setTargetObject(RefAny targetObject) {
-        this.targetObject = targetObject;
+    void setTargetObject(Object targetObject) {
+        this.targetObject = dataModel.asRefAny(targetObject);
     }
 
     @Override
     public Optional<ServiceCall> getParent() {
-        return Optional.ofNullable(this.parent);
-    }
-
-    void setParent(ServiceCall parent) {
-        this.parent = parent;
+        return parent.getOptional();
     }
 
     @Override
@@ -180,6 +176,11 @@ public class ServiceCallImpl implements ServiceCall {
     @Override
     public long getId() {
         return this.id;
+    }
+
+    @Override
+    public ServiceCallBuilder newChildCall(ServiceCallType serviceCallType) {
+        return ServiceCallBuilderImpl.from(dataModel, this, (IServiceCallType) serviceCallType);
     }
 
     @Override

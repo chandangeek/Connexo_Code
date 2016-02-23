@@ -67,7 +67,7 @@ public class ServiceCallsCommands {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            serviceCallService.createServiceCallType(name, versionName).customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).get(0)).add();
+            serviceCallService.createServiceCallType(name, versionName).customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).get(0)).create();
             context.commit();
         }
     }

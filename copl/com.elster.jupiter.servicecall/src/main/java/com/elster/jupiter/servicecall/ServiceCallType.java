@@ -4,12 +4,11 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
-import java.util.List;
-import java.util.Optional;
+import aQute.bnd.annotation.ProviderType;
 
-/**
- * Created by bvn on 2/8/16.
- */
+import java.util.List;
+
+@ProviderType
 public interface ServiceCallType extends HasId, HasName {
     long getVersion();
 
@@ -25,10 +24,6 @@ public interface ServiceCallType extends HasId, HasName {
 
     ServiceCallLifeCycle getServiceCallLifeCycle();
 
-    Optional<DefaultState> getCurrentLifeCycleState();
-
-    void setCurrentLifeCycleState(DefaultState currentLifeCycleState);
-
     /**
      * Returns the RegisteredCustomPropertySets linked to this ServiceCallType
      * @return
@@ -38,6 +33,8 @@ public interface ServiceCallType extends HasId, HasName {
     void addCustomPropertySet(RegisteredCustomPropertySet customPropertySet);
 
     void removeCustomPropertySet(RegisteredCustomPropertySet customPropertySet);
+
+    ServiceCallBuilder newServiceCall();
 
     void save();
 }
