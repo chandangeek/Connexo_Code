@@ -77,11 +77,23 @@ public interface ServiceCallService {
     Optional<ServiceCall> getServiceCall(long id);
 
     /**
+     * Finds and returns a service call with the given internal number
+     * @param number The number of the service call (starts with SC_)
+     * @return The optional service call
+     */
+    Optional<ServiceCall> getServiceCall(String number);
+
+    /**
      * Returns list of known service calls. This method supports paging.
      * @return Finder
      */
     public Finder<ServiceCall> getServiceCalls();
 
 
-    public Finder<ServiceCall> getChildrenOf(ServiceCall serviceCall);
+    /**
+     * Retruns list of children of a service call, identified by his number
+     * @param number The unique number of the service call
+     * @return Finder
+     */
+    public Finder<ServiceCall> getChildrenOf(String number);
 }

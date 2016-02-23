@@ -198,13 +198,22 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     }
 
     @Override
+    public Optional<ServiceCall> getServiceCall(String number) {
+        return getServiceCall(numberToId(number));
+    }
+
+    @Override
     public Finder<ServiceCall> getServiceCalls() {
         return DefaultFinder.of(ServiceCall.class, dataModel).defaultSortColumn(ServiceCallImpl.Fields.type.fieldName());
     }
 
     @Override
-    public Finder<ServiceCall> getChildrenOf(ServiceCall serviceCall) {
-        Condition condition = Where.where("parent.id").isEqualToIgnoreCase(serviceCall.getId());
+    public Finder<ServiceCall> getChildrenOf(String number) {
+        Condition condition = Where.where("parent.id").isEqualTo(numberToId(number));
         return DefaultFinder.of(ServiceCall.class, condition, dataModel).defaultSortColumn(ServiceCallImpl.Fields.type.fieldName());
+    }
+
+    private long numberToId(String number) {
+        return Long.parseLong(number.substring(2).replaceFirst("^0+(?!$)", ""));
     }
 }
