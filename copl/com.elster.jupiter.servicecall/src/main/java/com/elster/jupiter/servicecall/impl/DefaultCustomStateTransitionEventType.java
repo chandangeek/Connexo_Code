@@ -3,6 +3,7 @@ package com.elster.jupiter.servicecall.impl;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCallService;
 
 /**
  * Models the default {@link CustomStateTransitionEventType}
@@ -40,7 +41,7 @@ enum DefaultCustomStateTransitionEventType {
     }
 
     private CustomStateTransitionEventType createNewStateTransitionEventType(FiniteStateMachineService service, String symbol) {
-        return service.newCustomStateTransitionEventType(symbol);
+        return service.newCustomStateTransitionEventType(symbol, ServiceCallService.COMPONENT_NAME);
     }
 
     DefaultState getTarget() {
