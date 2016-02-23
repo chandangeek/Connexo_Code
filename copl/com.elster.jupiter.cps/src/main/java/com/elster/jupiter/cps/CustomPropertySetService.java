@@ -1,8 +1,9 @@
 package com.elster.jupiter.cps;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.conditions.Condition;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -221,7 +222,7 @@ public interface CustomPropertySetService {
 
     /**
      * Sets the values for the {@link CustomPropertySet} against
-     * the specified businesObject object.
+     * the specified businessObject object.
      * <p>
      * Note that previous values are not lost but retained for historical purposes.
      * </p>
@@ -232,16 +233,63 @@ public interface CustomPropertySetService {
      * </p>
      *
      * @param customPropertySet The CustomPropertySet
-     * @param businesObject The businesObject object
+     * @param businessObject The businessObject object
      * @param effectiveTimestamp The point in time from which the new values are effective onwards
      * @param additionalPrimaryKeyValues The values for the additional primary key columns as defined by the CustomPropertySet
      * @param values The CustomPropertySetValues
-     * @param <D> The businesObject class
+     * @param <D> The businessObject class
      * @param <T> The class that holds persistent values for this CustomPropertySet
      * @see CustomPropertySet#isVersioned()
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
      */
-    <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
+    <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businessObject, CustomPropertySetValues values, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
+
+    /**
+     * Sets the values for the {@link CustomPropertySet} against
+     * the specified businessObject object.
+     * <p>
+     * Note that previous values are not lost but retained for historical purposes.
+     * </p>
+     * <p>
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is <strong>NOT</strong> versioned because in that case
+     * you do not need to specify an instant in time when the values are effective.
+     * </p>
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param businessObject The businessObject object
+     * @param effectiveTimestamp The point in time from which the new values are effective onwards
+     * @param additionalPrimaryKeyValues The values for the additional primary key columns as defined by the CustomPropertySet
+     * @param persistentDomainExtension The persistent domain extension object containing the CustomPropertySetValues
+     * @param <D> The businessObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @see CustomPropertySet#isVersioned()
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
+     */
+    <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businessObject, T persistentDomainExtension, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
+
+    /**
+     * Sets the values for the {@link CustomPropertySet} against
+     * the specified businessObject object.
+     * <p>
+     * Note that previous values are not lost but retained for historical purposes.
+     * </p>
+     * <p>
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is <strong>NOT</strong> versioned because in that case
+     * you do not need to specify an instant in time when the values are effective.
+     * </p>
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param businessObject The businessObject object
+     * @param additionalPrimaryKeyValues The values for the additional primary key columns as defined by the CustomPropertySet
+     * @param persistentDomainExtension The persistent domain extension object containing the CustomPropertySetValues
+     * @param <D> The businessObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @see CustomPropertySet#isVersioned()
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
+     */
+    <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businessObject, T persistentDomainExtension, Object... additionalPrimaryKeyValues);
 
     /**
      * Gets the values for the {@link CustomPropertySet} that were saved for

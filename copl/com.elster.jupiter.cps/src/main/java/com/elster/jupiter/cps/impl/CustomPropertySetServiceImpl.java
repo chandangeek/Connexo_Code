@@ -19,7 +19,6 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -34,6 +33,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -462,11 +462,25 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     @Override
-    public <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
+    public <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businessObject, T persistentDomainExtension, Object... additionalPrimaryKeyValues) {
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        persistentDomainExtension.copyTo(values);
+        setValuesFor(customPropertySet, businessObject, values, additionalPrimaryKeyValues);
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businessObject, T persistentDomainExtension, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        persistentDomainExtension.copyTo(values);
+        setValuesFor(customPropertySet, businessObject, values, effectiveTimestamp, additionalPrimaryKeyValues);
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businessObject, CustomPropertySetValues values, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
         activeCustomPropertySet.validateCurrentUserIsAllowedToEdit();
-        activeCustomPropertySet.setVersionedValuesEntityFor(businesObject, values, effectiveTimestamp, additionalPrimaryKeyValues);
+        activeCustomPropertySet.setVersionedValuesEntityFor(businessObject, values, effectiveTimestamp, additionalPrimaryKeyValues);
     }
 
     @Override
