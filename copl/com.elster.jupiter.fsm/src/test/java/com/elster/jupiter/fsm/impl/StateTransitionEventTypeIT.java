@@ -202,7 +202,7 @@ public class StateTransitionEventTypeIT {
     }
 
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "eventType")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "eventType", strict = false)
     @Test
     public void createStandardWithoutEventType() {
         // Business method
