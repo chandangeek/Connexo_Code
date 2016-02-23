@@ -88,6 +88,11 @@ public final class RefAnyImpl implements RefAny {
 	}
 
 	@Override
+	public Optional<?> getOptional() {
+		return getTargetHolder();
+	}
+
+	@Override
 	public boolean equals(Object other) {
 		if (this == other) {
 			return true;
