@@ -87,7 +87,6 @@ public class A1440Messages implements MessageProtocol {
         MessageCategorySpec catPowerQuality = new MessageCategorySpec("'Meter class update' Messages");
         catPowerQuality.addMessageSpec(addValueMsg(PQ_THRESHOLD, false));
 
-        //TODO: Note that these messages are for the Elster AS3000 device (which extends from A1440) - once we have a dedicated protocol for the AS3000, these messages should be moved to there.
         MessageCategorySpec catLoadLimit = new MessageCategorySpec("'Load limitation' Messages");
         catLoadLimit.addMessageSpec(addBasicMsgWithAttributes(LOADLIMIT_DURATION, false, DURATION_ATTRIBUTE));
         catLoadLimit.addMessageSpec(addBasicMsgWithAttributes(LOADLIMIT_THRESHOLD, false, THRESHOLD_ATTRIBUTE, TARIFFS_ATTRIBUTE));
