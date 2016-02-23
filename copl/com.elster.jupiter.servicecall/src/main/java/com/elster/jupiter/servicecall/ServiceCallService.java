@@ -1,6 +1,5 @@
 package com.elster.jupiter.servicecall;
 
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Finder;
 
 import aQute.bnd.annotation.ProviderType;

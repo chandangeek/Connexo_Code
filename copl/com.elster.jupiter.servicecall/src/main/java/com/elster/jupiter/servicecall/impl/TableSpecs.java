@@ -17,12 +17,17 @@ import static com.elster.jupiter.orm.Table.NAME_LENGTH;
  * Created by bvn on 2/4/16.
  */
 public enum TableSpecs {
-    SCS_SERVICE_CALL_LIFECYCLE(ServiceCallLifeCycle.class) {
+    SCS_SERVICE_CALL_LIFECYCLE {
         @Override
-        void describeTable(Table table) {
+        public void addTo(DataModel dataModel) {
+            Table<ServiceCallLifeCycle> table = dataModel.addTable(name(), ServiceCallLifeCycle.class);
             table.map(ServiceCallLifeCycleImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(NAME_LENGTH).notNull().map(ServiceCallLifeCycleImpl.Fields.name.fieldName()).add();
+            table.column("NAME")
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(ServiceCallLifeCycleImpl.Fields.name.fieldName())
+                    .add();
             Column finiteStateMachine = table.column("FSM").number().notNull().add();
             table.foreignKey("FK_FSM")
                     .references(FiniteStateMachine.class)
@@ -33,16 +38,38 @@ public enum TableSpecs {
         }
     },
 
-    SCS_SERVICE_CALL_TYPE(IServiceCallType.class) {
+    SCS_SERVICE_CALL_TYPE {
         @Override
-        void describeTable(Table table) {
+        public void addTo(DataModel dataModel) {
+            Table<IServiceCallType> table = dataModel.addTable(name(), IServiceCallType.class);
+            table.alsoReferredToAs(ServiceCallType.class);
             table.map(ServiceCallTypeImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            Column name = table.column("NAME").varChar(NAME_LENGTH).notNull().map(ServiceCallTypeImpl.Fields.name.fieldName()).add();
-            table.column("LOGLEVEL").number().conversion(ColumnConversion.NUMBER2ENUM).map(ServiceCallTypeImpl.Fields.logLevel.fieldName()).add();
-            table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map(ServiceCallTypeImpl.Fields.status.fieldName()).add();
-            Column versionName = table.column("VERSIONNAME").varChar(NAME_LENGTH).notNull().map(ServiceCallTypeImpl.Fields.versionName.fieldName()).add();
-            table.column("CURRENTSTATE").number().conversion(ColumnConversion.NUMBER2ENUM).map(ServiceCallTypeImpl.Fields.currentLifeCycleState.fieldName()).add();
+            Column name = table.column("NAME")
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(ServiceCallTypeImpl.Fields.name.fieldName())
+                    .add();
+            table.column("LOGLEVEL")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2ENUM)
+                    .map(ServiceCallTypeImpl.Fields.logLevel.fieldName())
+                    .add();
+            table.column("STATUS")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2ENUM)
+                    .map(ServiceCallTypeImpl.Fields.status.fieldName())
+                    .add();
+            Column versionName = table.column("VERSIONNAME")
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(ServiceCallTypeImpl.Fields.versionName.fieldName())
+                    .add();
+            table.column("CURRENTSTATE")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2ENUM)
+                    .map(ServiceCallTypeImpl.Fields.currentLifeCycleState.fieldName())
+                    .add();
             Column serviceCallLifeCycle = table.column("LIFECYCLE").number().notNull().add();
             table.addAuditColumns();
             table.foreignKey("FK_LIFECYCLE")
@@ -54,9 +81,10 @@ public enum TableSpecs {
             table.unique("SCT_U_TYPE").on(name, versionName).add();
         }
     },
-    SCS_CPS_USAGE(ServiceCallTypeCustomPropertySetUsage.class) {
+    SCS_CPS_USAGE {
         @Override
-        void describeTable(Table table) {
+        public void addTo(DataModel dataModel) {
+            Table<ServiceCallTypeCustomPropertySetUsage> table = dataModel.addTable(name(), ServiceCallTypeCustomPropertySetUsage.class);
             table.map(ServiceCallTypeCustomPropertySetUsageImpl.class);
             Column serviceCallType = table.column("SERVICECALLTYPE").number().notNull().add();
             Column customPropertySet = table.column("CUSTOMPROPERTYSET").number().notNull().add();
@@ -77,40 +105,49 @@ public enum TableSpecs {
                     .add();
         }
     },
-    SCS_SERVICE_CALL(ServiceCall.class) {
+    SCS_SERVICE_CALL {
         @Override
-        void describeTable(Table table) {
+        public void addTo(DataModel dataModel) {
+            Table<ServiceCall> table = dataModel.addTable(name(), ServiceCall.class);
             table.map(ServiceCallImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("PARENT").number().add();
-            table.column("LASTCOMPLETEDTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map(ServiceCallImpl.Fields.lastCompletedTime.fieldName()).add();
-            table.column("STATE").number().conversion(ColumnConversion.NUMBER2ENUM).map(ServiceCallImpl.Fields.state.fieldName()).add();
+            Column parent = table.column("PARENT")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .add();
+            table.column("LASTCOMPLETEDTIME")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .map(ServiceCallImpl.Fields.lastCompletedTime.fieldName())
+                    .add();
+            table.column("STATE")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2ENUM)
+                    .map(ServiceCallImpl.Fields.state.fieldName())
+                    .add();
             table.column("ORIGIN").varChar(NAME_LENGTH).map(ServiceCallImpl.Fields.origin.fieldName()).add();
-            table.column("EXTERNALREFERENCE").varChar(NAME_LENGTH).map(ServiceCallImpl.Fields.externalReference.fieldName()).add();
+            table.column("EXTERNALREFERENCE")
+                    .varChar(NAME_LENGTH)
+                    .map(ServiceCallImpl.Fields.externalReference.fieldName())
+                    .add();
             Column serviceCallType = table.column("SERVICECALLTYPE").number().notNull().add();
             table.addAuditColumns();
 
-            table.foreignKey("FK_SCS_SERVICECALL_SCT").
-                    on(serviceCallType).
-                    references(ServiceCallType.class).
-                    map(ServiceCallImpl.Fields.type.fieldName()).
-                    add();
             table.primaryKey("SCS_PK_SERVICECALL").on(idColumn).add();
+            table.foreignKey("FK_SCS_SERVICECALL_SCT")
+                    .on(serviceCallType)
+                    .references(IServiceCallType.class)
+                    .map(ServiceCallImpl.Fields.type.fieldName())
+                    .add();
+            table.foreignKey("FK_SCS_SERVICECALL_PARENT")
+                    .references(SCS_SERVICE_CALL.name())
+                    .on(parent)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map(ServiceCallImpl.Fields.parent.fieldName())
+                    .add();
         }
     };
 
-    private final Class<?> api;
+    public abstract void addTo(DataModel component);
 
-    TableSpecs(Class<?> api) {
-        this.api = api;
-    }
-
-    public void addTo(DataModel component) {
-        Table table = component.addTable(name(), api);
-        describeTable(table);
-    }
-
-
-    abstract void describeTable(Table table);
-
-    }
+}

@@ -140,6 +140,7 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
+                bind(ServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
             }
         };
     }

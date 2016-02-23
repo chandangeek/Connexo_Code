@@ -82,12 +82,12 @@ public class ServiceCallsCommands {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallService.ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName).logLevel(LogLevel.valueOf(logLevel));
+            ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName).logLevel(LogLevel.valueOf(logLevel));
 
             customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).stream()
                     .filter(cps -> ids.contains(cps.getId()))
                     .forEach(builder::customPropertySet);
-            builder.add();
+            builder.create();
             context.commit();
         }
     }
@@ -98,12 +98,12 @@ public class ServiceCallsCommands {
 
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCallLifeCycle serviceCallLifeCycle = serviceCallService.getServiceCallLifeCycle(lifeCycleName).orElseThrow(() -> new NoSuchElementException("No service call life cycle with name: " + lifeCycleName));
-            ServiceCallService.ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName, serviceCallLifeCycle).logLevel(LogLevel.valueOf(logLevel));
+            ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName, serviceCallLifeCycle).logLevel(LogLevel.valueOf(logLevel));
 
             customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).stream()
                     .filter(cps -> ids.contains(cps.getId()))
                     .forEach(builder::customPropertySet);
-            builder.add();
+            builder.create();
             context.commit();
         }
     }
