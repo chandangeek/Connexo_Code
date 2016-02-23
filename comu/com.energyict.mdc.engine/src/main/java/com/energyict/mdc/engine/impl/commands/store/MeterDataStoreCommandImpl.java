@@ -34,7 +34,6 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
     private final Map<LoadProfileIdentifier, Instant> lastReadings = new HashMap<>();
     private final Map<LogBookIdentifier, Instant> lastLogBooks = new HashMap<>();
 
-    private List<Warning> warnings = new ArrayList<>();
     public MeterDataStoreCommandImpl(ComTaskExecution comTaskExecution, DeviceCommand.ServiceProvider serviceProvider) {
         super(comTaskExecution, serviceProvider);
     }
@@ -43,8 +42,8 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
     protected void doExecute(ComServerDAO comServerDAO) {
         try {
             for (Map.Entry<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> deviceMeterReadingEntry : meterReadings.entrySet()) {
-                this.warnings = comServerDAO.storeMeterReadings(deviceMeterReadingEntry.getValue().getFirst(), deviceMeterReadingEntry.getValue().getLast());
-                warnings.forEach(this::logWarning);
+                List<Warning> warnings = comServerDAO.storeMeterReadings(deviceMeterReadingEntry.getValue().getFirst(), deviceMeterReadingEntry.getValue().getLast());
+                warnings.forEach((x) -> addIssue(CompletionCode.Ok, x));
             }
 
             for (Map.Entry<LoadProfileIdentifier, Instant> loadProfileDateEntry : lastReadings.entrySet()) {
@@ -58,10 +57,6 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
         catch (RuntimeException e) {
             this.getExecutionLogger().logUnexpected(e, this.getComTaskExecution());
         }
-    }
-
-    private void logWarning(Warning warning) {
-        getExecutionLogger().addIssue(CompletionCode.Ok, warning, getComTaskExecution());
     }
 
     @Override

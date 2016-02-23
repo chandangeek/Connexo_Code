@@ -23,7 +23,9 @@ public class ComPortPoolFilterTest {
     @Test
     public void testMatchExpected () {
         ComPortPool interestedPool = mock(ComPortPool.class);
+        when(interestedPool.getId()).thenReturn(687l);
         ComPortPool otherPool = mock(ComPortPool.class);
+        when(otherPool.getId()).thenReturn(617l);
         ComPortPoolFilter filter = new ComPortPoolFilter(Arrays.asList(interestedPool));
         ComPortPoolRelatedEvent event = mock(ComPortPoolRelatedEvent.class);
         when(event.isComPortPoolRelated()).thenReturn(true);

@@ -25,8 +25,10 @@ public class ConnectionTaskFilterTest {
     public void testMatchExpected () {
         Device device = mock(Device.class);
         ConnectionTask interestedTask = mock(ConnectionTask.class);
+        when(interestedTask.getId()).thenReturn(366l);
         when(interestedTask.getDevice()).thenReturn(device);
         ConnectionTask otherTask = mock(ConnectionTask.class);
+        when(otherTask.getId()).thenReturn(888l);
         when(otherTask.getDevice()).thenReturn(device);
         ConnectionTaskFilter filter = new ConnectionTaskFilter(Arrays.asList(interestedTask));
         ConnectionTaskRelatedEvent event = mock(ConnectionTaskRelatedEvent.class);

@@ -158,7 +158,9 @@ public class FilteringEventReceiverTest {
     @Test
     public void testNarrowToDeviceWithEventsForAnotherDevice () {
         Device device = mock(Device.class);
+        when(device.getId()).thenReturn(99l);
         Device otherDevice = mock(Device.class);
+        when(otherDevice.getId()).thenReturn(522l);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
         DeviceRelatedEvent event = mock(DeviceRelatedEvent.class);
@@ -177,7 +179,9 @@ public class FilteringEventReceiverTest {
     @Test
     public void testNarrowToOtherDevices () {
         Device device1 = mock(Device.class);
+        when(device1.getId()).thenReturn(1L);
         Device device2 = mock(Device.class);
+        when(device2.getId()).thenReturn(2L);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
         DeviceRelatedEvent eventForDevice1 = mock(DeviceRelatedEvent.class);
@@ -260,7 +264,9 @@ public class FilteringEventReceiverTest {
     @Test
     public void testNarrowToDeviceAndConnectionCategoryButForAnotherDevice () {
         Device device = mock(Device.class);
+        when(device.getId()).thenReturn(1L);
         Device otherDevice = mock(Device.class);
+        when(otherDevice.getId()).thenReturn(2L);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
         DeviceRelatedEvent event = mock(DeviceRelatedEvent.class);
@@ -301,8 +307,10 @@ public class FilteringEventReceiverTest {
     public void testNarrowToConnectionTaskWithEventsForAnotherConnectionTask () {
         Device device = mock(Device.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(170l);
         when(connectionTask.getDevice()).thenReturn(device);
         ConnectionTask otherConnectionTask = mock(ConnectionTask.class);
+        when(otherConnectionTask.getId()).thenReturn(933l);
         when(otherConnectionTask.getDevice()).thenReturn(device);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
@@ -323,8 +331,10 @@ public class FilteringEventReceiverTest {
     public void testNarrowToOtherConnectionTasksOfTheSameDevice () {
         Device device = mock(Device.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(145l);
         when(connectionTask.getDevice()).thenReturn(device);
         ConnectionTask otherConnectionTask = mock(ConnectionTask.class);
+        when(otherConnectionTask.getId()).thenReturn(899l);
         when(otherConnectionTask.getDevice()).thenReturn(device);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
@@ -352,8 +362,10 @@ public class FilteringEventReceiverTest {
     public void testWidenToAllConnectionTasks () {
         Device device = mock(Device.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(145l);
         when(connectionTask.getDevice()).thenReturn(device);
         ConnectionTask otherConnectionTask = mock(ConnectionTask.class);
+        when(otherConnectionTask.getId()).thenReturn(899l);
         when(otherConnectionTask.getDevice()).thenReturn(device);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
@@ -415,10 +427,14 @@ public class FilteringEventReceiverTest {
     @Test
     public void testNarrowToComTaskWithEventsForAnotherComTask () {
         Device device = mock(Device.class);
+        when(device.getId()).thenReturn(1L);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(1L);
         when(connectionTask.getDevice()).thenReturn(device);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        when(comTaskExecution.getId()).thenReturn(1L);
         ComTaskExecution otherComTaskExecution = mock(ComTaskExecution.class);
+        when(otherComTaskExecution.getId()).thenReturn(2L);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
         ComTaskExecutionEvent event = mock(ComTaskExecutionEvent.class);
@@ -438,8 +454,10 @@ public class FilteringEventReceiverTest {
     public void testNarrowToComTaskAndConnectionTaskWithEventsForAnotherConnectionTaskOfTheSameDevice () {
         Device device = mock(Device.class);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(33l);
         when(connectionTask.getDevice()).thenReturn(device);
         ConnectionTask otherConnectionTask = mock(ConnectionTask.class);
+        when(otherConnectionTask.getId()).thenReturn(654l);
         when(otherConnectionTask.getDevice()).thenReturn(device);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         EventReceiver eventReceiver = mock(EventReceiver.class);
@@ -463,10 +481,14 @@ public class FilteringEventReceiverTest {
     @Test
     public void testNarrowToComTaskAndConnectionTaskWithEventsForAnotherConnectionTaskOfAnotherDevice () {
         Device device = mock(Device.class);
+        when(device.getId()).thenReturn(1L);
         Device otherDevice = mock(Device.class);
+        when(otherDevice.getId()).thenReturn(2L);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(1L);
         when(connectionTask.getDevice()).thenReturn(device);
         ConnectionTask otherConnectionTask = mock(ConnectionTask.class);
+        when(otherConnectionTask.getId()).thenReturn(2L);
         when(otherConnectionTask.getDevice()).thenReturn(otherDevice);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         EventReceiver eventReceiver = mock(EventReceiver.class);
@@ -519,10 +541,14 @@ public class FilteringEventReceiverTest {
     public void testNarrowToComTaskConnectionTaskAndComPortWithEventsForAnotherComTask () {
         Device device = mock(Device.class);
         ConnectionTask interestedConnectionTask = mock(ConnectionTask.class);
+        when(interestedConnectionTask.getId()).thenReturn(1l);
         when(interestedConnectionTask.getDevice()).thenReturn(device);
         ComTaskExecution interestedComTaskExecution = mock(ComTaskExecution.class);
+        when(interestedComTaskExecution.getId()).thenReturn(1l);
         ComTaskExecution otherComTaskExecution = mock(ComTaskExecution.class);
+        when(otherComTaskExecution.getId()).thenReturn(2l);
         ComPort interestedComPort = mock(ComPort.class);
+        when(interestedComPort.getId()).thenReturn(1l);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
         ComTaskExecutionEvent notExpected = mock(ComTaskExecutionEvent.class);
@@ -548,11 +574,15 @@ public class FilteringEventReceiverTest {
     public void testNarrowToComTaskConnectionTaskAndComPortWithEventsForAnotherConnectionTask () {
         Device device = mock(Device.class);
         ConnectionTask interestedConnectionTask = mock(ConnectionTask.class);
+        when(interestedConnectionTask.getId()).thenReturn(1L);
         when(interestedConnectionTask.getDevice()).thenReturn(device);
         ConnectionTask otherConnectionTask = mock(ConnectionTask.class);
+        when(otherConnectionTask.getId()).thenReturn(2L);
         when(otherConnectionTask.getDevice()).thenReturn(device);
         ComTaskExecution interestedComTaskExecution = mock(ComTaskExecution.class);
+        when(interestedComTaskExecution.getId()).thenReturn(1L);
         ComPort interestedComPort = mock(ComPort.class);
+        when(interestedComPort.getId()).thenReturn(1L);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
         ComTaskExecutionEvent notExpected = mock(ComTaskExecutionEvent.class);
@@ -578,10 +608,14 @@ public class FilteringEventReceiverTest {
     public void testNarrowToComTaskConnectionTaskAndComPortWithEventsForAnotherComPort () {
         Device device = mock(Device.class);
         ConnectionTask interestedConnectionTask = mock(ConnectionTask.class);
+        when(interestedConnectionTask.getId()).thenReturn(1l);
         when(interestedConnectionTask.getDevice()).thenReturn(device);
         ComTaskExecution interestedComTaskExecution = mock(ComTaskExecution.class);
+        when(interestedComTaskExecution.getId()).thenReturn(1l);
         ComPort interestedComPort = mock(ComPort.class);
+        when(interestedComPort.getId()).thenReturn(1l);
         ComPort otherComPort = mock(ComPort.class);
+        when(otherComPort.getId()).thenReturn(2l);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
         ComTaskExecutionEvent notExpected = mock(ComTaskExecutionEvent.class);
@@ -606,10 +640,14 @@ public class FilteringEventReceiverTest {
     @Test
     public void testNarrowToOtherComTasks () {
         Device device = mock(Device.class);
+        when(device.getId()).thenReturn(1L);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(1L);
         when(connectionTask.getDevice()).thenReturn(device);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        when(comTaskExecution.getId()).thenReturn(1L);
         ComTaskExecution otherComTaskExecution = mock(ComTaskExecution.class);
+        when(otherComTaskExecution.getId()).thenReturn(2L);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
         ComTaskExecutionEvent notExpected = mock(ComTaskExecutionEvent.class);
@@ -694,7 +732,9 @@ public class FilteringEventReceiverTest {
     @Test
     public void testNarrowToComPortWithEventFromOtherComPort () {
         ComPort interestedComPort = mock(ComPort.class);
+        when(interestedComPort.getId()).thenReturn(546l);
         ComPort otherComPort = mock(ComPort.class);
+        when(otherComPort.getId()).thenReturn(1l);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
         ComPortRelatedEvent event = mock(ComPortRelatedEvent.class);
@@ -767,7 +807,9 @@ public class FilteringEventReceiverTest {
     @Test
     public void testNarrowToComPortPoolWithEventsFromOtherComPortPool () {
         ComPortPool interestedComPortPool = mock(ComPortPool.class);
+        when(interestedComPortPool.getId()).thenReturn(1L);
         ComPortPool otherComPortPool = mock(ComPortPool.class);
+        when(otherComPortPool.getId()).thenReturn(2L);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
         ComPortPoolRelatedEvent event = mock(ComPortPoolRelatedEvent.class);
@@ -785,7 +827,9 @@ public class FilteringEventReceiverTest {
     @Test
     public void testWidenToAllComPortPools () {
         ComPortPool interestedComPortPool = mock(ComPortPool.class);
+        when(interestedComPortPool.getId()).thenReturn(1L);
         ComPortPool otherComPortPool = mock(ComPortPool.class);
+        when(otherComPortPool.getId()).thenReturn(2L);
         EventReceiver eventReceiver = mock(EventReceiver.class);
         FilteringEventReceiver filteringEventReceiver = new FilteringEventReceiverImpl(eventReceiver);
         ComPortPoolRelatedEvent event = mock(ComPortPoolRelatedEvent.class);

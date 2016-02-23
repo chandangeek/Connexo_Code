@@ -392,8 +392,10 @@ public class InboundCommunicationHandlerTest {
 
     private void testCommunicationWhenServerIsBusy(InboundDiscoveryContextImpl context) throws ExecutionException, InterruptedException {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
+        when(device.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(device));
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ConnectionTask connectionTask = mock(InboundConnectionTask.class);
@@ -465,13 +467,16 @@ public class InboundCommunicationHandlerTest {
     }
 
     private void testSuccessFulCommunication(InboundDiscoveryContextImpl context, final boolean storingSuccess) throws ExecutionException, InterruptedException {
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
+        when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class), mock(ReadingType.class));
         List<CollectedData> collectedData = new ArrayList<>();
         collectedData.add(collectedRegister);
         when(inboundDeviceProtocol.getCollectedData(any(OfflineDevice.class))).thenReturn(collectedData);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        when(offlineDevice.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(offlineDevice));
         ComTask comTask = mock(ComTask.class);
         RegistersTask registersTask = mock(RegistersTask.class);
@@ -585,16 +590,22 @@ public class InboundCommunicationHandlerTest {
     }
 
     private void testSuccessFulCommunicationWithHandOverToProtocol(InboundDiscoveryContextImpl inboundDiscoveryContext) throws ExecutionException, InterruptedException {
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.IDENTIFIER);
+        when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        when(offlineDevice.getId()).thenReturn(DEVICE_ID);
+        when(offlineDevice.getDeviceIdentifier()).thenReturn(deviceIdentifier);
+
         when(offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         Device device = getMockedDevice();
         when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(offlineDevice));
+
         when(device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
         when(device.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         when(device.getProtocolDialectProperties(any(String.class))).thenReturn(Optional.empty());

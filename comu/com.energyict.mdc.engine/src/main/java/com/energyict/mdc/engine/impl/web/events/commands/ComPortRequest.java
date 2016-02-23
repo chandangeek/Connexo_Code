@@ -4,8 +4,10 @@ import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.google.common.base.Strings;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.singleton;
@@ -63,6 +65,7 @@ public class ComPortRequest extends IdBusinessObjectRequest {
     private void validateComPortNames(List<String> comPortNames){
         this.comPorts = comPortNames
                 .stream()
+                .filter(((Predicate<? super String>) x-> Strings.isNullOrEmpty(x)).negate())
                 .map(this::findComPort)
                 .collect(Collectors.toList());
     }

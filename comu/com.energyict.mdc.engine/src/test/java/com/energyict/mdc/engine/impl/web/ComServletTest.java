@@ -3,14 +3,15 @@ package com.energyict.mdc.engine.impl.web;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.monitor.*;
+import com.energyict.mdc.engine.monitor.InboundComPortMonitor;
+import com.energyict.mdc.engine.monitor.InboundComPortOperationalStatistics;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
@@ -51,7 +52,12 @@ public class ComServletTest {
     private static final long COMSERVER_ID = 1;
     private static final long COMPORT_POOL_ID = COMSERVER_ID + 1;
     private static final long COMPORT_ID = COMPORT_POOL_ID + 1;
-
+    @Mock
+    private InboundComPortOperationalStatisticsImpl inboundComPortOperationalStatistics;
+    @Mock
+    private InboundComPortMonitorImpl inboundComPortMonitor;
+    @Mock
+    private ManagementBeanFactory managementBeanFactory;
     @Mock
     private InboundCommunicationHandler.ServiceProvider serviceProvider;
     @Mock
@@ -73,8 +79,11 @@ public class ComServletTest {
         when(serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
         when(serviceProvider.threadPrincipalService()).thenReturn(this.threadPrincipalService);
         when(serviceProvider.userService()).thenReturn(this.userService);
+        when(serviceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
         when(userService.findUser(any(String.class))).thenReturn(Optional.of(user));
         when(protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(anyString())).thenReturn(Collections.<InboundDeviceProtocolPluggableClass>emptyList());
+        when(managementBeanFactory.findFor(any(InboundComPort.class))).thenReturn(Optional.of(inboundComPortMonitor));
+        when(inboundComPortMonitor.getOperationalStatistics()).thenReturn(inboundComPortOperationalStatistics);
     }
 
     @Test
@@ -96,8 +105,10 @@ public class ComServletTest {
 
     @Test
     public void testDoPostCallsDoDiscovery () throws IOException, ServletException {
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         ServletBasedInboundDeviceProtocol inboundDeviceProtocol = mock(ServletBasedInboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
+        when(inboundDeviceProtocol.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         InboundDeviceProtocolPluggableClass discoveryProtocolPluggableClass = mock(InboundDeviceProtocolPluggableClass.class);
         when(discoveryProtocolPluggableClass.getInboundDeviceProtocol()).thenReturn(inboundDeviceProtocol);
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
