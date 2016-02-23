@@ -8,11 +8,11 @@ import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.DeviceLifeCycleConfigApplicationJerseyTest;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
-import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Test;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
@@ -154,7 +157,8 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
         stateTransitionEventTypes.add(mockEventType(EventType.METER_CREATED.topic()));
         stateTransitionEventTypes.add(mockEventType(EventType.METER_UPDATED.topic()));
         stateTransitionEventTypes.add(mockEventType(EventType.METER_DELETED.topic()));
-        when(finiteStateMachineService.getStateTransitionEventTypes()).thenReturn(stateTransitionEventTypes);
+        when(finiteStateMachineService.getStateTransitionEventTypes(DeviceLifeCycleConfigurationService.COMPONENT_NAME))
+                .thenReturn(stateTransitionEventTypes);
 
         String response = target("/devicelifecycles/eventtypes").request().get(String.class);
 

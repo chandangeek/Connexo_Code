@@ -44,9 +44,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -104,8 +108,8 @@ public class AuthorizedActionRequestFactoryIT {
 
     private static CustomStateTransitionEventType createEventTypes() {
         FiniteStateMachineService service = inMemoryPersistence.getService(FiniteStateMachineService.class);
-        CustomStateTransitionEventType eventType1 = service.newCustomStateTransitionEventType(EVENT_TYPE_1);
-        CustomStateTransitionEventType eventType2 = service.newCustomStateTransitionEventType(EVENT_TYPE_2);
+        CustomStateTransitionEventType eventType1 = service.newCustomStateTransitionEventType(EVENT_TYPE_1, "context");
+        CustomStateTransitionEventType eventType2 = service.newCustomStateTransitionEventType(EVENT_TYPE_2, "context");
         return eventType1;
     }
 
