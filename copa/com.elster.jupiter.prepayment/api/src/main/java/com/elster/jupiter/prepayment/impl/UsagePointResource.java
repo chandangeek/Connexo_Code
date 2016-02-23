@@ -83,7 +83,7 @@ public class UsagePointResource {
                 path(UsagePointResource.class).
                 path(UsagePointResource.class, "getDeviceMessage").
                 build(mRID, deviceMessages.get(deviceMessages.size() - 1)
-                        .getId()); //TODO: now temporary using ID of last message, should be reworked with 'Service calls'
+                        .getId()); //TODO: now temporary using ID of last message
 
         return Response.accepted().location(uri).build();
     }
