@@ -286,6 +286,11 @@ public class StandardDataSelectorTest {
         }
 
         @Override
+        public Optional<?> getOptional() {
+            return Optional.ofNullable(value);
+        }
+
+        @Override
         public String getComponent() {
             return "DES";
         }
