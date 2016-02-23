@@ -19,17 +19,19 @@ public interface BpmProcessDefinition extends HasDynamicPropertiesWithValues {
 
     Optional<ProcessAssociationProvider> getAssociation();
 
+    void setAssociation(String association);
+
     String getVersion();
 
     String getStatus();
 
-    void update();
-
     void setStatus(String status);
+
+    void update();
 
     void delete();
 
     List<BpmProcessPrivilege> getPrivileges();
 
-    List<BpmProcessProperty> getProcessDefinitionProperties();
+    void setProperties(Map<String, Object> propertyMap);
 }

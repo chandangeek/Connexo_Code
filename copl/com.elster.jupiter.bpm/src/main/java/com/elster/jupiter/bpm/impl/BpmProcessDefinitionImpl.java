@@ -1,20 +1,14 @@
 package com.elster.jupiter.bpm.impl;
 
 import com.elster.jupiter.bpm.*;
-import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,21 +20,18 @@ import java.util.stream.Collectors;
 
 public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
 
+    private final BpmService bpmService;
+    private final DataModel dataModel;
     private long id;
     private String type;
     private String processName;
     private String association;
     private String version;
     private String status;
-
     @Valid
     private List<BpmProcessPrivilege> processPrivileges = new ArrayList<>();
-
     @Valid
     private List<BpmProcessProperty> properties = new ArrayList<>();
-
-    private final BpmService bpmService;
-    private final DataModel dataModel;
 
     @Inject
     public BpmProcessDefinitionImpl(DataModel dataModel,BpmService bpmService){
@@ -86,6 +77,11 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     }
 
     @Override
+    public void setAssociation(String association) {
+        this.association = association;
+    }
+
+    @Override
     public String getVersion() {
         return version;
     }
@@ -96,17 +92,17 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     }
 
     @Override
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    @Override
     public void update() {
         if (getId() == 0) {
             Save.CREATE.save(dataModel, this);
         } else {
             Save.UPDATE.save(dataModel, this);
         }
-    }
-
-    @Override
-    public void setStatus(String status){
-        this.status = status;
     }
 
     @Override
@@ -124,16 +120,12 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     }
 
     @Override
-    public List<BpmProcessProperty> getProcessDefinitionProperties() {
-        return Collections.unmodifiableList(properties);
-    }
-
-    @Override
     public Map<String, Object> getProperties() {
         return properties.stream().collect(Collectors.toMap(BpmProcessProperty::getName, BpmProcessProperty::getValue));
     }
 
-    void setProperties(Map<String, Object> propertyMap) {
+    @Override
+    public void setProperties(Map<String, Object> propertyMap) {
         Map<String, BpmProcessProperty> originalProps = properties.stream().collect(Collectors.toMap(BpmProcessProperty::getName, Function.identity()));
         DiffList<String> entryDiff = ArrayDiffList.fromOriginal(originalProps.keySet());
         entryDiff.clear();

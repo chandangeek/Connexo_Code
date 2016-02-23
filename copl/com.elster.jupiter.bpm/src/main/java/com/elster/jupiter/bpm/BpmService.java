@@ -4,10 +4,13 @@ import com.elster.jupiter.bpm.impl.BpmProcessDefinitionImpl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@ProviderType
 public interface BpmService {
     String COMPONENTNAME = "BPM";
     String BPM_QUEUE_DEST = "BpmQueueDest";
@@ -24,7 +27,7 @@ public interface BpmService {
 
     BpmServer getBpmServer();
 
-    Optional<BpmProcessDefinition> findProcess (String processName, String association, String version, String status);
+    //Optional<BpmProcessDefinition> findProcess (String processName, String association, String version, String status);
 
     List<BpmProcessDefinition> getBpmProcessDefinitions();
 
@@ -38,7 +41,7 @@ public interface BpmService {
 
     List<BpmProcessPrivilege> getBpmProcessPrivileges(long processId);
 
-    QueryService getQueryService();
+    //QueryService getQueryService();
 
     BpmProcessDefinitionBuilder newProcessBuilder();
 

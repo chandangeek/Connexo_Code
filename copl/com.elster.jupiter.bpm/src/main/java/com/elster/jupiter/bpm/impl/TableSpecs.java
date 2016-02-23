@@ -3,7 +3,6 @@ package com.elster.jupiter.bpm.impl;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmProcessPrivilege;
-import com.elster.jupiter.bpm.BpmProcessProperty;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
@@ -40,7 +39,7 @@ public enum TableSpecs {
 
             table.primaryKey("BPM_PROPS_PK_NAME").on(nameColumn, processColumn).add();
             table.foreignKey("BPM_PROPS_FK_TO_PROCESS").on(processColumn).references(BPM_PROCESS.name())
-                    .map("rule").reverseMap("properties").composition().onDelete(DeleteRule.CASCADE).add();
+                    .map("processDefinition").reverseMap("properties").composition().onDelete(DeleteRule.CASCADE).add();
         }
     },
     BPM_PROCESS_PRIVILEGE(BpmProcessPrivilege.class) {

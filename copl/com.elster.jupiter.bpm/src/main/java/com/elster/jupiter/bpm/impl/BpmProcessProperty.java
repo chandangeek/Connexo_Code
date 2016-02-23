@@ -1,4 +1,6 @@
-package com.elster.jupiter.bpm;
+package com.elster.jupiter.bpm.impl;
+
+import com.elster.jupiter.bpm.BpmProcessDefinition;
 
 import aQute.bnd.annotation.ProviderType;
 
