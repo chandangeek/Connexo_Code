@@ -38,6 +38,8 @@ public interface ServiceCall extends HasId {
 
     ServiceCallType getType();
 
+    long getVersion();
+
     ServiceCallBuilder newChildCall(ServiceCallType serviceCallType);
 
     void cancel();

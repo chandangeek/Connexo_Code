@@ -174,6 +174,11 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     @Override
+    public long getVersion() {
+        return version;
+    }
+
+    @Override
     public long getId() {
         return this.id;
     }

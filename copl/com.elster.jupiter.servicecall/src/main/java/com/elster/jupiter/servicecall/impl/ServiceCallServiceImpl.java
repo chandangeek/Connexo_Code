@@ -21,6 +21,8 @@ import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.inject.AbstractModule;
@@ -193,5 +195,16 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     @Override
     public Optional<ServiceCall> getServiceCall(long id) {
         return dataModel.mapper(ServiceCall.class).getOptional(id);
+    }
+
+    @Override
+    public Finder<ServiceCall> getServiceCalls() {
+        return DefaultFinder.of(ServiceCall.class, dataModel).defaultSortColumn(ServiceCallImpl.Fields.type.fieldName());
+    }
+
+    @Override
+    public Finder<ServiceCall> getChildrenOf(ServiceCall serviceCall) {
+        Condition condition = Where.where("parent.id").isEqualToIgnoreCase(serviceCall.getId());
+        return DefaultFinder.of(ServiceCall.class, condition, dataModel).defaultSortColumn(ServiceCallImpl.Fields.type.fieldName());
     }
 }

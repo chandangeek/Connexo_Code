@@ -69,5 +69,19 @@ public interface ServiceCallService {
      */
     Optional<ServiceCallType> findAndLockServiceCallType(long id, long version);
 
+    /**
+     * Finds and returns a service call with the given id, if it exists
+     * @param id The id of the service call
+     * @return The optional service call
+     */
     Optional<ServiceCall> getServiceCall(long id);
+
+    /**
+     * Returns list of known service calls. This method supports paging.
+     * @return Finder
+     */
+    public Finder<ServiceCall> getServiceCalls();
+
+
+    public Finder<ServiceCall> getChildrenOf(ServiceCall serviceCall);
 }
