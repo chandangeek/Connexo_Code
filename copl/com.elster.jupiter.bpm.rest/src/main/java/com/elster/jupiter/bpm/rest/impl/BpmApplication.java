@@ -1,6 +1,7 @@
 package com.elster.jupiter.bpm.rest.impl;
 
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.bpm.rest.PropertyUtils;
 import com.elster.jupiter.bpm.rest.TranslationKeys;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.*;
@@ -39,6 +40,14 @@ public class BpmApplication extends Application implements MessageSeedProvider, 
         return ImmutableSet.<Class<?>>of(BpmResource.class);
     }
 
+    @Override
+    public Set<Object> getSingletons() {
+        Set<Object> hashSet = new HashSet<>();
+        hashSet.addAll(super.getSingletons());
+        hashSet.add(new HK2Binder());
+        return Collections.unmodifiableSet(hashSet);
+    }
+
     @Reference
     public void setBpmService(BpmService bpmService) {
         this.bpmService = bpmService;
@@ -66,11 +75,25 @@ public class BpmApplication extends Application implements MessageSeedProvider, 
     }
 
     @Override
-    public Set<Object> getSingletons() {
-        Set<Object> hashSet = new HashSet<>();
-        hashSet.addAll(super.getSingletons());
-        hashSet.add(new HK2Binder());
-        return Collections.unmodifiableSet(hashSet);
+    public String getComponentName() {
+        return BpmApplication.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.addAll(Arrays.asList(TranslationKeys.values()));
+        return keys;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     class HK2Binder extends AbstractBinder {
@@ -83,29 +106,8 @@ public class BpmApplication extends Application implements MessageSeedProvider, 
             bind(transactionService).to(TransactionService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+            bind(PropertyUtils.class).to(PropertyUtils.class);
         }
-    }
-
-    @Override
-    public String getComponentName() {
-        return BpmApplication.COMPONENT_NAME;
-    }
-
-    @Override
-    public Layer getLayer() {
-        return Layer.REST;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys =  new ArrayList<>();
-        keys.addAll(Arrays.asList(TranslationKeys.values()));
-        return keys;
-    }
-
-    @Override
-    public List<MessageSeed> getSeeds() {
-        return Arrays.asList(MessageSeeds.values());
     }
 }
 
