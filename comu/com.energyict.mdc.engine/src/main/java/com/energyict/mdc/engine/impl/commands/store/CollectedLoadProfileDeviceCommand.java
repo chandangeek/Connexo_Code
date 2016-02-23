@@ -48,21 +48,25 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
             updateMeterDataStorer(preStoredLoadProfile.getDeviceIdentifier(), preStoredLoadProfile.getIntervalBlocks(), preStoredLoadProfile.getLastReading());
         } else if(preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.NO_INTERVALS_COLLECTED)){
             final Optional<OfflineLoadProfile> optionalLoadProfile = comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier());
-            this.addIssue(
-                    CompletionCode.Ok,
-                    this.getIssueService().newWarning(
-                            this,
-                            MessageSeeds.NO_NEW_LOAD_PROFILE_DATA_COLLECTED.getKey(),
-                            optionalLoadProfile.get().getObisCode().toString(),
-                            optionalLoadProfile.get().getLastReading().map(instant -> instant).orElse(Instant.EPOCH)));
+            if (getExecutionLogger() != null) {
+                getExecutionLogger().addIssue( CompletionCode.Ok
+                        ,this.getIssueService().newWarning(
+                                            this,
+                                            MessageSeeds.NO_NEW_LOAD_PROFILE_DATA_COLLECTED.getKey(),
+                                            optionalLoadProfile.get().getObisCode().toString(),
+                                            optionalLoadProfile.get().getLastReading().map(instant -> instant).orElse(Instant.EPOCH))
+                        , this.getComTaskExecution());
+            }
         }
         else {
-            this.addIssue(
-                    CompletionCode.ConfigurationWarning,
-                    this.getIssueService().newWarning(
-                            this,
-                            MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE.getKey(),
-                            comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier()).map(offlineLoadProfile -> offlineLoadProfile.getObisCode().toString()).orElse("")));
+            if (getExecutionLogger() != null) {
+                getExecutionLogger().addIssue(CompletionCode.ConfigurationWarning
+                        , this.getIssueService().newWarning(
+                                this,
+                                MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE.getKey(),
+                                comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier()).map(offlineLoadProfile -> offlineLoadProfile.getObisCode().toString()).orElse(""))
+                        , this.getComTaskExecution());
+            }
         }
     }
 

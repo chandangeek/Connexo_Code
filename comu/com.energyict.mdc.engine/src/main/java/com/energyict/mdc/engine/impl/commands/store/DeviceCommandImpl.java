@@ -60,8 +60,8 @@ public abstract class DeviceCommandImpl<E extends CollectedDataProcessingEvent> 
                 publish(event.get());
             }
          } finally {
-            if (this.getExecutionLogger() != null) {
-                this.getExecutionLogger().executed(this);
+            if (logger != null) {
+                logger.executed(this);
             }
         }
     }
@@ -127,7 +127,9 @@ public abstract class DeviceCommandImpl<E extends CollectedDataProcessingEvent> 
      * @param issue the issue that should be logged
      */
     protected void addIssue (CompletionCode completionCode, Issue issue) {
-        this.getExecutionLogger().addIssue(completionCode, issue, this.getComTaskExecution());
+        if (logger != null) {
+            logger.addIssue(completionCode, issue, this.getComTaskExecution());
+        }
         Optional<E> event = newEvent(issue);
         if (event.isPresent()) {
             publish(event.get());
