@@ -196,8 +196,10 @@ public class JbpmTaskResource {
                     for (String each : deploymentIds) {
                         predicatesDeploymentId.add(criteriaBuilder.equal(taskRoot.get("taskData").get("deploymentId"), each));
                     }
-                    predicatesStatus.add(criteriaBuilder.notEqual(taskRoot.get("taskData").get("status"), Status.Completed));
-                    predicatesStatus.add(criteriaBuilder.notEqual(taskRoot.get("taskData").get("status"), Status.Exited));
+                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.InProgress));
+                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Created));
+                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Ready));
+                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Reserved));
                     Predicate p1 = criteriaBuilder.disjunction();
                     if (!predicatesDeploymentId.isEmpty()) {
                         p1 = criteriaBuilder.or(predicatesDeploymentId.toArray(new Predicate[predicatesDeploymentId.size()]));
@@ -825,8 +827,18 @@ public class JbpmTaskResource {
                     taskRoot.get("taskData").get("actualOwner").get("id"),
                     taskRoot.get("taskData").get("processInstanceId")
             ));
-            Predicate p1 = criteriaBuilder.equal(taskRoot.get("taskData").get("processInstanceId"), processInstanceId);
-            criteriaQuery.where(criteriaBuilder.and(p1));
+            List<Predicate> predicatesStatus = new ArrayList<>();
+            List<Predicate> predicateList = new ArrayList<>();
+            Predicate p1 = criteriaBuilder.disjunction();
+            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.InProgress));
+            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Created));
+            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Ready));
+            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Reserved));
+            Predicate predicateProcessId = criteriaBuilder.equal(taskRoot.get("taskData").get("processInstanceId"), processInstanceId);
+            p1 = criteriaBuilder.or(predicatesStatus.toArray(new Predicate[predicatesStatus.size()]));
+            predicateList.add(p1);
+            predicateList.add(predicateProcessId);
+            criteriaQuery.where((criteriaBuilder.and(predicateList.toArray(new Predicate[predicateList.size()]))));
             final TypedQuery query = em.createQuery(criteriaQuery);
             TaskSummaryList taskSummaryList = new TaskSummaryList(query.getResultList());
             return taskSummaryList.getTasks();
