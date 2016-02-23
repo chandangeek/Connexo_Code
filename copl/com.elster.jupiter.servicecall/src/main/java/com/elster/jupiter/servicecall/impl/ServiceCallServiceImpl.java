@@ -49,6 +49,7 @@ import java.util.Optional;
 public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
 
     private volatile FiniteStateMachineService finiteStateMachineService;
+    private volatile CustomPropertySetService customPropertySetService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
 
@@ -76,6 +77,11 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(this.dataModel);
         }
+    }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
     }
 
     @Reference
