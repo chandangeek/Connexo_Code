@@ -691,7 +691,14 @@ public class BpmResource {
         } catch (JSONException e) {
         }
         TaskGroupsInfos taskGroups = new TaskGroupsInfos(arr);
-        taskGroups.taskGroups.stream().forEach(s-> s.tasksForm.outputContent = null);
+        taskGroups.taskGroups.stream().forEach(s-> {
+            s.tasksForm.outputContent = null;
+            s.tasksForm.properties.stream().forEach(f -> {
+                if(f.propertyValueInfo != null) {
+                    f.propertyValueInfo.defaultValue = "";
+                }
+            });
+        });
         return taskGroups;
     }
 
