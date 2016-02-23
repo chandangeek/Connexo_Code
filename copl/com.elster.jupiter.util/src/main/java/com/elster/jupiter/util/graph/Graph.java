@@ -1,12 +1,17 @@
 package com.elster.jupiter.util.graph;
 
+import com.elster.jupiter.util.Pair;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,7 +29,7 @@ public class Graph<T> {
         }
     }
 
-    public void addEdge(Edge<T> edge) {
+    void addEdge(Edge<T> edge) {
         vertices.addAll(edge.nodes());
         if (edges.add(edge)) {
             edge.nodes()
@@ -33,6 +38,14 @@ public class Graph<T> {
                                 .add(edge);
                     });
         }
+    }
+
+    public void addEdge(T one, T another) {
+        addEdge(Edge.between(one, another));
+    }
+
+    public void addEdge(T one, T another, long weight) {
+        addEdge(Edge.between(one, another).withWeight(weight));
     }
 
     public boolean isCyclic() {
@@ -70,6 +83,7 @@ public class Graph<T> {
 
     public boolean isConnected() {
         Set<Edge<T>> edgesLeft = new HashSet<>(edges);
+        Set<T> verticesLeft = new HashSet<>(vertices);
 
         if (vertices.isEmpty()) {
             return true;
@@ -88,12 +102,98 @@ public class Graph<T> {
                     .collect(Collectors.toList())
                     .stream()
                     .peek(edgesLeft::remove)
+                    .peek(edge -> verticesLeft.removeAll(edge.nodes()))
                     .map(edge -> edge.nodes().stream().filter(not(current::equals)).findAny().get())
                     .forEach(toExpand::add);
         }
 
-        return edgesLeft.isEmpty();
+        return verticesLeft.isEmpty();
     }
+
+    public Optional<List<T>> shortestPath(T start, T end) {
+        if (!vertices.contains(start) || !vertices.contains(end)) {
+            return Optional.empty();
+        }
+        Set<T> remainingVertices = new HashSet<>(vertices);
+
+        Map<T, Distance> distance = new HashMap<>();
+        Map<T, T> previous = new HashMap<>();
+
+        vertices.forEach(vertex -> {
+            distance.put(vertex, Infinity.INFINITY);
+        });
+        distance.put(start, LongDistance.ZERO);
+
+        while (!remainingVertices.isEmpty()) {
+            T nextClosestVertex = remainingVertices.stream()
+                    .min(Comparator.comparing(distance::get))
+                    .get();
+
+            if (end.equals(nextClosestVertex) && !distance.get(nextClosestVertex).isInfinite()) {
+                ArrayList<T> result = new ArrayList<>();
+                result.add(end);
+                while (previous.get(nextClosestVertex) != null) {
+                    T prev = previous.get(nextClosestVertex);
+                    result.add(prev);
+                    nextClosestVertex = prev;
+                }
+                Collections.reverse(result);
+                return Optional.of(result);
+            }
+
+            remainingVertices.remove(nextClosestVertex);
+
+            T u = nextClosestVertex;
+            adjacency.get(u)
+                    .stream()
+                    .forEach(edge -> {
+                        Distance alt = distance.get(u).plus(edge.weight());
+                        T vertex = edge.nodes().stream().filter(not(u::equals)).findAny().get();
+                        if (alt.isSmallerThan(distance.get(vertex))) {
+                            distance.put(vertex, alt);
+                            previous.put(vertex, u);
+                        }
+                    });
+        }
+
+        return Optional.empty();
+    }
+
+    private Pair<Map<T, Distance>, Map<T, T>> minimalSpanningTree(T start) {
+        Set<T> remainingVertices = new HashSet<>(vertices);
+
+        Map<T, Distance> distance = new HashMap<>();
+        Map<T, T> previous = new HashMap<>();
+
+        vertices.forEach(vertex -> {
+            distance.put(vertex, Infinity.INFINITY);
+        });
+        distance.put(start, LongDistance.ZERO);
+
+        while (!remainingVertices.isEmpty()) {
+            T nextClosestVertex = remainingVertices.stream()
+                    .min(Comparator.comparing(distance::get))
+                    .get();
+
+            remainingVertices.remove(nextClosestVertex);
+
+            adjacency.get(nextClosestVertex)
+                    .stream()
+                    .forEach(edge -> {
+                        Distance alt = distance.get(nextClosestVertex).plus(edge.weight());
+                        T vertex = edge.nodes().stream().filter(not(nextClosestVertex::equals)).findAny().get();
+                        if (alt.isSmallerThan(distance.get(vertex))) {
+                            distance.put(vertex, alt);
+                            previous.put(vertex, nextClosestVertex);
+                        }
+                    });
+        }
+
+        return Pair.of(distance, previous);
+    }
+
+
+
 }
 
 

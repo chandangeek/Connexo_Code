@@ -45,6 +45,10 @@ public final class Edge<T> {
                 '}';
     }
 
+    public long weight() {
+        return weight;
+    }
+
     public static <S> Edge<S> between(S a, S b) {
         return new Edge<>(a, b);
     }
