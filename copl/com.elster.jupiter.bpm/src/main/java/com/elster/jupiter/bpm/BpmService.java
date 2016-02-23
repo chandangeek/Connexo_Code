@@ -1,13 +1,15 @@
 package com.elster.jupiter.bpm;
 
-import com.elster.jupiter.bpm.impl.BpmProcessDefinitionImpl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@ProviderType
 public interface BpmService {
     String COMPONENTNAME = "BPM";
     String BPM_QUEUE_DEST = "BpmQueueDest";
