@@ -50,11 +50,14 @@ public class ServiceCallTypeResourceTest extends ServiceCallApplicationTest {
 
     private ServiceCallType mockServiceCallType(long id) {
         ServiceCallType serviceCallType = mock(ServiceCallType.class);
+        ServiceCallLifeCycle serviceCallLifeCycle = mock(ServiceCallLifeCycle.class);
+        when(serviceCallLifeCycle.getId()).thenReturn(1L);
+        when(serviceCallLifeCycle.getName()).thenReturn("default");
         when(serviceCallType.getName()).thenReturn("Mbus 1");
         Finder<ServiceCallType> serviceCallTypeFinder = mockFinder(Collections.singletonList(serviceCallType));
         when(serviceCallService.getServiceCallTypes()).thenReturn(serviceCallTypeFinder);
         when(serviceCallService.findAndLockServiceCallType(id, 1L)).thenReturn(Optional.of(serviceCallType));
-        when(serviceCallType.getServiceCallLifeCycle()).thenReturn(Optional.empty());
+        when(serviceCallType.getServiceCallLifeCycle()).thenReturn(serviceCallLifeCycle);
         when(serviceCallType.getLogLevel()).thenReturn(LogLevel.WARNING);
         when(serviceCallType.getStatus()).thenReturn(Status.ACTIVE);
         when(serviceCallType.getId()).thenReturn(id);

@@ -42,7 +42,8 @@ public class ServiceCallApplication extends Application implements TranslationKe
         return ImmutableSet.of(
                 RestValidationExceptionMapper.class,
                 ServiceCallTypeResource.class,
-                ServiceCallFieldResource.class
+                ServiceCallFieldResource.class,
+                ServiceCallResource.class
         );
     }
 
