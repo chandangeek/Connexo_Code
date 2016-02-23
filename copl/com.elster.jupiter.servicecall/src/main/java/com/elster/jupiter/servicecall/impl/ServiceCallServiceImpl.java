@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
+import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
@@ -75,17 +76,16 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(this.dataModel);
         }
-
-    }
-
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(ServiceCallService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(ServiceCallService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Override
@@ -120,7 +120,7 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
 
     @Override
     public void install() {
-        new ServiceCallInstaller(finiteStateMachineService, dataModel).install();
+        dataModel.getInstance(ServiceCallInstaller.class).install();
     }
 
     @Override
@@ -186,8 +186,8 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     }
 
     @Override
-    public ServiceCallLifeCycle createServiceCallLifeCycle(String name) {
-        return null; // TODO
+    public ServiceCallLifeCycleBuilder createServiceCallLifeCycle(String name) {
+        return dataModel.getInstance(ServiceCallLifeCycleBuilderImpl.class).setName(name);
     }
 
     @Override

@@ -4,13 +4,16 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.*;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 import static java.util.stream.Collectors.toList;
 
@@ -20,7 +23,9 @@ import static java.util.stream.Collectors.toList;
 @Component(name = "com.elster.jupiter.servicecall.gogo", service = ServiceCallsCommands.class,
         property = {"osgi.command.scope=scs",
                 "osgi.command.function=serviceCallTypes",
-                "osgi.command.function=createServiceCallType"
+                "osgi.command.function=createServiceCallType",
+                "osgi.command.function=customPropertySets",
+                "osgi.command.function=createServiceCallLifeCycle"
         }, immediate = true)
 public class ServiceCallsCommands {
 
@@ -60,7 +65,7 @@ public class ServiceCallsCommands {
     }
 
     public void createServiceCallType() {
-        System.out.println("Usage: createServiceCallType <name> <version name>");
+        System.out.println("Usage: createServiceCallType <name> <version name> <optional:log level> <optional: life cycle name> <optional:cps ids>");
     }
 
     public void createServiceCallType(String name, String versionName) {
@@ -68,6 +73,65 @@ public class ServiceCallsCommands {
 
         try (TransactionContext context = transactionService.getContext()) {
             serviceCallService.createServiceCallType(name, versionName).customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).get(0)).create();
+            context.commit();
+        }
+    }
+
+    public void createServiceCallType(String name, String versionName, String logLevel, Integer... cpsIds) {
+        List<Integer> ids = Arrays.asList(cpsIds);
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallService.ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName).logLevel(LogLevel.valueOf(logLevel));
+
+            customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).stream()
+                    .filter(cps -> ids.contains(cps.getId()))
+                    .forEach(builder::customPropertySet);
+            builder.add();
+            context.commit();
+        }
+    }
+
+    public void createServiceCallType(String name, String versionName, String logLevel, String lifeCycleName, Integer... cpsIds) {
+        List<Integer> ids = Arrays.asList(cpsIds);
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallLifeCycle serviceCallLifeCycle = serviceCallService.getServiceCallLifeCycle(lifeCycleName).orElseThrow(() -> new NoSuchElementException("No service call life cycle with name: " + lifeCycleName));
+            ServiceCallService.ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName, serviceCallLifeCycle).logLevel(LogLevel.valueOf(logLevel));
+
+            customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).stream()
+                    .filter(cps -> ids.contains(cps.getId()))
+                    .forEach(builder::customPropertySet);
+            builder.add();
+            context.commit();
+        }
+    }
+
+    public void customPropertySets() {
+        customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).stream()
+                .map(cps -> cps.getId() + " " + cps.getCustomPropertySet().getName())
+                .forEach(System.out::println);
+    }
+
+    public void createServiceCallLifeCycle() {
+        System.out.println("Usage: createServiceCallLifeCycle <name> <optional:operations>");
+        System.out.println("Operations: removeState:<state> removeTransition:<fromState>:<toState>");
+    }
+
+    public void createServiceCallLifeCycle(String name, String... operations) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallLifeCycleBuilder serviceCallLifeCycle = serviceCallService.createServiceCallLifeCycle(name);
+            for (String operation : operations) {
+                if (operation.contains("removeState:")) {
+                    serviceCallLifeCycle.remove(DefaultState.valueOf(operation.split(":")[1]));
+                } else if (operation.contains("removeTransition:")) {
+                    serviceCallLifeCycle.removeTransition(DefaultState.valueOf(operation.split(":")[1]),DefaultState.valueOf(operation.split(":")[2]));
+                }
+            }
+            serviceCallLifeCycle.create();
             context.commit();
         }
     }
