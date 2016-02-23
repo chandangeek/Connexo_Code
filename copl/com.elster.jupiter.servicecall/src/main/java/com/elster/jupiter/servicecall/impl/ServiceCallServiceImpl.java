@@ -1,6 +1,5 @@
 package com.elster.jupiter.servicecall.impl;
 
-import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.DefaultFinder;
@@ -16,6 +15,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
@@ -23,11 +23,14 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -35,8 +38,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by bvn on 2/4/16.
@@ -50,6 +55,7 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
+    private final Map<String, ServiceCallHandler> handlerMap = new ConcurrentHashMap<>();
 
     // OSGi
     public ServiceCallServiceImpl() {
@@ -75,12 +81,22 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(this.dataModel);
         }
-
     }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(ServiceCallService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String,Object> properties) {
+        String name = (String) properties.get("name");
+        handlerMap.put(name, serviceCallHandler);
+    }
+
+    public void removeServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String,Object> properties ) {
+        String name = (String) properties.get("name");
+        handlerMap.remove(name);
     }
 
     @Override
