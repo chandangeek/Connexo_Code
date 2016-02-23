@@ -87,7 +87,7 @@ Ext.define('Isu.view.overview.Section', {
                         view.collapsed = store.getCount() > me.itemsInCollapsedMode;
                         view.expandedHeight = view.getHeight();
                         view.collapsedHeight = view.expandedHeight / store.getCount() * me.itemsInCollapsedMode;
-                        if (view.collapsed) view.setHeight(view.collapsedHeight - 5);
+                        if (view.collapsed) view.setHeight(view.collapsedHeight - 3);
                     }
                 }
             });
@@ -104,7 +104,7 @@ Ext.define('Isu.view.overview.Section', {
         view.animate({
             duration: 300,
             to: {
-                height: (view.collapsed ? view.expandedHeight : view.collapsedHeight - 5)
+                height: (view.collapsed ? view.expandedHeight : view.collapsedHeight - 3)
             }
         });
         view.collapsed = !view.collapsed;

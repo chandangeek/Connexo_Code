@@ -34,7 +34,7 @@ Ext.define('Isu.view.issues.GroupGrid', {
                 display = Uni.I18n.translate('issues.grouping.reason.displayMsg', 'ISU', '{0} - {1} of {2} reasons');
                 displayMore = Uni.I18n.translate('issues.groupingreason.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} reasons');
                 empty = Uni.I18n.translate('issues.grouping.reason.emptyMsg', 'ISU', '0 reasons');
-                itemsPerPage = Uni.I18n.translate('issues.grouping.reason.itemsPerPageMsg', 'ISU', 'reasons per page');
+                itemsPerPage = Uni.I18n.translate('issues.grouping.reason.reasonsPerPageMsg', 'ISU', 'Reasons per page');
                 break;
         }
 
@@ -76,7 +76,7 @@ Ext.define('Isu.view.issues.GroupGrid', {
                 display = Uni.I18n.translate('issues.grouping.reason.displayMsg', 'ISU', '{0} - {1} of {2} reasons');
                 displayMore = Uni.I18n.translate('issues.groupingreason.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} reasons');
                 empty = Uni.I18n.translate('issues.grouping.reason.emptyMsg', 'ISU', '0 reasons');
-                itemsPerPage =  Uni.I18n.translate('issues.grouping.reason.itemsPerPageMsg', 'ISU', 'reasons per page');
+                itemsPerPage =  Uni.I18n.translate('issues.grouping.reason.reasonsPerPageMsg', 'ISU', 'Reasons per page');
                 break;
         }
 

@@ -51,14 +51,21 @@ Ext.define('Isu.view.issues.Preview', {
                         itemId: 'issue-preview-reason',
                         fieldLabel: Uni.I18n.translate('general.title.reason', 'ISU', 'Reason'),
                         name: 'reason',
-                        renderer: function (value) {
-                            return value.name ? Ext.String.htmlEncode(value.name) : '';
+                        renderer: function (value, field) {
+                            if (value && me.getRecord()) {
+                                field.setVisible(me.getRecord().get('issueType').uid == 'datacollection');
+                                return Ext.String.htmlEncode(value.name);
+                            }
                         }
                     },
                     {
+                        xtype: 'filter-display',
                         itemId: 'issue-type',
                         fieldLabel: Uni.I18n.translate('general.type', 'ISU', 'Type'),
-                        name: 'issueType_name'
+                        name: 'issueType',
+                        renderer: function (value) {
+                            return value ? value.name : '';
+                        }
                     },
                     {
                         itemId: 'issue-preview-usage-point',
@@ -115,8 +122,11 @@ Ext.define('Isu.view.issues.Preview', {
                         itemId: 'data-validation-issue-preview-modification-date',
                         fieldLabel: Uni.I18n.translate('general.title.modificationDate', 'ISU', 'Modification date'),
                         name: 'modTime',
-                        renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateShort(value) : '';
+                        renderer: function (value, field) {
+                            if (value && me.getRecord()) {
+                                field.setVisible(me.getRecord().get('issueType').uid != 'datacollection');
+                                return Uni.DateTime.formatDateShort(value);
+                            }
                         }
                     },
                     {

@@ -4,6 +4,10 @@ Ext.define('Isu.controller.IssueDetail', {
         'Isu.privileges.Issue'
     ],
 
+    stores: [
+        'Isu.store.IssueActions'
+    ],
+
     showOverview: function (id) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
