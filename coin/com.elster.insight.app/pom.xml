@@ -102,6 +102,10 @@
             <artifactId>cps</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.elster</groupId>
             <artifactId>insight.usagepoint.config</artifactId>
         </dependency>

@@ -21,6 +21,17 @@ class InsightAppPrivileges {
                 //com.elster.jupiter.time
                 com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD,
 
+                //com.elster.jupiter.bpm.security
+                com.elster.jupiter.bpm.security.Privileges.Constants.EXECUTE_TASK,
+                com.elster.jupiter.bpm.security.Privileges.Constants.VIEW_TASK,
+                com.elster.jupiter.bpm.security.Privileges.Constants.ASSIGN_TASK,
+                com.elster.jupiter.bpm.security.Privileges.Constants.VIEW_BPM,
+                com.elster.jupiter.bpm.security.Privileges.Constants.ADMINISTRATE_BPM,
+                com.elster.jupiter.bpm.security.Privileges.Constants.EXECUTE_PROCESSES_LVL_1,
+                com.elster.jupiter.bpm.security.Privileges.Constants.EXECUTE_PROCESSES_LVL_2,
+                com.elster.jupiter.bpm.security.Privileges.Constants.EXECUTE_PROCESSES_LVL_3,
+                com.elster.jupiter.bpm.security.Privileges.Constants.EXECUTE_PROCESSES_LVL_4,
+
                 //validation
                 com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
                 com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
