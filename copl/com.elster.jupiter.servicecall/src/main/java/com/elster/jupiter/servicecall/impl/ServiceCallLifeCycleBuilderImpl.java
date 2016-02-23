@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.servicecall.CannotRemoveStateException;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.UnreachableStateException;
 import com.elster.jupiter.servicecall.NoPathLeftToSuccessFromStateException;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
@@ -174,10 +175,6 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
     }
 
     private void validateGraph() {
-        if (!graph.isConnected()) {
-            throw new IllegalStateException(); // TODO proper exception
-        }
-
         graph.vertices()
                 .stream()
                 .filter(not(this::hasPathToSuccess))
@@ -185,6 +182,14 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
                 .ifPresent(stuckState -> {
                     throw new NoPathLeftToSuccessFromStateException(thesaurus, MessageSeeds.NO_PATH_TO_SUCCESS_FROM ,stuckState);
                 });
+        graph.vertices()
+                .stream()
+                .filter(not(this::hasPathFromCreated))
+                .findAny()
+                .ifPresent(unreachable -> {
+                    throw new UnreachableStateException(thesaurus, MessageSeeds.NO_PATH_FROM_CREATED_TO ,unreachable);
+                });
+
     }
 
     private boolean hasPathToSuccess(DefaultState state) {
@@ -195,6 +200,14 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
         }
         endStates.retainAll(graph.vertices());
         return graph.shortestPath(state, SUCCESSFUL).isPresent();
+    }
+
+    private boolean hasPathFromCreated(DefaultState state) {
+        // check there is a path from each state to an end state
+        if (CREATED.equals(state)) {
+            return true;
+        }
+        return graph.shortestPath(CREATED, state).isPresent();
     }
 
     private Map<DefaultCustomStateTransitionEventType, CustomStateTransitionEventType> transitions() {

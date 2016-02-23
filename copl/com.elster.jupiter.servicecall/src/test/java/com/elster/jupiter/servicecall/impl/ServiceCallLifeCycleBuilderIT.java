@@ -26,6 +26,7 @@ import com.elster.jupiter.servicecall.NoPathLeftToSuccessFromStateException;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.UnreachableStateException;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -328,4 +329,30 @@ public class ServiceCallLifeCycleBuilderIT {
                         .anyMatch(test(this::matches).on(to)))
                 .orElse(false);
     }
+
+    @Test
+    public void testCXO_609() {
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallLifeCycleBuilder builder = serviceCallService.createServiceCallLifeCycle(NAME);
+
+            try {
+                builder.remove(SCHEDULED);
+                builder.remove(PAUSED);
+                builder.remove(WAITING);
+                builder.remove(PARTIAL_SUCCESS);
+                builder.remove(FAILED);
+                builder.remove(REJECTED);
+                builder.removeTransition(ONGOING, CANCELLED);
+                builder.removeTransition(PENDING, CANCELLED);
+
+                ServiceCallLifeCycleImpl serviceCallLifeCycle = (ServiceCallLifeCycleImpl) builder.create();
+                fail("Expected NoPathLeftToSuccessFromStateException");
+            } catch (UnreachableStateException e) {
+                // expected behaviour
+            }
+
+        }
+
+    }
+
 }
