@@ -686,12 +686,15 @@ public class JbpmTaskResource {
     @POST
     @Produces("application/json")
     @Path("/managetasks")
-    public TaskGroupsInfos manageTasks(TaskGroupsInfos taskGroupsInfos, @Context UriInfo uriInfo){
+    public Response manageTasks(TaskGroupsInfos taskGroupsInfos, @Context UriInfo uriInfo){
+        long fails = 0;
         if (getQueryValue(uriInfo, "assign") != null) {
             if (getQueryValue(uriInfo, "currentuser") != null) {
                 for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
                     for(Long taskId: taskGroup.taskIds){
-                        assignTaskToUser(getQueryValue(uriInfo, "assign"), getQueryValue(uriInfo, "currentuser"), taskId);
+                        if(!assignTaskToUser(getQueryValue(uriInfo, "assign"), getQueryValue(uriInfo, "currentuser"), taskId)){
+                            fails++;
+                        }
                     }
                 }
             }
@@ -717,32 +720,48 @@ public class JbpmTaskResource {
                 for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
                     for(Long taskId: taskGroup.taskIds){
                         if(!internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Completed)) {
+                            boolean check = true;
                             if (internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Ready)) {
                                 assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId);
                             }
                             if (internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Created)) {
-                                assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId);
-                                internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
+                                if(assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId)) {
+                                    internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
+                                }else{
+                                    check = false;
+                                }
                             }
                             if (internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Reserved)) {
                                 if (!internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId().equals(getQueryValue(uriInfo, "currentuser"))) {
-                                    assignTaskToUser(getQueryValue(uriInfo, "currentuser"), internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId(), taskId);
-                                }
-                                internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
-                            }
-                            if (internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.InProgress)) {
-                                if (!internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId().equals(getQueryValue(uriInfo, "currentuser"))) {
-                                    assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId);
+                                    if(assignTaskToUser(getQueryValue(uriInfo, "currentuser"), internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId(), taskId)){
+                                        internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
+                                    }else{
+                                        check = false;
+                                    }
+                                }else {
                                     internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
                                 }
                             }
-                            internalTaskService.complete(taskId, getQueryValue(uriInfo, "currentuser"), taskGroup.outputBindingContents);
+                            if (internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.InProgress)) {
+                                if (!internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId().equals(getQueryValue(uriInfo, "currentuser"))) {
+                                    if(assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId)) {
+                                        internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
+                                    }else{
+                                        check = false;
+                                    }
+                                }
+                            }
+                            if(check) {
+                                internalTaskService.complete(taskId, getQueryValue(uriInfo, "currentuser"), taskGroup.outputBindingContents);
+                            }else {
+                                fails++;
+                            }
                         }
                     }
                 }
             }
         }
-        return taskGroupsInfos;
+        return Response.ok().entity(fails).build();
     }
 
     private boolean assignTaskToUser(String userName, String currentuser, long taskId){
