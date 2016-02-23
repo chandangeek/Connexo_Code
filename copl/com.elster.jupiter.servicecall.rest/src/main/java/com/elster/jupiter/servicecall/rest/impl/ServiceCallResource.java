@@ -14,6 +14,7 @@ import com.elster.jupiter.servicecall.impl.ServiceCallInstaller;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -21,6 +22,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Path("/servicecalls")
 public class ServiceCallResource {
@@ -69,6 +71,13 @@ public class ServiceCallResource {
                 .forEach(serviceCall -> serviceCallInfos.add(new ServiceCallInfo(serviceCall, thesaurus)));
 
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
+    }
+
+    @PUT
+    @Path("/{id}/cancel")
+    public Response cancelServiceCall(@PathParam("id") String number) {
+        serviceCallService.getServiceCall(number).ifPresent(ServiceCall::cancel);
+        return Response.status(Response.Status.OK).build();
     }
 
 }
