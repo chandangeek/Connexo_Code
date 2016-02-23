@@ -13,6 +13,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static java.util.stream.Collectors.toList;
 
@@ -64,7 +65,7 @@ public class ServiceCallsCommands {
     }
 
     public void createServiceCallType() {
-        System.out.println("Usage: createServiceCallType <name> <version name> <optional:log level> <optional:cps ids>");
+        System.out.println("Usage: createServiceCallType <name> <version name> <optional:log level> <optional: life cycle name> <optional:cps ids>");
     }
 
     public void createServiceCallType(String name, String versionName) {
@@ -82,6 +83,22 @@ public class ServiceCallsCommands {
 
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCallService.ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName).logLevel(LogLevel.valueOf(logLevel));
+
+            customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).stream()
+                    .filter(cps -> ids.contains(cps.getId()))
+                    .forEach(builder::customPropertySet);
+            builder.add();
+            context.commit();
+        }
+    }
+
+    public void createServiceCallType(String name, String versionName, String logLevel, String lifeCycleName, Integer... cpsIds) {
+        List<Integer> ids = Arrays.asList(cpsIds);
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallLifeCycle serviceCallLifeCycle = serviceCallService.getServiceCallLifeCycle(lifeCycleName).orElseThrow(() -> new NoSuchElementException("No service call life cycle with name: " + lifeCycleName));
+            ServiceCallService.ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName, serviceCallLifeCycle).logLevel(LogLevel.valueOf(logLevel));
 
             customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).stream()
                     .filter(cps -> ids.contains(cps.getId()))
