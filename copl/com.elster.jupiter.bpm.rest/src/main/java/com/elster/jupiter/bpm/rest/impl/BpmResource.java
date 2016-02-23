@@ -660,7 +660,7 @@ public class BpmResource {
         if(!result.isPresent()) {
             return Response.status(400).build();
         }
-        return Response.ok().build();
+        return Response.ok().entity(result.get()).build();
     }
 
     @POST
@@ -691,7 +691,8 @@ public class BpmResource {
         } catch (JSONException e) {
         }
         TaskGroupsInfos taskGroups = new TaskGroupsInfos(arr);
-        taskGroups.taskGroups.stream().forEach(s-> {
+        taskGroups.taskGroups.stream()
+                .forEach(s-> {
             s.tasksForm.outputContent = null;
             s.tasksForm.properties.stream().forEach(f -> {
                 if(f.propertyValueInfo != null) {
@@ -699,6 +700,9 @@ public class BpmResource {
                 }
             });
         });
+        taskGroups.taskGroups = taskGroups.taskGroups.stream()
+                .sorted((s1, s2) -> s1.name.toLowerCase().compareTo(s2.name.toLowerCase()))
+                .collect(Collectors.toList());
         return taskGroups;
     }
 
