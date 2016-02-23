@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -24,6 +25,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -33,9 +35,13 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -211,6 +217,30 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     public Finder<ServiceCall> getChildrenOf(String number) {
         Condition condition = Where.where("parent.id").isEqualTo(numberToId(number));
         return DefaultFinder.of(ServiceCall.class, condition, dataModel).defaultSortColumn(ServiceCallImpl.Fields.type.fieldName());
+    }
+
+    @Override
+    public Map<String, Long> getChildrenStatusInfo(String number) {
+        HashMap<String, Long> childrenCountInfo = new HashMap<>();
+        SqlBuilder sqlBuilder = new SqlBuilder();
+
+        sqlBuilder.append("SELECT fsm.NAME, scs.TOTAL FROM FSM_STATE as fsm, ");
+        sqlBuilder.append("(SELECT STATE, COUNT(*) as TOTAL FROM SCS_SERVICE_CALL ");
+        sqlBuilder.append("WHERE id IN (SELECT childID FROM SCS_SERVICE_CALL_PARENT where parentID=");
+        sqlBuilder.append(numberToId(number) + " ");
+        sqlBuilder.append("GROUP BY STATE) as scs");
+        sqlBuilder.append("WHERE fsm.ID = scs.STATE");
+
+        try (PreparedStatement statement = sqlBuilder.prepare(dataModel.getConnection(false))) {
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    childrenCountInfo.put(DefaultState.valueOf(resultSet.getString(0)).name(), Long.parseLong(resultSet.getString(1)));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return childrenCountInfo;
     }
 
     private long numberToId(String number) {

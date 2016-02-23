@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Finder;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.Map;
 import java.util.Optional;
 
 @ProviderType
@@ -87,13 +88,20 @@ public interface ServiceCallService {
      * Returns list of known service calls. This method supports paging.
      * @return Finder
      */
-    public Finder<ServiceCall> getServiceCalls();
+    Finder<ServiceCall> getServiceCalls();
 
 
     /**
-     * Retruns list of children of a service call, identified by his number
+     * Returns list of children of a service call, identified by his number
      * @param number The unique number of the service call
      * @return Finder
      */
-    public Finder<ServiceCall> getChildrenOf(String number);
+    Finder<ServiceCall> getChildrenOf(String number);
+
+    /**
+     * Returns information about the status of the children in a given service call
+     * @param number The unique number that identifies the service call
+     * @return Map of the names of the states, with their respective percentage
+     */
+    Map<String, Long> getChildrenStatusInfo(String number);
 }
