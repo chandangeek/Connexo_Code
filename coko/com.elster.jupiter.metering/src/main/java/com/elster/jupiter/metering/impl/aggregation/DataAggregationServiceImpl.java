@@ -91,7 +91,7 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
     }
 
     private void prepare(MeterActivation meterActivation, MetrologyContract contract, Range<Instant> period) {
-        this.virtualFactory.nextMeterActivation(meterActivation);
+        this.virtualFactory.nextMeterActivation(meterActivation, period);
         this.deliverablesPerMeterActivation.put(meterActivation, new ArrayList<>());
         contract.getDeliverables().stream().forEach(deliverable -> this.prepare(meterActivation, deliverable, period));
     }
@@ -203,8 +203,6 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
 
     private List<AggregatedReadingRecord> execute(SqlBuilder sqlBuilder) throws SQLException {
         try (Connection connection = this.getDataModel().getConnection(true)) {
-            String sqlText = sqlBuilder.getText();
-            System.out.println("Calculate aggregation with: " + sqlText);
             try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
                 return this.execute(statement);
             }

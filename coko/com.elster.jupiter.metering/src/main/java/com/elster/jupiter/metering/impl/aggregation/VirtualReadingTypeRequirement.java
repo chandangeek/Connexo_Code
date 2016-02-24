@@ -7,6 +7,9 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import com.google.common.collect.Range;
+
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -29,18 +32,17 @@ public class VirtualReadingTypeRequirement {
     private final ReadingTypeDeliverable deliverable;
     private final List<Channel> matchingChannels;
     private final IntervalLength targetIntervalLength;
-    private final MeterActivation meterActivation;
+    private final Range<Instant> rawDataPeriod;
     private final int meterActivationSequenceNumber;
-    // Todo: Will become valid usage once moved to the metering bundle
     private ChannelContract preferredChannel;   // Lazy from the list of matching channels and the targetIntervalLength
 
-    public VirtualReadingTypeRequirement(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, List<Channel> matchingChannels, IntervalLength targetIntervalLength, MeterActivation meterActivation, int meterActivationSequenceNumber) {
+    public VirtualReadingTypeRequirement(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, List<Channel> matchingChannels, IntervalLength targetIntervalLength, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber) {
         super();
         this.requirement = requirement;
         this.deliverable = deliverable;
+        this.rawDataPeriod = requestedPeriod.intersection(meterActivation.getRange());
         this.matchingChannels = Collections.unmodifiableList(matchingChannels);
         this.targetIntervalLength = targetIntervalLength;
-        this.meterActivation = meterActivation;
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
     }
 
@@ -63,17 +65,16 @@ public class VirtualReadingTypeRequirement {
     }
 
     private String prettyPrintMeterActivationPeriod() {
-        return this.meterActivation.getRange().toString();
+        return this.rawDataPeriod.toString();
     }
 
     void appendDefinitionTo(ClauseAwareSqlBuilder sqlBuilder) {
         SqlBuilder withClauseBuilder = sqlBuilder.with(this.sqlName(), Optional.of(sqlComment()), SqlConstants.TimeSeriesColumnNames.names());
-        // Todo: clip the MeterActivation's range to the requested period
         withClauseBuilder.add(
                 this.getPreferredChannel()
                         .getTimeSeries()
                         .getRawValuesSql(
-                                this.meterActivation.getRange(),
+                                this.rawDataPeriod,
                                 SqlConstants.TimeSeriesColumnNames.LOCALDATE.fieldSpecName(),
                                 SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.fieldSpecName(),
                                 SqlConstants.TimeSeriesColumnNames.VALUE.fieldSpecName()));

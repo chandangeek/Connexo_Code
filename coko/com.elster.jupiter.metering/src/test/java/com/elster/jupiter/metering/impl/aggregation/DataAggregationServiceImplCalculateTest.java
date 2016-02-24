@@ -117,6 +117,7 @@ public class DataAggregationServiceImplCalculateTest {
     @Test
     public void simplestNetConsumptionOfProsumer() throws SQLException {
         DataAggregationServiceImpl service = this.testInstance();
+        Range<Instant> aggregationPeriod = year2016();
         // Setup configuration requirements
         ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
         when(consumption.getName()).thenReturn("A-");
@@ -155,7 +156,7 @@ public class DataAggregationServiceImplCalculateTest {
         Interval year2015 = Interval.startAt(jan1st2015());
         when(meterActivation.getInterval()).thenReturn(year2015);
         when(meterActivation.getRange()).thenReturn(year2015.toClosedOpenRange());
-        when(meterActivation.overlaps(year2016())).thenReturn(true);
+        when(meterActivation.overlaps(aggregationPeriod)).thenReturn(true);
         doReturn(Collections.singletonList(meterActivation)).when(this.usagePoint).getMeterActivations();
         ReadingType consumptionReadingType15min = this.mock15minReadingType("0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.0.72.0");
         Channel chn1 = mock(Channel.class);
@@ -170,10 +171,10 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.virtualFactory.allDeliverables()).thenReturn(Collections.singletonList(virtualNetConsumption));
 
         // Business method
-        service.calculate(this.usagePoint, this.contract, year2016());
+        service.calculate(this.usagePoint, this.contract, aggregationPeriod);
 
         // Asserts
-        verify(this.virtualFactory).nextMeterActivation(meterActivation);
+        verify(this.virtualFactory).nextMeterActivation(meterActivation, aggregationPeriod);
         verify(this.virtualFactory).requirementFor(consumption, netConsumption, IntervalLength.MINUTE15);
         verify(this.virtualFactory).requirementFor(production, netConsumption, IntervalLength.MINUTE15);
         // Formula does not contain a reference to the deliverable

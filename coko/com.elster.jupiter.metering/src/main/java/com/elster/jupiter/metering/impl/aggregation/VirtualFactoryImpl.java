@@ -4,8 +4,10 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 
+import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,8 +56,8 @@ public class VirtualFactoryImpl implements VirtualFactory {
     }
 
     @Override
-    public void nextMeterActivation(MeterActivation meterActivation) {
-        MeterActivationFactory factory = new MeterActivationFactory(meterActivation, this.currentFactory.meterActivationSequenceNumber() + 1);
+    public void nextMeterActivation(MeterActivation meterActivation, Range<Instant> requestedPeriod) {
+        MeterActivationFactory factory = new MeterActivationFactory(meterActivation, requestedPeriod, this.currentFactory.meterActivationSequenceNumber() + 1);
         this.factoriesPerMeterActivation.put(meterActivation, factory);
         this.currentFactory = factory;
     }
@@ -91,7 +93,7 @@ public class VirtualFactoryImpl implements VirtualFactory {
         }
 
         @Override
-        public void nextMeterActivation(MeterActivation meterActivation) {
+        public void nextMeterActivation(MeterActivation meterActivation, Range<Instant> requestedPeriod) {
             throw new UnsupportedOperationException("Parent class should not be delegating this");
         }
 
@@ -108,20 +110,22 @@ public class VirtualFactoryImpl implements VirtualFactory {
      */
     private class MeterActivationFactory implements VirtualFactory {
         private final MeterActivation meterActivation;
+        private final Range<Instant> requestedPeriod;
         private final int sequenceNumber;
         private final Map<ReadingTypeRequirement, MeterActivationAndRequirementFactory> factoriesPerRequirement = new HashMap<>();
         private final Map<ReadingTypeDeliverableForMeterActivation, MeterActivationAndDeliverableFactory> factoriesPerDeliverable = new HashMap<>();
 
-        private MeterActivationFactory(MeterActivation meterActivation, int sequenceNumber) {
+        private MeterActivationFactory(MeterActivation meterActivation, Range<Instant> requestedPeriod, int sequenceNumber) {
             super();
             this.meterActivation = meterActivation;
             this.sequenceNumber = sequenceNumber;
+            this.requestedPeriod = requestedPeriod;
         }
 
         @Override
         public VirtualReadingTypeRequirement requirementFor(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, IntervalLength intervalLength) {
             return this.factoriesPerRequirement
-                    .computeIfAbsent(requirement, key -> new MeterActivationAndRequirementFactory(this, this.meterActivation))
+                    .computeIfAbsent(requirement, key -> new MeterActivationAndRequirementFactory(this))
                     .requirementFor(requirement, deliverable, intervalLength);
         }
 
@@ -151,7 +155,7 @@ public class VirtualFactoryImpl implements VirtualFactory {
         }
 
         @Override
-        public void nextMeterActivation(MeterActivation meterActivation) {
+        public void nextMeterActivation(MeterActivation meterActivation, Range<Instant> requestedPeriod) {
             throw new UnsupportedOperationException("Parent class should not be delegating this");
         }
 
@@ -159,6 +163,15 @@ public class VirtualFactoryImpl implements VirtualFactory {
         public int meterActivationSequenceNumber() {
             return this.sequenceNumber;
         }
+
+        private MeterActivation getMeterActivation() {
+            return meterActivation;
+        }
+
+        private Range<Instant> getRequestedPeriod() {
+            return this.requestedPeriod;
+        }
+
     }
 
     /**
@@ -168,18 +181,16 @@ public class VirtualFactoryImpl implements VirtualFactory {
      */
     private class MeterActivationAndRequirementFactory {
         private final MeterActivationFactory parent;
-        private final MeterActivation meterActivation;
         private final Map<IntervalLength, MeterActivationAndRequirementInDeliverableFactory> requirements = new HashMap<>();
 
-        private MeterActivationAndRequirementFactory(MeterActivationFactory parent, MeterActivation meterActivation) {
+        private MeterActivationAndRequirementFactory(MeterActivationFactory parent) {
             super();
             this.parent = parent;
-            this.meterActivation = meterActivation;
         }
 
         public VirtualReadingTypeRequirement requirementFor(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, IntervalLength intervalLength) {
             return this.requirements
-                    .computeIfAbsent(intervalLength, key -> new MeterActivationAndRequirementInDeliverableFactory(this, this.meterActivation))
+                    .computeIfAbsent(intervalLength, key -> new MeterActivationAndRequirementInDeliverableFactory(this))
                     .requirementFor(requirement, deliverable, intervalLength);
         }
 
@@ -195,8 +206,12 @@ public class VirtualFactoryImpl implements VirtualFactory {
             return this.parent.meterActivationSequenceNumber();
         }
 
-        MeterActivation getMeterActivation() {
-            return meterActivation;
+        private MeterActivation getMeterActivation() {
+            return this.parent.getMeterActivation();
+        }
+
+        private Range<Instant> getRequestedPeriod() {
+            return this.parent.getRequestedPeriod();
         }
     }
 
@@ -208,13 +223,11 @@ public class VirtualFactoryImpl implements VirtualFactory {
      */
     private class MeterActivationAndRequirementInDeliverableFactory {
         private final MeterActivationAndRequirementFactory parent;
-        private final MeterActivation meterActivation;
         private final Map<ReadingTypeDeliverable, VirtualReadingTypeRequirement> requirements = new HashMap<>();
 
-        private MeterActivationAndRequirementInDeliverableFactory(MeterActivationAndRequirementFactory parent, MeterActivation meterActivation) {
+        private MeterActivationAndRequirementInDeliverableFactory(MeterActivationAndRequirementFactory parent) {
             super();
             this.parent = parent;
-            this.meterActivation = meterActivation;
         }
 
         public VirtualReadingTypeRequirement requirementFor(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, IntervalLength intervalLength) {
@@ -224,7 +237,14 @@ public class VirtualFactoryImpl implements VirtualFactory {
         }
 
         private VirtualReadingTypeRequirement newRequirement(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, IntervalLength intervalLength) {
-            return new VirtualReadingTypeRequirement(requirement, deliverable, requirement.getMatchingChannelsFor(this.meterActivation), intervalLength, this.parent.getMeterActivation(), this.parent.meterActivationSequenceNumber());
+            return new VirtualReadingTypeRequirement(
+                    requirement,
+                    deliverable,
+                    requirement.getMatchingChannelsFor(this.parent.getMeterActivation()),
+                    intervalLength,
+                    this.parent.getMeterActivation(),
+                    this.parent.getRequestedPeriod(),
+                    this.parent.meterActivationSequenceNumber());
         }
 
         public List<VirtualReadingTypeRequirement> allRequirements() {

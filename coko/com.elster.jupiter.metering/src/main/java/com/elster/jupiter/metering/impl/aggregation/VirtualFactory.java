@@ -4,6 +4,9 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 
+import com.google.common.collect.Range;
+
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -59,13 +62,14 @@ public interface VirtualFactory {
      * the next {@link MeterActivation} has started.
      *
      * @param meterActivation The next MeterActivation
+     * @param requestedPeriod The complete period that was requested
      */
-    void nextMeterActivation(MeterActivation meterActivation);
+    void nextMeterActivation(MeterActivation meterActivation, Range<Instant> requestedPeriod);
 
     /**
      * Returns the sequence number of the current {@link MeterActivation}.
      * Note that there is no MeterActivation by default
-     * so you will need to call {@link #nextMeterActivation(MeterActivation)}
+     * so you will need to call {@link #nextMeterActivation(MeterActivation, Range)}
      * at least once otherwise this method will return 0 (zero).
      *
      * @return The sequence number of the current MeterActivation

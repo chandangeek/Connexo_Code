@@ -96,7 +96,8 @@ public class DataAggregationServiceImplCalculateIT {
     private static Injector injector;
     private static ReadingType fifteenMinuteskWhForward;
     private static ReadingType fifteenMinuteskWhReverse;
-    private static Instant jan1st2016 = Instant.ofEpochMilli(1420070400000L);
+    private static Instant jan1st2015 = Instant.ofEpochMilli(1420070400000L);
+    private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
     private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
     private static long PRODUCTION_REQUIREMENT_ID = 97L;
@@ -317,7 +318,7 @@ public class DataAggregationServiceImplCalculateIT {
     }
 
     private void activateMeter() {
-        this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
+        this.meterActivation = this.usagePoint.activate(this.meter, jan1st2015);
         this.production15MinChannel = this.meterActivation.createChannel(fifteenMinuteskWhForward);
         this.consumption15MinChannel = this.meterActivation.createChannel(fifteenMinuteskWhReverse);
     }
