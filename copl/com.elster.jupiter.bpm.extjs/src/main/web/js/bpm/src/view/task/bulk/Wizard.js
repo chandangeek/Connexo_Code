@@ -20,32 +20,32 @@ Ext.define('Bpm.view.task.bulk.Wizard', {
             {
                 xtype: 'tasks-bulk-step1',
                 itemId: 'tskbw-step1',
-                title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'BPM', 'Bulk action - Step {0} of {1}:'), 1, 5)
+                title: Ext.String.format(Uni.I18n.translate('general.bulkTaskTitle', 'BPM', 'Step {0}:'), 1)
                 + ' ' + Uni.I18n.translate('bpm.task.bulk.selectTasks', 'BPM', 'Select tasks'),
                 router: me.router
             },
             {
                 xtype: 'tasks-bulk-step2',
                 itemId: 'tskbw-step2',
-                title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'BPM', 'Bulk action - Step {0} of {1}:'), 2, 5)
+                title: Ext.String.format(Uni.I18n.translate('general.bulkTaskTitle', 'BPM', 'Step {0}:'), 2)
                 + ' ' + Uni.I18n.translate('general.selectAction', 'BPM', 'Select action')
             },
             {
                 xtype: 'tasks-bulk-step3',
                 itemId: 'tskbw-step3',
-                title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'BPM', 'Bulk action - Step {0} of {1}:'), 3, 5)
+                title: Ext.String.format(Uni.I18n.translate('general.bulkTaskTitle', 'BPM', 'Step {0}:'), 3)
                 + ' ' + Uni.I18n.translate('general.actionDetails', 'BPM', 'Action details')
             },
             {
                 xtype: 'tasks-bulk-step4',
                 itemId: 'tskbw-step4',
-                title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'BPM', 'Bulk action - Step {0} of {1}:'), 4, 5)
+                title: Ext.String.format(Uni.I18n.translate('general.bulkTaskTitle', 'BPM', 'Step {0}:'), 4)
                 + ' ' + Uni.I18n.translate('general.confirmation', 'BPM', 'Confirmation')
             },
             {
                 xtype: 'tasks-bulk-step5',
                 itemId: 'tskbw-step5',
-                title: Ext.String.format(Uni.I18n.translate('general.bulkStepTitle', 'BPM', 'Bulk action - Step {0} of {1}:'), 5, 5)
+                title: Ext.String.format(Uni.I18n.translate('general.bulkTaskTitle', 'BPM', 'Step {0}:'), 5)
                 + ' ' + Uni.I18n.translate('general.status', 'BPM', 'Status'),
                 router: me.router
             }
