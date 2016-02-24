@@ -10,8 +10,7 @@ import java.util.logging.Level;
  */
 public enum MessageSeeds implements MessageSeed {
     CANNOT_REMOVE_STATE_EXCEPTION(1, "Default state {0} can not be removed from the state diagram."),
-    NO_PATH_TO_SUCCESS_FROM(2, "Cannot get to Successful state from {0}")
-    ;
+    NO_PATH_TO_SUCCESS_FROM(2, "Cannot get to Successful state from {0}");
 
     private final int number;
     private final String defaultFormat;

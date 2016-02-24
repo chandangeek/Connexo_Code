@@ -111,7 +111,7 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
         map.put(Pair.of(PAUSED, CANCELLED), TranslationKeys.TRANSITION_FROM_PAUSED_TO_CANCELLED);
         map.put(Pair.of(WAITING, ONGOING), TranslationKeys.TRANSITION_FROM_WAITING_TO_ONGOING);
         map.put(Pair.of(WAITING, CANCELLED), TranslationKeys.TRANSITION_FROM_WAITING_TO_CANCELLED);
-       return map;
+        return map;
     }
 
     @Override
@@ -157,7 +157,8 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
                             .findAny()
                             .get();
 
-                    fromStateBuilder.on(transition.getValue()).transitionTo(toStateBuilder, translations.get(Pair.of(edge.from(), edge.to())));
+                    fromStateBuilder.on(transition.getValue())
+                            .transitionTo(toStateBuilder, translations.get(Pair.of(edge.from(), edge.to())));
                 });
         State initialState = stateBuilders.get(DefaultState.CREATED).complete();
         List<State> states = stateBuilders.entrySet()
@@ -183,7 +184,7 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
                 .filter(not(this::hasPathToSuccess))
                 .findAny()
                 .ifPresent(stuckState -> {
-                    throw new NoPathLeftToSuccessFromStateException(thesaurus, MessageSeeds.NO_PATH_TO_SUCCESS_FROM ,stuckState);
+                    throw new NoPathLeftToSuccessFromStateException(thesaurus, MessageSeeds.NO_PATH_TO_SUCCESS_FROM, stuckState);
                 });
     }
 
