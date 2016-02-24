@@ -13,7 +13,7 @@ import org.osgi.service.component.annotations.Component;
 @Component(name = "com.elster.jupiter.servicecall.example.disconnect.handler",
         service = ServiceCallHandler.class,
         immediate = true,
-        property = "name=com.elster.jupiter.servicecall.example.disconnect.handler")
+        property = "name=DisconnectHandler1")
 public class DisconnectHandler implements ServiceCallHandler {
 
     public DisconnectHandler() {

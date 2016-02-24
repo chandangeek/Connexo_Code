@@ -6,7 +6,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.Status;
 
@@ -29,6 +31,7 @@ public class ServiceCallTypeImpl implements ServiceCallType {
     private String versionName;
     private Status status;
     private LogLevel logLevel;
+    private String serviceCallHandler;
     private Reference<ServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
     private DefaultState currentLifeCycleState;
     private List<ServiceCallTypeCustomPropertySetUsage> customPropertySets = new ArrayList<>();
@@ -43,10 +46,12 @@ public class ServiceCallTypeImpl implements ServiceCallType {
 
 
     private final DataModel dataModel;
+    private final ServiceCallService serviceCallService;
 
     @Inject
-    public ServiceCallTypeImpl(DataModel dataModel) {
+    public ServiceCallTypeImpl(DataModel dataModel, ServiceCallService serviceCallService) {
         this.dataModel = dataModel;
+        this.serviceCallService = serviceCallService;
         this.status = Status.ACTIVE;
     }
 
@@ -58,7 +63,8 @@ public class ServiceCallTypeImpl implements ServiceCallType {
         versionName("versionName"),
         version("version"),
         currentLifeCycleState("currentLifeCycleState"),
-        customPropertySets("customPropertySets");
+        customPropertySets("customPropertySets"),
+        handler("serviceCallHandler");
 
         private final String javaFieldName;
 
@@ -92,6 +98,19 @@ public class ServiceCallTypeImpl implements ServiceCallType {
 
     void setVersionName(String versionName) {
         this.versionName = versionName;
+    }
+
+    @Override
+    public ServiceCallHandler getServiceCallHandler() {
+        return serviceCallService.findHandler(serviceCallHandler).get();
+    }
+
+    public String getHandlerName() {
+        return serviceCallHandler;
+    }
+
+    public void setHandlerName(String serviceCallHandler) {
+        this.serviceCallHandler = serviceCallHandler;
     }
 
     @Override

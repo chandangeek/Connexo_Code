@@ -148,6 +148,11 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     }
 
     @Override
+    public Optional<ServiceCallHandler> findHandler(String handler) {
+        return Optional.of(handlerMap.get(handler));
+    }
+
+    @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList(OrmService.COMPONENTNAME,
                 UserService.COMPONENTNAME,
@@ -241,6 +246,12 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
         @Override
         public ServiceCallTypeBuilder customPropertySet(RegisteredCustomPropertySet customPropertySet) {
             this.toBeRegisteredCustomPropertySets.add(customPropertySet);
+            return this;
+        }
+
+        @Override
+        public ServiceCallTypeBuilder handler(String serviceCallHandler) {
+            this.instance.setHandlerName(serviceCallHandler);
             return this;
         }
 

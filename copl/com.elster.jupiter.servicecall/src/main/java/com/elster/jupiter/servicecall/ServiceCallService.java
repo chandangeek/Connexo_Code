@@ -72,11 +72,23 @@ public interface ServiceCallService {
      */
     Optional<ServiceCallType> findAndLockServiceCallType(long id, long version);
 
+    /**
+     * Returns a list of names of all known service call handlers in the system
+     */
     Collection<String> findAllHandlers();
+
+    /**
+     * Returns the service call handler identified by the name. Empty if none is found
+     *
+     * @param handler Service call handler name
+     */
+    Optional<ServiceCallHandler> findHandler(String handler);
 
     interface ServiceCallTypeBuilder {
         public ServiceCallTypeBuilder logLevel(LogLevel logLevel);
         public ServiceCallTypeBuilder customPropertySet(RegisteredCustomPropertySet customPropertySet);
+
+        public ServiceCallTypeBuilder handler(String serviceCallHandler);
         public ServiceCallType add();
     }
 

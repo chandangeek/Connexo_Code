@@ -38,6 +38,11 @@ public enum TableSpecs {
             table.map(ServiceCallTypeImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar(NAME_LENGTH).notNull().map(ServiceCallTypeImpl.Fields.name.fieldName()).add();
+            table.column("HANDLER")
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(ServiceCallTypeImpl.Fields.handler.fieldName())
+                    .add();
             table.column("LOGLEVEL").number().conversion(ColumnConversion.NUMBER2ENUM).map(ServiceCallTypeImpl.Fields.logLevel.fieldName()).add();
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map(ServiceCallTypeImpl.Fields.status.fieldName()).add();
             Column versionName = table.column("VERSIONNAME").varChar(NAME_LENGTH).notNull().map(ServiceCallTypeImpl.Fields.versionName.fieldName()).add();

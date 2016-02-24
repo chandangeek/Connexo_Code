@@ -67,7 +67,7 @@ public class ServiceCallsCommands {
                                 .stream()
                                 .map(RegisteredCustomPropertySet::getCustomPropertySet)
                                 .map(CustomPropertySet::getName)
-                                .collect(toList()))));
+                                .collect(toList())) + "Handled by " + sct.getServiceCallHandler()));
     }
 
     public void createServiceCallType() {
@@ -78,7 +78,11 @@ public class ServiceCallsCommands {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            serviceCallService.createServiceCallType(name, versionName).customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).get(0)).add();
+            serviceCallService.createServiceCallType(name, versionName)
+                    .customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class)
+                            .get(0))
+                    .handler("DisconnectHandler1")
+                    .add();
             context.commit();
         }
     }
