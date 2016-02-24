@@ -100,12 +100,7 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
 
     @Override
     public UsagePointVersionedPropertySet getVersionedPropertySet(long registeredCustomPropertySetId) {
-        UsagePointPropertySet property = getAllPropertySets()
-                .stream()
-                .filter(rcps -> rcps.getId() == registeredCustomPropertySetId)
-                .findFirst()
-                .orElseThrow(() -> UsagePointCustomPropertySetValuesManageException
-                        .noLinkedCustomPropertySet(thesaurus, "id = " + String.valueOf(registeredCustomPropertySetId)));
+        UsagePointPropertySet property = getPropertySet(registeredCustomPropertySetId);
         if (!property.getCustomPropertySet().isVersioned()) {
             throw UsagePointCustomPropertySetValuesManageException
                     .customPropertySetIsNotVersioned(thesaurus, property.getCustomPropertySet().getName());
