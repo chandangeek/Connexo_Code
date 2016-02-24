@@ -82,15 +82,15 @@ public class ServiceCallsCommands {
         }
     }
 
-    public void createServiceCallType(String name, String versionName, String logLevel, Integer... cpsIds) {
-        List<Integer> ids = Arrays.asList(cpsIds);
+    public void createServiceCallType(String name, String versionName, String logLevel, Long... cpsIds) {
+        List<Long> ids = Arrays.asList(cpsIds);
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCallService.ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName)
                     .logLevel(LogLevel.valueOf(logLevel));
 
-            customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).stream()
+            customPropertySetService.findActiveCustomPropertySets().stream()
                     .filter(cps -> ids.contains(cps.getId()))
                     .forEach(builder::customPropertySet);
             builder.add();
@@ -98,8 +98,8 @@ public class ServiceCallsCommands {
         }
     }
 
-    public void createServiceCallType(String name, String versionName, String logLevel, String lifeCycleName, Integer... cpsIds) {
-        List<Integer> ids = Arrays.asList(cpsIds);
+    public void createServiceCallType(String name, String versionName, String logLevel, String lifeCycleName, Long... cpsIds) {
+        List<Long> ids = Arrays.asList(cpsIds);
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -108,7 +108,7 @@ public class ServiceCallsCommands {
             ServiceCallService.ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName, serviceCallLifeCycle)
                     .logLevel(LogLevel.valueOf(logLevel));
 
-            customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).stream()
+            customPropertySetService.findActiveCustomPropertySets().stream()
                     .filter(cps -> ids.contains(cps.getId()))
                     .forEach(builder::customPropertySet);
             builder.add();
@@ -117,8 +117,8 @@ public class ServiceCallsCommands {
     }
 
     public void customPropertySets() {
-        customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).stream()
-                .map(cps -> cps.getId() + " " + cps.getCustomPropertySet().getName())
+        customPropertySetService.findActiveCustomPropertySets().stream()
+                .map(cps -> cps.getId() + " " + cps.getCustomPropertySet().getDomainClass() + " " + cps.getCustomPropertySet().getName())
                 .forEach(System.out::println);
     }
 
