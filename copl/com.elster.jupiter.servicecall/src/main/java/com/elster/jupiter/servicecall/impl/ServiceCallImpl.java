@@ -18,6 +18,7 @@ import java.text.NumberFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 
 public class ServiceCallImpl implements ServiceCall {
@@ -190,5 +191,22 @@ public class ServiceCallImpl implements ServiceCall {
         } else {
             Save.CREATE.save(this.dataModel, this, Save.Create.class);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ServiceCallImpl that = (ServiceCallImpl) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
