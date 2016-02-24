@@ -206,6 +206,11 @@ public class ServiceCallImplIT {
         serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
 
         assertThat(serviceCall.getState()).isEqualTo(DefaultState.CREATED);
+        assertThat(serviceCall.getExternalReference()).contains("external");
+        assertThat(serviceCall.getOrigin()).contains("CST");
+        assertThat((Optional<Object>) serviceCall.getTargetObject()).contains(person);
+
+        assertThat(extension.getServiceCall()).isEqualTo(serviceCall);
     }
 
     static class MyPersistentExtension implements PersistentDomainExtension<ServiceCall> {
@@ -235,6 +240,10 @@ public class ServiceCallImplIT {
 
         @Override
         public void validateDelete() {
+        }
+
+        public ServiceCall getServiceCall() {
+            return serviceCall.get();
         }
     }
 
