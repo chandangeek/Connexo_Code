@@ -1,6 +1,5 @@
 package com.elster.jupiter.bpm;
 
-import com.elster.jupiter.bpm.impl.BpmProcessDefinitionImpl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 
