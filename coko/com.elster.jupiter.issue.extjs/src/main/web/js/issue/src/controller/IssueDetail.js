@@ -5,17 +5,29 @@ Ext.define('Isu.controller.IssueDetail', {
     ],
 
     stores: [
-        'Isu.store.IssueActions'
+        'Isu.store.IssueActions',
+        'Isu.store.Issues'
     ],
 
     showOverview: function (id) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             filter = me.getStore('Isu.store.Clipboard').get('latest-issues-filter'),
-            issueType = router.getQueryStringValues().issueType,
+            queryString = Uni.util.QueryString.getQueryStringValues(false),
+            issueType = queryString.issueType,
+            store = me.getStore('Isu.store.Issues'),
             widgetXtype,
             issueModel,
             widget;
+
+        if (store.getCount()) {
+            var issueActualType = store.getById(parseInt(id)).get('issueType').uid;
+            if (issueActualType != issueType) {
+                queryString.issueType = issueActualType;
+                window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+                issueType = issueActualType;
+            }
+        }
 
         if (issueType == 'datacollection') {
             widgetXtype = 'data-collection-issue-detail';
@@ -56,9 +68,9 @@ Ext.define('Isu.controller.IssueDetail', {
         });
         if (issueType == 'datavalidation') {
             me.getApplication().on('issueLoad', function (rec) {
-                if (rec.raw.notEstimatedData) {
+                var panel = widget.down('#no-estimated-data-panel');
+                if (rec.raw.notEstimatedData && panel) {
                     var data = [],
-                        panel = widget.getCenterContainer().down('#no-estimated-data-panel'),
                         store, validationBlocksWidget;
 
                     rec.raw.notEstimatedData.map(function (item) {

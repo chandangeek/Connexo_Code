@@ -49,13 +49,13 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 listeners: {
                     expand: {
                         fn: me.comboLimitNotification
-                    }
-                   /* beforeselect: {
+                    },
+                    beforeselect: {
                         fn: me.onComboBeforeSelect
                     },
                     select: {
                         fn: me.onComboSelect
-                    }*/
+                    }
                 }
             },
             {
@@ -206,9 +206,9 @@ Ext.define('Isu.view.issues.IssueFilter', {
         picker.on('beforehide', function () {
             picker.un('refresh', fn);
         }, combo, {single: true});
-    }
+    },
 
-   /* onComboBeforeSelect: function (combo, record) {
+    onComboBeforeSelect: function (combo, record) {
         if (Ext.isString(combo.getValue()) && combo.getValue().search(',') != -1) {
             combo.lastSelectionValue = combo.lastSelection;
         }
@@ -223,5 +223,5 @@ Ext.define('Isu.view.issues.IssueFilter', {
             });
             combo.setValue(combo.lastSelectionValue);
         }
-    }*/
+    }
 });
