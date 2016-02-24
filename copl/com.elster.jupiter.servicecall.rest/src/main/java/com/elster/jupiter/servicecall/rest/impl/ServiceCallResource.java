@@ -9,8 +9,11 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFinder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallInstaller;
+
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -21,6 +24,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -42,13 +46,43 @@ public class ServiceCallResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getAllServiceCalls(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
-        Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCalls();
-        List<ServiceCall> serviceCalls = serviceCallFinder.from(queryParameters).find();
+        //Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCalls();
+        ServiceCallFinder serviceCallFinder = serviceCallService.getServiceCallFinder();
+        applyFilterToFinder(filter, serviceCallFinder);
+
+        List<ServiceCall> serviceCalls = serviceCallFinder.find();
 
         serviceCalls.stream()
                 .forEach(serviceCall -> serviceCallInfos.add(new ServiceCallInfo(serviceCall, thesaurus)));
 
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
+    }
+
+    private void applyFilterToFinder(JsonQueryFilter filter, ServiceCallFinder serviceCallFinder) {
+        //TODO: SET START AND LIMIT
+        //TODO: CHECK TYPE AND STATE REF ISSUE
+
+        if(filter.hasProperty("number")) {
+            serviceCallFinder.setReference(filter.getString("number"));
+        }
+        if(filter.hasProperty("type")) {
+            //serviceCallFinder.setType(filter.getString("type"));
+        }
+        if(filter.hasProperty("state")) {
+            //serviceCallFinder.setState(filter.getString("state"))
+        }
+        if(filter.hasProperty("receivedDateFrom")) {
+            serviceCallFinder.withCreationTimeIn(Range.closed(filter.getInstant("receivedDateFrom"),
+                    filter.hasProperty("receivedDateTo") ? filter.getInstant("receivedDateTo") : Instant.now()));
+        } else if (filter.hasProperty("receivedDateTo")) {
+            serviceCallFinder.withCreationTimeIn(Range.closed(Instant.EPOCH, filter.getInstant("receivedDateTo")));
+        }
+        if(filter.hasProperty("modificationDateFrom")) {
+            serviceCallFinder.withModTimeIn(Range.closed(filter.getInstant("modificationDateFrom"),
+                    filter.hasProperty("modificationDateTo") ? filter.getInstant("modificationDateTo") : Instant.now()));
+        } else if (filter.hasProperty("modificationDateTo")) {
+            serviceCallFinder.withModTimeIn(Range.closed(Instant.EPOCH, filter.getInstant("modificationDateTo")));
+        }
     }
 
     @GET
