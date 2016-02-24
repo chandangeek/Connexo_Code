@@ -11,8 +11,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentif
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Implementation of a LoadProfileIdentifier that uniquely identifies a LoadProfile with its database ID.
@@ -62,7 +61,7 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
 
     @Override
     public List<Object> getIdentifier() {
-        return Arrays.asList((Object) getId());
+        return Collections.singletonList((Object) getId());
     }
 
     @XmlElement(name = "type")

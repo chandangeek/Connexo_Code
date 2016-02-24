@@ -18,7 +18,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @since 10/12/12 - 16:01
  */
 @XmlRootElement
-public final class LogBookIdentifierById implements LogBookIdentifier<LogBook> {
+public class LogBookIdentifierById implements LogBookIdentifier<LogBook> {
 
     private final long logBookId;
     private final LogBookService logBookService;
