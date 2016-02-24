@@ -217,7 +217,11 @@ public class DataAggregationServiceImplCalculateTest {
     }
 
     private DataAggregationServiceImpl testInstance() {
-        return new DataAggregationServiceImpl(this.meteringService, this.virtualFactory, this.sqlBuilderFactory);
+        return new DataAggregationServiceImpl(this.meteringService, this::getVirtualFactory, this.sqlBuilderFactory);
+    }
+
+    private VirtualFactory getVirtualFactory() {
+        return this.virtualFactory;
     }
 
 }

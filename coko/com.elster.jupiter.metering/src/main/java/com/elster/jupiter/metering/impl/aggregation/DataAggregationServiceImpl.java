@@ -14,6 +14,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.Range;
+import com.google.inject.Provider;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -40,7 +41,7 @@ import java.util.stream.Stream;
 public class DataAggregationServiceImpl implements DataAggregationService, ReadingTypeDeliverableForMeterActivationProvider {
 
     private ServerMeteringService meteringService;
-    private VirtualFactory virtualFactory;
+    private Provider<VirtualFactory> virtualFactoryProvider;
     private SqlBuilderFactory sqlBuilderFactory;
     private Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation;
     private ClauseAwareSqlBuilder sqlBuilder;
@@ -48,14 +49,15 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
     // For OSGi only
     public DataAggregationServiceImpl() {
         super();
+        this.virtualFactoryProvider = VirtualFactoryImpl::new;
     }
 
     // For testing purposes only
     @Inject
-    public DataAggregationServiceImpl(ServerMeteringService meteringService, VirtualFactory virtualFactory, SqlBuilderFactory sqlBuilderFactory) {
+    public DataAggregationServiceImpl(ServerMeteringService meteringService, Provider<VirtualFactory> virtualFactoryProvider, SqlBuilderFactory sqlBuilderFactory) {
         this();
         this.setMeteringService(meteringService);
-        this.setVirtualFactory(virtualFactory);
+        this.virtualFactoryProvider = virtualFactoryProvider;
         this.setSqlBuilderFactory(sqlBuilderFactory);
     }
 
@@ -65,21 +67,17 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
     }
 
     @Reference
-    public void setVirtualFactory(VirtualFactory virtualFactory) {
-        this.virtualFactory = virtualFactory;
-    }
-
-    @Reference
     public void setSqlBuilderFactory(SqlBuilderFactory sqlBuilderFactory) {
         this.sqlBuilderFactory = sqlBuilderFactory;
     }
 
     @Override
     public List<? extends BaseReadingRecord> calculate(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
+        VirtualFactory virtualFactory = this.virtualFactoryProvider.get();
         this.deliverablesPerMeterActivation = new HashMap<>();
-        this.getOverlappingMeterActivations(usagePoint, period).forEach(meterActivation -> this.prepare(meterActivation, contract, period));
+        this.getOverlappingMeterActivations(usagePoint, period).forEach(meterActivation -> this.prepare(meterActivation, contract, period, virtualFactory));
         try {
-            return this.execute(this.generateSql());
+            return this.execute(this.generateSql(virtualFactory));
         }
         catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
@@ -90,10 +88,10 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
         return usagePoint.getMeterActivations().stream().filter(each -> each.overlaps(period));
     }
 
-    private void prepare(MeterActivation meterActivation, MetrologyContract contract, Range<Instant> period) {
-        this.virtualFactory.nextMeterActivation(meterActivation, period);
+    private void prepare(MeterActivation meterActivation, MetrologyContract contract, Range<Instant> period, VirtualFactory virtualFactory) {
+        virtualFactory.nextMeterActivation(meterActivation, period);
         this.deliverablesPerMeterActivation.put(meterActivation, new ArrayList<>());
-        contract.getDeliverables().stream().forEach(deliverable -> this.prepare(meterActivation, deliverable, period));
+        contract.getDeliverables().stream().forEach(deliverable -> this.prepare(meterActivation, deliverable, period, virtualFactory));
     }
 
     /**
@@ -115,15 +113,15 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
      * @param deliverable The ReadingTypeDeliverable
      * @param period The requested period in time
      */
-    private void prepare(MeterActivation meterActivation, ReadingTypeDeliverable deliverable, Range<Instant> period) {
-        ServerExpressionNode preparedExpression = this.copyAndVirtualizeReferences(deliverable, meterActivation);
+    private void prepare(MeterActivation meterActivation, ReadingTypeDeliverable deliverable, Range<Instant> period, VirtualFactory virtualFactory) {
+        ServerExpressionNode preparedExpression = this.copyAndVirtualizeReferences(deliverable, meterActivation, virtualFactory);
         this.deliverablesPerMeterActivation
                 .get(meterActivation)
                 .add(new ReadingTypeDeliverableForMeterActivation(
                         deliverable,
                         meterActivation,
                         period,
-                        this.virtualFactory.meterActivationSequenceNumber(),
+                        virtualFactory.meterActivationSequenceNumber(),
                         preparedExpression,
                         this.inferAggregationInterval(deliverable, preparedExpression)));
     }
@@ -137,9 +135,9 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
      * @param meterActivation The MeterActivation
      * @return The copied formula with virtual requirements and deliverables
      */
-    private ServerExpressionNode copyAndVirtualizeReferences(ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
+    private ServerExpressionNode copyAndVirtualizeReferences(ReadingTypeDeliverable deliverable, MeterActivation meterActivation, VirtualFactory virtualFactory) {
         ServerFormula formula = (ServerFormula) deliverable.getFormula();
-        CopyAndVirtualizeReferences visitor = new CopyAndVirtualizeReferences(this.virtualFactory, this, deliverable, meterActivation);
+        CopyAndVirtualizeReferences visitor = new CopyAndVirtualizeReferences(virtualFactory, this, deliverable, meterActivation);
         return formula.expressionNode().accept(visitor);
     }
 
@@ -170,15 +168,15 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
                 .orElseThrow(() -> new UnsupportedOperationException("Forward references to other deliverables is not supported yet"));
     }
 
-    private SqlBuilder generateSql() {
+    private SqlBuilder generateSql(VirtualFactory virtualFactory) {
         this.sqlBuilder = this.sqlBuilderFactory.newClauseAwareSqlBuilder();
-        this.appendAllToSqlBuilder();
+        this.appendAllToSqlBuilder(virtualFactory);
         SqlBuilder fullSqlBuilder = this.sqlBuilder.finish();
         fullSqlBuilder.append("\n ORDER BY 3 DESC, 1");
         return fullSqlBuilder;
     }
 
-    private void appendAllToSqlBuilder() {
+    private void appendAllToSqlBuilder(VirtualFactory virtualFactory) {
         /* Oracle requires that all WITH clauses are generated in the correct order,
          * i.e. one WITH clause can only refer to an already defined with clause.
          * It suffices to append the definition for all requirements and deliverables
@@ -188,8 +186,8 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
                 .stream()
                 .flatMap(Collection::stream)
                 .forEach(this::finish);
-        this.virtualFactory.allRequirements().stream().forEach(requirement -> requirement.appendDefinitionTo(this.sqlBuilder));
-        this.virtualFactory.allDeliverables().stream().forEach(requirement -> requirement.appendDefinitionTo(this.sqlBuilder));
+        virtualFactory.allRequirements().stream().forEach(requirement -> requirement.appendDefinitionTo(this.sqlBuilder));
+        virtualFactory.allDeliverables().stream().forEach(requirement -> requirement.appendDefinitionTo(this.sqlBuilder));
         this.deliverablesPerMeterActivation
                 .values()
                 .stream()

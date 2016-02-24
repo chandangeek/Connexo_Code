@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 
 import com.google.common.collect.Range;
-import org.osgi.service.component.annotations.Component;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -20,7 +19,6 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-09 (15:53)
  */
-@Component(name = "com.elster.jupiter.metering.aggregation.impl.VirtualFactory", service = {VirtualFactory.class})
 @SuppressWarnings("unused")
 public class VirtualFactoryImpl implements VirtualFactory {
 

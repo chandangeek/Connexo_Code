@@ -180,7 +180,7 @@ public class DataAggregationServiceImplCalculateIT {
     private static DataAggregationService getDataAggregationService() {
         return new DataAggregationServiceImpl(
                 injector.getInstance(ServerMeteringService.class),
-                injector.getInstance(VirtualFactory.class),
+                injector.getProvider(VirtualFactory.class),
                 sqlBuilderFactory);
     }
 
