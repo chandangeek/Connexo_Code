@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.impl.*;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -39,7 +40,7 @@ public class ServiceCallResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getAllServiceCalls(@BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getAllServiceCalls(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
         Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCalls();
         List<ServiceCall> serviceCalls = serviceCallFinder.from(queryParameters).find();
@@ -75,6 +76,7 @@ public class ServiceCallResource {
 
     @PUT
     @Path("/{id}/cancel")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response cancelServiceCall(@PathParam("id") String number) {
         serviceCallService.getServiceCall(number).ifPresent(ServiceCall::cancel);
         return Response.status(Response.Status.OK).build();
