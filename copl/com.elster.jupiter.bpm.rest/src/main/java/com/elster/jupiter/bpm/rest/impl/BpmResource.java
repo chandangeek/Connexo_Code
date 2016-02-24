@@ -634,6 +634,7 @@ public class BpmResource {
     public Response manageTasks(TaskGroupsInfos taskGroupsInfos, @Context UriInfo uriInfo, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         Optional<String> result = Optional.empty();
+        JSONObject obj = null;
         try {
             taskGroupsInfos.taskGroups.stream()
                     .forEach(s->{
@@ -652,15 +653,24 @@ public class BpmResource {
                     rest += req+"?currentuser=" + securityContext.getUserPrincipal().getName() ;
                 }
                 result = bpmService.getBpmServer().doPost(rest, stringJson, auth);
+                if(result.isPresent()){
+                    obj = new JSONObject(result.get());
+                }
             } catch (JsonProcessingException e) {
+            } catch (JSONException e) {
+                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
             }
         } catch (RuntimeException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
         }
-        if(!result.isPresent()) {
+        if(obj == null){
             return Response.status(400).build();
         }
-        return Response.ok().entity(result.get()).build();
+        TaskBulkReportInfo taskBulkReportInfo = new TaskBulkReportInfo(obj);
+        if(taskBulkReportInfo.failed > 0){
+            return Response.status(400).entity(taskBulkReportInfo).build();
+        }
+        return Response.ok().entity(taskBulkReportInfo).build();
     }
 
     @POST
