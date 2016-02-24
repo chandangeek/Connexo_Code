@@ -1,11 +1,13 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -35,6 +37,7 @@ public class DeviceTypeInfo {
     public Long deviceLifeCycleId;
     public String deviceLifeCycleName;
     public long version;
+    public String deviceTypePurpose;
 
     public DeviceTypeInfo() {
     }
@@ -70,6 +73,8 @@ public class DeviceTypeInfo {
             deviceTypeInfo.deviceLifeCycleName = deviceLifeCycle.getName();
         }
         deviceTypeInfo.version = deviceType.getVersion();
+        deviceTypeInfo.deviceTypePurpose = deviceType.isDataloggerSlave() ? DeviceTypePurpose.DATALOGGER_SLAVE.name() : DeviceTypePurpose.REGULAR
+                .name();
         return deviceTypeInfo;
     }
 
@@ -80,4 +85,5 @@ public class DeviceTypeInfo {
         }
         return deviceTypeInfos;
     }
+
 }

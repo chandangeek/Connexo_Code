@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.rest.FieldResource;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.device.config.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -32,8 +32,9 @@ public class DeviceConfigFieldResource extends FieldResource {
         super(thesaurus);
     }
 
-    @GET @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/timeOfUse")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE,
             com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
@@ -52,10 +53,11 @@ public class DeviceConfigFieldResource extends FieldResource {
         return map;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/connectionStrategy")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Map<String, Object> getConnectionStrategies() {
         return asJsonArrayObjectWithTranslation("connectionStrategies", "connectionStrategy", this.clientSideConnectionStrategyValues());
     }
@@ -64,6 +66,23 @@ public class DeviceConfigFieldResource extends FieldResource {
         return Stream
                 .of(ConnectionStrategyTranslationKeys.values())
                 .map(ConnectionStrategyTranslationKeys::getKey)
+                .collect(Collectors.toList());
+    }
+
+    @GET
+    @Transactional
+    @Path("/deviceTypePurpose")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Map<String, Object> getDeviceTypePurpose() {
+        return asJsonArrayObjectWithTranslation("deviceTypePurpose", "deviceTypePurpose", this.clientSideDeviceTypePurposeValues());
+    }
+
+
+    private Collection<String> clientSideDeviceTypePurposeValues() {
+        return Stream
+                .of(DeviceTypePurposeTranslationKeys.values())
+                .map(DeviceTypePurposeTranslationKeys::getKey)
                 .collect(Collectors.toList());
     }
 

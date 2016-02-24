@@ -88,8 +88,9 @@ public class DeviceTypeResource {
         this.thesaurus = thesaurus;
     }
 
-    @GET @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getAllDeviceTypes(@BeanParam JsonQueryParameters queryParameters) {
         Finder<DeviceType> deviceTypeFinder = deviceConfigurationService.findAllDeviceTypes();
@@ -98,9 +99,10 @@ public class DeviceTypeResource {
         return PagedInfoList.fromPagedList("deviceTypes", deviceTypeInfos, queryParameters);
     }
 
-    @DELETE @Transactional
+    @DELETE
+    @Transactional
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteDeviceType(@PathParam("id") long id, DeviceTypeInfo info) {
         info.id = id;
@@ -109,23 +111,32 @@ public class DeviceTypeResource {
 
     }
 
-    @POST @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @POST
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public DeviceTypeInfo createDeviceType(DeviceTypeInfo deviceTypeInfo) {
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceTypeInfo.deviceProtocolPluggableClassName);
-        Optional<DeviceLifeCycle> deviceLifeCycleRef = deviceTypeInfo.deviceLifeCycleId != null ? resourceHelper.findDeviceLifeCycleById(deviceTypeInfo.deviceLifeCycleId) : Optional.empty();
-        DeviceType deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name,
-                deviceProtocolPluggableClass.isPresent() ? deviceProtocolPluggableClass.get() : null,
-                deviceLifeCycleRef.isPresent() ? deviceLifeCycleRef.get() : null);
+        Optional<DeviceLifeCycle> deviceLifeCycleRef = deviceTypeInfo.deviceLifeCycleId != null ? resourceHelper.findDeviceLifeCycleById(deviceTypeInfo.deviceLifeCycleId) : Optional
+                .empty();
+        DeviceType deviceType;
+        if (deviceTypeInfo.deviceTypePurpose.equals(DeviceTypePurposeTranslationKeys.DATALOGGER_SLAVE.getKey())) {
+            deviceType = deviceConfigurationService.newDataloggerSlaveDeviceType(deviceTypeInfo.name, deviceLifeCycleRef
+                    .isPresent() ? deviceLifeCycleRef.get() : null);
+        } else {
+            deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name,
+                    deviceProtocolPluggableClass.isPresent() ? deviceProtocolPluggableClass.get() : null,
+                    deviceLifeCycleRef.isPresent() ? deviceLifeCycleRef.get() : null);
+        }
         deviceType.save();
         return DeviceTypeInfo.from(deviceType);
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response updateDeviceType(@PathParam("id") long id, DeviceTypeInfo deviceTypeInfo) {
@@ -137,11 +148,11 @@ public class DeviceTypeResource {
             updateRegisterTypeAssociations(deviceType, deviceTypeInfo.registerTypes);
         }
         if (deviceTypeInfo.deviceLifeCycleId != null && (deviceType.getConfigurations().isEmpty() ||
-                deviceType.getConfigurations().stream().noneMatch(conf -> conf.isActive()))){
+                deviceType.getConfigurations().stream().noneMatch(DeviceConfiguration::isActive))) {
             DeviceLifeCycle targetDeviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceTypeInfo.deviceLifeCycleId);
             try {
                 deviceConfigurationService.changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
-            } catch (IncompatibleDeviceLifeCycleChangeException mappingEx){
+            } catch (IncompatibleDeviceLifeCycleChangeException mappingEx) {
                 DeviceLifeCycle oldDeviceLifeCycle = deviceType.getDeviceLifeCycle();
                 ChangeDeviceLifeCycleInfo info = getChangeDeviceLifeCycleFailInfo(mappingEx, oldDeviceLifeCycle, targetDeviceLifeCycle);
                 return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
@@ -154,7 +165,8 @@ public class DeviceTypeResource {
     private ChangeDeviceLifeCycleInfo getChangeDeviceLifeCycleFailInfo(IncompatibleDeviceLifeCycleChangeException lifeCycleChangeError, DeviceLifeCycle currentDeviceLifeCycle, DeviceLifeCycle targetDeviceLifeCycle) {
         ChangeDeviceLifeCycleInfo info = new ChangeDeviceLifeCycleInfo();
         info.success = false;
-        info.errorMessage = thesaurus.getFormat(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE).format(targetDeviceLifeCycle.getName());
+        info.errorMessage = thesaurus.getFormat(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE)
+                .format(targetDeviceLifeCycle.getName());
         info.currentDeviceLifeCycle = new DeviceLifeCycleInfo(currentDeviceLifeCycle);
         info.targetDeviceLifeCycle = new DeviceLifeCycleInfo(targetDeviceLifeCycle);
         info.notMappableStates = lifeCycleChangeError.getMissingStates()
@@ -164,9 +176,10 @@ public class DeviceTypeResource {
         return info;
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{id}/devicelifecycle")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response updateDeviceLifeCycleForDeviceType(@PathParam("id") long id, ChangeDeviceLifeCycleInfo info) {
@@ -181,25 +194,27 @@ public class DeviceTypeResource {
         DeviceLifeCycle targetDeviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(info.targetDeviceLifeCycle.id);
         try {
             deviceConfigurationService.changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
-        } catch (IncompatibleDeviceLifeCycleChangeException mappingEx){
+        } catch (IncompatibleDeviceLifeCycleChangeException mappingEx) {
             info = getChangeDeviceLifeCycleFailInfo(mappingEx, oldDeviceLifeCycle, targetDeviceLifeCycle);
             return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
         }
         return Response.ok(DeviceTypeInfo.from(deviceType)).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public DeviceTypeInfo findDeviceType(@PathParam("id") long id) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         return DeviceTypeInfo.from(deviceType, deviceType.getRegisterTypes());
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{id}/custompropertysets")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getDeviceTypeCustomPropertySetUsage(@PathParam("id") long id, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
         boolean isLinked = filter.getBoolean("linked");
@@ -208,7 +223,11 @@ public class DeviceTypeResource {
         if (!isLinked) {
             registeredCustomPropertySets = resourceHelper.findAllCustomPropertySetsByDomain(Device.class)
                     .stream()
-                    .filter(f -> !deviceType.getCustomPropertySets().stream().map(RegisteredCustomPropertySet::getId).collect(Collectors.toList()).contains(f.getId()))
+                    .filter(f -> !deviceType.getCustomPropertySets()
+                            .stream()
+                            .map(RegisteredCustomPropertySet::getId)
+                            .collect(Collectors.toList())
+                            .contains(f.getId()))
                     .collect(Collectors.toList());
         } else {
             registeredCustomPropertySets = deviceType.getCustomPropertySets();
@@ -216,9 +235,10 @@ public class DeviceTypeResource {
         return PagedInfoList.fromPagedList("deviceTypeCustomPropertySets", DeviceTypeCustomPropertySetInfo.from(registeredCustomPropertySets), queryParameters);
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{id}/custompropertysets")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response addDeviceTypeCustomPropertySetUsage(@PathParam("id") long id, List<DeviceTypeCustomPropertySetInfo> infos) {
@@ -228,9 +248,10 @@ public class DeviceTypeResource {
         return Response.ok().build();
     }
 
-    @DELETE @Transactional
+    @DELETE
+    @Transactional
     @Path("/{deviceTypeId}/custompropertysets/{customPropertySetId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteDeviceTypeCustomPropertySetUsage(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("customPropertySetId") long customPropertySetId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
@@ -243,19 +264,23 @@ public class DeviceTypeResource {
         return loadProfileTypeResourceProvider.get();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{id}/logbooktypes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getLogBookTypesForDeviceType(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @QueryParam("available") String available) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         final List<LogBookType> logbookTypes = new ArrayList<>();
         if (available == null || !Boolean.parseBoolean(available)) {
-            logbookTypes.addAll(ListPager.of(deviceType.getLogBookTypes(), new LogBookTypeComparator()).from(queryParameters).find());
+            logbookTypes.addAll(ListPager.of(deviceType.getLogBookTypes(), new LogBookTypeComparator())
+                    .from(queryParameters)
+                    .find());
         } else {
             findAllAvailableLogBookTypesForDeviceType(queryParameters, deviceType, logbookTypes);
         }
-        List<LogBookTypeInfo> logBookTypeInfos = LogBookTypeInfo.from(ListPager.of(logbookTypes, new LogBookTypeComparator()).find(), deviceType);
+        List<LogBookTypeInfo> logBookTypeInfos = LogBookTypeInfo.from(ListPager.of(logbookTypes, new LogBookTypeComparator())
+                .find(), deviceType);
         return PagedInfoList.fromPagedList("logbookTypes", logBookTypeInfos, queryParameters);
     }
 
@@ -268,9 +293,10 @@ public class DeviceTypeResource {
         }
     }
 
-    @POST @Transactional
+    @POST
+    @Transactional
     @Path("/{id}/logbooktypes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response addLogBookTypesForDeviceType(@PathParam("id") long id, List<Long> ids) {
         if (ids.isEmpty()) {
@@ -290,9 +316,10 @@ public class DeviceTypeResource {
         return Response.ok(LogBookTypeInfo.from(logBookTypes, deviceType)).build();
     }
 
-    @DELETE @Transactional
+    @DELETE
+    @Transactional
     @Path("/{id}/logbooktypes/{lbid}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteLogbookTypeFromDeviceType(@PathParam("id") long id, @PathParam("lbid") long lbid, LogBookTypeInfo info) {
         info.parent.id = id;
@@ -304,7 +331,8 @@ public class DeviceTypeResource {
     }
 
     private void deleteLogBookTypeFromChildConfigurations(DeviceType deviceType, LogBookType logBookType) {
-        List<DeviceConfiguration> deviceConfigurations = deviceConfigurationService.findDeviceConfigurationsUsingDeviceType(deviceType).find();
+        List<DeviceConfiguration> deviceConfigurations = deviceConfigurationService.findDeviceConfigurationsUsingDeviceType(deviceType)
+                .find();
         for (DeviceConfiguration deviceConfiguration : deviceConfigurations) {
             List<LogBookSpec> logBookSpecs = new ArrayList<>(deviceConfiguration.getLogBookSpecs());
             for (LogBookSpec logBookSpec : logBookSpecs) {
@@ -326,9 +354,10 @@ public class DeviceTypeResource {
         return deviceConflictMappingResourceProvider.get();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{id}/registertypes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getRegisterTypesForDeviceType(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter availableFilter) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
@@ -344,7 +373,9 @@ public class DeviceTypeResource {
                 matchingRegisterTypes.addAll(findAllAvailableRegisterTypesForDeviceType(deviceType));
             }
         }
-        List<RegisterType> registerTypes = ListPager.of(matchingRegisterTypes, new RegisterTypeComparator()).from(queryParameters).find();
+        List<RegisterType> registerTypes = ListPager.of(matchingRegisterTypes, new RegisterTypeComparator())
+                .from(queryParameters)
+                .find();
         List<RegisterTypeOnDeviceTypeInfo> registerTypeInfos = asInfoList(deviceType, registerTypes);
         return PagedInfoList.fromPagedList("registerTypes", registerTypeInfos, queryParameters);
     }
@@ -362,16 +393,23 @@ public class DeviceTypeResource {
 
     private List<RegisterType> findAllAvailableRegisterTypesForDeviceConfiguration(DeviceType deviceType, long deviceConfigurationId) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
-        Set<Long> unavailableRegisterTypeIds = deviceConfiguration.getRegisterSpecs().stream().map(rs -> rs.getRegisterType().getId()).collect(toSet());
-        return deviceType.getRegisterTypes().stream().filter(rt->!unavailableRegisterTypeIds.contains(rt.getId())).collect(toList());
+        Set<Long> unavailableRegisterTypeIds = deviceConfiguration.getRegisterSpecs()
+                .stream()
+                .map(rs -> rs.getRegisterType().getId())
+                .collect(toSet());
+        return deviceType.getRegisterTypes()
+                .stream()
+                .filter(rt -> !unavailableRegisterTypeIds.contains(rt.getId()))
+                .collect(toList());
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{id}/registertypes/{registerTypeId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public RegisterTypeOnDeviceTypeInfo getRegisterForDeviceType(@PathParam("id") long deviceTypeId,
-                                                                    @PathParam("registerTypeId") long registerTypeId) {
+                                                                 @PathParam("registerTypeId") long registerTypeId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         RegisterType registerType = resourceHelper.findRegisterTypeByIdOrThrowException(registerTypeId);
         return new RegisterTypeOnDeviceTypeInfo(registerType,
@@ -381,9 +419,10 @@ public class DeviceTypeResource {
                 registerType.getReadingType().getCalculatedReadingType().orElse(registerType.getReadingType()));
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{id}/registertypes/{registerTypeId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response changeRegisterTypeOnDeviceTypeCustomPropertySet(@PathParam("id") long deviceTypeId,
@@ -396,18 +435,21 @@ public class DeviceTypeResource {
         return Response.ok().build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{id}/registertypes/custompropertysets")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getRegisterCustomPropertySets() {
-        return Response.ok(DeviceTypeCustomPropertySetInfo.from(resourceHelper.findAllCustomPropertySetsByDomain(RegisterSpec.class))).build();
+        return Response.ok(DeviceTypeCustomPropertySetInfo.from(resourceHelper.findAllCustomPropertySetsByDomain(RegisterSpec.class)))
+                .build();
     }
 
-    @POST @Transactional
+    @POST
+    @Transactional
     @Path("/{id}/registertypes/{rmId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public List<RegisterTypeOnDeviceTypeInfo> linkRegisterTypesToDeviceType(@PathParam("id") long id, @PathParam("rmId") long rmId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
@@ -419,10 +461,11 @@ public class DeviceTypeResource {
         return asInfoList(deviceType, deviceType.getRegisterTypes());
     }
 
-    @DELETE @Transactional
+    @DELETE
+    @Transactional
     @Path("/{id}/registertypes/{rmId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response unlinkRegisterTypesFromDeviceType(@PathParam("id") long id, @PathParam("rmId") long registerTypeId, RegisterTypeInfo info) {
         RegisterType registerType = resourceHelper.lockDeviceTypeRegisterTypeOrThrowException(info);
@@ -490,9 +533,12 @@ public class DeviceTypeResource {
     private List<RegisterTypeOnDeviceTypeInfo> asInfoList(DeviceType deviceType, List<RegisterType> registerTypes) {
         List<RegisterTypeOnDeviceTypeInfo> registerTypeInfos = new ArrayList<>();
         for (RegisterType registerType : registerTypes) {
-            boolean isLinkedByDeviceType = !deviceConfigurationService.findDeviceTypesUsingRegisterType(registerType).isEmpty();
-            boolean isLinkedByActiveRegisterSpec = !deviceConfigurationService.findActiveRegisterSpecsByDeviceTypeAndRegisterType(deviceType, registerType).isEmpty();
-            boolean isLinkedByInactiveRegisterSpec = !deviceConfigurationService.findInactiveRegisterSpecsByDeviceTypeAndRegisterType(deviceType, registerType).isEmpty();
+            boolean isLinkedByDeviceType = !deviceConfigurationService.findDeviceTypesUsingRegisterType(registerType)
+                    .isEmpty();
+            boolean isLinkedByActiveRegisterSpec = !deviceConfigurationService.findActiveRegisterSpecsByDeviceTypeAndRegisterType(deviceType, registerType)
+                    .isEmpty();
+            boolean isLinkedByInactiveRegisterSpec = !deviceConfigurationService.findInactiveRegisterSpecsByDeviceTypeAndRegisterType(deviceType, registerType)
+                    .isEmpty();
             RegisterTypeOnDeviceTypeInfo info = new RegisterTypeOnDeviceTypeInfo(
                     registerType,
                     isLinkedByDeviceType,
@@ -501,7 +547,7 @@ public class DeviceTypeResource {
                     deviceType.getRegisterTypeTypeCustomPropertySet(registerType),
                     masterDataService.getOrCreatePossibleMultiplyReadingTypesFor(registerType.getReadingType()),
                     registerType.getReadingType());
-            if (isLinkedByDeviceType){
+            if (isLinkedByDeviceType) {
                 info.parent = new VersionInfo<>(deviceType.getId(), deviceType.getVersion());
             }
             registerTypeInfos.add(info);
