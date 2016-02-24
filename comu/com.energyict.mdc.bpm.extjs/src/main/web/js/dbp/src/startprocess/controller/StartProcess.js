@@ -67,54 +67,6 @@ Ext.define('Dbp.startprocess.controller.StartProcess', {
         });
     },
 
-    showUsagePointStartProcess: function (mRID, model, sidePanel) {
-        var me = this,
-            viewport = Ext.ComponentQuery.query('viewport')[0],
-            router = me.getController('Uni.controller.history.Router');
-
-        viewport.setLoading();
-
-        Ext.ModelManager.getModel(model).load(mRID, {
-            success: function (record) {
-                var widget;
-
-                me.getApplication().fireEvent('usagePointLoaded', record);
-                viewport.setLoading(false);
-                widget = Ext.widget('dbp-start-process-view', {
-                    mRID: usagepoint,
-                    properties: {
-                        activeProcessesParams: {
-                            type: 'usagePoint',
-                            privileges: Ext.encode(me.getPrivileges())
-                        },
-                        startProcessParams: [
-                            {
-                                name: 'type',
-                                value: 'usagePoint'
-                            },
-                            {
-                                name: 'id',
-                                value: 'usagePointId'
-                            },
-                            {
-                                name: 'value',
-                                value: id
-                            }
-                        ],
-                        successLink: router.getRoute('usagepoints/usagepoint/processes').buildUrl({usagePointId: id}),
-                        cancelLink: router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: id})
-                    },
-                    side: sidePanel
-                });
-                me.getApplication().fireEvent('changecontentevent', widget);
-
-            },
-            failure: function (response) {
-                viewport.setLoading(false);
-            }
-        });
-    },
-
     getPrivileges: function () {
         var executionPrivileges = [];
 
