@@ -33,7 +33,6 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 itemId: 'issue-assignee-filter',
                 dataIndex: 'assignee',
                 emptyText: Uni.I18n.translate('general.assignee', 'ISU', 'Assignee'),
-                multiSelect: true,
                 store: 'Isu.store.IssueAssignees',
                 displayField: 'name',
                 valueField: 'idx',
@@ -49,12 +48,6 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 listeners: {
                     expand: {
                         fn: me.comboLimitNotification
-                    },
-                    beforeselect: {
-                        fn: me.onComboBeforeSelect
-                    },
-                    select: {
-                        fn: me.onComboSelect
                     }
                 }
             },
@@ -160,27 +153,13 @@ Ext.define('Isu.view.issues.IssueFilter', {
         combo.value = value;
         combo.setHiddenValue(value);
 
-        if (Ext.isArray(value)) {
-            var arr = [];
-            Ext.Array.each(value, function (v) {
-                store.model.load(v, {
-                    success: function (record) {
-                        arr.push(record);
-                        store.loadData(arr, false);
-                        store.lastOptions = {};
-                        store.fireEvent('load', store, arr, true)
-                    }
-                });
-            });
-        } else {
-            store.model.load(value, {
-                success: function (record) {
-                    store.loadData([record], false);
-                    store.lastOptions = {};
-                    store.fireEvent('load', store, [record], true)
-                }
-            });
-        }
+        store.model.load(value, {
+            success: function (record) {
+                store.loadData([record], false);
+                store.lastOptions = {};
+                store.fireEvent('load', store, [record], true)
+            }
+        });
     },
 
     comboGetParamValue: function () {
@@ -206,25 +185,5 @@ Ext.define('Isu.view.issues.IssueFilter', {
         picker.on('beforehide', function () {
             picker.un('refresh', fn);
         }, combo, {single: true});
-    },
-
-    onComboBeforeSelect: function (combo, record) {
-        if (Ext.isString(combo.getValue()) && combo.getValue().search(',') != -1) {
-            combo.lastSelectionValue = combo.lastSelection;
-        }
-    },
-
-    onComboSelect: function (combo, records) {
-        if (combo.lastSelectionValue) {
-            Ext.Array.each(records, function (r) {
-                var valueToNotAdd = _.find(combo.lastSelectionValue, function(v){
-                    return v.get('id') == r.get('id');
-                });
-                if (!valueToNotAdd) {
-                    combo.lastSelectionValue.push(r);
-                }
-            });
-            combo.setValue(combo.lastSelectionValue);
-        }
     }
 });
