@@ -3,9 +3,12 @@ package com.elster.jupiter.servicecall.rest.impl;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
-import com.elster.jupiter.servicecall.*;
+import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
+import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.Status;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -13,8 +16,9 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.Optional;
 
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -54,7 +58,8 @@ public class ServiceCallTypeResourceTest extends ServiceCallApplicationTest {
         Finder<ServiceCallType> serviceCallTypeFinder = mockFinder(Collections.singletonList(serviceCallType));
         when(serviceCallService.getServiceCallTypes()).thenReturn(serviceCallTypeFinder);
         when(serviceCallService.findAndLockServiceCallType(id, 1L)).thenReturn(Optional.of(serviceCallType));
-        when(serviceCallType.getServiceCallLifeCycle()).thenReturn(Optional.empty());
+        ServiceCallLifeCycle serviceCallLifeCycle = mock(ServiceCallLifeCycle.class);
+        when(serviceCallType.getServiceCallLifeCycle()).thenReturn(serviceCallLifeCycle);
         when(serviceCallType.getLogLevel()).thenReturn(LogLevel.WARNING);
         when(serviceCallType.getStatus()).thenReturn(Status.ACTIVE);
         when(serviceCallType.getId()).thenReturn(id);
