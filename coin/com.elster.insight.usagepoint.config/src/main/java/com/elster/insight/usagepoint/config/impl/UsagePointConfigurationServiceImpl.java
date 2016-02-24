@@ -27,7 +27,6 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -182,9 +181,8 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Override
-    public List<UsagePoint> findUsagePointsForMetrologyConfiguration(MetrologyConfiguration metrologyConfiguration) {
-        // This is
-        return Collections.emptyList();
+    public boolean isInUse(MetrologyConfiguration metrologyConfiguration) {
+        return this.metrologyConfigurationService.isInUse(metrologyConfiguration);
     }
 
     @Override
@@ -199,7 +197,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public Optional<MetrologyConfiguration> findAndLockMetrologyConfiguration(long id, long version) {
-        return dataModel.mapper(MetrologyConfiguration.class).lockObjectIfVersion(version, id);
+        return this.metrologyConfigurationService.findAndLockMetrologyConfiguration(id, version);
     }
 
     @Override
