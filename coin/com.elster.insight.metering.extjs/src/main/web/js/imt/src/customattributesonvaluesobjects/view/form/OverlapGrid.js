@@ -45,6 +45,9 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
                     dataIndex: 'startTime',
                     flex: 3,
                     renderer: function (value, meta, record, index, column) {
+                        if (record.get('editable')) {
+                            meta.style = 'font-weight: bold';
+                        }
                         if (record.get('editable') && value) {
                             var icon = '<span id="edit-column-icon-' + column + '" class="icon-calendar2" style="cursor: pointer; display: inline-block; width: 20px; height: 20px; float: right; font-size: 20px"></span>';
 
@@ -59,7 +62,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
                                 timeString = Uni.I18n.translate('general.infinite', 'IMT', 'Infinite');
                             }
 
-                            if (record.get('conflictAtStart')) {
+                            if (record.get('conflictAtStart') || record.get('conflictType') === 'RANGE_OVERLAP_DELETE') {
                                 valueToShow = '<span style="color: #eb5642;">' + timeString + '</span>';
                             } else {
                                 valueToShow = timeString;
@@ -74,6 +77,9 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
                     dataIndex: 'endTime',
                     flex: 3,
                     renderer: function (value, meta, record, index, column) {
+                        if (record.get('editable')) {
+                            meta.style = 'font-weight: bold';
+                        }
                         if (record.get('editable') && value) {
                             var icon = '<span id="edit-column-icon-' + column + '" class="icon-calendar2" style="cursor: pointer; display: inline-block; width: 20px; height: 20px; float: right; font-size: 20px"></span>';
 
@@ -88,7 +94,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
                                 timeString = Uni.I18n.translate('general.infinite', 'IMT', 'Infinite');
                             }
 
-                            if (record.get('conflictAtEnd')) {
+                            if (record.get('conflictAtEnd') || record.get('conflictType') === 'RANGE_OVERLAP_DELETE') {
                                 valueToShow = '<span style="color: #eb5642;">' + timeString + '</span>';
                             } else {
                                 valueToShow = timeString;
@@ -102,8 +108,12 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
                     header: Uni.I18n.translate('general.remark', 'IMT', 'Remark'),
                     dataIndex: 'message',
                     flex: 2,
-                    renderer: function (value) {
-                        return '<span style="color: #eb5642;">' + value + '</span>';
+                    renderer: function (value, meta, record) {
+                        meta.style = 'color: #eb5642;';
+                        if (record.get('editable')) {
+                            meta.style += 'font-weight: bold;';
+                        }
+                        return value;
                     }
                 },
                 {
