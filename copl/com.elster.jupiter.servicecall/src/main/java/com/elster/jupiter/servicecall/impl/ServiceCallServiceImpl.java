@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.MissingHandlerNameException;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
@@ -23,6 +24,7 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.inject.AbstractModule;
@@ -99,6 +101,9 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String,Object> properties) {
         String name = (String) properties.get("name");
+        if (Checks.is(name).emptyOrOnlyWhiteSpace()) {
+            throw new MissingHandlerNameException(thesaurus, MessageSeeds.NO_NAME_FOR_HANDLER, serviceCallHandler);
+        }
         handlerMap.put(name, serviceCallHandler);
     }
 

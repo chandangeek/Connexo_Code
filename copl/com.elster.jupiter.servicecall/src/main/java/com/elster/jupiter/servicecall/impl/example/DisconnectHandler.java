@@ -12,7 +12,8 @@ import org.osgi.service.component.annotations.Component;
  */
 @Component(name = "com.elster.jupiter.servicecall.example.disconnect.handler",
         service = ServiceCallHandler.class,
-        immediate = true)
+        immediate = true,
+        property = "name=com.elster.jupiter.servicecall.example.disconnect.handler")
 public class DisconnectHandler implements ServiceCallHandler {
 
     public DisconnectHandler() {
@@ -20,11 +21,12 @@ public class DisconnectHandler implements ServiceCallHandler {
 
     @Override
     public void onEntry(DefaultState state) {
-
+        System.out.println("Now entering state " + state.getKey());
     }
 
     @Activate
     public void activate() {
+        System.err.println("Activating disconnect handler");
     }
 
 }
