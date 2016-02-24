@@ -3,7 +3,7 @@ Ext.define('Imt.usagepointmanagement.store.ServiceCategories', {
     model: 'Imt.usagepointmanagement.model.ServiceCategory',
     proxy: {
         type: 'rest',
-        url: '/api/up/servicecategory',
+        url: '/api/udr/usagepoints/servicecategory',
         reader: {
             type: 'json',
             root: 'categories'

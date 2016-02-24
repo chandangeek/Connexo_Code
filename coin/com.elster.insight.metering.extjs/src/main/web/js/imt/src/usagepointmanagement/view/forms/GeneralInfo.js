@@ -5,7 +5,8 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
         'Uni.util.FormErrorMessage',
         'Uni.util.FormEmptyMessage',
         'Uni.form.field.DateTime',
-        'Imt.usagepointmanagement.view.forms.fields.MeasureField'
+        'Imt.usagepointmanagement.view.forms.fields.MeasureField',
+        'Imt.usagepointmanagement.view.forms.fields.InstallationTimeField'
     ],
     isPossibleAdd: true,
     defaults: {
@@ -79,25 +80,12 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
                 fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name')
             },
             {
-                xtype: 'date-time',
-                name: 'createTime',
-                itemId: 'up-createTime-textfield',
+                xtype: 'installationtimefield',
+                dateFieldName: 'installationTime',
+                itemId: 'up-createTime-installationtimefield',
                 fieldLabel: Uni.I18n.translate('general.label.created', 'IMT', 'Created'),
                 required: true,
-                layout: 'hbox',
-                dateConfig: {
-                    flex: 1
-                },
-                dateTimeSeparatorConfig: {
-                    html: Uni.I18n.translate('general.at', 'IMT', 'At').toLowerCase(),
-                    style: 'color: #686868'
-                },
-                hoursConfig: {
-                    width: 64
-                },
-                minutesConfig: {
-                    width: 64
-                }
+                width: 600
             },
             {
                 xtype: 'textfield',
@@ -111,9 +99,10 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
                 itemId: 'up-typeOfUsagePoint-combo',
                 fieldLabel: Uni.I18n.translate('general.label.typeOfUsagePoint', 'IMT', 'Type of usage point'),
                 store: 'Imt.usagepointmanagement.store.UsagePointTypes',
-                displayField: 'displayValue',
-                valueField: 'id',
+                displayField: 'displayName',
+                valueField: 'name',
                 queryMode: 'local',
+                required: true,
                 forceSelection: true,
                 emptyText: Uni.I18n.translate('usagepoint.add.emptyText.typeOfUsagePoint', 'IMT', 'Select type of usage point...'),
                 listeners: {

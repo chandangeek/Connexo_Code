@@ -1,6 +1,6 @@
 Ext.define('Imt.usagepointmanagement.store.BypassStatuses', {
     extend: 'Ext.data.Store',
-    fields: ['id', 'displayValue'],
+    fields: ['name', 'displayName'],
     proxy: {
         type: 'rest',
         url: '/api/mtr/fields/bypassstatus',
