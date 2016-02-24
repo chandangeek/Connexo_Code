@@ -9,9 +9,9 @@ import java.time.Instant;
 import java.util.List;
 
 public interface ServiceCallFinder {
-    ServiceCallFinder setStart(int start);
+    ServiceCallFinder setStart(Integer start);
 
-    ServiceCallFinder setLimit(int limit);
+    ServiceCallFinder setLimit(Integer limit);
 
     ServiceCallFinder setReference(String reference);
 
@@ -23,7 +23,7 @@ public interface ServiceCallFinder {
 
     ServiceCallFinder withModTimeIn(Range<Instant> interval);
 
-    List<? extends ServiceCall> find();
+    List<ServiceCall> find();
 
     QueryStream<ServiceCall> stream();
 }

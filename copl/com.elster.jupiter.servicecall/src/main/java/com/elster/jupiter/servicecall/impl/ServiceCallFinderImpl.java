@@ -27,20 +27,20 @@ public class ServiceCallFinderImpl implements ServiceCallFinder {
 
     }
 
-    public ServiceCallFinderImpl(DataModel dataModel, Condition condition, Order order) {
+    public ServiceCallFinderImpl(DataModel dataModel, Order order) {
         this.dataModel = dataModel;
-        this.condition = condition;
+       // this.condition = condition;
         this.order = order;
     }
 
     @Override
-    public ServiceCallFinder setStart(int start) {
+    public ServiceCallFinder setStart(Integer start) {
         this.start = start;
         return this;
     }
 
     @Override
-    public ServiceCallFinder setLimit(int limit) {
+    public ServiceCallFinder setLimit(Integer limit) {
         this.limit = limit;
         return this;
     }
@@ -76,7 +76,7 @@ public class ServiceCallFinderImpl implements ServiceCallFinder {
     }
 
     @Override
-    public List<? extends ServiceCall> find() {
+    public List<ServiceCall> find() {
         return stream().select();
     }
 

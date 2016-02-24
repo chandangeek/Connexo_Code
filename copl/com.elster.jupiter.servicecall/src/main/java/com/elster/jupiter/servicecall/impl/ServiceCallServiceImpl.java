@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFinder;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -24,6 +25,7 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -212,6 +214,12 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     @Override
     public Finder<ServiceCall> getServiceCalls() {
         return DefaultFinder.of(ServiceCall.class, dataModel).defaultSortColumn(ServiceCallImpl.Fields.type.fieldName());
+    }
+
+    @Override
+    public ServiceCallFinder getServiceCallFinder() {
+        Order order = Order.descending(ServiceCallImpl.Fields.externalReference.fieldName());
+        return new ServiceCallFinderImpl(dataModel, order);
     }
 
     @Override
