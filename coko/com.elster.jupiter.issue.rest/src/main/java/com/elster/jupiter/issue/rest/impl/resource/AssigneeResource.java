@@ -25,8 +25,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.issue.rest.TranslationKeys.ISSUE_ASSIGNEE_UNASSIGNED;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_TYPE;
@@ -55,24 +58,32 @@ public class AssigneeResource extends BaseResource {
             return PagedInfoListCustomized.fromPagedList("data", assigneeFilterListInfo.getData(), queryParameters, 0);
         }
         String searchText = params.getFirst(LIKE);
+        List<String> assignees = new ArrayList<>();
 
-        String dbSearchText = "*";
         if (searchText != null && !searchText.isEmpty()) {
             String[] users = searchText.split(",");
-            dbSearchText = "*" + users[users.length - 1].trim() + "*";
+            assignees = Arrays.asList(users).stream().map(u -> u.trim()).collect(Collectors.toList());
+            assignees.set(assignees.size()-1, "*" + assignees.get(assignees.size()-1) + "*");
         }
 
-        Condition conditionUser = where("authenticationName").likeIgnoreCase(dbSearchText);
+        Condition conditionUser = Condition.FALSE;
+        if (assignees.isEmpty()) {
+            conditionUser = where("authenticationName").likeIgnoreCase("*");
+        } else {
+            for(String assignee : assignees) {
+                conditionUser = conditionUser.or(where("authenticationName").likeIgnoreCase(assignee));
+            }
+        }
         Query<User> queryUser = getUserService().getUserQuery();
 
         AssigneeFilterListInfo assigneeFilterListInfo;
         if(params.getStart() == 0 && (searchText == null || searchText.isEmpty())) {
             validateMandatory(params, START, LIMIT);
             assigneeFilterListInfo = AssigneeFilterListInfo.defaults((User) securityContext.getUserPrincipal(), getThesaurus(), false);
-            List<User> listUsers = queryUser.select(conditionUser, params.getFrom(), params.getTo(), Order.ascending("authname"));
+            List<User> listUsers = queryUser.select(conditionUser, params.getFrom(), params.getTo(), Order.ascending("authenticationName"));
             assigneeFilterListInfo.addData(listUsers);
         } else {
-            List<User> listUsers = queryUser.select(conditionUser, Order.ascending("authname"));
+            List<User> listUsers = queryUser.select(conditionUser, Order.ascending("authenticationName"));
             assigneeFilterListInfo = new AssigneeFilterListInfo(listUsers);
         }
         return PagedInfoListCustomized.fromPagedList("data", assigneeFilterListInfo.getData(), queryParameters, params.getStart() == 0 ? 1 : 0);
@@ -110,8 +121,7 @@ public class AssigneeResource extends BaseResource {
         String searchText = params.getFirst(LIKE);
         Condition condition = Condition.TRUE;
         if (searchText != null && !searchText.isEmpty()) {
-            String[] users = searchText.split(",");
-            String dbSearchText = "*" + users[users.length-1].trim() + "*";
+            String dbSearchText = "*" + searchText + "*";
             condition = condition.and(where("authenticationName").likeIgnoreCase(dbSearchText));
         }
         Query<User> query = getUserService().getUserQuery();
