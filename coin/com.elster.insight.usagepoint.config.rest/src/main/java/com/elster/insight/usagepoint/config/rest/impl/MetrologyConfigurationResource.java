@@ -147,8 +147,8 @@ public class MetrologyConfigurationResource {
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
-    private Boolean checkIfInUse(MetrologyConfiguration mc) {
-        return !usagePointConfigurationService.findUsagePointsForMetrologyConfiguration(mc).isEmpty();
+    private boolean checkIfInUse(MetrologyConfiguration mc) {
+        return usagePointConfigurationService.isInUse(mc);
     }
 
     @GET
