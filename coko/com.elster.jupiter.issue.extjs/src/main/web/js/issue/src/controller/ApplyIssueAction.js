@@ -32,9 +32,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             issueType = router.queryParams.issueType,
-            issueTypePrefix,
             actionModel = Ext.create('Isu.model.Issue').actions().model,
-            issueModel = me.getModel('Isu.model.Issue'),
+            issueModel,
             fromOverview = router.queryParams.fromOverview === 'true',
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             dependenciesCounter = 2,
@@ -83,11 +82,10 @@ Ext.define('Isu.controller.ApplyIssueAction', {
         });
 
         if (issueType == 'datacollection') {
-            issueTypePrefix = 'idc';
+            issueModel = me.getModel('Idc.model.Issue');
         } else if (issueType == 'datavalidation') {
-            issueTypePrefix = 'idv';
+            issueModel = me.getModel('Idv.model.Issue');
         }
-        issueModel.getProxy().url = '/api/' + issueTypePrefix + '/issues';
         issueModel.load(issueId, {
             success: function (record) {
                 issueRecord = record;

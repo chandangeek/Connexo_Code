@@ -294,6 +294,7 @@ Ext.define('Isu.controller.IssuesOverview', {
         if (queryString.groupingType !== 'none') {
             groupGrid.updateGroupingType(queryString.groupingType);
             groupGrid.show();
+            groupGrid.down('pagingtoolbarbottom').params = me.getGroupProxyParams();
             if (doLoad) {
                 groupStore.load({
                     params: me.getGroupProxyParams(),

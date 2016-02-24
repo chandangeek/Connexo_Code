@@ -53,7 +53,7 @@ Ext.define('Isu.view.issues.Preview', {
                         name: 'reason',
                         renderer: function (value, field) {
                             if (value && me.getRecord()) {
-                                field.setVisible(me.getRecord().get('issueType').uid == 'datacollection');
+                                me.down('#issue-preview-reason').setVisible(me.getRecord().get('issueType').uid != 'datavalidation');
                                 return Ext.String.htmlEncode(value.name);
                             }
                         }

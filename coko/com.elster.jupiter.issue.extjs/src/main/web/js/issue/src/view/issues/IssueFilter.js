@@ -33,7 +33,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 itemId: 'issue-assignee-filter',
                 dataIndex: 'assignee',
                 emptyText: Uni.I18n.translate('general.assignee', 'ISU', 'Assignee'),
-                //multiSelect: true,
+                multiSelect: true,
                 store: 'Isu.store.IssueAssignees',
                 displayField: 'name',
                 valueField: 'idx',
@@ -50,12 +50,12 @@ Ext.define('Isu.view.issues.IssueFilter', {
                     expand: {
                         fn: me.comboLimitNotification
                     }
-                  /*  beforeselect: {
+                   /* beforeselect: {
                         fn: me.onComboBeforeSelect
                     },
                     select: {
                         fn: me.onComboSelect
-                    }       */
+                    }*/
                 }
             },
             {
@@ -160,7 +160,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
         combo.value = value;
         combo.setHiddenValue(value);
 
-       /* if (Ext.isArray(value)) {
+        if (Ext.isArray(value)) {
             var arr = [];
             Ext.Array.each(value, function (v) {
                 store.model.load(v, {
@@ -172,7 +172,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                     }
                 });
             });
-        } else {*/
+        } else {
             store.model.load(value, {
                 success: function (record) {
                     store.loadData([record], false);
@@ -180,7 +180,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                     store.fireEvent('load', store, [record], true)
                 }
             });
-        //}
+        }
     },
 
     comboGetParamValue: function () {
@@ -208,7 +208,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
         }, combo, {single: true});
     }
 
-    /*onComboBeforeSelect: function (combo, record) {
+   /* onComboBeforeSelect: function (combo, record) {
         if (Ext.isString(combo.getValue()) && combo.getValue().search(',') != -1) {
             combo.lastSelectionValue = combo.lastSelection;
         }
@@ -223,5 +223,5 @@ Ext.define('Isu.view.issues.IssueFilter', {
             });
             combo.setValue(combo.lastSelectionValue);
         }
-    }    */
+    }*/
 });
