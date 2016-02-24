@@ -686,14 +686,16 @@ public class JbpmTaskResource {
     @POST
     @Produces("application/json")
     @Path("/managetasks")
-    public Response manageTasks(TaskGroupsInfos taskGroupsInfos, @Context UriInfo uriInfo){
-        long fails = 0;
+    public TaskBulkRaportInfo manageTasks(TaskGroupsInfos taskGroupsInfos, @Context UriInfo uriInfo){
+        long failed = 0;
+        long total = 0;
         if (getQueryValue(uriInfo, "assign") != null) {
             if (getQueryValue(uriInfo, "currentuser") != null) {
                 for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
                     for(Long taskId: taskGroup.taskIds){
+                        total++;
                         if(!assignTaskToUser(getQueryValue(uriInfo, "assign"), getQueryValue(uriInfo, "currentuser"), taskId)){
-                            fails++;
+                            failed++;
                         }
                     }
                 }
@@ -703,6 +705,7 @@ public class JbpmTaskResource {
             for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
                 for(Long taskId: taskGroup.taskIds){
                     setPriority(Integer.valueOf(getQueryValue(uriInfo, "setPriority")), taskId);
+                    total++;
                 }
             }
         }
@@ -712,12 +715,14 @@ public class JbpmTaskResource {
             for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
                 for(Long taskId: taskGroup.taskIds){
                     setDueDate(millis , taskId);
+                    total++;
                 }
             }
         }
         if(getQueryValue(uriInfo, "setDueDate") == null && getQueryValue(uriInfo, "setPriority") == null && getQueryValue(uriInfo, "assign") == null){
             if (getQueryValue(uriInfo, "currentuser") != null) {
                 for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
+                    total += taskGroup.taskIds.size();
                     for(Long taskId: taskGroup.taskIds){
                         if(!internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Completed)) {
                             boolean check = true;
@@ -754,14 +759,14 @@ public class JbpmTaskResource {
                             if(check) {
                                 internalTaskService.complete(taskId, getQueryValue(uriInfo, "currentuser"), taskGroup.outputBindingContents);
                             }else {
-                                fails++;
+                                failed++;
                             }
                         }
                     }
                 }
             }
         }
-        return Response.ok().entity(fails).build();
+        return new TaskBulkRaportInfo(total,failed);
     }
 
     private boolean assignTaskToUser(String userName, String currentuser, long taskId){
