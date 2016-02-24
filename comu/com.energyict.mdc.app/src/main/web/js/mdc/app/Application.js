@@ -24,6 +24,7 @@ Ext.define('MdcApp.Application', {
         'Fwc.privileges.FirmwareCampaign',
         'Bpm.privileges.BpmManagement',
         'Dbp.privileges.DeviceProcesses'
+        //'Scs.privileges.ServiceCall'
     ],
     controllers: [
         'MdcApp.controller.Main'
