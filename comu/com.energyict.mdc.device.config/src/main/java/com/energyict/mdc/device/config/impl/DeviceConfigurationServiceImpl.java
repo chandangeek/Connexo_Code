@@ -44,7 +44,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.DeviceTypeFields;
 import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeException;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
@@ -73,6 +72,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
+
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.inject.AbstractModule;
@@ -176,7 +176,13 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public DeviceType newDeviceType(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
-        return DeviceTypeImpl.from(this.getDataModel(), name, deviceProtocolPluggableClass, deviceLifeCycle);
+        return getDataModel().getInstance(DeviceTypeImpl.class)
+                .initializeRegular(name, deviceProtocolPluggableClass, deviceLifeCycle);
+    }
+
+    @Override
+    public DeviceType newDataloggerSlaveDeviceType(String name, DeviceLifeCycle deviceLifeCycle) {
+        return getDataModel().getInstance(DeviceTypeImpl.class).initializeDataloggerSlave(name, deviceLifeCycle);
     }
 
     @Override
@@ -333,7 +339,9 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public List<DeviceType> findDeviceTypesWithDeviceProtocol(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-        return this.getDataModel().mapper(DeviceType.class).find(DeviceTypeFields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName(), deviceProtocolPluggableClass.getId());
+        return this.getDataModel()
+                .mapper(DeviceType.class)
+                .find(DeviceTypeImpl.Fields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName(), deviceProtocolPluggableClass.getId());
     }
 
     @Override

@@ -168,6 +168,8 @@ public interface DeviceType extends HasId, HasName {
 
     boolean isDirectlyAddressable();
 
+    boolean isDataloggerSlave();
+
     List<DeviceConfigConflictMapping> getDeviceConfigConflictMappings();
 
     interface DeviceConfigurationBuilder {

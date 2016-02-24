@@ -128,6 +128,7 @@ public class InMemoryPersistence {
     private LicensedProtocolService licensedProtocolService;
     private ConnectionTypeService connectionTypeService;
     private InMemoryBootstrapModule bootstrapModule;
+    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     public void initializeDatabaseWithMockedProtocolPluggableService(String testName, boolean showSqlLogging) {
         this.initializeDatabase(testName, showSqlLogging, true);
@@ -149,7 +150,7 @@ public class InMemoryPersistence {
             this.eventService = (EventServiceImpl) injector.getInstance(EventService.class);
             injector.getInstance(NlsService.class);
             injector.getInstance(FiniteStateMachineService.class);
-            injector.getInstance(DeviceLifeCycleConfigurationService.class);
+            deviceLifeCycleConfigurationService = injector.getInstance(DeviceLifeCycleConfigurationService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.customPropertySetService = injector.getInstance(CustomPropertySetService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
@@ -372,6 +373,10 @@ public class InMemoryPersistence {
 
     public User getMockedUser() {
         return (User) this.principal;
+    }
+
+    public DeviceLifeCycleConfigurationService getDeviceLifeCycleConfigurationService() {
+        return deviceLifeCycleConfigurationService;
     }
 
     private class MockModule extends AbstractModule {

@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -13,10 +17,6 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.validation.ValidationRuleSet;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,26 +43,40 @@ public interface DeviceConfigurationService {
      * that was installed by this bundle.
      * Note however that if a user deleted that default DeviceLifeCycle
      * the creation will fail because the DeviceLifeCycle is required.
+     * This deviceType will not be usable for a datalogger slave
      *
      * @param name The name of the new DeviceType
      * @param deviceProtocolPluggableClass The DeviceProtocolPluggableClass
      * @return The newly created DeviceType
      */
-    public DeviceType newDeviceType (String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass);
+    public DeviceType newDeviceType(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
     /**
      * Creates a new {@link DeviceType} with the specified name
      * that uses the specified {@link DeviceProtocolPluggableClass device protocol}
      * to communicate with the actual device.
      * The {@link com.elster.jupiter.fsm.State} of the devices
-     * of this type are managed by the default {@link DeviceLifeCycle}.
+     * of this type are managed by the provided {@link DeviceLifeCycle}.
+     * This deviceType will not be usable for a datalogger slave
      *
      * @param name The name of the new DeviceType
      * @param deviceProtocolPluggableClass The DeviceProtocolPluggableClass
      * @param deviceLifeCycle The DeviceLifeCycle
      * @return The newly created DeviceType
      */
-    public DeviceType newDeviceType (String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle);
+    public DeviceType newDeviceType(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle);
+
+    /**
+     * Creates a new datalogger slave {@link DeviceType} with the specified name.
+     * The {@link com.elster.jupiter.fsm.State} of the devices
+     * of this type are managed by the provided {@link DeviceLifeCycle}.
+     * This deviceType does not have communication related settings.
+     *
+     * @param name The name of the new DeviceType
+     * @param deviceLifeCycle The DeviceLifeCycle
+     * @return The newly created datalogger slave DeviceType
+     */
+    public DeviceType newDataloggerSlaveDeviceType(String name, DeviceLifeCycle deviceLifeCycle);
 
     /**
      * Find the {@link DeviceType} which is uniquely identified by the provided ID.
@@ -78,9 +92,10 @@ public interface DeviceConfigurationService {
      * @param id the id of the DeviceType
      * @param version the version of the DeviceType
      * @return the DeviceType or empty if either the DeviceType does not exist
-     *         or the version of the DeviceType is not equal to the specified version
+     * or the version of the DeviceType is not equal to the specified version
      */
     public Optional<DeviceType> findAndLockDeviceType(long id, long version);
+
     /**
      * Find the {@link DeviceType} with the specified name.
      *
@@ -105,7 +120,8 @@ public interface DeviceConfigurationService {
      * @param deviceType The DeviceType
      * @param deviceLifeCycle The new DeviceLifeCycle
      */
-    public void changeDeviceLifeCycle(DeviceType deviceType, DeviceLifeCycle deviceLifeCycle) throws IncompatibleDeviceLifeCycleChangeException;
+    public void changeDeviceLifeCycle(DeviceType deviceType, DeviceLifeCycle deviceLifeCycle) throws
+            IncompatibleDeviceLifeCycleChangeException;
 
     /**
      * Finds a {@link DeviceConfiguration} which is uniquely identified by the given ID.
@@ -121,11 +137,12 @@ public interface DeviceConfigurationService {
      * @param id the id of the DeviceConfiguration
      * @param version the version of the DeviceConfiguration
      * @return the DeviceConfiguration or empty if either the DeviceConfiguration does not exist
-     *         or the version of the DeviceConfiguration is not equal to the specified version
+     * or the version of the DeviceConfiguration is not equal to the specified version
      */
     Optional<DeviceConfiguration> findAndLockDeviceConfigurationByIdAndVersion(long id, long version);
 
     Optional<DeviceConfigConflictMapping> findAndLockDeviceConfigConflictMappingByIdAndVersion(long id, long version);
+
     /**
      * Finds a {@link ChannelSpec} which is uniquely identified by the given ID.
      *
@@ -152,7 +169,7 @@ public interface DeviceConfigurationService {
      * and modelled by the given RegisterType where the
      * register spec if owned by an active device configuration.
      *
-     * @param deviceType      the DeviceType
+     * @param deviceType the DeviceType
      * @param registerType the list of RegisterType
      * @return all the {@link RegisterSpec RegisterSpecs} which are defined for the given parameters
      */
@@ -164,7 +181,7 @@ public interface DeviceConfigurationService {
      * and modelled by the given RegisterType where the
      * register spec if owned by an inactive device configuration.
      *
-     * @param deviceType      the DeviceType
+     * @param deviceType the DeviceType
      * @param registerType the list of RegisterType
      * @return all the {@link RegisterSpec RegisterSpecs} which are defined for the given parameters
      */
@@ -192,7 +209,7 @@ public interface DeviceConfigurationService {
      * Find a {@link LoadProfileSpec} which is modeled by the given {@link LoadProfileType} for the given
      * {@link DeviceConfiguration}.
      *
-     * @param deviceConfig    the DeviceConfiguration
+     * @param deviceConfig the DeviceConfiguration
      * @param loadProfileType the LoadProfileType which models the LoadProfileSpec
      * @return the requested LoadProfileSpec
      */
@@ -252,7 +269,7 @@ public interface DeviceConfigurationService {
 
     Optional<SecurityPropertySet> findAndLockSecurityPropertySetByIdAndVersion(long id, long version);
 
-    Optional<ComTaskEnablement> findComTaskEnablement (long id);
+    Optional<ComTaskEnablement> findComTaskEnablement(long id);
 
     Optional<ComTaskEnablement> findAndLockComTaskEnablementByIdAndVersion(long id, long version);
 

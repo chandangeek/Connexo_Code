@@ -21,6 +21,7 @@ import com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -51,7 +52,6 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Clock;
 import java.time.Instant;
@@ -62,11 +62,15 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ProtocolCannotChangeWithExistingConfigurations(groups = {Save.Update.class})
+@DeviceProtocolPluggableClassValidation(groups = {Save.Create.class, Save.Update.class})
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements ServerDeviceType {
 
     enum Fields {
+        DEVICE_PROTOCOL_PLUGGABLE_CLASS("deviceProtocolPluggableClassId"),
+        NAME("name"),
         CONFLICTINGMAPPING("deviceConfigConflictMappings"),
-        CUSTOMPROPERTYSETUSAGE("deviceTypeCustomPropertySetUsages");
+        CUSTOMPROPERTYSETUSAGE("deviceTypeCustomPropertySetUsages"),
+        DEVICETYPEPURPOSE("deviceTypePurpose");
 
         private final String javaFieldName;
 
@@ -98,7 +102,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Valid
     private List<DeviceTypeCustomPropertySetUsageImpl> deviceTypeCustomPropertySetUsages = new ArrayList<>();
     private long deviceProtocolPluggableClassId;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private boolean deviceProtocolPluggableClassChanged = false;
     @SuppressWarnings("unused")
@@ -114,6 +117,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private ProtocolPluggableService protocolPluggableService;
     private DeviceConfigurationService deviceConfigurationService;
 
+    private DeviceTypePurpose deviceTypePurpose = DeviceTypePurpose.REGULAR;
+
     /**
      * The DeviceProtocol of this DeviceType, only for local usage.
      */
@@ -127,15 +132,18 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    DeviceTypeImpl initialize(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
+    DeviceTypeImpl initializeRegular(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
         this.setName(name);
         this.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass);
         this.setDeviceLifeCycle(deviceLifeCycle, this.clock.instant());
         return this;
     }
 
-    static DeviceTypeImpl from(DataModel dataModel, String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
-        return dataModel.getInstance(DeviceTypeImpl.class).initialize(name, deviceProtocolPluggableClass, deviceLifeCycle);
+    public DeviceType initializeDataloggerSlave(String name, DeviceLifeCycle deviceLifeCycle) {
+        this.setName(name);
+        this.setDeviceLifeCycle(deviceLifeCycle, this.clock.instant());
+        this.deviceTypePurpose = DeviceTypePurpose.DATALOGGER_SLAVE;
+        return this;
     }
 
     DeviceConfigurationService getDeviceConfigurationService() {
@@ -245,7 +253,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public DeviceConfigConflictMappingImpl newConflictMappingFor(DeviceConfiguration origin, DeviceConfiguration destination) {
-        DeviceConfigConflictMappingImpl deviceConfigConflictMapping = getDataModel().getInstance(DeviceConfigConflictMappingImpl.class).initialize(this, origin, destination);
+        DeviceConfigConflictMappingImpl deviceConfigConflictMapping = getDataModel().getInstance(DeviceConfigConflictMappingImpl.class)
+                .initialize(this, origin, destination);
         this.deviceConfigConflictMappings.add(deviceConfigConflictMapping);
         return deviceConfigConflictMapping;
     }
@@ -260,14 +269,16 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public void addCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet) {
-        DeviceTypeCustomPropertySetUsageImpl deviceTypeCustomPropertySetUsage = getDataModel().getInstance(DeviceTypeCustomPropertySetUsageImpl.class).initialize(this, registeredCustomPropertySet);
+        DeviceTypeCustomPropertySetUsageImpl deviceTypeCustomPropertySetUsage = getDataModel().getInstance(DeviceTypeCustomPropertySetUsageImpl.class)
+                .initialize(this, registeredCustomPropertySet);
         this.deviceTypeCustomPropertySetUsages.add(deviceTypeCustomPropertySetUsage);
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
     @Override
     public void removeCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet) {
-        Optional<DeviceTypeCustomPropertySetUsageImpl> deviceTypeCustomPropertySetUsage = this.deviceTypeCustomPropertySetUsages.stream()
+        Optional<DeviceTypeCustomPropertySetUsageImpl> deviceTypeCustomPropertySetUsage = this.deviceTypeCustomPropertySetUsages
+                .stream()
                 .filter(f -> f.getDeviceType().getId() == this.getId())
                 .filter(f -> f.getRegisteredCustomPropertySet().getId() == registeredCustomPropertySet.getId())
                 .findAny();
@@ -284,21 +295,47 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public void removeConflictsFor(PartialConnectionTask partialConnectionTask) {
-        this.deviceConfigConflictMappings.stream().filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == partialConnectionTask.getConfiguration().getId() || deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == partialConnectionTask.getConfiguration().getId())
+        this.deviceConfigConflictMappings.stream()
+                .filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getDestinationDeviceConfiguration()
+                        .getId() == partialConnectionTask.getConfiguration()
+                        .getId() || deviceConfigConflictMapping.getOriginDeviceConfiguration()
+                        .getId() == partialConnectionTask.getConfiguration().getId())
                 .forEach(deviceConfigConflictMapping -> {
-                    List<ConflictingConnectionMethodSolution> conflictsWithGivenConnectionTask = deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().stream().filter(conflictingConnectionMethodSolution -> conflictingConnectionMethodSolution.getOriginDataSource().getId() == partialConnectionTask.getId()
-                            || (conflictingConnectionMethodSolution.getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.MAP) && conflictingConnectionMethodSolution.getDestinationDataSource().getId() == partialConnectionTask.getId())).collect(Collectors.toList());
-                    conflictsWithGivenConnectionTask.stream().forEach(deviceConfigConflictMapping::removeConnectionMethodSolution);
+                    List<ConflictingConnectionMethodSolution> conflictsWithGivenConnectionTask = deviceConfigConflictMapping
+                            .getConflictingConnectionMethodSolutions()
+                            .stream()
+                            .filter(conflictingConnectionMethodSolution -> conflictingConnectionMethodSolution.getOriginDataSource()
+                                    .getId() == partialConnectionTask.getId()
+                                    || (conflictingConnectionMethodSolution.getConflictingMappingAction()
+                                    .equals(DeviceConfigConflictMapping.ConflictingMappingAction.MAP) && conflictingConnectionMethodSolution
+                                    .getDestinationDataSource()
+                                    .getId() == partialConnectionTask.getId()))
+                            .collect(Collectors.toList());
+                    conflictsWithGivenConnectionTask.stream()
+                            .forEach(deviceConfigConflictMapping::removeConnectionMethodSolution);
                 });
     }
 
     @Override
     public void removeConflictsFor(SecurityPropertySet securityPropertySet) {
-        this.deviceConfigConflictMappings.stream().filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == securityPropertySet.getDeviceConfiguration().getId() || deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == securityPropertySet.getDeviceConfiguration().getId())
+        this.deviceConfigConflictMappings.stream()
+                .filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getDestinationDeviceConfiguration()
+                        .getId() == securityPropertySet.getDeviceConfiguration()
+                        .getId() || deviceConfigConflictMapping.getOriginDeviceConfiguration()
+                        .getId() == securityPropertySet.getDeviceConfiguration().getId())
                 .forEach(deviceConfigConflictMapping -> {
-                    List<ConflictingSecuritySetSolution> conflictsWithGivenSecurityPropertySet = deviceConfigConflictMapping.getConflictingSecuritySetSolutions().stream().filter(securitySetSolutionPredicate -> securitySetSolutionPredicate.getOriginDataSource().getId() == securityPropertySet.getId()
-                            || (securitySetSolutionPredicate.getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.MAP) && securitySetSolutionPredicate.getDestinationDataSource().getId() == securityPropertySet.getId())).collect(Collectors.toList());
-                    conflictsWithGivenSecurityPropertySet.stream().forEach(deviceConfigConflictMapping::removeSecuritySetSolution);
+                    List<ConflictingSecuritySetSolution> conflictsWithGivenSecurityPropertySet = deviceConfigConflictMapping
+                            .getConflictingSecuritySetSolutions()
+                            .stream()
+                            .filter(securitySetSolutionPredicate -> securitySetSolutionPredicate.getOriginDataSource()
+                                    .getId() == securityPropertySet.getId()
+                                    || (securitySetSolutionPredicate.getConflictingMappingAction()
+                                    .equals(DeviceConfigConflictMapping.ConflictingMappingAction.MAP) && securitySetSolutionPredicate
+                                    .getDestinationDataSource()
+                                    .getId() == securityPropertySet.getId()))
+                            .collect(Collectors.toList());
+                    conflictsWithGivenSecurityPropertySet.stream()
+                            .forEach(deviceConfigConflictMapping::removeSecuritySetSolution);
                 });
     }
 
@@ -346,7 +383,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         if (getDeviceProtocolPluggableClass() == null || getDeviceProtocolPluggableClass().getDeviceProtocol() == null) {
             return false;
         }
-        List<DeviceProtocolCapabilities> deviceProtocolCapabilities = getDeviceProtocolPluggableClass().getDeviceProtocol().getDeviceProtocolCapabilities();
+        List<DeviceProtocolCapabilities> deviceProtocolCapabilities = getDeviceProtocolPluggableClass().getDeviceProtocol()
+                .getDeviceProtocolCapabilities();
         return deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_MASTER);
     }
 
@@ -355,8 +393,14 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         if (getDeviceProtocolPluggableClass() == null || getDeviceProtocolPluggableClass().getDeviceProtocol() == null) {
             return false;
         }
-        List<DeviceProtocolCapabilities> deviceProtocolCapabilities = getDeviceProtocolPluggableClass().getDeviceProtocol().getDeviceProtocolCapabilities();
+        List<DeviceProtocolCapabilities> deviceProtocolCapabilities = getDeviceProtocolPluggableClass().getDeviceProtocol()
+                .getDeviceProtocolCapabilities();
         return deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_SESSION);
+    }
+
+    @Override
+    public boolean isDataloggerSlave() {
+        return deviceTypePurpose.equals(DeviceTypePurpose.DATALOGGER_SLAVE);
     }
 
     @Override
@@ -366,7 +410,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public List<DeviceConfigConflictMapping> getDeviceConfigConflictMappings() {
-        return deviceConfigConflictMappings.stream().map(deviceConfigConflictMapping -> ((DeviceConfigConflictMapping) deviceConfigConflictMapping)).collect(Collectors.toList());
+        return deviceConfigConflictMappings.stream()
+                .map(deviceConfigConflictMapping -> ((DeviceConfigConflictMapping) deviceConfigConflictMapping))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -376,8 +422,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
-        if (this.deviceProtocolPluggableClass == null) {
-            this.deviceProtocolPluggableClass = this.findDeviceProtocolPluggableClass(this.deviceProtocolPluggableClassId).get();
+        if (this.deviceProtocolPluggableClass == null && !isDataloggerSlave()) {
+            Optional<DeviceProtocolPluggableClass> optionalDeviceProtocolPluggableClass = this.findDeviceProtocolPluggableClass(this.deviceProtocolPluggableClassId);
+            optionalDeviceProtocolPluggableClass.ifPresent(consumer -> this.deviceProtocolPluggableClass = consumer);
         }
         return this.deviceProtocolPluggableClass;
     }
@@ -388,14 +435,16 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public void setDeviceProtocolPluggableClass(String deviceProtocolPluggableClassName) {
-        this.setDeviceProtocolPluggableClass(this.protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceProtocolPluggableClassName).orElse(null));
+        this.setDeviceProtocolPluggableClass(this.protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceProtocolPluggableClassName)
+                .orElse(null));
     }
 
     @Override
     public void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         // Test for null because javax.validation only kicks @ save time
         if (deviceProtocolPluggableClass != null) {
-            this.deviceProtocolPluggableClassChanged = (this.deviceProtocolPluggableClassId != deviceProtocolPluggableClass.getId());
+            this.deviceProtocolPluggableClassChanged = (this.deviceProtocolPluggableClassId != deviceProtocolPluggableClass
+                    .getId());
             this.deviceProtocolPluggableClassId = deviceProtocolPluggableClass.getId();
             this.deviceProtocolPluggableClass = deviceProtocolPluggableClass;
         } else {
@@ -448,7 +497,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                 throw new LoadProfileTypeAlreadyInDeviceTypeException(this, loadProfileType, this.getThesaurus());
             }
         }
-        DeviceTypeLoadProfileTypeUsage loadProfileTypeOnDeviceTypeUsage = getDataModel().getInstance(DeviceTypeLoadProfileTypeUsage.class).initialize(this, loadProfileType);
+        DeviceTypeLoadProfileTypeUsage loadProfileTypeOnDeviceTypeUsage = getDataModel().getInstance(DeviceTypeLoadProfileTypeUsage.class)
+                .initialize(this, loadProfileType);
         Save.UPDATE.validate(getDataModel(), loadProfileTypeOnDeviceTypeUsage);
         this.loadProfileTypeUsages.add(loadProfileTypeOnDeviceTypeUsage);
         if (getId() > 0) {
@@ -458,7 +508,10 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public void addLoadProfileTypeCustomPropertySet(LoadProfileType loadProfileType, RegisteredCustomPropertySet registeredCustomPropertySet) {
-        DeviceTypeLoadProfileTypeUsage deviceTypeLoadProfileTypeUsage = this.loadProfileTypeUsages.stream().filter(f -> f.sameLoadProfileType(loadProfileType)).findAny().get();
+        DeviceTypeLoadProfileTypeUsage deviceTypeLoadProfileTypeUsage = this.loadProfileTypeUsages.stream()
+                .filter(f -> f.sameLoadProfileType(loadProfileType))
+                .findAny()
+                .get();
         deviceTypeLoadProfileTypeUsage.setCustomPropertySet(registeredCustomPropertySet);
     }
 
@@ -485,7 +538,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private void validateLoadProfileTypeNotUsedByLoadProfileSpec(LoadProfileType loadProfileType) {
         List<LoadProfileSpec> loadProfileSpecs = this.getLoadProfileSpecsForLoadProfileType(loadProfileType);
         if (!loadProfileSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.loadProfileTypeIsStillInUseByLoadProfileSpec(loadProfileType, loadProfileSpecs, this.getThesaurus(), MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS);
+            throw CannotDeleteBecauseStillInUseException.loadProfileTypeIsStillInUseByLoadProfileSpec(loadProfileType, loadProfileSpecs, this
+                    .getThesaurus(), MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS);
         }
     }
 
@@ -513,7 +567,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                 deviceConfiguration
                         .getLoadProfileSpecs()
                         .stream()
-                        .filter(loadProfileSpec -> loadProfileSpec.getLoadProfileType().getId() == loadProfileType.getId())
+                        .filter(loadProfileSpec -> loadProfileSpec.getLoadProfileType()
+                                .getId() == loadProfileType.getId())
                         .collect(Collectors.toList()));
     }
 
@@ -537,7 +592,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                 throw new RegisterTypeAlreadyInDeviceTypeException(this, registerType, this.getThesaurus());
             }
         }
-        DeviceTypeRegisterTypeUsage registerTypeOnDeviceTypeUsage = getDataModel().getInstance(DeviceTypeRegisterTypeUsage.class).initialize(this, registerType);
+        DeviceTypeRegisterTypeUsage registerTypeOnDeviceTypeUsage = getDataModel().getInstance(DeviceTypeRegisterTypeUsage.class)
+                .initialize(this, registerType);
         Save.UPDATE.validate(getDataModel(), registerTypeOnDeviceTypeUsage);
         this.registerTypeUsages.add(registerTypeOnDeviceTypeUsage);
         if (getId() > 0) {
@@ -546,7 +602,10 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     public void addRegisterTypeCustomPropertySet(RegisterType registerType, RegisteredCustomPropertySet registeredCustomPropertySet) {
-        DeviceTypeRegisterTypeUsage registerTypeOnDeviceTypeUsage = this.registerTypeUsages.stream().filter(f -> f.sameRegisterType(registerType)).findAny().get();
+        DeviceTypeRegisterTypeUsage registerTypeOnDeviceTypeUsage = this.registerTypeUsages.stream()
+                .filter(f -> f.sameRegisterType(registerType))
+                .findAny()
+                .get();
         registerTypeOnDeviceTypeUsage.setCustomPropertySet(registeredCustomPropertySet);
     }
 
@@ -681,8 +740,10 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     public boolean isLogicalSlave() {
-        List<DeviceProtocolCapabilities> deviceProtocolCapabilities = this.getLocalDeviceProtocol().getDeviceProtocolCapabilities();
-        return deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_SLAVE) && deviceProtocolCapabilities.size() == 1;
+        List<DeviceProtocolCapabilities> deviceProtocolCapabilities = this.getLocalDeviceProtocol()
+                .getDeviceProtocolCapabilities();
+        return deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_SLAVE) && deviceProtocolCapabilities
+                .size() == 1;
     }
 
     private DeviceProtocol getLocalDeviceProtocol() {
@@ -718,7 +779,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public DeviceConfigurationBuilder newConfiguration(String name) {
-        return new ConfigurationBuilder(this.getDataModel().getInstance(DeviceConfigurationImpl.class).initialize(this, name));
+        return new ConfigurationBuilder(this.getDataModel()
+                .getInstance(DeviceConfigurationImpl.class)
+                .initialize(this, name));
     }
 
     private enum BuildingMode {
