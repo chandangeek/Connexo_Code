@@ -2,6 +2,7 @@ package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -120,10 +121,8 @@ public enum TableSpecs {
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(ServiceCallImpl.Fields.lastCompletedTime.fieldName())
                     .add();
-            table.column("STATE")
+            Column state = table.column("STATE")
                     .number()
-                    .conversion(ColumnConversion.NUMBER2ENUM)
-                    .map(ServiceCallImpl.Fields.state.fieldName())
                     .add();
             table.column("ORIGIN").varChar(NAME_LENGTH).map(ServiceCallImpl.Fields.origin.fieldName()).add();
             table.column("EXTERNALREFERENCE")
@@ -144,6 +143,11 @@ public enum TableSpecs {
                     .on(parent)
                     .onDelete(DeleteRule.CASCADE)
                     .map(ServiceCallImpl.Fields.parent.fieldName())
+                    .add();
+            table.foreignKey("FK_SCS_SERVICECALL_STATE")
+                    .on(state)
+                    .references(State.class)
+                    .map(ServiceCallImpl.Fields.state.fieldName())
                     .add();
         }
     };

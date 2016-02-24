@@ -23,6 +23,8 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.parties.Person;
@@ -52,6 +54,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
+import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -73,6 +76,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceCallImplIT {
@@ -100,8 +104,6 @@ public class ServiceCallImplIT {
     private LogService logService;
     @Mock
     private MessageInterpolator messageInterpolator;
-    @Mock
-    private TranslationKey translationKey;
 
     private Clock clock;
     private CustomPropertySetService customPropertySetService;
@@ -153,7 +155,6 @@ public class ServiceCallImplIT {
         transactionService.execute(new Transaction<Void>() {
 
 
-
             @Override
             public Void perform() {
                 nlsService = injector.getInstance(NlsService.class);
@@ -163,21 +164,19 @@ public class ServiceCallImplIT {
                 propertySpecService = injector.getInstance(PropertySpecService.class);
                 partyService = injector.getInstance(PartyService.class);
 
-                try (TransactionContext context = transactionService.getContext()) {
 
-                    customPropertySet = new MyCustomPropertySet();
-                    customPropertySetService.addCustomPropertySet(customPropertySet);
+                customPropertySet = new MyCustomPropertySet(propertySpecService);
+                customPropertySetService.addCustomPropertySet(customPropertySet);
 
-                    RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(customPropertySet
-                            .getId()).get();
+                RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(customPropertySet
+                        .getId()).get();
 
-                    serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
-                            .customPropertySet(registeredCustomPropertySet)
-                            .create();
+                serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
+                        .customPropertySet(registeredCustomPropertySet)
+                        .create();
 
-                    person = partyService.newPerson("Test", "test")
-                            .create();
-                }
+                person = partyService.newPerson("Test", "test")
+                        .create();
                 return null;
             }
         });
@@ -209,8 +208,10 @@ public class ServiceCallImplIT {
         assertThat(serviceCall.getState()).isEqualTo(DefaultState.CREATED);
     }
 
-    private class MyPersistentExtension implements PersistentDomainExtension<ServiceCall> {
+    static class MyPersistentExtension implements PersistentDomainExtension<ServiceCall> {
 
+        private Reference<ServiceCall> serviceCall = ValueReference.absent();
+        private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = ValueReference.absent();
         private BigDecimal value;
 
         public BigDecimal getValue() {
@@ -223,6 +224,7 @@ public class ServiceCallImplIT {
 
         @Override
         public void copyFrom(ServiceCall domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
+            serviceCall.set(domainInstance);
             propertyValues.getProperty("value");
         }
 
@@ -236,7 +238,15 @@ public class ServiceCallImplIT {
         }
     }
 
-    private class MyCustomPropertySet implements CustomPropertySet<ServiceCall, MyPersistentExtension> {
+    private static class MyCustomPropertySet implements CustomPropertySet<ServiceCall, MyPersistentExtension> {
+
+        private final PropertySpecService propertySpecService;
+
+        @Inject
+        private MyCustomPropertySet(PropertySpecService propertySpecService) {
+            this.propertySpecService = propertySpecService;
+        }
+
         @Override
         public String getName() {
             return "MyCustomPropertySet";
@@ -314,6 +324,8 @@ public class ServiceCallImplIT {
 
         @Override
         public List<PropertySpec> getPropertySpecs() {
+            TranslationKey translationKey = mock(TranslationKey.class);
+
             PropertySpec spec = propertySpecService.bigDecimalSpec()
                     .named("value", translationKey)
                     .describedAs(translationKey)
