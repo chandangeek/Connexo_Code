@@ -95,6 +95,11 @@ public class JbpmTaskResource {
                                     predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Obsolete));
                                 }
                             }
+                        }else{
+                            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.InProgress));
+                            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Created));
+                            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Ready));
+                            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Reserved));
                         }
                         if (theKey.equals("user")) {
                             for (int i = 0; i < filterProperties.get("user").size(); i++) {
@@ -196,8 +201,10 @@ public class JbpmTaskResource {
                     for (String each : deploymentIds) {
                         predicatesDeploymentId.add(criteriaBuilder.equal(taskRoot.get("taskData").get("deploymentId"), each));
                     }
-                    predicatesStatus.add(criteriaBuilder.notEqual(taskRoot.get("taskData").get("status"), Status.Completed));
-                    predicatesStatus.add(criteriaBuilder.notEqual(taskRoot.get("taskData").get("status"), Status.Exited));
+                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.InProgress));
+                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Created));
+                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Ready));
+                    predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Reserved));
                     Predicate p1 = criteriaBuilder.disjunction();
                     if (!predicatesDeploymentId.isEmpty()) {
                         p1 = criteriaBuilder.or(predicatesDeploymentId.toArray(new Predicate[predicatesDeploymentId.size()]));
@@ -627,33 +634,39 @@ public class JbpmTaskResource {
     public TaskGroupsInfos checkMandatoryTask(TaskGroupsInfos taskGroupsInfos, @Context UriInfo uriInfo){
         List<TaskGroupsInfo> taskGroups = new ArrayList<>();
         List<Long> taskIds = taskGroupsInfos.taskGroups.get(0).taskIds;
-        Map<ProcessAssetDesc, List<Task>> groupedTasks = new HashMap<>();
+        Map<Map<ProcessAssetDesc,String>, List<Task>> groupedTasks = new HashMap<>();
         for(Long id: taskIds){
             Task task = internalTaskService.getTaskById(id);
-            if(task != null) {
-                ProcessAssetDesc process = null;
-                Collection<ProcessAssetDesc> processesList = runtimeDataService.getProcessesByDeploymentId(task.getTaskData().getDeploymentId());
-                for (ProcessAssetDesc each : processesList) {
-                    if (each.getDeploymentId().equals(task.getTaskData().getDeploymentId())) {
-                        process = each;
+                if (task != null) {
+                    if(!task.getTaskData().getStatus().equals(Status.Completed)) {
+                    ProcessAssetDesc process = null;
+                    Collection<ProcessAssetDesc> processesList = runtimeDataService.getProcessesByDeploymentId(task.getTaskData().getDeploymentId());
+                    for (ProcessAssetDesc each : processesList) {
+                        if (each.getDeploymentId().equals(task.getTaskData().getDeploymentId())) {
+                            process = each;
+                        }
                     }
-                }
-                if (groupedTasks.containsKey(process)) {
-                    List<Task> listOfTasks = new ArrayList<>(groupedTasks.get(process));
-                    listOfTasks.add(task);
-                    groupedTasks.put(process, listOfTasks);
-                } else {
-                    groupedTasks.put(process, Collections.singletonList(task));
+                    Map<ProcessAssetDesc, String> proc = new HashMap<>();
+                    proc.put(process, ((InternalTask) task).getFormName());
+                    if (groupedTasks.containsKey(proc)) {
+                        List<Task> listOfTasks = new ArrayList<>(groupedTasks.get(proc));
+                        listOfTasks.add(task);
+                        groupedTasks.put(proc, listOfTasks);
+                    } else {
+                        groupedTasks.put(proc, Collections.singletonList(task));
+                    }
                 }
             }
         }
-        for (Map.Entry<ProcessAssetDesc, List<Task>> entry : groupedTasks.entrySet()){
+        for (Map.Entry<Map<ProcessAssetDesc,String>, List<Task>> entry : groupedTasks.entrySet()){
             ConnexoForm form = getTaskContent(entry.getValue().get(0).getId());
             List<Long> ids = new ArrayList<>();
             for(Task each : entry.getValue()){
                 ids.add(each.getId());
             }
-            taskGroups.add(new TaskGroupsInfo(entry.getValue().get(0).getName(), entry.getKey().getName(), entry.getKey().getVersion(), ids, hasFormMandatoryFields(form), form));
+            form.taskStatus = Status.InProgress;
+            Map.Entry<ProcessAssetDesc, String> entryKey = entry.getKey().entrySet().iterator().next();
+            taskGroups.add(new TaskGroupsInfo(entry.getValue().get(0).getName(), entryKey.getKey().getName(), entryKey.getKey().getVersion(), ids, hasFormMandatoryFields(form), form));
         }
         return new TaskGroupsInfos(taskGroups);
     }
@@ -678,60 +691,87 @@ public class JbpmTaskResource {
     @POST
     @Produces("application/json")
     @Path("/managetasks")
-    public Response manageTasks(@Context UriInfo uriInfo){
-        if(getQueryValue(uriInfo, "tasks") != null) {
-            if (getQueryValue(uriInfo, "assign") != null) {
-                if (getQueryValue(uriInfo, "currentuser") != null) {
-                    List<Long> taskIdList = taskIdList(getQueryValue(uriInfo,"tasks"));
-                    for(Long taskId: taskIdList){
-                        assignTaskToUser(getQueryValue(uriInfo, "assign"), getQueryValue(uriInfo, "currentuser"), taskId);
-                    }
-                }
-            }
-            if(getQueryValue(uriInfo, "setPriority") != null){
-                List<Long> taskIdList = taskIdList(getQueryValue(uriInfo,"tasks"));
-                for(Long taskId: taskIdList){
-                    setPriority(Integer.valueOf(getQueryValue(uriInfo, "setPriority")), taskId);
-                }
-
-            }
-            if(getQueryValue(uriInfo, "setDueDate") != null){
-                Date millis = new Date();
-                millis.setTime(Long.valueOf(getQueryValue(uriInfo, "setDueDate")));
-                List<Long> taskIdList = taskIdList(getQueryValue(uriInfo,"tasks"));
-                for(Long taskId: taskIdList){
-                    setDueDate(millis , taskId);
-                }
-            }
-            if(getQueryValue(uriInfo, "setDueDate") == null && getQueryValue(uriInfo, "setPriority") == null && getQueryValue(uriInfo, "assign") == null){
-                if (getQueryValue(uriInfo, "currentuser") != null) {
-                    List<Long> taskIdList = taskIdList(getQueryValue(uriInfo,"tasks"));
-                    for(Long taskId: taskIdList){
-                        if(internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Ready)) {
-                            assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId);
+    public TaskBulkReportInfo manageTasks(TaskGroupsInfos taskGroupsInfos, @Context UriInfo uriInfo){
+        long failed = 0;
+        long total = 0;
+        if (getQueryValue(uriInfo, "assign") != null) {
+            if (getQueryValue(uriInfo, "currentuser") != null) {
+                for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
+                    for(Long taskId: taskGroup.taskIds){
+                        total++;
+                        if(!assignTaskToUser(getQueryValue(uriInfo, "assign"), getQueryValue(uriInfo, "currentuser"), taskId)){
+                            failed++;
                         }
-                        if(internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Created)) {
-                            assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId);
-                            internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
-                        }
-                        if(internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Reserved)){
-                            if(!internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId().equals(getQueryValue(uriInfo, "currentuser"))){
-                                assignTaskToUser(getQueryValue(uriInfo, "currentuser"), internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId(), taskId);
-                            }
-                            internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
-                        }
-                        if(internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.InProgress)){
-                            if(!internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId().equals(getQueryValue(uriInfo, "currentuser"))) {
-                                assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId);
-                                internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
-                            }
-                        }
-                        internalTaskService.complete(taskId, getQueryValue(uriInfo, "currentuser"), internalTaskService.getTaskContent(taskId));
                     }
                 }
             }
         }
-        return Response.ok().build();
+        if(getQueryValue(uriInfo, "setPriority") != null){
+            for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
+                for(Long taskId: taskGroup.taskIds){
+                    setPriority(Integer.valueOf(getQueryValue(uriInfo, "setPriority")), taskId);
+                    total++;
+                }
+            }
+        }
+        if(getQueryValue(uriInfo, "setDueDate") != null){
+            Date millis = new Date();
+            millis.setTime(Long.valueOf(getQueryValue(uriInfo, "setDueDate")));
+            for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
+                for(Long taskId: taskGroup.taskIds){
+                    setDueDate(millis , taskId);
+                    total++;
+                }
+            }
+        }
+        if(getQueryValue(uriInfo, "setDueDate") == null && getQueryValue(uriInfo, "setPriority") == null && getQueryValue(uriInfo, "assign") == null){
+            if (getQueryValue(uriInfo, "currentuser") != null) {
+                for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
+                    total += taskGroup.taskIds.size();
+                    for(Long taskId: taskGroup.taskIds){
+                        if(!internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Completed)) {
+                            boolean check = true;
+                            if (internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Ready)) {
+                                assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId);
+                            }
+                            if (internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Created)) {
+                                if(assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId)) {
+                                    internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
+                                }else{
+                                    check = false;
+                                }
+                            }
+                            if (internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Reserved)) {
+                                if (!internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId().equals(getQueryValue(uriInfo, "currentuser"))) {
+                                    if(assignTaskToUser(getQueryValue(uriInfo, "currentuser"), internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId(), taskId)){
+                                        internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
+                                    }else{
+                                        check = false;
+                                    }
+                                }else {
+                                    internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
+                                }
+                            }
+                            if (internalTaskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.InProgress)) {
+                                if (!internalTaskService.getTaskById(taskId).getTaskData().getActualOwner().getId().equals(getQueryValue(uriInfo, "currentuser"))) {
+                                    if(assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId)) {
+                                        internalTaskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
+                                    }else{
+                                        check = false;
+                                    }
+                                }
+                            }
+                            if(check) {
+                                internalTaskService.complete(taskId, getQueryValue(uriInfo, "currentuser"), taskGroup.outputBindingContents);
+                            }else {
+                                failed++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return new TaskBulkReportInfo(total,failed);
     }
 
     private boolean assignTaskToUser(String userName, String currentuser, long taskId){
@@ -816,8 +856,18 @@ public class JbpmTaskResource {
                     taskRoot.get("taskData").get("actualOwner").get("id"),
                     taskRoot.get("taskData").get("processInstanceId")
             ));
-            Predicate p1 = criteriaBuilder.equal(taskRoot.get("taskData").get("processInstanceId"), processInstanceId);
-            criteriaQuery.where(criteriaBuilder.and(p1));
+            List<Predicate> predicatesStatus = new ArrayList<>();
+            List<Predicate> predicateList = new ArrayList<>();
+            Predicate p1 = criteriaBuilder.disjunction();
+            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.InProgress));
+            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Created));
+            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Ready));
+            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Reserved));
+            Predicate predicateProcessId = criteriaBuilder.equal(taskRoot.get("taskData").get("processInstanceId"), processInstanceId);
+            p1 = criteriaBuilder.or(predicatesStatus.toArray(new Predicate[predicatesStatus.size()]));
+            predicateList.add(p1);
+            predicateList.add(predicateProcessId);
+            criteriaQuery.where((criteriaBuilder.and(predicateList.toArray(new Predicate[predicateList.size()]))));
             final TypedQuery query = em.createQuery(criteriaQuery);
             TaskSummaryList taskSummaryList = new TaskSummaryList(query.getResultList());
             return taskSummaryList.getTasks();
