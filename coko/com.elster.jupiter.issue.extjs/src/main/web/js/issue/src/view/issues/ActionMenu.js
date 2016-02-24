@@ -57,7 +57,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
     },
 
     // this method overwritten to avoid firing click event twice in menu
-    onClick: function(e) {
+    onClick: function (e) {
         var me = this,
             item;
 
@@ -149,9 +149,22 @@ Ext.define('Isu.view.issues.ActionMenu', {
                     case 'addComment':
                         menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view').buildUrl({issueId: issueId}, {addComment: true});
                         break;
+                    case 'startProcess':
+                        menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({issueId: issueId} , {details: menuItem.details});
+                        break;
                 }
             });
             me.add(me.predefinedItems);
+        }
+
+        if (Isu.privileges.Issue.canViewProcessMenu())
+        {
+            me.add({
+                text: Uni.I18n.translate('issues.actionMenu.startProcess', 'ISU', 'Start process'),
+                action: 'startProcess',
+                href: me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({issueId: issueId} , {details: false}),
+                details: false
+            });
         }
 
         // add specific actions

@@ -11,14 +11,16 @@ Ext.define('Isu.view.issues.CloseForm', {
         {
             xype: 'container',
             border: 0,
+
             items: [
                 {
                     itemId: 'radiogroup',
                     xtype: 'radiogroup',
-                    fieldLabel: Uni.I18n.translate('general.reason','ISU','Reason'),
+                    fieldLabel: Uni.I18n.translate('general.reasonToClose','ISU','Reason to close'),
                     required: true,
                     name: 'status',
                     columns: 1,
+                    labelWidth: 120,
                     vertical: true,
                     submitValue: false,
                     items: []
@@ -26,6 +28,7 @@ Ext.define('Isu.view.issues.CloseForm', {
                 {
                     itemId: 'Comment',
                     xtype: 'textarea',
+                    labelWidth: 120,
                     fieldLabel: Uni.I18n.translate('general.comment','ISU','Comment'),
                     name: 'comment',
                     width: 500,
