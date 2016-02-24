@@ -17,7 +17,8 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
 
     stores: [
         'Mdc.store.LogLevels',
-        'Mdc.store.TimeUnitsWithoutMilliseconds'
+        'Mdc.store.TimeUnitsWithoutMilliseconds',
+        'Mdc.store.ComServers'
     ],
 
     init: function () {
