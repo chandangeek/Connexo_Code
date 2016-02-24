@@ -17,6 +17,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
+import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.users.PrivilegesProvider;
@@ -53,6 +54,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
 
     private volatile FiniteStateMachineService finiteStateMachineService;
+    private volatile CustomPropertySetService customPropertySetService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private final Map<String, ServiceCallHandler> handlerMap = new ConcurrentHashMap<>();
@@ -81,6 +83,11 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(this.dataModel);
         }
+    }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
     }
 
     @Reference
@@ -131,7 +138,7 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
 
     @Override
     public void install() {
-        new ServiceCallInstaller(finiteStateMachineService, dataModel).install();
+        dataModel.getInstance(ServiceCallInstaller.class).install();
     }
 
     @Override
@@ -150,6 +157,7 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
+                bind(ServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
             }
         };
     }
@@ -196,8 +204,8 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     }
 
     @Override
-    public ServiceCallLifeCycle createServiceCallLifeCycle(String name) {
-        return null; // TODO
+    public ServiceCallLifeCycleBuilder createServiceCallLifeCycle(String name) {
+        return dataModel.getInstance(ServiceCallLifeCycleBuilderImpl.class).setName(name);
     }
 
     class ServiceCallTypeBuilderImpl implements ServiceCallTypeBuilder {

@@ -63,4 +63,7 @@ public class ServiceCallLifeCycleImpl implements ServiceCallLifeCycle {
         }
     }
 
+    public FiniteStateMachine getFiniteStateMachine() {
+        return finiteStateMachine.orElseThrow(IllegalStateException::new);
+    }
 }

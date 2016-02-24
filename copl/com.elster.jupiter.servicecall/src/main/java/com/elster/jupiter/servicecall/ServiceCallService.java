@@ -1,10 +1,8 @@
 package com.elster.jupiter.servicecall;
 
-import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Finder;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -32,7 +30,7 @@ public interface ServiceCallService {
      * @return Will return empty if no init has been done yet
      */
     public Optional<ServiceCallLifeCycle> getDefaultServiceCallLifeCycle();
-    public ServiceCallLifeCycle createServiceCallLifeCycle(String name);
+    public ServiceCallLifeCycleBuilder createServiceCallLifeCycle(String name);
 
     /**
      * Returns list of known service call types. This method supports paging.
