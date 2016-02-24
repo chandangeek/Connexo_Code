@@ -73,8 +73,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.doReturn;
@@ -92,6 +92,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DataAggregationServiceImplCalculateIT {
 
+    public static final String FIFTEEN_MINS_NET_CONSUMPTION_MRID = "0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0";
+    public static final String MONTHLY_NET_CONSUMPTION_MRID = "13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0";
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private static Injector injector;
     private static ReadingType fifteenMinuteskWhForward;
@@ -101,8 +103,8 @@ public class DataAggregationServiceImplCalculateIT {
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
     private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
     private static long PRODUCTION_REQUIREMENT_ID = 97L;
-    private static long CONSUMPTION_REQUIREMENT_ID = PRODUCTION_REQUIREMENT_ID + 1;
-    private static long NET_CONSUMPTION_DELIVERABLE_ID = CONSUMPTION_REQUIREMENT_ID + 1;
+    private static long CONSUMPTION_REQUIREMENT_ID = 98L;
+    private static long NET_CONSUMPTION_DELIVERABLE_ID = 99L;
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(injector.getInstance(TransactionService.class));
@@ -111,7 +113,9 @@ public class DataAggregationServiceImplCalculateIT {
     private MetrologyConfiguration configuration;
     @Mock
     private MetrologyContract contract;
-    private SqlBuilder withClauseBuilder;
+    private SqlBuilder consumptionWithClauseBuilder;
+    private SqlBuilder productionWithClauseBuilder;
+    private SqlBuilder netConsumptionWithClauseBuilder;
     private SqlBuilder selectClauseBuilder;
     private SqlBuilder completeSqlBuilder;
     private Meter meter;
@@ -147,7 +151,8 @@ public class DataAggregationServiceImplCalculateIT {
                     new MeteringModule(
                             "0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.0.72.0",    // no macro period, measuring period =  15 min, primary metered, forward
                             "0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.0.72.0",   // no macro period, measuring period =  15 min, primary metered, reverse
-                            "0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0"     // no macro period, measuring period =  15 min, primary metered, net
+                            "0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0",     // no macro period, measuring period =  15 min, primary metered, net
+                            "13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0"    // macro period: monthly, measuring period: none, primary metered, net
                     ),
                     new UserModule(),
                     new PartyModule(),
@@ -180,7 +185,7 @@ public class DataAggregationServiceImplCalculateIT {
     private static DataAggregationService getDataAggregationService() {
         return new DataAggregationServiceImpl(
                 injector.getInstance(ServerMeteringService.class),
-                injector.getProvider(VirtualFactory.class),
+                VirtualFactoryImpl::new,
                 sqlBuilderFactory);
     }
 
@@ -201,11 +206,15 @@ public class DataAggregationServiceImplCalculateIT {
     public void resetSqlBuilder() {
         reset(sqlBuilderFactory);
         reset(clauseAwareSqlBuilder);
-        this.withClauseBuilder = new SqlBuilder();
+        this.consumptionWithClauseBuilder = new SqlBuilder();
+        this.productionWithClauseBuilder = new SqlBuilder();
+        this.netConsumptionWithClauseBuilder = new SqlBuilder();
         this.selectClauseBuilder = new SqlBuilder();
         this.completeSqlBuilder = new SqlBuilder();
         when(sqlBuilderFactory.newClauseAwareSqlBuilder()).thenReturn(clauseAwareSqlBuilder);
-        when(clauseAwareSqlBuilder.with(anyString(), any(Optional.class), anyVararg())).thenReturn(this.withClauseBuilder);
+        when(clauseAwareSqlBuilder.with(matches("rid" + CONSUMPTION_REQUIREMENT_ID + ".*"), any(Optional.class), anyVararg())).thenReturn(this.consumptionWithClauseBuilder);
+        when(clauseAwareSqlBuilder.with(matches("rid" + PRODUCTION_REQUIREMENT_ID + ".*"), any(Optional.class), anyVararg())).thenReturn(this.productionWithClauseBuilder);
+        when(clauseAwareSqlBuilder.with(matches("rod" + NET_CONSUMPTION_DELIVERABLE_ID + ".*"), any(Optional.class), anyVararg())).thenReturn(this.netConsumptionWithClauseBuilder);
         when(clauseAwareSqlBuilder.select()).thenReturn(this.selectClauseBuilder);
         when(clauseAwareSqlBuilder.finish()).thenReturn(this.completeSqlBuilder);
     }
@@ -276,17 +285,139 @@ public class DataAggregationServiceImplCalculateIT {
                         matches("rid" + CONSUMPTION_REQUIREMENT_ID + ".*" + NET_CONSUMPTION_DELIVERABLE_ID + ".*1"),
                         any(Optional.class),
                         anyVararg());
+            assertThat(consumptionWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
                         matches("rid" + PRODUCTION_REQUIREMENT_ID + ".*" + NET_CONSUMPTION_DELIVERABLE_ID + ".*1"),
                         any(Optional.class),
                         anyVararg());
+            assertThat(productionWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
                         matches("rod" + NET_CONSUMPTION_DELIVERABLE_ID + ".*1"),
                         any(Optional.class),
                         anyVararg());
+            // Assert that one of the requirements is used as source for the timeline
+            assertThat(this.netConsumptionWithClauseBuilder.getText())
+                    .matches("SELECT -1, rid97_99_1\\.timestamp,.*");
+            // Assert that one of both requirements' values are added up in the select clause
+            assertThat(this.netConsumptionWithClauseBuilder.getText())
+                    .matches("SELECT.*\\(rid97_99_1\\.value \\+ rid98_99_1\\.value\\).*");
+            // Assert that the with clauses for both requirements are joined on the utc timestamp
+            assertThat(this.netConsumptionWithClauseBuilder.getText())
+                    .matches("SELECT.*JOIN rid98_99_1 ON rid98_99_1\\.timestamp = rid97_99_1\\.timestamp.*");
             verify(clauseAwareSqlBuilder).select();
+            // Assert that the overall select statement selects the target reading type
+            String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
+            assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(FIFTEEN_MINS_NET_CONSUMPTION_MRID) + "'.*");
+            // Assert that the overall select statement selects the value and the timestamp from the with clause for the deliverable
+            assertThat(overallSelectWithoutNewlines).matches(".*rod99_1.value, rod99_1.timestamp.*");
+        }
+    }
+
+    private String mRID2GrepPattern(String mRID) {
+        return mRID.replace(".", "\\.");
+    }
+
+    /**
+     * Simular to the simplest case above but the requirement
+     * is configured to produce monthly values:
+     * Metrology configuration
+     *    requirements:
+     *       A- ::= any Wh with flow = forward (aka consumption)
+     *       A+ ::= any Wh with flow = reverse (aka production)
+     *    deliverables:
+     *       netConsumption (monthly kWh) ::= A- + A+
+     * Device:
+     *    meter activations:
+     *       Jan 1st 2015 -> forever
+     *           A- -> 15 min kWh
+     *           A+ -> 15 min kWh
+     * In other words, simple sum of 2 requirements that are provided
+     * by exactly one matching channel with a single meter activation.
+     * @see #simplestNetConsumptionOfProsumer()
+     */
+    @Test
+    @Transactional
+    public void monthlyNetConsumptionOfProsumer() {
+        DataAggregationService service = this.testInstance();
+        this.setupMeter("simplestNetConsumptionOfProsumer");
+        this.setupUsagePoint("simplestNetConsumptionOfProsumer");
+        this.activateMeter();
+
+        // Setup configuration requirements
+        ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
+        when(consumption.getName()).thenReturn("A-");
+        when(consumption.getId()).thenReturn(CONSUMPTION_REQUIREMENT_ID);
+        ReadingTypeRequirement production = mock(ReadingTypeRequirement.class);
+        when(production.getName()).thenReturn("A+");
+        when(production.getId()).thenReturn(PRODUCTION_REQUIREMENT_ID);
+        when(this.configuration.getRequirements()).thenReturn(Arrays.asList(consumption, production));
+        // Setup configuration deliverables
+        ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
+        when(netConsumption.getId()).thenReturn(NET_CONSUMPTION_DELIVERABLE_ID);
+        when(netConsumption.getName()).thenReturn("consumption");
+        ReadingType netConsumptionReadingType = this.mockMOnthlyNetConsumptionReadingType();
+        when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
+        ServerFormula formula = mock(ServerFormula.class);
+        when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
+        doReturn(
+                new OperationNode(
+                        Operator.PLUS,
+                        new ReadingTypeRequirementNode(production),
+                        new ReadingTypeRequirementNode(consumption)))
+                .when(formula).expressionNode();
+        when(netConsumption.getFormula()).thenReturn(formula);
+        // Setup contract deliverables
+        when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));
+        // Setup meter activations
+        when(consumption.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinuteskWhForward));
+        when(consumption.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(this.consumption15MinChannel));
+        when(production.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinuteskWhReverse));
+        when(production.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(this.production15MinChannel));
+
+        // Business method
+        try {
+            service.calculate(this.usagePoint, this.contract, year2016());
+        } catch (UnderlyingSQLFailedException e) {
+            // Expected because the statement contains WITH clauses
+            // Asserts:
+            verify(clauseAwareSqlBuilder)
+                    .with(
+                            matches("rid" + CONSUMPTION_REQUIREMENT_ID + ".*" + NET_CONSUMPTION_DELIVERABLE_ID + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
+            assertThat(consumptionWithClauseBuilder.getText()).isNotEmpty();
+            verify(clauseAwareSqlBuilder)
+                    .with(
+                            matches("rid" + PRODUCTION_REQUIREMENT_ID + ".*" + NET_CONSUMPTION_DELIVERABLE_ID + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
+            assertThat(productionWithClauseBuilder.getText()).isNotEmpty();
+            verify(clauseAwareSqlBuilder)
+                    .with(
+                            matches("rod" + NET_CONSUMPTION_DELIVERABLE_ID + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
+            // Assert that one of the requirements is used as source for the timeline
+            assertThat(this.netConsumptionWithClauseBuilder.getText())
+                    .matches("SELECT -1, rid97_99_1\\.timestamp,.*");
+            // Assert that one of both requirements' values are added up in the select clause
+            assertThat(this.netConsumptionWithClauseBuilder.getText())
+                    .matches("SELECT.*\\(rid97_99_1\\.value \\+ rid98_99_1\\.value\\).*");
+            // Assert that the with clauses for both requirements are joined on the utc timestamp
+            assertThat(this.netConsumptionWithClauseBuilder.getText())
+                    .matches("SELECT.*JOIN rid98_99_1 ON rid98_99_1\\.timestamp = rid97_99_1\\.timestamp.*");
+            verify(clauseAwareSqlBuilder).select();
+            // Assert that the overall select statement selects the target reading type
+            String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
+            assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(MONTHLY_NET_CONSUMPTION_MRID) + "'.*");
+            /* Assert that the overall select statement sums up the values
+             * from the with clause for the deliverable, using a group by
+             * construct that truncs the localdate to month. */
+            assertThat(overallSelectWithoutNewlines).matches(".*sum\\(rod99_1\\.value\\)");
+            assertThat(overallSelectWithoutNewlines).matches(".*trunc\\(rod99_1\\.localdate, 'MM'\\)");
+            assertThat(overallSelectWithoutNewlines).matches(".*group by trunc\\(rod99_1\\.localdate, 'MM'\\)");
         }
     }
 
@@ -299,7 +430,16 @@ public class DataAggregationServiceImplCalculateIT {
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
         when(readingType.getFlowDirection()).thenReturn(FlowDirection.NET);
-        when(readingType.getMRID()).thenReturn("0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0");
+        when(readingType.getMRID()).thenReturn(FIFTEEN_MINS_NET_CONSUMPTION_MRID);
+        return readingType;
+    }
+
+    private ReadingType mockMOnthlyNetConsumptionReadingType() {
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
+        when(readingType.getFlowDirection()).thenReturn(FlowDirection.NET);
+        when(readingType.getMRID()).thenReturn(MONTHLY_NET_CONSUMPTION_MRID);
         return readingType;
     }
 

@@ -47,18 +47,22 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
     private ClauseAwareSqlBuilder sqlBuilder;
 
     // For OSGi only
+    @SuppressWarnings("unused")
     public DataAggregationServiceImpl() {
-        super();
-        this.virtualFactoryProvider = VirtualFactoryImpl::new;
+        this(VirtualFactoryImpl::new);
     }
 
     // For testing purposes only
     @Inject
     public DataAggregationServiceImpl(ServerMeteringService meteringService, Provider<VirtualFactory> virtualFactoryProvider, SqlBuilderFactory sqlBuilderFactory) {
-        this();
+        this(virtualFactoryProvider);
         this.setMeteringService(meteringService);
-        this.virtualFactoryProvider = virtualFactoryProvider;
         this.setSqlBuilderFactory(sqlBuilderFactory);
+    }
+
+    private DataAggregationServiceImpl(Provider<VirtualFactory> virtualFactoryProvider) {
+        super();
+        this.virtualFactoryProvider = virtualFactoryProvider;
     }
 
     @Reference

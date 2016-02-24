@@ -178,7 +178,104 @@ public class DataAggregationServiceImplCalculateTest {
         verify(this.virtualFactory).requirementFor(consumption, netConsumption, IntervalLength.MINUTE15);
         verify(this.virtualFactory).requirementFor(production, netConsumption, IntervalLength.MINUTE15);
         // Formula does not contain a reference to the deliverable
-        verify(this.virtualFactory, never()).deliverableFor(any(ReadingTypeDeliverableForMeterActivation.class), eq(IntervalLength.MINUTE15));
+        verify(this.virtualFactory, never()).deliverableFor(any(ReadingTypeDeliverableForMeterActivation.class), any(IntervalLength.class));
+        verify(this.virtualFactory).allRequirements();
+        verify(this.virtualFactory).allDeliverables();
+        verify(virtualConsumption, atLeastOnce()).sqlName();
+        verify(virtualConsumption).appendDefinitionTo(this.sqlBuilder);
+        verify(virtualProduction, atLeastOnce()).sqlName();
+        verify(virtualProduction).appendDefinitionTo(this.sqlBuilder);
+        verify(virtualNetConsumption).appendDefinitionTo(this.sqlBuilder);
+        verify(this.dataModel).getConnection(true);
+        verify(this.resultSet).next();
+        verify(this.resultSet).close();
+        verify(this.preparedStatement).close();
+        verify(this.connection).close();
+    }
+
+    /**
+     * Simular to the simplest case above but the requirement
+     * is configured to produce monthly values:
+     * Metrology configuration
+     *    requirements:
+     *       A- ::= any Wh with flow = forward (aka consumption)
+     *       A+ ::= any Wh with flow = reverse (aka production)
+     *    deliverables:
+     *       netConsumption (monthly kWh) ::= A- + A+
+     * Device:
+     *    meter activations:
+     *       Jan 1st 2015 -> forever
+     *           A- -> 15 min kWh
+     *           A+ -> 15 min kWh
+     * In other words, simple sum of 2 requirements that are provided
+     * by exactly one matching channel with a single meter activation.
+     * @see #simplestNetConsumptionOfProsumer()
+     */
+    @Test
+    public void monthlyNetConsumptionOfProsumer() throws SQLException {
+        DataAggregationServiceImpl service = this.testInstance();
+        Range<Instant> aggregationPeriod = year2016();
+        // Setup configuration requirements
+        ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
+        when(consumption.getName()).thenReturn("A-");
+        ReadingTypeRequirement production = mock(ReadingTypeRequirement.class);
+        when(production.getName()).thenReturn("A+");
+        when(this.configuration.getRequirements()).thenReturn(Arrays.asList(consumption, production));
+        // Setup configuration deliverables
+        ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
+        when(netConsumption.getName()).thenReturn("consumption");
+        ReadingType netConsumptionReadingType = this.mock15minReadingType("13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0");
+        when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
+        ServerFormula formula = mock(ServerFormula.class);
+        when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
+        doReturn(
+            new OperationNode(
+                    Operator.PLUS,
+                    new ReadingTypeRequirementNode(production),
+                    new ReadingTypeRequirementNode(consumption)))
+            .when(formula).expressionNode();
+        when(netConsumption.getFormula()).thenReturn(formula);
+        VirtualReadingTypeRequirement virtualConsumption = mock(VirtualReadingTypeRequirement.class);
+        when(virtualConsumption.sqlName()).thenReturn("vrt-consumption");
+        VirtualReadingTypeRequirement virtualProduction = mock(VirtualReadingTypeRequirement.class);
+        when(virtualProduction.sqlName()).thenReturn("vrt-production");
+        when(this.virtualFactory.requirementFor(eq(consumption), eq(netConsumption), any(IntervalLength.class))).thenReturn(virtualConsumption);
+        when(this.virtualFactory.requirementFor(eq(production), eq(netConsumption), any(IntervalLength.class))).thenReturn(virtualProduction);
+
+        // Setup contract deliverables
+        VirtualReadingTypeDeliverable virtualNetConsumption = mock(VirtualReadingTypeDeliverable.class);
+        when(virtualNetConsumption.sqlName()).thenReturn("vrt-netConsumption");
+        when(this.virtualFactory.deliverableFor(any(ReadingTypeDeliverableForMeterActivation.class), any(IntervalLength.class))).thenReturn(virtualNetConsumption);
+        when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));
+        // Setup meter activations
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        when(meterActivation.getUsagePoint()).thenReturn(Optional.of(this.usagePoint));
+        Interval year2015 = Interval.startAt(jan1st2015());
+        when(meterActivation.getInterval()).thenReturn(year2015);
+        when(meterActivation.getRange()).thenReturn(year2015.toClosedOpenRange());
+        when(meterActivation.overlaps(aggregationPeriod)).thenReturn(true);
+        doReturn(Collections.singletonList(meterActivation)).when(this.usagePoint).getMeterActivations();
+        ReadingType consumptionReadingType15min = this.mock15minReadingType("0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.0.72.0");
+        Channel chn1 = mock(Channel.class);
+        when(chn1.getMainReadingType()).thenReturn(consumptionReadingType15min);
+        ReadingType productionReadingType15min = this.mock15minReadingType("0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.0.72.0");
+        Channel chn2 = mock(Channel.class);
+        when(chn2.getMainReadingType()).thenReturn(productionReadingType15min);
+        when(consumption.getMatchesFor(meterActivation)).thenReturn(Collections.singletonList(productionReadingType15min));
+        when(consumption.getMatchingChannelsFor(meterActivation)).thenReturn(Collections.singletonList(chn1));
+        when(production.getMatchingChannelsFor(meterActivation)).thenReturn(Collections.singletonList(chn2));
+        when(this.virtualFactory.allRequirements()).thenReturn(Arrays.asList(virtualConsumption, virtualProduction));
+        when(this.virtualFactory.allDeliverables()).thenReturn(Collections.singletonList(virtualNetConsumption));
+
+        // Business method
+        service.calculate(this.usagePoint, this.contract, aggregationPeriod);
+
+        // Asserts
+        verify(this.virtualFactory).nextMeterActivation(meterActivation, aggregationPeriod);
+        verify(this.virtualFactory).requirementFor(consumption, netConsumption, IntervalLength.MINUTE15);
+        verify(this.virtualFactory).requirementFor(production, netConsumption, IntervalLength.MINUTE15);
+        // Formula does not contain a reference to the deliverable
+        verify(this.virtualFactory, never()).deliverableFor(any(ReadingTypeDeliverableForMeterActivation.class), any(IntervalLength.class));
         verify(this.virtualFactory).allRequirements();
         verify(this.virtualFactory).allDeliverables();
         verify(virtualConsumption, atLeastOnce()).sqlName();
