@@ -8,6 +8,7 @@ import java.util.Objects;
 
 public enum DefaultTranslationKey implements TranslationKey {
 //    PRE_TRANSITION_CHECKS_FAILED("PreTransitionChecksFailed" , "Pretransition checks failed"),
+
     ;
 
     private String key;

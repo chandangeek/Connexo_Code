@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
@@ -71,7 +72,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         UsagePointInfo info = new UsagePointInfo(usagePoint);
         info.id = usagePoint.getId();
         info.mRID = usagePoint.getMRID();
-        info.serviceCategory = usagePoint.getServiceCategory().getKind();
         info.serviceLocationId = usagePoint.getServiceLocationId();
         info.name = usagePoint.getName();
         info.isSdp = usagePoint.isSdp();
@@ -119,7 +119,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     public UsagePointBuilder newUsagePointBuilder(UsagePointInfo usagePointInfo) {
-        return meteringService.getServiceCategory(usagePointInfo.serviceCategory)
+        return meteringService.getServiceCategory(ServiceKind.valueOf(usagePointInfo.serviceCategory))
                 .orElseThrow(IllegalArgumentException::new)
                 .newUsagePoint(usagePointInfo.mRID)
                 .withName(usagePointInfo.name)

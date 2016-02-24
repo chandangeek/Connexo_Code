@@ -9,17 +9,19 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.users.User;
 import com.elster.insight.common.services.ListPager;
@@ -44,7 +46,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -62,6 +63,7 @@ public class UsagePointResource {
     private final Clock clock;
     private final CustomPropertySetService customPropertySetService;
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
+    private final Thesaurus thesaurus;
 
     private final Provider<ChannelResource> channelsOnUsagePointResourceProvider;
     private final Provider<RegisterResource> registersOnUsagePointResourceProvider;
@@ -69,6 +71,7 @@ public class UsagePointResource {
     private final Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider;
 
     private final UsagePointInfoFactory usagePointInfoFactory;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
     public UsagePointResource(RestQueryService queryService, MeteringService meteringService,
@@ -80,7 +83,9 @@ public class UsagePointResource {
                               Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider,
                               CustomPropertySetService customPropertySetService,
                               UsagePointInfoFactory usagePointInfoFactory,
-                              CustomPropertySetInfoFactory customPropertySetInfoFactory) {
+                              CustomPropertySetInfoFactory customPropertySetInfoFactory,
+                              ExceptionFactory exceptionFactory,
+                              Thesaurus thesaurus) {
         this.queryService = queryService;
         this.meteringService = meteringService;
         this.clock = clock;
@@ -91,7 +96,9 @@ public class UsagePointResource {
         this.usagePointCustomPropertySetResourceProvider = usagePointCustomPropertySetResourceProvider;
         this.customPropertySetService = customPropertySetService;
         this.usagePointInfoFactory = usagePointInfoFactory;
+        this.thesaurus = thesaurus;
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -172,7 +179,10 @@ public class UsagePointResource {
         List<ServiceCategoryInfo> categories = Arrays.stream(ServiceKind.values())
                 .map(meteringService::getServiceCategory).flatMap(sc -> sc.isPresent() && sc.get().isActive() ? Stream.of(sc.get()) : Stream.empty()).sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName()))
                 .filter(sc -> !sc.getCustomPropertySets().stream().anyMatch(rcps -> !rcps.isEditableByCurrentUser()))
-                .map(sc -> new ServiceCategoryInfo(sc, sc.getCustomPropertySets().stream().map(customPropertySetInfoFactory::getGeneralAndPropertiesInfo).collect(Collectors.toList())))
+                .map(sc -> new ServiceCategoryInfo(sc, sc.getCustomPropertySets()
+                        .stream()
+                        .map(customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
+                        .collect(Collectors.toList()), thesaurus))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("categories", categories, queryParameters);
     }
@@ -202,17 +212,29 @@ public class UsagePointResource {
     @Path("/validation")
     @Transactional
     @SuppressWarnings("unchecked")
-    public Response validateUsagePoint(UsagePointInfo info, @QueryParam("step") long step) {
+    public Response validateUsagePoint(UsagePointInfo info, @QueryParam("step") Long step, @QueryParam("customPropertySetId") Long customPropertySetId) {
 
-        if(step==1) {
+        new RestValidationBuilder()
+                .notEmpty(info.mRID, "mRID")
+                .notEmpty(info.installationTime, "installationTime")
+                .notEmpty(info.serviceCategory, "serviceCategory")
+                .validate();
+
+        if (step != null && step.equals(1)) {
             usagePointInfoFactory.newUsagePointBuilder(info).validate();
-        }
-        else if (step==2){
+        } else if (step != null && step == 2) {
             info.techInfo.getUsagePointDetailBuilder(usagePointInfoFactory.newUsagePointBuilder(info).validate(),clock).validate();
-        } else {
-            RegisteredCustomPropertySet set = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class).stream().filter(rcps -> rcps.getId()==step).findAny().orElseThrow(IllegalArgumentException::new);
+        } else if (customPropertySetId != null) {
+            RegisteredCustomPropertySet set = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)
+                    .stream()
+                    .filter(rcps -> rcps.getId() == customPropertySetId)
+                    .findAny()
+                    .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, customPropertySetId));
 
-            CustomPropertySetInfo customPropertySetInfo = info.customPropertySets.stream().filter(cps -> cps.id==set.getId()).findFirst().orElseThrow(IllegalArgumentException::new);
+            CustomPropertySetInfo customPropertySetInfo = info.customPropertySets.stream()
+                    .filter(cps -> cps.id == set.getId())
+                    .findFirst()
+                    .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, customPropertySetId));
             customPropertySetService.validateCustomPropertySetValues(set.getCustomPropertySet(),customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo, set.getCustomPropertySet().getPropertySpecs()));
         }
 

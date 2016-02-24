@@ -11,11 +11,12 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
-import com.elster.insight.common.rest.ExceptionFactory;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.data.UsagePointDataService;
 
@@ -61,7 +62,8 @@ public class UsagePointApplication extends Application implements TranslationKey
                 UsagePointGroupResource.class,
                 UsagePointValidationResource.class,
                 RegisterDataResource.class,
-                UsagePointCustomPropertySetResource.class
+                UsagePointCustomPropertySetResource.class,
+                RestValidationExceptionMapper.class
         );
     }
 
@@ -176,6 +178,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(PropertyUtils.class).to(PropertyUtils.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
+//            bind(RestValidationExceptionMapper.class).to(RestValidationExceptionMapper.class);
         }
     }
 }

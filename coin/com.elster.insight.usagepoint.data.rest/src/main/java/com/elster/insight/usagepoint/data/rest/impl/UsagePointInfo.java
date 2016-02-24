@@ -1,13 +1,12 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
-import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
@@ -19,7 +18,7 @@ public class UsagePointInfo {
     private UsagePoint usagePoint;
 
     public Long id;
-    public ServiceKind serviceCategory;
+    public String serviceCategory;
     public Long serviceLocationId;
 
     public String mRID;
@@ -33,9 +32,9 @@ public class UsagePointInfo {
     public Long installationTime;
 
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "techInfoType")
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "serviceCategory")
+    @JsonTypeIdResolver(BaseUsagePointDetailsInfo.UsagePointDetailsTypeResolver.class)
     public BaseUsagePointDetailsInfo techInfo;
-    public String techInfoType;
 
     public List<CustomPropertySetInfo> customPropertySets;
 
