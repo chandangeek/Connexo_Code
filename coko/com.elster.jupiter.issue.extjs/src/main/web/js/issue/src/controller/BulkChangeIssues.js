@@ -122,7 +122,9 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
         widget = Ext.widget('bulk-browse');
         widget.down('#Close').setVisible(me.dataCollectionActivated);
-        // TODO: add other cases
+        widget.down('#retry-comtask-radio').setVisible(me.dataCollectionActivated);
+        widget.down('#retry-comtask-now-radio').setVisible(me.dataCollectionActivated);
+        widget.down('#retry-connection-radio').setVisible(me.dataCollectionActivated);
         grid = widget.down('bulk-step1').down('issues-selection-grid');
         grid.reconfigure(issuesStore);
         grid.filterParams = Ext.clone(filter);
@@ -226,8 +228,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             requestData = me.getRequestData(record),
             operation = record.get('operation'),
             isRetry = (operation == 'retrycomm') || (operation == 'retrycommnow') || (operation == 'retryconn'),
-            requestUrl = '/api/' + me.bundlePrefix.toLowerCase() + '/issues/' + operation,
-            //requestUrl = operation == 'close' ? '/api/idc/issues/' + operation : '/api/isu/issues/' + operation,
+            requestUrl = operation == 'assign' ? '/api/isu/issues/' + operation : '/api/idc/issues/' + operation,
             warnIssues = [],
             failedIssues = [],
             params = [],
