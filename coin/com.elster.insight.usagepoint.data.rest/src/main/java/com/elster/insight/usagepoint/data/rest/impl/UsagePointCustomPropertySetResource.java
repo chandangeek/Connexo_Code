@@ -13,6 +13,7 @@ import com.elster.jupiter.cps.rest.ValuesRangeConflictInfo;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
+import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
@@ -21,6 +22,7 @@ import com.elster.jupiter.util.time.RangeInstantBuilder;
 import com.elster.jupiter.util.time.RangeInstantComparator;
 import com.google.common.collect.Range;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -117,6 +119,7 @@ public class UsagePointCustomPropertySetResource {
     @GET
     @Path("/metrologyconfiguration")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.ADMIN_ANY})
     public PagedInfoList getCustomPropertySetsOnMetrologyConfiguration(@PathParam("mrid") String usagePointMrid,
                                                                        @BeanParam JsonQueryParameters queryParameters) {
         UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
@@ -127,6 +130,7 @@ public class UsagePointCustomPropertySetResource {
     @GET
     @Path("/servicecategory")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.ADMIN_ANY})
     public PagedInfoList getCustomPropertySetsOnServiceCategory(@PathParam("mrid") String usagePointMrid,
                                                                 @BeanParam JsonQueryParameters queryParameters) {
         UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
@@ -137,6 +141,7 @@ public class UsagePointCustomPropertySetResource {
     @GET
     @Path("/{rcpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.ADMIN_ANY})
     public CustomPropertySetInfo getCustomPropertySetByRegisteredId(@PathParam("mrid") String usagePointMrid,
                                                                     @PathParam("rcpsId") long rcpsId,
                                                                     @BeanParam JsonQueryParameters queryParameters) {
@@ -151,6 +156,7 @@ public class UsagePointCustomPropertySetResource {
     @Path("/{rcpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMIN_ANY})
     @Transactional
     public CustomPropertySetInfo setCustomPropertySetValuesByRegisteredId(@PathParam("mrid") String usagePointMrid,
                                                                           @PathParam("rcpsId") long rcpsId,
@@ -168,6 +174,7 @@ public class UsagePointCustomPropertySetResource {
     @GET
     @Path("{rcpsId}/currentinterval")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.ADMIN_ANY})
     public IntervalInfo getCurrentTimeSlicedCustomPropertySetInterval(@PathParam("mrid") String usagePointMrid,
                                                                       @PathParam("rcpsId") long rcpsId,
                                                                       @BeanParam JsonQueryParameters queryParameters) {
@@ -182,6 +189,7 @@ public class UsagePointCustomPropertySetResource {
     @GET
     @Path("{rcpsId}/versions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.ADMIN_ANY})
     public PagedInfoList getAllTimeSlicedCustomPropertySetVersions(@PathParam("mrid") String usagePointMrid,
                                                                    @PathParam("rcpsId") long rcpsId,
                                                                    @BeanParam JsonQueryParameters queryParameters) {
@@ -201,6 +209,7 @@ public class UsagePointCustomPropertySetResource {
     @Path("{rcpsId}/versions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMIN_ANY})
     @Transactional
     public Response addNewVersionForTimeSlicedCustomAttributeSet(@PathParam("mrid") String usagePointMrid,
                                                                  @PathParam("rcpsId") long rcpsId,
@@ -229,6 +238,7 @@ public class UsagePointCustomPropertySetResource {
     @GET
     @Path("{rcpsId}/versions/{timestamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.ADMIN_ANY})
     public CustomPropertySetInfo getTimeSlicedCustomAttributeSetVersion(@PathParam("mrid") String usagePointMrid,
                                                                         @PathParam("rcpsId") long rcpsId,
                                                                         @PathParam("timestamp") long timestamp,
@@ -244,6 +254,7 @@ public class UsagePointCustomPropertySetResource {
     @Path("{rcpsId}/versions/{timestamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMIN_ANY})
     @Transactional
     public Response updateTimeSlicedCustomAttributeSetVersion(@PathParam("mrid") String usagePointMrid,
                                                               @PathParam("rcpsId") long rcpsId,
@@ -273,6 +284,7 @@ public class UsagePointCustomPropertySetResource {
     @GET
     @Path("{rcpsId}/conflicts")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.ADMIN_ANY})
     public PagedInfoList getTimeSlicedCustomPropertySetVersionsConflicts(@PathParam("mrid") String usagePointMrid,
                                                                          @PathParam("rcpsId") long rcpsId,
                                                                          @BeanParam JsonQueryParameters queryParameters,
@@ -286,6 +298,7 @@ public class UsagePointCustomPropertySetResource {
     @GET
     @Path("{rcpsId}/conflicts/{timestamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.ADMIN_ANY})
     public PagedInfoList getTimeSlicedCustomPropertySetVersionsConflicts(@PathParam("mrid") String usagePointMrid,
                                                                          @PathParam("rcpsId") long rcpsId,
                                                                          @PathParam("timestamp") long timestamp,
