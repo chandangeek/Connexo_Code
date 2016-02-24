@@ -50,8 +50,8 @@ public class FromClauseForExpressionNode implements ServerExpressionNode.Visitor
         return children
                 .stream()
                 .map(child -> child.accept(this))
-                .findFirst().orElse(null);
-
+                .findFirst()
+                .orElse(null);
     }
 
 }

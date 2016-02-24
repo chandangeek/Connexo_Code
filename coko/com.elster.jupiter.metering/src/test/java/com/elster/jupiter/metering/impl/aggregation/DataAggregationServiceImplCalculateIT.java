@@ -17,7 +17,6 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.license.impl.LicenseServiceImpl;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
@@ -34,11 +33,13 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.OperationNode;
 import com.elster.jupiter.metering.impl.config.Operator;
 import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -48,6 +49,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -60,9 +62,10 @@ import org.osgi.service.event.EventAdmin;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
+import java.util.Optional;
 
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -70,9 +73,14 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -89,6 +97,8 @@ public class DataAggregationServiceImplCalculateIT {
     private static ReadingType fifteenMinuteskWhForward;
     private static ReadingType fifteenMinuteskWhReverse;
     private static Instant jan1st2016 = Instant.ofEpochMilli(1420070400000L);
+    private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
+    private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
     private static long PRODUCTION_REQUIREMENT_ID = 97L;
     private static long CONSUMPTION_REQUIREMENT_ID = PRODUCTION_REQUIREMENT_ID + 1;
     private static long NET_CONSUMPTION_DELIVERABLE_ID = CONSUMPTION_REQUIREMENT_ID + 1;
@@ -100,6 +110,9 @@ public class DataAggregationServiceImplCalculateIT {
     private MetrologyConfiguration configuration;
     @Mock
     private MetrologyContract contract;
+    private SqlBuilder withClauseBuilder;
+    private SqlBuilder selectClauseBuilder;
+    private SqlBuilder completeSqlBuilder;
     private Meter meter;
     private MeterActivation meterActivation;
     private Channel production15MinChannel;
@@ -123,6 +136,7 @@ public class DataAggregationServiceImplCalculateIT {
     }
 
     private static void setupServices() {
+        when(sqlBuilderFactory.newClauseAwareSqlBuilder()).thenReturn(clauseAwareSqlBuilder);
         try {
             injector = Guice.createInjector(
                     new MockModule(),
@@ -163,7 +177,10 @@ public class DataAggregationServiceImplCalculateIT {
     }
 
     private static DataAggregationService getDataAggregationService() {
-        return injector.getInstance(DataAggregationService.class);
+        return new DataAggregationServiceImpl(
+                injector.getInstance(ServerMeteringService.class),
+                injector.getInstance(VirtualFactory.class),
+                sqlBuilderFactory);
     }
 
     private static void setupReadingTypes() {
@@ -174,25 +191,22 @@ public class DataAggregationServiceImplCalculateIT {
         }
     }
 
-    private void setupMeter(String amrIdBase) {
-        AmrSystem mdc = getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        this.meter = mdc.newMeter(amrIdBase).create();
-    }
-
-    private void setupUsagePoint(String mRID) {
-        ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        this.usagePoint = electricity.newUsagePoint(mRID).create();
-    }
-
-    private void activateMeter() {
-        this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
-        this.production15MinChannel = this.meterActivation.createChannel(fifteenMinuteskWhForward);
-        this.consumption15MinChannel = this.meterActivation.createChannel(fifteenMinuteskWhReverse);
-    }
-
     @AfterClass
     public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
+    }
+
+    @Before
+    public void resetSqlBuilder() {
+        reset(sqlBuilderFactory);
+        reset(clauseAwareSqlBuilder);
+        this.withClauseBuilder = new SqlBuilder();
+        this.selectClauseBuilder = new SqlBuilder();
+        this.completeSqlBuilder = new SqlBuilder();
+        when(sqlBuilderFactory.newClauseAwareSqlBuilder()).thenReturn(clauseAwareSqlBuilder);
+        when(clauseAwareSqlBuilder.with(anyString(), any(Optional.class), anyVararg())).thenReturn(this.withClauseBuilder);
+        when(clauseAwareSqlBuilder.select()).thenReturn(this.selectClauseBuilder);
+        when(clauseAwareSqlBuilder.finish()).thenReturn(this.completeSqlBuilder);
     }
 
     /**
@@ -251,10 +265,28 @@ public class DataAggregationServiceImplCalculateIT {
         when(production.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(this.production15MinChannel));
 
         // Business method
-        List<? extends BaseReadingRecord> aggregatedRecords = service.calculate(this.usagePoint, this.contract, year2016());
-
-        // Asserts: happy to get here without exceptions for now
-        assertThat(aggregatedRecords).isNotNull();
+        try {
+            service.calculate(this.usagePoint, this.contract, year2016());
+        } catch (UnderlyingSQLFailedException e) {
+            // Expected because the statement contains WITH clauses
+            // Asserts:
+            verify(clauseAwareSqlBuilder)
+                    .with(
+                        matches("rid" + CONSUMPTION_REQUIREMENT_ID + ".*" + NET_CONSUMPTION_DELIVERABLE_ID + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
+            verify(clauseAwareSqlBuilder)
+                    .with(
+                        matches("rid" + PRODUCTION_REQUIREMENT_ID + ".*" + NET_CONSUMPTION_DELIVERABLE_ID + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
+            verify(clauseAwareSqlBuilder)
+                    .with(
+                        matches("rod" + NET_CONSUMPTION_DELIVERABLE_ID + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
+            verify(clauseAwareSqlBuilder).select();
+        }
     }
 
     private Range<Instant> year2016() {
@@ -272,6 +304,22 @@ public class DataAggregationServiceImplCalculateIT {
 
     private DataAggregationService testInstance() {
         return getDataAggregationService();
+    }
+
+    private void setupMeter(String amrIdBase) {
+        AmrSystem mdc = getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        this.meter = mdc.newMeter(amrIdBase).create();
+    }
+
+    private void setupUsagePoint(String mRID) {
+        ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+        this.usagePoint = electricity.newUsagePoint(mRID).create();
+    }
+
+    private void activateMeter() {
+        this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
+        this.production15MinChannel = this.meterActivation.createChannel(fifteenMinuteskWhForward);
+        this.consumption15MinChannel = this.meterActivation.createChannel(fifteenMinuteskWhReverse);
     }
 
 }
