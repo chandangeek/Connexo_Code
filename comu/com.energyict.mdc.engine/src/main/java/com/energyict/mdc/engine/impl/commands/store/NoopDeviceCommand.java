@@ -47,11 +47,7 @@ public class NoopDeviceCommand extends DeviceCommandImpl<NoopCollectedDataEvent>
     }
 
     protected Optional<NoopCollectedDataEvent> newEvent(Issue issue) {
-        NoopCollectedDataEvent event  =  new NoopCollectedDataEvent(new ComServerEventServiceProvider());
-        if (issue != null){
-            event.setIssue(issue);
-        }
-        return Optional.of(event);
+        return Optional.empty();
     }
 
     @Override
