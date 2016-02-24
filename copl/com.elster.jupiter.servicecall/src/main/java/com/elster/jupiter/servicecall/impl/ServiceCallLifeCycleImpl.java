@@ -66,6 +66,10 @@ public class ServiceCallLifeCycleImpl implements IServiceCallLifeCycle {
         }
     }
 
+    public FiniteStateMachine getFiniteStateMachine() {
+        return finiteStateMachine.orElseThrow(IllegalStateException::new);
+    }
+
     @Override
     public Optional<State> getState(DefaultState defaultState) {
         return finiteStateMachine.get()

@@ -30,7 +30,7 @@ public interface ServiceCallService {
      * @return Will return empty if no init has been done yet
      */
     public Optional<ServiceCallLifeCycle> getDefaultServiceCallLifeCycle();
-    public ServiceCallLifeCycle createServiceCallLifeCycle(String name);
+    public ServiceCallLifeCycleBuilder createServiceCallLifeCycle(String name);
 
     /**
      * Returns list of known service call types. This method supports paging.
