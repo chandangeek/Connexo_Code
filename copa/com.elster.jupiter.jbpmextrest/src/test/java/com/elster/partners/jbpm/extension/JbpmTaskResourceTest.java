@@ -41,22 +41,18 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JbpmTaskResourceTest {
+    @InjectMocks
+    private final static JbpmTaskResource taskResource = new JbpmTaskResource();
     private static int port;
     private static String baseUri;
     private static TJWSEmbeddedJaxrsServer server;
-
     @Mock
     @PersistenceUnit(unitName = "org.jbpm.domain")
     EntityManagerFactory emf;
-
     @Mock
     InternalTaskService internalTaskService;
-
     @Mock
     RuntimeDataService runtimeDataService;
-
-    @InjectMocks
-    private final static JbpmTaskResource taskResource = new JbpmTaskResource();
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -388,6 +384,7 @@ public class JbpmTaskResourceTest {
         when(task.getId()).thenReturn(1L);
         when(task.getTaskData()).thenReturn(taskData);
         when(taskData.getDeploymentId()).thenReturn("TestDeploymentID");
+        when(taskData.getStatus()).thenReturn(Status.InProgress);
         when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
         when(runtimeDataService.getProcessesByDeploymentId(anyString())).thenReturn(processesList);
         when(processAssetDesc.getDeploymentId()).thenReturn("TestDeploymentID");
