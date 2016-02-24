@@ -30,6 +30,7 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=serviceCallTypes",
                 "osgi.command.function=createServiceCallType",
                 "osgi.command.function=customPropertySets",
+                "osgi.command.function=handlers",
                 "osgi.command.function=createServiceCallLifeCycle"
         }, immediate = true)
 public class ServiceCallsCommands {
@@ -121,6 +122,10 @@ public class ServiceCallsCommands {
                 .map(cps -> cps.getId() + " " + cps.getCustomPropertySet()
                         .getDomainClass() + " " + cps.getCustomPropertySet().getName())
                 .forEach(System.out::println);
+    }
+
+    public void handlers() {
+        serviceCallService.findAllHandlers().stream().forEach(System.out::println);
     }
 
     public void createServiceCallLifeCycle() {

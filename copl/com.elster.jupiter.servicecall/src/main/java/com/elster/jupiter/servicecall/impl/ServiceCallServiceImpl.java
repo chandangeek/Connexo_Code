@@ -37,6 +37,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -206,6 +207,11 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     @Override
     public ServiceCallLifeCycleBuilder createServiceCallLifeCycle(String name) {
         return dataModel.getInstance(ServiceCallLifeCycleBuilderImpl.class).setName(name);
+    }
+
+    @Override
+    public Collection<String> findAllHandlers() {
+        return handlerMap.keySet();
     }
 
     class ServiceCallTypeBuilderImpl implements ServiceCallTypeBuilder {

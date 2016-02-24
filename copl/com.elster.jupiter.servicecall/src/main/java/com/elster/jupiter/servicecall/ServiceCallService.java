@@ -3,6 +3,7 @@ package com.elster.jupiter.servicecall;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Finder;
 
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -70,6 +71,8 @@ public interface ServiceCallService {
      * @return
      */
     Optional<ServiceCallType> findAndLockServiceCallType(long id, long version);
+
+    Collection<String> findAllHandlers();
 
     interface ServiceCallTypeBuilder {
         public ServiceCallTypeBuilder logLevel(LogLevel logLevel);
