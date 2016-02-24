@@ -578,8 +578,8 @@ public enum TableSpecs {
             Column name = table.column(MetrologyConfigurationImpl.Fields.NAME.name()).varChar().notNull().map(MetrologyConfigurationImpl.Fields.NAME.fieldName()).add();
             table.column(MetrologyConfigurationImpl.Fields.ACTIVE.name()).bool().map(MetrologyConfigurationImpl.Fields.ACTIVE.fieldName()).notNull().add();
             table.addAuditColumns();
-            table.unique("UPC_UK_METROLOGYCONFIGURATION").on(name).add();
-            table.primaryKey("UPC_PK_METROLOGYCONFIGURATION").on(id).add();
+            table.unique("MTR_UK_METROLOGYCONFIGURATION").on(name).add();
+            table.primaryKey("MTR_PK_METROLOGYCONFIGURATION").on(id).add();
         }
     },
     MTR_M_CONFIG_CPS_USAGES {
