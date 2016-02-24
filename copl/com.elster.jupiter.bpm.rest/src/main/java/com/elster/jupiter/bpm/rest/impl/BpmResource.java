@@ -324,7 +324,7 @@ public class BpmResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
     public Response assignUser(@Context UriInfo uriInfo, @PathParam("id") long id, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
-        Optional<String> response = Optional.empty();
+        String response;
         String userName = getQueryValue(uriInfo, "username");
         String rest = "/rest/tasks/";
         rest += String.valueOf(id);
@@ -332,11 +332,11 @@ public class BpmResource {
             rest += "/assign?username=" + userName;
             rest += "&currentuser=" + securityContext.getUserPrincipal().getName();
             try {
-                response = bpmService.getBpmServer().doPost(rest, null, auth);
+                response = bpmService.getBpmServer().doPost(rest, null, auth, 0);
             } catch (RuntimeException e) {
                 throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
             }
-            if(!response.isPresent()){
+            if (response == null) {
                 throw new BpmResourceAssignUserException(thesaurus);
             }
             return Response.ok().build();
@@ -633,7 +633,7 @@ public class BpmResource {
     @RolesAllowed(Privileges.Constants.EXECUTE_TASK)
     public Response manageTasks(TaskGroupsInfos taskGroupsInfos, @Context UriInfo uriInfo, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
-        Optional<String> result = Optional.empty();
+        String result;
         JSONObject obj = null;
         try {
             taskGroupsInfos.taskGroups.stream()
@@ -652,9 +652,9 @@ public class BpmResource {
                 }else{
                     rest += req+"?currentuser=" + securityContext.getUserPrincipal().getName() ;
                 }
-                result = bpmService.getBpmServer().doPost(rest, stringJson, auth);
-                if(result.isPresent()){
-                    obj = new JSONObject(result.get());
+                result = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
+                if (result != null) {
+                    obj = new JSONObject(result);
                 }
             } catch (JsonProcessingException e) {
             } catch (JSONException e) {
@@ -679,7 +679,7 @@ public class BpmResource {
     @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.EXECUTE_TASK, Privileges.Constants.ASSIGN_TASK})
     public TaskGroupsInfos getTaskContent(TaskGroupsInfos taskGroupsInfos, @HeaderParam("Authorization") String auth, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
-        Optional<String> response = Optional.empty();
+        String response = null;
         JSONArray arr = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -687,12 +687,12 @@ public class BpmResource {
             try {
                 stringJson = mapper.writeValueAsString(taskGroupsInfos);
                 String rest = "/rest/tasks/mandatory";
-                response = bpmService.getBpmServer().doPost(rest, stringJson, auth);
+                response = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
             } catch (JsonProcessingException e) {
             }
-            if (response.isPresent()) {
-                if(!response.get().equals("Connection refused: connect")){
-                    arr = (new JSONObject(response.get())).getJSONArray("taskGroups");
+            if (response != null) {
+                if (!response.equals("Connection refused: connect")) {
+                    arr = (new JSONObject(response)).getJSONArray("taskGroups");
                 }else {
                     throw new NoBpmConnectionException(thesaurus);
                 }
@@ -838,7 +838,7 @@ public class BpmResource {
                                     @PathParam("id") long id,
                                     @Context SecurityContext securityContext,
                                     @HeaderParam("Authorization") String auth) {
-        Optional<String> postResult = Optional.empty();
+        String postResult = null;
         List<Errors> err = new ArrayList<>();
         String userName = securityContext.getUserPrincipal().getName();
         if(!taskContentInfos.action.equals("startTask")) {
@@ -872,7 +872,7 @@ public class BpmResource {
         JSONObject obj = null;
         if(taskContentInfos.action.equals("startTask")){
             String rest = "/rest/tasks/" + id + "/contentstart/" + userName + "/";
-            postResult = bpmService.getBpmServer().doPost(rest, null, auth);
+            postResult = bpmService.getBpmServer().doPost(rest, null, auth, 0);
         }
         if(taskContentInfos.action.equals("completeTask")){
             Map<String, Object> outputBindingContents = getOutputContent(taskContentInfos, id, null, auth);
@@ -882,7 +882,7 @@ public class BpmResource {
             try {
                 stringJson = mapper.writeValueAsString(taskOutputContentInfo);
                 String rest = "/rest/tasks/" + id + "/contentcomplete/" + userName + "/";
-                postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth);
+                postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
             } catch (JsonProcessingException e) {
             }
         }
@@ -894,11 +894,11 @@ public class BpmResource {
             try {
                 stringJson = mapper.writeValueAsString(taskOutputContentInfo);
                 String rest = "/rest/tasks/" + id + "/contentsave";
-                postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth);
+                postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
             } catch (JsonProcessingException e) {
             }
         }
-        if(!postResult.isPresent()) {
+        if (postResult == null) {
             return Response.status(400).build();
         }
         return Response.ok().build();
