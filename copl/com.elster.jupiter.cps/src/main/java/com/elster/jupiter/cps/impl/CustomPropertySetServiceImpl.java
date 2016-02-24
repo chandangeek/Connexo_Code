@@ -278,7 +278,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 try (TransactionContext ctx = transactionService.getContext()) {
                     this.registerCustomPropertySet(customPropertySet, systemDefined);
                     ctx.commit();
-                } catch (UnderlyingSQLFailedException | CommitException ex) {
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }
