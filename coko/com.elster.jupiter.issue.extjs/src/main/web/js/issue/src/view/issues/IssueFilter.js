@@ -217,7 +217,10 @@ Ext.define('Isu.view.issues.IssueFilter', {
     onComboSelect: function (combo, records) {
         if (combo.lastSelectionValue) {
             Ext.Array.each(records, function (r) {
-                if (combo.lastSelectionValue.indexOf(r) == -1) {
+                var valueToNotAdd = _.find(combo.lastSelectionValue, function(v){
+                    return v.get('id') == r.get('id');
+                });
+                if (!valueToNotAdd) {
                     combo.lastSelectionValue.push(r);
                 }
             });
