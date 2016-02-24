@@ -18,11 +18,11 @@ public class CollectedDeviceCacheEvent extends AbstractCollectedDataProcessingEv
     }
 
     protected void addPayload(JSONWriter writer) throws JSONException {
-       writer.key("collectedDeviceCache");
-       writer.object();
-       if (this.getPayload() != null){
-           UpdatedDeviceCache cache = getPayload();
-           writer.key("deviceIdentifier").value(cache.getDeviceIdentifier().toString());
-       }
+        UpdatedDeviceCache cache = getPayload();
+
+        writer.key("collectedDeviceCache");
+        writer.object();
+        writer.key("deviceIdentifier").value(cache.getDeviceIdentifier().toString());
+        writer.endObject();
     }
 }

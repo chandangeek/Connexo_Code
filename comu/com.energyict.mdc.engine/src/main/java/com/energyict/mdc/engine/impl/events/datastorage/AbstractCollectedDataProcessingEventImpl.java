@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.events.datastorage;
 
+import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.issues.Issue;
@@ -26,6 +27,9 @@ public abstract class AbstractCollectedDataProcessingEventImpl<T extends Collect
 
     protected AbstractCollectedDataProcessingEventImpl(ServiceProvider serviceProvider, T payload) {
         super(serviceProvider);
+        if (payload == null){
+            throw new IllegalArgumentException("Payload cannot be null");
+        }
         this.payload = payload;
     }
 
@@ -46,6 +50,10 @@ public abstract class AbstractCollectedDataProcessingEventImpl<T extends Collect
         return (issue != null);
     }
 
+    public Category getCategory (){
+        return Category.COLLECTED_DATA_PROCESSING;
+    }
+
     protected void toString(JSONWriter writer) throws JSONException {
         super.toString(writer);
         addEventInfo(writer);
@@ -53,7 +61,6 @@ public abstract class AbstractCollectedDataProcessingEventImpl<T extends Collect
     }
 
     protected void addEventInfo(JSONWriter writer) throws JSONException {
-        super.toString(writer);
         writer.key("description").value(getDescription());
         if (this.getPayload() != null) {
             addPayload(writer);

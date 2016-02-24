@@ -18,21 +18,24 @@ public class CollectedFirmwareVersionEvent extends AbstractCollectedDataProcessi
     }
 
     protected void addPayload(JSONWriter writer) throws JSONException {
-       writer.key("collectedFirmwareVersion");
-        if (this.getPayload() != null){
-            CollectedFirmwareVersion firmwareVersion = getPayload();
-            writer.object();
-            writer.key("deviceIdentifier").value(firmwareVersion.getDeviceIdentifier().toString());
-            if (firmwareVersion.getActiveMeterFirmwareVersion().isPresent())
-                writer.key("activeMeterFirmwareVersion").value(firmwareVersion.getActiveMeterFirmwareVersion().get());
-            if (firmwareVersion.getPassiveMeterFirmwareVersion().isPresent())
-                writer.key("passiveMeterFirmwareVersion").value(firmwareVersion.getPassiveMeterFirmwareVersion().get());
-            if (firmwareVersion.getActiveCommunicationFirmwareVersion().isPresent())
-                writer.key("activeCommunicationFirmwareVersion").value(firmwareVersion.getActiveCommunicationFirmwareVersion().get());
-            if (firmwareVersion.getPassiveCommunicationFirmwareVersion().isPresent())
-                writer.key("passiveCommunicationrFirmwareVersion").value(firmwareVersion.getPassiveCommunicationFirmwareVersion().get());
-            writer.endObject();
+        CollectedFirmwareVersion firmwareVersion = getPayload();
+
+        writer.key("collectedFirmwareVersion");
+        writer.object();
+        writer.key("deviceIdentifier").value(firmwareVersion.getDeviceIdentifier().toString());
+        if (firmwareVersion.getActiveMeterFirmwareVersion().isPresent()) {
+            writer.key("activeMeterFirmwareVersion").value(firmwareVersion.getActiveMeterFirmwareVersion().get());
         }
+        if (firmwareVersion.getPassiveMeterFirmwareVersion().isPresent()) {
+            writer.key("passiveMeterFirmwareVersion").value(firmwareVersion.getPassiveMeterFirmwareVersion().get());
+        }
+        if (firmwareVersion.getActiveCommunicationFirmwareVersion().isPresent()) {
+            writer.key("activeCommunicationFirmwareVersion").value(firmwareVersion.getActiveCommunicationFirmwareVersion().get());
+        }
+        if (firmwareVersion.getPassiveCommunicationFirmwareVersion().isPresent()) {
+            writer.key("passiveCommunicationrFirmwareVersion").value(firmwareVersion.getPassiveCommunicationFirmwareVersion().get());
+        }
+        writer.endObject();
     }
 
 }

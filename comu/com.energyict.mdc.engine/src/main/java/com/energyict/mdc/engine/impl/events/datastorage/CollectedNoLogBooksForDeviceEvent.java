@@ -18,13 +18,12 @@ public class CollectedNoLogBooksForDeviceEvent extends AbstractCollectedDataProc
     }
 
     protected void addPayload(JSONWriter writer) throws JSONException {
-       writer.key("noLogBooksForDevice");
-        if (this.getPayload() != null){
-            NoLogBooksForDevice noLogBooksForDevice =  getPayload();
-            writer.object();
-            writer.key("deviceIdentifier").value(noLogBooksForDevice.getDeviceIdentifier().toString());
-            writer.endObject();
-        }
+        NoLogBooksForDevice noLogBooksForDevice = getPayload();
+
+        writer.key("noLogBooksForDevice");
+        writer.object();
+        writer.key("deviceIdentifier").value(noLogBooksForDevice.getDeviceIdentifier().toString());
+        writer.endObject();
     }
 
 }

@@ -19,19 +19,20 @@ public class CollectedDeviceTopologyEvent extends AbstractCollectedDataProcessin
     }
 
     protected void addPayload(JSONWriter writer) throws JSONException {
-       writer.key("collectedDeviceTopology");
-       if (this.getPayload() != null){
-           CollectedTopology topology =  getPayload();
-           writer.object();
-           writer.key("deviceIdentifier").value(topology.getDeviceIdentifier().toString());
-           writer.key("slaveDeviceIdentifiers");
-           writer.array();
-           for (DeviceIdentifier each: topology.getSlaveDeviceIdentifiers()){
-               writer.key("deviceIdentifier").value(each.toString());
-           }
-           writer.endArray();
-           writer.endObject();
-       }
+        CollectedTopology topology = getPayload();
+
+        writer.key("collectedDeviceTopology");
+        writer.object();
+        writer.key("deviceIdentifier").value(topology.getDeviceIdentifier().toString());
+        writer.key("slaveDeviceIdentifiers");
+        writer.array();
+        for (DeviceIdentifier each : topology.getSlaveDeviceIdentifiers()) {
+            writer.object();
+            writer.key("deviceIdentifier").value(each.toString());
+            writer.endObject();
+        }
+        writer.endArray();
+        writer.endObject();
     }
 
 }

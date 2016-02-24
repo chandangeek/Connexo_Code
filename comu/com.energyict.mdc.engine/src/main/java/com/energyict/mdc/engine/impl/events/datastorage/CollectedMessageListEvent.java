@@ -18,19 +18,20 @@ public class CollectedMessageListEvent extends AbstractCollectedDataProcessingEv
     }
 
     protected void addPayload(JSONWriter writer) throws JSONException {
-       writer.key("collectedMessageList");
-        if (this.getPayload() != null){
-            CollectedMessageList messageList =  getPayload();
+        CollectedMessageList messageList = getPayload();
+
+        writer.key("collectedMessageList");
+        writer.object();
+        writer.key("collectedMessages");
+        writer.array();
+        for (CollectedMessage each : messageList.getCollectedMessages()) {
             writer.object();
-            writer.key("collectedMessages");
-            writer.array();
-            for (CollectedMessage each: messageList.getCollectedMessages()){
-                writer.key("messageIdentifier").value(each.getMessageIdentifier().toString());
-                writer.key("protocolInformation").value(each.getDeviceProtocolInformation());
-            }
-            writer.endArray();
+            writer.key("messageIdentifier").value(each.getMessageIdentifier().toString());
+            writer.key("protocolInformation").value(each.getDeviceProtocolInformation());
             writer.endObject();
         }
+        writer.endArray();
+        writer.endObject();
     }
 
 }
