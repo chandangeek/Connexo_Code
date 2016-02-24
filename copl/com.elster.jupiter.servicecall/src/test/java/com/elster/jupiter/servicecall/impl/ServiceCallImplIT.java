@@ -255,6 +255,34 @@ public class ServiceCallImplIT {
         assertThat(extension.getValue()).isEqualTo(BigDecimal.valueOf(65456));
     }
 
+    @Test
+    public void createAServiceCallWithoutTargetObject() {
+        MyPersistentExtension extension = new MyPersistentExtension();
+        extension.setValue(BigDecimal.valueOf(65456));
+
+        ServiceCall serviceCall = null;
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCall = serviceCallType.newServiceCall()
+                    .externalReference("external")
+                    .origin("CST")
+                    .extendedWith(extension)
+                    .create();
+            context.commit();
+        }
+
+        serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
+
+        assertThat(serviceCall.getState()).isEqualTo(DefaultState.CREATED);
+        assertThat(serviceCall.getExternalReference()).contains("external");
+        assertThat(serviceCall.getOrigin()).contains("CST");
+        assertThat((Optional<Object>) serviceCall.getTargetObject()).isEmpty();
+
+        extension = serviceCall.getExtensionFor(customPropertySet).get();
+
+        assertThat(extension.getServiceCall()).isEqualTo(serviceCall);
+        assertThat(extension.getValue()).isEqualTo(BigDecimal.valueOf(65456));
+    }
+
     static class MyPersistentExtension implements PersistentDomainExtension<ServiceCall> {
 
         private Reference<ServiceCall> serviceCall = ValueReference.absent();
