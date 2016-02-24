@@ -210,7 +210,10 @@ public class ServiceCallImplIT {
         assertThat(serviceCall.getOrigin()).contains("CST");
         assertThat((Optional<Object>) serviceCall.getTargetObject()).contains(person);
 
+        extension = serviceCall.getExtensionFor(customPropertySet).get();
+
         assertThat(extension.getServiceCall()).isEqualTo(serviceCall);
+        assertThat(extension.getValue()).isEqualTo(BigDecimal.valueOf(65456));
     }
 
     static class MyPersistentExtension implements PersistentDomainExtension<ServiceCall> {
@@ -230,7 +233,7 @@ public class ServiceCallImplIT {
         @Override
         public void copyFrom(ServiceCall domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
             serviceCall.set(domainInstance);
-            propertyValues.getProperty("value");
+            value = (BigDecimal) propertyValues.getProperty("value");
         }
 
         @Override

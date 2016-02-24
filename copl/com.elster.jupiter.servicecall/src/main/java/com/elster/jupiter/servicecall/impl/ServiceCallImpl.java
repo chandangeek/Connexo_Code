@@ -1,6 +1,8 @@
 package com.elster.jupiter.servicecall.impl;
 
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.DataModel;
@@ -208,5 +210,10 @@ public class ServiceCallImpl implements ServiceCall {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public <T extends PersistentDomainExtension<ServiceCall>> Optional<T> getExtensionFor(CustomPropertySet<ServiceCall, T> customPropertySet, Object... additionalPrimaryKeyValues) {
+        return customPropertySetService.getUniqueValuesEntityFor(customPropertySet, this, additionalPrimaryKeyValues);
     }
 }
