@@ -19,6 +19,9 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import org.osgi.service.component.annotations.Component;
@@ -154,6 +157,13 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     @Override
     public List<MetrologyConfiguration> findAllMetrologyConfigurations() {
         return DefaultFinder.of(MetrologyConfiguration.class, this.getDataModel()).defaultSortColumn("lower(name)").find();
+    }
+
+    @Override
+    public boolean isInUse(MetrologyConfiguration metrologyConfiguration) {
+        Condition condition = Where.where("metrologyConfiguration").isEqualTo(metrologyConfiguration);
+        List<UsagePointMetrologyConfiguration> atLeastOneUsagePoint = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(condition, new Order[0], false, new String[0], 1, 1);
+        return !atLeastOneUsagePoint.isEmpty();
     }
 
 }

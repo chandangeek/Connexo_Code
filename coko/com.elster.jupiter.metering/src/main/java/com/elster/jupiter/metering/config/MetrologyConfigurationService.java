@@ -23,4 +23,6 @@ public interface MetrologyConfigurationService {
 
     List<MetrologyConfiguration> findAllMetrologyConfigurations();
 
+    boolean isInUse(MetrologyConfiguration metrologyConfiguration);
+
 }
