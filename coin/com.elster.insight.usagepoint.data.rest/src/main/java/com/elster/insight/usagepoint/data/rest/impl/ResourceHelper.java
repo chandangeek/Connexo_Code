@@ -1,10 +1,8 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 
@@ -44,14 +42,5 @@ public class ResourceHelper {
                 .orElseThrow(conflictFactory.contextDependentConflictOn(name)
                         .withActualVersion(() -> meteringService.findUsagePoint(id).map(UsagePoint::getVersion).orElse(null))
                         .supplier());
-    }
-
-    public RegisteredCustomPropertySet findRegisteredCustomPropertySetOnUsagePointOrThrowException(long id, UsagePointCustomPropertySetExtension usagePointExtension){
-        return usagePointExtension.getAllCustomPropertySets()
-                .stream()
-                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
-                .filter(rcps -> rcps.getId() == id)
-                .findFirst()
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, id));
     }
 }

@@ -3,17 +3,19 @@ package com.elster.insight.usagepoint.data.rest.impl;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.EditPrivilege;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.cps.rest.CustomPropertySetAttributeInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetValuesManageException;
+import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
@@ -34,7 +36,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -53,16 +55,18 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
     @Mock
     CustomPropertySet customPropertySet;
     @Mock
-    RegisteredCustomPropertySet registeredCustomPropertySet;
-    @Mock
     UsagePointCustomPropertySetExtension usagePointExtension;
     @Mock
     ServiceCategory serviceCategory;
+    @Mock
+    UsagePointVersionedPropertySet usagePointPropertySet;
 
     @Before
     public void before() {
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
         when(usagePoint.forCustomProperties()).thenReturn(usagePointExtension);
+        when(usagePointExtension.getVersionedPropertySet(RCPS_ID)).thenReturn(usagePointPropertySet);
+        when(usagePointExtension.getPropertySet(RCPS_ID)).thenReturn(usagePointPropertySet);
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(CPS_PROPERTY);
         ValueFactory valueFactory = mock(ValueFactory.class);
@@ -77,19 +81,19 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
         when(customPropertySet.defaultViewPrivileges()).thenReturn(EnumSet.of(ViewPrivilege.LEVEL_1));
         when(customPropertySet.defaultEditPrivileges()).thenReturn(EnumSet.of(EditPrivilege.LEVEL_1));
 
-        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
-        when(registeredCustomPropertySet.isViewableByCurrentUser()).thenReturn(true);
-        when(registeredCustomPropertySet.isEditableByCurrentUser()).thenReturn(true);
-        when(registeredCustomPropertySet.getViewPrivileges()).thenReturn(EnumSet.of(ViewPrivilege.LEVEL_1));
-        when(registeredCustomPropertySet.getEditPrivileges()).thenReturn(EnumSet.of(EditPrivilege.LEVEL_1));
-        when(registeredCustomPropertySet.getId()).thenReturn(RCPS_ID);
+        when(usagePointPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(usagePointPropertySet.isViewableByCurrentUser()).thenReturn(true);
+        when(usagePointPropertySet.isEditableByCurrentUser()).thenReturn(true);
+        when(usagePointPropertySet.getViewPrivileges()).thenReturn(EnumSet.of(ViewPrivilege.LEVEL_1));
+        when(usagePointPropertySet.getEditPrivileges()).thenReturn(EnumSet.of(EditPrivilege.LEVEL_1));
+        when(usagePointPropertySet.getId()).thenReturn(RCPS_ID);
     }
 
     private void testAnyCustomPropertySetsResponse(String url) {
         CustomPropertySetValues values = CustomPropertySetValues.empty();
         values.setProperty(CPS_PROPERTY, "test value");
         when(meteringService.findUsagePoint(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePoint));
-        when(usagePointExtension.getCustomPropertySetValue(eq(registeredCustomPropertySet))).thenReturn(values);
+        when(usagePointPropertySet.getValues()).thenReturn(values);
 
         String json = target("usagepoints/" + USAGE_POINT_MRID + url).request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
@@ -121,7 +125,7 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
 
     @Test
     public void testGetAllCustomPropertySetsOkCase() throws Exception {
-        when(usagePointExtension.getAllCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
+        when(usagePointExtension.getAllPropertySets()).thenReturn(Collections.singletonList(usagePointPropertySet));
         testAnyCustomPropertySetsResponse("/customproperties");
     }
 
@@ -132,13 +136,13 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
 
     @Test
     public void testGetAllCustomPropertySetsNoCustomPropertySets() throws Exception {
-        when(usagePointExtension.getAllCustomPropertySets()).thenReturn(Collections.emptyList());
+        when(usagePointExtension.getAllPropertySets()).thenReturn(Collections.emptyList());
         testGetAnyCustomPropertySetsNoCustomPropertySets("/customproperties");
     }
 
     @Test
     public void testGetCustomPropertySetsOnMetrologyConfigurationOkCase() throws Exception {
-        when(usagePointExtension.getCustomPropertySetsOnMetrologyConfiguration()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
+        when(usagePointExtension.getPropertySetsOnMetrologyConfiguration()).thenReturn(Collections.singletonList(usagePointPropertySet));
         testAnyCustomPropertySetsResponse("/customproperties/metrologyconfiguration");
     }
 
@@ -154,7 +158,7 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
 
     @Test
     public void testGetCustomPropertySetsOnServiceCategoryOkCase() throws Exception {
-        when(usagePointExtension.getCustomPropertySetsOnServiceCategory()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
+        when(usagePointExtension.getPropertySetsOnServiceCategory()).thenReturn(Collections.singletonList(usagePointPropertySet));
         testAnyCustomPropertySetsResponse("/customproperties/servicecategory");
     }
 
@@ -173,8 +177,8 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
         CustomPropertySetValues values = CustomPropertySetValues.empty();
         values.setProperty(CPS_PROPERTY, "test value");
         when(meteringService.findUsagePoint(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePoint));
-        when(usagePointExtension.getAllCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
-        when(usagePointExtension.getCustomPropertySetValue(eq(registeredCustomPropertySet))).thenReturn(values);
+        when(usagePointExtension.getAllPropertySets()).thenReturn(Collections.singletonList(usagePointPropertySet));
+        when(usagePointPropertySet.getValues()).thenReturn(values);
 
         String json = target("usagepoints/" + USAGE_POINT_MRID + "/customproperties/" + RCPS_ID).request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
@@ -200,8 +204,8 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
         values.setProperty(CPS_PROPERTY, "test value");
         when(meteringService.findUsagePoint(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePoint));
         when(meteringService.findAndLockUsagePointByIdAndVersion(USAGE_POINT_ID, 1L)).thenReturn(Optional.of(usagePoint));
-        when(usagePointExtension.getAllCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
-        when(usagePointExtension.getCustomPropertySetValue(eq(registeredCustomPropertySet))).thenReturn(values);
+        when(usagePointExtension.getAllPropertySets()).thenReturn(Collections.singletonList(usagePointPropertySet));
+        when(usagePointPropertySet.getValues()).thenReturn(values);
 
         CustomPropertySetInfo<UsagePointInfo> info = new CustomPropertySetInfo<>();
         info.customPropertySetId = CPS_ID;
@@ -222,7 +226,8 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
     public void testSetCustomPropertySetValuesByRegisteredIdNoCustomPropertySets() throws Exception {
         when(meteringService.findUsagePoint(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePoint));
         when(meteringService.findAndLockUsagePointByIdAndVersion(USAGE_POINT_ID, 1L)).thenReturn(Optional.of(usagePoint));
-        when(usagePointExtension.getAllCustomPropertySets()).thenReturn(Collections.emptyList());
+        doThrow(UsagePointCustomPropertySetValuesManageException.noLinkedCustomPropertySet(thesaurus, CPS_ID))
+                .when(usagePointExtension).getPropertySet(RCPS_ID);
 
         CustomPropertySetInfo<UsagePointInfo> info = new CustomPropertySetInfo<>();
         info.customPropertySetId = CPS_ID;
@@ -238,7 +243,7 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
         Response response = target("usagepoints/" + USAGE_POINT_MRID + "/customproperties/" + RCPS_ID).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.message")).contains("Custom property set with id");
+        assertThat(jsonModel.<String>get("$.message")).contains(" is not attached to the usage point.");
     }
 
     @Test
@@ -265,15 +270,46 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
     @Test
     public void testGetCurrentTimeSlicedCustomPropertySetInterval() throws Exception {
         when(meteringService.findUsagePoint(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePoint));
-        when(usagePointExtension.getAllCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
         int start = 10000000;
         int end = 2 * start;
-        when(usagePointExtension.getCurrentInterval(eq(registeredCustomPropertySet)))
+        when(usagePointPropertySet.getNewVersionInterval())
                 .thenReturn(Range.closedOpen(Instant.ofEpochMilli(start), Instant.ofEpochMilli(end)));
 
         String json = target("usagepoints/" + USAGE_POINT_MRID + "/customproperties/" + RCPS_ID + "/currentinterval").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.start")).isEqualTo(start);
         assertThat(jsonModel.<Number>get("$.end")).isEqualTo(end);
+    }
+
+    @Test
+    public void testGetAllTimeSlicedCustomPropertySetValues() throws Exception {
+        Instant now = Instant.now();
+        CustomPropertySetValues version1 = CustomPropertySetValues.emptyDuring(Interval.of(null, now));
+        version1.setProperty(CPS_PROPERTY, "version 1");
+        CustomPropertySetValues version2 = CustomPropertySetValues.emptyDuring(Interval.of(now, null));
+        version2.setProperty(CPS_PROPERTY, "version 2");
+        when(meteringService.findUsagePoint(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePoint));
+        when(usagePointPropertySet.getAllVersionValues()).thenReturn(Arrays.asList(version1, version2));
+
+        String json = target("usagepoints/" + USAGE_POINT_MRID + "/customproperties/" + RCPS_ID + "/versions").request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<List>get("$.versions")).hasSize(2);
+        assertThat(jsonModel.<String>get("$.versions[0].properties[0].propertyValueInfo.value")).isEqualTo("version 1");
+        assertThat(jsonModel.<String>get("$.versions[1].properties[0].propertyValueInfo.value")).isEqualTo("version 2");
+    }
+
+    @Test
+    public void testGetTimeSlicedCustomPropertySetVersionValue() throws Exception {
+        Instant now = Instant.now();
+        CustomPropertySetValues version = CustomPropertySetValues.emptyDuring(Interval.of(now, null));
+        version.setProperty(CPS_PROPERTY, "version value");
+        when(meteringService.findUsagePoint(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePoint));
+        when(usagePointPropertySet.getVersionValues(now)).thenReturn(version);
+
+        String json = target("usagepoints/" + USAGE_POINT_MRID + "/customproperties/" + RCPS_ID + "/versions/" + now.toEpochMilli()).request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.id")).isEqualTo(6);
+        assertThat(jsonModel.<String>get("$.customPropertySetId")).isEqualTo(CPS_ID);
+        assertThat(jsonModel.<String>get("$.properties[0].propertyValueInfo.value")).isEqualTo("version value");
     }
 }
