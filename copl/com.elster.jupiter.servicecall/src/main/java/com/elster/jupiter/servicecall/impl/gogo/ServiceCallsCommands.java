@@ -5,15 +5,18 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.*;
+import com.elster.jupiter.servicecall.impl.IServiceCallType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
+import com.google.common.util.concurrent.Service;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -25,7 +28,8 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=serviceCallTypes",
                 "osgi.command.function=createServiceCallType",
                 "osgi.command.function=customPropertySets",
-                "osgi.command.function=createServiceCallLifeCycle"
+                "osgi.command.function=createServiceCallLifeCycle",
+                "osgi.command.function=createServiceCall"
         }, immediate = true)
 public class ServiceCallsCommands {
 
@@ -72,7 +76,7 @@ public class ServiceCallsCommands {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            serviceCallService.createServiceCallType(name, versionName).customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).get(0)).create();
+            serviceCallService.createServiceCallType(name, versionName).create();
             context.commit();
         }
     }
@@ -133,6 +137,27 @@ public class ServiceCallsCommands {
             }
             serviceCallLifeCycle.create();
             context.commit();
+        }
+    }
+
+    public void createServiceCall() {
+        System.out.println("Usage: createServiceCall <type> <typeVersion> <externalReference>");
+    }
+
+    public void createServiceCall(String type, String typeVersion, String externalReference) {
+        Optional<ServiceCallType> serviceCallType = serviceCallService.findServiceCallType(type, typeVersion);
+        if(!serviceCallType.isPresent()) {
+            System.out.println("There is no service call type with name: '" + type + "' and version: '" + typeVersion + "'");
+        } else {
+            try (TransactionContext context = transactionService.getContext()) {
+                ServiceCall serviceCall = serviceCallType.get()
+                        .newServiceCall()
+                        .externalReference(externalReference)
+                        .create();
+                context.commit();
+
+                System.out.println("Child with reference '" + serviceCall.getNumber() + "' has been created");
+            }
         }
     }
 }
