@@ -14,9 +14,9 @@ Ext.define('Scs.view.Grid', {
         me.columns = [
             {
                 header: Uni.I18n.translate('general.serviceCall', 'SCS', 'Service call'),
-                dataIndex: 'internalId',
+                dataIndex: 'number',
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute().buildUrl() + '/' + record.get('internalId');
+                    var url = me.router.getRoute().buildUrl() + '/' + record.get('number');
                     return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 flex: 1
@@ -33,17 +33,17 @@ Ext.define('Scs.view.Grid', {
             },
             {
                 header: Uni.I18n.translate('general.status', 'SCS', 'Status'),
-                dataIndex: 'status',
+                dataIndex: 'state',
                 flex: 1
             },
             {
                 header: Uni.I18n.translate('general.receivedDate', 'SCS', 'Received date'),
-                dataIndex: 'receivedDate',
+                dataIndex: 'creationTimeDisplay',
                 flex: 1
             },
             {
                 header: Uni.I18n.translate('general.modificationDate', 'SCS', 'Modification date'),
-                dataIndex: 'modificationDate',
+                dataIndex: 'lastModificationTimeDisplay',
                 flex: 1
             },
             {

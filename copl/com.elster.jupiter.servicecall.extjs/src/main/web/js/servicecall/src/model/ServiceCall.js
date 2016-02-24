@@ -1,24 +1,54 @@
 Ext.define('Scs.model.ServiceCall', {
     extend: 'Uni.model.Version',
     fields: [
-        'type', 'versionName', 'loglevel','lifecycle',
+        'number', 'externalReference', 'state', 'type',
         {
             name: 'version',
             defaultValue: 0
         },
         {
-            name: 'id',
-            type: 'int'
+            name: 'creationTime',
+            type: 'number'
         },
         {
-            name: 'status',
-            persist: false,
-            mapping: function (data) {
-                if (data.active) {
-                    return Uni.I18n.translate('general.active', 'SCS', 'Active');
-                } else {
-                    return Uni.I18n.translate('general.inactive', 'SCS', 'Inactive');
+            name: 'lastModificationTime',
+            type: 'number'
+        },
+        {
+            name: 'lastCompletedTime',
+            type: 'number'
+        },
+        {
+            name: 'creationTimeDisplay',
+            type: 'string',
+            convert: function (value, record) {
+                var creationTime = record.get('creationTime');
+                if (creationTime && (creationTime !== 0)) {
+                    return Uni.DateTime.formatDateTimeLong(new Date(creationTime));
                 }
+                return '-';
+            }
+        },
+        {
+            name: 'lastModificationTimeDisplay',
+            type: 'string',
+            convert: function (value, record) {
+                var lastModificationTime = record.get('lastModificationTime');
+                if (lastModificationTime && (lastModificationTime !== 0)) {
+                    return Uni.DateTime.formatDateTimeLong(new Date(lastModificationTime));
+                }
+                return '-';
+            }
+        },
+        {
+            name: 'lastCompletedTimeDisplay',
+            type: 'string',
+            convert: function (value, record) {
+                var lastCompletedTime = record.get('lastModificationTime');
+                if (lastCompletedTime && (lastCompletedTime !== 0)) {
+                    return Uni.DateTime.formatDateTimeLong(new Date(lastCompletedTime));
+                }
+                return '-';
             }
         }
     ],

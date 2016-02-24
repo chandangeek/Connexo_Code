@@ -13,7 +13,7 @@ Ext.define('Scs.view.PreviewForm', {
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.serviceCall', 'SCS', 'Service call'),
-                name: 'internalId'
+                name: 'number'
             },
             {
                 xtype: 'displayfield',
@@ -28,17 +28,17 @@ Ext.define('Scs.view.PreviewForm', {
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.status', 'SCS', 'Status'),
-                name: 'status'
+                name: 'state'
             },
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.receivedDate', 'SCS', 'Received date'),
-                name: 'receivedDate',
+                name: 'creationTimeDisplay',
             },
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.modificationDate', 'SCS', 'Modification date'),
-                name: 'modificationDate',
+                name: 'lastModificationTimeDisplay',
             }
         ];
         me.callParent(arguments);

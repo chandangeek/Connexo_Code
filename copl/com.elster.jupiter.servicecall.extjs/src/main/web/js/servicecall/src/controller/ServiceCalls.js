@@ -34,7 +34,7 @@ Ext.define('Scs.controller.ServiceCalls', {
 
     showServiceCalls: function() {
         var me = this,
-            store = Ext.getStore('Scs.store.ServiceCalls'),
+            //store = Ext.getStore('Scs.store.ServiceCalls'),
             view = Ext.widget('servicecalls-setup', {
                 router: me.getController('Uni.controller.history.Router')
             });
@@ -71,10 +71,10 @@ Ext.define('Scs.controller.ServiceCalls', {
         var me = this,
             page = me.getPage(),
             preview = page.down('servicecalls-preview'),
-            serviceCallTypeName = record.get('type'),
+            serviceCallName = record.get('number'),
             previewForm = page.down('servicecalls-preview-form');
 
-        preview.setTitle(serviceCallTypeName);
+        preview.setTitle(serviceCallName);
         previewForm.updatePreview(record);
     },
 

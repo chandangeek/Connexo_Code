@@ -9,7 +9,7 @@ Ext.define('Scs.view.ServiceCallFilter', {
         me.filters = [
             {
                 type: 'text',
-                dataIndex: 'internalId',
+                dataIndex: 'number',
                 emptyText: Uni.I18n.translate('general.ID', 'SCS', 'ID')
             },
             {
@@ -26,21 +26,21 @@ Ext.define('Scs.view.ServiceCallFilter', {
                 dataIndex: 'status',
                 emptyText: Uni.I18n.translate('general.status', 'SCS', 'Status'),
                 multiSelect: true,
-                displayField: 'status',
-                valueField: 'status',
+                displayField: 'state',
+                valueField: 'state',
                 store: 'Scs.store.ServiceCalls'
                 //   hidden: !me.includeServiceCombo
             },
             {
                 type: 'interval',
-                dataIndex: 'receivedDate',
+                dataIndex: 'creationTime',
                 dataIndexFrom: 'receivedDateFrom',
                 dataIndexTo: 'receivedDateTo',
                 text: Uni.I18n.translate('general.receivedDate', 'SCS', 'Received date')
             },
             {
                 type: 'interval',
-                dataIndex: 'modificationDate',
+                dataIndex: 'lastModificationTime',
                 dataIndexFrom: 'modificationDateFrom',
                 dataIndexTo: 'modificationDateTo',
                 text: Uni.I18n.translate('general.modificationDate', 'SCS', 'Modification date')
