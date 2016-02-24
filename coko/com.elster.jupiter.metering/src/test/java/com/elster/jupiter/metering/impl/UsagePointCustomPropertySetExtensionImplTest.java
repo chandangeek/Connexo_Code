@@ -61,10 +61,8 @@ public class UsagePointCustomPropertySetExtensionImplTest {
 
         Range<Instant> currentInterval = usagePointExtension.getCurrentInterval(registeredCustomPropertySet);
 
-        assertThat(currentInterval.hasLowerBound()).isTrue();
-        assertThat(currentInterval.lowerBoundType()).isEqualTo(BoundType.CLOSED);
-        assertThat(currentInterval.lowerEndpoint()).isEqualTo(now.toInstant());
-
+        // infinity
+        assertThat(currentInterval.hasLowerBound()).isFalse();
         assertThat(currentInterval.hasUpperBound()).isFalse();
     }
 
@@ -131,13 +129,9 @@ public class UsagePointCustomPropertySetExtensionImplTest {
 
         Range<Instant> currentInterval = usagePointExtension.getCurrentInterval(registeredCustomPropertySet);
 
-        assertThat(currentInterval.hasLowerBound()).isTrue();
-        assertThat(currentInterval.lowerEndpoint()).isEqualTo(now.toInstant());
-        assertThat(currentInterval.lowerBoundType()).isEqualTo(BoundType.CLOSED);
-
-        assertThat(currentInterval.hasUpperBound()).isTrue();
-        assertThat(currentInterval.upperEndpoint()).isEqualTo(weekAfter);
-        assertThat(currentInterval.upperBoundType()).isEqualTo(BoundType.OPEN);
+        // infinity
+        assertThat(currentInterval.hasLowerBound()).isFalse();
+        assertThat(currentInterval.hasUpperBound()).isFalse();
     }
 
     @Test

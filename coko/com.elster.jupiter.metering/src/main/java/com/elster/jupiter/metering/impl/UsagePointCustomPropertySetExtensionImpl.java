@@ -137,6 +137,7 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
         setCustomPropertySetValue(customPropertySet, customPropertySetValue, null);
     }
 
+    @Override
     public void setCustomPropertySetValue(CustomPropertySet customPropertySet, CustomPropertySetValues customPropertySetValue, Instant effectiveTimestamp) {
         // TODO maybe it will be better to cache all sets here
         RegisteredCustomPropertySet registeredCustomPropertySet = getAllCustomPropertySets()
@@ -193,15 +194,12 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
         // do we have versions?
         if (!versionIntervals.isEmpty()) {
             Range<Instant> latestVersion = versionIntervals.get(0);
-            Range<Instant> oldestVersion = versionIntervals.get(versionIntervals.size() - 1);
-            if (latestVersion.hasUpperBound() && !latestVersion.upperEndpoint().isAfter(currentTime)) { // do we have version in the past?
+            if (latestVersion.hasUpperBound()) {
                 return Range.atLeast(latestVersion.upperEndpoint());
-            } else if (oldestVersion.lowerEndpoint().isAfter(currentTime)) { // do we have version in the future?
-                return Range.closedOpen(currentTime, latestVersion.lowerEndpoint());
             }
         }
         // return the default interval
-        return Range.atLeast(currentTime);
+        return Range.all();
     }
 
     /**

@@ -92,5 +92,4 @@ public interface UsagePointCustomPropertySetExtension {
      *                                                          <li>custom property set domain differs from {@link UsagePoint}</li>
      */
     Range<Instant> getCurrentInterval(RegisteredCustomPropertySet registeredCustomPropertySet);
-
 }
