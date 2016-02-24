@@ -65,6 +65,67 @@ public class BpmServerImpl implements BpmServer {
     }
 
     @Override
+    public long doPost(String targetURL, String payload) {
+        doPost(targetURL, payload, basicAuthString);
+        return 0;
+    }
+
+    @Override
+    public long doPost(String targetURL, String payload, String authorization) {
+        doPost(targetURL, payload, basicAuthString, 0);
+        return 0;
+    }
+
+    @Override
+    public String doPost(String targetURL, String payload, long version) {
+        return doPost(targetURL, payload, basicAuthString, version);
+    }
+
+    @Override
+    public String doPost(String targetURL, String payload, String authorization, long version) {
+        HttpURLConnection httpConnection = null;
+        authorization = (basicAuthString != null) ? basicAuthString : authorization;
+        try {
+            URL targetUrl = new URL(url + targetURL);
+            httpConnection = (HttpURLConnection) targetUrl.openConnection();
+            httpConnection.setConnectTimeout(60000);
+            httpConnection.setDoOutput(true);
+            httpConnection.setRequestMethod("POST");
+            httpConnection.setRequestProperty("Authorization", authorization);
+            httpConnection.setRequestProperty("Accept", "application/json");
+            httpConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            if (payload != null) {
+                OutputStreamWriter osw = new OutputStreamWriter(httpConnection.getOutputStream());
+                osw.write(payload);
+                osw.flush();
+                osw.close();
+            }
+
+            int responseCode = httpConnection.getResponseCode();
+            if (responseCode != 200) {
+                return null;
+            } else {
+                BufferedReader br = new BufferedReader(new InputStreamReader(
+                        (httpConnection.getInputStream())));
+                String output;
+                StringBuilder jsonContent = new StringBuilder();
+                while ((output = br.readLine()) != null) {
+                    jsonContent.append(output);
+                }
+
+                return jsonContent.toString();
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e.getStackTrace().toString());
+        } finally {
+            if (httpConnection != null) {
+                httpConnection.disconnect();
+            }
+        }
+    }
+
+    @Override
     public String doGet(String targetURL) {
         return doGet(targetURL, basicAuthString);
     }
@@ -72,7 +133,7 @@ public class BpmServerImpl implements BpmServer {
     @Override
     public String doGet(String targetURL, String authorization) {
         HttpURLConnection httpConnection = null;
-        String authorizationHeader = (basicAuthString != null)?basicAuthString:authorization;
+        String authorizationHeader = (basicAuthString != null) ? basicAuthString : authorization;
         try {
             URL targetUrl = new URL(url + targetURL);
             httpConnection = (HttpURLConnection) targetUrl.openConnection();
@@ -83,7 +144,7 @@ public class BpmServerImpl implements BpmServer {
             httpConnection.setRequestProperty("Accept", "application/json");
 
             int responseCode = httpConnection.getResponseCode();
-            if( responseCode  != 200) {
+            if (responseCode != 200) {
                 throw new RuntimeException(Integer.toString(responseCode));
             }
             BufferedReader br = new BufferedReader(new InputStreamReader(
@@ -103,55 +164,6 @@ public class BpmServerImpl implements BpmServer {
                 httpConnection.disconnect();
             }
         }
-    }
-
-    @Override
-    public Optional<String> doPost(String targetURL, String payload) {
-        return doPost(targetURL, payload, basicAuthString);
-    }
-
-    @Override
-    public Optional<String> doPost(String targetURL, String payload, String authorization) {
-        HttpURLConnection httpConnection = null;
-        authorization = (basicAuthString != null)?basicAuthString:authorization;
-        try {
-            URL targetUrl = new URL(url + targetURL);
-            httpConnection = (HttpURLConnection) targetUrl.openConnection();
-            httpConnection.setConnectTimeout(60000);
-            httpConnection.setDoOutput(true);
-            httpConnection.setRequestMethod("POST");
-            httpConnection.setRequestProperty("Authorization", authorization);
-            httpConnection.setRequestProperty("Accept", "application/json");
-            httpConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-            if(payload != null) {
-                OutputStreamWriter osw = new OutputStreamWriter(httpConnection.getOutputStream());
-                osw.write(payload);
-                osw.flush();
-                osw.close();
-            }
-            if (httpConnection.getResponseCode() != 200) {
-                return Optional.empty();
-            }else {
-                BufferedReader br = new BufferedReader(new InputStreamReader(
-                        (httpConnection.getInputStream())));
-                String output;
-                StringBuilder jsonContent = new StringBuilder();
-                while ((output = br.readLine()) != null) {
-                    jsonContent.append(output);
-                }
-                if(!jsonContent.toString().equals("")){
-                    return Optional.of(jsonContent.toString());
-                }
-            }
-
-        } catch (IOException e) {
-            throw new RuntimeException(e.getStackTrace().toString());
-        } finally {
-            if (httpConnection != null) {
-                httpConnection.disconnect();
-            }
-        }
-        return Optional.of("");
     }
 
 }
