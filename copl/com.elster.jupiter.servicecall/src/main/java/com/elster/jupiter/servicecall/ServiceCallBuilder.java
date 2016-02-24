@@ -13,7 +13,7 @@ public interface ServiceCallBuilder {
 
     ServiceCallBuilder targetObject(Object targetObject);
 
-    ServiceCallBuilder extendedWith(PersistentDomainExtension<ServiceCall> extension);
+    ServiceCallBuilder extendedWith(PersistentDomainExtension<ServiceCall> extension, Object... additionalPrimaryKeyValues);
 
     ServiceCall create();
 }

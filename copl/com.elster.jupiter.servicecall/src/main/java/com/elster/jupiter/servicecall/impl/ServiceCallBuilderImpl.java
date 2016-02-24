@@ -1,6 +1,7 @@
 package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.DataModel;
@@ -14,10 +15,9 @@ import java.util.Map;
 class ServiceCallBuilderImpl implements ServiceCallBuilder {
     private final DataModel dataModel;
     private final CustomPropertySetService customPropertySetService;
-    private IServiceCallType serviceCallType;
-    private ServiceCallImpl parent;
     private ServiceCallImpl instance;
     private final Map<RegisteredCustomPropertySet, PersistentDomainExtension<ServiceCall>> extensions = new HashMap<>();
+    private final Map<RegisteredCustomPropertySet, Object[]> additionalKeys = new HashMap<>();
 
     @Inject
     ServiceCallBuilderImpl(DataModel dataModel, CustomPropertySetService customPropertySetService) {
@@ -34,16 +34,6 @@ class ServiceCallBuilderImpl implements ServiceCallBuilder {
     }
     private ServiceCallBuilderImpl init(ServiceCallImpl parent, IServiceCallType type) {
         instance = ServiceCallImpl.from(dataModel, parent, type);
-        return this;
-    }
-
-    ServiceCallBuilderImpl setServiceCallType(IServiceCallType serviceCallType) {
-        this.serviceCallType = serviceCallType;
-        return this;
-    }
-
-    ServiceCallBuilderImpl setParent(ServiceCallImpl parent) {
-        this.parent = parent;
         return this;
     }
 
@@ -66,8 +56,8 @@ class ServiceCallBuilderImpl implements ServiceCallBuilder {
     }
 
     @Override
-    public ServiceCallBuilder extendedWith(PersistentDomainExtension<ServiceCall> extension) {
-        RegisteredCustomPropertySet registeredCustomPropertySet = serviceCallType.getCustomPropertySets()
+    public ServiceCallBuilder extendedWith(PersistentDomainExtension<ServiceCall> extension, Object... additionalPrimaryKeyValues) {
+        RegisteredCustomPropertySet registeredCustomPropertySet = instance.getType().getCustomPropertySets()
                 .stream()
                 .filter(propertySet -> propertySet.getCustomPropertySet()
                         .getPersistenceSupport()
@@ -76,13 +66,12 @@ class ServiceCallBuilderImpl implements ServiceCallBuilder {
                 .findAny()
                 .orElseThrow(IllegalArgumentException::new);
         extensions.put(registeredCustomPropertySet, extension);
+        additionalKeys.put(registeredCustomPropertySet, additionalPrimaryKeyValues);
         return this;
     }
 
     @Override
     public ServiceCall create() {
-        ServiceCallImpl instance = ServiceCallImpl.from(dataModel, parent, serviceCallType);
-
         boolean allCustomPropertySetsRegistered = instance.getType().getCustomPropertySets()
                 .stream()
                 .filter(registeredCustomPropertySet -> registeredCustomPropertySet.getCustomPropertySet().isRequired())
@@ -97,6 +86,10 @@ class ServiceCallBuilderImpl implements ServiceCallBuilder {
                 .forEach(entry -> {
                     RegisteredCustomPropertySet key = entry.getKey();
                     PersistentDomainExtension<ServiceCall> value = entry.getValue();
+                    Object[] additionalPrimaryKeys = additionalKeys.get(key);
+                    CustomPropertySetValues propertySetValues = CustomPropertySetValues.empty();
+                    value.copyTo(propertySetValues, additionalPrimaryKeys);
+                    value.copyFrom(instance, propertySetValues, additionalPrimaryKeys);
                     customPropertySetService.setValuesFor(key.getCustomPropertySet(), instance, value);
                 });
 
