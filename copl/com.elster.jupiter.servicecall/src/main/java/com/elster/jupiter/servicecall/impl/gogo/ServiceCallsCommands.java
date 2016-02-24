@@ -118,7 +118,8 @@ public class ServiceCallsCommands {
 
     public void customPropertySets() {
         customPropertySetService.findActiveCustomPropertySets().stream()
-                .map(cps -> cps.getId() + " " + cps.getCustomPropertySet().getDomainClass() + " " + cps.getCustomPropertySet().getName())
+                .map(cps -> cps.getId() + " " + cps.getCustomPropertySet()
+                        .getDomainClass() + " " + cps.getCustomPropertySet().getName())
                 .forEach(System.out::println);
     }
 

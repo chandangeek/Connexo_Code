@@ -9,11 +9,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.servicecall.CannotRemoveStateException;
 import com.elster.jupiter.servicecall.DefaultState;
-import com.elster.jupiter.servicecall.UnreachableStateException;
 import com.elster.jupiter.servicecall.NoPathLeftToSuccessFromStateException;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.UnreachableStateException;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.graph.DiGraph;
 
@@ -188,7 +188,7 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
                 .filter(not(this::hasPathFromCreated))
                 .findAny()
                 .ifPresent(unreachable -> {
-                    throw new UnreachableStateException(thesaurus, MessageSeeds.NO_PATH_FROM_CREATED_TO ,unreachable);
+                    throw new UnreachableStateException(thesaurus, MessageSeeds.NO_PATH_FROM_CREATED_TO, unreachable);
                 });
 
     }
