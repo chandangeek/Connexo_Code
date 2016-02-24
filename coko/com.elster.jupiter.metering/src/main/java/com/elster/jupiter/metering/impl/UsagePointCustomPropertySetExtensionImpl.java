@@ -3,10 +3,14 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetValuesManageException;
+import com.elster.jupiter.metering.UsagePointPropertySet;
+import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.RangeInstantComparator;
@@ -19,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomPropertySetExtension {
@@ -26,6 +31,8 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
     private final CustomPropertySetService customPropertySetService;
     private final Thesaurus thesaurus;
     private final UsagePointImpl usagePoint;
+
+    private List<UsagePointPropertySet> allProperties;
 
     @Inject
     public UsagePointCustomPropertySetExtensionImpl(Clock clock,
@@ -47,173 +54,245 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
         return getUsagePoint().getMetrologyConfiguration();
     }
 
-    private void validateCustomPropertySetDomain(RegisteredCustomPropertySet registeredCustomPropertySet) {
-        if (!UsagePoint.class.isAssignableFrom(registeredCustomPropertySet.getCustomPropertySet().getDomainClass())) {
-            throw UsagePointCustomPropertySetValuesManageException
-                    .badDomainType(this.thesaurus, registeredCustomPropertySet.getCustomPropertySet().getName());
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private CustomPropertySetValues getCustomPropertySetValueWithoutChecks(RegisteredCustomPropertySet rcps,
-                                                                           Instant versionStartTime) {
-        CustomPropertySet<UsagePoint, ?> customPropertySet = rcps.getCustomPropertySet();
-        CustomPropertySetValues values;
-        if (customPropertySet.isVersioned()) {
-            values = this.customPropertySetService.getUniqueValuesFor(customPropertySet, getUsagePoint(), versionStartTime);
-            if (values.isEmpty() && !this.customPropertySetService
-                    .getUniqueValuesEntityFor(customPropertySet, getUsagePoint(), versionStartTime).isPresent()) {
-                values = null;
-            }
-        } else {
-            values = this.customPropertySetService.getUniqueValuesFor(customPropertySet, getUsagePoint());
-        }
-        return values;
-    }
-
-    private void setCustomPropertySetValuesWithoutChecks(CustomPropertySet<UsagePoint, ?> customPropertySet,
-                                                         CustomPropertySetValues customPropertySetValue,
-                                                         Instant effectiveTimestamp) {
-        if (!customPropertySet.isVersioned()) {
-            this.customPropertySetService.setValuesFor(customPropertySet, getUsagePoint(), customPropertySetValue);
-        } else {
-            Range<Instant> effectiveRange = customPropertySetValue.getEffectiveRange();
-            if (!effectiveRange.hasLowerBound() && !effectiveRange.hasUpperBound()) {
-                // Fallback case
-                effectiveRange = getCurrentIntervalInternal(customPropertySet);
-            }
-            if (effectiveTimestamp == null) {
-                this.customPropertySetService.setValuesVersionFor(customPropertySet, getUsagePoint(), customPropertySetValue, effectiveRange);
-            } else {
-                this.customPropertySetService.setValuesVersionFor(customPropertySet, getUsagePoint(), customPropertySetValue, effectiveRange, effectiveTimestamp);
-            }
-        }
-        this.usagePoint.touch();
-    }
-
     @Override
-    public List<RegisteredCustomPropertySet> getCustomPropertySetsOnMetrologyConfiguration() {
+    public List<UsagePointPropertySet> getPropertySetsOnMetrologyConfiguration() {
         Optional<MetrologyConfiguration> metrologyConfiguration = getMetrologyConfiguration();
         if (metrologyConfiguration.isPresent()) {
-            return metrologyConfiguration.get().getCustomPropertySets();
+            return metrologyConfiguration.get().getCustomPropertySets()
+                    .stream()
+                    .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                    .map(rcps -> rcps.getCustomPropertySet().isVersioned() ? new UsagePointVersionedPropertySetImpl(rcps) : new UsagePointPropertySetImpl(rcps))
+                    .collect(Collectors.toList());
         }
         return Collections.emptyList();
     }
 
     @Override
-    public List<RegisteredCustomPropertySet> getCustomPropertySetsOnServiceCategory() {
-        return getUsagePoint().getServiceCategory().getCustomPropertySets();
-    }
-
-    @Override
-    public List<RegisteredCustomPropertySet> getAllCustomPropertySets() {
-        List<RegisteredCustomPropertySet> mcCPS = getCustomPropertySetsOnMetrologyConfiguration();
-        List<RegisteredCustomPropertySet> scCPS = getCustomPropertySetsOnServiceCategory();
-        List<RegisteredCustomPropertySet> all = new ArrayList<>(mcCPS.size() + scCPS.size());
-        all.addAll(mcCPS);
-        all.addAll(scCPS);
-        return all;
-    }
-
-    @Override
-    public CustomPropertySetValues getCustomPropertySetValue(RegisteredCustomPropertySet registeredCustomPropertySet) {
-        return getCustomPropertySetValue(registeredCustomPropertySet, this.clock.instant());
-    }
-
-    @Override
-    public CustomPropertySetValues getCustomPropertySetValue(RegisteredCustomPropertySet registeredCustomPropertySet, Instant versionStartTime) {
-        if (versionStartTime == null) {
-            versionStartTime = this.clock.instant();
-        }
-        if (registeredCustomPropertySet != null) {
-            validateCustomPropertySetDomain(registeredCustomPropertySet);
-            return getCustomPropertySetValueWithoutChecks(registeredCustomPropertySet, versionStartTime);
-        }
-        return null;
-    }
-
-    @Override
-    public void setCustomPropertySetValue(CustomPropertySet customPropertySet, CustomPropertySetValues customPropertySetValue) {
-        setCustomPropertySetValue(customPropertySet, customPropertySetValue, null);
-    }
-
-    @Override
-    public void setCustomPropertySetValue(CustomPropertySet customPropertySet, CustomPropertySetValues customPropertySetValue, Instant effectiveTimestamp) {
-        // TODO maybe it will be better to cache all sets here
-        RegisteredCustomPropertySet registeredCustomPropertySet = getAllCustomPropertySets()
+    public List<UsagePointPropertySet> getPropertySetsOnServiceCategory() {
+        return getUsagePoint().getServiceCategory().getCustomPropertySets()
                 .stream()
-                .filter(rcps -> rcps.getCustomPropertySet().getId().equals(customPropertySet.getId()))
-                .findAny()
-                .orElseThrow(() -> UsagePointCustomPropertySetValuesManageException
-                        .noLinkedCustomPropertySet(this.thesaurus, customPropertySet.getName()));
-        if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
-            throw UsagePointCustomPropertySetValuesManageException
-                    .customPropertySetIsNotEditableByUser(this.thesaurus, customPropertySet.getName());
-        }
-        setCustomPropertySetValuesWithoutChecks(customPropertySet, customPropertySetValue, effectiveTimestamp);
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .map(rcps -> rcps.getCustomPropertySet().isVersioned() ? new UsagePointVersionedPropertySetImpl(rcps) : new UsagePointPropertySetImpl(rcps))
+                .collect(Collectors.toList());
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Range<Instant> getCurrentInterval(RegisteredCustomPropertySet registeredCustomPropertySet) {
-        if (registeredCustomPropertySet != null) {
-            validateCustomPropertySetDomain(registeredCustomPropertySet);
-            CustomPropertySet<UsagePoint, ?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
-            return getCurrentIntervalInternal(customPropertySet);
+    public List<UsagePointPropertySet> getAllPropertySets() {
+        if (this.allProperties == null) {
+            List<UsagePointPropertySet> mcCPS = getPropertySetsOnMetrologyConfiguration();
+            List<UsagePointPropertySet> scCPS = getPropertySetsOnServiceCategory();
+            this.allProperties = new ArrayList<>(mcCPS.size() + scCPS.size());
+            this.allProperties.addAll(mcCPS);
+            this.allProperties.addAll(scCPS);
         }
-        return null;
+        return this.allProperties;
     }
 
-    private Range<Instant> getCurrentIntervalInternal(CustomPropertySet<UsagePoint, ?> customPropertySet) {
-        if (!customPropertySet.isVersioned()) {
-            throw UsagePointCustomPropertySetValuesManageException
-                    .customPropertySetIsNotVersioned(this.thesaurus, customPropertySet.getName());
-        }
-        Instant now = this.clock.instant();
-        List<Range<Instant>> versionIntervals = getCustomPropertySetValuesIntervals(customPropertySet);
-        // Do we have an active version now?
-        Optional<?> currentVersionValue = customPropertySetService.getUniqueValuesEntityFor(customPropertySet, getUsagePoint(), now);
-        if (currentVersionValue.isPresent()) {
-            // yep, we have an active version, so let's create a new version from the now till the active version end.
-            return getCurrentIntervalWithActiveVersion(versionIntervals, now);
-        }
-        // no active version right now
-        return getCurrentIntervalNoActiveVersion(versionIntervals, now);
-    }
-
-    private Range<Instant> getCurrentIntervalWithActiveVersion(List<Range<Instant>> versionIntervals, Instant currentTime) {
-        Range<Instant> currentVersionRange = versionIntervals
+    @Override
+    public UsagePointPropertySet getPropertySet(long registeredCustomPropertySetId) {
+        return getAllPropertySets()
                 .stream()
-                .filter(versionRange -> versionRange.contains(currentTime))
+                .filter(rcps -> rcps.getId() == registeredCustomPropertySetId)
                 .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
-        return currentVersionRange.hasUpperBound() ? Range.closedOpen(currentTime, currentVersionRange.upperEndpoint()) : Range.atLeast(currentTime);
+                .orElseThrow(() -> UsagePointCustomPropertySetValuesManageException
+                        .noLinkedCustomPropertySet(thesaurus, "id = " + String.valueOf(registeredCustomPropertySetId)));
     }
 
-    private Range<Instant> getCurrentIntervalNoActiveVersion(List<Range<Instant>> versionIntervals, Instant currentTime) {
-        // do we have versions?
-        if (!versionIntervals.isEmpty()) {
-            Range<Instant> latestVersion = versionIntervals.get(0);
-            if (latestVersion.hasUpperBound()) {
-                return Range.atLeast(latestVersion.upperEndpoint());
+    @Override
+    public UsagePointVersionedPropertySet getVersionedPropertySet(long registeredCustomPropertySetId) {
+        UsagePointPropertySet property = getAllPropertySets()
+                .stream()
+                .filter(rcps -> rcps.getId() == registeredCustomPropertySetId)
+                .findFirst()
+                .orElseThrow(() -> UsagePointCustomPropertySetValuesManageException
+                        .noLinkedCustomPropertySet(thesaurus, "id = " + String.valueOf(registeredCustomPropertySetId)));
+        if (!property.getCustomPropertySet().isVersioned()) {
+            throw UsagePointCustomPropertySetValuesManageException
+                    .customPropertySetIsNotVersioned(thesaurus, property.getCustomPropertySet().getName());
+        }
+        return (UsagePointVersionedPropertySet) property;
+    }
+
+    public class UsagePointPropertySetImpl implements UsagePointPropertySet {
+
+        private final RegisteredCustomPropertySet delegate;
+
+        public UsagePointPropertySetImpl(RegisteredCustomPropertySet rcps) {
+            if (!UsagePoint.class.isAssignableFrom(rcps.getCustomPropertySet().getDomainClass())) {
+                throw UsagePointCustomPropertySetValuesManageException
+                        .badDomainType(thesaurus, rcps.getCustomPropertySet().getName());
+            }
+            this.delegate = rcps;
+        }
+
+        @Override
+        public long getId() {
+            return delegate.getId();
+        }
+
+        @Override
+        @SuppressWarnings("uncheked")
+        public CustomPropertySet<UsagePoint, ?> getCustomPropertySet() {
+            return delegate.getCustomPropertySet();
+        }
+
+        @Override
+        public Set<ViewPrivilege> getViewPrivileges() {
+            return delegate.getViewPrivileges();
+        }
+
+        @Override
+        public Set<EditPrivilege> getEditPrivileges() {
+            return delegate.getEditPrivileges();
+        }
+
+        @Override
+        public boolean isEditableByCurrentUser() {
+            return delegate.isEditableByCurrentUser();
+        }
+
+        @Override
+        public boolean isViewableByCurrentUser() {
+            return delegate.isViewableByCurrentUser();
+        }
+
+        @Override
+        public void updatePrivileges(Set<ViewPrivilege> viewPrivileges, Set<EditPrivilege> editPrivileges) {
+            delegate.updatePrivileges(viewPrivileges, editPrivileges);
+        }
+
+        @Override
+        public UsagePoint getUsagePoint() {
+            return usagePoint;
+        }
+
+        @Override
+        public CustomPropertySetValues getValues() {
+            return customPropertySetService.getUniqueValuesFor(getCustomPropertySet(), getUsagePoint());
+        }
+
+        @Override
+        public void setValues(CustomPropertySetValues values) {
+            if (!isEditableByCurrentUser()) {
+                throw UsagePointCustomPropertySetValuesManageException
+                        .customPropertySetIsNotEditableByUser(thesaurus, getCustomPropertySet().getName());
+            }
+            customPropertySetService.setValuesFor(getCustomPropertySet(), getUsagePoint(), values);
+            usagePoint.touch();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            UsagePointPropertySetImpl that = (UsagePointPropertySetImpl) o;
+            return !(delegate != null ? !delegate.equals(that.delegate) : that.delegate != null);
+        }
+
+        @Override
+        public int hashCode() {
+            return this.delegate.hashCode();
+        }
+    }
+
+    public class UsagePointVersionedPropertySetImpl extends UsagePointPropertySetImpl implements UsagePointVersionedPropertySet {
+
+        public UsagePointVersionedPropertySetImpl(RegisteredCustomPropertySet rcps) {
+            super(rcps);
+            if (!getCustomPropertySet().isVersioned()) {
+                throw UsagePointCustomPropertySetValuesManageException
+                        .customPropertySetIsNotVersioned(thesaurus, rcps.getCustomPropertySet().getName());
             }
         }
-        // return the default interval
-        return Range.all();
-    }
 
-    /**
-     * Returns intervals for versions for the given custom attribute set which are ordered from newest to oldest
-     */
-    List<Range<Instant>> getCustomPropertySetValuesIntervals(CustomPropertySet<UsagePoint, ?> customPropertySet) {
-        List<CustomPropertySetValues> customPropertySetVersionValues = customPropertySetService.getAllVersionedValuesFor(customPropertySet, getUsagePoint());
-        List<Range<Instant>> versionIntervals = customPropertySetVersionValues
-                .stream()
-                .map(CustomPropertySetValues::getEffectiveRange)
-                .distinct()
-                .sorted(new RangeInstantComparator())
-                .collect(Collectors.toList());
-        Collections.reverse(versionIntervals);
-        return versionIntervals;
+        @Override
+        public CustomPropertySetValues getValues() {
+            return getVersionValues(clock.instant());
+        }
+
+        @Override
+        public void setValues(CustomPropertySetValues values) {
+            setVersionValues(clock.instant(), values);
+        }
+
+        @Override
+        public CustomPropertySetValues getVersionValues(Instant anyTimeInVersionInterval) {
+            CustomPropertySetValues values = customPropertySetService.getUniqueValuesFor(getCustomPropertySet(), getUsagePoint(), anyTimeInVersionInterval);
+            if (values.isEmpty()) {
+                // empty values with infinity range => no active version
+                return null;
+            }
+            return values;
+        }
+
+        @Override
+        public void setVersionValues(Instant anyTimeInVersionInterval, CustomPropertySetValues values) {
+            if (!isEditableByCurrentUser()) {
+                throw UsagePointCustomPropertySetValuesManageException
+                        .customPropertySetIsNotEditableByUser(thesaurus, getCustomPropertySet().getName());
+            }
+            customPropertySetService.setValuesVersionFor(getCustomPropertySet(), getUsagePoint(), values, values.getEffectiveRange(), anyTimeInVersionInterval);
+            usagePoint.touch();
+        }
+
+        @Override
+        public List<CustomPropertySetValues> getAllVersionValues() {
+            return customPropertySetService.getAllVersionedValuesFor(getCustomPropertySet(), getUsagePoint());
+        }
+
+        @Override
+        public Range<Instant> getNewVersionInterval() {
+            Instant now = clock.instant();
+            List<Range<Instant>> versionIntervals = getCustomPropertySetValuesIntervals(getCustomPropertySet());
+            // Do we have an active version now?
+            Optional<?> currentVersionValue = customPropertySetService.getUniqueValuesEntityFor(getCustomPropertySet(), getUsagePoint(), now);
+            if (currentVersionValue.isPresent()) {
+                // yep, we have an active version, so let's create a new version from the now till the active version end.
+                return getCurrentIntervalWithActiveVersion(versionIntervals, now);
+            }
+            // no active version right now
+            return getCurrentIntervalNoActiveVersion(versionIntervals, now);
+        }
+
+        private Range<Instant> getCurrentIntervalWithActiveVersion(List<Range<Instant>> versionIntervals, Instant currentTime) {
+            Range<Instant> currentVersionRange = versionIntervals
+                    .stream()
+                    .filter(versionRange -> versionRange.contains(currentTime))
+                    .findFirst()
+                    .orElseThrow(IllegalArgumentException::new);
+            return currentVersionRange.hasUpperBound() ? Range.closedOpen(currentTime, currentVersionRange.upperEndpoint()) : Range.atLeast(currentTime);
+        }
+
+        private Range<Instant> getCurrentIntervalNoActiveVersion(List<Range<Instant>> versionIntervals, Instant currentTime) {
+            // do we have versions?
+            if (!versionIntervals.isEmpty()) {
+                Range<Instant> latestVersion = versionIntervals.get(0);
+                if (latestVersion.hasUpperBound()) {
+                    return Range.atLeast(latestVersion.upperEndpoint());
+                }
+            }
+            // return the default interval
+            return Range.all();
+        }
+
+        /**
+         * Returns intervals for versions for the given custom attribute set which are ordered from newest to oldest
+         */
+        List<Range<Instant>> getCustomPropertySetValuesIntervals(CustomPropertySet<UsagePoint, ?> customPropertySet) {
+            List<CustomPropertySetValues> customPropertySetVersionValues = customPropertySetService.getAllVersionedValuesFor(customPropertySet, getUsagePoint());
+            List<Range<Instant>> versionIntervals = customPropertySetVersionValues
+                    .stream()
+                    .map(CustomPropertySetValues::getEffectiveRange)
+                    .distinct()
+                    .sorted(new RangeInstantComparator())
+                    .collect(Collectors.toList());
+            Collections.reverse(versionIntervals);
+            return versionIntervals;
+        }
     }
 }

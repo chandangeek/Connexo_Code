@@ -4,7 +4,9 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.Thesaurus;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import org.junit.Before;
@@ -20,9 +22,11 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -40,26 +44,50 @@ public class UsagePointCustomPropertySetExtensionImplTest {
     @Mock
     UsagePointImpl usagePoint;
 
-    UsagePointCustomPropertySetExtensionImpl usagePointExtension;
+    UsagePointCustomPropertySetExtensionImpl.UsagePointVersionedPropertySetImpl versionedPropertySet;
 
     @Before
     public void before() {
         when(clock.instant()).thenReturn(now.toInstant());
-        usagePointExtension = spy(new UsagePointCustomPropertySetExtensionImpl(clock, customPropertySetService, null, usagePoint));
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getId()).thenReturn(1L);
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(registeredCustomPropertySet.isViewableByCurrentUser()).thenReturn(true);
+        ServiceCategory serviceCategory = mock(ServiceCategory.class);
+        when(serviceCategory.getCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
+        when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
+        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
+        Thesaurus thesaurus = mock(Thesaurus.class);
+        versionedPropertySet = spy((UsagePointCustomPropertySetExtensionImpl.UsagePointVersionedPropertySetImpl)
+                new UsagePointCustomPropertySetExtensionImpl(clock, customPropertySetService, thesaurus, usagePoint)
+                        .getVersionedPropertySet(1L));
+    }
+
+    private void mockVersionIntervals(List<Range<Instant>> versionIntervals) {
+        doReturn(versionIntervals).when(versionedPropertySet)
+                .getCustomPropertySetValuesIntervals(any());
+    }
+
+    private void mockHasNoActiveVersion() {
+        when(customPropertySetService.getUniqueValuesEntityFor(any(), eq(usagePoint), eq(now.toInstant())))
+                .thenReturn(Optional.empty());
+    }
+
+    private void mockHasActiveVersion() {
+        PersistentDomainExtension persistentDomainExtension = mock(PersistentDomainExtension.class);
+        when(customPropertySetService.getUniqueValuesEntityFor(any(), eq(usagePoint), eq(now.toInstant())))
+                .thenReturn(Optional.of(persistentDomainExtension));
     }
 
     @Test
     public void testGetCurrentIntervalNoVersionsAtAll() {
-        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
-        when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
-        when(customPropertySet.isVersioned()).thenReturn(true);
-        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
-        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
-        when(customPropertySetService.getUniqueValuesEntityFor(eq(customPropertySet), eq(usagePoint), eq(now.toInstant())))
-                .thenReturn(Optional.empty());
-        doReturn(Collections.emptyList()).when(usagePointExtension).getCustomPropertySetValuesIntervals(eq(customPropertySet));
+        mockHasNoActiveVersion();
+        mockVersionIntervals(Collections.emptyList());
 
-        Range<Instant> currentInterval = usagePointExtension.getCurrentInterval(registeredCustomPropertySet);
+        Range<Instant> currentInterval = versionedPropertySet.getNewVersionInterval();
 
         // infinity
         assertThat(currentInterval.hasLowerBound()).isFalse();
@@ -68,18 +96,11 @@ public class UsagePointCustomPropertySetExtensionImplTest {
 
     @Test
     public void testGetCurrentIntervalAndWeHaveVersionInThePast() {
-        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
-        when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
-        when(customPropertySet.isVersioned()).thenReturn(true);
-        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
-        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
-        when(customPropertySetService.getUniqueValuesEntityFor(eq(customPropertySet), eq(usagePoint), eq(now.toInstant())))
-                .thenReturn(Optional.empty());
+        mockHasNoActiveVersion();
         Instant dayBefore = now.minus(1, ChronoUnit.DAYS).toInstant();
-        doReturn(Collections.singletonList(Range.atMost(dayBefore)))
-                .when(usagePointExtension).getCustomPropertySetValuesIntervals(eq(customPropertySet));
+        mockVersionIntervals(Collections.singletonList(Range.atMost(dayBefore)));
 
-        Range<Instant> currentInterval = usagePointExtension.getCurrentInterval(registeredCustomPropertySet);
+        Range<Instant> currentInterval = versionedPropertySet.getNewVersionInterval();
 
         assertThat(currentInterval.hasLowerBound()).isTrue();
         assertThat(currentInterval.lowerBoundType()).isEqualTo(BoundType.CLOSED);
@@ -90,20 +111,12 @@ public class UsagePointCustomPropertySetExtensionImplTest {
 
     @Test
     public void testGetCurrentIntervalAndWeHaveActiveVersion() {
-        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
-        when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
-        when(customPropertySet.isVersioned()).thenReturn(true);
-        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
-        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
-        PersistentDomainExtension persistentDomainExtension = mock(PersistentDomainExtension.class);
-        when(customPropertySetService.getUniqueValuesEntityFor(eq(customPropertySet), eq(usagePoint), eq(now.toInstant())))
-                .thenReturn(Optional.of(persistentDomainExtension));
+        mockHasActiveVersion();
         Instant weekBefore = now.minus(1, ChronoUnit.WEEKS).toInstant();
         Instant weekAfter = now.plus(1, ChronoUnit.WEEKS).toInstant();
-        doReturn(Collections.singletonList(Range.openClosed(weekBefore, weekAfter)))
-                .when(usagePointExtension).getCustomPropertySetValuesIntervals(eq(customPropertySet));
+        mockVersionIntervals(Collections.singletonList(Range.openClosed(weekBefore, weekAfter)));
 
-        Range<Instant> currentInterval = usagePointExtension.getCurrentInterval(registeredCustomPropertySet);
+        Range<Instant> currentInterval = versionedPropertySet.getNewVersionInterval();
 
         assertThat(currentInterval.hasLowerBound()).isTrue();
         assertThat(currentInterval.lowerEndpoint()).isEqualTo(now.toInstant());
@@ -116,18 +129,11 @@ public class UsagePointCustomPropertySetExtensionImplTest {
 
     @Test
     public void testGetCurrentIntervalAndWeHaveVersionInFuture() {
-        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
-        when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
-        when(customPropertySet.isVersioned()).thenReturn(true);
-        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
-        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
-        when(customPropertySetService.getUniqueValuesEntityFor(eq(customPropertySet), eq(usagePoint), eq(now.toInstant())))
-                .thenReturn(Optional.empty());
+        mockHasNoActiveVersion();
         Instant weekAfter = now.plus(1, ChronoUnit.WEEKS).toInstant();
-        doReturn(Collections.singletonList(Range.atLeast(weekAfter)))
-                .when(usagePointExtension).getCustomPropertySetValuesIntervals(eq(customPropertySet));
+        mockVersionIntervals(Collections.singletonList(Range.atLeast(weekAfter)));
 
-        Range<Instant> currentInterval = usagePointExtension.getCurrentInterval(registeredCustomPropertySet);
+        Range<Instant> currentInterval = versionedPropertySet.getNewVersionInterval();
 
         // infinity
         assertThat(currentInterval.hasLowerBound()).isFalse();
@@ -136,19 +142,11 @@ public class UsagePointCustomPropertySetExtensionImplTest {
 
     @Test
     public void testGetCurrentIntervalAndWeHaveActiveVersionWithTheSameStart() {
-        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
-        when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
-        when(customPropertySet.isVersioned()).thenReturn(true);
-        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
-        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
-        PersistentDomainExtension persistentDomainExtension = mock(PersistentDomainExtension.class);
-        when(customPropertySetService.getUniqueValuesEntityFor(eq(customPropertySet), eq(usagePoint), eq(now.toInstant())))
-                .thenReturn(Optional.of(persistentDomainExtension));
+        mockHasActiveVersion();
         Instant weekAfter = now.plus(1, ChronoUnit.WEEKS).toInstant();
-        doReturn(Collections.singletonList(Range.closedOpen(now.toInstant(), weekAfter)))
-                .when(usagePointExtension).getCustomPropertySetValuesIntervals(eq(customPropertySet));
+        mockVersionIntervals(Collections.singletonList(Range.closedOpen(now.toInstant(), weekAfter)));
 
-        Range<Instant> currentInterval = usagePointExtension.getCurrentInterval(registeredCustomPropertySet);
+        Range<Instant> currentInterval = versionedPropertySet.getNewVersionInterval();
 
         assertThat(currentInterval.hasLowerBound()).isTrue();
         assertThat(currentInterval.lowerEndpoint()).isEqualTo(now.toInstant());
@@ -161,18 +159,11 @@ public class UsagePointCustomPropertySetExtensionImplTest {
 
     @Test
     public void testGetCurrentIntervalAndWeHaveActiveVersionWithTheSameEnd() {
-        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
-        when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
-        when(customPropertySet.isVersioned()).thenReturn(true);
-        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
-        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
-        when(customPropertySetService.getUniqueValuesEntityFor(eq(customPropertySet), eq(usagePoint), eq(now.toInstant())))
-                .thenReturn(Optional.empty());
+        mockHasNoActiveVersion();
         Instant weekBefore = now.minus(1, ChronoUnit.WEEKS).toInstant();
-        doReturn(Collections.singletonList(Range.closedOpen(weekBefore, now.toInstant())))
-                .when(usagePointExtension).getCustomPropertySetValuesIntervals(eq(customPropertySet));
+        mockVersionIntervals(Collections.singletonList(Range.closedOpen(weekBefore, now.toInstant())));
 
-        Range<Instant> currentInterval = usagePointExtension.getCurrentInterval(registeredCustomPropertySet);
+        Range<Instant> currentInterval = versionedPropertySet.getNewVersionInterval();
 
         assertThat(currentInterval.hasLowerBound()).isTrue();
         assertThat(currentInterval.lowerEndpoint()).isEqualTo(now.toInstant());

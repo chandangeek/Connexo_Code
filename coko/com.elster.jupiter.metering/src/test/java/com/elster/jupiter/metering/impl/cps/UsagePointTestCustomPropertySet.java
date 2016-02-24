@@ -36,7 +36,7 @@ public class UsagePointTestCustomPropertySet implements CustomPropertySet<UsageP
 
     @Override
     public boolean isVersioned() {
-        return false;
+        return true;
     }
 
     @Override

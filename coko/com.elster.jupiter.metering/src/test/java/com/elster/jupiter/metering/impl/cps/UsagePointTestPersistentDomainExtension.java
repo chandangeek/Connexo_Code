@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Interval;
 
 public class UsagePointTestPersistentDomainExtension implements PersistentDomainExtension<UsagePoint> {
 
@@ -18,6 +19,7 @@ public class UsagePointTestPersistentDomainExtension implements PersistentDomain
     @NotEmpty
     private String name;
     private boolean enhancedSupport;
+    private Interval interval;
 
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {

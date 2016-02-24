@@ -9,13 +9,15 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetValuesManageException;
+import com.elster.jupiter.metering.UsagePointPropertySet;
+import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.impl.cps.CustomPropertySetAttributes;
 import com.elster.jupiter.metering.impl.cps.UsagePointTestCustomPropertySet;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.time.Interval;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -25,10 +27,10 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.security.Principal;
-import java.util.HashMap;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,26 +61,28 @@ public class UsagePointCustomPropertySetExtensionImplTestIT {
 
     @After
     public void after() {
-        UsagePoint usagePoint = getTestUsagePointInstance();
-        usagePoint.delete();
-        MetrologyConfiguration metrologyConfiguration = getTestMetrologyConfigurationInstance();
-        metrologyConfiguration.delete();
-        getTestServiceCategory().removeCustomPropertySet(getRegisteredCustomPropertySet());
+        inMemoryBootstrapModule.getMeteringService()
+                .findUsagePoint(USAGE_POINT_MRID)
+                .ifPresent(usagePoint -> usagePoint.delete());
+        inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .findMetrologyConfiguration(METROLOGY_CONFIGURATION_MRID)
+                .ifPresent(metrologyConfiguration -> metrologyConfiguration.delete());
+        getServiceCategory().removeCustomPropertySet(getRegisteredCustomPropertySet());
         inMemoryBootstrapModule.getThreadPrincipalService().set(() -> "Test");
     }
 
-    private MetrologyConfiguration createTestMetrologyConfigurationInstance() {
+    private MetrologyConfiguration createMetrologyConfiguration() {
         return inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .newMetrologyConfiguration(METROLOGY_CONFIGURATION_MRID);
     }
 
-    private MetrologyConfiguration getTestMetrologyConfigurationInstance() {
+    private MetrologyConfiguration getMetrologyConfiguration() {
         return inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .findMetrologyConfiguration(METROLOGY_CONFIGURATION_MRID)
-                .orElseGet(this::createTestMetrologyConfigurationInstance);
+                .orElseThrow(() -> new IllegalStateException("MetrologyConfiguration doesn't exist."));
     }
 
-    private UsagePoint createTestUsagePointInstance() {
+    private UsagePoint createUsagePoint() {
         return inMemoryBootstrapModule.getMeteringService()
                 .getServiceCategory(ServiceKind.ELECTRICITY)
                 .get()
@@ -86,18 +90,18 @@ public class UsagePointCustomPropertySetExtensionImplTestIT {
                 .create();
     }
 
-    private UsagePoint getTestUsagePointInstance() {
+    private UsagePoint getUsagePoint() {
         return inMemoryBootstrapModule.getMeteringService()
                 .findUsagePoint(USAGE_POINT_MRID)
-                .orElseGet(this::createTestUsagePointInstance);
+                .orElseThrow(() -> new IllegalStateException("UsagePoint doesn't exist."));
     }
 
-    private ServiceCategory getTestServiceCategory() {
+    private ServiceCategory getServiceCategory() {
         return inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
     }
 
-    private void linkTestUsagePointToTestMetrologyConfiguration() {
-        getTestUsagePointInstance().apply(getTestMetrologyConfigurationInstance());
+    private void linkUsagePointToMetrologyConfiguration() {
+        getUsagePoint().apply(getMetrologyConfiguration());
     }
 
     private RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
@@ -105,12 +109,12 @@ public class UsagePointCustomPropertySetExtensionImplTestIT {
                 .findActiveCustomPropertySet(customPropertySet.getId()).get();
     }
 
-    private void addCustomPropertySetToTestMetrologyConfiguration() {
-        getTestMetrologyConfigurationInstance().addCustomPropertySet(getRegisteredCustomPropertySet());
+    private void addCustomPropertySetToMetrologyConfiguration() {
+        getMetrologyConfiguration().addCustomPropertySet(getRegisteredCustomPropertySet());
     }
 
-    private void addCustomPropertySetToTestServiceCategory() {
-        getTestServiceCategory().addCustomPropertySet(getRegisteredCustomPropertySet());
+    private void addCustomPropertySetToServiceCategory() {
+        getServiceCategory().addCustomPropertySet(getRegisteredCustomPropertySet());
     }
 
     private Set<Privilege> getCurrentPrivileges() {
@@ -138,227 +142,214 @@ public class UsagePointCustomPropertySetExtensionImplTestIT {
         getCurrentPrivileges().add(editPrivilege);
     }
 
-    private UsagePointCustomPropertySetExtension setCustomPropertySetValues() {
-        UsagePointCustomPropertySetExtension usagePointExtension = getTestUsagePointInstance().forCustomProperties();
+    private CustomPropertySetValues getPropertySetValues() {
         CustomPropertySetValues values = CustomPropertySetValues.empty();
         values.setProperty(CustomPropertySetAttributes.NAME.propertyKey(), "Name");
         values.setProperty(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey(), Boolean.TRUE);
-        usagePointExtension.setCustomPropertySetValue(customPropertySet, values);
-        return usagePointExtension;
-    }
-
-    private Map<RegisteredCustomPropertySet, CustomPropertySetValues> mapToValues(UsagePointCustomPropertySetExtension extension, List<RegisteredCustomPropertySet> properties) {
-        Map<RegisteredCustomPropertySet, CustomPropertySetValues> values = new HashMap<>();
-        for (RegisteredCustomPropertySet property : properties) {
-            values.put(property, extension.getCustomPropertySetValue(property));
-        }
         return values;
     }
 
+    @Test
+    @Transactional
+    public void testNoPropertiesWhenNoMetrologyConfigurtion() {
+        UsagePoint usagePoint = createUsagePoint();
+        grantViewPrivilegesForCurrentUser();
+
+        assertThat(usagePoint.forCustomProperties().getPropertySetsOnMetrologyConfiguration()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testNoPropertiesWhenNoPropertySetsOnMetrologyConfigurtion() {
+        createUsagePoint();
+        createMetrologyConfiguration();
+        linkUsagePointToMetrologyConfiguration();
+        grantViewPrivilegesForCurrentUser();
+
+        assertThat(getUsagePoint().forCustomProperties().getPropertySetsOnMetrologyConfiguration()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testNoPropertiesOnMetrologyConfigurationWhenNoViewPrivilege() {
+        createUsagePoint();
+        createMetrologyConfiguration();
+        linkUsagePointToMetrologyConfiguration();
+        addCustomPropertySetToMetrologyConfiguration();
+
+        List<UsagePointPropertySet> propertySets = getUsagePoint().forCustomProperties().getPropertySetsOnMetrologyConfiguration();
+        assertThat(propertySets).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testGetPropertySetsOnMetrologyConfigurtion() {
+        createUsagePoint();
+        createMetrologyConfiguration();
+        linkUsagePointToMetrologyConfiguration();
+        addCustomPropertySetToMetrologyConfiguration();
+        grantViewPrivilegesForCurrentUser();
+
+        List<UsagePointPropertySet> propertySets = getUsagePoint().forCustomProperties().getPropertySetsOnMetrologyConfiguration();
+        assertThat(propertySets).hasSize(1);
+        assertThat(propertySets.get(0).getId()).isEqualTo(getRegisteredCustomPropertySet().getId());
+    }
+
+    @Test
+    @Transactional
+    public void testNoPropertiesWhenNoPropertySetsOnSeviceCategory() {
+        createUsagePoint();
+        grantViewPrivilegesForCurrentUser();
+
+        List<UsagePointPropertySet> propertySets = getUsagePoint().forCustomProperties().getPropertySetsOnServiceCategory();
+        assertThat(propertySets).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testNoPropertiesOnServiceCategoryWhenNoViewPrivilege() {
+        createUsagePoint();
+        addCustomPropertySetToServiceCategory();
+
+        List<UsagePointPropertySet> propertySets = getUsagePoint().forCustomProperties().getPropertySetsOnServiceCategory();
+        assertThat(propertySets).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testGetPropertySetsOnServiceCategory() {
+        createUsagePoint();
+        addCustomPropertySetToServiceCategory();
+        grantViewPrivilegesForCurrentUser();
+
+        List<UsagePointPropertySet> propertySets = getUsagePoint().forCustomProperties().getPropertySetsOnServiceCategory();
+        assertThat(propertySets).hasSize(1);
+        assertThat(propertySets.get(0).getId()).isEqualTo(getRegisteredCustomPropertySet().getId());
+    }
+
+    @Test
+    @Transactional
+    public void testGetAllPropertySets() {
+        createUsagePoint();
+        addCustomPropertySetToServiceCategory();
+        grantViewPrivilegesForCurrentUser();
+
+        List<UsagePointPropertySet> propertySets = getUsagePoint().forCustomProperties().getAllPropertySets();
+        assertThat(propertySets).hasSize(1);
+        assertThat(propertySets.get(0).getId()).isEqualTo(getRegisteredCustomPropertySet().getId());
+    }
+
+    @Test
+    @Transactional
+    public void testGetPropertySetEmptyValueByDefault() {
+        createUsagePoint();
+        addCustomPropertySetToServiceCategory();
+        grantViewPrivilegesForCurrentUser();
+
+        CustomPropertySetValues values = getUsagePoint().forCustomProperties().getAllPropertySets().get(0).getValues();
+        assertThat(values).isNull();
+    }
+
     @Test(expected = UsagePointCustomPropertySetValuesManageException.class)
     @Transactional
-    public void testSetCustomPropertySetValuesButThereIsNoLinkedCustomPropertySetOnMetrologyConfiguration() {
-        createTestMetrologyConfigurationInstance();
-        createTestUsagePointInstance();
-        linkTestUsagePointToTestMetrologyConfiguration();
+    public void testSetPropertySetValueNoEditPrivilege() {
+        createUsagePoint();
+        addCustomPropertySetToServiceCategory();
+        grantViewPrivilegesForCurrentUser();
+
+        UsagePointVersionedPropertySet versionedPropertySet = (UsagePointVersionedPropertySet) getUsagePoint().forCustomProperties().getAllPropertySets().get(0);
+        versionedPropertySet.setValues(getPropertySetValues()); // assert exception
+    }
+
+    @Test
+    @Transactional
+    public void testSetAndGetPropertySetValue() {
+        createUsagePoint();
+        addCustomPropertySetToServiceCategory();
         grantViewPrivilegesForCurrentUser();
         grantEditPrivilegesForCurrentUser();
 
-        // Store values
-        setCustomPropertySetValues();
-
-        // assert exception
-    }
-
-    @Test(expected = UsagePointCustomPropertySetValuesManageException.class)
-    @Transactional
-    public void testSetCustomPropertySetValuesButThereIsNoLinkedMetrologyConfiguration() {
-        createTestUsagePointInstance();
-        createTestMetrologyConfigurationInstance();
-        addCustomPropertySetToTestMetrologyConfiguration();
-        grantViewPrivilegesForCurrentUser();
-        grantEditPrivilegesForCurrentUser();
-
-        // Store values
-        setCustomPropertySetValues();
-
-        // assert exception
-    }
-
-    @Test(expected = UsagePointCustomPropertySetValuesManageException.class)
-    @Transactional
-    public void testSetCustomPropertySetValuesButUserHasNoEditPrivileges() {
-        createTestUsagePointInstance();
-        createTestMetrologyConfigurationInstance();
-        addCustomPropertySetToTestMetrologyConfiguration();
-        grantViewPrivilegesForCurrentUser();
-
-        // Store values
-        setCustomPropertySetValues();
-
-        // assert exception
-    }
-
-    @Test
-    @Transactional
-    public void testGetCustomPropertySetValuesButThereIsNoLinkedMetrologyConfiguration() {
-        UsagePoint usagePoint = createTestUsagePointInstance();
-        createTestMetrologyConfigurationInstance();
-        addCustomPropertySetToTestMetrologyConfiguration();
-        grantViewPrivilegesForCurrentUser();
-
-        UsagePointCustomPropertySetExtension usagePointExtension = usagePoint.forCustomProperties();
-        Map<RegisteredCustomPropertySet, CustomPropertySetValues> customPropertySetValues = mapToValues(usagePointExtension,
-                usagePointExtension.getCustomPropertySetsOnMetrologyConfiguration());
-
-        assertThat(customPropertySetValues).isEmpty(); // no values and no exception
-    }
-
-    @Test
-    @Transactional
-    public void testGetCustomPropertySetValuesButThereIsNoCustomPropertySetsOnMetrologyConfiguration() {
-        UsagePoint usagePoint = createTestUsagePointInstance();
-        createTestMetrologyConfigurationInstance();
-        linkTestUsagePointToTestMetrologyConfiguration();
-        grantViewPrivilegesForCurrentUser();
-
-        UsagePointCustomPropertySetExtension usagePointExtension = usagePoint.forCustomProperties();
-        Map<RegisteredCustomPropertySet, CustomPropertySetValues> customPropertySetValues = mapToValues(usagePointExtension,
-                usagePointExtension.getCustomPropertySetsOnMetrologyConfiguration());
-
-        assertThat(customPropertySetValues).isEmpty(); // no values and no exception
-    }
-
-    @Test
-    @Transactional
-    public void testGetAndSetCustomPropertySetValuesOnMetrologyConfiguration() {
-        createTestMetrologyConfigurationInstance();
-        addCustomPropertySetToTestMetrologyConfiguration();
-        createTestUsagePointInstance();
-        linkTestUsagePointToTestMetrologyConfiguration();
-        grantViewPrivilegesForCurrentUser();
-        grantEditPrivilegesForCurrentUser();
-
-        // Store values
-        UsagePointCustomPropertySetExtension usagePointExtension = setCustomPropertySetValues();
-
-        // Read values
-        Map<RegisteredCustomPropertySet, CustomPropertySetValues> storedValues = mapToValues(usagePointExtension,
-                usagePointExtension.getCustomPropertySetsOnMetrologyConfiguration());
-
-        assertThat(storedValues.size()).isEqualTo(1);
-        assertThat(storedValues.keySet().iterator().next().getCustomPropertySet().getId()).isEqualTo(customPropertySet.getId());
-        CustomPropertySetValues cpsValues = storedValues.values().iterator().next();
-        assertThat(cpsValues.getProperty(CustomPropertySetAttributes.NAME.propertyKey())).isEqualTo("Name");
-        assertThat(cpsValues.getProperty(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey())).isEqualTo(Boolean.TRUE);
-    }
-
-    @Test
-    @Transactional
-    public void testGetCustomPropertySetsOnServiceCategoryButThereIsNoLinkedCustomPropertySetOnServiceCategory() {
-        // no linked CPS to service category -> empty list
-        getTestServiceCategory();
-        UsagePoint usagePoint = getTestUsagePointInstance();
-        grantViewPrivilegesForCurrentUser();
-
-        UsagePointCustomPropertySetExtension usagePointExtension = usagePoint.forCustomProperties();
-        assertThat(usagePointExtension.getCustomPropertySetsOnServiceCategory()).isEmpty();
-    }
-
-    @Test
-    @Transactional
-    public void testGetCustomPropertySetsOnServiceCategory() {
-        // one linked CPS to service category -> list with one element
-        getTestServiceCategory();
-        UsagePoint usagePoint = getTestUsagePointInstance();
-        addCustomPropertySetToTestServiceCategory();
-        grantViewPrivilegesForCurrentUser();
-
-        UsagePointCustomPropertySetExtension usagePointExtension = usagePoint.forCustomProperties();
-        assertThat(usagePointExtension.getCustomPropertySetsOnServiceCategory()).hasSize(1);
-        assertThat(usagePointExtension.getCustomPropertySetsOnServiceCategory().get(0).getCustomPropertySet().getId())
-                .isEqualTo(customPropertySet.getId());
-    }
-
-    @Test
-    @Transactional
-    public void tesGetCustomPropertySetValuesButUserHasNoViewPrivilege() {
-        // one linked CPS to service category but without view privilege -> empty list
-        getTestServiceCategory();
-        UsagePoint usagePoint = getTestUsagePointInstance();
-        addCustomPropertySetToTestServiceCategory();
-
-        UsagePointCustomPropertySetExtension usagePointExtension = usagePoint.forCustomProperties();
-        List<RegisteredCustomPropertySet> customPropertySets = usagePointExtension.getCustomPropertySetsOnServiceCategory();
-        assertThat(customPropertySets).hasSize(1);
-        CustomPropertySetValues customPropertySetValue = usagePointExtension.getCustomPropertySetValue(customPropertySets.get(0));
-        assertThat(customPropertySetValue).isNotNull();
-        assertThat(customPropertySetValue.isEmpty()).isTrue();
-    }
-
-    @Test
-    @Transactional
-    public void tesGetCustomPropertySetValuesButThereIsNoCustomPropertySetsOnServiceCategory() {
-        // no linked CPS to service category -> empty map
-        getTestServiceCategory();
-        UsagePoint usagePoint = getTestUsagePointInstance();
-
-        UsagePointCustomPropertySetExtension usagePointExtension = usagePoint.forCustomProperties();
-        assertThat(mapToValues(usagePointExtension, usagePointExtension.getCustomPropertySetsOnServiceCategory())).hasSize(0);
-    }
-
-    @Test
-    @Transactional
-    public void tesGetCustomPropertySetValuesAndNoSavedValuesForThatCustomPropertySet() {
-        // one linked CPS to service category without values -> map
-        getTestServiceCategory();
-        UsagePoint usagePoint = getTestUsagePointInstance();
-        addCustomPropertySetToTestServiceCategory();
-        grantViewPrivilegesForCurrentUser();
-
-        UsagePointCustomPropertySetExtension usagePointExtension = usagePoint.forCustomProperties();
-        Map<RegisteredCustomPropertySet, CustomPropertySetValues> customPropertySetValues = mapToValues(usagePointExtension,
-                usagePointExtension.getCustomPropertySetsOnServiceCategory());
-
-        assertThat(customPropertySetValues).hasSize(1);
-        CustomPropertySetValues values = customPropertySetValues.get(getRegisteredCustomPropertySet());
+        UsagePointVersionedPropertySet versionedPropertySet = (UsagePointVersionedPropertySet) getUsagePoint().forCustomProperties().getAllPropertySets().get(0);
+        versionedPropertySet.setValues(getPropertySetValues());
+        CustomPropertySetValues values = versionedPropertySet.getValues();
         assertThat(values).isNotNull();
-        assertThat(values.isEmpty()).isTrue();
-    }
-
-    @Test(expected = UsagePointCustomPropertySetValuesManageException.class)
-    @Transactional
-    public void tesSetCustomPropertySetValuesButThereIsNoCustomPropertySetsOnServiceCategory() {
-        getTestServiceCategory();
-        getTestUsagePointInstance();
-        grantViewPrivilegesForCurrentUser();
-        grantEditPrivilegesForCurrentUser();
-
-        setCustomPropertySetValues();
-
-        // assert exception
+        assertThat(values.getProperty(CustomPropertySetAttributes.NAME.propertyKey())).isEqualTo("Name");
+        assertThat(values.getProperty(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey())).isEqualTo(true);
     }
 
     @Test
     @Transactional
-    public void testGetAndSetServiceCategoryValues() {
-        // one linked CPS to service category values -> map with values
-        getTestServiceCategory();
-        UsagePoint usagePoint = getTestUsagePointInstance();
-        addCustomPropertySetToTestServiceCategory();
+    public void testUpdatePropertySetValue() {
+        createUsagePoint();
+        addCustomPropertySetToServiceCategory();
         grantViewPrivilegesForCurrentUser();
         grantEditPrivilegesForCurrentUser();
 
-        setCustomPropertySetValues();
+        UsagePointVersionedPropertySet versionedPropertySet = (UsagePointVersionedPropertySet) getUsagePoint().forCustomProperties().getAllPropertySets().get(0);
+        CustomPropertySetValues oldValues = getPropertySetValues();
+        versionedPropertySet.setValues(oldValues);
 
-        UsagePointCustomPropertySetExtension usagePointExtension = usagePoint.forCustomProperties();
-        Map<RegisteredCustomPropertySet, CustomPropertySetValues> customPropertySetValues = mapToValues(usagePointExtension,
-                usagePointExtension.getCustomPropertySetsOnServiceCategory());
+        Instant now = inMemoryBootstrapModule.getClock().instant();
+        CustomPropertySetValues values = CustomPropertySetValues.emptyDuring(Interval.of(now, null));
+        values.setProperty(CustomPropertySetAttributes.NAME.propertyKey(), "new");
+        values.setProperty(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey(), false);
+        versionedPropertySet.setVersionValues(now, values);
 
-        assertThat(customPropertySetValues).hasSize(1);
-        CustomPropertySetValues values = customPropertySetValues.get(getRegisteredCustomPropertySet());
+        values = versionedPropertySet.getValues();
         assertThat(values).isNotNull();
-        assertThat(values.getProperty(CustomPropertySetAttributes.NAME.propertyKey())).isNotNull();
-        assertThat(values.getProperty(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey())).isNotNull();
+        assertThat(values.getEffectiveRange().lowerEndpoint()).isEqualTo(now);
+        assertThat(values.getProperty(CustomPropertySetAttributes.NAME.propertyKey())).isEqualTo("new");
+        assertThat(values.getProperty(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey())).isEqualTo(false);
+        assertThat(versionedPropertySet.getAllVersionValues()).hasSize(1);
+    }
+
+    @Test
+    @Transactional
+    public void testCanCreateTwoVersions() {
+        createUsagePoint();
+        addCustomPropertySetToServiceCategory();
+        grantViewPrivilegesForCurrentUser();
+        grantEditPrivilegesForCurrentUser();
+
+        UsagePointVersionedPropertySet versionedPropertySet = (UsagePointVersionedPropertySet) getUsagePoint().forCustomProperties().getAllPropertySets().get(0);
+        Instant now = inMemoryBootstrapModule.getClock().instant();
+        CustomPropertySetValues values = CustomPropertySetValues.emptyDuring(Interval.of(null, now));
+        values.setProperty(CustomPropertySetAttributes.NAME.propertyKey(), "version 1");
+        values.setProperty(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey(), true);
+        versionedPropertySet.setVersionValues(values.getEffectiveRange().upperEndpoint(), values);
+
+        values = CustomPropertySetValues.emptyDuring(Interval.of(now, null));
+        values.setProperty(CustomPropertySetAttributes.NAME.propertyKey(), "version 2");
+        values.setProperty(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey(), false);
+        versionedPropertySet.setVersionValues(values.getEffectiveRange().lowerEndpoint(), values);
+        List<CustomPropertySetValues> allVersionValues = versionedPropertySet.getAllVersionValues();
+
+        assertThat(allVersionValues).hasSize(2);
+        assertThat(allVersionValues.get(0).getProperty(CustomPropertySetAttributes.NAME.propertyKey())).isEqualTo("version 1");
+        assertThat(allVersionValues.get(0).getProperty(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey())).isEqualTo(true);
+        assertThat(allVersionValues.get(1).getProperty(CustomPropertySetAttributes.NAME.propertyKey())).isEqualTo("version 2");
+        assertThat(allVersionValues.get(1).getProperty(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey())).isEqualTo(false);
+    }
+
+    @Test
+    @Transactional
+    public void testCanGetSpecificVersionValues() {
+        createUsagePoint();
+        addCustomPropertySetToServiceCategory();
+        grantViewPrivilegesForCurrentUser();
+        grantEditPrivilegesForCurrentUser();
+
+        UsagePointVersionedPropertySet versionedPropertySet = (UsagePointVersionedPropertySet) getUsagePoint().forCustomProperties().getAllPropertySets().get(0);
+        Instant hourAfter = inMemoryBootstrapModule.getClock().instant().plus(1, ChronoUnit.HOURS);
+        CustomPropertySetValues values = CustomPropertySetValues.emptyDuring(Interval.of(hourAfter, null));
+        values.setProperty(CustomPropertySetAttributes.NAME.propertyKey(), "name");
+        values.setProperty(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey(), true);
+        versionedPropertySet.setVersionValues(values.getEffectiveRange().lowerEndpoint(), values);
+
+        assertThat(versionedPropertySet.getValues()).isNull(); // no active value
+        values = versionedPropertySet.getVersionValues(hourAfter);
+        assertThat(values).isNotNull();
+        assertThat(values.getProperty(CustomPropertySetAttributes.NAME.propertyKey())).isEqualTo("name");
+        assertThat(values.getProperty(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey())).isEqualTo(true);
     }
 }
