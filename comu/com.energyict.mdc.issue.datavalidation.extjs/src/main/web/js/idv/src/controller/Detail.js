@@ -25,7 +25,7 @@ Ext.define('Idv.controller.Detail', {
         },
         {
             ref: 'detailForm',
-            selector: 'data-validation-issue-detail #data-validation-issue-detail-form'
+            selector: 'data-validation-issue-detail data-validation-issue-detail-form'
         },
         {
             ref: 'commentsPanel',
