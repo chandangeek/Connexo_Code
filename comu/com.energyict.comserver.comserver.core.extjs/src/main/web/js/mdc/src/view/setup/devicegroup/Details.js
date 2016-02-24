@@ -15,8 +15,6 @@ Ext.define('Mdc.view.setup.devicegroup.Details', {
     router: null,
     deviceGroupId: null,
 
-
-
     initComponent: function () {
         var me = this;
 
@@ -80,7 +78,7 @@ Ext.define('Mdc.view.setup.devicegroup.Details', {
                     xtype: 'emptygridcontainer',
                     itemId: 'search-preview-container',
                     grid: {
-                        xtype: 'uni-view-search-results',
+                        xtype: 'devicesOfDeviceGroupGrid',
                         service: me.service
                     },
                     emptyComponent: {

@@ -49,6 +49,8 @@ Ext.define('Mdc.view.setup.devicegroup.DevicesOfDeviceGroupGrid', {
         ];
 
         var storeListeners = searchFields.on('load', function (store, items) {
+            me.down('pagingtoolbartop').resetPaging();
+            me.down('pagingtoolbarbottom').resetPaging();
             me.down('uni-search-column-picker').setColumns(items.map(function (field) {
                 return service.createColumnDefinitionFromModel(field)
             }));
@@ -60,9 +62,6 @@ Ext.define('Mdc.view.setup.devicegroup.DevicesOfDeviceGroupGrid', {
         me.on('destroy', function(){
             storeListeners.destroy();
         });
-
-        me.down('pagingtoolbartop').resetPaging();
-        me.down('pagingtoolbarbottom').resetPaging();
     }
 });
 
