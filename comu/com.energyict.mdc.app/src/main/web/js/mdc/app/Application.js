@@ -23,8 +23,8 @@ Ext.define('MdcApp.Application', {
         'Fim.privileges.DataImport',
         'Fwc.privileges.FirmwareCampaign',
         'Bpm.privileges.BpmManagement',
-        'Dbp.privileges.DeviceProcesses',
-        'Scs.privileges.ServiceCall'
+        'Dbp.privileges.DeviceProcesses'
+        //'Scs.privileges.ServiceCall'
     ],
     controllers: [
         'MdcApp.controller.Main'
