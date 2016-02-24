@@ -7,6 +7,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 
@@ -22,6 +23,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Path("/servicecalltypes")
@@ -45,7 +47,10 @@ public class ServiceCallTypeResource {
         Finder<ServiceCallType> serviceCallTypeFinder = serviceCallService.getServiceCallTypes();
 
         List<ServiceCallType> allServiceCallTypes = serviceCallTypeFinder.from(queryParameters).find();
+        Comparator<ServiceCallType> comparator = Comparator.comparing(ServiceCallType::getName);
+        comparator = comparator.thenComparing(ServiceCallType::getVersionName);
         allServiceCallTypes.stream()
+                .sorted(comparator)
                 .forEach(type -> serviceCallTypeInfos.add(new ServiceCallTypeInfo(type, thesaurus)));
 
         return PagedInfoList.fromPagedList("serviceCallTypes", serviceCallTypeInfos, queryParameters);

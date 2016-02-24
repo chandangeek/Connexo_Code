@@ -30,7 +30,7 @@ public class ServiceCallTypeInfo {
         this.status = new IdWithDisplayValueInfo<>(serviceCallType.getStatus().name(), serviceCallType.getStatus().getDisplayName(thesaurus));
         this.logLevel = new IdWithDisplayValueInfo<>(serviceCallType.getLogLevel().name(), serviceCallType.getLogLevel().getDisplayName(thesaurus));
         ServiceCallLifeCycle serviceCallLifeCycle = serviceCallType.getServiceCallLifeCycle();
-        this.serviceCallLifeCycle = new IdWithNameInfo(serviceCallLifeCycle.getId(), serviceCallLifeCycle.getName());
+        this.serviceCallLifeCycle = new IdWithNameInfo(serviceCallLifeCycle.getId(), thesaurus.getString(serviceCallLifeCycle.getName(), serviceCallLifeCycle.getName()));
         customPropertySets = new ArrayList<>();
         serviceCallType.getCustomPropertySets().stream()
                 .forEach(cps -> this.customPropertySets.add(new ServiceCallTypeCustomPropertySetInfo(cps)));
