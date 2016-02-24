@@ -1,16 +1,16 @@
 package com.elster.partners.jbpm.extension;
 
 
-public class TaskBulkRaportInfo {
+public class TaskBulkReportInfo {
 
     public long total;
     public long failed;
 
-    public TaskBulkRaportInfo(){
+    public TaskBulkReportInfo(){
 
     }
 
-    public TaskBulkRaportInfo(long total, long failed){
+    public TaskBulkReportInfo(long total, long failed){
         this.failed = failed;
         this.total = total;
     }

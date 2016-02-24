@@ -691,7 +691,7 @@ public class JbpmTaskResource {
     @POST
     @Produces("application/json")
     @Path("/managetasks")
-    public TaskBulkRaportInfo manageTasks(TaskGroupsInfos taskGroupsInfos, @Context UriInfo uriInfo){
+    public TaskBulkReportInfo manageTasks(TaskGroupsInfos taskGroupsInfos, @Context UriInfo uriInfo){
         long failed = 0;
         long total = 0;
         if (getQueryValue(uriInfo, "assign") != null) {
@@ -771,7 +771,7 @@ public class JbpmTaskResource {
                 }
             }
         }
-        return new TaskBulkRaportInfo(total,failed);
+        return new TaskBulkReportInfo(total,failed);
     }
 
     private boolean assignTaskToUser(String userName, String currentuser, long taskId){
