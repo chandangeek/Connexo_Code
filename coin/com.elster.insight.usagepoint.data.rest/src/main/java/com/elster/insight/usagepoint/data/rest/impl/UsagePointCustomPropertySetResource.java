@@ -57,6 +57,7 @@ public class UsagePointCustomPropertySetResource {
                                                      JsonQueryParameters queryParameters) {
         List<CustomPropertySetInfo> infos = customPropertySetValues
                 .stream()
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .map(rcps -> customPropertySetInfoFactory.getFullInfo(rcps, usagePointExtension.getCustomPropertySetValue(rcps)))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("customPropertySets", infos, queryParameters);
