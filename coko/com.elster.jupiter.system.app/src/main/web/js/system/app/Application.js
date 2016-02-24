@@ -10,7 +10,8 @@ Ext.define('SystemApp.Application', {
         'Tme.privileges.Period',
         'Fim.privileges.DataImport',
         'Cps.privileges.CustomAttributeSets',
-        'Mtr.privileges.ReadingTypes'
+        'Mtr.privileges.ReadingTypes',
+        'Sct.privileges.ServiceCallType'
     ],
 
     controllers: [
