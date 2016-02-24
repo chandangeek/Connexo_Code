@@ -95,6 +95,11 @@ public class JbpmTaskResource {
                                     predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Obsolete));
                                 }
                             }
+                        }else{
+                            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.InProgress));
+                            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Created));
+                            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Ready));
+                            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Reserved));
                         }
                         if (theKey.equals("user")) {
                             for (int i = 0; i < filterProperties.get("user").size(); i++) {
