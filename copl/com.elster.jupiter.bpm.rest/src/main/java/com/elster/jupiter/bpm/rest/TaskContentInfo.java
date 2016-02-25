@@ -45,15 +45,15 @@ public class TaskContentInfo {
                             required = false;
                         }
                     }
-                    if(!status.equals("null")){
+                    if(!status.equals("null")) {
                         if (!status.equals("InProgress")) {
                             isReadOnly = true;
-                        }
-                    }else if(prop.getString("name").equals("readonly")){
-                        if(prop.getString("value").equals("true")){
-                            isReadOnly = true;
-                        }else{
-                            isReadOnly = false;
+                        } else if (prop.getString("name").equals("readonly")) {
+                            if (prop.getString("value").equals("true")) {
+                                isReadOnly = true;
+                            } else {
+                                isReadOnly = false;
+                            }
                         }
                     }
                     if(prop.getString("name").equals("inputBinding")){
