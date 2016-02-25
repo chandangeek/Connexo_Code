@@ -45,14 +45,17 @@ public class UsagePointCustomPropertySetResource {
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
     private final ResourceHelper resourceHelper;
     private final CustomPropertySetService customPropertySetService;
+    private final UsagePointInfoFactory usagePointInfoFactory;
 
     @Inject
     public UsagePointCustomPropertySetResource(CustomPropertySetInfoFactory customPropertySetInfoFactory,
                                                ResourceHelper resourceHelper,
-                                               CustomPropertySetService customPropertySetService) {
+                                               CustomPropertySetService customPropertySetService,
+                                               UsagePointInfoFactory usagePointInfoFactory) {
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
         this.resourceHelper = resourceHelper;
         this.customPropertySetService = customPropertySetService;
+        this.usagePointInfoFactory = usagePointInfoFactory;
     }
 
     private PagedInfoList getCustomPropertySetValues(List<UsagePointPropertySet> customPropertySetValues,
@@ -60,7 +63,11 @@ public class UsagePointCustomPropertySetResource {
         List<CustomPropertySetInfo> infos = customPropertySetValues
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
-                .map(rcps -> customPropertySetInfoFactory.getFullInfo(rcps, rcps.getValues()))
+                .map(rcps -> {
+                    CustomPropertySetInfo info = customPropertySetInfoFactory.getFullInfo(rcps, rcps.getValues());
+                    info.parent = usagePointInfoFactory.from(rcps.getUsagePoint());
+                    return info;
+                })
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("customPropertySets", infos, queryParameters);
     }
@@ -149,7 +156,9 @@ public class UsagePointCustomPropertySetResource {
                 .findUsagePointByMrIdOrThrowException(usagePointMrid)
                 .forCustomProperties()
                 .getPropertySet(rcpsId);
-        return customPropertySetInfoFactory.getFullInfo(propertySet, propertySet.getValues());
+        CustomPropertySetInfo info = customPropertySetInfoFactory.getFullInfo(propertySet, propertySet.getValues());
+        info.parent = usagePointInfoFactory.from(propertySet.getUsagePoint());
+        return info;
     }
 
     @PUT
@@ -231,7 +240,7 @@ public class UsagePointCustomPropertySetResource {
         }
         CustomPropertySetValues versionValues = customPropertySetInfoFactory
                 .getCustomPropertySetValues(info, versionedPropertySet.getCustomPropertySet().getPropertySpecs());
-        versionedPropertySet.setValues(versionValues);
+        versionedPropertySet.setVersionValues(null, versionValues);
         return Response.ok().build();
     }
 
