@@ -11,7 +11,6 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.Status;
 
 import javax.inject.Inject;
-import javax.validation.Valid;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,6 @@ public class ServiceCallTypeImpl implements ServiceCallType {
     private LogLevel logLevel;
     private Reference<ServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
     private DefaultState currentLifeCycleState;
-    @Valid
     private List<ServiceCallTypeCustomPropertySetUsage> customPropertySets = new ArrayList<>();
     @SuppressWarnings("unused")
     private Instant createTime;

@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.servicecall.InvalidPropertySetDomainTypeException;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
@@ -212,6 +213,10 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
 
         @Override
         public ServiceCallTypeBuilder customPropertySet(RegisteredCustomPropertySet customPropertySet) {
+            Objects.requireNonNull(customPropertySet);
+            if (!customPropertySet.getCustomPropertySet().getDomainClass().isAssignableFrom(ServiceCallType.class)) {
+                throw new InvalidPropertySetDomainTypeException(thesaurus, MessageSeeds.INVALID_CPS_TYPE, customPropertySet);
+            }
             this.toBeRegisteredCustomPropertySets.add(customPropertySet);
             return this;
         }

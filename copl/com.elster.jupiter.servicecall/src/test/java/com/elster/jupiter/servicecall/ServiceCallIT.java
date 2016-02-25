@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
@@ -23,6 +24,7 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.impl.FakeTypeOneCustomPropertySet;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.servicecall.impl.TranslationKeys;
+import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeDomainExtension;
 import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeOneCustomPropertySet;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.Transaction;
@@ -40,7 +42,6 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
-import javax.validation.ValidationException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -75,6 +76,8 @@ public class ServiceCallIT {
 
     @Rule
     public TestRule expectedRule = new ExpectedExceptionRule();
+    @Rule
+    public TestRule expectedValidationRule = new ExpectedConstraintViolationRule();
 
     @Mock
     private UserService userService;
@@ -217,8 +220,11 @@ public class ServiceCallIT {
     @Test
     public void testCreateServiceCallTypeWithCustomPropertySet() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("CustomTest", "CustomVersion").
-                    customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).get(0)).add();
+            RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySet(ServiceCallTypeDomainExtension.class
+                    .getName()).get();
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("CustomTest", "CustomVersion")
+                    .customPropertySet(customPropertySet)
+                    .add();
 
             List<ServiceCallType> serviceCallTypes = serviceCallService.getServiceCallTypes().find();
             assertThat(serviceCallTypes).hasSize(1);
@@ -229,19 +235,15 @@ public class ServiceCallIT {
     }
 
     @Test
-    @Expected(value = ValidationException.class)
+    @Expected(value = InvalidPropertySetDomainTypeException.class)
     public void testCreateServiceCallTypeWithIllegalCustomPropertySet() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.servicecall.impl.ServiceCallLifeCycleDomainExtension")
+            RegisteredCustomPropertySet wrongType = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.servicecall.impl.ServiceCallLifeCycleDomainExtension")
                     .get();
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("CustomTest", "CustomVersion").
-                    customPropertySet(customPropertySet).add();
-
-            List<ServiceCallType> serviceCallTypes = serviceCallService.getServiceCallTypes().find();
-            assertThat(serviceCallTypes).hasSize(1);
-            assertThat(serviceCallTypes.get(0).getName()).isEqualTo("CustomTest");
-            assertThat(serviceCallTypes.get(0).getVersionName()).isEqualTo("CustomVersion");
-            assertThat(serviceCallTypes.get(0).getCustomPropertySets()).hasSize(1);
+            ServiceCallType serviceCallType = serviceCallService
+                    .createServiceCallType("CustomTest", "CustomVersion")
+                    .customPropertySet(wrongType)
+                    .add();
         }
     }
 
