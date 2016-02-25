@@ -58,6 +58,73 @@ public class DeviceLifeCycleResourceTest extends DeviceLifeCycleConfigApplicatio
         assertThat(model.<List>get("$.deviceLifeCycles[0].deviceTypes")).hasSize(1);
         assertThat(model.<Number>get("$.deviceLifeCycles[0].deviceTypes[0].id")).isEqualTo(1);
         assertThat(model.<String>get("$.deviceLifeCycles[0].deviceTypes[0].name")).isEqualTo("Device Type");
+        assertThat(model.<Boolean>get("$.deviceLifeCycles[0].containsCommunicationActions")).isEqualTo(true);
+    }
+
+    @Test
+    public void testDeviceLifeCycleWithoutCommunicationRelatedActions() {
+        String deviceLifecycleName = "StandardWithoutCommunication";
+        DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, deviceLifecycleName);
+        Finder<DeviceLifeCycle> finder = mock(Finder.class);
+        List<AuthorizedAction> authorizedActions = mockActionsWithoutTheCommunicationCategory();
+        List<State> states = mockDefaultStates();
+        FiniteStateMachine finiteStateMachine = mock(FiniteStateMachine.class);
+        when(finiteStateMachine.getStates()).thenReturn(states);
+        when(dlc.getFiniteStateMachine()).thenReturn(finiteStateMachine);
+        when(dlc.getAuthorizedActions()).thenReturn(authorizedActions);
+        when(finder.from(Matchers.any(JsonQueryParameters.class))).thenReturn(finder);
+        when(finder.stream()).thenReturn(Collections.singletonList(dlc).stream());
+        when(deviceLifeCycleConfigurationService.findAllDeviceLifeCycles()).thenReturn(finder);
+
+        String stringResponse = target("/devicelifecycles").request().get(String.class);
+        JsonModel model = JsonModel.create(stringResponse);
+
+        assertThat(model.<Number>get("$.total")).isEqualTo(1);
+        assertThat(model.<Boolean>get("$.deviceLifeCycles[0].containsCommunicationActions")).isEqualTo(false);
+    }
+
+    @Test
+    public void testDeviceLifeCycleWithCommunicationRelatedActionsInMicroActions() {
+        String deviceLifecycleName = "StandardWithCommunicationInMicroActions";
+        DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, deviceLifecycleName);
+        Finder<DeviceLifeCycle> finder = mock(Finder.class);
+        List<AuthorizedAction> authorizedActions = mockActionsWithCommunicationRelatedActionsInMicroActions();
+        List<State> states = mockDefaultStates();
+        FiniteStateMachine finiteStateMachine = mock(FiniteStateMachine.class);
+        when(finiteStateMachine.getStates()).thenReturn(states);
+        when(dlc.getFiniteStateMachine()).thenReturn(finiteStateMachine);
+        when(dlc.getAuthorizedActions()).thenReturn(authorizedActions);
+        when(finder.from(Matchers.any(JsonQueryParameters.class))).thenReturn(finder);
+        when(finder.stream()).thenReturn(Collections.singletonList(dlc).stream());
+        when(deviceLifeCycleConfigurationService.findAllDeviceLifeCycles()).thenReturn(finder);
+
+        String stringResponse = target("/devicelifecycles").request().get(String.class);
+        JsonModel model = JsonModel.create(stringResponse);
+
+        assertThat(model.<Number>get("$.total")).isEqualTo(1);
+        assertThat(model.<Boolean>get("$.deviceLifeCycles[0].containsCommunicationActions")).isEqualTo(true);
+    }
+
+    @Test
+    public void testDeviceLifeCycleWithCommunicationRelatedActionsInMicroChecks() {
+        String deviceLifecycleName = "StandardWithCommunicationInMicroChecks";
+        DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, deviceLifecycleName);
+        Finder<DeviceLifeCycle> finder = mock(Finder.class);
+        List<AuthorizedAction> authorizedActions = mockActionsWithCommunicationRelatedActionsInMicroChecks();
+        List<State> states = mockDefaultStates();
+        FiniteStateMachine finiteStateMachine = mock(FiniteStateMachine.class);
+        when(finiteStateMachine.getStates()).thenReturn(states);
+        when(dlc.getFiniteStateMachine()).thenReturn(finiteStateMachine);
+        when(dlc.getAuthorizedActions()).thenReturn(authorizedActions);
+        when(finder.from(Matchers.any(JsonQueryParameters.class))).thenReturn(finder);
+        when(finder.stream()).thenReturn(Collections.singletonList(dlc).stream());
+        when(deviceLifeCycleConfigurationService.findAllDeviceLifeCycles()).thenReturn(finder);
+
+        String stringResponse = target("/devicelifecycles").request().get(String.class);
+        JsonModel model = JsonModel.create(stringResponse);
+
+        assertThat(model.<Number>get("$.total")).isEqualTo(1);
+        assertThat(model.<Boolean>get("$.deviceLifeCycles[0].containsCommunicationActions")).isEqualTo(true);
     }
 
     @Test
