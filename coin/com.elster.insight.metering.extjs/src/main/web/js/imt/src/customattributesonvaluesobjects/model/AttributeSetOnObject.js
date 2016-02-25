@@ -12,8 +12,8 @@ Ext.define('Imt.customattributesonvaluesobjects.model.AttributeSetOnObject', {
         {name: 'isEditable', type: 'boolean'},
         {name: 'isVersioned', type: 'boolean'},
         {name: 'isActive', type: 'boolean'},
-        {name: 'startTime', dateFormat: 'time', type: 'date'},
-        {name: 'endTime', dateFormat: 'time', type: 'date'},
+        {name: 'startTime', type: 'auto', defaultValue: null},
+        {name: 'endTime', type: 'auto', defaultValue: null},
         {name: 'versionId', type: 'integer'}
     ],
 

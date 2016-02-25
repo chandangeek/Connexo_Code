@@ -11,6 +11,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'name', type: 'string'},
         {name: 'installationTime', type: 'int', defaultValue: null, useNull: true},
         {name: 'location', type: 'string'},
+        {name: 'version', type: 'int'},
         {
             name: 'typeOfUsagePoint',
             persist: false,
