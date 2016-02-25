@@ -9,6 +9,7 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,6 +32,17 @@ public class PropertyUtils {
                 .stream()
                 .map(propertySpec -> this.createPropertyInfo(propertySpec, values))
                 .collect(Collectors.toList());
+    }
+
+    public Map<String, Object> convertPropertyInfosToProperties(List<PropertySpec> propertySpecs, List<PropertyInfo> properties) {
+        Map<String, Object> propertyValues = new LinkedHashMap<>();
+        for (PropertySpec propertySpec : propertySpecs) {
+            Object value = findPropertyValue(propertySpec, properties);
+            if (value != null) {
+                propertyValues.put(propertySpec.getName(), value);
+            }
+        }
+        return propertyValues;
     }
 
     private PropertyInfo createPropertyInfo(PropertySpec propertySpec, Map<String, Object> values) {

@@ -7,6 +7,7 @@ import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -418,6 +419,10 @@ public class BpmResource {
     public Response activateProcess(ProcessDefinitionInfo info) {
         List<Errors> err = new ArrayList<>();
 
+        Optional<ProcessAssociationProvider> foundProvider = bpmService.getProcessAssociationProvider(info.associatedTo);
+        List<PropertySpec> propertySpecs = foundProvider.isPresent() ? foundProvider.get()
+                .getPropertySpecs() : Collections.<PropertySpec>emptyList();
+
         BpmProcessDefinition process;
         Optional<BpmProcessDefinition> foundProcess = bpmService.getBpmProcessDefinition(info.name, info.version);
         if (!foundProcess.isPresent()) {
@@ -426,13 +431,13 @@ public class BpmResource {
                     .setAssociation(info.associatedTo)
                     .setVersion(info.version)
                     .setStatus(info.active)
-                    .setProperties(info.properties);
+                    .setProperties(propertyUtils.convertPropertyInfosToProperties(propertySpecs, info.properties));
             process = processBuilder.create();
         } else {
             process = foundProcess.get();
             process.setAssociation(info.associatedTo);
             process.setStatus(info.active);
-            process.setProperties(info.properties);
+            process.setProperties(propertyUtils.convertPropertyInfosToProperties(propertySpecs, info.properties));
         }
         /*if (provider.isPresent()) {
             //TO DO: rename properties to associationData
@@ -488,8 +493,8 @@ public class BpmResource {
                 List<Group> groups = this.userService.getGroups();
                 ProcessDefinitionInfo processDefinitionInfo = new ProcessDefinitionInfo(bpmProcessDefinition.get(), groups);
                 bpmProcessDefinition.get().getAssociationProvider()
-                        .ifPresent(provider -> processDefinitionInfo.setPropertySpecs(propertyUtils.convertPropertySpecsToPropertyInfos(provider
-                                .getPropertySpecs())));
+                        .ifPresent(provider -> processDefinitionInfo.setProperties(propertyUtils.convertPropertySpecsToPropertyInfos(provider
+                                .getPropertySpecs(), bpmProcessDefinition.get().getProperties())));
 
                 return processDefinitionInfo;
             }else{
@@ -500,7 +505,7 @@ public class BpmResource {
                 if (queryParameters.get("association") != null) {
                     String association = queryParameters.get("association").get(0);
                     bpmService.getProcessAssociationProvider(association)
-                            .ifPresent(provider -> processDefinitionInfo.setPropertySpecs(propertyUtils.convertPropertySpecsToPropertyInfos(provider
+                            .ifPresent(provider -> processDefinitionInfo.setProperties(propertyUtils.convertPropertySpecsToPropertyInfos(provider
                                     .getPropertySpecs())));
                 }
 

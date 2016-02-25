@@ -2,7 +2,6 @@ package com.elster.jupiter.bpm.rest;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.security.Privileges;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.users.Group;
 import org.json.JSONException;
@@ -10,7 +9,6 @@ import org.json.JSONObject;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ProcessDefinitionInfo {
@@ -21,8 +19,7 @@ public class ProcessDefinitionInfo {
     public String associatedTo;
     public String deploymentId;
     public List<ProcessesPrivilegesInfo> privileges;
-    public Map<String, Object> properties;
-    public List<PropertyInfo> propertySpecs = Collections.emptyList();
+    public List<PropertyInfo> properties = Collections.emptyList();
 
     public ProcessDefinitionInfo(){
 
@@ -60,10 +57,10 @@ public class ProcessDefinitionInfo {
         privileges = bpmProcessDefinition.getPrivileges().stream()
                 .map(s -> new ProcessesPrivilegesInfo(s.getPrivilegeName(), Privileges.getDescriptionForKey(s.getPrivilegeName()), s.getApplication(), groups))
                 .collect(Collectors.toList());
-        properties = bpmProcessDefinition.getProperties();
+        //properties = bpmProcessDefinition.getProperties();
     }
 
-    public void setPropertySpecs(List<PropertyInfo> propertySpecs) {
-        this.propertySpecs = propertySpecs;
+    public void setProperties(List<PropertyInfo> properties) {
+        this.properties = properties;
     }
 }
