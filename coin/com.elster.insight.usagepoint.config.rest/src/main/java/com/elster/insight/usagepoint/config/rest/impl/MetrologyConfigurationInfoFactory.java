@@ -25,7 +25,7 @@ public class MetrologyConfigurationInfoFactory {
         info.customPropertySets = meterConfiguration.getCustomPropertySets()
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
-                .map(this.customPropertySetInfoFactory::from)
+                .map(this.customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
                 .collect(Collectors.toList());
         return info;
     }
