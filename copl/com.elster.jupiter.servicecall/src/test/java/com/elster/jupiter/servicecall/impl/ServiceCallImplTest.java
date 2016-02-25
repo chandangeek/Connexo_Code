@@ -6,6 +6,7 @@ import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.util.json.JsonService;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -39,6 +40,10 @@ public class ServiceCallImplTest {
     private CustomPropertySetService customPropertySetService;
     @Mock
     private IServiceCallLifeCycle serviceCallLifeCycle;
+    @Mock
+    private IServiceCallService serviceCallService;
+    @Mock
+    private JsonService jsonService;
     @Mock
     private State state;
 

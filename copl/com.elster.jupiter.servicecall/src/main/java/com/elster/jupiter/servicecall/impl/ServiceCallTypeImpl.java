@@ -8,9 +8,6 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
-import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.Status;
 
 import javax.inject.Inject;
@@ -46,10 +43,10 @@ public class ServiceCallTypeImpl implements IServiceCallType {
 
 
     private final DataModel dataModel;
-    private final ServiceCallService serviceCallService;
+    private final IServiceCallService serviceCallService;
 
     @Inject
-    public ServiceCallTypeImpl(DataModel dataModel, ServiceCallService serviceCallService) {
+    public ServiceCallTypeImpl(DataModel dataModel, IServiceCallService serviceCallService) {
         this.dataModel = dataModel;
         this.serviceCallService = serviceCallService;
         this.status = Status.ACTIVE;

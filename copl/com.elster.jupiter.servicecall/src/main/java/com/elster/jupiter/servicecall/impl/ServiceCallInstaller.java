@@ -7,7 +7,6 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.servicecall.ServiceCallService;
 
 import javax.inject.Inject;
 import java.util.Map;
@@ -23,12 +22,12 @@ public class ServiceCallInstaller {
     private final Logger logger = Logger.getLogger(ServiceCallInstaller.class.getName());
 
     private final FiniteStateMachineService finiteStateMachineService;
-    private final ServiceCallService serviceCallService;
+    private final IServiceCallService serviceCallService;
     private final DataModel dataModel;
     private final MessageService messageService;
 
     @Inject
-    ServiceCallInstaller(FiniteStateMachineService finiteStateMachineService, ServiceCallService serviceCallService, DataModel dataModel, MessageService messageService) {
+    ServiceCallInstaller(FiniteStateMachineService finiteStateMachineService, IServiceCallService serviceCallService, DataModel dataModel, MessageService messageService) {
         this.finiteStateMachineService = finiteStateMachineService;
         this.serviceCallService = serviceCallService;
         this.dataModel = dataModel;

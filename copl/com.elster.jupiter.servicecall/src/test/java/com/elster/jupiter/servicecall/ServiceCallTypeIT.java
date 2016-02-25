@@ -149,7 +149,8 @@ public class ServiceCallTypeIT {
     @Test
     public void testInitServiceCallCreatesDefaultFSM() {
         try (TransactionContext context = transactionService.getContext()) {
-            Optional<ServiceCallLifeCycle> serviceCallLifeCycle = serviceCallService.getServiceCallLifeCycle(TranslationKeys.DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME.getKey());
+            Optional<ServiceCallLifeCycle> serviceCallLifeCycle = serviceCallService.getServiceCallLifeCycle(TranslationKeys.DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME
+                    .getKey());
             assertThat(serviceCallLifeCycle).isPresent();
         }
     }
@@ -175,15 +176,24 @@ public class ServiceCallTypeIT {
     @Test
     public void testCanCreateDuplicateServiceCallTypeWithName() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            serviceCallService.createServiceCallType("primer", "v1").logLevel(LogLevel.INFO).create();
-            serviceCallService.createServiceCallType("primer", "v2").logLevel(LogLevel.INFO).create();
+            serviceCallService.createServiceCallType("primer", "v1")
+                    .handler("someHandler")
+                    .logLevel(LogLevel.INFO)
+                    .create();
+            serviceCallService.createServiceCallType("primer", "v2")
+                    .handler("someHandler")
+                    .logLevel(LogLevel.INFO)
+                    .create();
         }
     }
 
     @Test
     public void testCreateServiceCallTypeWithCustomLogLevel() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").logLevel(LogLevel.INFO).create();
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
+                    .handler("someHandler")
+                    .logLevel(LogLevel.INFO)
+                    .create();
 
             List<ServiceCallType> serviceCallTypes = serviceCallService.getServiceCallTypes().find();
             assertThat(serviceCallTypes).hasSize(1);
@@ -198,7 +208,9 @@ public class ServiceCallTypeIT {
     @Test
     public void testCreateServiceCallTypeWithDefaultLogLevel() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").create();
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
+                    .handler("someHandler")
+                    .create();
 
             List<ServiceCallType> serviceCallTypes = serviceCallService.getServiceCallTypes().find();
             assertThat(serviceCallTypes).hasSize(1);
@@ -212,8 +224,10 @@ public class ServiceCallTypeIT {
     @Test
     public void testCreateServiceCallTypeWithCustomPropertySet() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("CustomTest", "CustomVersion").
-                    customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCall.class).get(0)).create();
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("CustomTest", "CustomVersion")
+                    .handler("someHandler")
+                    .customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCall.class).get(0))
+                    .create();
 
             List<ServiceCallType> serviceCallTypes = serviceCallService.getServiceCallTypes().find();
             assertThat(serviceCallTypes).hasSize(1);
@@ -226,7 +240,9 @@ public class ServiceCallTypeIT {
     @Test
     public void testUpdateServiceCallTypeLogLevel() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            serviceCallService.createServiceCallType("primer", "v1").create();
+            serviceCallService.createServiceCallType("primer", "v1")
+                    .handler("someHandler")
+                    .create();
             Optional<ServiceCallType> serviceCallTypeReloaded = serviceCallService.findServiceCallType("primer", "v1");
             assertThat(serviceCallTypeReloaded.get().getLogLevel()).isEqualTo(LogLevel.WARNING);
             serviceCallTypeReloaded.get().setLogLevel(LogLevel.SEVERE);
@@ -241,7 +257,9 @@ public class ServiceCallTypeIT {
     @Test
     public void testLockServiceCallType() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").create();
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
+                    .handler("someHandler")
+                    .create();
             Optional<ServiceCallType> serviceCallTypeReloaded = serviceCallService.findAndLockServiceCallType(serviceCallType
                     .getId(), serviceCallType.getVersion());
             assertThat(serviceCallTypeReloaded.isPresent()).isTrue();
@@ -251,7 +269,9 @@ public class ServiceCallTypeIT {
     @Test
     public void testLockServiceCallTypeIncorrectVersion() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").create();
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
+                    .handler("someHandler")
+                    .create();
             Optional<ServiceCallType> serviceCallTypeReloaded = serviceCallService.findAndLockServiceCallType(serviceCallType
                     .getId(), serviceCallType.getVersion() - 1);
             assertThat(serviceCallTypeReloaded).isEmpty();

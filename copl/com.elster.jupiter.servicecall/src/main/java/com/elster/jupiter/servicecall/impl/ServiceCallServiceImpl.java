@@ -72,13 +72,15 @@ public class ServiceCallServiceImpl implements MessageSeedProvider, TranslationK
     }
 
     @Inject
-    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, CustomPropertySetService customPropertySetService) {
-        this.setFiniteStateMachineService(finiteStateMachineService);
-        this.setOrmService(ormService);
-        this.setNlsService(nlsService);
+    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, CustomPropertySetService customPropertySetService, MessageService messageService, JsonService jsonService) {
+        setFiniteStateMachineService(finiteStateMachineService);
+        setOrmService(ormService);
+        setNlsService(nlsService);
+        setMessageService(messageService);
+        setJsonService(jsonService);
         setCustomPropertySetService(customPropertySetService);
         activate();
-        this.install();
+        install();
     }
 
     @Reference
@@ -186,6 +188,8 @@ public class ServiceCallServiceImpl implements MessageSeedProvider, TranslationK
                 bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(IServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
+                bind(JsonService.class).toInstance(jsonService);
+                bind(MessageService.class).toInstance(messageService);
             }
         };
     }
