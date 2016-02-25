@@ -33,7 +33,7 @@ public class ConnexoFactsWebServiceManager {
     }
 
     Optional<String> getUser(String username)  {
-
+        System.out.println("YFN: Get user at " + this.protocol + "://" + this.host + ":" + this.port + this.contextPath + "/services/AdministrationService");
         AdministrationServiceResponse rs = null;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
         AdministrationServiceService ts = new AdministrationServiceServiceLocator(this.host, this.port, this.contextPath + "/services/AdministrationService", this.protocol.equals("https"));
@@ -80,7 +80,7 @@ public class ConnexoFactsWebServiceManager {
     }
 
     Optional<String> createUser(String username)  {
-
+        System.out.println("YFN: Create user at " + this.protocol + "://" + this.host + ":" + this.port + this.contextPath + "/services/AdministrationService");
         AdministrationServiceResponse rs = null;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
         AdministrationServiceService ts = new AdministrationServiceServiceLocator(this.host, this.port, this.contextPath + "/services/AdministrationService", this.protocol.equals("https"));
@@ -132,7 +132,7 @@ public class ConnexoFactsWebServiceManager {
     }
 
     Optional<String> updateUser(String username)  {
-
+        System.out.println("YFN: Update user at " + this.protocol + "://" + this.host + ":" + this.port + this.contextPath + "/services/AdministrationService");
         AdministrationServiceResponse rs = null;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
         AdministrationServiceService ts = new AdministrationServiceServiceLocator(this.host, this.port, this.contextPath + "/services/AdministrationService", this.protocol.equals("https"));
@@ -175,7 +175,7 @@ public class ConnexoFactsWebServiceManager {
     }
 
     Optional<String> login(String username)  {
-
+        System.out.println("YFN: Login at " + this.protocol + "://" + this.host + ":" + this.port + this.contextPath + "/services/AdministrationService");
         AdministrationServiceResponse rs = null;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
         AdministrationServiceService ts = new AdministrationServiceServiceLocator(this.host, this.port, this.contextPath + "/services/AdministrationService", this.protocol.equals("https"));
