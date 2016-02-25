@@ -17,6 +17,9 @@ public class UpdateDeviceIpAddressEvent extends AbstractCollectedDataProcessingE
 
     public UpdateDeviceIpAddressEvent(ServiceProvider serviceProvider, DeviceIdentifier deviceIdentifier) {
         super(serviceProvider);
+        if (deviceIdentifier == null){
+            throw new IllegalArgumentException("Device identifier cannot be null");
+        }
         this.deviceIdentifier = deviceIdentifier;
     }
 

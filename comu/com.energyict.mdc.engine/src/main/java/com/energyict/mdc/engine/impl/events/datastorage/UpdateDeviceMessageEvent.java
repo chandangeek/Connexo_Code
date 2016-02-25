@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.events.datastorage;
 import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import org.json.JSONException;
 import org.json.JSONWriter;
@@ -39,7 +40,10 @@ public class UpdateDeviceMessageEvent extends AbstractCollectedDataProcessingEve
         writer.key("updateDeviceMessage");
         writer.object();
         if (messageIdentifier != null) {
-            writer.key("deviceIdentifier").value(messageIdentifier.getDeviceIdentifier());
+            DeviceMessage message = messageIdentifier.getDeviceMessage();
+            if (message !=  null) {
+                writer.key("deviceMessageId").value(message.getId());
+            }
         }
         if (deviceMessageStatus != null) {
             writer.key("deviceMessageStatus").value(deviceMessageStatus);

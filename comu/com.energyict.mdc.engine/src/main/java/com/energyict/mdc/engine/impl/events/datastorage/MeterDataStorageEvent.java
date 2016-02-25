@@ -26,6 +26,9 @@ public class MeterDataStorageEvent extends AbstractCollectedDataProcessingEventI
 
     public MeterDataStorageEvent(ServiceProvider serviceProvider, MeterDataStoreCommandImpl command) {
         super(serviceProvider);
+        if (command == null){
+            throw new IllegalArgumentException("Command cannot be null.");
+        }
         this.command = command;
     }
 
@@ -40,12 +43,16 @@ public class MeterDataStorageEvent extends AbstractCollectedDataProcessingEventI
             writer.key("meterReadings");
             writer.array();
             for(Pair<DeviceIdentifier<Device>, MeterReadingImpl> each: command.getMeterReadings().values()){
-                writer.object();
-                writer.key("deviceIdentifier").value(each.getFirst().toString());
-                writer.key("endDeviceEvents").value(each.getLast().getEvents().size());
-                writer.key("readings").value(each.getLast().getReadings().size());
-                writer.key("intervalBlocks").value(each.getLast().getIntervalBlocks().size());
-                writer.endObject();
+                DeviceIdentifier identifier = each.getFirst();
+                MeterReadingImpl meterReading = each.getLast();
+                if (meterReading != null) {
+                    writer.object();
+                    writer.key("deviceIdentifier").value(identifier.toString());
+                    writer.key("endDeviceEvents").value(meterReading.getEvents() != null ? meterReading.getEvents().size() : 0);
+                    writer.key("readings").value(meterReading.getReadings() != null ? meterReading.getReadings().size() : 0);
+                    writer.key("intervalBlocks").value(meterReading.getIntervalBlocks() != null ? meterReading.getIntervalBlocks().size() : 0);
+                    writer.endObject();
+                }
             }
             writer.endArray();
         }

@@ -20,6 +20,9 @@ public class StoreConfigurationEvent extends AbstractCollectedDataProcessingEven
 
     public StoreConfigurationEvent(AbstractComServerEventImpl.ServiceProvider serviceProvider, DeviceIdentifier deviceIdentifier) {
         super(serviceProvider);
+        if (deviceIdentifier == null){
+            throw new IllegalArgumentException("DeviceIdentifier cannot be null");
+        }
         this.deviceIdentifier = deviceIdentifier;
     }
 

@@ -240,7 +240,11 @@ public class DeviceCommandImplTest {
 
     @Test
     public void ExecutingStoreConfigurationUserFilePublishesEvent(){
+        DeviceIdentifier identifier = mock(DeviceIdentifier.class);
+        when(identifier.toString()).thenReturn("My device identifier");
+
         DeviceUserFileConfigurationInformation userFileConfigurationInformation = mock(DeviceUserFileConfigurationInformation.class);
+        when(userFileConfigurationInformation.getDeviceIdentifier()).thenReturn(identifier);
 
         StoreConfigurationUserFile storeConfigurationUserFile = new StoreConfigurationUserFile( userFileConfigurationInformation,comTaskExecution, serviceProvider);
 
