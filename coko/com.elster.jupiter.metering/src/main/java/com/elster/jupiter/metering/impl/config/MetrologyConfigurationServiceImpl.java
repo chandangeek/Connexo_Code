@@ -6,6 +6,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.impl.DefaultTranslationKey;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
@@ -18,6 +19,9 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import org.osgi.service.component.annotations.Component;
@@ -81,11 +85,11 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
         resources.add(
                 userService.createModuleResourceWithPrivileges(
                         getModuleName(),
-                        Privileges.RESOURCE_METROLOGY_CONFIG.getKey(),
-                        Privileges.RESOURCE_METROLOGY_CONFIGURATION_DESCRIPTION.getKey(),
+                        DefaultTranslationKey.RESOURCE_METROLOGY_CONFIGURATION.getKey(),
+                        DefaultTranslationKey.RESOURCE_METROLOGY_CONFIGURATION_DESCRIPTION.getKey(),
                         Arrays.asList(
-                                Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION,
-                                Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION)));
+                                Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION,
+                                Privileges.Constants.VIEW_METROLOGY_CONFIGURATION)));
         return resources;
     }
 
@@ -141,6 +145,11 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     }
 
     @Override
+    public Optional<MetrologyConfiguration> findAndLockMetrologyConfiguration(long id, long version) {
+        return this.getDataModel().mapper(MetrologyConfiguration.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<MetrologyConfiguration> findMetrologyConfiguration(String name) {
         return this.getDataModel().mapper(MetrologyConfiguration.class).getUnique("name", name);
     }
@@ -148,6 +157,13 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     @Override
     public List<MetrologyConfiguration> findAllMetrologyConfigurations() {
         return DefaultFinder.of(MetrologyConfiguration.class, this.getDataModel()).defaultSortColumn("lower(name)").find();
+    }
+
+    @Override
+    public boolean isInUse(MetrologyConfiguration metrologyConfiguration) {
+        Condition condition = Where.where("metrologyConfiguration").isEqualTo(metrologyConfiguration);
+        List<UsagePointMetrologyConfiguration> atLeastOneUsagePoint = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(condition, new Order[0], false, new String[0], 1, 1);
+        return !atLeastOneUsagePoint.isEmpty();
     }
 
 }

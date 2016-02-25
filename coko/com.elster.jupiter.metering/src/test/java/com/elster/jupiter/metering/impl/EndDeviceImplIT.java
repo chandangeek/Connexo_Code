@@ -35,17 +35,12 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -57,6 +52,13 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -512,7 +514,7 @@ public class EndDeviceImplIT {
 
     private FiniteStateMachine createBiggerFiniteStateMachine() {
         FiniteStateMachineServiceImpl finiteStateMachineService = this.injector.getInstance(FiniteStateMachineServiceImpl.class);
-        CustomStateTransitionEventType eventType = finiteStateMachineService.newCustomStateTransitionEventType("#whatever");
+        CustomStateTransitionEventType eventType = finiteStateMachineService.newCustomStateTransitionEventType("#whatever", "enddevice");
         FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("Bigger");
         State second = builder.newCustomState("Second").complete();
         State first = builder.newCustomState("First").on(eventType).transitionTo(second).complete();

@@ -6,12 +6,15 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface UsagePoint extends IdentifiedObject, ReadingContainer {
     long getId();
 
