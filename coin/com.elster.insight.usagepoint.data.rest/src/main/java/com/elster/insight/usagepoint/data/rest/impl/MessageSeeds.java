@@ -18,6 +18,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE(9, Keys.DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE, "Deactivate of validation rule set {0} is currently not possible."),
     NO_SUCH_READING_ON_REGISTER(10, Keys.NO_SUCH_READING_ON_REGISTER, "Register for reading type {0} has no reading with timestamp {1}"),
     NO_SUCH_CUSTOM_PROPERTY_SET(11, Keys.NO_SUCH_CUSTOM_PROPERTY_SET, "Custom property set with id ''{0}'' not found."),
+    CUSTOM_PROPERTY_SET_IS_NOT_VERSIONED(12, Keys.CUSTOM_PROPERTY_SET_IS_NOT_VERSIONED, "Custom property set ''{0}'' is not versioned."),
+    END_DATE_MUST_BE_AFTER_START_DATE(13, Keys.END_DATE_MUST_BE_AFTER_START_DATE, "End date must be after start date"),
     ;
     private final int number;
     private final String key;
@@ -66,6 +68,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String NO_ACTIVATION_FOR_USAGE_POINT_FOR_MRID_AT_TIME="NoActivationForUsagePointForMRIDAtTime";
         public static final String NO_SUCH_READING_ON_REGISTER = "NoSuchReadingOnRegister";
         public static final String NO_SUCH_CUSTOM_PROPERTY_SET = "NoSuchCustomPropertySet";
+        public static final String CUSTOM_PROPERTY_SET_IS_NOT_VERSIONED = "CustomPropertySetIsNotVersioned";
+        public static final String END_DATE_MUST_BE_AFTER_START_DATE = "EndDateMusBeAfterStartDate";
 
     }
 

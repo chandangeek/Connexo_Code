@@ -1,5 +1,6 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
+import com.elster.insight.common.services.ListPager;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -9,6 +10,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -17,9 +19,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.insight.common.rest.ExceptionFactory;
-import com.elster.insight.common.services.ListPager;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;

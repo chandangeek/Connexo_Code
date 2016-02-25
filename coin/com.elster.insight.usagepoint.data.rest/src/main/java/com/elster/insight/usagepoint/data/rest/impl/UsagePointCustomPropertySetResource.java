@@ -1,144 +1,312 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.insight.common.rest.IntervalInfo;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.OverlapCalculatorBuilder;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.ValuesRangeConflict;
+import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
+import com.elster.jupiter.cps.rest.ValuesRangeConflictInfo;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.metering.UsagePointPropertySet;
+import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.insight.usagepoint.data.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.util.time.RangeInstantBuilder;
+import com.elster.jupiter.util.time.RangeInstantComparator;
+import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
+import java.time.Instant;
 import java.util.List;
-import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class UsagePointCustomPropertySetResource {
 
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
     private final ResourceHelper resourceHelper;
+    private final CustomPropertySetService customPropertySetService;
 
     @Inject
     public UsagePointCustomPropertySetResource(CustomPropertySetInfoFactory customPropertySetInfoFactory,
-                                               ResourceHelper resourceHelper) {
+                                               ResourceHelper resourceHelper,
+                                               CustomPropertySetService customPropertySetService) {
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
         this.resourceHelper = resourceHelper;
+        this.customPropertySetService = customPropertySetService;
     }
 
-    private PagedInfoList getCustomPropertySetValues(JsonQueryParameters queryParameters,
-                                                     Supplier<Map<RegisteredCustomPropertySet, CustomPropertySetValues>> customPropertySetValuesSupplier) {
-        List<CustomPropertySetInfo> infos = new ArrayList<>();
-        for (Map.Entry<RegisteredCustomPropertySet, CustomPropertySetValues> customPropertySetValueEntry : customPropertySetValuesSupplier.get().entrySet()) {
-            CustomPropertySet<?, ?> customPropertySet = customPropertySetValueEntry.getKey().getCustomPropertySet();
-            CustomPropertySetValues customPropertySetValue = customPropertySetValueEntry.getValue();
-            CustomPropertySetInfo info = customPropertySetInfoFactory.getGeneralInfo(customPropertySetValueEntry.getKey());
-            info.properties = customPropertySet.getPropertySpecs()
-                    .stream()
-                    .map(propertySpec -> customPropertySetInfoFactory.getPropertyInfo(propertySpec,
-                            key -> customPropertySetValue != null ? customPropertySetValue.getProperty(key) : null))
-                    .collect(Collectors.toList());
-            infos.add(info);
-        }
+    private PagedInfoList getCustomPropertySetValues(List<UsagePointPropertySet> customPropertySetValues,
+                                                     JsonQueryParameters queryParameters) {
+        List<CustomPropertySetInfo> infos = customPropertySetValues
+                .stream()
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .map(rcps -> customPropertySetInfoFactory.getFullInfo(rcps, rcps.getValues()))
+                .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("customPropertySets", infos, queryParameters);
     }
 
-    private void setCustomPropertySetValues(CustomPropertySetInfo<UsagePointInfo> info, BiConsumer<CustomPropertySet<?, ?>, CustomPropertySetValues> customPropertySetValuesConsumer) {
-        RegisteredCustomPropertySet registeredCustomPropertySet = resourceHelper.getRegisteredCustomPropertySetOrThrowException(info.customPropertySetId);
-        CustomPropertySet<?, ?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
-        CustomPropertySetValues customPropertySetValues = customPropertySetInfoFactory.getCustomPropertySetValues(info, customPropertySet.getPropertySpecs());
-        customPropertySetValuesConsumer.accept(customPropertySet, customPropertySetValues);
+    private void validateRangeSourceValues(Long start, Long end) {
+        new RestValidationBuilder()
+                .on(end)
+                .check(endTime -> endTime == null || start == null || endTime > start)
+                .field("endTime")
+                .message(MessageSeeds.END_DATE_MUST_BE_AFTER_START_DATE).test().validate();
+    }
+
+    private List<ValuesRangeConflict> getValuesRangeConflicts(UsagePointPropertySet usagePointPropertySet,
+                                                              boolean returnOnlyGaps,
+                                                              Function<OverlapCalculatorBuilder, List<ValuesRangeConflict>> conflictValuesSupplier) {
+        return conflictValuesSupplier.apply(customPropertySetService
+                .calculateOverlapsFor(usagePointPropertySet.getCustomPropertySet(), usagePointPropertySet.getUsagePoint()))
+                .stream()
+                .filter(c -> !returnOnlyGaps
+                        || c.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)
+                        || c.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE))
+                .collect(Collectors.toList());
+    }
+
+    private PagedInfoList getConflictsInfo(String usagePointMrid,
+                                           long registeredCustomPropertySetId,
+                                           Long versionStartTime, Long versionEndTime,
+                                           JsonQueryParameters queryParameters,
+                                           Function<OverlapCalculatorBuilder, List<ValuesRangeConflict>> conflictValuesSupplier) {
+        UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
+                .findUsagePointByMrIdOrThrowException(usagePointMrid).forCustomProperties();
+        UsagePointVersionedPropertySet versionedPropertySet = usagePointExtension.getVersionedPropertySet(registeredCustomPropertySetId);
+        validateRangeSourceValues(versionStartTime, versionEndTime);
+        List valuesRangeConflicts = conflictValuesSupplier.apply(customPropertySetService
+                .calculateOverlapsFor(versionedPropertySet.getCustomPropertySet(), usagePointExtension.getUsagePoint()))
+                .stream()
+                .sorted((c1, c2) -> new RangeInstantComparator().compare(c1.getConflictingRange(), c2.getConflictingRange()))
+                .map(conflict -> {
+                    ValuesRangeConflictInfo conflictInfo = customPropertySetInfoFactory.getValuesRangeConflictInfo(conflict);
+                    conflictInfo.customPropertySet = customPropertySetInfoFactory.getFullInfo(versionedPropertySet, conflict.getValues());
+                    return conflictInfo;
+                })
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("conflicts", valuesRangeConflicts, queryParameters);
     }
 
     @GET
-    @Path("/metrology")
-    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getMetrologyConfigurationCustomPropertySetsWithValues(@PathParam("mrid") String usagePointMrid,
-                                                                               @BeanParam JsonQueryParameters queryParameters) {
-        UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper.findUsagePointExtensionByMrIdOrThrowException(usagePointMrid);
-        return getCustomPropertySetValues(queryParameters, usagePointExtension::getMetrologyConfigurationCustomPropertySetValues);
+    public PagedInfoList getAllCustomPropertySets(@PathParam("mrid") String usagePointMrid,
+                                                  @BeanParam JsonQueryParameters queryParameters) {
+        UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
+                .findUsagePointByMrIdOrThrowException(usagePointMrid).forCustomProperties();
+        return getCustomPropertySetValues(usagePointExtension.getAllPropertySets(), queryParameters);
+    }
+
+    @GET
+    @Path("/metrologyconfiguration")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    public PagedInfoList getCustomPropertySetsOnMetrologyConfiguration(@PathParam("mrid") String usagePointMrid,
+                                                                       @BeanParam JsonQueryParameters queryParameters) {
+        UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
+                .findUsagePointByMrIdOrThrowException(usagePointMrid).forCustomProperties();
+        return getCustomPropertySetValues(usagePointExtension.getPropertySetsOnMetrologyConfiguration(), queryParameters);
+    }
+
+    @GET
+    @Path("/servicecategory")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    public PagedInfoList getCustomPropertySetsOnServiceCategory(@PathParam("mrid") String usagePointMrid,
+                                                                @BeanParam JsonQueryParameters queryParameters) {
+        UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper
+                .findUsagePointByMrIdOrThrowException(usagePointMrid).forCustomProperties();
+        return getCustomPropertySetValues(usagePointExtension.getPropertySetsOnServiceCategory(), queryParameters);
+    }
+
+    @GET
+    @Path("/{rcpsId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    public CustomPropertySetInfo getCustomPropertySetByRegisteredId(@PathParam("mrid") String usagePointMrid,
+                                                                    @PathParam("rcpsId") long rcpsId,
+                                                                    @BeanParam JsonQueryParameters queryParameters) {
+        UsagePointPropertySet propertySet = resourceHelper
+                .findUsagePointByMrIdOrThrowException(usagePointMrid)
+                .forCustomProperties()
+                .getPropertySet(rcpsId);
+        return customPropertySetInfoFactory.getFullInfo(propertySet, propertySet.getValues());
     }
 
     @PUT
-    @Path("/metrology/{cpsId}")
-    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
+    @Path("/{rcpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Transactional
-    public PagedInfoList setMetrologyConfigurationCustomPropertySetValues(@PathParam("mrid") String usagePointMrid,
+    public CustomPropertySetInfo setCustomPropertySetValuesByRegisteredId(@PathParam("mrid") String usagePointMrid,
+                                                                          @PathParam("rcpsId") long rcpsId,
                                                                           @BeanParam JsonQueryParameters queryParameters,
                                                                           CustomPropertySetInfo<UsagePointInfo> info) {
-        UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper.lockUsagePointCustomPropertySetExtensionOrThrowException(info.parent);
-        setCustomPropertySetValues(info, usagePointExtension::setMetrologyConfigurationCustomPropertySetValue);
-        return getCustomPropertySetValues(queryParameters, usagePointExtension::getMetrologyConfigurationCustomPropertySetValues);
+        UsagePointPropertySet propertySet = resourceHelper
+                .lockUsagePointOrThrowException(info.parent)
+                .forCustomProperties()
+                .getPropertySet(rcpsId);
+        propertySet.setValues(this.customPropertySetInfoFactory
+                .getCustomPropertySetValues(info, propertySet.getCustomPropertySet().getPropertySpecs()));
+        return customPropertySetInfoFactory.getFullInfo(propertySet, propertySet.getValues());
     }
-
 
     @GET
-    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
+    @Path("{rcpsId}/currentinterval")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getServiceCategoryCustomPropertySetsWithValues(@PathParam("mrid") String usagePointMrid,
-                                                                        @BeanParam JsonQueryParameters queryParameters) {
-        UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper.findUsagePointExtensionByMrIdOrThrowException(usagePointMrid);
-        return getCustomPropertySetValues(queryParameters, usagePointExtension::getServiceCategoryCustomPropertySetValues);
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    public IntervalInfo getCurrentTimeSlicedCustomPropertySetInterval(@PathParam("mrid") String usagePointMrid,
+                                                                      @PathParam("rcpsId") long rcpsId,
+                                                                      @BeanParam JsonQueryParameters queryParameters) {
+        Range<Instant> versionInterval = resourceHelper
+                .findUsagePointByMrIdOrThrowException(usagePointMrid)
+                .forCustomProperties()
+                .getVersionedPropertySet(rcpsId)
+                .getNewVersionInterval();
+        return IntervalInfo.from(versionInterval);
     }
 
+    @GET
+    @Path("{rcpsId}/versions")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    public PagedInfoList getAllTimeSlicedCustomPropertySetVersions(@PathParam("mrid") String usagePointMrid,
+                                                                   @PathParam("rcpsId") long rcpsId,
+                                                                   @BeanParam JsonQueryParameters queryParameters) {
+        UsagePointVersionedPropertySet versionedPropertySet = resourceHelper
+                .findUsagePointByMrIdOrThrowException(usagePointMrid)
+                .forCustomProperties()
+                .getVersionedPropertySet(rcpsId);
+        List<CustomPropertySetInfo> versions = versionedPropertySet
+                .getAllVersionValues()
+                .stream()
+                .map(value -> customPropertySetInfoFactory.getFullInfo(versionedPropertySet, value))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("versions", versions, queryParameters);
+    }
 
-    @PUT
-    @Path("/{cpsId}")
-    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
+    @POST
+    @Path("{rcpsId}/versions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Transactional
-    public PagedInfoList setServiceCategoryCustomPropertySetValues(@PathParam("mrid") String usagePointMrid,
-                                                                   @BeanParam JsonQueryParameters queryParameters,
-                                                                   CustomPropertySetInfo<UsagePointInfo> info) {
-        UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper.lockUsagePointCustomPropertySetExtensionOrThrowException(info.parent);
-        setCustomPropertySetValues(info, usagePointExtension::setServiceCategoryCustomPropertySetValue);
-        return getCustomPropertySetValues(queryParameters, usagePointExtension::getServiceCategoryCustomPropertySetValues);
+    public Response addNewVersionForTimeSlicedCustomAttributeSet(@PathParam("mrid") String usagePointMrid,
+                                                                 @PathParam("rcpsId") long rcpsId,
+                                                                 @BeanParam JsonQueryParameters queryParameters,
+                                                                 @QueryParam("forced") boolean forced,
+                                                                 CustomPropertySetInfo<UsagePointInfo> info) {
+        info.isVersioned = true;
+        UsagePointVersionedPropertySet versionedPropertySet = resourceHelper
+                .findUsagePointByMrIdOrThrowException(usagePointMrid)
+                .forCustomProperties()
+                .getVersionedPropertySet(rcpsId);
+        validateRangeSourceValues(info.startTime, info.endTime);
+        Function<OverlapCalculatorBuilder, List<ValuesRangeConflict>> conflictValuesSupplier =
+                builder -> builder.whenCreating(RangeInstantBuilder.closedOpenRange(info.startTime, info.endTime));
+        List<ValuesRangeConflict> valuesRangeConflicts = getValuesRangeConflicts(versionedPropertySet, forced, conflictValuesSupplier);
+        if (!valuesRangeConflicts.isEmpty()) {
+            UsagePointAddVersionFailResponse errorInfo = new UsagePointAddVersionFailResponse(valuesRangeConflicts);
+            return Response.status(Response.Status.BAD_REQUEST).entity(errorInfo).build();
+        }
+        CustomPropertySetValues versionValues = customPropertySetInfoFactory
+                .getCustomPropertySetValues(info, versionedPropertySet.getCustomPropertySet().getPropertySpecs());
+        versionedPropertySet.setValues(versionValues);
+        return Response.ok().build();
     }
 
     @GET
-    @Path("/{rcps_id}")
-    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
+    @Path("{rcpsId}/versions/{timestamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response getRegisteredCustomPropertySet(@PathParam("mrid") String usagePointMrid,
-                                                   @PathParam("rcps_id") long rcpsId,
-                                                   @BeanParam JsonQueryParameters queryParameters) {
-        UsagePointCustomPropertySetExtension usagePointExtension = resourceHelper.findUsagePointExtensionByMrIdOrThrowException(usagePointMrid);
-        for (Map.Entry<RegisteredCustomPropertySet, CustomPropertySetValues> entry : usagePointExtension.getCustomPropertySetValues().entrySet()) {
-            RegisteredCustomPropertySet registeredCustomPropertySet = entry.getKey();
-            if (!registeredCustomPropertySet.isViewableByCurrentUser()){
-                continue;
-            }
-            if (registeredCustomPropertySet.getId() == rcpsId){
-                CustomPropertySet<?,?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
-                CustomPropertySetValues customPropertySetValue = entry.getValue();
-                CustomPropertySetInfo info = customPropertySetInfoFactory.getGeneralInfo(registeredCustomPropertySet);
-                info.properties = customPropertySet.getPropertySpecs()
-                        .stream()
-                        .map(propertySpec -> customPropertySetInfoFactory.getPropertyInfo(propertySpec,
-                                key -> customPropertySetValue != null ? customPropertySetValue.getProperty(key) : null))
-                        .collect(Collectors.toList());
-                return Response.ok(info).build();
-            }
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    public CustomPropertySetInfo getTimeSlicedCustomAttributeSetVersion(@PathParam("mrid") String usagePointMrid,
+                                                                        @PathParam("rcpsId") long rcpsId,
+                                                                        @PathParam("timestamp") long timestamp,
+                                                                        @BeanParam JsonQueryParameters queryParameters) {
+        UsagePointVersionedPropertySet versionedPropertySet = resourceHelper
+                .findUsagePointByMrIdOrThrowException(usagePointMrid)
+                .forCustomProperties()
+                .getVersionedPropertySet(rcpsId);
+        return customPropertySetInfoFactory.getFullInfo(versionedPropertySet, versionedPropertySet.getVersionValues(Instant.ofEpochMilli(timestamp)));
+    }
+
+    @PUT
+    @Path("{rcpsId}/versions/{timestamp}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Transactional
+    public Response updateTimeSlicedCustomAttributeSetVersion(@PathParam("mrid") String usagePointMrid,
+                                                              @PathParam("rcpsId") long rcpsId,
+                                                              @BeanParam JsonQueryParameters queryParameters,
+                                                              @QueryParam("forced") boolean forced,
+                                                              CustomPropertySetInfo<UsagePointInfo> info) {
+        UsagePointVersionedPropertySet versionedPropertySet = resourceHelper
+                .lockUsagePointOrThrowException(info.parent)
+                .forCustomProperties()
+                .getVersionedPropertySet(rcpsId);
+        validateRangeSourceValues(info.startTime, info.endTime);
+        Instant versionStartTime = Instant.ofEpochMilli(info.versionId);
+        Function<OverlapCalculatorBuilder, List<ValuesRangeConflict>> conflictValuesSupplier =
+                builder -> builder.whenUpdating(versionStartTime, RangeInstantBuilder.closedOpenRange(info.startTime, info.endTime));
+        List<ValuesRangeConflict> valuesRangeConflicts = getValuesRangeConflicts(versionedPropertySet, forced, conflictValuesSupplier);
+        if (!valuesRangeConflicts.isEmpty()) {
+            UsagePointAddVersionFailResponse errorInfo = new UsagePointAddVersionFailResponse(valuesRangeConflicts);
+            return Response.status(Response.Status.BAD_REQUEST).entity(errorInfo).build();
         }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        CustomPropertySetValues values = customPropertySetInfoFactory
+                .getCustomPropertySetValues(info, versionedPropertySet.getCustomPropertySet().getPropertySpecs());
+        versionedPropertySet.setVersionValues(versionStartTime, values);
+        return Response.ok(customPropertySetInfoFactory.getFullInfo(versionedPropertySet,
+                versionedPropertySet.getVersionValues(versionStartTime))).build();
+    }
+
+    @GET
+    @Path("{rcpsId}/conflicts")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    public PagedInfoList getTimeSlicedCustomPropertySetVersionsConflicts(@PathParam("mrid") String usagePointMrid,
+                                                                         @PathParam("rcpsId") long rcpsId,
+                                                                         @BeanParam JsonQueryParameters queryParameters,
+                                                                         @QueryParam("startTime") Long startTime,
+                                                                         @QueryParam("endTime") Long endTime) {
+        Function<OverlapCalculatorBuilder, List<ValuesRangeConflict>> conflictValuesSupplier =
+                builder -> builder.whenCreating(RangeInstantBuilder.closedOpenRange(startTime, endTime));
+        return getConflictsInfo(usagePointMrid, rcpsId, startTime, endTime, queryParameters, conflictValuesSupplier);
+    }
+
+    @GET
+    @Path("{rcpsId}/conflicts/{timestamp}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    public PagedInfoList getTimeSlicedCustomPropertySetVersionsConflicts(@PathParam("mrid") String usagePointMrid,
+                                                                         @PathParam("rcpsId") long rcpsId,
+                                                                         @PathParam("timestamp") long timestamp,
+                                                                         @BeanParam JsonQueryParameters queryParameters,
+                                                                         @QueryParam("startTime") Long startTime,
+                                                                         @QueryParam("endTime") Long endTime) {
+        Function<OverlapCalculatorBuilder, List<ValuesRangeConflict>> conflictValuesSupplier =
+                builder -> builder.whenUpdating(Instant.ofEpochMilli(timestamp), RangeInstantBuilder.closedOpenRange(startTime, endTime));
+        return getConflictsInfo(usagePointMrid, rcpsId, startTime, endTime, queryParameters, conflictValuesSupplier);
     }
 }

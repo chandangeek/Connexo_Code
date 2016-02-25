@@ -4,9 +4,9 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.insight.common.rest.ExceptionFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;

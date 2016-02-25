@@ -1,5 +1,7 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
+import com.elster.insight.common.services.ListPager;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -15,8 +17,6 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.users.User;
-import com.elster.insight.common.services.ListPager;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -191,11 +191,10 @@ public class UsagePointResource {
         return usagePointValidationResourceProvider.get();
     }
 
-    @Path("/{mrid}/properties")
+    @Path("/{mrid}/customproperties")
     public UsagePointCustomPropertySetResource getUsagePointCustomPropertySetResource() {
         return usagePointCustomPropertySetResourceProvider.get();
     }
-
 
     private Set<ReadingType> collectReadingTypes(UsagePoint usagePoint) {
         Set<ReadingType> readingTypes = new LinkedHashSet<>();
