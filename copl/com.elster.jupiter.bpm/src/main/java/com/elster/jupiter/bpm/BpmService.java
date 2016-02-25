@@ -26,7 +26,11 @@ public interface BpmService {
 
     BpmServer getBpmServer();
 
-    //Optional<BpmProcessDefinition> findProcess (String processName, String association, String version, String status);
+    // old
+    BpmProcessDeviceState createBpmProcessDeviceState(BpmProcessDefinition process, long lifecycleId, long stateId, String lifecycleName, String stateName);
+
+    // old
+    BpmProcessDefinition findOrCreateBpmProcessDefinition(String processName, String association, String version, String status);
 
     List<BpmProcessDefinition> getBpmProcessDefinitions();
 
@@ -40,7 +44,11 @@ public interface BpmService {
 
     List<BpmProcessPrivilege> getBpmProcessPrivileges(long processId);
 
-    //QueryService getQueryService();
+    // old
+    QueryService getQueryService();
+
+    // old
+    Query<BpmProcessDefinition> getQueryBpmProcessDefinition();
 
     BpmProcessDefinitionBuilder newProcessBuilder();
 
