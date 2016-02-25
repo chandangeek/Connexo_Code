@@ -53,9 +53,16 @@ public class ServiceCategoryResource {
     @Path("/{kind}/custompropertysets")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getServiceCategories(@PathParam("kind") String kind, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
-        ServiceKind serviceKind = Arrays.stream(ServiceKind.values()).filter(sk -> sk.name().equalsIgnoreCase(kind)).findFirst().orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        ServiceCategory category = meteringService.getServiceCategory(serviceKind).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        List<CustomPropertySetInfo> infos = category.getCustomPropertySets().stream().map(customPropertySetInfoFactory::from).sorted((a, b) -> a.name.compareToIgnoreCase(b.name)).collect(Collectors.toList());
+        ServiceKind serviceKind = Arrays.stream(ServiceKind.values())
+                .filter(sk -> sk.name().equalsIgnoreCase(kind)).findFirst()
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        ServiceCategory category = meteringService.getServiceCategory(serviceKind)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        List<CustomPropertySetInfo> infos = category.getCustomPropertySets()
+                .stream()
+                .map(customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
+                .sorted((a, b) -> a.name.compareToIgnoreCase(b.name))
+                .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("serviceCategoryCustomPropertySets", infos, queryParameters);
     }
 }
