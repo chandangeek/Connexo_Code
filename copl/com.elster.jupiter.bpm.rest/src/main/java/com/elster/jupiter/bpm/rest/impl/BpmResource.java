@@ -203,7 +203,7 @@ public class BpmResource {
             if (!req.equals("")) {
                 rest += req;
             }
-            List<String> deployemntIds = getProcesses(uriInfo, auth).processes.stream()
+            List<String> deployemntIds = getAvailableProcesses(uriInfo, auth).processes.stream()
                     .map(s -> s.deploymentId)
                     .collect(Collectors.toList());
             for(String each : deployemntIds){
@@ -279,27 +279,18 @@ public class BpmResource {
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
     public ProcessDefinitionInfos getProcesses(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth) {
         MultivaluedMap<String, String> filterProperties = uriInfo.getQueryParameters();
-        if(filterProperties.get("type") != null) {
-            List<BpmProcessDefinition> activeProcesses = bpmService.getAllBpmProcessDefinitions();
-            ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinition(auth);
-            processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
-                    .filter(s -> activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version) && a.getAssociation().toLowerCase().equals(filterProperties.get("type").get(0).toLowerCase())))
-                    .collect(Collectors.toList());
-            processDefinitionInfos.processes.stream()
-                    .forEach(s -> s.id = s.id + " (" + s.deploymentId + ") ");
-            processDefinitionInfos.total = processDefinitionInfos.processes.size();
-            return processDefinitionInfos;
-        }else{
-            List<BpmProcessDefinition> activeProcesses = bpmService.getAllBpmProcessDefinitions();
-            ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinition(auth);
-            processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
-                    .filter(s -> activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version)))
-                    .collect(Collectors.toList());
-            processDefinitionInfos.processes.stream()
-                    .forEach(s -> s.id = s.id + " (" + s.deploymentId + ") ");
-            processDefinitionInfos.total = processDefinitionInfos.processes.size();
-            return processDefinitionInfos;
-        }
+        List<BpmProcessDefinition> activeProcesses = bpmService.getAllBpmProcessDefinitions();
+        return (filterProperties.get("type") != null) ? filterProcesses(activeProcesses, filterProperties.get("type").get(0), auth) : filterProcesses(activeProcesses, null, auth);
+    }
+
+    @GET
+    @Path("/avaiableactiveprocesses")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
+    public ProcessDefinitionInfos getAvailableProcesses(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth) {
+        MultivaluedMap<String, String> filterProperties = uriInfo.getQueryParameters();
+        List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
+        return (filterProperties.get("type") != null) ? filterProcesses(activeProcesses, filterProperties.get("type").get(0), auth) : filterProcesses(activeProcesses, null, auth);
     }
 
     @GET
@@ -502,6 +493,23 @@ public class BpmResource {
             }
         }
         return null;
+    }
+
+    private ProcessDefinitionInfos filterProcesses(List<BpmProcessDefinition> activeProcesses, String filterPropertie, String auth){
+        ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinition(auth);
+        processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
+                .filter(s -> {
+                    if(filterPropertie != null) {
+                        return activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version) && a.getAssociation().toLowerCase().equals(filterPropertie.toLowerCase()));
+                    }else{
+                        return activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version));
+                    }
+                })
+                .collect(Collectors.toList());
+        processDefinitionInfos.processes.stream()
+                .forEach(s -> s.id = s.id + " (" + s.deploymentId + ") ");
+        processDefinitionInfos.total = processDefinitionInfos.processes.size();
+        return processDefinitionInfos;
     }
 
     private ProcessDefinitionInfos getBpmProcessDefinition(String auth){
