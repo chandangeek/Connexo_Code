@@ -4,11 +4,13 @@ import com.elster.jupiter.bpm.BpmAppService;
 import com.elster.jupiter.bpm.BpmProcess;
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmProcessDefinitionBuilder;
+import com.elster.jupiter.bpm.BpmProcessDeviceState;
 import com.elster.jupiter.bpm.BpmProcessPrivilege;
 import com.elster.jupiter.bpm.BpmServer;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.bpm.security.Privileges;
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -62,6 +64,7 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     private volatile Thesaurus thesaurus;
     private volatile UserService userService;
     private volatile BpmServerImpl bpmServer;
+    private volatile QueryService queryService;
     private List<ProcessAssociationProvider> processAssociationProviders = new CopyOnWriteArrayList<>();
 
     public BpmServiceImpl() {
@@ -75,6 +78,7 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
         setJsonService(jsonService);
         setUserService(userService);
         setNlsService(nlsService);
+        setQueryService(queryService);
         activate(null);
         if (!dataModel.isInstalled()) {
             install();
@@ -193,6 +197,24 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     }
 
     @Override
+    public BpmProcessDeviceState createBpmProcessDeviceState(BpmProcessDefinition process, long lifecycleId, long stateId, String lifecycleName, String stateName) {
+        return null;
+    }
+
+    @Override
+    public BpmProcessDefinition findOrCreateBpmProcessDefinition(String processName, String association, String version, String status) {
+        Condition nameCondition = Operator.EQUALIGNORECASE.compare("processName", processName);
+        Condition versionCondition = Operator.EQUALIGNORECASE.compare("version", version);
+        List<BpmProcessDefinition> bpmProcessDefinitions = dataModel.query(BpmProcessDefinition.class)
+                .select(nameCondition.and(versionCondition));
+        if (bpmProcessDefinitions.isEmpty()) {
+            return BpmProcessDefinitionImpl.from(dataModel, processName, association, version, status);
+        }
+        bpmProcessDefinitions.get(0).setStatus(status);
+        return bpmProcessDefinitions.get(0);
+    }
+
+    @Override
     public List<BpmProcessDefinition> getBpmProcessDefinitions() {
         return dataModel.query(BpmProcessDefinition.class).select(Operator.NOTEQUAL.compare("status", "UNDEPLOYED"));
     }
@@ -232,23 +254,24 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     }
 
     @Override
+    public QueryService getQueryService() {
+        return queryService;
+    }
+
+    @Reference
+    public void setQueryService(QueryService queryService) {
+        this.queryService = queryService;
+    }
+
+    @Override
+    public Query<BpmProcessDefinition> getQueryBpmProcessDefinition() {
+        return getQueryService().wrap(dataModel.query(BpmProcessDefinition.class));
+    }
+
+    @Override
     public BpmProcessDefinitionBuilder newProcessBuilder() {
         return new BpmProcessDefinitionBuilderImpl(dataModel, this);
     }
-
-    /*@Override
-    public Optional<BpmProcessDefinition> findProcess (String processName, String association, String version, String status){
-        Condition nameCondition = Operator.EQUALIGNORECASE.compare("processName", processName);
-        Condition versionCondition = Operator.EQUALIGNORECASE.compare("version", version);
-        Condition associationCondition = Operator.EQUALIGNORECASE.compare("association",association);
-        List<BpmProcessDefinition> bpmProcessDefinitions = dataModel.query(BpmProcessDefinition.class)
-                .select(nameCondition.and(versionCondition).and(associationCondition));
-        if(bpmProcessDefinitions.isEmpty()){
-            return Optional.empty();
-        }
-        bpmProcessDefinitions.get(0).setStatus(status);
-        return Optional.of(bpmProcessDefinitions.get(0));
-    }*/
 
     public List<ProcessAssociationProvider> getProcessAssociationProviders() {
         return processAssociationProviders;

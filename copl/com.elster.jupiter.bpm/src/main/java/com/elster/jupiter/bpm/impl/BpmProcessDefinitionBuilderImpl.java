@@ -10,15 +10,15 @@ import java.util.Map;
 public class BpmProcessDefinitionBuilderImpl implements BpmProcessDefinitionBuilder {
 
 
-    private String id;
     private final DataModel dataModel;
+    private final BpmService bpmService;
+    private String id;
     private String processName;
     private String association;
     private String version;
     private String status;
     private List<BpmProcessPrivilege> processPrivileges = new ArrayList<>();
     private Map<String, Object> properties = new HashMap<>();
-    private final BpmService bpmService;
 
 
     public BpmProcessDefinitionBuilderImpl(DataModel dataModel, BpmService bpmService) {
@@ -74,7 +74,7 @@ public class BpmProcessDefinitionBuilderImpl implements BpmProcessDefinitionBuil
         BpmProcessDefinitionImpl process = BpmProcessDefinitionImpl.from(dataModel, processName, association, version, status);
         process.setProperties(properties);
         process.setPrivileges(processPrivileges);
-        process.update();
+        process.save();
         return process;
     }
 }

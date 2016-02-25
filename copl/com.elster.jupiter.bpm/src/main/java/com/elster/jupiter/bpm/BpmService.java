@@ -26,10 +26,10 @@ public interface BpmService {
 
     BpmServer getBpmServer();
 
-    // old
+    @Deprecated
     BpmProcessDeviceState createBpmProcessDeviceState(BpmProcessDefinition process, long lifecycleId, long stateId, String lifecycleName, String stateName);
 
-    // old
+    @Deprecated
     BpmProcessDefinition findOrCreateBpmProcessDefinition(String processName, String association, String version, String status);
 
     List<BpmProcessDefinition> getBpmProcessDefinitions();
@@ -44,10 +44,8 @@ public interface BpmService {
 
     List<BpmProcessPrivilege> getBpmProcessPrivileges(long processId);
 
-    // old
     QueryService getQueryService();
 
-    // old
     Query<BpmProcessDefinition> getQueryBpmProcessDefinition();
 
     BpmProcessDefinitionBuilder newProcessBuilder();

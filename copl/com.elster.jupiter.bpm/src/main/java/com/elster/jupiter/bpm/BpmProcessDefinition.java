@@ -14,11 +14,11 @@ public interface BpmProcessDefinition extends HasDynamicPropertiesWithValues {
 
     void revokePrivileges(List<BpmProcessPrivilege> processPrivileges);
 
-    // old
-    //void revokeProcessDeviceStates(List<BpmProcessDeviceState> processDeviceStates);
+    @Deprecated
+    void revokeProcessDeviceStates(List<BpmProcessDeviceState> processDeviceStates);
 
-    // old
-    //void grantProcessDeviceStates(List<BpmProcessDeviceState> processDeviceStates);
+    @Deprecated
+    void grantProcessDeviceStates(List<BpmProcessDeviceState> processDeviceStates);
 
     void grantPrivileges(List<BpmProcessPrivilege> targetPrivileges);
 
@@ -26,11 +26,11 @@ public interface BpmProcessDefinition extends HasDynamicPropertiesWithValues {
 
     String getProcessName();
 
-    //public String getAssociation();
-    Optional<ProcessAssociationProvider> getAssociation();
+    public String getAssociation();
 
-    // new
     void setAssociation(String association);
+
+    Optional<ProcessAssociationProvider> getAssociationProvider();
 
     String getVersion();
 
@@ -38,16 +38,14 @@ public interface BpmProcessDefinition extends HasDynamicPropertiesWithValues {
 
     void setStatus(String status);
 
-    //void save();
-    void update();
+    void save();
 
     void delete();
 
     List<BpmProcessPrivilege> getPrivileges();
 
-    // old
-    //List<BpmProcessDeviceState> getProcessDeviceStates();
+    @Deprecated
+    List<BpmProcessDeviceState> getProcessDeviceStates();
 
-    // new
     void setProperties(Map<String, Object> propertyMap);
 }

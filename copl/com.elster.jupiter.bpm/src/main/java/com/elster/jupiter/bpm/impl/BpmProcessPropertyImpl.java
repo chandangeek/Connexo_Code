@@ -74,7 +74,7 @@ public class BpmProcessPropertyImpl implements BpmProcessProperty {
     }
 
     protected Optional<PropertySpec> getPropertySpec() {
-        Optional<ProcessAssociationProvider> associationProvider = processDefinition.get().getAssociation();
+        Optional<ProcessAssociationProvider> associationProvider = processDefinition.get().getAssociationProvider();
         if (associationProvider.isPresent()) {
             return associationProvider.get().getPropertySpec(getName());
         }

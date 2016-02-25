@@ -57,6 +57,16 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     }
 
     @Override
+    public void revokeProcessDeviceStates(List<BpmProcessDeviceState> processDeviceStates) {
+
+    }
+
+    @Override
+    public void grantProcessDeviceStates(List<BpmProcessDeviceState> processDeviceStates) {
+
+    }
+
+    @Override
     public void grantPrivileges(List<BpmProcessPrivilege> targetPrivileges){
         targetPrivileges.stream().forEach(BpmProcessPrivilege::persist);
     }
@@ -72,13 +82,19 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     }
 
     @Override
-    public Optional<ProcessAssociationProvider> getAssociation() {
-        return bpmService.getProcessAssociationProvider(association);
+    public String getAssociation() {
+        Optional<ProcessAssociationProvider> foundProvider = getAssociationProvider();
+        return foundProvider.isPresent() ? foundProvider.get().getType() : null;
     }
 
     @Override
     public void setAssociation(String association) {
         this.association = association;
+    }
+
+    @Override
+    public Optional<ProcessAssociationProvider> getAssociationProvider() {
+        return bpmService.getProcessAssociationProvider(association);
     }
 
     @Override
@@ -97,7 +113,7 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     }
 
     @Override
-    public void update() {
+    public void save() {
         if (getId() == 0) {
             Save.CREATE.save(dataModel, this);
         } else {
@@ -113,6 +129,11 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     @Override
     public List<BpmProcessPrivilege> getPrivileges() {
         return processPrivileges;
+    }
+
+    @Override
+    public List<BpmProcessDeviceState> getProcessDeviceStates() {
+        return null;
     }
 
     void setPrivileges(List<BpmProcessPrivilege> privileges) {
@@ -155,7 +176,7 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        Optional<ProcessAssociationProvider> processAssociationProvider  =getAssociation();
+        Optional<ProcessAssociationProvider> processAssociationProvider = getAssociationProvider();
         if(processAssociationProvider.isPresent()) {
             return processAssociationProvider.get().getPropertySpecs();
         }
