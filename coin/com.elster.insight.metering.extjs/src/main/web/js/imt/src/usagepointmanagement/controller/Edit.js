@@ -2,182 +2,274 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
     extend: 'Ext.app.Controller',
 
     requires: [
-       'Uni.controller.history.Router',
-       'Imt.usagepointmanagement.view.UsagePointEdit'
+        'Uni.controller.history.Router'
     ],
+
+    views: [
+        'Imt.usagepointmanagement.view.Add',
+        'Imt.usagepointmanagement.view.forms.ElectricityInfo',
+        'Imt.usagepointmanagement.view.forms.GasInfo',
+        'Imt.usagepointmanagement.view.forms.WaterInfo',
+        'Imt.usagepointmanagement.view.forms.ThermalInfo',
+        'Imt.usagepointmanagement.view.forms.CustomPropertySetInfo'
+    ],
+
     models: [
-             'Imt.usagepointmanagement.model.UsagePoint',
-             'Imt.metrologyconfiguration.model.MetrologyConfiguration'
+        'Imt.usagepointmanagement.model.UsagePoint',
+        'Imt.usagepointmanagement.model.technicalinfo.Electricity',
+        'Imt.usagepointmanagement.model.technicalinfo.Gas',
+        'Imt.usagepointmanagement.model.technicalinfo.Water',
+        'Imt.usagepointmanagement.model.technicalinfo.Thermal'
     ],
+
     stores: [
-             'Imt.metrologyconfiguration.store.MetrologyConfigurationSelect'
+        'Imt.usagepointmanagement.store.ServiceCategories',
+        'Imt.usagepointmanagement.store.UsagePointTypes',
+        'Imt.usagepointmanagement.store.PhaseCodes',
+        'Imt.usagepointmanagement.store.BypassStatuses',
+        'Imt.usagepointmanagement.store.measurementunits.Voltage',
+        'Imt.usagepointmanagement.store.measurementunits.Amperage',
+        'Imt.usagepointmanagement.store.measurementunits.Power',
+        'Imt.usagepointmanagement.store.measurementunits.Volume',
+        'Imt.usagepointmanagement.store.measurementunits.Pressure',
+        'Imt.usagepointmanagement.store.measurementunits.PressureExtended',
+        'Imt.usagepointmanagement.store.measurementunits.Capacity'
     ],
+
     refs: [
-           {
-               ref: 'usagePointEditPage',
-               selector: 'usagePointEdit'
-           }
+        {
+            ref: 'wizard',
+            selector: '#add-usage-point add-usage-point-wizard'
+        },
+        {
+            ref: 'navigationMenu',
+            selector: '#add-usage-point add-usage-point-navigation'
+        }
     ],
-    selectedMetrologyConfig: null,
+
+    serviceCategoryMap: {
+        'ELECTRICITY': {
+            model: 'Imt.usagepointmanagement.model.technicalinfo.Electricity',
+            form: 'electricity-info-form'
+        },
+        'GAS': {
+            model: 'Imt.usagepointmanagement.model.technicalinfo.Gas',
+            form: 'gas-info-form'
+        },
+        'WATER': {
+            model: 'Imt.usagepointmanagement.model.technicalinfo.Water',
+            form: 'water-info-form'
+        },
+        'HEAT': {
+            model: 'Imt.usagepointmanagement.model.technicalinfo.Thermal',
+            form: 'thermal-info-form'
+        }
+    },
+
     init: function () {
-        this.control({
-            'usagePointEdit button[action=saveModel]': {
-                click: this.saveUsagePoint
+        var me = this;
+
+        me.control({
+            '#add-usage-point add-usage-point-wizard button[navigationBtn=true]': {
+                click: me.moveTo
             },
-            'usagePointEdit combobox[name=metrologyConfiguration]': {
-                select: this.selectMetrologyConfiguration
+            '#add-usage-point add-usage-point-navigation': {
+                movetostep: me.moveTo
+            },
+            '#add-usage-point general-info-form #up-service-category-combo': {
+                change: me.onServiceCategoryChange
+            },
+            '#add-usage-point add-usage-point-wizard button[action=add]': {
+                click: me.saveUsagePoint
             }
         });
     },
-    selectMetrologyConfiguration: function(combo, record, index) { 
-        this.selectedMetrologyConfig = record[0].data; 
-    },
-    createUsagePoint: function() {
-    	var me = this,
-    	    router = this.getController('Uni.controller.history.Router'),
-    	    widget = Ext.widget('usagePointEdit');
-    	widget.setEdit(false, router.getRoute('usagepoints').buildUrl());
-    	me.getApplication().fireEvent('changecontentevent', widget);
-    },
-    editUsagePoint: function(id) {
-    	var me = this,
-    	    router = this.getController('Uni.controller.history.Router'),
-    	    widget = Ext.widget('usagePointEdit'),
-    	    model = me.getModel('Imt.usagepointmanagement.model.UsagePoint');
-    	me.getApplication().fireEvent('changecontentevent', widget);
-    	widget.setEdit(true, router.getRoute('usagepoints/view').buildUrl({'mRID': id}));
-        widget.setLoading(true);
-        model.load(id, {
-            success: function (record) {
-                me.getApplication().fireEvent('usagePointLoaded', record);
-                var form = widget.down('form');
-                if (form) {
-                    form.setTitle("Edit '" + record.get('mRID') + "'");
-                    me.modelToForm(record, form);
-                }
-            },
-            callback: function () {
-                widget.setLoading(false);
-            }
-        });
-    },    
-    saveUsagePoint: function (button) {
+
+    showWizard: function () {
         var me = this,
-        page = me.getUsagePointEditPage(),
-        form = page.down('form'),
-        formErrorsPanel = form.down('uni-form-error-message'),
-        model;
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
+            router = me.getController('Uni.controller.history.Router');
 
-	    if (form.getForm().isValid()) {
-	        model = me.formToModel();
-	
-	        button.setDisabled(true);
-	        page.setLoading('Saving...');
-	        formErrorsPanel.hide();
-	        model.save({
-	            callback: function (model, operation, success) {
-	                page.setLoading(false);
-	                button.setDisabled(false);
-	
-	                if (success) {
-	                    me.onSuccessSaving(operation.action, model.get('mRID'));
-	                } else {
-	                    me.onFailureSaving(operation.response);
-	                }
-	            }
-	        });
-	    } else {
-	        formErrorsPanel.show();
-	    }
+        mainView.setLoading();
+        me.getStore('Imt.usagepointmanagement.store.ServiceCategories').load(function (records) {
+            var isPossibleAdd = records && records.length;
+
+            me.getApplication().fireEvent('changecontentevent', Ext.widget('add-usage-point', {
+                itemId: 'add-usage-point',
+                returnLink: router.getRoute('usagepoints').buildUrl(),
+                isPossibleAdd: isPossibleAdd
+            }));
+            if (isPossibleAdd) {
+                me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load();
+                me.getStore('Imt.usagepointmanagement.store.PhaseCodes').load();
+                me.getStore('Imt.usagepointmanagement.store.BypassStatuses').load();
+                me.getWizard().loadRecord(Ext.create('Imt.usagepointmanagement.model.UsagePoint'));
+            }
+            mainView.setLoading(false);
+        });
     },
-    modelToForm: function(model, form) {
-        var data = model.getData(),
-            basicForm = form.getForm(),
-            values = {};
-        this.selectedMetrologyConfig=data.metrologyConfiguration;
-        form.loadRecord(model);
-        if (data.metrologyConfiguration) {
-            values['metrologyConfiguration']=data.metrologyConfiguration.name;           
+
+    moveTo: function (button) {
+        var me = this,
+            wizard = me.getWizard(),
+            wizardLayout = wizard.getLayout(),
+            stepView = wizardLayout.getActiveItem(),
+            currentStep = stepView.navigationIndex,
+            validationParams = {validate: true},
+            direction,
+            nextStep,
+            changeStep = function () {
+                Ext.suspendLayouts();
+                me.prepareNextStep(nextStep);
+                wizardLayout.setActiveItem(nextStep - 1);
+                me.getNavigationMenu().moveToStep(nextStep);
+                Ext.resumeLayouts(true);
+            };
+
+        if (button.action === 'step-next') {
+            direction = 1;
+            nextStep = currentStep + direction;
         } else {
-            values['metrologyConfiguration']='NONE';                       
+            direction = -1;
+            if (button.action === 'step-back') {
+                nextStep = currentStep + direction;
+            } else {
+                nextStep = button;
+            }
         }
-        Ext.Object.each(data, function (key, value) {
-            if (Ext.isObject(value)) {
-                if (value.unit) {
-                    Ext.Object.each(value, function (valKey, valValue) {
-                        values[key + valKey.charAt(0).toUpperCase() + valKey.slice(1)] = valValue;
-                    });
-                } 
+
+        wizard.clearInvalid();
+        if (direction > 0) {
+            if (stepView.xtype === 'cps-info-form') {
+                validationParams.customPropertySetId = stepView.getRecord().getId();
+            } else {
+                validationParams.step = currentStep;
+            }
+            me.doRequest({
+                params: validationParams,
+                success: changeStep
+            });
+        } else {
+            changeStep();
+        }
+    },
+
+    saveUsagePoint: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        me.doRequest({
+            success: function (record) {
+                router.getRoute('usagepoints/view').forward({mRID: record.get('mRID')});
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagepoint.add.successMsg', 'MDC', "Usage point added"));
             }
         });
+    },
 
-        basicForm.setValues(values);
-    },
-    formToModel: function () {
-        var me=this,
-            form = this.getUsagePointEditPage().down('form'),
-            values = form.getValues(),
-            model = form.getRecord();
-        if (!model) { 
-            model = Ext.create('Imt.usagepointmanagement.model.UsagePoint');
-        }
-        model.beginEdit();
-        model.set(values);
-        model.set('nominalServiceVoltage', me.buildQuantity(values['nominalServiceVoltageValue'], 'V', 0));
-        model.set('ratedCurrent', me.buildQuantity(values['ratedCurrentValue'], 'A', 0));
-        model.set('ratedPower', me.buildQuantity(values['ratedPowerValue'], 'W', 3));
-        model.set('estimatedLoad', me.buildQuantity(values['estimatedLoadValue'], values['estimatedLoadUnit'], 3));
-        model.set('metrologyConfiguration', me.buildMC(this.selectedMetrologyConfig));
-        model.endEdit();
+    doRequest: function (options) {
+        var me = this,
+            wizard = me.getWizard(),
+            record,
+            modelProxy;
 
-        return model;
-    },
-    buildMC: function(mc) {
-       if(mc == null || mc == '' || mc.id == 0) {
-           return undefined;
-       }
-       var o = Object();
-       o.id=mc.id;
-       o.name=mc.name;
-       return o;
-    },
-    buildQuantity: function(value, unit, mult) {
-    	var o = Object();
-    	o.value = value;
-    	o.unit = unit;
-    	o.multiplier = mult;
-    	return o;
-    },
-    onSuccessSaving: function (action, mRID) {
-        var router = this.getController('Uni.controller.history.Router'),
-            messageText;
+        wizard.updateRecord();
+        wizard.setLoading();
+        record = wizard.getRecord();
+        modelProxy = record.getProxy();
+        record.phantom = true;       // force 'POST' method for request otherwise 'PUT' will be performed
+        modelProxy.appendId = false; // remove 'id' part from request url
+        record.save(Ext.apply({
+            callback: function () {
+                wizard.setLoading(false);
+            },
+            failure: function (record, options) {
+                var response = options.response,
+                    errors = Ext.decode(response.responseText, true);
 
-        switch (action) {
-            case 'create':
-                messageText = Uni.I18n.translate('usagePoint.acknowledge.createSuccess', 'IMT', 'Usage point added');
-                break;
-            case 'update':
-                messageText = Uni.I18n.translate('usagePoint.acknowledge.updateSuccess', 'IMT', 'Usage point saved');
-                break;
-        }
-        this.getApplication().fireEvent('acknowledge', messageText);
-        router.getRoute("usagepoints/view").forward({'mRID':mRID});
-    },
-    onFailureSaving: function (response) {
-        var form = this.getUsagePointEditPage().down('form'),
-            formErrorsPanel = form.down('uni-form-error-message'),
-            basicForm = form.getForm(),
-            responseText;
-
-        if (response.status == 400) {
-            responseText = Ext.decode(response.responseText, true);
-            if (responseText && responseText.errors) {
-                basicForm.markInvalid(responseText.errors);
-                formErrorsPanel.show();
-            } else {
-            	basicForm.markInvalid(response.responseText);
-            	formErrorsPanel.show();
+                if (errors && Ext.isArray(errors.errors)) {
+                    wizard.markInvalid(errors.errors);
+                }
             }
+        }, options));
+        record.phantom = false;     // restore id in the record data for normal functionality
+        modelProxy.appendId = true; // restore id in the url for normal functionality
+    },
+
+    prepareNextStep: function (stepNumber) {
+        var me = this,
+            wizard = me.getWizard(),
+            isLastStep = wizard.query('[isWizardStep=true]').length == stepNumber,
+            buttons = wizard.getDockedComponent('usage-point-wizard-buttons'),
+            nextBtn = buttons.down('[action=step-next]'),
+            addBtn = buttons.down('[action=add]'),
+            backBtn = buttons.down('[action=step-back]');
+
+        if (stepNumber === 1) {
+            nextBtn.show();
+            backBtn.disable();
+            addBtn.hide();
+        } else {
+            nextBtn.setVisible(!isLastStep);
+            addBtn.setVisible(isLastStep);
+            backBtn.enable();
         }
+    },
+
+    onServiceCategoryChange: function (field, newValue) {
+        var me = this,
+            category = me.serviceCategoryMap[newValue],
+            step2;
+
+        if (category) {
+            step2 = {
+                xtype: category.form,
+                title: Uni.I18n.translate('usagepoint.wizard.step2title', 'IMT', 'Step 2: Technical information'),
+                itemId: 'add-usage-point-step2',
+                navigationIndex: 2,
+                ui: 'large',
+                isWizardStep: true,
+                predefinedRecord: Ext.create(category.model)
+            };
+            me.updateSteps(step2, field.findRecordByValue(newValue));
+        }
+    },
+
+    updateSteps: function (step2, serviceCategory) {
+        var me = this,
+            wizard = me.getWizard(),
+            navigation = me.getNavigationMenu(),
+            currentSteps = wizard.query('[isWizardStep=true]'),
+            currentMenuItems = navigation.query('menuitem'),
+            stepNumber = 2,
+            stepsToAdd = [step2],
+            navigationItemsToAdd = [];
+
+        Ext.suspendLayouts();
+        // remove all steps except first
+        for (var i = 1; i < currentSteps.length; i++) {
+            wizard.remove(currentSteps[i], true);
+        }
+        // remove all menu items except first two
+        for (var j = 2; j < currentMenuItems.length; j++) {
+            navigation.remove(currentMenuItems[j], true);
+        }
+        serviceCategory.customPropertySets().each(function (record) {
+            stepNumber++;
+            stepsToAdd.push({
+                xtype: 'cps-info-form',
+                title: record.get('name'),
+                navigationIndex: stepNumber,
+                itemId: 'add-usage-point-step' + stepNumber,
+                ui: 'large',
+                isWizardStep: true,
+                predefinedRecord: record
+            });
+            navigationItemsToAdd.push({
+                text: record.get('name')
+            });
+        });
+        navigation.add(navigationItemsToAdd);
+        wizard.add(stepsToAdd);
+        Ext.resumeLayouts(true);
     }
 });

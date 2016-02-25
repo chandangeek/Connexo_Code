@@ -11,7 +11,7 @@ Ext.define('Imt.controller.History', {
                 	title: Uni.I18n.translate('general.label.usagepoint.add', 'IMT', 'Add usage point'),
                     route: 'add',
                     controller: 'Imt.usagepointmanagement.controller.Edit',
-                    action: 'createUsagePoint'
+                    action: 'showWizard'
             	},
            		view: {
            			title: Uni.I18n.translate('general.label.usagepoint.view', 'IMT', 'View usage point'),
