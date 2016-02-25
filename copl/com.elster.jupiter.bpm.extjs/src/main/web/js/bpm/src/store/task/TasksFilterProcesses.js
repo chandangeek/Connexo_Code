@@ -4,7 +4,7 @@ Ext.define('Bpm.store.task.TasksFilterProcesses', {
 
     proxy: {
         type: 'rest',
-        url: '/api/bpm/runtime/processes',
+        url: '/api/bpm/runtime/avaiableactiveprocesses',
         timeout: 240000,
         reader: {
             type: 'json',
