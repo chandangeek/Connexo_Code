@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.HeatDetailBuilder;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -93,6 +94,13 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
     }
 
     UsagePointDetailImpl init(UsagePoint usagePoint, HeatDetailBuilder builder, Interval interval) {
+        this.usagePoint.set(usagePoint);
+        this.interval = Objects.requireNonNull(interval);
+        setCollar(builder.getCollar());
+        return this;
+    }
+
+    UsagePointDetailImpl init(UsagePoint usagePoint, UsagePointDetailBuilder builder, Interval interval) {
         this.usagePoint.set(usagePoint);
         this.interval = Objects.requireNonNull(interval);
         setCollar(builder.getCollar());

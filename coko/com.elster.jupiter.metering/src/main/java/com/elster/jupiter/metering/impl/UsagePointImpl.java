@@ -25,6 +25,7 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
@@ -124,6 +125,12 @@ public class UsagePointImpl implements UsagePoint {
         this.serviceCategory.set(serviceCategory);
         this.isSdp = true;
         return this;
+    }
+
+    @Override
+    public UsagePointDetailBuilder newDefaultDetailBuilder(Instant start) {
+        Interval interval = Interval.of(Range.atLeast(start));
+        return new DefaultUsagePointDetailBuilderImpl(dataModel, this, interval);
     }
 
     @Override

@@ -55,5 +55,4 @@ public interface WaterDetailBuilder  extends UsagePointDetailBuilder{
     Optional<Boolean> getCapped();
 
     WaterDetail build();
-
 }
