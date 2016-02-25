@@ -25,7 +25,9 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.impl.FakeTypeOneCustomPropertySet;
 import com.elster.jupiter.servicecall.impl.MessageSeeds;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
+import com.elster.jupiter.servicecall.impl.ServiceCallServiceImpl;
 import com.elster.jupiter.servicecall.impl.TranslationKeys;
+import com.elster.jupiter.servicecall.impl.example.DisconnectHandler;
 import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeDomainExtension;
 import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeOneCustomPropertySet;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -96,6 +98,7 @@ public class ServiceCallIT {
     private CustomPropertySetService customPropertySetService;
     private ServiceCallTypeOneCustomPropertySet serviceCallTypeOneCustomPropertySet;
     private FakeTypeOneCustomPropertySet fake;
+    private DisconnectHandler disconnectHandler;
 
     private class MockModule extends AbstractModule {
 
@@ -146,6 +149,7 @@ public class ServiceCallIT {
                 serviceCallService = injector.getInstance(ServiceCallService.class);
                 serviceCallTypeOneCustomPropertySet = injector.getInstance(ServiceCallTypeOneCustomPropertySet.class);
                 fake = injector.getInstance(FakeTypeOneCustomPropertySet.class);
+                new DisconnectHandler((ServiceCallServiceImpl) serviceCallService);
                 return null;
             }
         });
@@ -206,10 +210,21 @@ public class ServiceCallIT {
     }
 
     @Test
-    @ExpectedConstraintViolation(property = "serviceCallHandler", messageId = "{"+MessageSeeds.Constants.REQUIRED_FIELD+"}")
+    @ExpectedConstraintViolation(property = "serviceCallHandler", messageId = "{" + MessageSeeds.Constants.REQUIRED_FIELD + "}", strict = false)
     public void testCreateServiceCallTypeWithoutHandler() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").logLevel(LogLevel.INFO).add();
+        }
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "serviceCallHandler", messageId = "{" + MessageSeeds.Constants.UNKNOWN_HANDLER + "}")
+    public void testCreateServiceCallTypeWithUnknownHandler() throws Exception {
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
+                    .handler("BLABLALBA")
+                    .logLevel(LogLevel.INFO)
+                    .add();
         }
     }
 

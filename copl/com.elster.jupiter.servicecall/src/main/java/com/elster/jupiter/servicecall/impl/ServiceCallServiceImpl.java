@@ -100,7 +100,7 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String,Object> properties) {
+    public void addServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties) {
         String name = (String) properties.get("name");
         if (Checks.is(name).emptyOrOnlyWhiteSpace()) {
             throw new MissingHandlerNameException(thesaurus, MessageSeeds.NO_NAME_FOR_HANDLER, serviceCallHandler);
@@ -150,7 +150,10 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
 
     @Override
     public Optional<ServiceCallHandler> findHandler(String handler) {
-        return Optional.of(handlerMap.get(handler));
+        if (Checks.is(handler).emptyOrOnlyWhiteSpace()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(handlerMap.get(handler));
     }
 
     @Override

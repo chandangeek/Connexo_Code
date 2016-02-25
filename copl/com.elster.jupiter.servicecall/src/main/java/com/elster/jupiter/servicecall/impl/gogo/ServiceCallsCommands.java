@@ -31,6 +31,7 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=createServiceCallType",
                 "osgi.command.function=customPropertySets",
                 "osgi.command.function=handlers",
+                "osgi.command.function=serviceCallLifeCycles",
                 "osgi.command.function=createServiceCallLifeCycle"
         }, immediate = true)
 public class ServiceCallsCommands {
@@ -67,11 +68,13 @@ public class ServiceCallsCommands {
                                 .stream()
                                 .map(RegisteredCustomPropertySet::getCustomPropertySet)
                                 .map(CustomPropertySet::getName)
-                                .collect(toList())) + "Handled by " + sct.getServiceCallHandler()));
+                                .collect(toList())) + " handled by " + sct.getServiceCallHandler()
+                        .getClass()
+                        .getSimpleName()));
     }
 
     public void createServiceCallType() {
-        System.out.println("Usage: createServiceCallType <name> <version name> <optional:log level> <optional: handler> <optional: life cycle name> <optional:cps ids>");
+        System.out.println("Usage: createServiceCallType <name> <version name> [ <log level> <handler> [life cycle name] <cps ids> ]");
     }
 
     public void createServiceCallType(String name, String versionName) {
@@ -137,6 +140,12 @@ public class ServiceCallsCommands {
     public void createServiceCallLifeCycle() {
         System.out.println("Usage: createServiceCallLifeCycle <name> <optional:operations>");
         System.out.println("Operations: removeState:<state> removeTransition:<fromState>:<toState>");
+    }
+
+    public void serviceCallLifeCycles() {
+        serviceCallService.getServiceCallLifeCycles()
+                .stream()
+                .forEach(lc -> System.out.println(String.format("%d %s", lc.getId(), lc.getName())));
     }
 
     public void createServiceCallLifeCycle(String name, String... operations) {
