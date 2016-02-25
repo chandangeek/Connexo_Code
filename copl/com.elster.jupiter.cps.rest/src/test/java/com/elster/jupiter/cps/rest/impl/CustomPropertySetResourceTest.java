@@ -48,7 +48,7 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
         assertThat(jsonCustomAttributeSets.get("id")).isEqualTo(100500);
         assertThat(jsonCustomAttributeSets.get("name")).isEqualTo("domainExtensionName");
         assertThat(jsonCustomAttributeSets.get("domainName")).isEqualTo("com.elster.jupiter.properties.BigDecimalFactory");
-        assertThat(jsonCustomAttributeSets.get("isActive")).isEqualTo(true);
+        assertThat(jsonCustomAttributeSets.get("isActive")).isNull(); // it is regular CPS
         assertThat(jsonCustomAttributeSets.get("isRequired")).isEqualTo(true);
         assertThat(jsonCustomAttributeSets.get("isVersioned")).isEqualTo(false);
         List jsonViewPrivileges = (List) jsonCustomAttributeSets.get("viewPrivileges");
