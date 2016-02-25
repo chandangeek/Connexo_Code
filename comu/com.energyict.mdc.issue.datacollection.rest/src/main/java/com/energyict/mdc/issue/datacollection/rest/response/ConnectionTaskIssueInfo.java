@@ -11,7 +11,7 @@ import com.energyict.mdc.issue.datacollection.rest.i18n.ConnectionTaskSuccessInd
 import java.time.Instant;
 import java.util.List;
 
-public class IssueConnectionTaskInfo {
+public class ConnectionTaskIssueInfo {
     public Long id;
     public Long version;
 
@@ -24,5 +24,5 @@ public class IssueConnectionTaskInfo {
 
     public List<JournalEntryInfo> journals;
 
-    public IssueConnectionTaskInfo() {}
+    public ConnectionTaskIssueInfo() {}
 }

@@ -25,10 +25,8 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
-import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
-import com.energyict.mdc.issue.datacollection.rest.i18n.ComSessionSuccessIndicatorTranslationKeys;
-import com.energyict.mdc.issue.datacollection.rest.i18n.CompletionCodeTranslationKeys;
-import com.energyict.mdc.issue.datacollection.rest.i18n.ConnectionTaskSuccessIndicatorTranslationKeys;
+
+import com.energyict.mdc.issue.datacollection.rest.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.rest.i18n.TaskStatusTranslationKeys;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -104,9 +102,9 @@ public class DataCollectionIssueInfoFactory {
     }
 
     private void addConnectionAttempts(DataCollectionIssueInfo<?> info, IssueDataCollection issue) {
-        info.firstConnectionAttempt = issue.getFirstConnectionAttempt();
-        info.lastConnectionAttempt = issue.getLastConnectionAttempt();
-        info.connectionAttemptsNumber = issue.getConnectionAttemptsNumber();
+        info.firstConnectionAttempt = issue.getFirstConnectionAttemptTimestamp();
+        info.lastConnectionAttempt = issue.getLastConnectionAttemptTimestamp();
+        info.connectionAttemptsNumber = issue.getConnectionAttempt();
     }
 
     private void addMeterInfo(DataCollectionIssueInfo<?> info, IssueDataCollection issue) {
@@ -139,18 +137,22 @@ public class DataCollectionIssueInfoFactory {
         }
     }
 
-    private IssueConnectionTaskInfo getConnectionTaskInfo(ConnectionTask connectionTask) {
-        IssueConnectionTaskInfo info = new IssueConnectionTaskInfo();
+    private ConnectionTaskIssueInfo getConnectionTaskInfo(ConnectionTask connectionTask) {
+        ConnectionTaskIssueInfo info = new ConnectionTaskIssueInfo();
         info.id = connectionTask.getId();
         info.latestAttempt = connectionTask.getLastCommunicationStart();
         info.lastSuccessfulAttempt = connectionTask.getLastSuccessfulCommunicationEnd();
-        info.latestStatus = new IdWithNameInfo(connectionTask.getSuccessIndicator().name(),
-                ConnectionTaskSuccessIndicatorTranslationKeys.translationFor(connectionTask.getSuccessIndicator(), thesaurus));
+        String connectionTaskIndicatorName = connectionTask.getSuccessIndicator().name();
+        info.latestStatus = new IdWithNameInfo(connectionTaskIndicatorName,
+                thesaurus.getString(connectionTaskIndicatorName, connectionTaskIndicatorName));
+                //ConnectionTaskSuccessIndicatorTranslationKeys.translationFor(connectionTask.getSuccessIndicator(), thesaurus));
 
         Optional<ComSession> comSessionRef = connectionTask.getLastComSession();
         if(comSessionRef.isPresent()) {
             ComSession.SuccessIndicator successIndicator = comSessionRef.get().getSuccessIndicator();
-            info.latestResult = new IdWithNameInfo(successIndicator.name(), ComSessionSuccessIndicatorTranslationKeys.translationFor(successIndicator, thesaurus));
+            String thesaurusKey = ComSession.class.getSimpleName() + "." + successIndicator.name();
+            info.latestResult = new IdWithNameInfo(successIndicator.name(), thesaurus.getString(thesaurusKey, thesaurusKey));
+                    //ComSessionSuccessIndicatorTranslationKeys.translationFor(successIndicator, thesaurus));
             info.journals = comSessionRef.get().getJournalEntries().stream().map(this::asComSessionJournalInfo).collect(Collectors.toList());
 
         }
@@ -159,8 +161,8 @@ public class DataCollectionIssueInfoFactory {
         return info;
     }
 
-    private IssueCommunicationTaskInfo getCommunicationTaskInfo(ComTaskExecution comTaskExecution) {
-        IssueCommunicationTaskInfo communicationTaskInfo = new IssueCommunicationTaskInfo();
+    private CommunicationTaskIssueInfo getCommunicationTaskInfo(ComTaskExecution comTaskExecution) {
+        CommunicationTaskIssueInfo communicationTaskInfo = new CommunicationTaskIssueInfo();
         communicationTaskInfo.id = comTaskExecution.getId();
         if (comTaskExecution.usesSharedSchedule()) {
             communicationTaskInfo.name = ((ScheduledComTaskExecution)comTaskExecution).getComSchedule().getName();
@@ -190,7 +192,8 @@ public class DataCollectionIssueInfoFactory {
     }
 
     private IdWithNameInfo getLatestResultAsInfo(CompletionCode completionCode) {
-        return new IdWithNameInfo(completionCode.name(), CompletionCodeTranslationKeys.translationFor(completionCode, thesaurus));
+        String completionCodeName = completionCode.name();
+        return new IdWithNameInfo(completionCodeName, thesaurus.getString(completionCodeName, completionCodeName));
     }
 
     private JournalEntryInfo asComSessionJournalInfo(ComSessionJournalEntry comSessionJournalEntry) {

@@ -8,9 +8,6 @@ import java.time.Instant;
 public class JournalEntryInfo {
     public Instant timestamp;
     public String details;
-    public String errorDetails;
     @XmlJavaTypeAdapter(LogLevelAdapter.class)
     public ComServer.LogLevel logLevel;
-
-
 }

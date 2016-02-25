@@ -8,9 +8,6 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.issue.datacollection.rest.i18n.ComSessionSuccessIndicatorTranslationKeys;
-import com.energyict.mdc.issue.datacollection.rest.i18n.CompletionCodeTranslationKeys;
-import com.energyict.mdc.issue.datacollection.rest.i18n.ConnectionTaskSuccessIndicatorTranslationKeys;
 import com.energyict.mdc.issue.datacollection.rest.i18n.DataCollectionIssueTranslationKeys;
 import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.rest.resource.IssueResource;
@@ -40,6 +37,7 @@ import java.util.*;
 public class IssueDataCollectionApplication extends Application implements MessageSeedProvider, TranslationKeyProvider {
     public static final String APP_KEY = "MDC";
     public static final String ISSUE_DATACOLLECTION_REST_COMPONENT = "IDR";
+    public static final String DASHBOARD_REST_COMPONENT_NAME = "DSR";
 
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
@@ -96,7 +94,10 @@ public class IssueDataCollectionApplication extends Application implements Messa
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.REST);
+        Thesaurus domainThesaurus = nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN);
+        Thesaurus restThesaurus = nlsService.getThesaurus(ISSUE_DATACOLLECTION_REST_COMPONENT, Layer.REST);
+        Thesaurus dashboardRestThesaurus = nlsService.getThesaurus(DASHBOARD_REST_COMPONENT_NAME, Layer.REST);
+        this.thesaurus = domainThesaurus.join(restThesaurus).join(dashboardRestThesaurus);
     }
 
     @Reference
@@ -148,12 +149,14 @@ public class IssueDataCollectionApplication extends Application implements Messa
 
     @Override
     public List<TranslationKey> getKeys() {
+        return Arrays.asList(DataCollectionIssueTranslationKeys.values());
+       /* Collections.addAll(translationKeys, DataCollectionIssueTranslationKeys.values());
         List<TranslationKey> translationKeys = new ArrayList<>();
         translationKeys.addAll(Arrays.asList(DataCollectionIssueTranslationKeys.values()));
         translationKeys.addAll(Arrays.asList(CompletionCodeTranslationKeys.values()));
         translationKeys.addAll(Arrays.asList(ComSessionSuccessIndicatorTranslationKeys.values()));
         translationKeys.addAll(Arrays.asList(ConnectionTaskSuccessIndicatorTranslationKeys.values()));
-        return translationKeys;
+        return translationKeys;*/
     }
 
     @Override

@@ -6,7 +6,7 @@ import com.energyict.mdc.tasks.ComTask;
 import java.time.Instant;
 import java.util.List;
 
-public class IssueCommunicationTaskInfo {
+public class CommunicationTaskIssueInfo {
     public Long id;
     public String name;
 
@@ -19,6 +19,6 @@ public class IssueCommunicationTaskInfo {
 
     public List<JournalEntryInfo> journals;
 
-    public IssueCommunicationTaskInfo() {}
+    public CommunicationTaskIssueInfo() {}
 
 }
