@@ -129,6 +129,7 @@ public class InMemoryPersistence {
     private ConnectionTypeService connectionTypeService;
     private InMemoryBootstrapModule bootstrapModule;
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private FiniteStateMachineService finiteStateMachineService;
 
     public void initializeDatabaseWithMockedProtocolPluggableService(String testName, boolean showSqlLogging) {
         this.initializeDatabase(testName, showSqlLogging, true);
@@ -136,6 +137,10 @@ public class InMemoryPersistence {
 
     public void initializeDatabaseWithRealProtocolPluggableService(String testName, boolean showSqlLogging) {
         this.initializeDatabase(testName, showSqlLogging, false);
+    }
+
+    public FiniteStateMachineService getFiniteStateMachineService() {
+        return finiteStateMachineService;
     }
 
     private void initializeDatabase(String testName, boolean showSqlLogging, boolean mockedProtocolPluggableService) {
@@ -149,7 +154,7 @@ public class InMemoryPersistence {
             injector.getInstance(Publisher.class);
             this.eventService = (EventServiceImpl) injector.getInstance(EventService.class);
             injector.getInstance(NlsService.class);
-            injector.getInstance(FiniteStateMachineService.class);
+            finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             deviceLifeCycleConfigurationService = injector.getInstance(DeviceLifeCycleConfigurationService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.customPropertySetService = injector.getInstance(CustomPropertySetService.class);

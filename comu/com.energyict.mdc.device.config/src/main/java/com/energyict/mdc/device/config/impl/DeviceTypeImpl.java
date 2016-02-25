@@ -63,6 +63,7 @@ import java.util.stream.Collectors;
 
 @ProtocolCannotChangeWithExistingConfigurations(groups = {Save.Update.class})
 @DeviceProtocolPluggableClassValidation(groups = {Save.Create.class, Save.Update.class})
+@DeviceLifeCycleOnDeviceTypeValidation(groups = {Save.Create.class, Save.Update.class})
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements ServerDeviceType {
 
     enum Fields {
@@ -70,7 +71,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         NAME("name"),
         CONFLICTINGMAPPING("deviceConfigConflictMappings"),
         CUSTOMPROPERTYSETUSAGE("deviceTypeCustomPropertySetUsages"),
-        DEVICETYPEPURPOSE("deviceTypePurpose");
+        DEVICETYPEPURPOSE("deviceTypePurpose"),
+        DEVICE_LIFE_CYCLE("deviceLifeCycle"),;
 
         private final String javaFieldName;
 
@@ -118,6 +120,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private DeviceConfigurationService deviceConfigurationService;
 
     private DeviceTypePurpose deviceTypePurpose = DeviceTypePurpose.REGULAR;
+    private boolean deviceTypePurposeChanged = false;
 
     /**
      * The DeviceProtocol of this DeviceType, only for local usage.
@@ -401,6 +404,11 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public boolean isDataloggerSlave() {
         return deviceTypePurpose.equals(DeviceTypePurpose.DATALOGGER_SLAVE);
+    }
+
+    @Override
+    public void setDeviceTypePurpose(DeviceTypePurpose deviceTypePurpose) {
+        this.deviceTypePurpose = deviceTypePurpose;
     }
 
     @Override

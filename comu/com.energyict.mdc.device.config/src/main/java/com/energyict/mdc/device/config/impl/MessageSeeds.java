@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 
@@ -53,6 +53,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS(7007, Keys.DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS, "The protocol of a device type cannot change when the device type has configurations"),
     DUPLICATE_REGISTER_TYPE_IN_DEVICE_TYPE(7008, "deviceType.registerType.duplicate", "The register type ''{0}'' was already added to the device type ''{1}''"),
     DEVICE_LIFE_CYCLE_REQUIRED(7009, Keys.DEVICE_LIFE_CYCLE_REQUIRED, "Device life cycle is required"),
+    DATALOGGER_SLAVE_LIFECYCLE_WITH_COMMUNICATION(7010, Keys.DATALOGGER_SLAVE_LIFECYCLE_WITH_COMMUNICATION, "The device lifecylce of a datalogger slave may not contain communication related items"),
     LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_NOT_ON_DEVICE_TYPE(8002, "loadProfileSpec.cannotAddLoadProfileSpecOfTypeXBecauseDeviceTypeYDoesNotContainIt", "The load profile configuration contains a load profile type {0} which is not configured on the device type"),
     LOAD_PROFILE_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION(8003, "loadProfileSpec.active.configuration", "You can not add a load profile configuration to an active device configuration"),
     LOAD_PROFILE_SPEC_CANNOT_CHANGE_DEVICE_CONFIG(8004, "loadProfileSpec.change.configuration", "You can not change the device configuration of an existing load profile configuration"),
@@ -253,6 +254,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String READINGTYPE_CAN_NOT_BE_MULTIPLIED = "readingtype.can.not.be.multiplied";
         public static final String CANNOT_CHANGE_THE_USAGE_OF_THE_MULTIPLIER_OF_ACTIVE_CONFIG = "cannot.change.the.usage.of.multiplier.of.active.config";
         public static final String CANNOT_CHANGE_MULTIPLIER_OF_ACTIVE_CONFIG = "cannot.change.multiplier.of.active.config";
+        public static final String DATALOGGER_SLAVE_LIFECYCLE_WITH_COMMUNICATION = "datalogger.slave.device.lifecycle.with.communication";
     }
 
 }

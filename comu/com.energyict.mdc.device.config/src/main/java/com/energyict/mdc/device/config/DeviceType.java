@@ -170,6 +170,9 @@ public interface DeviceType extends HasId, HasName {
 
     boolean isDataloggerSlave();
 
+    //TODO remove this setter and use a proper updater
+    void setDeviceTypePurpose(DeviceTypePurpose deviceTypePurpose);
+
     List<DeviceConfigConflictMapping> getDeviceConfigConflictMappings();
 
     interface DeviceConfigurationBuilder {
