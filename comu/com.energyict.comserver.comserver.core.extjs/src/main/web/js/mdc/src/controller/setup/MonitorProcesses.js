@@ -1,9 +1,11 @@
 Ext.define('Mdc.controller.setup.MonitorProcesses', {
     extend: 'Ext.app.Controller',
     requires: [
+        'Bpm.startprocess.controller.StartProcess',
         'Bpm.monitorprocesses.controller.MonitorProcesses'
     ],
     controllers: [
+        'Bpm.startprocess.controller.StartProcess',
         'Bpm.monitorprocesses.controller.MonitorProcesses'
     ],
     stores: [
@@ -16,11 +18,6 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
     refs: [
         {ref: 'overviewLink', selector: '#usage-point-overview-link'}
     ],
-
-    init: function () {
-        var me = this;
-        me.getController('Bpm.monitorprocesses.controller.MonitorProcesses'); // Forces registration.
-    },
 
     showDeviceProcesses: function (mRID) {
         var me = this,
