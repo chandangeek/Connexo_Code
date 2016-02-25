@@ -1949,83 +1949,55 @@ Ext.define('Mdc.controller.history.Setup', {
             }
         },
         'usagepoints/usagepoint/processes': {
-            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+            title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
             route: 'usagepoints/{usagePointId}/processes',
-            controller: 'Dbp.monitorprocesses.controller.MonitorProcesses',
+            controller: 'Mdc.controller.setup.MonitorProcesses',
             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-            action: 'showUsagePointProcesses',
-            params: {
-                model: 'Mdc.usagepointmanagement.model.UsagePoint',
-                sidePanel: 'usage-point-management-side-menu'
-            }
+            action: 'showUsagePointProcesses'
         },
         'usagepoints/usagepoint/processesrunning': {
-            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+            title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
             route: 'usagepoints/{usagePointId}/processes/running',
-            controller: 'Dbp.monitorprocesses.controller.MonitorProcesses',
+            controller: 'Mdc.controller.setup.MonitorProcesses',
             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-            action: 'showUsagePointProcesses',
-            params: {
-                model: 'Mdc.usagepointmanagement.model.UsagePoint',
-                sidePanel: 'usage-point-management-side-menu'
-            }
+            action: 'showUsagePointProcesses'
         },
         'usagepoints/usagepoint/processeshistory': {
-            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+            title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
             route: 'usagepoints/{usagePointId}/processes/history',
-            controller: 'Dbp.monitorprocesses.controller.MonitorProcesses',
+            controller: 'Mdc.controller.setup.MonitorProcesses',
             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
             filter: 'Bpm.monitorprocesses.model.HistoryProcessesFilter',
-            action: 'showUsagePointProcesses',
-            params: {
-                model: 'Mdc.usagepointmanagement.model.UsagePoint',
-                sidePanel: 'usage-point-management-side-menu'
-            }
+            action: 'showUsagePointProcesses'
         },
         'devices/device/processes': {
-            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+            title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
             route: 'devices/{mRID}/processes',
-            controller: 'Dbp.monitorprocesses.controller.MonitorProcesses',
+            controller: 'Mdc.controller.setup.MonitorProcesses',
             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-            action: 'showDeviceProcesses',
-            params: {
-                model: 'Mdc.model.Device',
-                sidePanel: 'deviceMenu'
-            }
+            action: 'showDeviceProcesses'
         },
         'devices/device/processesrunning': {
-            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+            title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
             route: 'devices/{mRID}/processes/running',
-            controller: 'Dbp.monitorprocesses.controller.MonitorProcesses',
+            controller: 'Mdc.controller.setup.MonitorProcesses',
             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-            action: 'showDeviceProcesses',
-            params: {
-                model: 'Mdc.model.Device',
-                sidePanel: 'deviceMenu'
-            }
+            action: 'showDeviceProcesses'
         },
         'devices/device/processeshistory': {
-            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+            title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
             route: 'devices/{mRID}/processes/history',
-            controller: 'Dbp.monitorprocesses.controller.MonitorProcesses',
+            controller: 'Mdc.controller.setup.MonitorProcesses',
             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
             filter: 'Bpm.monitorprocesses.model.HistoryProcessesFilter',
-            action: 'showDeviceProcesses',
-            params: {
-                model: 'Mdc.model.Device',
-                sidePanel: 'deviceMenu'
-            }
+            action: 'showDeviceProcesses'
         },
         'devices/device/processstart': {
-            title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
+            title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
             route: 'devices/{mRID}/processes/start',
-            controller: 'Dbp.startprocess.controller.StartProcess',
+            controller: 'Mdc.controller.setup.MonitorProcesses',
             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-            action: 'showStartProcess',
-            params: {
-                model: 'Mdc.model.Device',
-                sidePanel: 'deviceMenu'
-            }
+            action: 'showDeviceStartProcess'
         }
     },
 
