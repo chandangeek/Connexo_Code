@@ -28,8 +28,6 @@ import java.util.*;
  */
 public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorageEvent> implements MeterDataStoreCommand {
 
-    private final static String DESCRIPTION_TITLE = "Store meter data";
-
     private final Map<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> meterReadings = new HashMap<>();
     private final Map<LoadProfileIdentifier, Instant> lastReadings = new HashMap<>();
     private final Map<LogBookIdentifier, Instant> lastLogBooks = new HashMap<>();

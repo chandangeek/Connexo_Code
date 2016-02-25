@@ -1,12 +1,15 @@
 package com.energyict.mdc.engine.impl.events.datastorage;
 
+import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
+import com.energyict.mdc.engine.impl.commands.store.CollectedFirmwareVersionDeviceCommand;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
+/**
+ * {@link CollectedDataProcessingEvent} related to a {@link CollectedFirmwareVersionDeviceCommand}
+ */
 public class CollectedFirmwareVersionEvent extends AbstractCollectedDataProcessingEventImpl<CollectedFirmwareVersion> {
-
-    private final static String DESCRIPTION = "collectedDataProcessingEvent.firmwareVersion.description";
 
     public CollectedFirmwareVersionEvent(ServiceProvider serviceProvider, CollectedFirmwareVersion firmwareVersion) {
         super(serviceProvider, firmwareVersion);
@@ -14,7 +17,7 @@ public class CollectedFirmwareVersionEvent extends AbstractCollectedDataProcessi
 
     @Override
     public String getDescription() {
-        return DESCRIPTION;
+        return CollectedFirmwareVersionDeviceCommand.DESCRIPTION_TITLE;
     }
 
     protected void addPayload(JSONWriter writer) throws JSONException {

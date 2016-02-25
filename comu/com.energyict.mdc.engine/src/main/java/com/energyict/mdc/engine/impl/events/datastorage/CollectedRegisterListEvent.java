@@ -1,15 +1,18 @@
 package com.energyict.mdc.engine.impl.events.datastorage;
 
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
+import com.energyict.mdc.engine.impl.commands.store.CollectedRegisterListDeviceCommand;
 import com.energyict.mdc.protocol.api.device.data.*;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
 import java.time.Instant;
 
+/**
+ * {@link CollectedDataProcessingEvent} related to a {@link CollectedRegisterListDeviceCommand}
+ */
 public class CollectedRegisterListEvent extends AbstractCollectedDataProcessingEventImpl<CollectedRegisterList> {
-
-    private final static String DESCRIPTION = "collectedDataProcessingEvent.firmwareVersion.description";
 
     public CollectedRegisterListEvent(ServiceProvider serviceProvider, CollectedRegisterList registerList) {
         super(serviceProvider, registerList);
@@ -17,7 +20,7 @@ public class CollectedRegisterListEvent extends AbstractCollectedDataProcessingE
 
     @Override
     public String getDescription() {
-        return DESCRIPTION;
+        return CollectedRegisterListDeviceCommand.DESCRIPTION_TITLE;
     }
 
     protected void addPayload(JSONWriter writer) throws JSONException {

@@ -24,7 +24,7 @@ import java.util.Optional;
  */
 public class CollectedLogBookDeviceCommand extends DeviceCommandImpl<CollectedLogBookEvent> {
 
-    private final static String DESCRIPTION_TITLE = "Collected logbook data";
+    public final static String DESCRIPTION_TITLE = "Collected logbook data";
 
     private final DeviceLogBook deviceLogBook;
     private final MeterDataStoreCommand meterDataStoreCommand;

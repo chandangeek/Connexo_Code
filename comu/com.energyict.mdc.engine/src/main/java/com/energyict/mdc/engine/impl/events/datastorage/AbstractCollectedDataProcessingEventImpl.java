@@ -3,12 +3,14 @@ package com.energyict.mdc.engine.impl.events.datastorage;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
 /**
+ * Base class for all {@link CollectedDataProcessingEvent}s
  * Carrier for collected data
  * @param <T> Type of collected data that is stored
  *
@@ -61,11 +63,12 @@ public abstract class AbstractCollectedDataProcessingEventImpl<T extends Collect
     }
 
     protected void addEventInfo(JSONWriter writer) throws JSONException {
-        writer.key("description").value(getDescription());
-        if (this.getPayload() != null) {
-            addPayload(writer);
-        }
-        addIssue(writer);
+        writer.key("log-level").value(String.valueOf(this.getLogLevel()));
+        writer.key("message").value(getDescription());
+        writer.key("details");
+        writer.object();
+        addPayload(writer);
+        writer.endObject();
     }
 
     /**
@@ -88,6 +91,21 @@ public abstract class AbstractCollectedDataProcessingEventImpl<T extends Collect
 
             writer.endObject();
         }
+    }
+
+    @Override
+    public LogLevel getLogLevel (){
+         if (!this.hasIssue()){
+             return LogLevel.INFO;
+         }
+         if (issue.isWarning()){
+             return LogLevel.WARN;
+         }
+        return LogLevel.ERROR;
+    }
+
+    public String getLogMessage (){
+        return this.toString();
     }
 
 }

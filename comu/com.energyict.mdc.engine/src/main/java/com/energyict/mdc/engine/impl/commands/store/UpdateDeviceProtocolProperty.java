@@ -29,7 +29,7 @@ import java.util.Optional;
  */
 public class UpdateDeviceProtocolProperty extends DeviceCommandImpl<UpdateDeviceProtocolPropertyEvent> {
 
-    private final static String DESCRIPTION_TITLE = "Update device protocol property";
+    public final static String DESCRIPTION_TITLE = "Update device protocol property";
 
     private final DeviceIdentifier deviceIdentifier;
     private final PropertySpec propertySpec;

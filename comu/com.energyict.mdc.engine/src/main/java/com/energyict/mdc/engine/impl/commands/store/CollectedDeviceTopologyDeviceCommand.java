@@ -32,7 +32,7 @@ import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.S
 
 public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<CollectedDeviceTopologyEvent> {
 
-    private final static String DESCRIPTION_TITLE = "Collected device topology";
+    public final static String DESCRIPTION_TITLE = "Collected device topology";
 
     private final CollectedTopology deviceTopology;
     private final MeterDataStoreCommand meterDataStoreCommand;

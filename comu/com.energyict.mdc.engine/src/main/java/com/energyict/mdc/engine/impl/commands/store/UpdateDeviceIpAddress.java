@@ -22,7 +22,7 @@ import java.util.Optional;
  */
 public class UpdateDeviceIpAddress extends DeviceCommandImpl<UpdateDeviceIpAddressEvent> {
 
-    private final static String DESCRIPTION_TITLE = "Update device IP address";
+    public final static String DESCRIPTION_TITLE = "Update device IP address";
 
     private DeviceIdentifier deviceIdentifier;
     private String ipAddress;

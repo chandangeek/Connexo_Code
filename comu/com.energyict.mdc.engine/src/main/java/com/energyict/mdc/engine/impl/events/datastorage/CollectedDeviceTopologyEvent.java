@@ -1,13 +1,16 @@
 package com.energyict.mdc.engine.impl.events.datastorage;
 
+import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
+import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceTopologyDeviceCommand;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
+/**
+ * {@link CollectedDataProcessingEvent} related to a {@link CollectedDeviceTopologyDeviceCommand}
+ */
 public class CollectedDeviceTopologyEvent extends AbstractCollectedDataProcessingEventImpl<CollectedTopology> {
-
-    private final static String DESCRIPTION = "collectedDataProcessingEvent.deviceTopology.description";
 
     public CollectedDeviceTopologyEvent(ServiceProvider serviceProvider, CollectedTopology topology) {
         super(serviceProvider, topology);
@@ -15,7 +18,7 @@ public class CollectedDeviceTopologyEvent extends AbstractCollectedDataProcessin
 
     @Override
     public String getDescription() {
-        return DESCRIPTION;
+        return CollectedDeviceTopologyDeviceCommand.DESCRIPTION_TITLE;
     }
 
     protected void addPayload(JSONWriter writer) throws JSONException {

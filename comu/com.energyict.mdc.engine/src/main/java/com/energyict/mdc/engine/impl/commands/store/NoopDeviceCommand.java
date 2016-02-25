@@ -14,7 +14,7 @@ import java.util.*;
  */
 public class NoopDeviceCommand extends DeviceCommandImpl<NoopCollectedDataEvent> {
 
-    private final static String DESCRIPTION_TITLE = "No operations device command";
+    public final static String DESCRIPTION_TITLE = "No operations device command";
 
     public NoopDeviceCommand() {
         /* Not passing the ComTaskExecution because current implementation

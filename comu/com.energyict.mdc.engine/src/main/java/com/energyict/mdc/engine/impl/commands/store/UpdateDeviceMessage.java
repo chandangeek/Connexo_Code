@@ -22,7 +22,7 @@ import java.util.Optional;
  */
 public class UpdateDeviceMessage extends DeviceCommandImpl<UpdateDeviceMessageEvent> {
 
-    private final static String DESCRIPTION_TITLE = "Update device message";
+    public final static String DESCRIPTION_TITLE = "Update device message";
 
     private MessageIdentifier messageIdentifier;
     private DeviceMessageStatus deviceMessageStatus;

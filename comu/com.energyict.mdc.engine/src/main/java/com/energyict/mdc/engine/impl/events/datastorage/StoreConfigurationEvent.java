@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.events.datastorage;
 
+import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.commands.store.StoreConfigurationUserFile;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 
@@ -8,13 +9,9 @@ import org.json.JSONException;
 import org.json.JSONWriter;
 
 /**
- * Copyrights EnergyICT
- * Date: 18/02/2016
- * Time: 13:54
+ * {@link CollectedDataProcessingEvent} related to a {@link StoreConfigurationUserFile}
  */
 public class StoreConfigurationEvent extends AbstractCollectedDataProcessingEventImpl  {
-
-    private final static String DESCRIPTION = "collectedDataProcessingEvent.storeConfiguration.description";
 
     private DeviceIdentifier deviceIdentifier;
 
@@ -28,7 +25,7 @@ public class StoreConfigurationEvent extends AbstractCollectedDataProcessingEven
 
     @Override
     public String getDescription() {
-        return DESCRIPTION;
+        return StoreConfigurationUserFile.DESCRIPTION_TITLE;
     }
 
     protected void addPayload(JSONWriter writer) throws JSONException {

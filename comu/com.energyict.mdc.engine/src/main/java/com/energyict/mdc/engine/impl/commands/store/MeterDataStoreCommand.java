@@ -19,6 +19,8 @@ import java.util.List;
  */
 public interface MeterDataStoreCommand extends DeviceCommand, CanProvideDescriptionTitle {
 
+    String DESCRIPTION_TITLE = "Store meter data";
+
     void addIntervalReadings(DeviceIdentifier<Device> deviceIdentifier, List<IntervalBlock> intervalBlocks);
 
     void addLastReadingUpdater(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading);

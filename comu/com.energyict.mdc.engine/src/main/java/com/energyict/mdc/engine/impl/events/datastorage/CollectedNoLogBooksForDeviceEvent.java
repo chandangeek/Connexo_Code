@@ -1,12 +1,15 @@
 package com.energyict.mdc.engine.impl.events.datastorage;
 
+import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
+import com.energyict.mdc.engine.impl.commands.store.CreateNoLogBooksForDeviceEvent;
 import com.energyict.mdc.engine.impl.meterdata.NoLogBooksForDevice;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
+/**
+ * {@link CollectedDataProcessingEvent} related to a {@link CreateNoLogBooksForDeviceEvent}
+ */
 public class CollectedNoLogBooksForDeviceEvent extends AbstractCollectedDataProcessingEventImpl<NoLogBooksForDevice> {
-
-    private final static String DESCRIPTION = "collectedDataProcessingEvent.firmwareVersion.description";
 
     public CollectedNoLogBooksForDeviceEvent(ServiceProvider serviceProvider, NoLogBooksForDevice noLogBooksForDevice) {
         super(serviceProvider, noLogBooksForDevice);
@@ -14,7 +17,7 @@ public class CollectedNoLogBooksForDeviceEvent extends AbstractCollectedDataProc
 
     @Override
     public String getDescription() {
-        return DESCRIPTION;
+        return CreateNoLogBooksForDeviceEvent.DESCRIPTION_TITLE;
     }
 
     protected void addPayload(JSONWriter writer) throws JSONException {

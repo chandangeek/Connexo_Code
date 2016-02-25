@@ -29,7 +29,7 @@ import java.util.Optional;
  */
 public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<CollectedLoadProfileEvent> {
 
-    private final static String DESCRIPTION_TITLE = "Collected load profile data";
+    public final static String DESCRIPTION_TITLE = "Collected load profile data";
 
     private final CollectedLoadProfile collectedLoadProfile;
     private final MeterDataStoreCommand meterDataStoreCommand;

@@ -16,7 +16,7 @@ import java.util.function.Consumer;
  */
 public class CollectedFirmwareVersionDeviceCommand extends DeviceCommandImpl<CollectedFirmwareVersionEvent> {
 
-    private final static String DESCRIPTION_TITLE = "Collected firmware version";
+    public final static String DESCRIPTION_TITLE = "Collected firmware version";
 
     private final CollectedFirmwareVersion collectedFirmwareVersions;
     private final ComTaskExecution comTaskExecution;

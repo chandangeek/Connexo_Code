@@ -1,17 +1,15 @@
 package com.energyict.mdc.engine.impl.events.datastorage;
 
+import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
+import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceIpAddress;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
 /**
- * Copyrights EnergyICT
- * Date: 18/02/2016
- * Time: 13:54
+ * {@link CollectedDataProcessingEvent} related to a {@link UpdateDeviceIpAddress}
  */
 public class UpdateDeviceIpAddressEvent extends AbstractCollectedDataProcessingEventImpl  {
-
-    private final static String DESCRIPTION = "collectedDataProcessingEvent.updateDeviceIpAddress.description";
 
     private DeviceIdentifier deviceIdentifier;
 
@@ -25,7 +23,7 @@ public class UpdateDeviceIpAddressEvent extends AbstractCollectedDataProcessingE
 
     @Override
     public String getDescription() {
-        return DESCRIPTION;
+        return UpdateDeviceIpAddress.DESCRIPTION_TITLE;
     }
 
     protected void addPayload(JSONWriter writer) throws JSONException {

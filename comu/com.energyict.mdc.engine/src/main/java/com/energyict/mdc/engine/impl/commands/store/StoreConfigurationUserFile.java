@@ -24,7 +24,7 @@ import java.util.*;
  */
 public class StoreConfigurationUserFile extends DeviceCommandImpl<StoreConfigurationEvent> {
 
-    private final static String DESCRIPTION_TITLE = "Store configuration user file";
+    public final static String DESCRIPTION_TITLE = "Store configuration user file";
 
     private DeviceIdentifier deviceIdentifier;
     private String fileExtension;

@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.events.datastorage;
 
-import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.*;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
@@ -49,9 +49,9 @@ public class UpdateDeviceProtocolPropertyEventTest {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.toString()).thenReturn("My Device identifier");
         PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
         when(propertySpec.getDisplayName()).thenReturn("The changed property");
-        String propertyValue = "the new value";
-
+        String propertyValue = "The new value";
 
         UpdateDeviceProtocolPropertyEvent event = new UpdateDeviceProtocolPropertyEvent(serviceProvider, deviceIdentifier, propertySpec, propertyValue);
         // Business method
@@ -64,6 +64,7 @@ public class UpdateDeviceProtocolPropertyEventTest {
     @Test
     public void testToStringNoDeviceIdentifier() {
         PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
         when(propertySpec.getDisplayName()).thenReturn("The changed property");
         String propertyValue = "the new value";
 

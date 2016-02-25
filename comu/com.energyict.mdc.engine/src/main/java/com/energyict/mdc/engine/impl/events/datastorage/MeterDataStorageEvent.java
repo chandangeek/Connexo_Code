@@ -3,7 +3,9 @@ package com.energyict.mdc.engine.impl.events.datastorage;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommandImpl;
+import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
+import com.energyict.mdc.engine.impl.commands.store.*;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import org.json.JSONException;
@@ -13,13 +15,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
- * Date: 18/02/2016
- * Time: 11:47
+ * {@link CollectedDataProcessingEvent} related to a {@link MeterDataStoreCommand}
  */
 public class MeterDataStorageEvent extends AbstractCollectedDataProcessingEventImpl{
-
-    private final static String DESCRIPTION = "collectedDataProcessingEvent.meterDataStorage.description";
 
     private MeterDataStoreCommandImpl command;
     private List<Warning> warnings = Collections.emptyList();
@@ -34,11 +32,21 @@ public class MeterDataStorageEvent extends AbstractCollectedDataProcessingEventI
 
     @Override
     public String getDescription() {
-        return DESCRIPTION;
+        return MeterDataStoreCommand.DESCRIPTION_TITLE;
+    }
+
+    @Override
+    public LogLevel getLogLevel (){
+        if (super.getLogLevel() == LogLevel.INFO &&
+            command.getMeterReadings().isEmpty() && warnings.isEmpty()){
+                return LogLevel.DEBUG;       // MeterDataStorage command did not result in meter readings => only logged for debugging purposes
+        }
+        return super.getLogLevel();
     }
 
     protected void addPayload(JSONWriter writer) throws JSONException {
        writer.key("meterDataStorage");
+       writer.object();
        if (!command.getMeterReadings().isEmpty()){
             writer.key("meterReadings");
             writer.array();
@@ -56,7 +64,7 @@ public class MeterDataStorageEvent extends AbstractCollectedDataProcessingEventI
             }
             writer.endArray();
         }
-        if (!this.warnings.isEmpty()){
+        if (!warnings.isEmpty()){
              writer.key("warnings");
              writer.array();
              for(Warning each: warnings){
@@ -70,5 +78,6 @@ public class MeterDataStorageEvent extends AbstractCollectedDataProcessingEventI
              }
              writer.endArray();
          }
+        writer.endObject();
     }
 }

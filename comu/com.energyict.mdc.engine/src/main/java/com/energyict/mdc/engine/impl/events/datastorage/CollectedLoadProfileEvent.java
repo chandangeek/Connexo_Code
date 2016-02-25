@@ -1,12 +1,15 @@
 package com.energyict.mdc.engine.impl.events.datastorage;
 
+import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
+import com.energyict.mdc.engine.impl.commands.store.CollectedLoadProfileDeviceCommand;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
+/**
+ * {@link CollectedDataProcessingEvent} related to a {@link CollectedLoadProfileDeviceCommand}
+ */
 public class CollectedLoadProfileEvent extends AbstractCollectedDataProcessingEventImpl<CollectedLoadProfile> {
-
-    private final static String DESCRIPTION = "collectedDataProcessingEvent.loadProfile.description";
 
     public CollectedLoadProfileEvent(ServiceProvider serviceProvider, CollectedLoadProfile loadProfile) {
         super(serviceProvider, loadProfile);
@@ -14,7 +17,7 @@ public class CollectedLoadProfileEvent extends AbstractCollectedDataProcessingEv
 
     @Override
     public String getDescription() {
-        return DESCRIPTION;
+        return CollectedLoadProfileDeviceCommand.DESCRIPTION_TITLE;
     }
 
     protected void addPayload(JSONWriter writer) throws JSONException {
