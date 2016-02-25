@@ -1,17 +1,13 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
-import com.elster.jupiter.metering.rest.UsagePointInfo;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -43,13 +39,11 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @Path("/usagepoints")
@@ -96,8 +90,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public UsagePointInfos updateUsagePoint(@PathParam("id") long id, UsagePointInfo info, @Context SecurityContext securityContext) {
         info.id = id;
-        transactionService.execute(new UpdateUsagePointTransaction(info, securityContext.getUserPrincipal(), meteringService, clock, conflictFactory));
-        return getUsagePoint(info.id, securityContext);
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @GET
@@ -117,8 +110,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public UsagePointInfos createUsagePoint(UsagePointInfo info) {
         UsagePointInfos result = new UsagePointInfos();
-        result.add(transactionService.execute(new CreateUsagePointTransaction(info, meteringService, clock)), clock);
-        return result;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @GET

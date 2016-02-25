@@ -1,10 +1,6 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import com.elster.jupiter.metering.ElectricityDetail;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointDetail;
-import com.elster.jupiter.metering.rest.UsagePointInfo;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -13,7 +9,6 @@ import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import com.elster.jupiter.util.units.Quantity;
 import org.osgi.service.component.annotations.Component;

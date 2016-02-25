@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.rest;
+package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.metering.AmiBillingReadyKind;
@@ -29,13 +29,8 @@ public class UsagePointInfo {
     public long id;
     public ServiceKind serviceCategory;
     public long serviceLocationId;
-    public String aliasName;
-    public String description;
     public String mRID;
     public String name;
-    public AmiBillingReadyKind amiBillingReady;
-    public boolean checkBilling;
-    public UsagePointConnectedKind connectionState;
     public boolean isSdp;
     public boolean isVirtual;
     public String outageRegion;
@@ -44,9 +39,8 @@ public class UsagePointInfo {
     public String servicePriority;
     public long installationTime;
 
-    public Boolean grounded;
+    public boolean grounded;
     public Quantity estimatedLoad;
-    public Boolean minimalUsageExpected;
     public Quantity nominalServiceVoltage;
     public PhaseCode phaseCode;
     public Quantity ratedCurrent;

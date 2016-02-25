@@ -181,7 +181,7 @@ public class MeteringFieldResource {
     @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getPhaseCodes(@BeanParam JsonQueryParameters queryParameters) {
-        return PagedInfoList.fromCompleteList("phaseCodes", Arrays.stream(PhaseCode.values()).distinct().collect(Collectors.toList()), queryParameters);
+        return PagedInfoList.fromCompleteList("phaseCodes", Arrays.stream(PhaseCode.values()).distinct().map(pc -> new IdWithDisplayValueInfo<>(pc.name(),pc.getValue())).collect(Collectors.toList()), queryParameters);
     }
 
     @GET
@@ -189,6 +189,15 @@ public class MeteringFieldResource {
     @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getBypassStatus(@BeanParam JsonQueryParameters queryParameters) {
-        return PagedInfoList.fromCompleteList("bypassStatus", Arrays.asList(BypassStatus.values()), queryParameters);
+        return PagedInfoList.fromCompleteList("bypassStatus", Arrays.stream(BypassStatus.values()).map(bs -> new IdWithDisplayValueInfo<>(bs.name(),bs.getDisplayValue())).collect(Collectors.toList()), queryParameters);
+    }
+
+    @GET
+    @Path("/usagepointtype")
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getUsagePointType(@BeanParam JsonQueryParameters queryParameters) {
+        List<UsagePointTypeInfo> infos = Arrays.stream(UsagePointTypeInfo.UsagePointType.values()).map(t -> new UsagePointTypeInfo(t,thesaurus)).collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("usagePointTypes", infos, queryParameters);
     }
 }
