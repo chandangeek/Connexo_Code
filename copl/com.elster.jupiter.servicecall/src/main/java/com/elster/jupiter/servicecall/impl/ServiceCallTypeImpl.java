@@ -25,6 +25,7 @@ import static java.util.stream.Collectors.toList;
  * Class models the type of a service call. The type defines the life cycle its service calls will abide by and links to
  * the custom properties that are available for use.
  */
+
 public class ServiceCallTypeImpl implements ServiceCallType {
     private long id;
     private String name;
