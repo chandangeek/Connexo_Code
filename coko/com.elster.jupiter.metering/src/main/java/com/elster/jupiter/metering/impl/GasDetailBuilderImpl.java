@@ -183,14 +183,31 @@ public class GasDetailBuilderImpl implements GasDetailBuilder {
 
     @Override
     public GasDetail create() {
-        GasDetail gd = dataModel.getInstance(GasDetailImpl.class).init(usagePoint, this, interval);
-        usagePoint.addDetail(gd);
-        return gd;
+        GasDetail detail = buildDetail();
+        usagePoint.addDetail(detail);
+        return detail;
     }
 
     @Override
     public void validate() {
-        GasDetail gd = dataModel.getInstance(GasDetailImpl.class).init(usagePoint, this, interval);
-        Save.CREATE.validate(dataModel, gd);
+        Save.CREATE.validate(dataModel, buildDetail());
+    }
+
+    private GasDetail buildDetail(){
+        GasDetailImpl detail = dataModel.getInstance(GasDetailImpl.class).init(usagePoint, interval);
+        detail.setCollar(this.getCollar());
+        detail.setGrounded(this.isGrounded());
+        detail.setPressure(this.getPressure());
+        detail.setPhysicalCapacity(this.getPhysicalCapacity());
+        detail.setLimiter(this.isLimiter());
+        detail.setLoadLimiterType(this.getLoadLimiterType());
+        detail.setLoadLimit(this.getLoadLimit());
+        detail.setBypass(this.getBypass());
+        detail.setBypassStatus(this.getBypassStatus());
+        detail.setValve(this.getValve());
+        detail.setCapped(this.getCapped());
+        detail.setClamped(this.getClamped());
+        detail.setInterruptible(this.isInterruptible());
+        return detail;
     }
 }

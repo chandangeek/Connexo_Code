@@ -68,41 +68,6 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
         return this;
     }
 
-    UsagePointDetailImpl init(UsagePoint usagePoint, ElectricityDetailBuilder builder, Interval interval) {
-        this.usagePoint.set(usagePoint);
-        this.interval = Objects.requireNonNull(interval);
-        this.setCollar(builder.getCollar());
-        return this;
-    }
-
-    UsagePointDetailImpl init(UsagePoint usagePoint, GasDetailBuilder builder, Interval interval) {
-        this.usagePoint.set(usagePoint);
-        this.interval = Objects.requireNonNull(interval);
-        setCollar(builder.getCollar());
-        return this;
-    }
-
-    UsagePointDetailImpl init(UsagePoint usagePoint, WaterDetailBuilder builder, Interval interval) {
-        this.usagePoint.set(usagePoint);
-        this.interval = Objects.requireNonNull(interval);
-        setCollar(builder.getCollar());
-        return this;
-    }
-
-    UsagePointDetailImpl init(UsagePoint usagePoint, HeatDetailBuilder builder, Interval interval) {
-        this.usagePoint.set(usagePoint);
-        this.interval = Objects.requireNonNull(interval);
-        setCollar(builder.getCollar());
-        return this;
-    }
-
-    UsagePointDetailImpl init(UsagePoint usagePoint, UsagePointDetailBuilder builder, Interval interval) {
-        this.usagePoint.set(usagePoint);
-        this.interval = Objects.requireNonNull(interval);
-        setCollar(builder.getCollar());
-        return this;
-    }
-
     @Override
     public void update() {
         dataModel.update(this);

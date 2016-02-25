@@ -180,7 +180,7 @@ public enum TableSpecs {
             table.column("OUTAGEREGION").varChar(NAME_LENGTH).map("outageRegion").add();
             table.column("READROUTE").varChar(NAME_LENGTH).map("readRoute").add();
             table.column("SERVICEPRIORITY").varChar(NAME_LENGTH).map("servicePriority").add();
-            table.column("SERVICEDELIVERYREMARK").varChar(NAME_LENGTH).map("serviceDeliveryRemark").add();
+            table.column("SERVICEDELIVERYREMARK").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceDeliveryRemark").add();
             table.column("INSTALLATIONTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map("installationTime").add();
 
             table.addAuditColumns();

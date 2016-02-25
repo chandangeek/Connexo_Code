@@ -172,14 +172,30 @@ public class WaterDetailBuilderImpl implements WaterDetailBuilder{
 
 	@Override
 	public WaterDetail create() {
-		WaterDetail wd =  dataModel.getInstance(WaterDetailImpl.class).init(usagePoint, this, interval);
-		usagePoint.addDetail(wd);
-        return wd;
+		WaterDetail detail= buildDetail();
+		usagePoint.addDetail(detail);
+        return detail;
     }
 
 	@Override
 	public void validate() {
-		WaterDetail wd =  dataModel.getInstance(WaterDetailImpl.class).init(usagePoint, this, interval);
-		Save.CREATE.validate(dataModel,wd);
+		Save.CREATE.validate(dataModel,buildDetail());
+	}
+
+	private WaterDetail buildDetail(){
+		WaterDetailImpl wd = dataModel.getInstance(WaterDetailImpl.class).init(usagePoint, interval);
+		wd.setCollar(this.getCollar());
+		wd.setGrounded(isGrounded());
+		wd.setPressure(getPressure());
+		wd.setPhysicalCapacity(getPhysicalCapacity());
+		wd.setLimiter(isLimiter());
+		wd.setLoadLimiterType(getLoadLimiterType());
+		wd.setLoadLimit(getLoadLimit());
+		wd.setBypass(getBypass());
+		wd.setBypassStatus(getBypassStatus());
+		wd.setValve(getValve());
+		wd.setCapped(getCapped());
+		wd.setClamped(getClamped());
+		return wd;
 	}
 }

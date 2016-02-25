@@ -1,14 +1,18 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.PhaseCode;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 
 import javax.inject.Inject;
+import javax.validation.constraints.Size;
 import java.time.Clock;
 
 public class ElectricityDetailImpl extends UsagePointDetailImpl implements ElectricityDetail {
@@ -20,6 +24,7 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
     private Quantity ratedPower;
     private Quantity estimatedLoad;
     private Boolean limiter;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String loadLimiterType;
     private Quantity loadLimit;
     private Boolean interruptible;
@@ -39,20 +44,6 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
         return this;
     }
 
-    ElectricityDetailImpl init(UsagePoint usagePoint, ElectricityDetailBuilder builder, Interval interval) {
-        super.init(usagePoint, builder, interval);
-        this.grounded = builder.isGrounded();
-        this.nominalServiceVoltage = builder.getNominalServiceVoltage();
-        this.phaseCode = builder.getPhaseCode();
-        this.ratedCurrent = builder.getRatedCurrent();
-        this.ratedPower = builder.getRatedPower();
-        this.estimatedLoad = builder.getEstimatedLoad();
-        this.limiter = builder.isLimiter();
-        this.loadLimiterType = builder.getLoadLimiterType();
-        this.loadLimit = builder.getLoadLimit();
-        this.interruptible = builder.isInterruptible();
-        return this;
-    }
     @Override
     public Boolean isGrounded() {
         return grounded;

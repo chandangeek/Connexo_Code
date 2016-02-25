@@ -1,14 +1,18 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.BypassStatus;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 
 import javax.inject.Inject;
+import javax.validation.constraints.Size;
 import java.time.Clock;
 import java.util.Optional;
 
@@ -18,6 +22,7 @@ public class WaterDetailImpl extends UsagePointDetailImpl implements WaterDetail
     private Quantity pressure;
     private Quantity physicalCapacity;
     private Boolean limiter;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String loadLimiterType;
     private Quantity loadLimit;
     private Boolean bypass;
@@ -37,22 +42,6 @@ public class WaterDetailImpl extends UsagePointDetailImpl implements WaterDetail
 
     WaterDetailImpl init(UsagePoint usagePoint, Interval interval) {
         super.init(usagePoint, interval);
-        return this;
-    }
-
-    WaterDetailImpl init(UsagePoint usagePoint, WaterDetailBuilder builder, Interval interval) {
-        super.init(usagePoint, builder, interval);
-        this.setGrounded(builder.isGrounded());
-        this.setPressure(builder.getPressure());
-        this.setPhysicalCapacity(builder.getPhysicalCapacity());
-        this.setLimiter(builder.isLimiter());
-        this.setLoadLimiterType(builder.getLoadLimiterType());
-        this.setLoadLimit(builder.getLoadLimit());
-        this.setBypass(builder.getBypass());
-        this.setBypassStatus(builder.getBypassStatus());
-        this.setValve(builder.getValve());
-        this.setCapped(builder.getCapped());
-        this.setClamped(builder.getClamped());
         return this;
     }
 

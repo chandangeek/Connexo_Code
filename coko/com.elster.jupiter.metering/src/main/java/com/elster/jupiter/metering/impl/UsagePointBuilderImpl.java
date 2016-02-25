@@ -115,22 +115,19 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
 
     @Override
     public UsagePoint create() {
-        UsagePointImpl usagePoint = dataModel.getInstance(UsagePointImpl.class).init(mRID, serviceCategory);
-        usagePoint.setName(name);
-        usagePoint.setSdp(isSdp);
-        usagePoint.setVirtual(isVirtual);
-        usagePoint.setOutageRegion(outageRegion);
-        usagePoint.setReadRoute(readRoute);
-        usagePoint.setServicePriority(servicePriority);
-        usagePoint.setServiceLocation(serviceLocation);
-        usagePoint.setInstallationTime(installationTime);
-        usagePoint.setServiceDeliveryRemark(serviceDeliveryRemark);
+        UsagePointImpl usagePoint = this.build();
         usagePoint.doSave();
         return usagePoint;
     }
 
     @Override
     public UsagePoint validate() {
+        UsagePointImpl usagePoint = this.build();
+        Save.CREATE.validate(dataModel,usagePoint);
+        return usagePoint;
+    }
+
+    private UsagePointImpl build(){
         UsagePointImpl usagePoint = dataModel.getInstance(UsagePointImpl.class).init(mRID, serviceCategory);
         usagePoint.setName(name);
         usagePoint.setSdp(isSdp);
@@ -141,7 +138,6 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
         usagePoint.setServiceLocation(serviceLocation);
         usagePoint.setInstallationTime(installationTime);
         usagePoint.setServiceDeliveryRemark(serviceDeliveryRemark);
-        Save.CREATE.validate(dataModel,usagePoint);
         return usagePoint;
     }
 }
