@@ -13,7 +13,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_PATH_TO_SUCCESS_FROM(2, "NoPathToSuccess", "Cannot get to Successful state from {0}"),
     NO_PATH_FROM_CREATED_TO(3, "NoPathFromCreated", "Cannot get to {0} state from Created."),
     NO_NAME_FOR_HANDLER(4, "NoNameForHandler", "Handler can not be registered: it does not have a name. Add @Component field property='name=xxx'"),
-    INVALID_CPS_TYPE(5, Constants.INVALID_TYPE, "Custom property set {0} does not have the required domain class of service call type");
+    INVALID_CPS_TYPE(5, Constants.INVALID_TYPE, "Custom property set {0} does not have the required domain class of service call type"),
+    REQUIRED_FIELD(6, Constants.REQUIRED_FIELD, "This field is required");
     ;
 
     private final int number;
@@ -53,5 +54,6 @@ public enum MessageSeeds implements MessageSeed {
 
     public static class Constants {
         public static final String INVALID_TYPE = "com.elster.jupiter.servicecall.invalidType";
+        public static final String REQUIRED_FIELD = "com.elster.jupiter.servicecall.field.required";
     }
 }

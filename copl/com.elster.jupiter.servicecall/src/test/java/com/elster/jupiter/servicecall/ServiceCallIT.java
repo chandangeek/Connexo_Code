@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.Expected;
@@ -22,6 +23,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.impl.FakeTypeOneCustomPropertySet;
+import com.elster.jupiter.servicecall.impl.MessageSeeds;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.servicecall.impl.TranslationKeys;
 import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeDomainExtension;
@@ -174,8 +176,8 @@ public class ServiceCallIT {
     @Expected(value = UnderlyingSQLFailedException.class)
     public void testCanNotCreateDuplicateServiceCallTypes() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            serviceCallService.createServiceCallType("primer", "v1").logLevel(LogLevel.INFO).add();
-            serviceCallService.createServiceCallType("primer", "v1").logLevel(LogLevel.INFO).add();
+            serviceCallService.createServiceCallType("primer", "v1").handler("DisconnectHandler1").logLevel(LogLevel.INFO).add();
+            serviceCallService.createServiceCallType("primer", "v1").handler("DisconnectHandler1").logLevel(LogLevel.INFO).add();
             fail("Should have been prevented: duplication");
         }
     }
@@ -183,15 +185,15 @@ public class ServiceCallIT {
     @Test
     public void testCanCreateDuplicateServiceCallTypeWithName() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            serviceCallService.createServiceCallType("primer", "v1").logLevel(LogLevel.INFO).add();
-            serviceCallService.createServiceCallType("primer", "v2").logLevel(LogLevel.INFO).add();
+            serviceCallService.createServiceCallType("primer", "v1").handler("DisconnectHandler1").logLevel(LogLevel.INFO).add();
+            serviceCallService.createServiceCallType("primer", "v2").handler("DisconnectHandler1").logLevel(LogLevel.INFO).add();
         }
     }
 
     @Test
     public void testCreateServiceCallTypeWithCustomLogLevel() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").logLevel(LogLevel.INFO).add();
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").handler("DisconnectHandler1").logLevel(LogLevel.INFO).add();
 
             List<ServiceCallType> serviceCallTypes = serviceCallService.getServiceCallTypes().find();
             assertThat(serviceCallTypes).hasSize(1);
@@ -204,9 +206,17 @@ public class ServiceCallIT {
     }
 
     @Test
+    @ExpectedConstraintViolation(property = "serviceCallHandler", messageId = "{"+MessageSeeds.Constants.REQUIRED_FIELD+"}")
+    public void testCreateServiceCallTypeWithoutHandler() throws Exception {
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").logLevel(LogLevel.INFO).add();
+        }
+    }
+
+    @Test
     public void testCreateServiceCallTypeWithDefaultLogLevel() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").add();
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").handler("DisconnectHandler1").add();
 
             List<ServiceCallType> serviceCallTypes = serviceCallService.getServiceCallTypes().find();
             assertThat(serviceCallTypes).hasSize(1);
@@ -224,6 +234,7 @@ public class ServiceCallIT {
                     .getName()).get();
             ServiceCallType serviceCallType = serviceCallService.createServiceCallType("CustomTest", "CustomVersion")
                     .customPropertySet(customPropertySet)
+                    .handler("DisconnectHandler1")
                     .add();
 
             List<ServiceCallType> serviceCallTypes = serviceCallService.getServiceCallTypes().find();
@@ -250,7 +261,7 @@ public class ServiceCallIT {
     @Test
     public void testUpdateServiceCallTypeLogLevel() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            serviceCallService.createServiceCallType("primer", "v1").add();
+            serviceCallService.createServiceCallType("primer", "v1").handler("DisconnectHandler1").add();
             Optional<ServiceCallType> serviceCallTypeReloaded = serviceCallService.findServiceCallType("primer", "v1");
             assertThat(serviceCallTypeReloaded.get().getLogLevel()).isEqualTo(LogLevel.WARNING);
             serviceCallTypeReloaded.get().setLogLevel(LogLevel.SEVERE);
@@ -265,7 +276,7 @@ public class ServiceCallIT {
     @Test
     public void testLockServiceCallType() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").add();
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").handler("DisconnectHandler1").add();
             Optional<ServiceCallType> serviceCallTypeReloaded = serviceCallService.findAndLockServiceCallType(serviceCallType
                     .getId(), serviceCallType.getVersion());
             assertThat(serviceCallTypeReloaded.isPresent()).isTrue();
@@ -275,7 +286,7 @@ public class ServiceCallIT {
     @Test
     public void testLockServiceCallTypeIncorrectVersion() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").add();
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").handler("DisconnectHandler1").add();
             Optional<ServiceCallType> serviceCallTypeReloaded = serviceCallService.findAndLockServiceCallType(serviceCallType
                     .getId(), serviceCallType.getVersion() - 1);
             assertThat(serviceCallTypeReloaded).isEmpty();

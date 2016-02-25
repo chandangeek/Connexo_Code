@@ -13,6 +13,8 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.Status;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +34,8 @@ public class ServiceCallTypeImpl implements ServiceCallType {
     private String versionName;
     private Status status;
     private LogLevel logLevel;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Constants.REQUIRED_FIELD+"}")
+    @Size(min=1, groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Constants.REQUIRED_FIELD+"}")
     private String serviceCallHandler;
     private Reference<ServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
     private DefaultState currentLifeCycleState;
