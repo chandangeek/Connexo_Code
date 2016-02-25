@@ -11,4 +11,6 @@ public interface ServiceCallTypeBuilder {
     ServiceCallTypeBuilder customPropertySet(RegisteredCustomPropertySet customPropertySet);
 
     ServiceCallType create();
+
+    ServiceCallTypeBuilder handler(String serviceCallHandler);
 }

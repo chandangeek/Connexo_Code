@@ -51,6 +51,11 @@ public enum TableSpecs {
                     .notNull()
                     .map(ServiceCallTypeImpl.Fields.name.fieldName())
                     .add();
+            table.column("HANDLER")
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(ServiceCallTypeImpl.Fields.handler.fieldName())
+                    .add();
             table.column("LOGLEVEL")
                     .number()
                     .conversion(ColumnConversion.NUMBER2ENUM)

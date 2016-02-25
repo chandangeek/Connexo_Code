@@ -4,7 +4,13 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.servicecall.*;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
+import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
@@ -25,6 +31,7 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=serviceCallTypes",
                 "osgi.command.function=createServiceCallType",
                 "osgi.command.function=customPropertySets",
+                "osgi.command.function=handlers",
                 "osgi.command.function=createServiceCallLifeCycle"
         }, immediate = true)
 public class ServiceCallsCommands {
@@ -61,7 +68,7 @@ public class ServiceCallsCommands {
                                 .stream()
                                 .map(RegisteredCustomPropertySet::getCustomPropertySet)
                                 .map(CustomPropertySet::getName)
-                                .collect(toList()))));
+                                .collect(toList())) + "Handled by " + sct.getServiceCallHandler()));
     }
 
     public void createServiceCallType() {
@@ -72,7 +79,11 @@ public class ServiceCallsCommands {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            serviceCallService.createServiceCallType(name, versionName).customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).get(0)).create();
+            serviceCallService.createServiceCallType(name, versionName)
+                    .customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class)
+                            .get(0))
+                    .handler("DisconnectHandler1")
+                    .create();
             context.commit();
         }
     }
@@ -82,7 +93,8 @@ public class ServiceCallsCommands {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName).logLevel(LogLevel.valueOf(logLevel));
+            ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName)
+                    .logLevel(LogLevel.valueOf(logLevel));
 
             customPropertySetService.findActiveCustomPropertySets().stream()
                     .filter(cps -> ids.contains(cps.getId()))
@@ -97,8 +109,10 @@ public class ServiceCallsCommands {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallLifeCycle serviceCallLifeCycle = serviceCallService.getServiceCallLifeCycle(lifeCycleName).orElseThrow(() -> new NoSuchElementException("No service call life cycle with name: " + lifeCycleName));
-            ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName, serviceCallLifeCycle).logLevel(LogLevel.valueOf(logLevel));
+            ServiceCallLifeCycle serviceCallLifeCycle = serviceCallService.getServiceCallLifeCycle(lifeCycleName)
+                    .orElseThrow(() -> new NoSuchElementException("No service call life cycle with name: " + lifeCycleName));
+            ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName, serviceCallLifeCycle)
+                    .logLevel(LogLevel.valueOf(logLevel));
 
             customPropertySetService.findActiveCustomPropertySets().stream()
                     .filter(cps -> ids.contains(cps.getId()))
@@ -110,8 +124,13 @@ public class ServiceCallsCommands {
 
     public void customPropertySets() {
         customPropertySetService.findActiveCustomPropertySets().stream()
-                .map(cps -> cps.getId() + " " + cps.getCustomPropertySet().getDomainClass() + " " + cps.getCustomPropertySet().getName())
+                .map(cps -> cps.getId() + " " + cps.getCustomPropertySet()
+                        .getDomainClass() + " " + cps.getCustomPropertySet().getName())
                 .forEach(System.out::println);
+    }
+
+    public void handlers() {
+        serviceCallService.findAllHandlers().stream().forEach(System.out::println);
     }
 
     public void createServiceCallLifeCycle() {
@@ -128,7 +147,8 @@ public class ServiceCallsCommands {
                 if (operation.contains("removeState:")) {
                     serviceCallLifeCycle.remove(DefaultState.valueOf(operation.split(":")[1]));
                 } else if (operation.contains("removeTransition:")) {
-                    serviceCallLifeCycle.removeTransition(DefaultState.valueOf(operation.split(":")[1]),DefaultState.valueOf(operation.split(":")[2]));
+                    serviceCallLifeCycle.removeTransition(DefaultState.valueOf(operation.split(":")[1]), DefaultState.valueOf(operation
+                            .split(":")[2]));
                 }
             }
             serviceCallLifeCycle.create();

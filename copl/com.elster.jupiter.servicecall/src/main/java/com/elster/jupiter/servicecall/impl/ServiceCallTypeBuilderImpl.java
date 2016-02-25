@@ -46,4 +46,12 @@ class ServiceCallTypeBuilderImpl implements ServiceCallTypeBuilder {
 
         return instance;
     }
+
+    @Override
+    public ServiceCallTypeBuilder handler(String serviceCallHandler) {
+        this.instance.setHandlerName(serviceCallHandler);
+        return this;
+    }
+
+
 }

@@ -15,7 +15,9 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.servicecall.MissingHandlerNameException;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -24,6 +26,7 @@ import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 
@@ -32,13 +35,18 @@ import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by bvn on 2/4/16.
@@ -57,6 +65,7 @@ public class ServiceCallServiceImpl implements MessageSeedProvider, TranslationK
     private volatile CustomPropertySetService customPropertySetService;
     private volatile MessageService messageService;
     private volatile JsonService jsonService;
+    private final Map<String, ServiceCallHandler> handlerMap = new ConcurrentHashMap<>();
 
     // OSGi
     public ServiceCallServiceImpl() {
@@ -105,6 +114,20 @@ public class ServiceCallServiceImpl implements MessageSeedProvider, TranslationK
         this.jsonService = jsonService;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties) {
+        String name = (String) properties.get("name");
+        if (Checks.is(name).emptyOrOnlyWhiteSpace()) {
+            throw new MissingHandlerNameException(thesaurus, MessageSeeds.NO_NAME_FOR_HANDLER, serviceCallHandler);
+        }
+        handlerMap.put(name, serviceCallHandler);
+    }
+
+    public void removeServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties) {
+        String name = (String) properties.get("name");
+        handlerMap.remove(name);
+    }
+
     @Override
     public String getComponentName() {
         return ServiceCallService.COMPONENT_NAME;
@@ -141,6 +164,11 @@ public class ServiceCallServiceImpl implements MessageSeedProvider, TranslationK
     }
 
     @Override
+    public Optional<ServiceCallHandler> findHandler(String handler) {
+        return Optional.of(handlerMap.get(handler));
+    }
+
+    @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList(OrmService.COMPONENTNAME,
                 UserService.COMPONENTNAME,
@@ -169,22 +197,27 @@ public class ServiceCallServiceImpl implements MessageSeedProvider, TranslationK
 
     @Override
     public Finder<ServiceCallLifeCycle> getServiceCallLifeCycles() {
-        return DefaultFinder.of(ServiceCallLifeCycle.class, dataModel).defaultSortColumn(ServiceCallLifeCycleImpl.Fields.name.fieldName());
+        return DefaultFinder.of(ServiceCallLifeCycle.class, dataModel)
+                .defaultSortColumn(ServiceCallLifeCycleImpl.Fields.name.fieldName());
     }
 
     @Override
     public Optional<ServiceCallLifeCycle> getServiceCallLifeCycle(String name) {
-        return dataModel.mapper(ServiceCallLifeCycle.class).getUnique(ServiceCallLifeCycleImpl.Fields.name.fieldName(), name);
+        return dataModel.mapper(ServiceCallLifeCycle.class)
+                .getUnique(ServiceCallLifeCycleImpl.Fields.name.fieldName(), name);
     }
 
     @Override
     public Optional<ServiceCallLifeCycle> getDefaultServiceCallLifeCycle() {
-        return dataModel.mapper(ServiceCallLifeCycle.class).getUnique(ServiceCallLifeCycleImpl.Fields.name.fieldName(), TranslationKeys.DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME.getKey());
+        return dataModel.mapper(ServiceCallLifeCycle.class)
+                .getUnique(ServiceCallLifeCycleImpl.Fields.name.fieldName(), TranslationKeys.DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME
+                        .getKey());
     }
 
     @Override
     public Finder<ServiceCallType> getServiceCallTypes() {
-        return DefaultFinder.of(ServiceCallType.class, dataModel).defaultSortColumn(ServiceCallTypeImpl.Fields.name.fieldName());
+        return DefaultFinder.of(ServiceCallType.class, dataModel)
+                .defaultSortColumn(ServiceCallTypeImpl.Fields.name.fieldName());
     }
 
     @Override
@@ -194,18 +227,27 @@ public class ServiceCallServiceImpl implements MessageSeedProvider, TranslationK
 
     @Override
     public Optional<ServiceCallType> findServiceCallType(String name, String versionName) {
-        return dataModel.mapper(IServiceCallType.class).getUnique(ServiceCallTypeImpl.Fields.name.fieldName(), name, ServiceCallTypeImpl.Fields.versionName.fieldName(), versionName).map(ServiceCallType.class::cast);
+        return dataModel.mapper(IServiceCallType.class)
+                .getUnique(ServiceCallTypeImpl.Fields.name.fieldName(), name, ServiceCallTypeImpl.Fields.versionName.fieldName(), versionName)
+                .map(ServiceCallType.class::cast);
     }
 
 
     @Override
     public Optional<ServiceCallType> findAndLockServiceCallType(long id, long version) {
-        return dataModel.mapper(IServiceCallType.class).lockObjectIfVersion(version, id).map(ServiceCallType.class::cast);
+        return dataModel.mapper(IServiceCallType.class)
+                .lockObjectIfVersion(version, id)
+                .map(ServiceCallType.class::cast);
     }
 
     @Override
     public ServiceCallLifeCycleBuilder createServiceCallLifeCycle(String name) {
         return dataModel.getInstance(ServiceCallLifeCycleBuilderImpl.class).setName(name);
+    }
+
+    @Override
+    public Collection<String> findAllHandlers() {
+        return handlerMap.keySet();
     }
 
     @Override
