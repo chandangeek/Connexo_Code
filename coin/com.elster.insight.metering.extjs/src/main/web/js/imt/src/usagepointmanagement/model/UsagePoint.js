@@ -7,7 +7,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
     fields: [
         {name: 'id', type: 'int'},
         {name: 'mRID', type: 'string'},
-        {name: 'serviceCategory', type: 'auto', defaultValue: null},
+        {name: 'serviceCategory', type: 'string'},
         {name: 'name', type: 'string'},
         {name: 'installationTime', type: 'int', defaultValue: null, useNull: true},
         {name: 'location', type: 'string'},
@@ -63,13 +63,12 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'readRoute', type: 'string'},
         {name: 'servicePriority', type: 'string'},
         {name: 'serviceDeliveryRemark', type: 'string'},
-        {name: 'techInfo', type: 'auto', defaultValue: null},
-        {name: 'techInfoType', type: 'string'}
+        {name: 'techInfo', type: 'auto', defaultValue: {}}
     ],
 
     associations: [
         {
-            name: 'customProperties',
+            name: 'customPropertySets',
             associationKey: 'customProperties',
             type: 'hasMany',
             model: 'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'

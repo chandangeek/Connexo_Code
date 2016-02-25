@@ -47,7 +47,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         }
     ],
 
-    techInfoMap: {
+    serviceCategoryMap: {
         'ELECTRICITY': {
             model: 'Imt.usagepointmanagement.model.technicalinfo.Electricity',
             form: 'electricity-info-form'
@@ -115,7 +115,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             wizardLayout = wizard.getLayout(),
             stepView = wizardLayout.getActiveItem(),
             currentStep = stepView.navigationIndex,
-            validationParams = {},
+            validationParams = {validate: true},
             direction,
             nextStep,
             changeStep = function () {
@@ -156,12 +156,12 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
 
     saveUsagePoint: function () {
         var me = this,
-            wizard = me.getWizard();
+            router = me.getController('Uni.controller.history.Router');
 
         me.doRequest({
             success: function (record) {
-                window.location.href = wizard.returnLink;
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagepoint.add.successMsg', 'MDC', "Usage point '{0}' added.", record.get('mRID'), false));
+                router.getRoute('usagepoints/view').forward({mRID: record.get('mRID')});
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagepoint.add.successMsg', 'MDC', "Usage point added"));
             }
         });
     },
@@ -191,7 +191,8 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                 }
             }
         }, options));
-        modelProxy.appendId = true; // restore id for normal functionality
+        record.phantom = false;     // restore id in the record data for normal functionality
+        modelProxy.appendId = true; // restore id in the url for normal functionality
     },
 
     prepareNextStep: function (stepNumber) {
@@ -216,20 +217,20 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
 
     onServiceCategoryChange: function (field, newValue) {
         var me = this,
-            category = me.techInfoMap[newValue],
-            form;
+            category = me.serviceCategoryMap[newValue],
+            step2;
 
         if (category) {
-            form = Ext.widget(category.form, {
+            step2 = {
+                xtype: category.form,
                 title: Uni.I18n.translate('usagepoint.wizard.step2title', 'IMT', 'Step 2: Technical information'),
                 itemId: 'add-usage-point-step2',
                 navigationIndex: 2,
                 ui: 'large',
-                isWizardStep: true
-            });
-
-            form.loadRecord(Ext.create(category.model));
-            me.updateSteps(form, field.findRecordByValue(newValue));
+                isWizardStep: true,
+                predefinedRecord: Ext.create(category.model)
+            };
+            me.updateSteps(step2, field.findRecordByValue(newValue));
         }
     },
 
@@ -239,7 +240,9 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             navigation = me.getNavigationMenu(),
             currentSteps = wizard.query('[isWizardStep=true]'),
             currentMenuItems = navigation.query('menuitem'),
-            stepNumber = 2;
+            stepNumber = 2,
+            stepsToAdd = [step2],
+            navigationItemsToAdd = [];
 
         Ext.suspendLayouts();
         // remove all steps except first
@@ -250,23 +253,23 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         for (var j = 2; j < currentMenuItems.length; j++) {
             navigation.remove(currentMenuItems[j], true);
         }
-        wizard.add(step2);
         serviceCategory.customPropertySets().each(function (record) {
             stepNumber++;
-            var cpsForm = Ext.widget('cps-info-form', {
+            stepsToAdd.push({
+                xtype: 'cps-info-form',
                 title: record.get('name'),
                 navigationIndex: stepNumber,
                 itemId: 'add-usage-point-step' + stepNumber,
                 ui: 'large',
-                isWizardStep: true
+                isWizardStep: true,
+                predefinedRecord: record
             });
-
-            cpsForm.loadRecord(record);
-            wizard.add(cpsForm);
-            navigation.add({
+            navigationItemsToAdd.push({
                 text: record.get('name')
             });
         });
+        navigation.add(navigationItemsToAdd);
+        wizard.add(stepsToAdd);
         Ext.resumeLayouts(true);
     }
 });

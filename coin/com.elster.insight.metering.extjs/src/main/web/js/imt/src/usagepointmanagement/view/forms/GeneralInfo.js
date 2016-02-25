@@ -39,7 +39,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
             me.isPossibleAdd ?
             {
                 xtype: 'combobox',
-                name: 'techInfoType',
+                name: 'serviceCategory',
                 itemId: 'up-service-category-combo',
                 fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category'),
                 afterSubTpl: '<span class="field-additional-info" style="color: #686868; font-style: italic">'

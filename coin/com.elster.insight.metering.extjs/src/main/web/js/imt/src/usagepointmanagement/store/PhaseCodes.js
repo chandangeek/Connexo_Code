@@ -1,6 +1,6 @@
 Ext.define('Imt.usagepointmanagement.store.PhaseCodes', {
     extend: 'Ext.data.Store',
-    fields: ['name', 'displayName'],
+    fields: ['id', 'displayValue'],
     proxy: {
         type: 'rest',
         url: '/api/mtr/fields/phasecodes',

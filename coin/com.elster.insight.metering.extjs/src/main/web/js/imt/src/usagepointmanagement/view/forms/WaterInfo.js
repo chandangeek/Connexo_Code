@@ -1,20 +1,6 @@
 Ext.define('Imt.usagepointmanagement.view.forms.WaterInfo', {
-    extend: 'Ext.form.Panel',
+    extend: 'Imt.usagepointmanagement.view.forms.BaseInfo',
     alias: 'widget.water-info-form',
-    requires: [
-        'Uni.util.FormErrorMessage',
-        'Imt.usagepointmanagement.view.forms.fields.MeasureField',
-        'Imt.usagepointmanagement.view.forms.fields.ThreeValuesField',
-        'Imt.usagepointmanagement.view.forms.fields.BypassField',
-        'Imt.usagepointmanagement.view.forms.fields.BypassStatusCombobox',
-        'Imt.usagepointmanagement.view.forms.fields.LimiterCheckbox',
-        'Imt.usagepointmanagement.view.forms.fields.LoadLimiterTypeField',
-        'Imt.usagepointmanagement.view.forms.fields.LoadLimitField'
-    ],
-    defaults: {
-        labelWidth: 260,
-        width: 595
-    },
     items: [
         {
             itemId: 'technical-info-warning',

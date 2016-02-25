@@ -72,9 +72,7 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
 
     updateRecord: function () {
         var me = this,
-            step = me.getLayout().getActiveItem(),
-            customProperties,
-            cps;
+            step = me.getLayout().getActiveItem();
 
         switch (step.navigationIndex) {
             case 1:
@@ -85,39 +83,42 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
                 me.getRecord().set('techInfo', step.getRecord().getData());
                 break;
             default:
-                customProperties = me.getRecord().customProperties();
                 step.updateRecord();
-                cps = step.getRecord();
-                if (customProperties.getById() === step.getRecord().getId()) {
-                    customProperties.remove(cps)
-                }
-                me.getRecord().customProperties().add(cps);
+                me.getRecord().customPropertySets().add(step.getRecord());
         }
     },
 
     markInvalid: function (errors) {
-        var me = this,
-            step = me.getLayout().getActiveItem(),
-            warning = step.down('uni-form-error-message');
-
-        Ext.suspendLayouts();
-        if (warning) {
-            warning.show()
-        }
-        step.getForm().markInvalid(errors);
-        Ext.resumeLayouts(true);
+        this.toggleValidation(errors);
     },
 
     clearInvalid: function () {
+        this.toggleValidation();
+    },
+
+    toggleValidation: function (errors) {
         var me = this,
+            isValid = !errors,
             step = me.getLayout().getActiveItem(),
             warning = step.down('uni-form-error-message');
 
         Ext.suspendLayouts();
         if (warning) {
-            warning.hide()
+            warning.setVisible(!isValid);
         }
-        step.getForm().clearInvalid();
+        if (step.xtype === 'cps-info-form') {
+            if (!isValid) {
+                step.markInvalid(errors);
+            } else {
+                step.clearInvalid();
+            }
+        } else {
+            if (!isValid) {
+                step.getForm().markInvalid(errors);
+            } else {
+                step.getForm().clearInvalid();
+            }
+        }
         Ext.resumeLayouts(true);
     }
 });

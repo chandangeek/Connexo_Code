@@ -1,18 +1,6 @@
 Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
-    extend: 'Ext.form.Panel',
+    extend: 'Imt.usagepointmanagement.view.forms.BaseInfo',
     alias: 'widget.electricity-info-form',
-    requires: [
-        'Uni.util.FormErrorMessage',
-        'Imt.usagepointmanagement.view.forms.fields.MeasureField',
-        'Imt.usagepointmanagement.view.forms.fields.ThreeValuesField',
-        'Imt.usagepointmanagement.view.forms.fields.LimiterCheckbox',
-        'Imt.usagepointmanagement.view.forms.fields.LoadLimiterTypeField',
-        'Imt.usagepointmanagement.view.forms.fields.LoadLimitField'
-    ],
-    defaults: {
-        labelWidth: 260,
-        width: 595
-    },
     items: [
         {
             itemId: 'technical-info-warning',
@@ -39,8 +27,8 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
             itemId: 'up-phaseCode-combo',
             fieldLabel: Uni.I18n.translate('general.label.phaseCode', 'IMT', 'Phase code'),
             store: 'Imt.usagepointmanagement.store.PhaseCodes',
-            displayField: 'displayName',
-            valueField: 'name',
+            displayField: 'displayValue',
+            valueField: 'id',
             queryMode: 'local',
             forceSelection: true,
             emptyText: Uni.I18n.translate('usagepoint.add.emptyText.phaseCode', 'IMT', 'Select phase code...'),
@@ -61,6 +49,14 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
             fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power'),
             store: 'Imt.usagepointmanagement.store.measurementunits.Power',
             value: {value: null, unit: 'W', multiplier: 0}
+        },
+        {
+            xtype: 'measurefield',
+            name: 'ratedCurrent',
+            itemId: 'up-ratedCurrent-measurefield',
+            fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current'),
+            store: 'Imt.usagepointmanagement.store.measurementunits.Amperage',
+            value: {value: null, unit: 'A', multiplier: 0}
         },
         {
             xtype: 'measurefield',
