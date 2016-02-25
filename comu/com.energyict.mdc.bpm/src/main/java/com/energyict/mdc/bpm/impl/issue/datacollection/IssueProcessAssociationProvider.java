@@ -33,6 +33,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -86,22 +87,23 @@ public class IssueProcessAssociationProvider implements ProcessAssociationProvid
     }
 
     @Override
-    public Optional<PropertySpec> getPropertySpec(String name) {
-        return (TranslationKeys.DATA_COLLECTION_ISSUE_STATE_TITLE.getKey().equals(name)) ? Optional.of(getIssueReasonPropertySpec()) : Optional.empty();
-    }
-
-    @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(getIssueReasonPropertySpec());
         return builder.build();
     }
 
+    @Override
+    public Optional<PropertySpec> getPropertySpec(String name) {
+        return (TranslationKeys.DATA_COLLECTION_ISSUE_STATE_TITLE.getKey()
+                .equals(name)) ? Optional.of(getIssueReasonPropertySpec()) : Optional.empty();
+    }
+
     private PropertySpec getIssueReasonPropertySpec() {
         IssueType issueType = issueService.findIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE).orElse(null);
         IssueReasonInfo[] possibleValues = issueService.query(IssueReason.class)
                 .select(where("issueType").isEqualTo(issueType))
-                .stream().toArray(IssueReasonInfo[]::new);
+                .stream().map(IssueReasonInfo::new).toArray(IssueReasonInfo[]::new);
 
         return this.propertySpecService
                 .specForValuesOf(new IssueReasonInfoValueFactory())
@@ -127,6 +129,51 @@ public class IssueProcessAssociationProvider implements ProcessAssociationProvid
     @Override
     public List<TranslationKey> getKeys() {
         return Arrays.asList(com.energyict.mdc.bpm.impl.device.TranslationKeys.values());
+    }
+
+    @XmlRootElement
+    static class IssueReasonInfo extends HasIdAndName {
+        private transient IssueReason issueReason;
+
+        IssueReasonInfo(IssueReason issueReason) {
+            this.issueReason = issueReason;
+        }
+
+        @Override
+        public Long getId() {
+            return issueReason.getId();
+        }
+
+        @Override
+        //TODO: translatable?
+        public String getName() {
+            return issueReason.getName();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            if (!super.equals(o)) {
+                return false;
+            }
+
+            IssueReasonInfo that = (IssueReasonInfo) o;
+
+            return issueReason.getId() == that.issueReason.getId();
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = super.hashCode();
+            result = 31 * result + Long.hashCode(issueReason.getId());
+            return result;
+        }
     }
 
     private class IssueReasonInfoValueFactory implements ValueFactory<HasIdAndName> {
@@ -176,51 +223,6 @@ public class IssueProcessAssociationProvider implements ProcessAssociationProvid
             else {
                 builder.addNull(Types.VARCHAR);
             }
-        }
-    }
-
-    @XmlRootElement
-    static class IssueReasonInfo extends HasIdAndName {
-        private transient IssueReason issueReason;
-
-        IssueReasonInfo(IssueReason issueReason) {
-            this.issueReason = issueReason;
-        }
-
-        @Override
-        public Long getId() {
-            return issueReason.getId();
-        }
-
-        @Override
-        //TODO: translatable?
-        public String getName() {
-            return issueReason.getName();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            if (!super.equals(o)) {
-                return false;
-            }
-
-            IssueReasonInfo that = (IssueReasonInfo) o;
-
-            return issueReason.getId() == that.issueReason.getId();
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = super.hashCode();
-            result = 31 * result + Long.hashCode(issueReason.getId());
-            return result;
         }
     }
 }
