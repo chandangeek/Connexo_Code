@@ -17,7 +17,8 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
 
     stores: [
         'Mdc.store.LogLevels',
-        'Mdc.store.TimeUnitsWithoutMilliseconds'
+        'Mdc.store.TimeUnitsWithoutMilliseconds',
+        'Mdc.store.DeviceTypePurposes'
     ],
 
     init: function () {
@@ -64,8 +65,20 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         this.getApplication().fireEvent('changecontentevent', widget);
     },
     showDeviceTypes: function () {
-        var widget = Ext.widget('deviceTypesSetup');
-        this.getApplication().fireEvent('changecontentevent', widget);
+        var me = this,
+            widget,
+            purposeStore = Ext.getStore('Mdc.store.DeviceTypePurposes') || Ext.create('Mdc.store.DeviceTypePurposes'),
+            onStoreLoad = function() {
+                widget = Ext.widget('deviceTypesSetup', {
+                    purposeStore: purposeStore
+                });
+                me.getApplication().fireEvent('changecontentevent', widget);
+            };
+
+        purposeStore.load({
+            scope: me,
+            callback: onStoreLoad
+        });
     },
     showRegisterTypes: function () {
         var widget = Ext.widget('registerTypeSetup');

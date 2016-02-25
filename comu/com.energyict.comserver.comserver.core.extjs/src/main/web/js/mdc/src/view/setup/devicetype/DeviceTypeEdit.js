@@ -3,11 +3,15 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
     alias: 'widget.deviceTypeEdit',
     itemId: 'deviceTypeEdit',
     requires: [
-        'Mdc.store.DeviceCommunicationProtocols'
+        'Uni.util.FormErrorMessage',
+        'Mdc.store.DeviceCommunicationProtocols',
+        'Mdc.store.DeviceTypePurposes'
     ],
 
     edit: false,
     cancelLink: null,
+    deviceCommunicationProtocols: null,
+    deviceTypePurposes: null,
 
     isEdit: function () {
         return this.edit;
@@ -19,7 +23,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
         this.content = [
             {
                 xtype: 'form',
-                width: '100%',
+                //width: '100%',
                 itemId: 'deviceTypeEditForm',
                 ui: 'large',
                 defaults: {
@@ -27,15 +31,10 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                 },
                 items: [
                     {
-                        name: 'errors',
-                        ui: 'form-error-framed',
+                        xtype: 'uni-form-error-message',
                         itemId: 'deviceTypeEditFormErrors',
-                        layout: 'hbox',
-                        margin: '0 0 10 0',
                         hidden: true,
-                        defaults: {
-                            xtype: 'container'
-                        }
+                        width: 600
                     },
                     {
                         xtype: 'uni-form-info-message',
@@ -52,10 +51,25 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                     },
                     {
                         xtype: 'combobox',
+                        name: 'deviceTypePurpose',
+                        fieldLabel: Uni.I18n.translate('general.type', 'MDC', 'Type'),
+                        itemId: 'mdc-deviceTypeEdit-typeComboBox',
+                        store: me.deviceTypePurposes,
+                        queryMode: 'local',
+                        displayField: 'localizedValue',
+                        valueField: 'deviceTypePurpose',
+                        required: true,
+                        forceSelection: true,
+                        typeAhead: false,
+                        msgTarget: 'under',
+                        width: 600
+                    },
+                    {
+                        xtype: 'combobox',
                         name: 'deviceProtocolPluggableClass',
                         fieldLabel: Uni.I18n.translate('devicetype.communicationProtocol', 'MDC', 'Communication protocol'),
                         itemId: 'communicationProtocolComboBox',
-                        store: this.deviceCommunicationProtocols,
+                        store: me.deviceCommunicationProtocols,
                         queryMode: 'local',
                         displayField: 'name',
                         valueField: 'name',
@@ -87,6 +101,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                         fieldLabel: Uni.I18n.translate('general.deviceLifeCycle', 'MDC', 'Device life cycle'),
                         required: true,
                         itemId: 'device-life-cycle-field',
+                        msgTarget: 'under',
                         layout: 'hbox',
                         items: [
                             {
@@ -97,6 +112,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                                 store: 'Mdc.store.DeviceLifeCycles',
                                 emptyText: Uni.I18n.translate('devicetype.selectDeviceLifeCycle', 'MDC', 'Select a device life cycle...'),
                                 editable: false,
+                                msgTarget: 'under',
                                 queryMode: 'local',
                                 displayField: 'name',
                                 valueField: 'id'

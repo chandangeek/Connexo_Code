@@ -3,6 +3,7 @@ Ext.define('Mdc.model.DeviceLifeCycle', {
     fields: [
         'id',
         'name',
-        'version'
+        'version',
+        'containsCommunicationActions'
     ]
 });
