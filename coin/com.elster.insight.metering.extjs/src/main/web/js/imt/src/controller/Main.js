@@ -15,7 +15,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.channeldata.controller.ChannelData',
         'Imt.registerdata.controller.View',
         'Imt.validation.controller.UsagePointDataValidation',
-        'Imt.metrologyconfiguration.controller.ValidationRuleSets'
+        'Imt.metrologyconfiguration.controller.ValidationRuleSets',
+        'Imt.processes.controller.MonitorProcesses'
     ],
 
     privileges: [],

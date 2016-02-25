@@ -269,41 +269,29 @@ Ext.define('Imt.controller.History', {
                         'processes': {
                             title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
                             route: 'processes',
-                            controller: 'Dbp.monitorprocesses.controller.MonitorProcesses',
+                            controller: 'Imt.processes.controller.MonitorProcesses',
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-                            action: 'showUsagePointProcesses',
-                            params: {
-                                model: 'Imt.usagepointmanagement.model.UsagePoint',
-                                sidePanel: 'usage-point-management-side-menu'
-                            }
+                            action: 'showUsagePointProcesses'
                         },
                         'processesrunning': {
                             title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
                             route: 'running',
-                            controller: 'Dbp.monitorprocesses.controller.MonitorProcesses',
+                            controller: 'Imt.processes.controller.MonitorProcesses',
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
-                            action: 'showUsagePointProcesses',
-                            params: {
-                                model: 'Imt.usagepointmanagement.model.UsagePoint',
-                                sidePanel: 'usage-point-management-side-menu'
-                            }
+                            action: 'showUsagePointProcesses'
                         },
                         'processeshistory': {
                             title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
                             route: 'processes/history',
-                            controller: 'Dbp.monitorprocesses.controller.MonitorProcesses',
+                            controller: 'Imt.processes.controller.MonitorProcesses',
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
                             filter: 'Bpm.monitorprocesses.model.HistoryProcessesFilter',
-                            action: 'showUsagePointProcesses',
-                            params: {
-                                model: 'Imt.usagepointmanagement.model.UsagePoint',
-                                sidePanel: 'usage-point-management-side-menu'
-                            }
+                            action: 'showUsagePointProcesses'
                         },
                         'processstart': {
                             title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
                             route: 'processes/start',
-                            controller: 'Imt.usagepointmanagement.controller.Processes',
+                            controller: 'Imt.processes.controller.MonitorProcesses',
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
                             action: 'showUsagePointStartProcess'
                         }

@@ -1,11 +1,15 @@
-Ext.define('Imt.usagepointmanagement.view.Processes.StartProcess', {
+Ext.define('Imt.processes.view.UsagePointProcessesMainView', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.usage-point-processes-startprocess',
+    alias: 'widget.usage-point-processes-main-view',
+    overflowY: 'auto',
     requires: [
-        'Bpm.startprocess.view.StartProcess',
-        'Imt.usagepointmanagement.view.UsagePointSideMenu'
+        'Imt.usagepointmanagement.view.UsagePointSideMenu',
+        'Bpm.monitorprocesses.view.MonitorProcessesMainView'
     ],
+    router: null,
+    mRID: null,
     properties: null,
+
     initComponent: function () {
         var me = this;
         me.side = [
@@ -32,13 +36,12 @@ Ext.define('Imt.usagepointmanagement.view.Processes.StartProcess', {
         ];
         me.content = [
             {
-                xtype: 'bpm-start-processes-panel',
+                xtype: 'bpm-monitor-processes-main-view',
                 ui: 'large',
-                itemId: 'usage-point-start-processes-panel',
+                itemId: 'usage-point-monitor-processes-panel',
                 properties: me.properties
             }
         ];
         me.callParent(arguments);
     }
 });
-
