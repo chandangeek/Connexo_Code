@@ -49,14 +49,10 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         infos.add(createDescription(TranslationSeeds.MRID, String.class));
         infos.add(createDescription(TranslationSeeds.SERVICE_CATEGORY_DISPLAY, String.class));
         infos.add(createDescription(TranslationSeeds.NAME, String.class));
-        infos.add(createDescription(TranslationSeeds.BILLING_READY_DISPLAY, String.class));
-        infos.add(createDescription(TranslationSeeds.CHECK_BILLING, Boolean.class));
-        infos.add(createDescription(TranslationSeeds.CONNECTION_STATE_DISPLAY, String.class));
         infos.add(createDescription(TranslationSeeds.ESTIMATED_LOAD, Quantity.class));
         infos.add(createDescription(TranslationSeeds.GROUNDED, Boolean.class));
         infos.add(createDescription(TranslationSeeds.DSP, Boolean.class));
         infos.add(createDescription(TranslationSeeds.VIRTUAL, Boolean.class));
-        infos.add(createDescription(TranslationSeeds.MIN_USAGE_EXPECTED, Boolean.class));
         infos.add(createDescription(TranslationSeeds.SERVICE_VOLTAGE, Quantity.class));
         infos.add(createDescription(TranslationSeeds.OUTAGE_REGION, String.class));
         infos.add(createDescription(TranslationSeeds.PHASE_CODE, String.class));
