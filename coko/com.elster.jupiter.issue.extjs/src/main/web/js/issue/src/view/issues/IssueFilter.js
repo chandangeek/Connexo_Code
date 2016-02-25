@@ -32,6 +32,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 type: 'combobox',
                 itemId: 'issue-assignee-filter',
                 dataIndex: 'assignee',
+                multiSelect: true,
                 emptyText: Uni.I18n.translate('general.assignee', 'ISU', 'Assignee'),
                 store: 'Isu.store.IssueAssignees',
                 displayField: 'name',
@@ -153,13 +154,27 @@ Ext.define('Isu.view.issues.IssueFilter', {
         combo.value = value;
         combo.setHiddenValue(value);
 
-        store.model.load(value, {
-            success: function (record) {
-                store.loadData([record], false);
-                store.lastOptions = {};
-                store.fireEvent('load', store, [record], true)
-            }
-        });
+        if (Ext.isArray(value)) {
+            var arr = [];
+            Ext.Array.each(value, function (v) {
+                store.model.load(v, {
+                    success: function (record) {
+                        arr.push(record);
+                        store.loadData(arr, false);
+                        store.lastOptions = {};
+                        store.fireEvent('load', store, arr, true)
+                    }
+                });
+            });
+        } else {
+            store.model.load(value, {
+                success: function (record) {
+                    store.loadData([record], false);
+                    store.lastOptions = {};
+                    store.fireEvent('load', store, [record], true)
+                }
+            });
+        }
     },
 
     comboGetParamValue: function () {

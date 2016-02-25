@@ -87,7 +87,6 @@ Ext.define('Isu.controller.Overview', {
 
     getGroupProxyParams: function (section) {
         var me = this,
-            queryString = Uni.util.QueryString.getQueryStringValues(false),
             filterToolbar = me.getFilterToolbar(),
             filter = filterToolbar.getFilterParams(false, !filterToolbar.filterObjectEnabled),
             params = {
