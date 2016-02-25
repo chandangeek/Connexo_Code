@@ -15,6 +15,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +39,7 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Ranges;
@@ -92,6 +94,12 @@ public class UsagePointValidationResourceTest extends UsagePointDataRestApplicat
         when(usagePoint.getModificationDate()).thenReturn(Instant.now().minusSeconds(60*60*5));
         when(usagePoint.getDetail(any(Instant.class))).thenReturn(Optional.empty());
         when(usagePoint.getCurrentMeterActivation()).thenReturn(Optional.of(meterActivation));
+        when(usagePoint.getInstallationTime()).thenReturn(Instant.EPOCH);
+        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
+
+        UsagePointCustomPropertySetExtension extension = mock(UsagePointCustomPropertySetExtension.class);
+        when(extension.getAllCustomPropertySets()).thenReturn(Collections.emptyList());
+        when(usagePoint.forCustomProperties()).thenReturn(extension);
       
         doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();
         

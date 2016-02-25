@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +32,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Ranges;
@@ -82,6 +84,12 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePoint.getCurrentMeterActivation()).thenReturn(Optional.of(meterActivation));
         when(usagePoint.getServiceLocation()).thenReturn(Optional.empty());
         when(usagePoint.getMRID()).thenReturn("MRID");
+        when(usagePoint.getInstallationTime()).thenReturn(Instant.EPOCH);
+        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
+
+        UsagePointCustomPropertySetExtension extension = mock(UsagePointCustomPropertySetExtension.class);
+        when(extension.getAllCustomPropertySets()).thenReturn(Collections.emptyList());
+        when(usagePoint.forCustomProperties()).thenReturn(extension);
       
         doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();
         

@@ -1,6 +1,5 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
@@ -48,32 +47,14 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
         if (isAllowedToEdit(usagePoint)) {
             if (usagePoint.getVersion() == info.version) {
                 usagePoint.setMRID(info.mRID);
-                usagePoint.setAliasName(info.aliasName);
-                usagePoint.setDescription(info.description);
                 usagePoint.setName(info.name);
                 usagePoint.setSdp(info.isSdp);
                 usagePoint.setVirtual(info.isVirtual);
                 usagePoint.setOutageRegion(info.outageRegion);
-                usagePoint.setReadCycle(info.readCycle);
                 usagePoint.setReadRoute(info.readRoute);
                 usagePoint.setServicePriority(info.servicePriority);
+                usagePoint.setServiceDeliveryRemark(info.serviceDeliveryRemark);
                 UsagePointDetail detail = usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, clock.instant());
-                detail.setAmiBillingReady(info.amiBillingReady);
-                detail.setCheckBilling(info.checkBilling);
-                detail.setConnectionState(info.connectionState);
-                detail.setMinimalUsageExpected(info.minimalUsageExpected);
-                if (detail instanceof ElectricityDetail) {
-                    ElectricityDetail eDetail = (ElectricityDetail) detail;
-                    eDetail.setEstimatedLoad(info.estimatedLoad);
-                    eDetail.setGrounded(info.grounded);
-                    eDetail.setNominalServiceVoltage(info.nominalServiceVoltage);
-                    eDetail.setPhaseCode(info.phaseCode);
-                    eDetail.setRatedCurrent(info.ratedCurrent);
-                    eDetail.setRatedPower(info.ratedPower);
-                    eDetail.setServiceDeliveryRemark(info.serviceDeliveryRemark);
-                    eDetail.setPhaseCode(info.phaseCode);
-                    eDetail.setRatedPower(info.ratedPower);
-                }
                 usagePoint.addDetail(detail);
                 usagePoint.update();
             } else {

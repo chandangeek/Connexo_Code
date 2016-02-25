@@ -50,15 +50,17 @@ public class UsagePointValidationResource {
     private final Thesaurus thesaurus;
     private final ValidationInfoFactory validationInfoFactory;
     private final UsagePointConfigurationService usagePointConfigurationService;
+    private final UsagePointInfoFactory usagePointInfoFactory;
 
     @Inject
     public UsagePointValidationResource(ResourceHelper resourceHelper,
-            ValidationService validationService,
-            ExceptionFactory exceptionFactory,
-            Clock clock,
-            Thesaurus thesaurus,
-            ValidationInfoFactory validationInfoFactory,
-            UsagePointConfigurationService usagePointConfigurationService) {
+                                        ValidationService validationService,
+                                        ExceptionFactory exceptionFactory,
+                                        Clock clock,
+                                        Thesaurus thesaurus,
+                                        ValidationInfoFactory validationInfoFactory,
+                                        UsagePointConfigurationService usagePointConfigurationService,
+                                        UsagePointInfoFactory usagePointInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.validationService = validationService;
         this.exceptionFactory = exceptionFactory;
@@ -66,6 +68,7 @@ public class UsagePointValidationResource {
         this.validationInfoFactory = validationInfoFactory;
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.thesaurus = thesaurus;
+        this.usagePointInfoFactory = usagePointInfoFactory;
     }
 
     @GET
@@ -90,7 +93,7 @@ public class UsagePointValidationResource {
         for (ValidationRuleSet ruleSet : linkedRuleSets) {
             boolean isActive = (!activation.isPresent()) || activeRuleSets.contains(ruleSet);
             UsagePointValidationRuleSetInfo info = new UsagePointValidationRuleSetInfo(ruleSet, isActive);
-            info.usagePoint = new UsagePointInfo(usagePoint, clock);
+            info.usagePoint = new UsagePointInfo(usagePoint);
             result.add(info);
         }
     }
@@ -278,7 +281,7 @@ public class UsagePointValidationResource {
 
         collectRegisterData(usagePoint, usagePointValidationStatusInfo, end);
         collectChannelData(usagePoint, usagePointValidationStatusInfo, end);
-        usagePointValidationStatusInfo.usagePoint = new UsagePointInfo(usagePoint, clock);
+        usagePointValidationStatusInfo.usagePoint = usagePointInfoFactory.from(usagePoint);
 
         return usagePointValidationStatusInfo;
     }
