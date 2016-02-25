@@ -38,19 +38,58 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
     }
 
     /**
-     * Empty list, this is specified by the security suites
+     * A list of all possible authentication levels.
+     * Note that not all these levels are supported in all security suites.
      */
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return new ArrayList<>();
+        List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = new ArrayList<>(new DlmsSecuritySupport().getAuthenticationAccessLevels());
+        authenticationAccessLevels.add(new Sha256Authentication());
+        authenticationAccessLevels.add(new ECDSAAuthentication());
+        return authenticationAccessLevels;
     }
 
     /**
-     * Return an empty list, this is specified by the security suites
+     * {@inheritDoc}
+     */
+    @Override
+    public List<RequestSecurityLevel> getRequestSecurityLevels() {
+        ArrayList<RequestSecurityLevel> requestSecurityLevels = new ArrayList<>();
+        requestSecurityLevels.add(new NoSecurityForRequests());
+        requestSecurityLevels.add(new RequestsAuthenticated());
+        requestSecurityLevels.add(new RequestsEncrypted());
+        requestSecurityLevels.add(new RequestsEncryptedAndAuthenticated());
+        requestSecurityLevels.add(new RequestsSigned());
+        requestSecurityLevels.add(new RequestsAuthenticatedAndSigned());
+        requestSecurityLevels.add(new RequestsEncryptedAndSigned());
+        requestSecurityLevels.add(new RequestsEncryptedAndAuthenticatedAndSigned());
+        return requestSecurityLevels;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<ResponseSecurityLevel> getResponseSecurityLevels() {
+        ArrayList<ResponseSecurityLevel> responseSecurityLevels = new ArrayList<>();
+        responseSecurityLevels.add(new NoSecurityForResponses());
+        responseSecurityLevels.add(new ResponsesAuthenticated());
+        responseSecurityLevels.add(new ResponsesEncrypted());
+        responseSecurityLevels.add(new ResponsesEncryptedAndAuthenticated());
+        responseSecurityLevels.add(new ResponsesSigned());
+        responseSecurityLevels.add(new ResponsesAuthenticatedAndSigned());
+        responseSecurityLevels.add(new ResponsesEncryptedAndSigned());
+        responseSecurityLevels.add(new ResponsesEncryptedAndAuthenticatedAndSigned());
+        return responseSecurityLevels;
+    }
+
+    /**
+     * A list of all possible encryption levels.
+     * Note that not all these levels are supported in all security suites.
      */
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return new ArrayList<>();
+        return new DlmsSecuritySupport().getEncryptionAccessLevels();
     }
 
     @Override
@@ -165,6 +204,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         }
 
         @Override
+        public List<PropertySpec> getSecurityProperties() {
+            return new ArrayList<>();   //Not used for security suite implementations
+        }
+
+        @Override
         public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
             DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
             return Arrays.asList(
@@ -211,6 +255,11 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         }
 
         @Override
+        public List<PropertySpec> getSecurityProperties() {
+            return new ArrayList<>();   //Not used for security suite implementations
+        }
+
+        @Override
         public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
             return new ArrayList<>();   //Not used in suite 1
         }
@@ -230,30 +279,12 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
 
         @Override
         public List<RequestSecurityLevel> getRequestSecurityLevels() {
-            ArrayList<RequestSecurityLevel> requestSecurityLevels = new ArrayList<>();
-            requestSecurityLevels.add(new NoSecurityForRequests());
-            requestSecurityLevels.add(new RequestsAuthenticated());
-            requestSecurityLevels.add(new RequestsEncrypted());
-            requestSecurityLevels.add(new RequestsEncryptedAndAuthenticated());
-            requestSecurityLevels.add(new RequestsSigned());
-            requestSecurityLevels.add(new RequestsAuthenticatedAndSigned());
-            requestSecurityLevels.add(new RequestsEncryptedAndSigned());
-            requestSecurityLevels.add(new RequestsEncryptedAndAuthenticatedAndSigned());
-            return requestSecurityLevels;
+            return DlmsSecuritySuite1And2Support.this.getRequestSecurityLevels();
         }
 
         @Override
         public List<ResponseSecurityLevel> getResponseSecurityLevels() {
-            ArrayList<ResponseSecurityLevel> responseSecurityLevels = new ArrayList<>();
-            responseSecurityLevels.add(new NoSecurityForResponses());
-            responseSecurityLevels.add(new ResponsesAuthenticated());
-            responseSecurityLevels.add(new ResponsesEncrypted());
-            responseSecurityLevels.add(new ResponsesEncryptedAndAuthenticated());
-            responseSecurityLevels.add(new ResponsesSigned());
-            responseSecurityLevels.add(new ResponsesAuthenticatedAndSigned());
-            responseSecurityLevels.add(new ResponsesEncryptedAndSigned());
-            responseSecurityLevels.add(new ResponsesEncryptedAndAuthenticatedAndSigned());
-            return responseSecurityLevels;
+            return DlmsSecuritySuite1And2Support.this.getResponseSecurityLevels();
         }
     }
 
@@ -312,6 +343,7 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
             propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
             return propertySpecs;
         }
@@ -335,6 +367,7 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
             propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
             return propertySpecs;
         }
@@ -358,6 +391,7 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
             propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
             return propertySpecs;
         }
@@ -494,6 +528,7 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
             propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
             return propertySpecs;
         }
@@ -517,6 +552,7 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
             propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
             return propertySpecs;
         }
@@ -540,6 +576,7 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
             propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec());
             return propertySpecs;
         }
