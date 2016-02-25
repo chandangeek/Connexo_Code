@@ -495,12 +495,12 @@ public class BpmResource {
         return null;
     }
 
-    private ProcessDefinitionInfos filterProcesses(List<BpmProcessDefinition> activeProcesses, String filterPropertie, String auth){
+    private ProcessDefinitionInfos filterProcesses(List<BpmProcessDefinition> activeProcesses, String filterProperty, String auth){
         ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinition(auth);
         processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
                 .filter(s -> {
-                    if(filterPropertie != null) {
-                        return activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version) && a.getAssociation().toLowerCase().equals(filterPropertie.toLowerCase()));
+                    if(filterProperty != null) {
+                        return activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version) && a.getAssociation().toLowerCase().equals(filterProperty.toLowerCase()));
                     }else{
                         return activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version));
                     }
