@@ -28,6 +28,7 @@ public class ServiceCallTypeCustomPropertySetUsageImpl implements ServiceCallTyp
     @IsPresent
     private Reference<ServiceCallType> serviceCallType = ValueReference.absent();
     @IsPresent
+    @IsValidType
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = ValueReference.absent();
 
     ServiceCallTypeCustomPropertySetUsageImpl initialize(ServiceCallType serviceCallType, RegisteredCustomPropertySet registeredCustomPropertySet) {
