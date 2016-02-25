@@ -1,11 +1,13 @@
 package com.elster.jupiter.ids.impl;
 
+import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
@@ -26,13 +28,13 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @LiteralSql
 public final class VaultImpl implements IVault {
@@ -304,22 +306,45 @@ public final class VaultImpl implements IVault {
         return builder;
     }
 
-    private SqlBuilder selectSql(TimeSeriesImpl timeSeries, Set<String> limitedRecordSpecFieldNames) {
+    private SqlBuilder selectSql(TimeSeriesImpl timeSeries, List<Pair<String, String>> limitedRecordSpecFieldAndAliasNames) {
+        List<String> limitedRecordSpecFieldNames = limitedRecordSpecFieldAndAliasNames.stream().map(Pair::getFirst).collect(Collectors.toList());
         RecordSpecImpl recordSpec = timeSeries.getRecordSpec();
         List<String> columnNames =
                 recordSpec
                         .getFieldSpecs()
                         .stream()
                         .filter(each -> limitedRecordSpecFieldNames.contains(each.getName()))
-                        .map(recordSpec::columnName)
+                        .map(fieldSpec -> this.toColumnNameWithAlias(recordSpec, fieldSpec, limitedRecordSpecFieldAndAliasNames))
                         .collect(Collectors.toList());
         if (this.hasLocalTime() && limitedRecordSpecFieldNames.contains("LOCALDATE")) {
-            columnNames.add("LOCALDATE");
+            columnNames.add("LOCALDATE" + this.localDateAliasNameIfAny(limitedRecordSpecFieldAndAliasNames));
         }
         SqlBuilder builder = selectSql(columnNames);
         builder.append(" TIMESERIESID =");
         builder.addLong(timeSeries.getId());
         return builder;
+    }
+
+    private String toColumnNameWithAlias(RecordSpecImpl recordSpec, FieldSpec fieldSpec, List<Pair<String, String>> limitedRecordSpecFieldAndAliasNames) {
+        return recordSpec.columnName(fieldSpec) + limitedRecordSpecFieldAndAliasNames
+                .stream()
+                .filter(pair -> pair.getFirst().equals(fieldSpec.getName()))
+                .map(pairToAliasName())
+                .findFirst()
+                .orElse("");
+    }
+
+    private String localDateAliasNameIfAny(List<Pair<String, String>> recordSpecFieldAndAliasNames) {
+        return recordSpecFieldAndAliasNames
+                .stream()
+                .filter(pair -> "LOCALDATE".equals(pair.getFirst()))
+                .findFirst()
+                .map(pairToAliasName())
+                .orElse("");
+    }
+
+    private Function<Pair<String, String>, String> pairToAliasName() {
+        return pair -> " AS " + pair.getLast();
     }
 
     private SqlBuilder selectJournalSql(TimeSeriesImpl timeSeries) {
@@ -396,8 +421,8 @@ public final class VaultImpl implements IVault {
     }
 
     @Override
-    public SqlFragment getRawValuesSql(TimeSeriesImpl timeSeries, Range<Instant> interval, String... fieldSpecNames) {
-        return this.rangeSql(timeSeries, interval, Stream.of(fieldSpecNames).collect(Collectors.toSet()));
+    public SqlFragment getRawValuesSql(TimeSeriesImpl timeSeries, Range<Instant> interval, Pair<String, String>... fieldSpecAndAliasNames) {
+        return this.rangeSql(timeSeries, interval, Arrays.asList(fieldSpecAndAliasNames));
     }
 
     @Override
@@ -434,7 +459,7 @@ public final class VaultImpl implements IVault {
         return builder;
     }
 
-    private SqlBuilder rangeSql(TimeSeriesImpl timeSeries, Range<Instant> range, Set<String> recordSpecFieldNames) {
+    private SqlBuilder rangeSql(TimeSeriesImpl timeSeries, Range<Instant> range, List<Pair<String, String>> recordSpecFieldNames) {
         SqlBuilder builder = selectSql(timeSeries, recordSpecFieldNames);
         this.appendRange(range, builder);
         return builder;

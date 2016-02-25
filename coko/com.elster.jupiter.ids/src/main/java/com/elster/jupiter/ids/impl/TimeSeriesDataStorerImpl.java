@@ -244,7 +244,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
                 storer.appendWhereClause(builder);
                 separator = " or ";
             }
-            builder.append(" ORDER BY TIMESERIESID , UTCSTAMP ");
+            builder.append(" ORDER BY TIMESERIESID, UTCSTAMP ");
             return builder;
         }
 
@@ -366,7 +366,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
             builder.addLong(this.getTimeSeries().getId());
             builder.append("AND UTCSTAMP between");
             builder.addLong(this.newEntries.firstKey().toEpochMilli());
-            builder.append("and");
+            builder.append("AND");
             builder.addLong(this.newEntries.lastKey().toEpochMilli());
             builder.append(")");
         }

@@ -2,6 +2,7 @@ package com.elster.jupiter.ids.impl;
 
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.SqlFragment;
 
 import com.google.common.collect.Range;
@@ -14,7 +15,7 @@ public interface IVault extends Vault {
 
     List<TimeSeriesEntry> getEntries(TimeSeriesImpl timeSeries, Range<Instant> interval);
 
-    SqlFragment getRawValuesSql(TimeSeriesImpl timeSeries, Range<Instant> interval, String... fieldSpecNames);
+    SqlFragment getRawValuesSql(TimeSeriesImpl timeSeries, Range<Instant> interval, Pair<String, String>... fieldSpecAndAliasNames);
 
     List<TimeSeriesEntry> getEntriesUpdatedSince(TimeSeriesImpl timeSeries, Range<Instant> interval, Instant since);
 

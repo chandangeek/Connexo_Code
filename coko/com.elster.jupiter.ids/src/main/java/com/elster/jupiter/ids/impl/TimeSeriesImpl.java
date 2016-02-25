@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.SqlFragment;
 
 import com.google.common.collect.ImmutableList;
@@ -291,8 +292,8 @@ public final class TimeSeriesImpl implements TimeSeries {
 	}
 
 	@Override
-	public SqlFragment getRawValuesSql(Range<Instant> interval, String... fieldSpecNames) {
-		return this.getVault().getRawValuesSql(this, interval, fieldSpecNames);
+	public SqlFragment getRawValuesSql(Range<Instant> interval, Pair<String, String>... fieldSpecAndAliasNames) {
+		return this.getVault().getRawValuesSql(this, interval, fieldSpecAndAliasNames);
 	}
 
 	@Override
