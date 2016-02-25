@@ -167,7 +167,10 @@ public class ServiceCallServiceImpl implements MessageSeedProvider, TranslationK
 
     @Override
     public Optional<ServiceCallHandler> findHandler(String handler) {
-        return Optional.of(handlerMap.get(handler));
+        if (Checks.is(handler).emptyOrOnlyWhiteSpace()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(handlerMap.get(handler));
     }
 
     @Override
@@ -226,7 +229,7 @@ public class ServiceCallServiceImpl implements MessageSeedProvider, TranslationK
 
     @Override
     public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle) {
-        return new ServiceCallTypeBuilderImpl(this, name, versionName, (IServiceCallLifeCycle) serviceCallLifeCycle, dataModel);
+        return new ServiceCallTypeBuilderImpl(this, name, versionName, (IServiceCallLifeCycle) serviceCallLifeCycle, dataModel, thesaurus);
     }
 
     @Override

@@ -2,8 +2,11 @@ package com.elster.jupiter.servicecall;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
@@ -19,9 +22,14 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.impl.FakeTypeOneCustomPropertySet;
+import com.elster.jupiter.servicecall.impl.MessageSeeds;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
-import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeOneCustomPropertySet;
+import com.elster.jupiter.servicecall.impl.ServiceCallServiceImpl;
 import com.elster.jupiter.servicecall.impl.TranslationKeys;
+import com.elster.jupiter.servicecall.impl.example.DisconnectHandler;
+import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeDomainExtension;
+import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeOneCustomPropertySet;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -72,6 +80,8 @@ public class ServiceCallTypeIT {
 
     @Rule
     public TestRule expectedRule = new ExpectedExceptionRule();
+    @Rule
+    public TestRule expectedValidationRule = new ExpectedConstraintViolationRule();
 
     @Mock
     private UserService userService;
@@ -87,6 +97,8 @@ public class ServiceCallTypeIT {
     private Clock clock;
     private CustomPropertySetService customPropertySetService;
     private ServiceCallTypeOneCustomPropertySet serviceCallTypeOneCustomPropertySet;
+    private FakeTypeOneCustomPropertySet fake;
+    private DisconnectHandler disconnectHandler;
 
     private class MockModule extends AbstractModule {
 
@@ -136,6 +148,8 @@ public class ServiceCallTypeIT {
                 messageService = injector.getInstance(MessageService.class);
                 serviceCallService = injector.getInstance(ServiceCallService.class);
                 serviceCallTypeOneCustomPropertySet = injector.getInstance(ServiceCallTypeOneCustomPropertySet.class);
+                fake = injector.getInstance(FakeTypeOneCustomPropertySet.class);
+                new DisconnectHandler((ServiceCallServiceImpl) serviceCallService);
                 return null;
             }
         });
@@ -167,8 +181,8 @@ public class ServiceCallTypeIT {
     @Expected(value = UnderlyingSQLFailedException.class)
     public void testCanNotCreateDuplicateServiceCallTypes() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            serviceCallService.createServiceCallType("primer", "v1").logLevel(LogLevel.INFO).create();
-            serviceCallService.createServiceCallType("primer", "v1").logLevel(LogLevel.INFO).create();
+            serviceCallService.createServiceCallType("primer", "v1").handler("DisconnectHandler1").logLevel(LogLevel.INFO).create();
+            serviceCallService.createServiceCallType("primer", "v1").handler("DisconnectHandler1").logLevel(LogLevel.INFO).create();
             fail("Should have been prevented: duplication");
         }
     }
@@ -177,11 +191,11 @@ public class ServiceCallTypeIT {
     public void testCanCreateDuplicateServiceCallTypeWithName() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
             serviceCallService.createServiceCallType("primer", "v1")
-                    .handler("someHandler")
+                    .handler("DisconnectHandler1")
                     .logLevel(LogLevel.INFO)
                     .create();
             serviceCallService.createServiceCallType("primer", "v2")
-                    .handler("someHandler")
+                    .handler("DisconnectHandler1")
                     .logLevel(LogLevel.INFO)
                     .create();
         }
@@ -191,7 +205,7 @@ public class ServiceCallTypeIT {
     public void testCreateServiceCallTypeWithCustomLogLevel() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
-                    .handler("someHandler")
+                    .handler("DisconnectHandler1")
                     .logLevel(LogLevel.INFO)
                     .create();
 
@@ -206,10 +220,29 @@ public class ServiceCallTypeIT {
     }
 
     @Test
+    @ExpectedConstraintViolation(property = "serviceCallHandler", messageId = "{" + MessageSeeds.Constants.REQUIRED_FIELD + "}", strict = false)
+    public void testCreateServiceCallTypeWithoutHandler() throws Exception {
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").logLevel(LogLevel.INFO).create();
+        }
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "serviceCallHandler", messageId = "{" + MessageSeeds.Constants.UNKNOWN_HANDLER + "}")
+    public void testCreateServiceCallTypeWithUnknownHandler() throws Exception {
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
+                    .handler("BLABLALBA")
+                    .logLevel(LogLevel.INFO)
+                    .create();
+        }
+    }
+
+    @Test
     public void testCreateServiceCallTypeWithDefaultLogLevel() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
-                    .handler("someHandler")
+                    .handler("DisconnectHandler1")
                     .create();
 
             List<ServiceCallType> serviceCallTypes = serviceCallService.getServiceCallTypes().find();
@@ -224,9 +257,11 @@ public class ServiceCallTypeIT {
     @Test
     public void testCreateServiceCallTypeWithCustomPropertySet() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
+            RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySet(ServiceCallTypeDomainExtension.class
+                    .getName()).get();
             ServiceCallType serviceCallType = serviceCallService.createServiceCallType("CustomTest", "CustomVersion")
-                    .handler("someHandler")
-                    .customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCall.class).get(0))
+                    .customPropertySet(customPropertySet)
+                    .handler("DisconnectHandler1")
                     .create();
 
             List<ServiceCallType> serviceCallTypes = serviceCallService.getServiceCallTypes().find();
@@ -238,10 +273,23 @@ public class ServiceCallTypeIT {
     }
 
     @Test
+    @Expected(value = InvalidPropertySetDomainTypeException.class)
+    public void testCreateServiceCallTypeWithIllegalCustomPropertySet() throws Exception {
+        try (TransactionContext context = transactionService.getContext()) {
+            RegisteredCustomPropertySet wrongType = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.servicecall.impl.ServiceCallLifeCycleDomainExtension")
+                    .get();
+            ServiceCallType serviceCallType = serviceCallService
+                    .createServiceCallType("CustomTest", "CustomVersion")
+                    .customPropertySet(wrongType)
+                    .create();
+        }
+    }
+
+    @Test
     public void testUpdateServiceCallTypeLogLevel() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
             serviceCallService.createServiceCallType("primer", "v1")
-                    .handler("someHandler")
+                    .handler("DisconnectHandler1")
                     .create();
             Optional<ServiceCallType> serviceCallTypeReloaded = serviceCallService.findServiceCallType("primer", "v1");
             assertThat(serviceCallTypeReloaded.get().getLogLevel()).isEqualTo(LogLevel.WARNING);
@@ -258,7 +306,7 @@ public class ServiceCallTypeIT {
     public void testLockServiceCallType() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
-                    .handler("someHandler")
+                    .handler("DisconnectHandler1")
                     .create();
             Optional<ServiceCallType> serviceCallTypeReloaded = serviceCallService.findAndLockServiceCallType(serviceCallType
                     .getId(), serviceCallType.getVersion());
@@ -270,7 +318,7 @@ public class ServiceCallTypeIT {
     public void testLockServiceCallTypeIncorrectVersion() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
-                    .handler("someHandler")
+                    .handler("DisconnectHandler1")
                     .create();
             Optional<ServiceCallType> serviceCallTypeReloaded = serviceCallService.findAndLockServiceCallType(serviceCallType
                     .getId(), serviceCallType.getVersion() - 1);

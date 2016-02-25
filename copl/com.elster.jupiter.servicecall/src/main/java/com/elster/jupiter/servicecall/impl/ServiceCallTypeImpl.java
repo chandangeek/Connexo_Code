@@ -11,6 +11,8 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.Status;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,7 @@ import static java.util.stream.Collectors.toList;
  * Class models the type of a service call. The type defines the life cycle its service calls will abide by and links to
  * the custom properties that are available for use.
  */
+
 public class ServiceCallTypeImpl implements IServiceCallType {
     private long id;
     private String name;
@@ -29,6 +32,9 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     private Status status;
     private LogLevel logLevel;
     private Reference<IServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Constants.REQUIRED_FIELD+"}")
+    @Size(min=1, groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Constants.REQUIRED_FIELD+"}")
+    @IsRegisteredHandler(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.UNKNOWN_HANDLER + "}")
     private String serviceCallHandler;
     private DefaultState currentLifeCycleState;
     private List<ServiceCallTypeCustomPropertySetUsage> customPropertySets = new ArrayList<>();

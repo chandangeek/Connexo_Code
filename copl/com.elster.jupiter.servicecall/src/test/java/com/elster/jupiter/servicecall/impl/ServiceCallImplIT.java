@@ -36,6 +36,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -46,6 +47,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -104,6 +106,8 @@ public class ServiceCallImplIT {
     private LogService logService;
     @Mock
     private MessageInterpolator messageInterpolator;
+    @Mock
+    private ServiceCallHandler serviceCallHandler;
 
     private Clock clock;
     private CustomPropertySetService customPropertySetService;
@@ -167,6 +171,8 @@ public class ServiceCallImplIT {
 
                 customPropertySet = new MyCustomPropertySet(propertySpecService);
                 customPropertySetService.addCustomPropertySet(customPropertySet);
+
+                ((ServiceCallServiceImpl) serviceCallService).addServiceCallHandler(serviceCallHandler, ImmutableMap.of("name", "someHandler"));
 
                 RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(customPropertySet
                         .getId()).get();
