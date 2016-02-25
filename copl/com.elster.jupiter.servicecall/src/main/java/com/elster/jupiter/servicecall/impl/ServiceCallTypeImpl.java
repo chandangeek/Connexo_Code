@@ -6,8 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
-import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
-import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.Status;
 
 import javax.inject.Inject;
@@ -15,7 +14,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -23,13 +21,13 @@ import static java.util.stream.Collectors.toList;
  * Class models the type of a service call. The type defines the life cycle its service calls will abide by and links to
  * the custom properties that are available for use.
  */
-public class ServiceCallTypeImpl implements ServiceCallType {
+public class ServiceCallTypeImpl implements IServiceCallType {
     private long id;
     private String name;
     private String versionName;
     private Status status;
     private LogLevel logLevel;
-    private Reference<ServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
+    private Reference<IServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
     private DefaultState currentLifeCycleState;
     private List<ServiceCallTypeCustomPropertySetUsage> customPropertySets = new ArrayList<>();
     @SuppressWarnings("unused")
@@ -120,19 +118,8 @@ public class ServiceCallTypeImpl implements ServiceCallType {
     }
 
     @Override
-    public Optional<ServiceCallLifeCycle> getServiceCallLifeCycle() {
-        return serviceCallLifeCycle.getOptional();
-    }
-
-    @Override
-    public Optional<DefaultState> getCurrentLifeCycleState() {
-        return Optional.ofNullable(currentLifeCycleState);
-    }
-
-    @Override
-    public void setCurrentLifeCycleState(DefaultState currentLifeCycleState) {
-        // todo transition life cycle
-        this.currentLifeCycleState = currentLifeCycleState;
+    public IServiceCallLifeCycle getServiceCallLifeCycle() {
+        return serviceCallLifeCycle.get();
     }
 
     @Override
@@ -140,7 +127,7 @@ public class ServiceCallTypeImpl implements ServiceCallType {
         return customPropertySets.stream().map(ServiceCallTypeCustomPropertySetUsage::getCustomPropertySet).collect(toList());
     }
 
-    void setServiceCallLifeCycle(ServiceCallLifeCycle serviceCallLifeCycle) {
+    void setServiceCallLifeCycle(IServiceCallLifeCycle serviceCallLifeCycle) {
         this.serviceCallLifeCycle.set(serviceCallLifeCycle);
     }
 
@@ -169,5 +156,10 @@ public class ServiceCallTypeImpl implements ServiceCallType {
             Save.CREATE.save(this.dataModel, this, Save.Create.class);
         }
 
+    }
+
+    @Override
+    public ServiceCallBuilder newServiceCall() {
+        return ServiceCallBuilderImpl.from(dataModel, this);
     }
 }

@@ -1,7 +1,6 @@
 package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -14,11 +13,12 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -32,11 +32,9 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -51,19 +49,20 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     static final String SERIVCE_CALLS_DESTINATION_NAME = "SerivceCalls";
     static final String SERIVCE_CALLS_SUBSCRIBER_NAME = "SerivceCalls";
     private volatile FiniteStateMachineService finiteStateMachineService;
-    private volatile CustomPropertySetService customPropertySetService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
+    private volatile CustomPropertySetService customPropertySetService;
 
     // OSGi
     public ServiceCallServiceImpl() {
     }
 
     @Inject
-    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService) {
+    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, CustomPropertySetService customPropertySetService) {
         this.setFiniteStateMachineService(finiteStateMachineService);
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
+        setCustomPropertySetService(customPropertySetService);
         activate();
         this.install();
     }
@@ -142,6 +141,7 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
+                bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(ServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
             }
         };
@@ -174,18 +174,18 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
 
     @Override
     public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle) {
-        return new ServiceCallTypeBuilderImpl(name, versionName, serviceCallLifeCycle);
+        return new ServiceCallTypeBuilderImpl(this, name, versionName, (IServiceCallLifeCycle) serviceCallLifeCycle, dataModel);
     }
 
     @Override
     public Optional<ServiceCallType> findServiceCallType(String name, String versionName) {
-        return dataModel.mapper(ServiceCallType.class).getUnique(ServiceCallTypeImpl.Fields.name.fieldName(), name, ServiceCallTypeImpl.Fields.versionName.fieldName(), versionName);
+        return dataModel.mapper(IServiceCallType.class).getUnique(ServiceCallTypeImpl.Fields.name.fieldName(), name, ServiceCallTypeImpl.Fields.versionName.fieldName(), versionName).map(ServiceCallType.class::cast);
     }
 
 
     @Override
     public Optional<ServiceCallType> findAndLockServiceCallType(long id, long version) {
-        return dataModel.mapper(ServiceCallType.class).lockObjectIfVersion(version, id);
+        return dataModel.mapper(IServiceCallType.class).lockObjectIfVersion(version, id).map(ServiceCallType.class::cast);
     }
 
     @Override
@@ -193,39 +193,8 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
         return dataModel.getInstance(ServiceCallLifeCycleBuilderImpl.class).setName(name);
     }
 
-    class ServiceCallTypeBuilderImpl implements ServiceCallTypeBuilder {
-        private final ServiceCallTypeImpl instance;
-        private List<RegisteredCustomPropertySet> toBeRegisteredCustomPropertySets = new ArrayList<>();
-
-        public ServiceCallTypeBuilderImpl(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle) {
-            instance = dataModel.getInstance(ServiceCallTypeImpl.class);
-            instance.setName(name);
-            instance.setVersionName(versionName);
-            instance.setServiceCallLifeCycle(serviceCallLifeCycle);
-            instance.setLogLevel(LogLevel.WARNING);
-        }
-
-        @Override
-        public ServiceCallTypeBuilder logLevel(LogLevel logLevel) {
-            Objects.requireNonNull(logLevel, "LogLevel must not be null");
-            instance.setLogLevel(logLevel);
-            return this;
-        }
-
-        @Override
-        public ServiceCallTypeBuilder customPropertySet(RegisteredCustomPropertySet customPropertySet) {
-            this.toBeRegisteredCustomPropertySets.add(customPropertySet);
-            return this;
-        }
-
-        @Override
-        public ServiceCallType add() {
-            instance.save();
-            for (RegisteredCustomPropertySet customPropertySet : toBeRegisteredCustomPropertySets) {
-                instance.addCustomPropertySet(customPropertySet);
-            }
-
-            return instance;
-        }
+    @Override
+    public Optional<ServiceCall> getServiceCall(long id) {
+        return dataModel.mapper(ServiceCall.class).getOptional(id);
     }
 }
