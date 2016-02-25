@@ -1,5 +1,17 @@
 package com.energyict.mdc.issue.datacollection.event;
 
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.UnableToCreateEventException;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -14,18 +26,6 @@ import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDesc
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.share.IssueEvent;
-import com.elster.jupiter.issue.share.UnableToCreateEventException;
-import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.time.Interval;
 import com.google.inject.Injector;
 
 import java.time.Instant;
@@ -127,12 +127,15 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
         timestamp = Instant.ofEpochMilli(timestampMilli);
     }
 
-    private EndDevice findEndDeviceByMdcDevice() {
+    private Optional<EndDevice> findEndDeviceByMdcDevice() {
+        if (device == null) { //for unknown inbound device
+            return Optional.empty();
+        }
         Optional<AmrSystem> amrSystemRef = getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId());
-        if (amrSystemRef.isPresent()){
+        if (amrSystemRef.isPresent()) {
             Optional<Meter> meterRef = amrSystemRef.get().findMeter(String.valueOf(device.getId()));
-            if (meterRef.isPresent()){
-                return meterRef.get();
+            if (meterRef.isPresent()) {
+                return Optional.of(meterRef.get());
             }
         }
         throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_KORE_DEVICE, device.getId());
@@ -189,7 +192,7 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     }
 
     @Override
-    public EndDevice getEndDevice() {
+    public Optional<EndDevice> getEndDevice() {
         return findEndDeviceByMdcDevice();
     }
 

@@ -8,8 +8,9 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
-import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.templates.EventAggregationRuleTemplate;
+import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
+
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -32,9 +32,9 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     private Reference<ConnectionTask> connectionTask = ValueReference.absent();
     private Reference<ComSession> comSession = ValueReference.absent();
     private String deviceMRID;
-    private Instant firstConnectionAttempt;
-    private Instant lastConnectionAttempt;
-    private long connectionAttemptsNumber;
+    private Instant firstConnectionAttemptTimestamp;
+    private Instant lastConnectionAttemptTimestamp;
+    private long connectionAttempt;
 
     private long id;//do we need this id ? we have a reference to base issue instead...
     // Audit fields
@@ -203,38 +203,38 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
-    public Instant getLastConnectionAttempt() {
-        return lastConnectionAttempt;
+    public Instant getLastConnectionAttemptTimestamp() {
+        return lastConnectionAttemptTimestamp;
     }
 
     @Override
-    public void setLastConnectionAttempt(Instant lastConnectionAttempt) {
-        this.lastConnectionAttempt = lastConnectionAttempt;
+    public void setLastConnectionAttemptTimestamp(Instant lastConnectionAttemptTimestamp) {
+        this.lastConnectionAttemptTimestamp = lastConnectionAttemptTimestamp;
     }
 
     @Override
-    public Instant getFirstConnectionAttempt() {
-        return firstConnectionAttempt;
+    public Instant getFirstConnectionAttemptTimestamp() {
+        return firstConnectionAttemptTimestamp;
     }
 
     @Override
-    public void setFirstConnectionAttempt(Instant firstConnectionAttempt) {
-        this.firstConnectionAttempt = firstConnectionAttempt;
+    public void setFirstConnectionAttemptTimestamp(Instant firstConnectionAttemptTimestamp) {
+        this.firstConnectionAttemptTimestamp = firstConnectionAttemptTimestamp;
     }
 
     @Override
-    public long getConnectionAttemptsNumber() {
-        return connectionAttemptsNumber;
+    public long getConnectionAttempt() {
+        return connectionAttempt;
     }
 
     @Override
-    public void setConnectionAttemptsNumber(long connectionAttemptsNumber) {
-        this.connectionAttemptsNumber = connectionAttemptsNumber;
+    public void setConnectionAttempt(long connectionAttempt) {
+        this.connectionAttempt = connectionAttempt;
     }
 
     @Override
-    public void incrementConnectionAttemptsNumber() {
-        this.connectionAttemptsNumber = this.connectionAttemptsNumber + 1;
+    public void incrementConnectionAttempt() {
+        this.connectionAttempt = this.connectionAttempt + 1;
     }
 
 

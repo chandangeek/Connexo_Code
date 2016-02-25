@@ -155,8 +155,8 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     private OpenIssue updateConnectionAttempts(OpenIssue openIssue, IssueEvent event) {
         if (openIssue instanceof OpenIssueDataCollection && event instanceof DataCollectionEvent) {
             OpenIssueDataCollection dcIssue = OpenIssueDataCollection.class.cast(openIssue);
-            dcIssue.setLastConnectionAttempt(DataCollectionEvent.class.cast(event).getTimestamp());
-            dcIssue.incrementConnectionAttemptsNumber();
+            dcIssue.setLastConnectionAttemptTimestamp(DataCollectionEvent.class.cast(event).getTimestamp());
+            dcIssue.incrementConnectionAttempt();
             return dcIssue;
         }
         return openIssue;

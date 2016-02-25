@@ -19,8 +19,8 @@ import com.energyict.mdc.issue.datacollection.event.UnableToConnectEvent;
 import com.energyict.mdc.issue.datacollection.event.UnableToConnectResolvedEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownInboundDeviceEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownSlaveDeviceEvent;
-import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventHandlerFactory;
+import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 
 import org.junit.Test;
 import org.mockito.Matchers;

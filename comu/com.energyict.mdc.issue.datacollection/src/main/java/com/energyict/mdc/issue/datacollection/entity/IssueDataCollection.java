@@ -22,13 +22,13 @@ public interface IssueDataCollection extends Issue {
     Optional<ComSession> getComSession();
     void setComSession(ComSession comSession);
 
-    Instant getFirstConnectionAttempt();
-    void setFirstConnectionAttempt(Instant firstConnectionAttempt);
+    Instant getFirstConnectionAttemptTimestamp();
+    void setFirstConnectionAttemptTimestamp(Instant firstConnectionAttempt);
 
-    Instant getLastConnectionAttempt();
-    void setLastConnectionAttempt(Instant lastConnectionAttempt);
+    Instant getLastConnectionAttemptTimestamp();
+    void setLastConnectionAttemptTimestamp(Instant lastConnectionAttempt);
 
-    long getConnectionAttemptsNumber();
-    void setConnectionAttemptsNumber(long connectionAttemptsNumber);
-    void incrementConnectionAttemptsNumber();
+    long getConnectionAttempt();
+    void setConnectionAttempt(long connectionAttemptsNumber);
+    void incrementConnectionAttempt();
 }

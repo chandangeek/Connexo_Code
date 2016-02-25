@@ -53,7 +53,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -212,9 +211,9 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
         issue.setIssue(baseIssue);
         issueEvent.apply(issue);
         if (issueEvent instanceof DataCollectionEvent) {
-            issue.setFirstConnectionAttempt(DataCollectionEvent.class.cast(issueEvent).getTimestamp());
-            issue.setLastConnectionAttempt(DataCollectionEvent.class.cast(issueEvent).getTimestamp());
-            issue.setConnectionAttemptsNumber(1L);
+            issue.setFirstConnectionAttemptTimestamp(DataCollectionEvent.class.cast(issueEvent).getTimestamp());
+            issue.setLastConnectionAttemptTimestamp(DataCollectionEvent.class.cast(issueEvent).getTimestamp());
+            issue.setConnectionAttempt(1L);
         }
         issue.save();
         return issue;
