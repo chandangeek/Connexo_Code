@@ -71,7 +71,7 @@ public class ServiceCallsCommands {
     }
 
     public void createServiceCallType() {
-        System.out.println("Usage: createServiceCallType <name> <version name> <optional:log level> <optional: life cycle name> <optional:cps ids>");
+        System.out.println("Usage: createServiceCallType <name> <version name> <optional:log level> <optional: handler> <optional: life cycle name> <optional:cps ids>");
     }
 
     public void createServiceCallType(String name, String versionName) {
@@ -87,13 +87,14 @@ public class ServiceCallsCommands {
         }
     }
 
-    public void createServiceCallType(String name, String versionName, String logLevel, Long... cpsIds) {
+    public void createServiceCallType(String name, String versionName, String logLevel, String handler, Long... cpsIds) {
         List<Long> ids = Arrays.asList(cpsIds);
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCallService.ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName)
-                    .logLevel(LogLevel.valueOf(logLevel));
+                    .logLevel(LogLevel.valueOf(logLevel))
+                    .handler(handler);
 
             customPropertySetService.findActiveCustomPropertySets().stream()
                     .filter(cps -> ids.contains(cps.getId()))
@@ -103,7 +104,7 @@ public class ServiceCallsCommands {
         }
     }
 
-    public void createServiceCallType(String name, String versionName, String logLevel, String lifeCycleName, Long... cpsIds) {
+    public void createServiceCallType(String name, String versionName, String logLevel, String handler, String lifeCycleName, Long... cpsIds) {
         List<Long> ids = Arrays.asList(cpsIds);
         threadPrincipalService.set(() -> "Console");
 
@@ -111,7 +112,8 @@ public class ServiceCallsCommands {
             ServiceCallLifeCycle serviceCallLifeCycle = serviceCallService.getServiceCallLifeCycle(lifeCycleName)
                     .orElseThrow(() -> new NoSuchElementException("No service call life cycle with name: " + lifeCycleName));
             ServiceCallService.ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName, serviceCallLifeCycle)
-                    .logLevel(LogLevel.valueOf(logLevel));
+                    .logLevel(LogLevel.valueOf(logLevel))
+                    .handler(handler);
 
             customPropertySetService.findActiveCustomPropertySets().stream()
                     .filter(cps -> ids.contains(cps.getId()))
