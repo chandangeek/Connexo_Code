@@ -21,13 +21,13 @@ public enum IntervalLength {
 
     MINUTE1(Duration.ofMinutes(1)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.allOf(IntervalLength.class);
         }
     },
     MINUTE2(Duration.ofMinutes(2)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE2,
                     IntervalLength.MINUTE4,
@@ -50,7 +50,7 @@ public enum IntervalLength {
     },
     MINUTE3(Duration.ofMinutes(3)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE3,
                     IntervalLength.MINUTE6,
@@ -71,7 +71,7 @@ public enum IntervalLength {
     },
     MINUTE4(Duration.ofMinutes(4)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE4,
                     IntervalLength.MINUTE12,
@@ -90,7 +90,7 @@ public enum IntervalLength {
     },
     MINUTE5(Duration.ofMinutes(5)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE5,
                     IntervalLength.MINUTE10,
@@ -111,7 +111,7 @@ public enum IntervalLength {
     },
     MINUTE6(Duration.ofMinutes(6)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE6,
                     IntervalLength.MINUTE12,
@@ -130,7 +130,7 @@ public enum IntervalLength {
     },
     MINUTE10(Duration.ofMinutes(10)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE10,
                     IntervalLength.MINUTE20,
@@ -149,7 +149,7 @@ public enum IntervalLength {
     },
     MINUTE12(Duration.ofMinutes(12)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE12,
                     IntervalLength.HOUR1,
@@ -166,7 +166,7 @@ public enum IntervalLength {
     },
     MINUTE15(Duration.ofMinutes(15)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE15,
                     IntervalLength.MINUTE30,
@@ -184,7 +184,7 @@ public enum IntervalLength {
     },
     MINUTE20(Duration.ofMinutes(20)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE20,
                     IntervalLength.HOUR1,
@@ -201,7 +201,7 @@ public enum IntervalLength {
     },
     MINUTE30(Duration.ofMinutes(30)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE30,
                     IntervalLength.HOUR1,
@@ -218,7 +218,7 @@ public enum IntervalLength {
     },
     HOUR1(Duration.ofHours(1)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.HOUR1,
                     IntervalLength.HOUR2,
@@ -231,10 +231,15 @@ public enum IntervalLength {
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
         }
+
+        @Override
+        String toOracleTruncFormatModel() {
+            return TruncFormatModels.HOUR;
+        }
     },
     HOUR2(Duration.ofHours(2)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.HOUR2,
                     IntervalLength.HOUR4,
@@ -248,7 +253,7 @@ public enum IntervalLength {
     },
     HOUR3(Duration.ofHours(3)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.HOUR3,
                     IntervalLength.HOUR6,
@@ -261,7 +266,7 @@ public enum IntervalLength {
     },
     HOUR4(Duration.ofHours(4)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.HOUR4,
                     IntervalLength.HOUR12,
@@ -273,7 +278,7 @@ public enum IntervalLength {
     },
     HOUR6(Duration.ofHours(6)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.HOUR6,
                     IntervalLength.HOUR12,
@@ -285,7 +290,7 @@ public enum IntervalLength {
     },
     HOUR12(Duration.ofHours(12)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.HOUR12,
                     IntervalLength.DAY1,
@@ -296,35 +301,55 @@ public enum IntervalLength {
     },
     DAY1(Period.ofDays(1)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
         }
+
+        @Override
+        String toOracleTruncFormatModel() {
+            return TruncFormatModels.DAY;
+        }
     },
     WEEK1(Period.ofWeeks(1)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
         }
+
+        @Override
+        String toOracleTruncFormatModel() {
+            return TruncFormatModels.WEEK;
+        }
     },
     MONTH1(Period.ofMonths(1)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
         }
+
+        @Override
+        String toOracleTruncFormatModel() {
+            return TruncFormatModels.MONTH;
+        }
     },
     YEAR1(Period.ofYears(1)) {
         @Override
-        protected Set<IntervalLength> multiples() {
+        Set<IntervalLength> multiples() {
             return EnumSet.of(IntervalLength.YEAR1);
+        }
+
+        @Override
+        String toOracleTruncFormatModel() {
+            return TruncFormatModels.YEAR;
         }
     },
     NOT_SUPPORTED(Duration.ofMillis(0)) {
@@ -340,7 +365,7 @@ public enum IntervalLength {
         this.temporalAmount = temporalAmount;
     }
 
-    public TemporalAmount toTemporalAmount() {
+    TemporalAmount toTemporalAmount() {
         return temporalAmount;
     }
 
@@ -355,7 +380,7 @@ public enum IntervalLength {
      * @return A flag that indicates if this IntervalLength is a multiple of the other
      * @see #multipliesTo(IntervalLength)
      */
-    public boolean isMultipleOf(IntervalLength other) {
+    boolean isMultipleOf(IntervalLength other) {
         return other.multipliesTo(this);
     }
 
@@ -370,7 +395,7 @@ public enum IntervalLength {
      * @return A flag that indicates if this IntervalLength is a multiple of the other
      * @see #isMultipleOf(IntervalLength)
      */
-    public boolean multipliesTo(IntervalLength other) {
+    boolean multipliesTo(IntervalLength other) {
         return this.multiples().contains(other);
     }
 
@@ -380,7 +405,19 @@ public enum IntervalLength {
      *
      * @return The multiples
      */
-    protected abstract Set<IntervalLength> multiples();
+    abstract Set<IntervalLength> multiples();
+
+    /**
+     * Returns the format model for the oracle trunc function
+     * that is appropriate for this IntervalLength,
+     * i.e. the formal model that will trunc localdate
+     * values to this IntervalLength.
+     *
+     * @return The format model
+     */
+    String toOracleTruncFormatModel() {
+        throw new UnsupportedOperationException(this.name() + " is not supported by the oracle trunc function");
+    }
 
     public static IntervalLength from(ReadingType readingType) {
         switch (readingType.getMacroPeriod()) {
@@ -551,6 +588,14 @@ public enum IntervalLength {
                 throw new IllegalArgumentException("Unknown or unsupported measurement period: " + measurementPeriod.name());
             }
         }
+    }
+
+    private static class TruncFormatModels {
+        static final String HOUR = "HH";
+        static final String DAY = "DDD";
+        static final String WEEK = "DAY";
+        static final String MONTH = "MONTH";
+        static final String YEAR = "IYYY";
     }
 
 }

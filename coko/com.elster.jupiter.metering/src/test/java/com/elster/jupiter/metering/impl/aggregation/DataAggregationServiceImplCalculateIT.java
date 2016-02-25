@@ -311,7 +311,7 @@ public class DataAggregationServiceImplCalculateIT {
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
             assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(FIFTEEN_MINS_NET_CONSUMPTION_MRID) + "'.*");
             // Assert that the overall select statement selects the value and the timestamp from the with clause for the deliverable
-            assertThat(overallSelectWithoutNewlines).matches(".*rod99_1.value, rod99_1.timestamp.*");
+            assertThat(overallSelectWithoutNewlines).matches(".*rod99_1\\.value, rod99_1\\.timestamp.*");
         }
     }
 
@@ -384,21 +384,21 @@ public class DataAggregationServiceImplCalculateIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + CONSUMPTION_REQUIREMENT_ID + ".*" + NET_CONSUMPTION_DELIVERABLE_ID + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + CONSUMPTION_REQUIREMENT_ID + ".*" + NET_CONSUMPTION_DELIVERABLE_ID + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(consumptionWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + PRODUCTION_REQUIREMENT_ID + ".*" + NET_CONSUMPTION_DELIVERABLE_ID + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + PRODUCTION_REQUIREMENT_ID + ".*" + NET_CONSUMPTION_DELIVERABLE_ID + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(productionWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rod" + NET_CONSUMPTION_DELIVERABLE_ID + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rod" + NET_CONSUMPTION_DELIVERABLE_ID + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.netConsumptionWithClauseBuilder.getText())
                     .matches("SELECT -1, rid97_99_1\\.timestamp,.*");
@@ -415,9 +415,9 @@ public class DataAggregationServiceImplCalculateIT {
             /* Assert that the overall select statement sums up the values
              * from the with clause for the deliverable, using a group by
              * construct that truncs the localdate to month. */
-            assertThat(overallSelectWithoutNewlines).matches(".*sum\\(rod99_1\\.value\\)");
-            assertThat(overallSelectWithoutNewlines).matches(".*trunc\\(rod99_1\\.localdate, 'MM'\\)");
-            assertThat(overallSelectWithoutNewlines).matches(".*group by trunc\\(rod99_1\\.localdate, 'MM'\\)");
+            assertThat(overallSelectWithoutNewlines).matches(".*[sum|SUM]\\(rod99_1\\.value\\).*");
+            assertThat(overallSelectWithoutNewlines).matches(".*[trunc|TRUNC]\\(rod99_1\\.localdate, 'MONTH'\\).*");
+            assertThat(overallSelectWithoutNewlines).matches(".*[group by trunc|GROUP BY TRUNC]\\(rod99_1\\.localdate, 'MONTH'\\).*");
         }
     }
 

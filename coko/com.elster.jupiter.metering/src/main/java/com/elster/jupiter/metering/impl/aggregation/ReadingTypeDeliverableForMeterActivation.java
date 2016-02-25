@@ -87,11 +87,6 @@ class ReadingTypeDeliverableForMeterActivation {
 
     void appendDefinitionTo(ClauseAwareSqlBuilder sqlBuilder) {
         SqlBuilder withClauseBuilder = sqlBuilder.with(this.sqlName(), Optional.of(sqlComment()), SqlConstants.TimeSeriesColumnNames.names());
-        // Todo: 1. clip the MeterActivation's range to the requested period
-        // Todo: 2. support aggregation at this level
-        if (this.expressionAggregationInterval != IntervalLength.from(this.deliverable.getReadingType())) {
-            throw new UnsupportedOperationException("Aggregating " + ReadingTypeDeliverableForMeterActivation.class.getSimpleName() + " to IntervalLength different from expression interval length is not supported yet");
-        }
         this.appendWithSelectClause(withClauseBuilder);
         this.appendWithFromClause(withClauseBuilder);
         this.appendWithJoinClauses(withClauseBuilder);
@@ -125,17 +120,68 @@ class ReadingTypeDeliverableForMeterActivation {
         sqlBuilder.append("'");
         sqlBuilder.append(this.deliverable.getReadingType().getMRID());
         sqlBuilder.append("', ");
-        this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder);
+        this.appendValueToSelectClause(sqlBuilder);
         sqlBuilder.append(", ");
-        this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.TIMESTAMP, sqlBuilder);
+        this.appendTimelineToSelectClause(sqlBuilder);
         sqlBuilder.append("\n  FROM ");
         sqlBuilder.append(this.sqlName());
+        this.appendGroupByClauseIfApplicable(sqlBuilder);
+    }
+
+    private void appendValueToSelectClause(SqlBuilder sqlBuilder) {
+        if (!this.resultValueNeedsAggregation()) {
+            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder);
+        } else {
+            sqlBuilder.append(this.defaultValueAggregationFunctionFor(this.deliverable.getReadingType()));
+            sqlBuilder.append("(");
+            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder);
+            sqlBuilder.append(")");
+        }
+    }
+
+    private String defaultValueAggregationFunctionFor(ReadingType readingType) {
+        /* Todo: consider the unit of the ReadingType
+         *       flow units will use AVG
+         *       volume units will use SUM
+         */
+        return "SUM";
+    }
+
+    private void appendTimelineToSelectClause(SqlBuilder sqlBuilder) {
+        if (!this.resultValueNeedsAggregation()) {
+            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.TIMESTAMP, sqlBuilder);
+        } else {
+            this.appendTrucatedTimeline(sqlBuilder);
+        }
+    }
+
+    private void appendTrucatedTimeline(SqlBuilder sqlBuilder) {
+        sqlBuilder.append("TRUNC(");
+        this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.LOCALDATE, sqlBuilder);
+        sqlBuilder.append(", '");
+        sqlBuilder.append(IntervalLength.from(this.deliverable.getReadingType()).toOracleTruncFormatModel());
+        sqlBuilder.append("')");
     }
 
     private void appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames columnName, SqlBuilder sqlBuilder) {
         sqlBuilder.append(this.sqlName());
         sqlBuilder.append(".");
         sqlBuilder.append(columnName.sqlName());
+    }
+
+    private void appendGroupByClauseIfApplicable(SqlBuilder sqlBuilder) {
+        if (this.resultValueNeedsAggregation()) {
+            this.appendGroupByClause(sqlBuilder);
+        }
+    }
+
+    private void appendGroupByClause(SqlBuilder sqlBuilder) {
+        sqlBuilder.append("GROUP BY ");
+        this.appendTrucatedTimeline(sqlBuilder);
+    }
+
+    private boolean resultValueNeedsAggregation() {
+        return this.expressionAggregationInterval != IntervalLength.from(this.deliverable.getReadingType());
     }
 
     private class FinishRequirementAndDeliverableNodes implements ServerExpressionNode.Visitor<Void> {
