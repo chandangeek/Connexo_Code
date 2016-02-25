@@ -33,26 +33,4 @@ public interface WaterDetail extends UsagePointDetail {
     Optional<Boolean> getCapped();
 
     Optional<Boolean> getClamped();
-
-    void setGrounded(Boolean grounded);
-
-    void setLimiter(Boolean limiter);
-
-    void setLoadLimiterType(String loadLimiterType);
-
-    void setLoadLimit(Quantity loadLimit);
-
-    void setPressure(Quantity pressure);
-
-    void setPhysicalCapacity(Quantity physicalCapacity);
-
-    void setBypass(Optional<Boolean> bypass);
-
-    void setBypassStatus(BypassStatus bypassStatus);
-
-    void setValve(Optional<Boolean> valve);
-
-    void setCapped(Optional<Boolean> capped);
-
-    void setClamped(Optional<Boolean> clamped);
 }

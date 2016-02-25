@@ -51,6 +51,6 @@ public interface ElectricityDetailBuilder extends UsagePointDetailBuilder{
 
     Boolean isInterruptible();
 
-    ElectricityDetail build();
+    ElectricityDetail create();
 
 }

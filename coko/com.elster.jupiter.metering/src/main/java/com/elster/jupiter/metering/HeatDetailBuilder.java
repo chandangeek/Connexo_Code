@@ -34,5 +34,5 @@ public interface HeatDetailBuilder  extends UsagePointDetailBuilder{
 
     Boolean isInterruptible();
 
-    HeatDetail build();
+    HeatDetail create();
 }

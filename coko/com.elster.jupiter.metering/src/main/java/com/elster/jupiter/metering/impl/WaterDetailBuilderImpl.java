@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.orm.DataModel;
@@ -172,7 +171,7 @@ public class WaterDetailBuilderImpl implements WaterDetailBuilder{
 
 
 	@Override
-	public WaterDetail build() {
+	public WaterDetail create() {
 		WaterDetail wd =  dataModel.getInstance(WaterDetailImpl.class).init(usagePoint, this, interval);
 		usagePoint.addDetail(wd);
         return wd;

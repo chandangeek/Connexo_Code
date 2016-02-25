@@ -4,7 +4,7 @@ import java.util.Optional;
 
 public interface UsagePointDetailBuilder {
 
-    UsagePointDetail build();
+    UsagePointDetail create();
 
     UsagePointDetailBuilder withCollar(Boolean collar);
 

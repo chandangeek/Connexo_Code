@@ -182,7 +182,7 @@ public class GasDetailBuilderImpl implements GasDetailBuilder {
 
 
     @Override
-    public GasDetail build() {
+    public GasDetail create() {
         GasDetail gd = dataModel.getInstance(GasDetailImpl.class).init(usagePoint, this, interval);
         usagePoint.addDetail(gd);
         return gd;

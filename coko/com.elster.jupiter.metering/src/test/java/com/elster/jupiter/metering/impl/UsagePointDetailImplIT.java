@@ -11,7 +11,6 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
@@ -19,7 +18,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
@@ -35,16 +33,11 @@ import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
+
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -55,6 +48,13 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -167,7 +167,7 @@ public class UsagePointDetailImplIT {
             checkElectricityDetailContent(foundElecDetail);
 
             //update the detail rated power and check
-            foundElecDetail.setRatedPower(RATED_POWER2);
+            ((ElectricityDetailImpl) foundElecDetail).setRatedPower(RATED_POWER2);
             foundElecDetail.update();
 
             context.commit();
@@ -255,18 +255,20 @@ public class UsagePointDetailImplIT {
 
 
     protected ElectricityDetail newElectricityDetail(UsagePoint usagePoint, Instant date) {
-        ElectricityDetail elecDetail = (ElectricityDetail) usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, date);
+        ElectricityDetailImpl elecDetail = (ElectricityDetailImpl) usagePoint.getServiceCategory()
+                .newUsagePointDetail(usagePoint, date);
         fillElectricityDetail(elecDetail);
         return elecDetail;
     }
 
     protected GasDetail newGasDetail(UsagePoint usagePoint, Instant instant) {
-        GasDetail gasDetail = (GasDetail) usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, instant);
+        GasDetailImpl gasDetail = (GasDetailImpl) usagePoint.getServiceCategory()
+                .newUsagePointDetail(usagePoint, instant);
         fillGasDetail(gasDetail);
         return gasDetail;
     }
 
-    protected void fillElectricityDetail(ElectricityDetail elecDetail) {
+    protected void fillElectricityDetail(ElectricityDetailImpl elecDetail) {
         //general properties
         elecDetail.setCollar(Optional.ofNullable(true));
 
@@ -280,7 +282,7 @@ public class UsagePointDetailImplIT {
 
     }
 
-    protected void fillGasDetail(GasDetail gasDetail) {
+    protected void fillGasDetail(GasDetailImpl gasDetail) {
         //general properties
         gasDetail.setCollar(Optional.ofNullable(true));
 

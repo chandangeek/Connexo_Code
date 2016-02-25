@@ -1,7 +1,13 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BypassStatus;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.orm.DataModel;
@@ -10,7 +16,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
 
 import org.osgi.service.component.annotations.Component;
@@ -183,8 +188,6 @@ public class ConsoleCommands {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             UsagePointImpl usagePoint = (UsagePointImpl) meteringService.getServiceCategory(ServiceKind.WATER).get().newUsagePoint(mrId).withInstallationTime(Instant.parse(timestamp)).create();
-            usagePoint.newWaterDetailBuilder(Instant.now()).withCapped(true).withBypass(true).withBypassStatus(BypassStatus.OPEN).withCollar(true).withGrounded(true)
-                    .withLimiter(true).withLoadLimit(Unit.ACRE.amount(BigDecimal.TEN)).withLoadLimiterType("type").withPhysicalCapacity(Unit.ANGSTROM.amount(BigDecimal.ONE)).build();
             context.commit();
         } finally {
             threadPrincipalService.clear();

@@ -58,6 +58,6 @@ public interface GasDetailBuilder  extends UsagePointDetailBuilder{
 
     Boolean isInterruptible();
 
-    GasDetail build();
+    GasDetail create();
 
 }

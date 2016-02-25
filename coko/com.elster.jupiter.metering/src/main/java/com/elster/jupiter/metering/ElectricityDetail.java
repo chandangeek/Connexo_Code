@@ -31,24 +31,4 @@ public interface ElectricityDetail extends UsagePointDetail {
     Quantity getLoadLimit();
 
     Boolean isInterruptible();
-
-    void setGrounded(Boolean grounded);
-
-    void setNominalServiceVoltage(Quantity nominalServiceVoltage);
-
-    void setPhaseCode(PhaseCode phaseCode);
-
-    void setRatedCurrent(Quantity ratedCurrent);
-
-    void setRatedPower(Quantity ratedPower);
-
-    void setEstimatedLoad(Quantity estimatedLoad);
-
-    void setLimiter(Boolean limiter);
-
-    void setLoadLimiterType(String loadLimiterType);
-
-    void setLoadLimit(Quantity loadLimit);
-
-    void setInterruptible(Boolean interruptible);
 }

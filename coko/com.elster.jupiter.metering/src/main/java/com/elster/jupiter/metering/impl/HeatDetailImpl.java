@@ -76,32 +76,26 @@ public class HeatDetailImpl extends UsagePointDetailImpl implements HeatDetail {
         return interruptible;
     }
 
-    @Override
     public void setPressure(Quantity pressure) {
         this.pressure = pressure;
     }
 
-    @Override
     public void setPhysicalCapacity(Quantity physicalCapacity) {
         this.physicalCapacity = physicalCapacity;
     }
 
-    @Override
     public void setBypass(Optional<Boolean> bypass) {
         this.bypass = bypass.isPresent() ? bypass.get() : null;
     }
 
-    @Override
     public void setBypassStatus(BypassStatus bypassStatus) {
         this.bypassStatus = bypassStatus;
     }
 
-    @Override
     public void setValve(Optional<Boolean> valve) {
         this.valve = valve.isPresent() ? valve.get() : null;
     }
 
-    @Override
     public void setInterruptible(Boolean interruptible) {
         this.interruptible = interruptible;
     }

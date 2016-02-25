@@ -5,10 +5,11 @@ import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
-import java.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
+
 import javax.inject.Inject;
+import java.time.Clock;
 
 public class ElectricityDetailImpl extends UsagePointDetailImpl implements ElectricityDetail {
 
@@ -97,51 +98,42 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
         return interruptible;
     }
 
-    @Override
     public void setGrounded(Boolean grounded) {
         this.grounded = grounded;
     }
 
-    @Override
     public void setNominalServiceVoltage(Quantity nominalServiceVoltage) {
         this.nominalServiceVoltage = nominalServiceVoltage;
     }
-    @Override
+
     public void setPhaseCode(PhaseCode phaseCode) {
         this.phaseCode = phaseCode;
     }
 
-    @Override
     public void setRatedCurrent(Quantity ratedCurrent) {
         this.ratedCurrent = ratedCurrent;
     }
 
-    @Override
     public void setRatedPower(Quantity ratedPower) {
         this.ratedPower = ratedPower;
     }
 
-    @Override
     public void setEstimatedLoad(Quantity estimatedLoad) {
         this.estimatedLoad = estimatedLoad;
     }
 
-    @Override
     public void setLimiter(Boolean limiter) {
         this.limiter = limiter;
     }
 
-    @Override
     public void setLoadLimiterType(String loadLimiterType) {
         this.loadLimiterType = loadLimiterType;
     }
 
-    @Override
     public void setLoadLimit(Quantity loadLimit) {
         this.loadLimit = loadLimit;
     }
 
-    @Override
     public void setInterruptible(Boolean interruptible) {
         this.interruptible = interruptible;
     }

@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;

@@ -1,19 +1,14 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.BypassStatus;
-import com.elster.jupiter.metering.HeatDetail;
-import com.elster.jupiter.metering.HeatDetailBuilder;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.units.Quantity;
 
 import javax.inject.Inject;
 import java.time.Clock;
-import java.util.Optional;
 
-public class DefaultUsagePointDetailImpl extends UsagePointDetailImpl{
+public class DefaultUsagePointDetailImpl extends UsagePointDetailImpl {
 
     @Inject
     DefaultUsagePointDetailImpl(Clock clock, DataModel dataModel) {

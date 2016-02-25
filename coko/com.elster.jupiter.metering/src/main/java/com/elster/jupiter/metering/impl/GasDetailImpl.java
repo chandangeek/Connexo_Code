@@ -1,10 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import java.time.Clock;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.GasDetailBuilder;
@@ -12,6 +7,10 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
+
+import javax.inject.Inject;
+import java.time.Clock;
+import java.util.Optional;
 
 public class GasDetailImpl extends UsagePointDetailImpl implements GasDetail {
 
@@ -119,62 +118,50 @@ public class GasDetailImpl extends UsagePointDetailImpl implements GasDetail {
         return interruptible;
     }
 
-    @Override
     public void setGrounded(Boolean grounded) {
         this.grounded = grounded;
     }
 
-    @Override
     public void setLimiter(Boolean limiter) {
         this.limiter = limiter;
     }
 
-    @Override
     public void setLoadLimiterType(String loadLimiterType) {
         this.loadLimiterType = loadLimiterType;
     }
 
-    @Override
     public void setLoadLimit(Quantity loadLimit) {
         this.loadLimit = loadLimit;
     }
 
-    @Override
     public void setPressure(Quantity pressure) {
         this.pressure = pressure;
     }
 
-    @Override
     public void setPhysicalCapacity(Quantity physicalCapacity) {
         this.physicalCapacity = physicalCapacity;
     }
 
-    @Override
     public void setBypass(Optional<Boolean> bypass) {
         this.bypass = bypass.isPresent() ? bypass.get() : null;
     }
 
-    @Override
     public void setBypassStatus(BypassStatus bypassStatus) {
         this.bypassStatus = bypassStatus;
     }
 
-    @Override
     public void setValve(Optional<Boolean> valve) {
         this.valve = valve.isPresent() ? valve.get() : null;
     }
 
-    @Override
     public void setCapped(Optional<Boolean> capped) {
         this.capped = capped.isPresent() ? capped.get() : null;
     }
 
-    @Override
     public void setClamped(Optional<Boolean> clamped) {
         this.clamped = clamped.isPresent() ? clamped.get() : null;
     }
 
-    @Override
     public void setInterruptible(Boolean interruptible) {
         this.interruptible = interruptible;
     }

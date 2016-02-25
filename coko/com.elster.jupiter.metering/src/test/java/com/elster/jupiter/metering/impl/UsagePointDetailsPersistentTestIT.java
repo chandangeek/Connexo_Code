@@ -73,7 +73,7 @@ public class UsagePointDetailsPersistentTestIT {
                 .withLoadLimiterType("LoadLimit")
                 .withPhysicalCapacity(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))
                 .withPressure(Unit.PASCAL.amount(BigDecimal.valueOf(34.5)))
-                .build();
+                .create();
 
         up.update();
 
@@ -123,7 +123,7 @@ public class UsagePointDetailsPersistentTestIT {
                 .withLoadLimiterType("LoadLimit")
                 .withPhysicalCapacity(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))
                 .withPressure(Unit.PASCAL.amount(BigDecimal.valueOf(34.5)))
-                .build();
+                .create();
 
         up.update();
 
@@ -166,7 +166,7 @@ public class UsagePointDetailsPersistentTestIT {
                 .withBypassStatus(BypassStatus.OPEN)
                 .withPhysicalCapacity(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))
                 .withPressure(Unit.PASCAL.amount(BigDecimal.valueOf(34.5)))
-                .build();
+                .create();
 
         up.update();
 

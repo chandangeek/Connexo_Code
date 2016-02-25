@@ -24,16 +24,4 @@ public interface HeatDetail extends UsagePointDetail {
     Optional<Boolean> getValve();
 
     Boolean isInterruptible();
-
-    void setPressure(Quantity pressure);
-
-    void setPhysicalCapacity(Quantity physicalCapacity);
-
-    void setBypass(Optional<Boolean> bypass);
-
-    void setBypassStatus(BypassStatus bypassStatus);
-
-    void setValve(Optional<Boolean> valve);
-
-    void setInterruptible(Boolean interruptible);
 }

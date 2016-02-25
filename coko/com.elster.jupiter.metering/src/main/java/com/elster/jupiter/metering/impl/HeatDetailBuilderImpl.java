@@ -108,7 +108,7 @@ public class HeatDetailBuilderImpl implements HeatDetailBuilder {
     }
 
     @Override
-    public HeatDetail build() {
+    public HeatDetail create() {
         HeatDetail hd = dataModel.getInstance(HeatDetailImpl.class).init(usagePoint, this, interval);
         usagePoint.addDetail(hd);
         return hd;

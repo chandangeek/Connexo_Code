@@ -1,21 +1,9 @@
 package com.elster.jupiter.metering.impl;
 
-import static com.google.common.base.MoreObjects.toStringHelper;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
-import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.GasDetailBuilder;
 import com.elster.jupiter.metering.HeatDetailBuilder;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.WaterDetailBuilder;
@@ -23,10 +11,18 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
+
+import javax.inject.Inject;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
+import static com.google.common.base.MoreObjects.toStringHelper;
 
 public abstract class UsagePointDetailImpl implements UsagePointDetail {
 

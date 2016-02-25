@@ -41,6 +41,7 @@ import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
