@@ -192,7 +192,10 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
                     }
 
                     //Check if the response tag is know and decrypt the data if necessary
-                    if (XdlmsApduTags.isPlainTag(cipheredTag)) {
+                    if (cipheredTag == DLMSCOSEMGlobals.COSEM_EXCEPTION_RESPONSE) {
+                        //Return any errors as-is
+                        return securedResponse;
+                    } else if (XdlmsApduTags.isPlainTag(cipheredTag)) {
                         if (this.aso.getSecurityContext().getSecurityPolicy().isResponsePlain()) {
                             return securedResponse;
                         } else {

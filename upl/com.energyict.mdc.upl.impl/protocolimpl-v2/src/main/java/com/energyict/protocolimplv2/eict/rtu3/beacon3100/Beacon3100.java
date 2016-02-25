@@ -19,8 +19,7 @@ import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.MigratePropertiesFromPreviousSecuritySet;
+import com.energyict.mdc.protocol.security.*;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
@@ -63,7 +62,7 @@ import java.util.Random;
  * @author khe
  * @since 18/06/2015 - 15:07
  */
-public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertiesFromPreviousSecuritySet {
+public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertiesFromPreviousSecuritySet, AdvancedDeviceProtocolSecurityCapabilities {
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
     private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
@@ -84,11 +83,26 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
     }
 
-    protected DeviceProtocolSecurityCapabilities getSecuritySupport() {
+    protected AdvancedDeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (dlmsSecuritySupport == null) {
             dlmsSecuritySupport = new DlmsSecuritySuite1And2Support();
         }
-        return dlmsSecuritySupport;
+        return (AdvancedDeviceProtocolSecurityCapabilities) dlmsSecuritySupport;
+    }
+
+    @Override
+    public List<SecuritySuite> getSecuritySuites() {
+        return getSecuritySupport().getSecuritySuites();
+    }
+
+    @Override
+    public List<RequestSecurityLevel> getRequestSecurityLevels() {
+        return getSecuritySupport().getRequestSecurityLevels();
+    }
+
+    @Override
+    public List<ResponseSecurityLevel> getResponseSecurityLevels() {
+        return getSecuritySupport().getResponseSecurityLevels();
     }
 
     /**
@@ -105,7 +119,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
         Beacon3100Properties publicClientProperties = new Beacon3100Properties();
         publicClientProperties.addProperties(clone);
-        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, clone));    //SecurityLevel 0:0
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, 0, 0, 0, clone));    //SecurityLevel 0:0
 
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
         publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
@@ -355,7 +369,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-02-18 10:19:17 +0100 (Thu, 18 Feb 2016)$";
+        return "$Date: 2016-02-25 18:10:25 +0100 (Thu, 25 Feb 2016)$";
     }
 
     @Override

@@ -43,7 +43,7 @@ public class DataPushNotification implements BinaryInboundDeviceProtocol {
     @Override
     public DiscoverResultType doDiscovery() {
         parser = new DataPushNotificationParser(comChannel, getContext());
-        parser.parseInboundFrame();
+        parser.readAndParseInboundFrame();
 
         return DiscoverResultType.DATA;
     }
@@ -87,6 +87,6 @@ public class DataPushNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-04-20 15:56:46 +0200 (Mon, 20 Apr 2015) $";
+        return "$Date: 2016-02-25 18:10:25 +0100 (Thu, 25 Feb 2016)$";
     }
 }

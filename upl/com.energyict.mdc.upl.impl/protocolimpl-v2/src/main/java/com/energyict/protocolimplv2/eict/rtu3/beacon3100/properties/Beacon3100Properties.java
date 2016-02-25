@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
+import com.energyict.cbo.HexString;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityPropertySet;
+import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
@@ -57,6 +59,17 @@ public class Beacon3100Properties extends DlmsProperties {
         return CipheringType.GLOBAL;
     }
 
+    @Override
+    public byte[] getSystemIdentifier() {
+        //Property CallingAPTitle is used as system title in the AARQ
+        final HexString callingAPTitle = getProperties().getTypedProperty(IDIS.CALLING_AP_TITLE);
+        if (callingAPTitle == null || callingAPTitle.getContent() == null || callingAPTitle.getContent().isEmpty()) {
+            return super.getSystemIdentifier();
+        } else {
+            return ProtocolTools.getBytesFromHexString(callingAPTitle.getContent(), "");
+        }
+    }
+
     /**
      * Optimize the reading of responses from the Beacon device
      */
@@ -83,7 +96,7 @@ public class Beacon3100Properties extends DlmsProperties {
             AdvancedDeviceProtocolSecurityPropertySet advancedSecurityPropertySet = (AdvancedDeviceProtocolSecurityPropertySet) getSecurityPropertySet();
             if (advancedSecurityPropertySet.getSecuritySuite() == 0) {
                 //Suite 0 uses the old field, EncryptionDeviceAccessLevel. It is either 0, 1, 2 or 3.
-                return super.getDataTransportSecurityLevel();
+                return super.doGetDataTransportSecurityLevel();
             } else {
                 int result = 0;
                 result |= advancedSecurityPropertySet.getRequestSecurityLevel() << 2;
@@ -91,7 +104,7 @@ public class Beacon3100Properties extends DlmsProperties {
                 return result;
             }
         } else {
-            return super.getDataTransportSecurityLevel();
+            return super.doGetDataTransportSecurityLevel();
         }
     }
 

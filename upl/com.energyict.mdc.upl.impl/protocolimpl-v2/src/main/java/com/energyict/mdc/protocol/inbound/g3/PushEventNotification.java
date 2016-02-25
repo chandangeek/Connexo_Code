@@ -52,7 +52,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public DiscoverResultType doDiscovery() {
-        getEventPushNotificationParser().parseInboundFrame();
+        getEventPushNotificationParser().readAndParseInboundFrame();
         collectedLogBook = getEventPushNotificationParser().getCollectedLogBook();
 
         context.logOnAllLoggerHandlers("Received inbound event notification. Message: '" + getMeterProtocolEvent().getMessage() + "', protocol code: '" + getMeterProtocolEvent().getProtocolCode() + "'", Level.INFO);
@@ -108,7 +108,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-01-08 15:05:08 +0200 (Fri, 08 Jan 2016)$";
+        return "$Date: 2016-02-25 18:10:25 +0100 (Thu, 25 Feb 2016)$";
     }
 
     @Override

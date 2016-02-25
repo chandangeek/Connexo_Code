@@ -86,7 +86,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: Thu Nov 26 10:45:14 2015 +0100 $";
+        return "$Date: 2016-02-25 18:10:25 +0100 (Thu, 25 Feb 2016)$";
     }
 
     public DlmsSession getDlmsSession() {
@@ -132,7 +132,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
         G3GatewayProperties publicClientProperties = new G3GatewayProperties();
         publicClientProperties.addProperties(clone);
-        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, clone));    //SecurityLevel 0:0
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, 0, 0, 0, clone));    //SecurityLevel 0:0
 
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
         publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());

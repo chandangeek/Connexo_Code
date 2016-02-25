@@ -44,6 +44,8 @@ public class SecurityContextV2EncryptionHandler {
             throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
         } catch (UnsupportedException e) {             //Unsupported security policy
             throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy().getDataTransportSecurityLevel()));
+        } catch (ProtocolException e) {
+            throw ConnectionCommunicationException.unExpectedProtocolError(e);
         }
     }
 
@@ -72,6 +74,8 @@ public class SecurityContextV2EncryptionHandler {
             throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
         } catch (UnsupportedException e) {             //Unsupported security policy
             throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy().getDataTransportSecurityLevel()));
+        } catch (ProtocolException e) {
+            throw ConnectionCommunicationException.unExpectedProtocolError(e);
         }
     }
 

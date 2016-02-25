@@ -329,11 +329,11 @@ public class DlmsProperties implements DlmsSessionProperties {
     }
 
     public GeneralCipheringKeyType getGeneralCipheringKeyType() {
-        String keyTypeDescription = properties.getStringProperty(DlmsProtocolProperties.GENERAL_CIPHERING_KEY_TYPE);
+        String keyTypeDescription = properties.getStringProperty(DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE);
 
         if (keyTypeDescription == null && getCipheringType().equals(CipheringType.GENERAL_CIPHERING)) {
             //In the case of general-ciphering, the key type is a required property
-            throw DeviceConfigurationException.missingProperty(DlmsProtocolProperties.GENERAL_CIPHERING_KEY_TYPE);
+            throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE);
         } else {
             return keyTypeDescription == null ? null : GeneralCipheringKeyType.fromDescription(keyTypeDescription);
         }

@@ -69,8 +69,14 @@ public class DataPushNotificationParser extends EventPushNotificationParser {
         return DLMSCOSEMGlobals.COSEM_DATA_NOTIFICATION;
     }
 
+    /**
+     * Data-Notification ::= SEQUENCE
+     * - long-invoke-id-and-priority
+     * - date-time (OCTET STRING)
+     * - notification-body
+     */
     @Override
-    protected void parseAPDU(ByteBuffer inboundFrame) {
+    protected void parsePlainAPDU(ByteBuffer inboundFrame) {
         // 1. long-invoke-id-and-priority
         byte[] invokeIdAndPriority = new byte[4];   // 32-bits long format used
         inboundFrame.get(invokeIdAndPriority);
@@ -107,7 +113,7 @@ public class DataPushNotificationParser extends EventPushNotificationParser {
     private void parseRegisters(Structure structure) {
         while (structure.hasMoreElements()) {
             AbstractDataType logicalName = structure.getNextDataType();
-            if (!(logicalName instanceof OctetString)){
+            if (!(logicalName instanceof OctetString)) {
                 throw DataParseException.ioException(new ProtocolException("Failed to parse the register data from the Data-notification body: Expected an element of type OctetString (~ the logical name of the object), but was an element of type '" + logicalName.getClass().getSimpleName() + "'"));
             }
             AbstractDataType valueData = structure.getNextDataType();
@@ -151,7 +157,7 @@ public class DataPushNotificationParser extends EventPushNotificationParser {
 
             addCollectedRegister(obisCode, value, scalerUnit, eventTime, text);
         } catch (IndexOutOfBoundsException | ProtocolException e) {
-           throw DataParseException.ioException(new ProtocolException(e, "Failed to parse the register data from the Data-notification body: " + e.getMessage()));
+            throw DataParseException.ioException(new ProtocolException(e, "Failed to parse the register data from the Data-notification body: " + e.getMessage()));
         }
     }
 
@@ -193,7 +199,7 @@ public class DataPushNotificationParser extends EventPushNotificationParser {
     }
 
     public CollectedRegisterList getCollectedRegisters() {
-        if (this.collectedRegisters == null)  {
+        if (this.collectedRegisters == null) {
             this.collectedRegisters = MdcManager.getCollectedDataFactory().createCollectedRegisterList(getDeviceIdentifier());
         }
         return this.collectedRegisters;

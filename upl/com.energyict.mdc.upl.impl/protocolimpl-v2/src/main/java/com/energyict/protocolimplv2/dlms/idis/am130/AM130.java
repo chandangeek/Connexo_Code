@@ -55,7 +55,7 @@ public class AM130 extends AM500 {
      */
     @Override
     public String getVersion() {
-        return "$Date: 2016-01-25 15:02:12 +0100 (Mon, 25 Jan 2016)$";
+        return "$Date: 2016-02-25 18:10:25 +0100 (Thu, 25 Feb 2016)$";
     }
 
     protected ConfigurationSupport getNewInstanceOfConfigurationSupport() {
@@ -119,7 +119,7 @@ public class AM130 extends AM500 {
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
         IDISProperties publicClientProperties = getNewInstanceOfProperties();
         publicClientProperties.addProperties(clone);
-        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, clone));    //SecurityLevel 0:0
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, 0, 0, 0, clone));    //SecurityLevel 0:0
 
         long frameCounter;
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);

@@ -50,7 +50,6 @@ public class SecurityContext {
     public static final int SYSTEM_TITLE_LENGTH = 8;
     public static final int CB_LENGTH = 1;
     public static final int FC_LENGTH = 4;
-    private static final String GENERAL_CIPHERING_KEY_TYPE = "GeneralCipheringKeyType";
     private static final int TRANSACTION_ID_LENGTH = 8;
     private static int DLMS_AUTH_TAG_SIZE = 12;    // 12 bytes is specified for DLMS using GCM
     /**
@@ -85,6 +84,7 @@ public class SecurityContext {
     private byte[] systemTitle;
     private byte[] responseSystemTitle;
     private AuthenticationTypes authenticationAlgorithm;
+    private boolean lastResponseWasSigned = false;
     /**
      * Indicates whether the FrameCounter needs to be validated with a +1
      */
@@ -246,7 +246,7 @@ public class SecurityContext {
                  * - the plainText
                  */
                 byte[] associatedData = ProtocolTools.concatByteArrays(
-                        new byte[]{getSecurityControlByte()},
+                        new byte[]{getRequestSecurityControlByte()},
                         getSecurityProvider().getAuthenticationKey(),
                         (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? createGeneralCipheringHeader() : new byte[0],
                         plainText
@@ -273,7 +273,7 @@ public class SecurityContext {
                  * - (the general ciphering header)
                  */
                 byte[] associatedData = ProtocolTools.concatByteArrays(
-                        new byte[]{getSecurityControlByte()},
+                        new byte[]{getRequestSecurityControlByte()},
                         getSecurityProvider().getAuthenticationKey(),
                         (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? createGeneralCipheringHeader() : new byte[0]
                 );
@@ -326,7 +326,7 @@ public class SecurityContext {
                         return getGeneralCipheringSecurityProvider().getSessionKey();
                     }
                 default:
-                    throw DeviceConfigurationException.missingProperty(GENERAL_CIPHERING_KEY_TYPE);
+                    throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE);
             }
         } else {
             return isGlobalCiphering() ? getSecurityProvider().getGlobalKey() : getSecurityProvider().getDedicatedKey();
@@ -393,6 +393,7 @@ public class SecurityContext {
         if (!verify) {
             throw ConnectionCommunicationException.signatureVerificationError();
         }
+        lastResponseWasSigned = true;
         return content;
     }
 
@@ -512,7 +513,7 @@ public class SecurityContext {
             }
 
             default:
-                throw DeviceConfigurationException.missingProperty(GENERAL_CIPHERING_KEY_TYPE);
+                throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE);
         }
     }
 
@@ -643,7 +644,7 @@ public class SecurityContext {
                 break;
 
                 default:
-                    throw DeviceConfigurationException.missingProperty(GENERAL_CIPHERING_KEY_TYPE);
+                    throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE);
             }
         }
 
@@ -719,6 +720,12 @@ public class SecurityContext {
         int serverSystemTitleLength = generalAPDU[ptr++] & 0xFF;
         byte[] serverSystemTitle = ProtocolTools.getSubArray(generalAPDU, ptr, ptr + serverSystemTitleLength);
         ptr += serverSystemTitleLength;
+
+        //If we didn't receive the server system-title in the AARE (for example in case of an inbound event notification frame)
+        if (responseSystemTitle == null) {
+            setResponseSystemTitle(serverSystemTitle);
+        }
+
         if (!Arrays.equals(serverSystemTitle, getResponseSystemTitle())) {
             throw DataEncryptionException.dataEncryptionException(new ProtocolException("The system-title of the response doesn't correspond to the system-title used during association establishment"));
         }
@@ -749,7 +756,7 @@ public class SecurityContext {
         byte[] securedApdu = new byte[securedLength.length + DLMSUtils.getAXDRLength(securedLength, 0)];
         System.arraycopy(securedLength, 0, securedApdu, offset, securedLength.length);
         offset += securedLength.length;
-        securedApdu[offset] = getSecurityControlByte();
+        securedApdu[offset] = getRequestSecurityControlByte();
         offset++;
         System.arraycopy(getFrameCounterInBytes(), 0, securedApdu, offset, getFrameCounterInBytes().length);
         offset += getFrameCounterInBytes().length;
@@ -861,11 +868,11 @@ public class SecurityContext {
         return securitySuite;
     }
 
-    public byte[] dataTransportDecryption(byte[] cipherFrame) throws UnsupportedException, ConnectionException, DLMSConnectionException {
+    public byte[] dataTransportDecryption(byte[] cipherFrame) throws ProtocolException, ConnectionException, DLMSConnectionException {
         return dataTransportDecryption(cipherFrame, this.generalCipheringKeyType);
     }
 
-    public byte[] dataTransportDecryption(byte[] cipherFrame, GeneralCipheringKeyType generalCipheringKeyType) throws UnsupportedException, ConnectionException, DLMSConnectionException {
+    public byte[] dataTransportDecryption(byte[] cipherFrame, GeneralCipheringKeyType generalCipheringKeyType) throws ProtocolException, ConnectionException, DLMSConnectionException {
         return dataTransportDecryption(cipherFrame, generalCipheringKeyType, new byte[0]);
     }
 
@@ -875,15 +882,31 @@ public class SecurityContext {
      * @param cipherFrame             - the text to decrypt ...
      * @param generalCipheringKeyType - in case of general ciphering, this indicates the type of encryption key that should be used.
      *                                The server can respond with a different key type, so we should take that into account here
-     * @param generalCipheringHeader  The header of the general ciphering frame (or an empty byte if no general ciphering is used).
+     * @param generalCipheringHeader  The header of the general ciphering frame (or an empty byte array if no general ciphering is used).
      *                                This header is to be used as additional associated data for the calculation of the authentication tag.
      * @return the plainText
      * @throws ConnectionException when the decryption fails
      */
-    public byte[] dataTransportDecryption(byte[] cipherFrame, GeneralCipheringKeyType generalCipheringKeyType, byte[] generalCipheringHeader) throws UnsupportedException, ConnectionException, DLMSConnectionException {
-        if (securityPolicy.isResponsePlain()) {
+    public byte[] dataTransportDecryption(byte[] cipherFrame, GeneralCipheringKeyType generalCipheringKeyType, byte[] generalCipheringHeader) throws ProtocolException, ConnectionException, DLMSConnectionException {
+
+        int lengthOffset = DLMSUtils.getAXDRLengthOffset(cipherFrame, LENGTH_INDEX);
+        int responseSecurityControlByte = (cipherFrame[LENGTH_INDEX + lengthOffset]) & 0xFF;
+
+        //Check if the security of the response (indicated by its security control byte) is at least the same as the configured security level.
+        boolean authenticatedResponse = ProtocolTools.isBitSet(responseSecurityControlByte, 4);
+        boolean encryptedResponse = ProtocolTools.isBitSet(responseSecurityControlByte, 5);
+        boolean shouldBeAuthenticated = getSecurityPolicy().isResponseAuthenticatedOnly() || getSecurityPolicy().isResponseAuthenticatedAndEncrypted();
+        boolean shouldBeEncrypted = getSecurityPolicy().isResponseEncryptedOnly() || getSecurityPolicy().isResponseAuthenticatedAndEncrypted();
+        if (!authenticatedResponse && shouldBeAuthenticated) {
+            throw new ProtocolException("Received a response that has no authentication tag, while the configured security level states that all responses must be authenticated. Aborting.");
+        }
+        if (!encryptedResponse && shouldBeEncrypted) {
+            throw new ProtocolException("Received an unencrypted response, while the configured security level states that all responses must be encrypted. Aborting.");
+        }
+
+        if (!authenticatedResponse && !encryptedResponse) {
             return optionallyUnwrapSignedAPDU(cipherFrame);
-        } else if (securityPolicy.isResponseAuthenticatedOnly()) {
+        } else if (authenticatedResponse && !encryptedResponse) {
 
             AesGcm aesGcm = new AesGcm(getEncryptionKey(generalCipheringKeyType, true), DLMS_AUTH_TAG_SIZE);
 
@@ -898,7 +921,7 @@ public class SecurityContext {
              * - the plainText
              */
             byte[] associatedData = ProtocolTools.concatByteArrays(
-                    new byte[]{getSecurityControlByte()},
+                    new byte[]{(byte) responseSecurityControlByte},
                     getSecurityProvider().getAuthenticationKey(),
                     (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? generalCipheringHeader : new byte[0],
                     apdu
@@ -913,7 +936,7 @@ public class SecurityContext {
             } else {
                 throw new ConnectionException("Received an invalid cipher frame.");
             }
-        } else if (securityPolicy.isResponseEncryptedOnly()) {
+        } else if (!authenticatedResponse && encryptedResponse) {
 
             AesGcm aesGcm = new AesGcm(getEncryptionKey(generalCipheringKeyType, true), DLMS_AUTH_TAG_SIZE);
 
@@ -926,7 +949,7 @@ public class SecurityContext {
             } else {
                 throw new ConnectionException("Received an invalid cipher frame.");
             }
-        } else if (securityPolicy.isResponseAuthenticatedAndEncrypted()) {
+        } else if (authenticatedResponse && encryptedResponse) {
 
             AesGcm ag128 = new AesGcm(getEncryptionKey(generalCipheringKeyType, true), DLMS_AUTH_TAG_SIZE);
 
@@ -940,7 +963,7 @@ public class SecurityContext {
              * - (the general ciphering header)
              */
             byte[] associatedData = ProtocolTools.concatByteArrays(
-                    new byte[]{getSecurityControlByte()},
+                    new byte[]{(byte) responseSecurityControlByte},
                     getSecurityProvider().getAuthenticationKey(),
                     (cipheringType == CipheringType.GENERAL_CIPHERING.getType()) ? generalCipheringHeader : new byte[0]
             );
@@ -964,12 +987,22 @@ public class SecurityContext {
      * The decrypted APDU can still be a general-signing APDU.
      * If so, unwrap it here and return its contents.
      */
-    private byte[] optionallyUnwrapSignedAPDU(byte[] possibleGeneralSignedAPDU) throws ConnectionException, UnsupportedException {
+    private byte[] optionallyUnwrapSignedAPDU(byte[] possibleGeneralSignedAPDU) throws ConnectionException, ProtocolException {
+        byte[] result = possibleGeneralSignedAPDU;
         if (possibleGeneralSignedAPDU[0] == DLMSCOSEMGlobals.GENERAL_SIGNING) {
-            return unwrapGeneralSigning(possibleGeneralSignedAPDU);
-        } else {
-            return possibleGeneralSignedAPDU;
+            result = unwrapGeneralSigning(possibleGeneralSignedAPDU);
         }
+
+        //Check if the response should have been signed, according to the configured security level for responses
+        if (getSecurityPolicy().isResponseSigned()) {
+            if (!lastResponseWasSigned) {
+                throw new ProtocolException("Received an unsigned response, while the configured security level states all responses must be signed. Aborting.");
+            }
+
+            //Reset the state so we can check it again for the next response
+            lastResponseWasSigned = false;
+        }
+        return result;
     }
 
     /**
@@ -978,7 +1011,7 @@ public class SecurityContext {
      * @param cipherFrame - the text to decrypt
      * @return the plainText
      */
-    public byte[] dataTransportGeneralGloOrDedDecryption(byte[] cipherFrame) throws UnsupportedException, DLMSConnectionException, ConnectionException {
+    public byte[] dataTransportGeneralGloOrDedDecryption(byte[] cipherFrame) throws ProtocolException, DLMSConnectionException, ConnectionException {
         int ptr = 0;
         if (cipherFrame[ptr] != DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING && cipherFrame[ptr] != DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING) {
             throw new ConnectionException("Invalid General-Global Ciphering-Tag :" + cipherFrame[ptr]);
@@ -987,6 +1020,12 @@ public class SecurityContext {
         int systemTitleLength = cipherFrame[ptr++];
         byte[] systemTitleBytes = ProtocolTools.getSubArray(cipherFrame, ptr, ptr + systemTitleLength);
         ptr += systemTitleLength;
+
+        //If we didn't receive the server system-title in the AARE (for example in case of an inbound event notification frame)
+        if (responseSystemTitle == null) {
+            setResponseSystemTitle(systemTitleBytes);
+        }
+
         if (!Arrays.equals(systemTitleBytes, getResponseSystemTitle())) {
             throw DataEncryptionException.dataEncryptionException(new ProtocolException("The system-title of the response doesn't corresponds to the system-title used during association establishment"));
         }
@@ -1007,7 +1046,7 @@ public class SecurityContext {
 
     /**
      * The securityControlByte is a byte of the securityHeader that is sent with
-     * every encrypted/authenticated message.
+     * every encrypted/authenticated request.
      * <pre>
      * Bit 3-0: Security_Suite_Id;
      * Bit 4: 'A' subfield: indicate that the APDU is authenticated;
@@ -1016,9 +1055,9 @@ public class SecurityContext {
      * Bit 7: Reserved, must be set to 0.
      * </pre>
      *
-     * @return the constructed SecurityControlByte
+     * @return the constructed SecurityControlByte for requests (not for responses)
      */
-    public byte getSecurityControlByte() {
+    public byte getRequestSecurityControlByte() {
         byte scByte = 0;
         scByte |= (this.securitySuite & 0x0F); // add the securitySuite to bits 0 to 3
 
@@ -1044,7 +1083,7 @@ public class SecurityContext {
      */
     public byte[] getInitializationVector() {
         if (getSystemTitle() == null) {
-            throw new IllegalArgumentException("The AssociationRequest did NOT have a client SystemTitle - Encryption can not be applied!");
+            throw DataEncryptionException.dataEncryptionException(new ProtocolException("The AssociationRequest did NOT have a client SystemTitle - Encryption can not be applied!"));
         }
         byte[] fc = getFrameCounterInBytes();
         byte[] paddedSystemTitle = Arrays.copyOf(getSystemTitle(), SYSTEM_TITLE_LENGTH);
@@ -1058,9 +1097,6 @@ public class SecurityContext {
      * @return a byteArray containing the IV of the server
      */
     public byte[] getRespondingInitializationVector() {
-        if (getResponseSystemTitle() == null) {
-            throw new IllegalArgumentException("The AssociationResponse did NOT have a server SystemTitle - Encryption can not be applied!");
-        }
         byte[] fc = getRespondingFrameCounterInBytes();
         byte[] iv = ProtocolUtils.concatByteArrays(getResponseSystemTitle(), fc);
         return iv;
@@ -1077,7 +1113,11 @@ public class SecurityContext {
      * @return the servers' SystemTitle
      */
     public byte[] getResponseSystemTitle() {
-        return responseSystemTitle == null ? null : Arrays.copyOf(responseSystemTitle, SYSTEM_TITLE_LENGTH);
+        if (responseSystemTitle == null) {
+            throw DataEncryptionException.dataEncryptionException(new ProtocolException("The AssociationResponse did NOT have a server SystemTitle - Encryption can not be applied!"));
+        }
+
+        return Arrays.copyOf(responseSystemTitle, SYSTEM_TITLE_LENGTH);
     }
 
     /**

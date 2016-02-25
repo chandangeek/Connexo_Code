@@ -6,6 +6,7 @@ import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.GeneralCipheringKeyType;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
+import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 
 import java.util.ArrayList;
@@ -35,12 +36,17 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         optionalProperties.add(clientPrivateSigningKeyPropertySpec());
         optionalProperties.add(clientPrivateKeyAgreementKeyPropertySpec());
         optionalProperties.add(clientSigningCertificate());
+        optionalProperties.add(callingAPTitlePropertySpec());
         optionalProperties.remove(ntaSimulationToolPropertySpec());
         optionalProperties.remove(manufacturerPropertySpec());
         optionalProperties.remove(fixMbusHexShortIdPropertySpec());
         optionalProperties.remove(serverLowerMacAddressPropertySpec()); //Only TCP connection is supported, so no use for server lower mac address
         optionalProperties.remove(deviceId());
         return optionalProperties;
+    }
+
+    private PropertySpec callingAPTitlePropertySpec() {
+        return PropertySpecFactory.fixedLengthHexStringPropertySpec(IDIS.CALLING_AP_TITLE, 8);
     }
 
     /**
@@ -78,7 +84,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
 
     private PropertySpec generalCipheringKeyTypePropertySpec() {
         return PropertySpecFactory.stringPropertySpecWithValues(
-                DlmsProtocolProperties.GENERAL_CIPHERING_KEY_TYPE,
+                DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE,
                 GeneralCipheringKeyType.IDENTIFIED_KEY.getDescription(),
                 GeneralCipheringKeyType.WRAPPED_KEY.getDescription(),
                 GeneralCipheringKeyType.AGREED_KEY.getDescription()
