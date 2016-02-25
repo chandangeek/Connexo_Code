@@ -42,7 +42,8 @@ public class ProcessDefinitionInfo {
     public ProcessDefinitionInfo(BpmProcessDefinition bpmProcessDefinition){
         this.version = bpmProcessDefinition.getVersion();
         this.name = bpmProcessDefinition.getProcessName();
-        this.associatedTo = bpmProcessDefinition.getAssociation().isPresent() ? bpmProcessDefinition.getAssociation()
+        this.associatedTo = bpmProcessDefinition.getAssociationProvider()
+                .isPresent() ? bpmProcessDefinition.getAssociationProvider()
                 .get()
                 .getType() : "";
         this.active = bpmProcessDefinition.getStatus();
@@ -51,7 +52,8 @@ public class ProcessDefinitionInfo {
     public ProcessDefinitionInfo(BpmProcessDefinition bpmProcessDefinition, List<Group> groups){
         this.version = bpmProcessDefinition.getVersion();
         this.name = bpmProcessDefinition.getProcessName();
-        this.associatedTo = bpmProcessDefinition.getAssociation().isPresent() ? bpmProcessDefinition.getAssociation()
+        this.associatedTo = bpmProcessDefinition.getAssociationProvider()
+                .isPresent() ? bpmProcessDefinition.getAssociationProvider()
                 .get()
                 .getType() : "";
         this.active = bpmProcessDefinition.getStatus();

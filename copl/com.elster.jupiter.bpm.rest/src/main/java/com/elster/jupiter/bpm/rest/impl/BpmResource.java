@@ -290,7 +290,8 @@ public class BpmResource {
             processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
                     .filter(s -> activeProcesses.stream()
                             .anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion()
-                                    .equals(s.version) && a.getAssociation().isPresent() && a.getAssociation()
+                                    .equals(s.version) && a.getAssociationProvider()
+                                    .isPresent() && a.getAssociationProvider()
                                     .get()
                                     .getType()
                                     .toLowerCase()
@@ -452,7 +453,7 @@ public class BpmResource {
         }*/
 
         doUpdatePrivileges(process, info);
-        process.update();
+        process.save();
         return Response.ok().build();
     }
 
@@ -466,7 +467,7 @@ public class BpmResource {
         Optional<BpmProcessDefinition> bpmProcessDefinition = bpmService.getBpmProcessDefinition(info.name, info.version);
         if (bpmProcessDefinition.isPresent()) {
             bpmProcessDefinition.get().setStatus(info.active);
-            bpmProcessDefinition.get().update();
+            bpmProcessDefinition.get().save();
             return new ProcessDefinitionInfo(bpmProcessDefinition.get());
         }
 
@@ -486,7 +487,7 @@ public class BpmResource {
             if (bpmProcessDefinition.isPresent()) {
                 List<Group> groups = this.userService.getGroups();
                 ProcessDefinitionInfo processDefinitionInfo = new ProcessDefinitionInfo(bpmProcessDefinition.get(), groups);
-                bpmProcessDefinition.get().getAssociation()
+                bpmProcessDefinition.get().getAssociationProvider()
                         .ifPresent(provider -> processDefinitionInfo.setPropertySpecs(propertyUtils.convertPropertySpecsToPropertyInfos(provider
                                 .getPropertySpecs())));
 
@@ -528,7 +529,7 @@ public class BpmResource {
                     List<BpmProcessDefinition> filtredConnexoProcesses = connexoProcesses.stream()
                             //.filter(p -> p.getAssociationData().stream().anyMatch(s -> Long.parseLong(s.get("deviceStateId")) == deviceStateId))
                             .filter(p -> p.getPrivileges().stream().anyMatch(s -> privilegeNames.stream().anyMatch(z -> z.equals(s.getPrivilegeName()))))
-                            .filter(p -> p.getAssociation().isPresent() && p.getAssociation()
+                            .filter(p -> p.getAssociationProvider().isPresent() && p.getAssociationProvider()
                                     .get()
                                     .getType()
                                     .toLowerCase()
@@ -546,7 +547,7 @@ public class BpmResource {
                 ProcessDefinitionInfos bpmProcessDefinition = getBpmProcessDefinitions(auth);
                 List<BpmProcessDefinition> connexoProcesses = bpmService.getActiveBpmProcessDefinitions();
                 List<BpmProcessDefinition> filtredConnexoProcesses = connexoProcesses.stream()
-                        .filter(p -> p.getAssociation().isPresent() && p.getAssociation()
+                        .filter(p -> p.getAssociationProvider().isPresent() && p.getAssociationProvider()
                                 .get()
                                 .getType()
                                 .toLowerCase()
@@ -593,7 +594,8 @@ public class BpmResource {
                 for (ProcessDefinitionInfo eachBpm : bpmProcessDefinition.processes) {
                     if (eachConnexo.getProcessName().equals(eachBpm.name) && eachConnexo.getVersion().equals(eachBpm.version)) {
                         eachBpm.active = eachConnexo.getStatus();
-                        eachBpm.associatedTo = eachConnexo.getAssociation().isPresent() ? eachConnexo.getAssociation()
+                        eachBpm.associatedTo = eachConnexo.getAssociationProvider()
+                                .isPresent() ? eachConnexo.getAssociationProvider()
                                 .get()
                                 .getType() : "";
                         found = true;
@@ -601,7 +603,7 @@ public class BpmResource {
                 }
                 if (!found && !bpmProcessDefinition.processes.isEmpty()) {
                     eachConnexo.setStatus("UNDEPLOYED");
-                    eachConnexo.update();
+                    eachConnexo.save();
                 }
             }
             List<ProcessDefinitionInfo> list = bpmProcessDefinition.processes.stream()
