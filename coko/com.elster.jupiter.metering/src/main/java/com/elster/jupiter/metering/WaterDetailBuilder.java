@@ -1,27 +1,58 @@
 package com.elster.jupiter.metering;
 
-public interface WaterDetailBuilder {
+import com.elster.jupiter.util.units.Quantity;
 
-    WaterDetailBuilder withAmiBillingReady(AmiBillingReadyKind amiBillingReady);
+import java.util.Optional;
 
-    WaterDetailBuilder withCheckBilling(Boolean checkBilling);
+public interface WaterDetailBuilder  extends UsagePointDetailBuilder{
 
-    WaterDetailBuilder withConnectionState(UsagePointConnectedKind connectionState);
+    WaterDetailBuilder withCollar(Boolean collar);
 
-    WaterDetailBuilder withMinimalUsageExpected(Boolean minimalUsageExpected);
+    WaterDetailBuilder withGrounded(Boolean grounded);
 
-    WaterDetailBuilder withServiceDeliveryRemark(String serviceDeliveryRemark);
+    WaterDetailBuilder withPressure(Quantity pressure);
 
-    AmiBillingReadyKind getAmiBillingReady();
+    WaterDetailBuilder withPhysicalCapacity(Quantity physicalCapacity);
 
-    boolean isCheckBilling();
+    WaterDetailBuilder withLimiter(Boolean limiter);
 
-    UsagePointConnectedKind getConnectionState();
+    WaterDetailBuilder withLoadLimit(Quantity loadLimit);
 
-    boolean isMinimalUsageExpected();
+    WaterDetailBuilder withLoadLimiterType(String loadLimiterType);
 
-    String getServiceDeliveryRemark();
+    WaterDetailBuilder withBypass(Boolean bypass);
 
-    WaterDetail build();
+    WaterDetailBuilder withBypassStatus(BypassStatus bypassStatus);
 
+    WaterDetailBuilder withValve(Boolean valve);
+
+    WaterDetailBuilder withCapped(Boolean capped);
+
+    WaterDetailBuilder withClamped(Boolean clamped);
+
+    Optional<Boolean> getCollar();
+
+    Optional<Boolean> getClamped();
+
+    Boolean isGrounded();
+
+    Quantity getPressure();
+
+    Quantity getPhysicalCapacity();
+
+    Boolean isLimiter();
+
+    String getLoadLimiterType();
+
+    Quantity getLoadLimit();
+
+    Optional<Boolean> getBypass();
+
+    BypassStatus getBypassStatus();
+
+    Optional<Boolean> getValve();
+
+    Optional<Boolean> getCapped();
+
+    WaterDetail create();
 }

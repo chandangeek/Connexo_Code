@@ -181,6 +181,9 @@ public enum TableSpecs {
             table.column("READCYCLE").varChar(NAME_LENGTH).map("readCycle").add();
             table.column("READROUTE").varChar(NAME_LENGTH).map("readRoute").add();
             table.column("SERVICEPRIORITY").varChar(NAME_LENGTH).map("servicePriority").add();
+            table.column("SERVICEDELIVERYREMARK").varChar(NAME_LENGTH).map("serviceDeliveryRemark").add();
+            table.column("INSTALLATIONTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map("installationTime").add();
+
             table.addAuditColumns();
             table.primaryKey("MTR_PK_USAGEPOINT").on(idColumn).add();
             table.unique("MTR_U_USAGEPOINT").on(mRIDColumn).add();
@@ -541,18 +544,24 @@ public enum TableSpecs {
 
             table.addDiscriminatorColumn("SERVICECATEGORY", "varchar2(1)");
 
-            table.column("AMIBILLINGREADY").number().notNull().conversion(NUMBER2ENUM).map("amiBillingReady").add();
-            table.column("CHECKBILLING").bool().map("checkBilling").add();
-            table.column("CONNECTIONSTATE").number().notNull().conversion(NUMBER2ENUM).map("connectionState").add();
-            table.column("MINIMALUSAGEEXPECTED").bool().map("minimalUsageExpected").add();
-            table.column("SERVICEDELIVERYREMARK").varChar(NAME_LENGTH).map("serviceDeliveryRemark").add();
-
             table.column("GROUNDED").type("char(1)").conversion(CHAR2BOOLEAN).map("grounded").add();
             table.addQuantityColumns("NOMINALVOLTAGE", false, "nominalServiceVoltage");
             table.column("PHASECODE").type("varchar2(7)").conversion(CHAR2ENUM).map("phaseCode").add();
+            table.addQuantityColumns("PHYSICALCAPACITY", false, "physicalCapacity");
             table.addQuantityColumns("RATEDCURRENT", false, "ratedCurrent");
             table.addQuantityColumns("RATEDPOWER", false, "ratedPower");
             table.addQuantityColumns("ESTIMATEDLOAD", false, "estimatedLoad");
+            table.column("LIMITER").type("char(1)").conversion(CHAR2BOOLEAN).map("limiter").add();
+            table.column("LOADLIMITERTYPE").varChar(NAME_LENGTH).map("loadLimiterType").add();
+            table.addQuantityColumns("LOADLIMIT", false, "loadLimit");
+            table.addQuantityColumns("PRESSURE", false, "pressure");
+            table.column("INTERRUPTIBLE").type("char(1)").conversion(CHAR2BOOLEAN).map("interruptible").add();
+            table.column("COLLAR").type("char(1)").conversion(CHAR2BOOLEAN).map("collar").add();
+            table.column("BYPASS").type("char(1)").conversion(CHAR2BOOLEAN).map("bypass").add();
+            table.column("BYPASSSTATUS").type("varchar2(7)").conversion(CHAR2ENUM).map("bypassStatus").add();
+            table.column("VALVE").type("char(1)").conversion(CHAR2BOOLEAN).map("valve").add();
+            table.column("CAPPED").type("char(1)").conversion(CHAR2BOOLEAN).map("capped").add();
+            table.column("CLAMPED").type("char(1)").conversion(CHAR2BOOLEAN).map("clamped").add();
 
             table.addAuditColumns();
             table.primaryKey("MTR_PK_USAGEPOINTDETAIL").on(usagePointIdColumn, intervalColumns.get(0)).add();

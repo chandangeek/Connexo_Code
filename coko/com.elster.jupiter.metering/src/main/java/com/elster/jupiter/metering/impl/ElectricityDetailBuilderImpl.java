@@ -1,29 +1,30 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.PhaseCode;
-import com.elster.jupiter.metering.AmiBillingReadyKind;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 
+import java.util.Optional;
+
 public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
 
-    private AmiBillingReadyKind amiBillingReady;
-    private boolean checkBilling;
-    private UsagePointConnectedKind connectionState;
-    private boolean minimalUsageExpected;
-    private String serviceDeliveryRemark;
+    private Optional<Boolean> collar = Optional.empty();
 
-    private boolean grounded;
+    private Boolean grounded;
     private Quantity nominalServiceVoltage;
     private PhaseCode phaseCode;
     private Quantity ratedCurrent;
     private Quantity ratedPower;
     private Quantity estimatedLoad;
+    private Boolean limiter;
+    private String loadLimiterType;
+    private Quantity loadLimit;
+    private Boolean interruptible;
 
     private UsagePoint usagePoint;
     private Interval interval;
@@ -36,32 +37,8 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
     }
 
     @Override
-    public ElectricityDetailBuilder withAmiBillingReady(AmiBillingReadyKind amiBillingReady) {
-        this.amiBillingReady = amiBillingReady;
-        return this;
-    }
-
-    @Override
-    public ElectricityDetailBuilder withCheckBilling(Boolean checkBilling) {
-        this.checkBilling = checkBilling;
-        return this;
-    }
-
-    @Override
-    public ElectricityDetailBuilder withConnectionState(UsagePointConnectedKind connectionState) {
-        this.connectionState = connectionState;
-        return this;
-    }
-
-    @Override
-    public ElectricityDetailBuilder withMinimalUsageExpected(Boolean minimalUsageExpected) {
-        this.minimalUsageExpected = minimalUsageExpected;
-        return this;
-    }
-
-    @Override
-    public ElectricityDetailBuilder withServiceDeliveryRemark(String serviceDeliveryRemark) {
-        this.serviceDeliveryRemark = serviceDeliveryRemark;
+    public ElectricityDetailBuilder withCollar(Boolean collar) {
+        this.collar = Optional.ofNullable(collar);
         return this;
     }
 
@@ -102,32 +79,36 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
     }
 
     @Override
-    public AmiBillingReadyKind getAmiBillingReady() {
-        return amiBillingReady;
+    public ElectricityDetailBuilder withLimiter(Boolean limiter) {
+        this.limiter = limiter;
+        return this;
     }
 
     @Override
-    public boolean isCheckBilling() {
-        return checkBilling;
+    public ElectricityDetailBuilder withLoadLimit(Quantity loadLimit) {
+        this.loadLimit = loadLimit;
+        return this;
     }
 
     @Override
-    public UsagePointConnectedKind getConnectionState() {
-        return connectionState;
+    public ElectricityDetailBuilder withLoadLimiterType(String loadLimiterType) {
+        this.loadLimiterType = loadLimiterType;
+        return this;
     }
 
     @Override
-    public boolean isMinimalUsageExpected() {
-        return minimalUsageExpected;
+    public ElectricityDetailBuilder withInterruptible(Boolean interruptible) {
+        this.interruptible = interruptible;
+        return this;
     }
 
     @Override
-    public String getServiceDeliveryRemark() {
-        return serviceDeliveryRemark;
+    public Optional<Boolean> getCollar() {
+        return collar;
     }
 
     @Override
-    public boolean isGrounded() {
+    public Boolean isGrounded() {
         return grounded;
     }
 
@@ -157,10 +138,35 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
     }
 
     @Override
-    public ElectricityDetail build() {
+    public Boolean isLimiter() {
+        return limiter;
+    }
+
+    @Override
+    public String getLoadLimiterType() {
+        return loadLimiterType;
+    }
+
+    @Override
+    public Quantity getLoadLimit() {
+        return loadLimit;
+    }
+
+    @Override
+    public Boolean isInterruptible() {
+        return interruptible;
+    }
+
+    @Override
+    public ElectricityDetail create() {
         ElectricityDetail ed = dataModel.getInstance(ElectricityDetailImpl.class).init(usagePoint, this, interval);
         usagePoint.addDetail(ed);
         return ed;
     }
 
+    @Override
+    public void validate() {
+        ElectricityDetail ed = dataModel.getInstance(ElectricityDetailImpl.class).init(usagePoint, this, interval);
+        Save.CREATE.validate(dataModel,ed);
+    }
 }

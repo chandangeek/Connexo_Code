@@ -11,14 +11,7 @@ import java.util.Optional;
  * Time: 9:13
  * To change this template use File | Settings | File Templates.
  */
-public interface WaterDetail extends UsagePointDetail {
-    Boolean isGrounded();
-
-    Boolean isLimiter();
-
-    String getLoadLimiterType();
-
-    Quantity getLoadLimit();
+public interface HeatDetail extends UsagePointDetail {
 
     Quantity getPhysicalCapacity();
 
@@ -30,7 +23,5 @@ public interface WaterDetail extends UsagePointDetail {
 
     Optional<Boolean> getValve();
 
-    Optional<Boolean> getCapped();
-
-    Optional<Boolean> getClamped();
+    Boolean isInterruptible();
 }

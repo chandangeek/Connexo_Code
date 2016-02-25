@@ -23,6 +23,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.inject.Provider;
 import javax.validation.ValidatorFactory;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -101,7 +102,7 @@ public class ServiceCategoryImplTest {
     public void testNewUsagePoint() {
         when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, () -> null, () -> null, customPropertySetService));
 
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId").create();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId").withInstallationTime(Instant.EPOCH).create();
         assertThat(usagePoint).isInstanceOf(UsagePointImpl.class);
     }
 

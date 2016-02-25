@@ -160,20 +160,6 @@ public class UsagePointImplTest {
     }
 
     @Test
-    public void testGetAliasName() {
-        usagePoint.setAliasName(ALIAS_NAME);
-
-        assertThat(usagePoint.getAliasName()).isEqualTo(ALIAS_NAME);
-    }
-
-    @Test
-    public void testGetDescription() {
-        usagePoint.setDescription(DESCRIPTION);
-
-        assertThat(usagePoint.getDescription()).isEqualTo(DESCRIPTION);
-    }
-
-    @Test
     public void testGetName() {
         usagePoint.setName(NAME);
 
@@ -200,14 +186,6 @@ public class UsagePointImplTest {
         usagePoint.setOutageRegion(outageRegion);
 
         assertThat(usagePoint.getOutageRegion()).isEqualTo(outageRegion);
-    }
-
-    @Test
-    public void testGetReadCycle() {
-        String readCycle = "readCycle";
-        usagePoint.setReadCycle(readCycle);
-
-        assertThat(usagePoint.getReadCycle()).isEqualTo(readCycle);
     }
 
     @Test

@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.GasDetailBuilder;
+import com.elster.jupiter.metering.HeatDetailBuilder;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
@@ -24,6 +25,7 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
@@ -39,6 +41,7 @@ import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -65,13 +68,17 @@ public class UsagePointImpl implements UsagePoint {
     @NotNull
     private String mRID;
     private String name;
+    @NotNull
     private boolean isSdp;
+    @NotNull
     private boolean isVirtual;
     private String outageRegion;
     private String readCycle;
     private String readRoute;
     private String servicePriority;
-    @SuppressWarnings("unused")
+    @NotNull
+    private Instant installationTime;
+    private String serviceDeliveryRemark;
     private long version;
     @SuppressWarnings("unused")
     private Instant createTime;
@@ -122,6 +129,12 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
+    public UsagePointDetailBuilder newDefaultDetailBuilder(Instant start) {
+        Interval interval = Interval.of(Range.atLeast(start));
+        return new DefaultUsagePointDetailBuilderImpl(dataModel, this, interval);
+    }
+
+    @Override
     public ElectricityDetailBuilder newElectricityDetailBuilder(Instant start) {
         Interval interval = Interval.of(Range.atLeast(start));
         return new ElectricityDetailBuilderImpl(dataModel, this, interval);
@@ -137,6 +150,12 @@ public class UsagePointImpl implements UsagePoint {
     public WaterDetailBuilder newWaterDetailBuilder(Instant start) {
         Interval interval = Interval.of(Range.atLeast(start));
         return new WaterDetailBuilderImpl(dataModel, this, interval);
+    }
+
+    @Override
+    public HeatDetailBuilder newHeatDetailBuilder(Instant start) {
+        Interval interval = Interval.of(Range.atLeast(start));
+        return new HeatDetailBuilderImpl(dataModel, this, interval);
     }
 
     @Override
@@ -211,13 +230,28 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
+    public String getServiceDeliveryRemark() {
+        return serviceDeliveryRemark;
+    }
+
+    @Override
+    public Instant getInstallationTime() {
+        return installationTime;
+    }
+
+    @Override
+    public void setInstallationTime(Instant installationTime) {
+        this.installationTime = installationTime;
+    }
+
+    @Override
     public void setAliasName(String aliasName) {
-        this.aliasName = aliasName;
+        throw new UnsupportedOperationException("aliasName field is deprecated");
     }
 
     @Override
     public void setDescription(String description) {
-        this.description = description;
+        throw new UnsupportedOperationException("description field is deprecated");
     }
 
     @Override
@@ -247,7 +281,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void setReadCycle(String readCycle) {
-        this.readCycle = readCycle;
+        throw new UnsupportedOperationException("readCycle field is deprecated");
     }
 
     @Override
@@ -263,6 +297,11 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public void setServiceLocation(ServiceLocation serviceLocation) {
         this.serviceLocation.set(serviceLocation);
+    }
+
+    @Override
+    public void setServiceDeliveryRemark(String serviceDeliveryRemark) {
+        this.serviceDeliveryRemark = serviceDeliveryRemark;
     }
 
     @Override

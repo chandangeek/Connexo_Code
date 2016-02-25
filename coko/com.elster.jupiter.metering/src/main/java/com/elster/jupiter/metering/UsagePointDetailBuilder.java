@@ -1,15 +1,14 @@
 package com.elster.jupiter.metering;
 
+import java.util.Optional;
+
 public interface UsagePointDetailBuilder {
 
-    UsagePointDetailBuilder withAmiBillingReady(AmiBillingReadyKind amiBillingReady);
+    UsagePointDetail create();
 
-    UsagePointDetailBuilder withCheckBilling(boolean checkBilling);
+    UsagePointDetailBuilder withCollar(Boolean collar);
 
-    UsagePointDetailBuilder withConnectionState(UsagePointConnectedKind connectionState);
+    Optional<Boolean> getCollar();
 
-    UsagePointDetailBuilder withMinimalUsageExpected(boolean minimalUsageExpected);
-
-    UsagePointDetailBuilder withServiceDeliveryRemark(String serviceDeliveryRemark);
-
+    void validate();
 }

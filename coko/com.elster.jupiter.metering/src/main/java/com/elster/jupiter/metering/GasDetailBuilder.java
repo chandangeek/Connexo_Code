@@ -1,27 +1,63 @@
 package com.elster.jupiter.metering;
 
-public interface GasDetailBuilder {
+import com.elster.jupiter.util.units.Quantity;
 
-    GasDetailBuilder withAmiBillingReady(AmiBillingReadyKind amiBillingReady);
+import java.util.Optional;
 
-    GasDetailBuilder withCheckBilling(Boolean checkBilling);
+public interface GasDetailBuilder  extends UsagePointDetailBuilder{
 
-    GasDetailBuilder withConnectionState(UsagePointConnectedKind connectionState);
+    GasDetailBuilder withCollar(Boolean collar);
 
-    GasDetailBuilder withMinimalUsageExpected(Boolean minimalUsageExpected);
+    GasDetailBuilder withGrounded(Boolean grounded);
 
-    GasDetailBuilder withServiceDeliveryRemark(String serviceDeliveryRemark);
+    GasDetailBuilder withPressure(Quantity pressure);
 
-    AmiBillingReadyKind getAmiBillingReady();
+    GasDetailBuilder withPhysicalCapacity(Quantity physicalCapacity);
 
-    boolean isCheckBilling();
+    GasDetailBuilder withLimiter(Boolean limiter);
 
-    UsagePointConnectedKind getConnectionState();
+    GasDetailBuilder withLoadLimit(Quantity loadLimit);
 
-    boolean isMinimalUsageExpected();
+    GasDetailBuilder withLoadLimiterType(String loadLimiterType);
 
-    String getServiceDeliveryRemark();
+    GasDetailBuilder withBypass(Boolean bypass);
 
-    GasDetail build();
+    GasDetailBuilder withBypassStatus(BypassStatus bypassStatus);
+
+    GasDetailBuilder withValve(Boolean valve);
+
+    GasDetailBuilder withCapped(Boolean capped);
+
+    GasDetailBuilder withClamped(Boolean clamped);
+
+    GasDetailBuilder withInterruptible(Boolean interruptible);
+
+    Optional<Boolean> getCollar();
+
+    Optional<Boolean> getClamped();
+
+    Boolean isGrounded();
+
+    Quantity getPressure();
+
+    Quantity getPhysicalCapacity();
+
+    Boolean isLimiter();
+
+    String getLoadLimiterType();
+
+    Quantity getLoadLimit();
+
+    Optional<Boolean> getBypass();
+
+    BypassStatus getBypassStatus();
+
+    Optional<Boolean> getValve();
+
+    Optional<Boolean> getCapped();
+
+    Boolean isInterruptible();
+
+    GasDetail create();
 
 }

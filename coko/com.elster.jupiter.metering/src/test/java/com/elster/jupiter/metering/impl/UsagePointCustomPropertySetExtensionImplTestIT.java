@@ -87,6 +87,7 @@ public class UsagePointCustomPropertySetExtensionImplTestIT {
                 .getServiceCategory(ServiceKind.ELECTRICITY)
                 .get()
                 .newUsagePoint(USAGE_POINT_MRID)
+                .withInstallationTime(Instant.EPOCH)
                 .create();
     }
 
