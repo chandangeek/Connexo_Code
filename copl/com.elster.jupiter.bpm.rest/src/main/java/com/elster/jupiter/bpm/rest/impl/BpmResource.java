@@ -284,7 +284,7 @@ public class BpmResource {
     }
 
     @GET
-    @Path("/avaiableactiveprocesses")
+    @Path("/availableactiveprocesses")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
     public ProcessDefinitionInfos getAvailableProcesses(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth) {
