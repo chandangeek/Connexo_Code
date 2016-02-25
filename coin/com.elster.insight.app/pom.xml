@@ -22,7 +22,6 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
@@ -39,7 +38,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>theme.skyline</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>config.extjs</artifactId>
@@ -64,7 +62,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>users</artifactId>
         </dependency>
-        
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
@@ -108,6 +105,10 @@
         <dependency>
             <groupId>com.elster</groupId>
             <artifactId>insight.metering.extjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>systemadmin</artifactId>
         </dependency>
     </dependencies>
 
