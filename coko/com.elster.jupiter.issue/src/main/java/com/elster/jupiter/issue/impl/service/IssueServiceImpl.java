@@ -502,9 +502,9 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         Condition condition = buildConditionFromFilter(filter);
         List<Class<?>> eagerClasses = determineMainApiClass(filter);
         if (eagers == null) {
-            eagerClasses.addAll(Arrays.asList(eagers));
-        } else {
             eagerClasses.addAll(Arrays.asList(IssueStatus.class, EndDevice.class, User.class, IssueReason.class, IssueType.class));
+        } else {
+            eagerClasses.addAll(Arrays.asList(eagers));
         }
         return DefaultFinder.of((Class<Issue>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
     }

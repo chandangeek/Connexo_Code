@@ -325,6 +325,12 @@ public abstract class BaseTest {
         public Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue) {
             return Optional.of(issue);
         }
+
+        @Override
+        public Optional<? extends Issue> findIssue(long id) {
+            Issue spyIssue = mock(Issue.class);
+            return Optional.of(spyIssue);
+        }
     }
 
 }
