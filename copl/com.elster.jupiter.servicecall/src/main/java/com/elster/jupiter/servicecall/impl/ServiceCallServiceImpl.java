@@ -48,6 +48,8 @@ import java.util.Optional;
         immediate = true)
 public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
 
+    static final String SERIVCE_CALLS_DESTINATION_NAME = "SerivceCalls";
+    static final String SERIVCE_CALLS_SUBSCRIBER_NAME = "SerivceCalls";
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile DataModel dataModel;
