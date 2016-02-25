@@ -80,8 +80,7 @@ public abstract class BaseUsagePointDetailsInfo {
                         clazz = Class.forName(HeatUsagePointDetailsInfo.class.getName());
                         break;
                     default:
-                        clazz = Class.forName(BaseUsagePointDetailsInfo.class.getName());
-                        break;
+                        clazz = Class.forName(DefaultUsagePointDetailsInfo.class.getName());
                 }
 
                 return TypeFactory.defaultInstance().constructSpecializedType(javaType, clazz);

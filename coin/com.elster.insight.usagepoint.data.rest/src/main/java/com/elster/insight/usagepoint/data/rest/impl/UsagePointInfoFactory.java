@@ -128,6 +128,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .withReadRoute(usagePointInfo.readRoute)
                 .withServicePriority(usagePointInfo.servicePriority)
                 .withServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark)
-                .withInstallationTime(usagePointInfo.installationTime != null ? Instant.ofEpochMilli(usagePointInfo.installationTime) : null);
+                .withInstallationTime(usagePointInfo.installationTime != null ? Instant.ofEpochMilli(usagePointInfo.installationTime) : clock
+                        .instant());
     }
 }

@@ -27,6 +27,8 @@ import com.elster.jupiter.users.User;
 import com.elster.insight.common.services.ListPager;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 
+import com.google.common.collect.Range;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -191,16 +193,55 @@ public class UsagePointResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMIN_ANY})
+//    @Path("/{mRID}/")
     @Transactional
     @SuppressWarnings("unchecked")
-    public Response createUsagePoint(UsagePointInfo info) {
+    public Response createUsagePoint(UsagePointInfo info, @QueryParam("validate") boolean validate, @QueryParam("step") long step, @QueryParam("customPropertySetId") long customPropertySetId) {
+
+        if (validate) {
+            new RestValidationBuilder()
+                    .notEmpty(info.mRID, "mRID")
+                    .notEmpty(info.serviceCategory, "serviceCategory")
+                    .notEmpty(info.isSdp, "typeOfUsagePoint")
+                    .notEmpty(info.isVirtual, "typeOfUsagePoint")
+                    .validate();
+            if (step == 1) {
+                usagePointInfoFactory.newUsagePointBuilder(info).validate();
+            } else if (step == 2) {
+                info.techInfo.getUsagePointDetailBuilder(usagePointInfoFactory.newUsagePointBuilder(info)
+                        .validate(), clock).validate();
+            } else if (customPropertySetId > 0) {
+                RegisteredCustomPropertySet set = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)
+                        .stream()
+                        .filter(rcps -> rcps.getId() == customPropertySetId)
+                        .findAny()
+                        .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, customPropertySetId));
+
+                CustomPropertySetInfo customPropertySetInfo = info.customPropertySets.stream()
+                        .filter(cps -> cps.id == set.getId())
+                        .findFirst()
+                        .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, customPropertySetId));
+                customPropertySetService.validateCustomPropertySetValues(set.getCustomPropertySet(), customPropertySetInfoFactory
+                        .getCustomPropertySetValues(customPropertySetInfo, set.getCustomPropertySet()
+                                .getPropertySpecs()));
+            }
+            return Response.accepted().build();
+        }
+
+
         UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
-        info.techInfo.getUsagePointDetailBuilder(usagePoint,clock).build();
+        info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
 
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
             CustomPropertySet set = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class).stream()
                     .filter(rcps -> customPropertySetInfo.id == rcps.getId()).findFirst().orElseThrow(IllegalArgumentException::new).getCustomPropertySet();
-            customPropertySetService.setValuesFor(set,usagePoint,customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo, set.getPropertySpecs()));
+            if (!set.isVersioned()) {
+                customPropertySetService.setValuesFor(set, usagePoint, customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo, set
+                        .getPropertySpecs()));
+            } else {
+                customPropertySetService.setValuesVersionFor(set, usagePoint, customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo, set
+                        .getPropertySpecs()), Range.atLeast(usagePoint.getInstallationTime()));
+            }
         }
         return Response.status(Response.Status.CREATED).entity(usagePointInfoFactory.from(usagePoint)).build();
     }
@@ -213,7 +254,6 @@ public class UsagePointResource {
     @Transactional
     @SuppressWarnings("unchecked")
     public Response validateUsagePoint(UsagePointInfo info, @QueryParam("step") Long step, @QueryParam("customPropertySetId") Long customPropertySetId) {
-
         new RestValidationBuilder()
                 .notEmpty(info.mRID, "mRID")
                 .notEmpty(info.installationTime, "installationTime")

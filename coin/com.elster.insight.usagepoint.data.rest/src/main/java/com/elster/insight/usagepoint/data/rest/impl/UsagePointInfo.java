@@ -23,8 +23,8 @@ public class UsagePointInfo {
 
     public String mRID;
     public String name;
-    public boolean isSdp;
-    public boolean isVirtual;
+    public Boolean isSdp;
+    public Boolean isVirtual;
     public String outageRegion;
     public String readRoute;
     public String serviceDeliveryRemark;
