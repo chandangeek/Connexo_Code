@@ -19,7 +19,8 @@ public enum Privileges implements TranslationKey {
 	VIEW_SERVICECATEGORY(Constants.VIEW_SERVICECATEGORY, "View service categories"),
 
     ADMINISTER_METROLOGY_CONFIGURATION(Constants.ADMINISTER_METROLOGY_CONFIGURATION, "Administer metrology configuration"),
-    VIEW_METROLOGY_CONFIGURATION(Constants.VIEW_METROLOGY_CONFIGURATION, "View metrology configuration");
+    VIEW_METROLOGY_CONFIGURATION(Constants.VIEW_METROLOGY_CONFIGURATION, "View metrology configuration"),
+    ;
 
 	private final String key;
 	private final String description;
