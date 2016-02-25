@@ -73,7 +73,6 @@ public class UsagePointImpl implements UsagePoint {
     @NotNull
     private boolean isVirtual;
     private String outageRegion;
-    private String readCycle;
     private String readRoute;
     private String servicePriority;
     @NotNull
@@ -205,11 +204,6 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public String getReadCycle() {
-        return readCycle;
-    }
-
-    @Override
     public String getReadRoute() {
         return readRoute;
     }
@@ -246,12 +240,12 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void setAliasName(String aliasName) {
-        throw new UnsupportedOperationException("aliasName field is deprecated");
+        this.aliasName = aliasName;
     }
 
     @Override
     public void setDescription(String description) {
-        throw new UnsupportedOperationException("description field is deprecated");
+        this.description = description;
     }
 
     @Override
@@ -277,11 +271,6 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public void setOutageRegion(String outageRegion) {
         this.outageRegion = outageRegion;
-    }
-
-    @Override
-    public void setReadCycle(String readCycle) {
-        throw new UnsupportedOperationException("readCycle field is deprecated");
     }
 
     @Override
