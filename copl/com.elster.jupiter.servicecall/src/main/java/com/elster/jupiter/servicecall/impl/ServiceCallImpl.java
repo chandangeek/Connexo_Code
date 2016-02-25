@@ -6,6 +6,7 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
@@ -14,6 +15,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.util.json.JsonService;
 
 import javax.inject.Inject;
 import java.text.DecimalFormat;
@@ -25,7 +27,11 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class ServiceCallImpl implements ServiceCall {
-    public static final NumberFormat NUMBER_PREFIX = new DecimalFormat("SC_00000000");
+    private static final NumberFormat NUMBER_PREFIX = new DecimalFormat("SC_00000000");
+
+    private final IServiceCallService serviceCallService;
+    private final JsonService jsonService;
+
     private long id;
     private Instant lastCompletedTime;
     private String origin;
@@ -75,10 +81,12 @@ public class ServiceCallImpl implements ServiceCall {
 
 
     @Inject
-    ServiceCallImpl(DataModel dataModel, Clock clock, CustomPropertySetService customPropertySetService) {
+    ServiceCallImpl(DataModel dataModel, IServiceCallService serviceCallService, Clock clock, CustomPropertySetService customPropertySetService, JsonService jsonService) {
         this.dataModel = dataModel;
+        this.serviceCallService = serviceCallService;
         this.clock = clock;
         this.customPropertySetService = customPropertySetService;
+        this.jsonService = jsonService;
     }
 
     static ServiceCallImpl from(DataModel dataModel, IServiceCallType type) {
@@ -125,10 +133,17 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     @Override
-    public void setState(DefaultState defaultState) {
-        // TODO invoke FSM checks, for now a plain setter
-        this.state.set(asState(defaultState));
+    public void requestTransition(DefaultState defaultState) {
+        DestinationSpec serviceCallQueue = serviceCallService.getServiceCallQueue();
 
+        TransitionRequest transitionRequest = new TransitionRequest(this, defaultState);
+
+        serviceCallQueue.message(jsonService.serialize(transitionRequest))
+                .send();
+    }
+
+    void setState(DefaultState defaultState) {
+        this.state.set(asState(defaultState));
     }
 
     private State asState(DefaultState state) {

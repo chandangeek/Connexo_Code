@@ -28,7 +28,7 @@ public interface ServiceCall extends HasId {
 
     DefaultState getState();
 
-    void setState(DefaultState state);
+    void requestTransition(DefaultState state);
 
     Optional<String> getOrigin();
 

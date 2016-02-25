@@ -15,7 +15,7 @@ class ServiceCallTypeBuilderImpl implements ServiceCallTypeBuilder {
     private final DataModel dataModel;
     private final List<RegisteredCustomPropertySet> toBeRegisteredCustomPropertySets = new ArrayList<>();
 
-    public ServiceCallTypeBuilderImpl(ServiceCallServiceImpl serviceCallService, String name, String versionName, IServiceCallLifeCycle serviceCallLifeCycle, DataModel dataModel) {
+    public ServiceCallTypeBuilderImpl(IServiceCallService serviceCallService, String name, String versionName, IServiceCallLifeCycle serviceCallLifeCycle, DataModel dataModel) {
         this.dataModel = dataModel;
         instance = dataModel.getInstance(ServiceCallTypeImpl.class);
         instance.setName(name);

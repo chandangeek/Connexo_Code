@@ -4,6 +4,8 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -23,6 +25,7 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.json.JsonService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -44,7 +47,7 @@ import java.util.Optional;
         service = {ServiceCallService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
         property = "name=" + ServiceCallService.COMPONENT_NAME,
         immediate = true)
-public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
+public class ServiceCallServiceImpl implements MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService, IServiceCallService {
 
     static final String SERIVCE_CALLS_DESTINATION_NAME = "SerivceCalls";
     static final String SERIVCE_CALLS_SUBSCRIBER_NAME = "SerivceCalls";
@@ -52,6 +55,8 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile MessageService messageService;
+    private volatile JsonService jsonService;
 
     // OSGi
     public ServiceCallServiceImpl() {
@@ -88,6 +93,16 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(ServiceCallService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
     }
 
     @Override
@@ -142,7 +157,7 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
-                bind(ServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
+                bind(IServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
             }
         };
     }
@@ -196,5 +211,13 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     @Override
     public Optional<ServiceCall> getServiceCall(long id) {
         return dataModel.mapper(ServiceCall.class).getOptional(id);
+    }
+
+    @Override
+    public DestinationSpec getServiceCallQueue() {
+        if (!dataModel.isInstalled()) {
+            throw new IllegalStateException();
+        }
+        return messageService.getDestinationSpec(SERIVCE_CALLS_DESTINATION_NAME).get();
     }
 }
