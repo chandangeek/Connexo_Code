@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.impl.config;
+package com.elster.jupiter.metering.impl.cps;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
@@ -36,12 +36,12 @@ public class UsagePointTestCustomPropertySet implements CustomPropertySet<UsageP
 
     @Override
     public boolean isVersioned() {
-        return false;
+        return true;
     }
 
     @Override
     public Set<ViewPrivilege> defaultViewPrivileges() {
-        return EnumSet.allOf(ViewPrivilege.class);
+        return EnumSet.of(ViewPrivilege.LEVEL_1);
     }
 
     @Override
@@ -67,13 +67,13 @@ public class UsagePointTestCustomPropertySet implements CustomPropertySet<UsageP
     @Override
     public List<PropertySpec> getPropertySpecs() {
         PropertySpec nameSpec = this.propertySpecService.stringSpec()
-                .named(UsagePointTestPersistentDomainExtension.Fields.NAME.javaName(), UsagePointTestPersistentDomainExtension.Fields.NAME.javaName())
-                .describedAs(UsagePointTestPersistentDomainExtension.Fields.NAME.javaName())
+                .named(CustomPropertySetAttributes.NAME.propertyKey(), CustomPropertySetAttributes.NAME.propertyKey())
+                .describedAs(CustomPropertySetAttributes.NAME.propertyKey())
                 .markRequired()
                 .finish();
         PropertySpec enhancedSupportSpec = this.propertySpecService.booleanSpec()
-                .named(UsagePointTestPersistentDomainExtension.Fields.ENHANCED_SUPPORT.javaName(), UsagePointTestPersistentDomainExtension.Fields.ENHANCED_SUPPORT.javaName())
-                .describedAs(UsagePointTestPersistentDomainExtension.Fields.ENHANCED_SUPPORT.javaName())
+                .named(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey(), CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey())
+                .describedAs(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey())
                 .finish();
         return Arrays.asList(nameSpec, enhancedSupportSpec);
     }
