@@ -763,14 +763,6 @@ public class IntervalLengthTest {
     }
 
     @Test
-    public void oneMinuteMultipliesToAll() {
-        List<IntervalLength> notMultipleOfOne = Stream.of(IntervalLength.values()).filter(each -> !IntervalLength.MINUTE1.multipliesTo(each)).collect(Collectors.toList());
-        if (!notMultipleOfOne.isEmpty()) {
-            fail(notMultipleOfOne.stream().map(IntervalLength::name).collect(Collectors.joining(", ")) + " are not multiples of one minute");
-        }
-    }
-
-    @Test
     public void hourlyIntervalsMultiplyIntoDay() {
         List<IntervalLength> doNotMultiplyToWeek = hourlyIntervals().filter(each -> !each.multipliesTo(IntervalLength.DAY1)).collect(Collectors.toList());
         if (!doNotMultiplyToWeek.isEmpty()) {

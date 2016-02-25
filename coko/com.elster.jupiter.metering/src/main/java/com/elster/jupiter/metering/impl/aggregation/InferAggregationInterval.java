@@ -83,26 +83,52 @@ public class InferAggregationInterval implements  ServerExpressionNode.Visitor<I
             return preferredInterval;
         }
         else {
-            // Difference of opinions, try to compromise, start with the smallest interval
+            // Difference of opinions, try to compromise
+            return this.searchCompromise(children, preferredIntervals, unsupportedOperationExceptionSupplier);
+        }
+    }
+
+    /**
+     * Searches for a compromise when multiple {@link IntervalLength}s were
+     * returned by the express nodes. These are the steps involved:
+     * <ol>
+     * <li>check if every node can agree on the actual requested target interval and use that if that is the case</li>
+     * <li>check all preferred intervals, starting with the smallest interval
+     *     one and enforce the first one that every node can agrees on</li>
+     * </ol>
+     *
+     * @param nodes The expression nodes
+     * @param preferredIntervals The preferred IntervalLength of each of the nodes
+     * @param unsupportedOperationExceptionSupplier The supplier of the UnsupportedOperationException that will be thrown when no compromise can be found
+     * @return The compromising IntervalLength
+     */
+    private IntervalLength searchCompromise(List<ServerExpressionNode> nodes, Set<IntervalLength> preferredIntervals, Supplier<UnsupportedOperationException> unsupportedOperationExceptionSupplier) {
+        if (this.checkForCompromiseOnRequestedInterval(nodes)) {
+            new EnforceAggregationInterval(this.requestedInterval).enforceOntoAll(nodes);
+            return this.requestedInterval;
+        } else {
             List<IntervalLength> smallestToBiggest = new ArrayList<>(preferredIntervals);
             Collections.sort(smallestToBiggest);
             Optional<IntervalLength> compromise =
                     smallestToBiggest
                             .stream()
                             .map(CheckEnforceAggregationInterval::new)
-                            .filter(checker -> checker.forAll(children))
+                            .filter(checker -> checker.forAll(nodes))
                             .map(CheckEnforceAggregationInterval::getInterval)
                             .findFirst();
             if (compromise.isPresent()) {
-                new EnforceAggregationInterval(compromise.get()).enforceOntoAll(children);
+                new EnforceAggregationInterval(compromise.get()).enforceOntoAll(nodes);
                 return compromise.get();
-            }
-            else {
+            } else {
                 throw unsupportedOperationExceptionSupplier.get();
             }
         }
-
     }
+
+    private Boolean checkForCompromiseOnRequestedInterval(List<ServerExpressionNode> nodes) {
+        return new CheckEnforceAggregationInterval(this.requestedInterval).forAll(nodes);
+    }
+
     private String getFunctionName(FunctionCallNode functionCall) {
         return functionCall.getFunction().name();
     }

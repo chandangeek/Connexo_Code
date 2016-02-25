@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.impl.RecordSpecs;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -49,6 +50,16 @@ final class SqlConstants {
             void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, SqlBuilder sqlBuilder) {
                 sqlBuilder.append(VIRTUAL_TIMESERIES_ID);
             }
+
+            @Override
+            AggregationFunction aggregationFunctionFor(ReadingType readingType) {
+                return AggregationFunction.MIN;
+            }
+
+            @Override
+            String aggregatedValue(ReadingType readingType) {
+                return this.fieldSpecName();
+            }
         },
 
         /**
@@ -59,6 +70,16 @@ final class SqlConstants {
             @Override
             void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, SqlBuilder sqlBuilder) {
                 sqlBuilder.append(expressionNode.accept(new TimeStampFromExpressionNode()));
+            }
+
+            @Override
+            AggregationFunction aggregationFunctionFor(ReadingType readingType) {
+                return AggregationFunction.MAX;
+            }
+
+            @Override
+            String aggregatedValue(ReadingType readingType) {
+                return this.fieldSpecName();
             }
         },
 
@@ -71,6 +92,16 @@ final class SqlConstants {
             void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, SqlBuilder sqlBuilder) {
                 sqlBuilder.append(VIRTUAL_VERSION_COUNT);
             }
+
+            @Override
+            AggregationFunction aggregationFunctionFor(ReadingType readingType) {
+                return AggregationFunction.MIN;
+            }
+
+            @Override
+            String aggregatedValue(ReadingType readingType) {
+                return this.fieldSpecName();
+            }
         },
 
         /**
@@ -82,6 +113,16 @@ final class SqlConstants {
             void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, SqlBuilder sqlBuilder) {
                 sqlBuilder.append(VIRTUAL_RECORD_TIME);
             }
+
+            @Override
+            AggregationFunction aggregationFunctionFor(ReadingType readingType) {
+                return AggregationFunction.MAX;
+            }
+
+            @Override
+            String aggregatedValue(ReadingType readingType) {
+                return this.fieldSpecName();
+            }
         },
 
         /**
@@ -91,8 +132,15 @@ final class SqlConstants {
         PROCESSSTATUS("processStatus", RecordSpecs.PROCESS_STATUS) {
             @Override
             void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, SqlBuilder sqlBuilder) {
-                // Todo: use all_or construct to aggregate the process status flags
-                sqlBuilder.append("0");
+                sqlBuilder.append(AggregationFunction.BIT_OR.sqlName());
+                sqlBuilder.append("(");
+                sqlBuilder.append(expressionNode.accept(new ProcessStatusFromExpressionNode()));
+                sqlBuilder.append(")");
+            }
+
+            @Override
+            AggregationFunction aggregationFunctionFor(ReadingType readingType) {
+                return AggregationFunction.BIT_OR;
             }
         },
 
@@ -105,6 +153,11 @@ final class SqlConstants {
             void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, SqlBuilder sqlBuilder) {
                 sqlBuilder.add(expressionNode.accept(new ExpressionNodeToSql()));
             }
+
+            @Override
+            AggregationFunction aggregationFunctionFor(ReadingType readingType) {
+                return AggregationFunction.from(readingType);
+            }
         },
 
         /**
@@ -114,6 +167,16 @@ final class SqlConstants {
             @Override
             void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, SqlBuilder sqlBuilder) {
                 sqlBuilder.append(expressionNode.accept(new LocalDateFromExpressionNode()));
+            }
+
+            @Override
+            AggregationFunction aggregationFunctionFor(ReadingType readingType) {
+                return AggregationFunction.TRUNC;
+            }
+
+            @Override
+            String aggregatedValue(ReadingType readingType) {
+                return this.sqlName() + ", '" + IntervalLength.from(readingType).toOracleTruncFormatModel() + "'";
             }
         };
 
@@ -151,6 +214,35 @@ final class SqlConstants {
 
         abstract void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, SqlBuilder sqlBuilder);
 
+        /**
+         * Append the appropriate select value for the specified {@link ReadingType}
+         * for all TimeSeriesColumnNames to the specified SqlBuilder.
+         *
+         * @param readingType The ReadingType
+         * @param sqlBuilder The SqlBuilder
+         */
+        static void appendAllAggregatedSelectValues(ReadingType readingType, SqlBuilder sqlBuilder) {
+            for (TimeSeriesColumnNames columnName : values()) {
+                columnName.appendAsAggregatedSelectValue(readingType, sqlBuilder);
+                if (columnName != LOCALDATE) {
+                    sqlBuilder.append(", ");
+                }
+            }
+        }
+
+        void appendAsAggregatedSelectValue(ReadingType readingType, SqlBuilder sqlBuilder) {
+            sqlBuilder.append(this.aggregationFunctionFor(readingType).sqlName());
+            sqlBuilder.append("(");
+            sqlBuilder.append(this.aggregatedValue(readingType));
+            sqlBuilder.append(")");
+        }
+
+        abstract AggregationFunction aggregationFunctionFor(ReadingType readingType);
+
+        String aggregatedValue(ReadingType readingType) {
+            return this.sqlName();
+        }
+
         static String[] names() {
             String[] names = new String[values().length];
             int i = 0;
@@ -160,6 +252,7 @@ final class SqlConstants {
             }
             return names;
         }
+
     }
 
     // Hide constructor for class that only contains definitions of constants

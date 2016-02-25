@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.time.Duration;
 import java.time.Period;
@@ -22,7 +23,13 @@ public enum IntervalLength {
     MINUTE1(Duration.ofMinutes(1)) {
         @Override
         Set<IntervalLength> multiples() {
-            return EnumSet.allOf(IntervalLength.class);
+            return EnumSet.of(
+                    IntervalLength.MINUTE1,
+                    IntervalLength.HOUR1,
+                    IntervalLength.DAY1,
+                    IntervalLength.WEEK1,
+                    IntervalLength.MONTH1,
+                    IntervalLength.YEAR1);
         }
     },
     MINUTE2(Duration.ofMinutes(2)) {
@@ -30,18 +37,7 @@ public enum IntervalLength {
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE2,
-                    IntervalLength.MINUTE4,
-                    IntervalLength.MINUTE6,
-                    IntervalLength.MINUTE10,
-                    IntervalLength.MINUTE12,
-                    IntervalLength.MINUTE20,
-                    IntervalLength.MINUTE30,
                     IntervalLength.HOUR1,
-                    IntervalLength.HOUR2,
-                    IntervalLength.HOUR3,
-                    IntervalLength.HOUR4,
-                    IntervalLength.HOUR6,
-                    IntervalLength.HOUR12,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -53,16 +49,7 @@ public enum IntervalLength {
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE3,
-                    IntervalLength.MINUTE6,
-                    IntervalLength.MINUTE12,
-                    IntervalLength.MINUTE15,
-                    IntervalLength.MINUTE30,
                     IntervalLength.HOUR1,
-                    IntervalLength.HOUR2,
-                    IntervalLength.HOUR3,
-                    IntervalLength.HOUR4,
-                    IntervalLength.HOUR6,
-                    IntervalLength.HOUR12,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -74,14 +61,7 @@ public enum IntervalLength {
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE4,
-                    IntervalLength.MINUTE12,
-                    IntervalLength.MINUTE20,
                     IntervalLength.HOUR1,
-                    IntervalLength.HOUR2,
-                    IntervalLength.HOUR3,
-                    IntervalLength.HOUR4,
-                    IntervalLength.HOUR6,
-                    IntervalLength.HOUR12,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -93,16 +73,7 @@ public enum IntervalLength {
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE5,
-                    IntervalLength.MINUTE10,
-                    IntervalLength.MINUTE15,
-                    IntervalLength.MINUTE20,
-                    IntervalLength.MINUTE30,
                     IntervalLength.HOUR1,
-                    IntervalLength.HOUR2,
-                    IntervalLength.HOUR3,
-                    IntervalLength.HOUR4,
-                    IntervalLength.HOUR6,
-                    IntervalLength.HOUR12,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -114,14 +85,7 @@ public enum IntervalLength {
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE6,
-                    IntervalLength.MINUTE12,
-                    IntervalLength.MINUTE30,
                     IntervalLength.HOUR1,
-                    IntervalLength.HOUR2,
-                    IntervalLength.HOUR3,
-                    IntervalLength.HOUR4,
-                    IntervalLength.HOUR6,
-                    IntervalLength.HOUR12,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -133,14 +97,7 @@ public enum IntervalLength {
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE10,
-                    IntervalLength.MINUTE20,
-                    IntervalLength.MINUTE30,
                     IntervalLength.HOUR1,
-                    IntervalLength.HOUR2,
-                    IntervalLength.HOUR3,
-                    IntervalLength.HOUR4,
-                    IntervalLength.HOUR6,
-                    IntervalLength.HOUR12,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -153,11 +110,6 @@ public enum IntervalLength {
             return EnumSet.of(
                     IntervalLength.MINUTE12,
                     IntervalLength.HOUR1,
-                    IntervalLength.HOUR2,
-                    IntervalLength.HOUR3,
-                    IntervalLength.HOUR4,
-                    IntervalLength.HOUR6,
-                    IntervalLength.HOUR12,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -169,13 +121,7 @@ public enum IntervalLength {
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.MINUTE15,
-                    IntervalLength.MINUTE30,
                     IntervalLength.HOUR1,
-                    IntervalLength.HOUR2,
-                    IntervalLength.HOUR3,
-                    IntervalLength.HOUR4,
-                    IntervalLength.HOUR6,
-                    IntervalLength.HOUR12,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -188,11 +134,6 @@ public enum IntervalLength {
             return EnumSet.of(
                     IntervalLength.MINUTE20,
                     IntervalLength.HOUR1,
-                    IntervalLength.HOUR2,
-                    IntervalLength.HOUR3,
-                    IntervalLength.HOUR4,
-                    IntervalLength.HOUR6,
-                    IntervalLength.HOUR12,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -205,11 +146,6 @@ public enum IntervalLength {
             return EnumSet.of(
                     IntervalLength.MINUTE30,
                     IntervalLength.HOUR1,
-                    IntervalLength.HOUR2,
-                    IntervalLength.HOUR3,
-                    IntervalLength.HOUR4,
-                    IntervalLength.HOUR6,
-                    IntervalLength.HOUR12,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -221,11 +157,6 @@ public enum IntervalLength {
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.HOUR1,
-                    IntervalLength.HOUR2,
-                    IntervalLength.HOUR3,
-                    IntervalLength.HOUR4,
-                    IntervalLength.HOUR6,
-                    IntervalLength.HOUR12,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -242,9 +173,6 @@ public enum IntervalLength {
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.HOUR2,
-                    IntervalLength.HOUR4,
-                    IntervalLength.HOUR6,
-                    IntervalLength.HOUR12,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -256,8 +184,6 @@ public enum IntervalLength {
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.HOUR3,
-                    IntervalLength.HOUR6,
-                    IntervalLength.HOUR12,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -269,7 +195,6 @@ public enum IntervalLength {
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.HOUR4,
-                    IntervalLength.HOUR12,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -281,7 +206,6 @@ public enum IntervalLength {
         Set<IntervalLength> multiples() {
             return EnumSet.of(
                     IntervalLength.HOUR6,
-                    IntervalLength.HOUR12,
                     IntervalLength.DAY1,
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
@@ -401,7 +325,17 @@ public enum IntervalLength {
 
     /**
      * Returns all the multiples of this IntervalLength,
-     * i.e. all the IntervalLength to which this one can be multiplied.
+     * i.e. all the IntervalLength to which this one
+     * can be multiplied with the trunc aggregation function.
+     * This is not necessarily the same as what you would
+     * expect from mathematical multiplication.
+     * As an example: 15min values can be multiplied to
+     * 30min values but the trunc function can only
+     * trunc the timestamp of one such 15min value
+     * to an hour. So in fact all 15 min values within
+     * the same hour are mapped to the same timestamp
+     * by the trunc function and therefore they are all
+     * grouped together for aggregation purposes.
      *
      * @return The multiples
      */
@@ -417,6 +351,12 @@ public enum IntervalLength {
      */
     String toOracleTruncFormatModel() {
         throw new UnsupportedOperationException(this.name() + " is not supported by the oracle trunc function");
+    }
+
+    void appendOracleFormatModelTo(SqlBuilder sqlBuilder) {
+        sqlBuilder.append("'");
+        sqlBuilder.append(this.toOracleTruncFormatModel());
+        sqlBuilder.append("'");
     }
 
     public static IntervalLength from(ReadingType readingType) {

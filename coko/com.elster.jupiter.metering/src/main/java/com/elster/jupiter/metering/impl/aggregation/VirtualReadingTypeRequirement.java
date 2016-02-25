@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.Range;
@@ -70,14 +71,50 @@ public class VirtualReadingTypeRequirement {
 
     void appendDefinitionTo(ClauseAwareSqlBuilder sqlBuilder) {
         SqlBuilder withClauseBuilder = sqlBuilder.with(this.sqlName(), Optional.of(sqlComment()), SqlConstants.TimeSeriesColumnNames.names());
-        withClauseBuilder.add(
+        if (this.aggregationIsRequired()) {
+            this.appendDefinitionWithAggregation(withClauseBuilder);
+        } else {
+            this.appendDefinitionWithoutAggregation(withClauseBuilder);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void appendDefinitionWithAggregation(SqlBuilder sqlBuilder) {
+        sqlBuilder.append("SELECT ");
+        SqlConstants.TimeSeriesColumnNames
+                .appendAllAggregatedSelectValues(
+                        this.deliverable.getReadingType(),
+                        sqlBuilder);
+        sqlBuilder.append("  FROM (");
+        sqlBuilder.add(
                 this.getPreferredChannel()
                         .getTimeSeries()
                         .getRawValuesSql(
                                 this.rawDataPeriod,
-                                SqlConstants.TimeSeriesColumnNames.LOCALDATE.fieldSpecName(),
-                                SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.fieldSpecName(),
-                                SqlConstants.TimeSeriesColumnNames.VALUE.fieldSpecName()));
+                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS),
+                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
+                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
+        sqlBuilder.append(") rawdata GROUP BY TRUNC(");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
+        sqlBuilder.append(", ");
+        IntervalLength.from(this.deliverable.getReadingType()).appendOracleFormatModelTo(sqlBuilder);
+        sqlBuilder.append(")");
+    }
+
+    @SuppressWarnings("unchecked")
+    private void appendDefinitionWithoutAggregation(SqlBuilder sqlBuilder) {
+        sqlBuilder.add(
+                this.getPreferredChannel()
+                        .getTimeSeries()
+                        .getRawValuesSql(
+                                this.rawDataPeriod,
+                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS),
+                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
+                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
+    }
+
+    private Pair<String, String> toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames columnName) {
+        return Pair.of(columnName.fieldSpecName(), columnName.sqlName());
     }
 
     private ChannelContract getPreferredChannel() {
@@ -92,6 +129,10 @@ public class VirtualReadingTypeRequirement {
                     .getPreferredChannel(this.targetIntervalLength)
                     .map(ChannelContract.class::cast)
                     .orElseThrow(() -> new IllegalStateException("Calculation of preferred channel failed before"));
+    }
+
+    private boolean aggregationIsRequired() {
+        return IntervalLength.from(this.getPreferredChannel().getMainReadingType()) != IntervalLength.from(this.deliverable.getReadingType());
     }
 
     void appendReferenceTo(SqlBuilder sqlBuilder) {

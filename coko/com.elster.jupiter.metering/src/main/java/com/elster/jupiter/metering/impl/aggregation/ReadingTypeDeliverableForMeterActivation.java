@@ -132,19 +132,15 @@ class ReadingTypeDeliverableForMeterActivation {
         if (!this.resultValueNeedsAggregation()) {
             this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder);
         } else {
-            sqlBuilder.append(this.defaultValueAggregationFunctionFor(this.deliverable.getReadingType()));
+            sqlBuilder.append(this.defaultValueAggregationFunctionFor(this.deliverable.getReadingType()).sqlName());
             sqlBuilder.append("(");
             this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder);
             sqlBuilder.append(")");
         }
     }
 
-    private String defaultValueAggregationFunctionFor(ReadingType readingType) {
-        /* Todo: consider the unit of the ReadingType
-         *       flow units will use AVG
-         *       volume units will use SUM
-         */
-        return "SUM";
+    private AggregationFunction defaultValueAggregationFunctionFor(ReadingType readingType) {
+        return AggregationFunction.from(readingType);
     }
 
     private void appendTimelineToSelectClause(SqlBuilder sqlBuilder) {
