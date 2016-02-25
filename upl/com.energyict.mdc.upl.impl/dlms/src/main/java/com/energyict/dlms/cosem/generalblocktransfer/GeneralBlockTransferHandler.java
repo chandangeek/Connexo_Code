@@ -329,21 +329,24 @@ public class GeneralBlockTransferHandler {
             byte cipheredTag = getResponseData()[LOCATION_SECURED_XDLMS_APDU_TAG];
             if (cipheredTag == DLMSCOSEMGlobals.GENERAL_SIGNING) {
                 responseData = unwrapGeneralSigning(secureConnection, getResponseData());
+                cipheredTag = getResponseData()[LOCATION_SECURED_XDLMS_APDU_TAG];
             }
 
             /* Check if security is applied or not */
-            if (!secureConnection.getAso().getSecurityContext().getSecurityPolicy().isResponsePlain()) {
-                cipheredTag = getResponseData()[LOCATION_SECURED_XDLMS_APDU_TAG];
-                if (XdlmsApduTags.contains(cipheredTag)) {
-                    this.responseData = decrypt(secureConnection, getResponseData());
-                } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING || cipheredTag == DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING) {
-                    this.responseData = decryptGloOrDedGeneralCiphering(secureConnection, getResponseData());
-                } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_CIPHERING) {
-                    this.responseData = decryptGeneralCiphering(secureConnection, getResponseData());
-                } else {
-                    IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + getResponseData()[LOCATION_SECURED_XDLMS_APDU_TAG]);
-                    throw ConnectionCommunicationException.unExpectedProtocolError(ioException);
+            if (XdlmsApduTags.isPlainTag(cipheredTag)) {
+                if (!secureConnection.getAso().getSecurityContext().getSecurityPolicy().isResponsePlain()) {
+                    ProtocolException protocolException = new ProtocolException("Received an unsecured response, this is not allowed according to the configured (minimum) security policy for responses. Aborting.");
+                    throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
                 }
+            } else if (XdlmsApduTags.contains(cipheredTag)) {
+                this.responseData = decrypt(secureConnection, getResponseData());
+            } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING || cipheredTag == DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING) {
+                this.responseData = decryptGloOrDedGeneralCiphering(secureConnection, getResponseData());
+            } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_CIPHERING) {
+                this.responseData = decryptGeneralCiphering(secureConnection, getResponseData());
+            } else {
+                IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + getResponseData()[LOCATION_SECURED_XDLMS_APDU_TAG]);
+                throw ConnectionCommunicationException.unExpectedProtocolError(ioException);
             }
         }
     }
