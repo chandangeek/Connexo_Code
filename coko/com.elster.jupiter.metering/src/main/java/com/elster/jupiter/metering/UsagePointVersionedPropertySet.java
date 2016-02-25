@@ -21,8 +21,18 @@ public interface UsagePointVersionedPropertySet extends UsagePointPropertySet {
      */
     CustomPropertySetValues getVersionValues(Instant anyTimeInVersionInterval);
 
+    @Override
     /**
-     * SSets property set values for the specific version. It also updates version's boundaries by effective range from values.
+     * Sets property set values for active version. The same as #setVersionValues(now(), value).
+     *
+     * @param value custom property set values
+     * @see #setVersionValues(Instant, CustomPropertySetValues)
+     */
+    void setValues(CustomPropertySetValues value);
+
+    /**
+     * Sets property set values for the specific version. It also updates version's boundaries by effective range from values.
+     * If the anyTimeInVersionInterval parameter is null then new version will be created
      *
      * @param anyTimeInVersionInterval pointer for the specific property set version
      * @param values                   property set values

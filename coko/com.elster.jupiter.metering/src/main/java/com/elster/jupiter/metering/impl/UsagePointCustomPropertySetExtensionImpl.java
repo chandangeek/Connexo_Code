@@ -231,7 +231,13 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
                 throw UsagePointCustomPropertySetValuesManageException
                         .customPropertySetIsNotEditableByUser(thesaurus, getCustomPropertySet().getName());
             }
-            customPropertySetService.setValuesVersionFor(getCustomPropertySet(), getUsagePoint(), values, values.getEffectiveRange(), anyTimeInVersionInterval);
+            if (anyTimeInVersionInterval == null) {
+                // create new version
+                customPropertySetService.setValuesVersionFor(getCustomPropertySet(), getUsagePoint(), values, values.getEffectiveRange());
+            } else {
+                // update existing version
+                customPropertySetService.setValuesVersionFor(getCustomPropertySet(), getUsagePoint(), values, values.getEffectiveRange(), anyTimeInVersionInterval);
+            }
             usagePoint.touch();
         }
 
