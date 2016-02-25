@@ -93,7 +93,7 @@ public class UsagePointValidationResource {
         for (ValidationRuleSet ruleSet : linkedRuleSets) {
             boolean isActive = (!activation.isPresent()) || activeRuleSets.contains(ruleSet);
             UsagePointValidationRuleSetInfo info = new UsagePointValidationRuleSetInfo(ruleSet, isActive);
-            info.usagePoint = new UsagePointInfo(usagePoint);
+            info.usagePoint = usagePointInfoFactory.from(usagePoint);
             result.add(info);
         }
     }

@@ -32,11 +32,11 @@ public class WaterUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
         this.limiter = detail.isLimiter();
         this.loadLimiterType = detail.getLoadLimiterType();
         this.loadLimit = detail.getLoadLimit();
-        this.bypass = detail.getBypass().isPresent() ? detail.getBypass().get() : null;
+        this.bypass = detail.getBypass().orElse(null);
         this.bypassStatus = detail.getBypassStatus();
-        this.valve = detail.getValve().isPresent() ? detail.getValve().get() : null;
-        this.capped = detail.getCapped().isPresent() ? detail.getCapped().get() : null;
-        this.clamped = detail.getClamped().isPresent() ? detail.getClamped().get() : null;
+        this.valve = detail.getValve().orElse(null);
+        this.capped = detail.getCapped().orElse(null);
+        this.clamped = detail.getClamped().orElse(null);
     }
 
     @Override

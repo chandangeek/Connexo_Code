@@ -24,9 +24,9 @@ public class HeatUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
         super(detail);
         this.physicalCapacity = detail.getPhysicalCapacity();
         this.pressure = detail.getPressure();
-        this.bypass = detail.getBypass().isPresent() ? detail.getBypass().get() : null;
+        this.bypass = detail.getBypass().orElse(null);
         this.bypassStatus = detail.getBypassStatus();
-        this.valve = detail.getValve().isPresent() ? detail.getValve().get() : null;
+        this.valve = detail.getValve().orElse(null);
         this.interruptible = detail.isInterruptible();
     }
 

@@ -1,5 +1,6 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import java.time.Clock;
+import java.util.Arrays;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM,
         include = JsonTypeInfo.As.PROPERTY,
@@ -23,7 +25,7 @@ public abstract class BaseUsagePointDetailsInfo {
     }
 
     public BaseUsagePointDetailsInfo(UsagePointDetail detail) {
-        this.collar = detail.getCollar().isPresent() ? detail.getCollar().get() : null;
+        this.collar = detail.getCollar().orElse(null);
     }
 
     public abstract UsagePointDetailBuilder getUsagePointDetailBuilder(UsagePoint usagePoint, Clock clock);
@@ -45,13 +47,13 @@ public abstract class BaseUsagePointDetailsInfo {
         @Override
         public String idFromValueAndType(Object o, Class<?> aClass) {
             if (aClass.equals(ElectricityUsagePointDetailsInfo.class)) {
-                return "ELECTRICITY";
+                return ServiceKind.ELECTRICITY.name();
             } else if (aClass.equals(GasUsagePointDetailsInfo.class)) {
-                return "GAS";
+                return ServiceKind.GAS.name();
             } else if (aClass.equals(WaterUsagePointDetailsInfo.class)) {
-                return "WATER";
+                return ServiceKind.WATER.name();
             } else if (aClass.equals(HeatUsagePointDetailsInfo.class)) {
-                return "HEAT";
+                return ServiceKind.HEAT.name();
             } else {
                 throw new IllegalStateException("class " + aClass + " is not found");
             }
@@ -65,18 +67,19 @@ public abstract class BaseUsagePointDetailsInfo {
         @Override
         public JavaType typeFromId(String s) {
             try {
+                ServiceKind kind = Arrays.stream(ServiceKind.values()).filter(k -> k.name().equals(s)).findAny().orElse(ServiceKind.OTHER);
                 Class<?> clazz;
-                switch (s) {
-                    case "ELECTRICITY":
+                switch (kind) {
+                    case ELECTRICITY:
                         clazz = Class.forName(ElectricityUsagePointDetailsInfo.class.getName());
                         break;
-                    case "GAS":
+                    case GAS:
                         clazz = Class.forName(GasUsagePointDetailsInfo.class.getName());
                         break;
-                    case "WATER":
+                    case WATER:
                         clazz = Class.forName(WaterUsagePointDetailsInfo.class.getName());
                         break;
-                    case "HEAT":
+                    case HEAT:
                         clazz = Class.forName(HeatUsagePointDetailsInfo.class.getName());
                         break;
                     default:

@@ -69,7 +69,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     @Override
     public UsagePointInfo from(UsagePoint usagePoint) {
-        UsagePointInfo info = new UsagePointInfo(usagePoint);
+        UsagePointInfo info = new UsagePointInfo();
         info.id = usagePoint.getId();
         info.mRID = usagePoint.getMRID();
         info.serviceLocationId = usagePoint.getServiceLocationId();
@@ -96,8 +96,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 info.techInfo = new HeatUsagePointDetailsInfo((HeatDetail) detailHolder.get());
             }
         }
-        info.metrologyConfiguration = usagePoint.getMetrologyConfiguration()
-                .isPresent() ? new MetrologyConfigurationInfo(usagePoint.getMetrologyConfiguration().get()) : null;
+        usagePoint.getMetrologyConfiguration()
+                .ifPresent(mc ->  info.metrologyConfiguration = new MetrologyConfigurationInfo(mc));
 
         UsagePointCustomPropertySetExtension customPropertySetExtension = usagePoint.forCustomProperties();
 
@@ -105,6 +105,9 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .stream()
                 .map(rcps -> customPropertySetInfoFactory.getFullInfo(rcps, rcps.getValues()))
                 .collect(Collectors.toList());
+
+        usagePoint.getServiceLocation().ifPresent(sl -> info.serviceLocation = new ServiceLocationInfo(sl));
+
         return info;
     }
 

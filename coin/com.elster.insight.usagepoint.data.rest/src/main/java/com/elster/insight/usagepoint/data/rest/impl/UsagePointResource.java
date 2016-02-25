@@ -168,7 +168,6 @@ public class UsagePointResource {
     public UsagePointInfo getUsagePoint(@PathParam("mrid") String mRid, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(mRid, securityContext);
         UsagePointInfo result = usagePointInfoFactory.from(usagePoint);
-        result.addServiceLocationInfo();
         return result;
     }
 
