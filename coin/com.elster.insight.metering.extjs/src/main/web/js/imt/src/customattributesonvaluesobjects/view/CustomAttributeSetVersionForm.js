@@ -58,14 +58,16 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                 xtype: 'form',
                 ui: 'large',
                 title: me.router.getRoute().getTitle(),
-                width: 650,
+                defaults: {
+                    labelWidth: 260,
+                    width: 605
+                },
                 items: [
                     {
                         xtype: 'uni-form-error-message',
                         itemId: 'form-errors',
                         name: 'errors',
                         hidden: true,
-                        width: 600,
                         margin: '0 0 0 0'
                     },
                     {
@@ -85,7 +87,12 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                     {
                         margin: '20 0 0 0',
                         xtype: 'property-form',
-                        itemId: 'custom-attribute-set-version-property-form-id'
+                        itemId: 'custom-attribute-set-version-property-form-id',
+                        width: 635,
+                        defaults: {
+                            labelWidth: 260,
+                            width: 327
+                        }
                     },
                     {
                         xtype: 'container',
