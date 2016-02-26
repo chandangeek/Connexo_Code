@@ -248,6 +248,26 @@ public class ServiceCallIT {
     }
 
     @Test
+    @Expected(value = InvalidPropertySetDomainTypeException.class)
+    public void testAddIllegalCustomPropertySetToServiceCallType() throws Exception {
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallType serviceCallType = null;
+            try {
+                RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySet(ServiceCallTypeDomainExtension.class
+                        .getName()).get();
+                serviceCallType = serviceCallService.createServiceCallType("CustomTest", "CustomVersion")
+                        .customPropertySet(customPropertySet)
+                        .add();
+            } catch (InvalidPropertySetDomainTypeException e) {
+                fail("Should not have had an exception here");
+            }
+            RegisteredCustomPropertySet wrongType = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.servicecall.impl.ServiceCallLifeCycleDomainExtension")
+                    .get();
+            serviceCallType.addCustomPropertySet(wrongType);
+        }
+    }
+
+    @Test
     public void testUpdateServiceCallTypeLogLevel() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
             serviceCallService.createServiceCallType("primer", "v1").add();
