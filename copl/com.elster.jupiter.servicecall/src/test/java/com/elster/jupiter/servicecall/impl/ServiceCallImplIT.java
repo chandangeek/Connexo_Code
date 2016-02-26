@@ -210,7 +210,77 @@ public class ServiceCallImplIT {
         assertThat(serviceCall.getOrigin()).contains("CST");
         assertThat((Optional<Object>) serviceCall.getTargetObject()).contains(person);
 
+        extension = serviceCall.getExtensionFor(customPropertySet).get();
+
         assertThat(extension.getServiceCall()).isEqualTo(serviceCall);
+        assertThat(extension.getValue()).isEqualTo(BigDecimal.valueOf(65456));
+    }
+
+    @Test
+    public void createAServiceCallWithAChild() {
+        MyPersistentExtension parentExtension = new MyPersistentExtension();
+        parentExtension.setValue(BigDecimal.valueOf(65456));
+        MyPersistentExtension extension = new MyPersistentExtension();
+        extension.setValue(BigDecimal.valueOf(65456));
+
+        ServiceCall parentServiceCall = null;
+        ServiceCall serviceCall = null;
+        try (TransactionContext context = transactionService.getContext()) {
+            parentServiceCall = serviceCallType.newServiceCall()
+                    .externalReference("external")
+                    .origin("CST")
+                    .extendedWith(parentExtension)
+                    .create();
+            serviceCall = parentServiceCall.newChildCall(serviceCallType)
+                    .externalReference("externalChild")
+                    .origin("CSTchild")
+                    .targetObject(person)
+                    .extendedWith(extension)
+                    .create();
+            context.commit();
+        }
+
+        serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
+        parentServiceCall = serviceCallService.getServiceCall(parentServiceCall.getId()).get();
+
+        assertThat(serviceCall.getState()).isEqualTo(DefaultState.CREATED);
+        assertThat(serviceCall.getExternalReference()).contains("externalChild");
+        assertThat(serviceCall.getOrigin()).contains("CSTchild");
+        assertThat((Optional<Object>) serviceCall.getTargetObject()).contains(person);
+        assertThat(serviceCall.getParent()).contains(parentServiceCall);
+
+        extension = serviceCall.getExtensionFor(customPropertySet).get();
+
+        assertThat(extension.getServiceCall()).isEqualTo(serviceCall);
+        assertThat(extension.getValue()).isEqualTo(BigDecimal.valueOf(65456));
+    }
+
+    @Test
+    public void createAServiceCallWithoutTargetObject() {
+        MyPersistentExtension extension = new MyPersistentExtension();
+        extension.setValue(BigDecimal.valueOf(65456));
+
+        ServiceCall serviceCall = null;
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCall = serviceCallType.newServiceCall()
+                    .externalReference("external")
+                    .origin("CST")
+                    .extendedWith(extension)
+                    .create();
+            context.commit();
+        }
+
+        serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
+
+        assertThat(serviceCall.getState()).isEqualTo(DefaultState.CREATED);
+        assertThat(serviceCall.getExternalReference()).contains("external");
+        assertThat(serviceCall.getOrigin()).contains("CST");
+        assertThat((Optional<Object>) serviceCall.getTargetObject()).isEmpty();
+
+        extension = serviceCall.getExtensionFor(customPropertySet).get();
+
+        assertThat(extension.getServiceCall()).isEqualTo(serviceCall);
+        assertThat(extension.getValue()).isEqualTo(BigDecimal.valueOf(65456));
     }
 
     static class MyPersistentExtension implements PersistentDomainExtension<ServiceCall> {
@@ -230,7 +300,7 @@ public class ServiceCallImplIT {
         @Override
         public void copyFrom(ServiceCall domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
             serviceCall.set(domainInstance);
-            propertyValues.getProperty("value");
+            value = (BigDecimal) propertyValues.getProperty("value");
         }
 
         @Override
