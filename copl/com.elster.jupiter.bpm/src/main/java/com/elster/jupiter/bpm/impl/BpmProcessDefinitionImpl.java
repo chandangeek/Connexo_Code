@@ -1,14 +1,20 @@
 package com.elster.jupiter.bpm.impl;
 
-import com.elster.jupiter.bpm.*;
+import com.elster.jupiter.bpm.BpmProcessDefinition;
+import com.elster.jupiter.bpm.BpmProcessDeviceState;
+import com.elster.jupiter.bpm.BpmProcessPrivilege;
+import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.HasValidProperties;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +23,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-
+@HasValidProperties(groups = {Save.Create.class, Save.Update.class}, requiredPropertyMissingMessage = "{" + MessageSeeds.Constants.FIELD_CAN_NOT_BE_EMPTY + "}")
 public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
 
     private final BpmService bpmService;
@@ -29,7 +35,9 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     private String version;
     private String status;
     @Valid
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_CAN_NOT_BE_EMPTY + "}")
     private List<BpmProcessPrivilege> processPrivileges = new ArrayList<>();
+
     @Valid
     private List<BpmProcessProperty> properties = new ArrayList<>();
 

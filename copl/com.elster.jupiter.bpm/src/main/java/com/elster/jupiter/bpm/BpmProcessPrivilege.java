@@ -15,6 +15,8 @@ public interface BpmProcessPrivilege {
 
     long getProcessId();
 
+    void setProcessId(long processId);
+
     void persist();
 
     void delete();

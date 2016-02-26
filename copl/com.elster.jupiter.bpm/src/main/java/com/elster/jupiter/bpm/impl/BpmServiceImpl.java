@@ -230,6 +230,11 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     }
 
     @Override
+    public BpmProcessPrivilege prepareBpmProcessPrivilege(String privilegeName, String application) {
+        return BpmProcessPrivilegeImpl.from(dataModel, privilegeName, application);
+    }
+
+    @Override
     public BpmProcessPrivilege createBpmProcessPrivilege(BpmProcessDefinition bpmProcessDefinition, String privilegeName, String application) {
         return BpmProcessPrivilegeImpl.from(dataModel, bpmProcessDefinition, privilegeName, application);
     }
