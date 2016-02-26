@@ -210,11 +210,11 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Override
     public void removeValidationRuleSet(MetrologyConfiguration metrologyConfiguration, ValidationRuleSet validationRuleSet) {
         List<MetrologyConfigurationValidationRuleSetUsage> atMostOneUsage =
-            this.dataModel
-                .mapper(MetrologyConfigurationValidationRuleSetUsage.class)
-                .find(
-                    MetrologyConfigurationValidationRuleSetUsageImpl.Fields.METROLOGY_CONFIGURATION.fieldName(), metrologyConfiguration,
-                    MetrologyConfigurationValidationRuleSetUsageImpl.Fields.VALIDATION_RULE_SET.fieldName(), validationRuleSet);
+                this.dataModel
+                        .mapper(MetrologyConfigurationValidationRuleSetUsage.class)
+                        .find(
+                                MetrologyConfigurationValidationRuleSetUsageImpl.Fields.METROLOGY_CONFIGURATION.fieldName(), metrologyConfiguration,
+                                MetrologyConfigurationValidationRuleSetUsageImpl.Fields.VALIDATION_RULE_SET.fieldName(), validationRuleSet);
         if (atMostOneUsage.isEmpty()) {
             return; // ValidationRuletSet was not added to MetrologyConfiguration before
         } else {
@@ -226,7 +226,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Override
     public List<ValidationRuleSet> getValidationRuleSets(MetrologyConfiguration metrologyConfiguration) {
         Condition condition = where(MetrologyConfigurationValidationRuleSetUsageImpl.Fields.INTERVAL.fieldName()).isEffective()
-                         .and(where(MetrologyConfigurationValidationRuleSetUsageImpl.Fields.METROLOGY_CONFIGURATION.fieldName()).isEqualTo(metrologyConfiguration));
+                .and(where(MetrologyConfigurationValidationRuleSetUsageImpl.Fields.METROLOGY_CONFIGURATION.fieldName()).isEqualTo(metrologyConfiguration));
         return this.dataModel
                 .query(MetrologyConfigurationValidationRuleSetUsage.class)
                 .select(condition)
@@ -234,5 +234,4 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 .map(MetrologyConfigurationValidationRuleSetUsage::getValidationRuleSet)
                 .collect(Collectors.toList());
     }
-
 }

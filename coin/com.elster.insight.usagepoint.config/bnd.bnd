@@ -5,5 +5,4 @@ Private-Package:  \
 	com.elster.insight.usagepoint.config.impl.errors, \
 	com.elster.insight.usagepoint.config.impl.validation
 Export-Package:  \
-	com.elster.insight.usagepoint.config, \
-	com.elster.insight.usagepoint.config.security
+	com.elster.insight.usagepoint.config
