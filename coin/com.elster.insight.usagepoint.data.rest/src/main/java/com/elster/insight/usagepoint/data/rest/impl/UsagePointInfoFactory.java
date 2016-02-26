@@ -24,6 +24,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -113,7 +114,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     @Override
     public List<PropertyDescriptionInfo> modelStructure() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

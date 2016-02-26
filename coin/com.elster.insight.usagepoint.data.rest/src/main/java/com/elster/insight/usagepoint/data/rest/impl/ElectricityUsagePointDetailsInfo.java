@@ -2,6 +2,7 @@ package com.elster.insight.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.metering.ElectricityDetail;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.util.units.Quantity;
@@ -35,6 +36,11 @@ public class ElectricityUsagePointDetailsInfo extends BaseUsagePointDetailsInfo 
         this.loadLimiterType = detail.getLoadLimiterType();
         this.loadLimit = detail.getLoadLimit();
         this.interruptible = detail.isInterruptible();
+    }
+
+    @Override
+    public ServiceKind getKind() {
+        return ServiceKind.ELECTRICITY;
     }
 
     @Override

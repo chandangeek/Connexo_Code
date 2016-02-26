@@ -1,6 +1,7 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.BypassStatus;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.WaterDetail;
@@ -40,6 +41,11 @@ public class WaterUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
     }
 
     @Override
+    public ServiceKind getKind() {
+        return ServiceKind.WATER;
+    }
+
+    @Override
     public UsagePointDetailBuilder getUsagePointDetailBuilder(UsagePoint usagePoint, Clock clock) {
         return usagePoint.newWaterDetailBuilder(clock.instant())
                 .withCollar(collar)
@@ -55,4 +61,6 @@ public class WaterUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
                 .withCapped(capped)
                 .withClamped(clamped);
     }
+
+
 }

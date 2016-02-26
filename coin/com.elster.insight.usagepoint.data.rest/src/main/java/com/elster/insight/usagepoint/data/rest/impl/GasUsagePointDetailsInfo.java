@@ -3,6 +3,7 @@ package com.elster.insight.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.GasDetail;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.util.units.Quantity;
@@ -40,6 +41,11 @@ public class GasUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
         this.capped = detail.getCapped().orElse(null);
         this.clamped = detail.getClamped().orElse(null);
         this.interruptible = detail.isInterruptible();
+    }
+
+    @Override
+    public ServiceKind getKind() {
+        return ServiceKind.GAS;
     }
 
     @Override
