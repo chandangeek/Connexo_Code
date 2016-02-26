@@ -5,10 +5,8 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.*;
-import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeDomainExtension;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -125,10 +123,6 @@ public class ServiceCallsCommands {
     public void createServiceCall(String typeName, String typeVersion, String origin, String externalReference) {
         threadPrincipalService.set(() -> "Console");
 
-        ServiceCallTypeDomainExtension extension = new ServiceCallTypeDomainExtension();
-        extension.setTestBoolean(true);
-        extension.setTestString("Calisto");
-
         try (TransactionContext context = transactionService.getContext()) {
             serviceCallService.getServiceCallTypes().find().stream()
                     .filter(sct -> sct.getName().equals(typeName) && sct.getVersionName().equals(typeVersion))
@@ -136,7 +130,6 @@ public class ServiceCallsCommands {
                     .map(sct -> sct.newServiceCall()
                             .origin(origin)
                             .externalReference(externalReference)
-                            .extendedWith(extension)
                             .create())
                     .map(sc -> sc.getId())
                     .ifPresent(System.out::println);
