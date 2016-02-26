@@ -40,7 +40,7 @@ Ext.define('Imt.usagepointhistory.view.VersionsOverview', {
                         hidden: true,
                         action: 'moveToAddVersionPage',
                         type: me.type,
-                        privileges: Imt.privileges.UsagePoint.adminTimeSlicedCps
+                        privileges: Imt.privileges.UsagePoint.hasFullAdministrateTimeSlicedCps()
                     }
                 ]
             },

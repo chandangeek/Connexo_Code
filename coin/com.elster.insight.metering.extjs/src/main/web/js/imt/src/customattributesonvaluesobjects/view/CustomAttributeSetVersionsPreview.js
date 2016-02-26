@@ -13,6 +13,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionsP
             {
                 xtype: 'button',
                 hidden: me.hideAction,
+                privileges: Imt.privileges.UsagePoint.admin,
                 text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
                 iconCls: 'x-uni-action-iconD',
                 menu: {

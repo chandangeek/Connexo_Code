@@ -307,7 +307,7 @@ Ext.define('Imt.controller.History', {
                                 customattributesversionsclone: {
                                     title: Uni.I18n.translate('general.clone', 'IMT', 'Clone'),
                                     route: 'customattributes/{customAttributeSetId}/versions/{versionId}/clone',
-                                    privileges: Imt.privileges.UsagePoint.admin,
+                                    privileges: Imt.privileges.UsagePoint.hasFullAdministrateTimeSlicedCps(),
                                     controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
                                     action: 'cloneCustomAttributeVersion',
                                     callback: function (route) {
