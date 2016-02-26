@@ -1,4 +1,4 @@
-package com.elster.insight.common.rest;
+package com.elster.jupiter.mdm.common.rest;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;

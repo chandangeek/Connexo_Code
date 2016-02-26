@@ -1,12 +1,7 @@
-package com.elster.insight.common.rest;
+package com.elster.jupiter.mdm.common.rest;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.util.*;
 
 import static java.lang.Integer.parseInt;
 

@@ -1,6 +1,7 @@
-package com.elster.insight.common.rest;
+package com.elster.jupiter.mdm.common.rest;
 
 import com.elster.jupiter.time.TimeDuration;
+
 import java.util.Optional;
 
 public class TimeDurationInfo {

@@ -1,7 +1,7 @@
-package com.elster.insight.common.rest;
+package com.elster.jupiter.mdm.common.rest;
 
-import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
 
 /**
  */

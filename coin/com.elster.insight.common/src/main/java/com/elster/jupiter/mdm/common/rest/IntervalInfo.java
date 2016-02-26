@@ -1,4 +1,4 @@
-package com.elster.insight.common.rest;
+package com.elster.jupiter.mdm.common.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Range;

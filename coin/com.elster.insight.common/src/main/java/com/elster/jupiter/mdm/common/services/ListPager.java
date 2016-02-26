@@ -1,9 +1,10 @@
-package com.elster.insight.common.services;
+package com.elster.jupiter.mdm.common.services;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

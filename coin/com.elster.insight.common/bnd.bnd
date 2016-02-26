@@ -1,8 +1,8 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package:  \
-	com.elster.insight.common.impl
+	com.elster.jupiter.mdm.common.impl
 Export-Package:  \
-	com.elster.insight.common,\
-	com.elster.insight.common.rest,\
-	com.elster.insight.common.services
+	com.elster.jupiter.mdm.common,\
+	com.elster.jupiter.mdm.common.rest,\
+	com.elster.jupiter.mdm.common.services
