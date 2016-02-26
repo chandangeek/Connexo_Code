@@ -1,7 +1,5 @@
 package com.elster.jupiter.metering.config;
 
-import com.elster.jupiter.metering.impl.config.ExpressionNode;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -27,10 +25,9 @@ public interface MetrologyConfigurationService {
 
     boolean isInUse(MetrologyConfiguration metrologyConfiguration);
 
-    /**
-     * Good for now but will need to be facaded with another API before final release.
-     */
-    Formula newFormula(Formula.Mode mode, ExpressionNode node);
+    Formula newFormula(Formula.Mode mode, FormulaPart formulaPart);
+
+    FormulaBuilder newFormulaBuilder();
 
     /**
      * Good for now but will need to be facaded with another API before final release.

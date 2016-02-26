@@ -5,6 +5,8 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FormulaBuilder;
+import com.elster.jupiter.metering.config.FormulaPart;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.DefaultTranslationKey;
@@ -168,10 +170,15 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     }
 
     @Override
-    public Formula newFormula(Formula.Mode mode, ExpressionNode node) {
-        Formula formula = getDataModel().getInstance(FormulaImpl.class).init(mode, node);
+    public Formula newFormula(Formula.Mode mode, FormulaPart formulaPart) {
+        Formula formula = getDataModel().getInstance(FormulaImpl.class).init(mode, (ExpressionNode) formulaPart);
         formula.save();
         return formula;
+    }
+
+    @Override
+    public FormulaBuilder newFormulaBuilder() {
+        return new FormulaBuilderImpl();
     }
 
     @Override
