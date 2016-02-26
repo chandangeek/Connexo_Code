@@ -151,10 +151,12 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
     loadRecord: function (recordToLoad, recordToSave, startTime, endTime) {
         var me = this;
 
+        recordToSave.beginEdit();
         recordToSave.set('parent', recordToLoad.get('parent'));
         recordToSave.set('version', recordToLoad.get('version'));
         recordToSave.set('objectTypeId', recordToLoad.get('objectTypeId'));
         recordToSave.set('objectTypeVersion', recordToLoad.get('objectTypeVersion'));
+        recordToSave.endEdit();
         me.recordToSave = recordToSave;
         me.down('#custom-attribute-set-version-property-form-id').loadRecord(recordToLoad);
         me.setDateValues(startTime, endTime);
@@ -212,9 +214,11 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
         startDateField.clearInvalid();
         endDateField.clearInvalid();
         propertyForm.updateRecord();
+        record.beginEdit();
         record.propertiesStore = propertyForm.getRecord().properties();
         record.set('startTime', startDate);
         record.set('endTime', endDate);
+        record.endEdit();
         me.minWidth = 1160;
         me.up('viewport').updateLayout();
         overlapContainer.hide();
