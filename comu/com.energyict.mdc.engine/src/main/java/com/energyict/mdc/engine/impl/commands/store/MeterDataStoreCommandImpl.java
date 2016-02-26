@@ -57,6 +57,10 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
         }
     }
 
+    private void logWarning(Warning warning) {
+        getExecutionLogger().addIssue(CompletionCode.Ok, warning, getComTaskExecution());
+    }
+
     @Override
     protected void toJournalMessageDescription(DescriptionBuilder builder, ComServer.LogLevel serverLogLevel) {
 

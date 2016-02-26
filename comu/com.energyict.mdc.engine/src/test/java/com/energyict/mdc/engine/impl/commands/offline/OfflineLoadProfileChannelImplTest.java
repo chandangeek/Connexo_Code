@@ -9,6 +9,8 @@ import com.energyict.mdc.device.config.ChannelSpec;
 
 import org.junit.*;
 
+import java.util.Optional;
+
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -41,6 +43,7 @@ public class OfflineLoadProfileChannelImplTest {
         when(channel.getUnit()).thenReturn(CHANNEL_UNIT);
         when(channel.getLoadProfile()).thenReturn(loadProfile);
         when(channel.getDevice()).thenReturn(device);
+        when(channel.getOverflow()).thenReturn(Optional.empty());
 
         OfflineLoadProfileChannelImpl offlineLoadProfileChannel = new OfflineLoadProfileChannelImpl(channel);
 

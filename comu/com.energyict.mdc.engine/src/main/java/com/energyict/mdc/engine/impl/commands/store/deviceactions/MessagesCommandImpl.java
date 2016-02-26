@@ -21,6 +21,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.tasks.MessagesTask;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -138,16 +139,33 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
     private void updateMessageLists(ComTaskExecution comTaskExecution) {
         this.pendingMessages = new ArrayList<>();
         this.sentMessages = new ArrayList<>();
-        for (OfflineDeviceMessage offlineDeviceMessage : this.device.getAllPendingDeviceMessages()) {
-            if (offlineDeviceMessage.getDeviceId() == comTaskExecution.getDevice().getId()) {    //Only add the messages of the master or the slave, not both
-                this.updatePendingDeviceMessage(offlineDeviceMessage);
-            }
-        }
-        for (OfflineDeviceMessage deviceMessageShadow : this.device.getAllSentDeviceMessages()) {
-            if (deviceMessageShadow.getDeviceId() == comTaskExecution.getDevice().getId()) {    //Only add the messages of the master or the slave, not both
-                this.updateSentDeviceMessage(deviceMessageShadow);
-            }
-        }
+
+        this.device.getAllPendingDeviceMessages().stream()
+                .sorted(getDeviceMessageComparatorBasedOnReleaseDate())
+                .forEach(offlineDeviceMessage -> {
+                    if (offlineDeviceMessage.getDeviceId() == comTaskExecution.getDevice()
+                            .getId()) {   //Only add the messages of the master or the slave, not both
+                        this.updatePendingDeviceMessage(offlineDeviceMessage);
+                    }
+                });
+        this.device.getAllSentDeviceMessages().stream()
+                .sorted(getDeviceMessageComparatorBasedOnReleaseDate())
+                .forEach(offlineDeviceMessage -> {
+                    if (offlineDeviceMessage.getDeviceId() == comTaskExecution.getDevice()
+                            .getId()) {   //Only add the messages of the master or the slave, not both
+                        this.updateSentDeviceMessage(offlineDeviceMessage);
+                    }
+                });
+    }
+
+    /**
+     * Creates a new OfflineDeviceMessage comparator who will be based on the messages release date<br/>
+     * Messages with the oldest release date should be first in the list
+     *
+     * @return the OfflineDeviceMessage comparator
+     */
+    private Comparator<OfflineDeviceMessage> getDeviceMessageComparatorBasedOnReleaseDate() {
+        return (msg1, msg2) -> msg1.getReleaseDate().compareTo(msg2.getReleaseDate());
     }
 
     private void updatePendingDeviceMessage(OfflineDeviceMessage offlineDeviceMessage) {

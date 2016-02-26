@@ -30,6 +30,11 @@ public class FakeTransactionService implements TransactionService {
         return null;
     }
 
+    @Override
+    public boolean isInTransaction() {
+        return false;
+    }
+
     private class FakeTransactionContext implements TransactionContext {
         @Override
         public void close() {
@@ -46,5 +51,4 @@ public class FakeTransactionService implements TransactionService {
             return new TransactionEvent(false, new StopWatch(false), 0, 0);
         }
     }
-
 }

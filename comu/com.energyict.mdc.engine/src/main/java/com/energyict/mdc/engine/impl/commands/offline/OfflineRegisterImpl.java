@@ -28,7 +28,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
     /**
      * The Register which will go Offline
      */
-    private final Register<?> register;
+    private final Register<?,?> register;
     private IdentificationService identificationService;
 
     private final Device device;
@@ -83,7 +83,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
      */
     private boolean isText;
 
-    public OfflineRegisterImpl(final Register<?> register, IdentificationService identificationService) {
+    public OfflineRegisterImpl(final Register<?,?> register, IdentificationService identificationService) {
         this.register = register;
         this.identificationService = identificationService;
         this.device = register.getDevice();
@@ -100,7 +100,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
         this.registerId = (int) this.register.getRegisterSpec().getId();
         this.deviceRegisterObisCode = this.register.getRegisterSpec().getDeviceObisCode();
         this.amrRegisterObisCode = this.register.getRegisterSpec().getObisCode();
-        this.registerUnit = this.register.getRegisterSpec().getUnit();
+        this.registerUnit = this.register.getRegisterSpec().getRegisterType().getUnit();
 
         // We don't use the rtuRegister.getOverruledRegisterGroup as this can be overruled!
         List<RegisterGroup> registerGroups = this.register.getRegisterSpec().getRegisterType().getRegisterGroups();
@@ -111,7 +111,11 @@ public class OfflineRegisterImpl implements OfflineRegister {
         this.deviceSerialNumber = this.register.getDevice().getSerialNumber();
         this.deviceMRID = this.register.getDevice().getmRID();
         this.readingType = this.register.getRegisterSpec().getRegisterType().getReadingType();
-        this.overFlow = this.register.getRegisterSpec().isTextual()?new BigDecimal(Double.MAX_VALUE): ((NumericalRegisterSpec) this.register.getRegisterSpec()).getOverflowValue();
+        if(this.register.getRegisterSpec().isTextual()){
+            this.overFlow = new BigDecimal(Double.MAX_VALUE);
+        } else if(((NumericalRegisterSpec) this.register.getRegisterSpec()).getOverflowValue().isPresent()){
+            this.overFlow = ((NumericalRegisterSpec) this.register.getRegisterSpec()).getOverflowValue().get();
+        }
         this.isText = this.register.getRegisterSpec().isTextual();
     }
 

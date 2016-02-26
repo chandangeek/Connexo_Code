@@ -39,7 +39,6 @@ public class PreStoreRegisters {
      * Tasks:
      * <ul>
      * <li>Scale value according to unit</li>
-     * <li>OverFlow calculation</li>
      * </ul>
      *
      * @param collectedRegisterList the collected data from a registers to (pre)Store
@@ -56,10 +55,8 @@ public class PreStoreRegisters {
                 if (!collectedRegister.isTextRegister() && collectedRegister.getCollectedQuantity() != null) {
                     Unit configuredUnit = this.mdcReadingTypeUtilService.getMdcUnitFor(collectedRegister.getReadingType().getMRID());
                     int scaler = getScaler(collectedRegister.getCollectedQuantity().getUnit(), configuredUnit);
-                    BigDecimal overflow = offlineRegister.get().getOverFlowValue();
                     Reading scaledReading = getScaledReading(scaler, reading);
-                    Reading overflowCheckedReading = getOverflowCheckedReading(overflow, scaledReading);
-                    addProcessedReadingFor(processedReadings, deviceIdentifier, overflowCheckedReading);
+                    addProcessedReadingFor(processedReadings, deviceIdentifier, scaledReading);
                 } else {
                     addProcessedReadingFor(processedReadings, deviceIdentifier, reading);
                 }
@@ -80,13 +77,6 @@ public class PreStoreRegisters {
             allProcessedReadings.put(deviceIdentifier, new ArrayList<>());
         }
         return allProcessedReadings.get(deviceIdentifier).add(newReading);
-    }
-
-    private Reading getOverflowCheckedReading(BigDecimal overflow, Reading scaledReading) {
-        if (scaledReading.getValue().compareTo(overflow) > 0) {
-            return ReadingImpl.of(scaledReading.getReadingTypeCode(), scaledReading.getValue().subtract(overflow), scaledReading.getTimeStamp());
-        }
-        return scaledReading;
     }
 
     private Reading getScaledReading(int scaler, Reading reading) {

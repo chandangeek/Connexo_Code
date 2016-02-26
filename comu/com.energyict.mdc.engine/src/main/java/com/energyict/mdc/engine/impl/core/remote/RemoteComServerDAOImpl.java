@@ -25,7 +25,6 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
 import com.energyict.mdc.engine.impl.core.ServerProcess;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
@@ -318,9 +317,8 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public List<Warning> storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
+    public void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
         // Todo
-        return Collections.emptyList();
     }
 
     @Override

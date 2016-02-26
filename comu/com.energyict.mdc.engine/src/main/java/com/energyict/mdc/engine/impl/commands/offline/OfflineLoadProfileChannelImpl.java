@@ -77,7 +77,7 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
         setStoreData(true);
         setSerialNumber(this.channel.getDevice().getSerialNumber());
         setReadingType(this.channel.getChannelSpec().getReadingType());
-        this.overflow = this.channel.getChannelSpec().getOverflow();
+        this.channel.getOverflow().ifPresent(overflow -> this.overflow = overflow);
     }
 
     /**

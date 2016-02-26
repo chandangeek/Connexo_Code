@@ -8,6 +8,7 @@ import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -33,6 +34,7 @@ import com.energyict.mdc.tasks.RegistersTask;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -128,6 +130,7 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         final String serialNumber = "MeterSerialNumber";
         RegisterSpec registerSpec = mock(RegisterSpec.class, withSettings().extraInterfaces(NumericalRegisterSpec.class));
         when(registerSpec.getDeviceObisCode()).thenReturn(obisCode);
+        when(((NumericalRegisterSpec) registerSpec).getOverflowValue()).thenReturn(Optional.empty());
         RegisterGroup registerGroup = mock(RegisterGroup.class);
         when(registerGroup.getId()).thenReturn(1L);
         Device mockedDevice = mock(Device.class);

@@ -10,18 +10,17 @@ import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
-
 import org.joda.time.DateTime;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -64,7 +63,7 @@ public class CollectedLogBookDeviceCommandTest {
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).contains("{logbook: 1; nr of events: 0}");
+        assertThat(journalMessage).contains("{logbook: logbook having id 1; nr of events: 0}");
     }
 
     @Test
@@ -97,7 +96,7 @@ public class CollectedLogBookDeviceCommandTest {
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).contains("{logbook: 1; nr of events: 2}");
+        assertThat(journalMessage).contains("{logbook: logbook having id 1; nr of events: 2}");
     }
 
     private void initializeMeteringService() {

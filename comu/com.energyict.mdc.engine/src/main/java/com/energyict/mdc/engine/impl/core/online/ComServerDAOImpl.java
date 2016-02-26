@@ -51,7 +51,6 @@ import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -501,9 +500,9 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public List<Warning> storeMeterReadings(final DeviceIdentifier<Device> deviceIdentifier, final MeterReading meterReading) {
+    public void storeMeterReadings(final DeviceIdentifier<Device> deviceIdentifier, final MeterReading meterReading) {
         Device device = deviceIdentifier.findDevice();
-        return device.store(meterReading);
+        device.store(meterReading);
     }
 
     @Override

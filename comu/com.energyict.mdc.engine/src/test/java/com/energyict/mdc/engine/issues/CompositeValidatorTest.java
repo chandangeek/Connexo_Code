@@ -3,6 +3,11 @@ package com.energyict.mdc.engine.issues;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.impl.ProblemImpl;
+
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,10 +15,6 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-
-import java.time.Instant;
-import java.util.Collections;
-import java.util.Set;
 
 import static com.elster.jupiter.util.Checks.is;
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -36,12 +37,7 @@ public class CompositeValidatorTest {
 
     @Before
     public void initBefore() {
-        when(thesaurus.getString(any(), any())).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return (String) invocationOnMock.getArguments()[0];
-            }
-        });
+        when(thesaurus.getString(any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
     }
 
     private class AlwaysOkValidator implements Validator<String> {

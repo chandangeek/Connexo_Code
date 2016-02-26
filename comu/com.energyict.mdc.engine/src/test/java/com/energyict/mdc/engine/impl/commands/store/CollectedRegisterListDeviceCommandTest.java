@@ -25,7 +25,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -135,7 +134,7 @@ public class CollectedRegisterListDeviceCommandTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
 
         // asserts
-        assertThat(journalMessage).contains("{deviceIdentifier: id 1; nr of collected registers: 1}");
+        assertThat(journalMessage).contains("{deviceIdentifier: device having id 1; nr of collected registers: 1}");
     }
 
     private DeviceRegisterList getDeviceRegisterList() {

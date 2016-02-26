@@ -14,7 +14,6 @@ import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.core.verification.CounterVerifier;
 import com.energyict.mdc.engine.impl.tools.Counter;
-import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
@@ -473,9 +472,8 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public List<Warning> storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
+        public void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
             // Not storing readings in mock mode
-            return Collections.emptyList();
         }
 
 
@@ -578,9 +576,8 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public List<Warning> storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
+    public void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
         // Not storing readings in mock mode
-        return Collections.emptyList();
     }
 
     @Override

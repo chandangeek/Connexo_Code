@@ -22,11 +22,6 @@ import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.tasks.ComTask;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.text.MessageFormat;
 import java.time.Clock;
@@ -34,6 +29,12 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Logger;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.any;

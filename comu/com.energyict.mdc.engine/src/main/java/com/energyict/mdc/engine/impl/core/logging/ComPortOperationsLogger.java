@@ -72,7 +72,7 @@ public interface ComPortOperationsLogger {
      * @param comPortThreadName The name of the ComPort thread that attempted to start the execution
      * @param comTaskExecution The ComTaskExecution
      */
-    @Configuration(format = "''{0}'' cannot schedule ComTaskExecution {1} for execution because the queue is full!", logLevel = LogLevel.WARN)
+    @Configuration(format = "''{0}'' cannot schedule ComTaskExecution {1} for execution because the 'store task queue' is full!", logLevel = LogLevel.WARN)
     public void cannotSchedule (String comPortThreadName, ComTaskExecution comTaskExecution);
 
     /**
