@@ -19,6 +19,10 @@ Ext.define('Scs.controller.ServiceCalls', {
         {
             ref: 'page',
             selector: 'service-call-preview-container'
+        },
+        {
+            ref: 'breadcrumbs',
+            selector: 'breadcrumbTrail'
         }
     ],
 
@@ -57,10 +61,11 @@ Ext.define('Scs.controller.ServiceCalls', {
 
     showServiceCallOverview: function() {
         var me = this,
-            record,
             store = Ext.getStore('Scs.store.ServiceCalls'),
             view,
-            servicecallId = arguments[arguments.length - 1];
+            servicecallIds = Array.prototype.slice.call(arguments),
+            servicecallId = arguments[arguments.length - 1],
+            compareParentsArray;
 
         if (servicecallId) {
             store.setProxy({
@@ -72,24 +77,31 @@ Ext.define('Scs.controller.ServiceCalls', {
                     root: 'serviceCalls'
                 }
             });
-            me.getApplication().fireEvent('servicecallload', arguments);
             me.getModel('Scs.model.ServiceCall').load(servicecallId, {
                 success: function (record) {
-                    if (record.get('hasChildren')) {
+                    compareParentsArray = record.get('parents').slice();
+                    compareParentsArray.push(servicecallId);
+                    if(me.getDiff(me.uniqueValuesArray(servicecallIds), me.uniqueValuesArray(compareParentsArray)).length !== 0) {
+                        view = Ext.widget('errorNotFound');
+                        me.getBreadcrumbs().hide();
+                    } else if (record.get('hasChildren')) {
+                        me.getApplication().fireEvent('servicecallload', servicecallIds);
                         view = Ext.widget('servicecalls-setup-overview', {
                             router: me.getController('Uni.controller.history.Router'),
                             serviceCallId: servicecallId,
                             store: store
                         });
                     } else {
+                        me.getApplication().fireEvent('servicecallload', servicecallIds);
                         view = Ext.widget('scs-landing-page', {serviceCallId: servicecallId});
-
+                        view.down('scs-landing-page-form').updateLandingPage(record);
                     }
-                    view.down('scs-landing-page-form').updateLandingPage(record);
                     me.getApplication().fireEvent('changecontentevent', view);
                 },
                 failure: function (record, operation) {
-                    debugger;
+                    view = Ext.widget('errorNotFound');
+                    me.getBreadcrumbs().hide();
+                    me.getApplication().fireEvent('changecontentevent', view);
                 }
             });
         }
@@ -120,5 +132,28 @@ Ext.define('Scs.controller.ServiceCalls', {
             case 'retry':
                 break;
         }
+    },
+
+    getDiff: function (array1, array2) {
+        var diff = [];
+
+        if(array1.length !== array2.length) {
+            return ["FALSE"];
+        }
+
+        for (var i = array1.length - 1; i >= 0; i--) {
+            var key = array1[i];
+            if (-1 === array2.indexOf(key)) {
+                diff.push(key);
+            }
+        }
+
+        return diff;
+    },
+
+    uniqueValuesArray: function (a) {
+        return a.sort().filter(function(item, pos, ary) {
+            return !pos || item != ary[pos - 1];
+        })
     }
 });

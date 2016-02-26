@@ -1,7 +1,7 @@
 Ext.define('Scs.model.ServiceCall', {
     extend: 'Uni.model.Version',
     fields: [
-        'number', 'externalReference', 'state', 'type',
+        'number', 'externalReference', 'state', 'type', 'parents',
         {
             name: 'hasChildren',
             type: 'boolean'
