@@ -247,8 +247,8 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
             failure: function (record, meta) {
                 var response = Ext.decode(meta.response.responseText);
 
-                me.down('uni-form-error-message').show();
                 if (response.errors && response.errors.length > 0) {
+                    me.down('uni-form-error-message').show();
                     if (hasAdminTimeSlicedCpsPrivileges) {
                         Ext.each(response.errors, function (error) {
                             switch (error.id) {
