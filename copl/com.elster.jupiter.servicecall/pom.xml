@@ -150,6 +150,11 @@
       <artifactId>events</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>devtools.persistence</artifactId>
+      <scope>test</scope>
+    </dependency>
     <!--<dependency>-->
       <!--<groupId>com.google.inject</groupId>-->
       <!--<artifactId>guice</artifactId>-->
