@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
     fullInfo: false,
 
     requires: [
-        'Mdc.view.setup.device.form.DeviceDateField'
+        'Mdc.view.setup.device.form.DeviceDateField',
+        'Uni.Auth'
     ],
 
     layout: {
@@ -129,12 +130,18 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 itemId: 'fld-usage-point',
                 fieldLabel: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
                 renderer: function (value) {
+                    console.log(me.router);
                     if (value && (value.available || me.fullInfo)) {
                         this.show();
                         if (Ext.isEmpty(value.displayValue)) {
                             return '-'
                         } else {
-                            return '<a href="' + me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: value.attributeId}) + '">' + Ext.String.htmlEncode(value.displayValue) + '</a>'
+                            //var url = me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: value.attributeId});
+                            //var url = '/apps/insight/index.html';
+                            var view = 'privilege.view.anyUsagePoint';
+                            console.log(Uni.Auth.hasPrivilegeInApp(view, "INS"));
+                            var url = Ext.String.format('/apps/insight/index.html#/usagepoints/{0}', Ext.String.htmlEncode(value.displayValue));
+                            return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value.displayValue))
                         }
                     } else {
                         this.hide();

@@ -43,46 +43,9 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointAttributesFormMain', {
                         fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.serviceCategory', 'MDC', 'Service category'),
                     },
                     {
-                        name: 'isSdp',
-                        itemId: 'fld-up-sdp',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.sdp', 'MDC', 'SDP'),
-                        renderer: function (value) {
-                            return value ? Uni.I18n.translate('usagePointManagement.yes', 'MDC', 'Yes') : Uni.I18n.translate('usagePointManagement.no', 'MDC', 'No');
-                        }
-                    },
-                    {
-                        name: 'isVirtual',
-                        itemId: 'fld-up-virtual',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.virtual', 'MDC', 'Virtual'),
-                        renderer: function (value) {
-                            return value ? Uni.I18n.translate('usagePointManagement.yes', 'MDC', 'Yes') : Uni.I18n.translate('usagePointManagement.no', 'MDC', 'No');
-                        }
-                    },
-                    {
-                        name: 'version',
-                        itemId: 'fld-up-version',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.version', 'MDC', 'Version')
-                    },
-                    {
-                        name: 'readCycle',
-                        itemId: 'fld-up-version',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.readCycle', 'MDC', 'Read cycle'),
-                        renderer: function (value) {
-                            return value ? value : '-';
-                        }
-                    },
-                    {
                         name: 'created',
                         itemId: 'fld-up-created',
                         fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.created', 'MDC', 'Created')
-                    },
-                    {
-                        name: 'updated',
-                        itemId: 'fld-up-updated',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.lastUpdate', 'MDC', 'Last update'),
-                        renderer: function (value) {
-                            return value ? value : '-';
-                        }
                     }
                 ]
             }

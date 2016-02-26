@@ -7,9 +7,16 @@ Ext.define('Mdc.controller.history.Setup', {
 
     routeConfig: {
         usagepoints: {
-            title: Uni.I18n.translate('general.usagePoints', 'MDC', 'Usage points'),
+            disabled: true,
+            title: Uni.I18n.translate('general.usagePoints', 'MDC', 'Usage points management'),
             route: 'usagepoints',
             items: {
+                add: {
+                    title: Uni.I18n.translate('general.addUsagePoint', 'MDC', 'Add usage point'),
+                    route: 'add',
+                    controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
+                    action: 'showAddUsagePoint'
+                },
                 usagepoint: {
                     title: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
                     route: '{usagePointId}',

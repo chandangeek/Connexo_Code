@@ -285,5 +285,36 @@ Ext.define('Mdc.controller.Main', {
                 Uni.store.PortalItems.add(portalItem);
             }
         }
+
+
+        //if (Mdc.privileges.Device.canViewDevices()) { //TODO: change privileges
+            var usagePointsMenuItem = Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.usagePoints', 'MDC', 'Usage points'),
+                href: '#/usagepoints',
+                glyph: 'devices',
+                portal: 'usagepoints',
+                index: 20
+            });
+
+            Uni.store.MenuItems.add(usagePointsMenuItem);
+
+            //if (Mdc.privileges.Device.canAddDevice()) { //TODO: change privileges
+                var portalItem = Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.usagePointManagement', 'MDC', 'Usage point management'),
+                    portal: 'usagepoints',
+                    route: 'usagepoints',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('usagePointAdd.title', 'MDC', 'Add Usage point'),
+                            itemId: 'lnk-add-usagepoints',
+                            href: '#/usagepoints/add',
+                            route: 'add'
+                        }
+                    ]
+                });
+
+                Uni.store.PortalItems.add(portalItem);
+            //}
+        //}
     }
 });
