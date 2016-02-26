@@ -1,8 +1,7 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.orm.associations.Effectivity;
-
-import java.util.Optional;
+import com.elster.jupiter.util.YesNoAnswer;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,9 +12,7 @@ import java.util.Optional;
  */
 public interface UsagePointDetail extends Effectivity {
 
-    Optional<Boolean> getCollar();
-
-    void setCollar(Optional<Boolean> collar);
+    YesNoAnswer isCollarInstalled();
 
     boolean isCurrent();
 

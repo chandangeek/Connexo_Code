@@ -1,8 +1,7 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
-
-import java.util.Optional;
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,11 +16,11 @@ public interface HeatDetail extends UsagePointDetail {
 
     Quantity getPressure();
 
-    Optional<Boolean> getBypass();
+    YesNoAnswer isBypassInstalled();
 
     BypassStatus getBypassStatus();
 
-    Optional<Boolean> getValve();
+    YesNoAnswer isValveInstalled();
 
-    Boolean isInterruptible();
+    boolean isInterruptible();
 }

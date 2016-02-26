@@ -6,20 +6,19 @@ import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.HeatDetailBuilder;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 
-import java.util.Optional;
-
 public class HeatDetailBuilderImpl implements HeatDetailBuilder {
 
-    private Optional<Boolean> collar = Optional.empty();
+    private YesNoAnswer collar = YesNoAnswer.UNKNOWN;
     private Quantity pressure;
     private Quantity physicalCapacity;
-    private Optional<Boolean> bypass = Optional.empty();
+    private YesNoAnswer bypass = YesNoAnswer.UNKNOWN;
     private BypassStatus bypassStatus;
-    private Optional<Boolean> valve = Optional.empty();
-    private Boolean interruptible;
+    private YesNoAnswer valve = YesNoAnswer.UNKNOWN;
+    private boolean interruptible;
 
     private UsagePoint usagePoint;
     private Interval interval;
@@ -32,8 +31,8 @@ public class HeatDetailBuilderImpl implements HeatDetailBuilder {
     }
 
     @Override
-    public HeatDetailBuilder withCollar(Boolean collar) {
-        this.collar = Optional.ofNullable(collar);
+    public HeatDetailBuilder withCollar(YesNoAnswer collar) {
+        this.collar = collar;
         return this;
     }
 
@@ -50,8 +49,8 @@ public class HeatDetailBuilderImpl implements HeatDetailBuilder {
     }
 
     @Override
-    public HeatDetailBuilder withBypass(Boolean bypass) {
-        this.bypass = Optional.ofNullable(bypass);
+    public HeatDetailBuilder withBypass(YesNoAnswer bypass) {
+        this.bypass = bypass;
         return this;
     }
 
@@ -62,49 +61,15 @@ public class HeatDetailBuilderImpl implements HeatDetailBuilder {
     }
 
     @Override
-    public HeatDetailBuilder withValve(Boolean valve) {
-        this.valve = Optional.ofNullable(valve);
+    public HeatDetailBuilder withValve(YesNoAnswer valve) {
+        this.valve = valve;
         return this;
     }
 
     @Override
-    public HeatDetailBuilder withInterruptible(Boolean interruptible) {
-        this.valve = Optional.ofNullable(interruptible);
+    public HeatDetailBuilder withInterruptible(boolean interruptible) {
+        this.interruptible = interruptible;
         return this;
-    }
-
-    @Override
-    public Optional<Boolean> getCollar() {
-        return collar;
-    }
-
-    @Override
-    public Quantity getPressure() {
-        return pressure;
-    }
-
-    @Override
-    public Quantity getPhysicalCapacity() {
-        return physicalCapacity;
-    }
-
-    @Override
-    public Optional<Boolean> getBypass() {
-        return bypass;
-    }
-
-    @Override
-    public BypassStatus getBypassStatus() {
-        return bypassStatus;
-    }
-
-    @Override
-    public Optional<Boolean> getValve() {
-        return valve;
-    }
-
-    public Boolean isInterruptible() {
-        return interruptible;
     }
 
     @Override
@@ -121,13 +86,13 @@ public class HeatDetailBuilderImpl implements HeatDetailBuilder {
 
     private HeatDetail buildDetail(){
         HeatDetailImpl detail = dataModel.getInstance(HeatDetailImpl.class).init(usagePoint, interval);
-        detail.setCollar(this.getCollar());
-        detail.setPressure(this.getPressure());
-        detail.setPhysicalCapacity(this.getPhysicalCapacity());
-        detail.setBypass(this.getBypass());
-        detail.setBypassStatus(this.getBypassStatus());
-        detail.setValve(this.getValve());
-        detail.setInterruptible(this.isInterruptible());
+        detail.setCollar(collar);
+        detail.setPressure(pressure);
+        detail.setPhysicalCapacity(physicalCapacity);
+        detail.setBypass(bypass);
+        detail.setBypassStatus(bypassStatus);
+        detail.setValve(valve);
+        detail.setInterruptible(interruptible);
         return detail;
     }
 }

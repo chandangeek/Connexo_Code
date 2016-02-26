@@ -12,9 +12,9 @@ public interface UsagePointBuilder {
 
     UsagePointBuilder withName(String name);
 
-    UsagePointBuilder withIsSdp(Boolean isSdp);
+    UsagePointBuilder withIsSdp(boolean isSdp);
 
-    UsagePointBuilder withIsVirtual(Boolean isVirtual);
+    UsagePointBuilder withIsVirtual(boolean isVirtual);
 
     UsagePointBuilder withOutageRegion(String outageRegion);
 

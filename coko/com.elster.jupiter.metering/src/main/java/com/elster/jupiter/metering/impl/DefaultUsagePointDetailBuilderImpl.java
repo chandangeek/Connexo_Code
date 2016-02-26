@@ -5,13 +5,12 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.time.Interval;
-
-import java.util.Optional;
 
 public class DefaultUsagePointDetailBuilderImpl implements UsagePointDetailBuilder {
 
-    private Optional<Boolean> collar = Optional.empty();
+    private YesNoAnswer collar = YesNoAnswer.UNKNOWN;
 
     private UsagePoint usagePoint;
     private Interval interval;
@@ -24,14 +23,9 @@ public class DefaultUsagePointDetailBuilderImpl implements UsagePointDetailBuild
     }
 
     @Override
-    public UsagePointDetailBuilder withCollar(Boolean collar) {
-        this.collar = Optional.ofNullable(collar);
+    public UsagePointDetailBuilder withCollar(YesNoAnswer collar) {
+        this.collar = collar;
         return this;
-    }
-
-    @Override
-    public Optional<Boolean> getCollar() {
-        return collar;
     }
 
     @Override

@@ -30,6 +30,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
@@ -270,7 +271,7 @@ public class UsagePointDetailImplIT {
 
     protected void fillElectricityDetail(ElectricityDetailImpl elecDetail) {
         //general properties
-        elecDetail.setCollar(Optional.ofNullable(true));
+        elecDetail.setCollar(YesNoAnswer.YES);
 
         //electriciy specific properties
         elecDetail.setGrounded(true);
@@ -284,13 +285,13 @@ public class UsagePointDetailImplIT {
 
     protected void fillGasDetail(GasDetailImpl gasDetail) {
         //general properties
-        gasDetail.setCollar(Optional.ofNullable(true));
+        gasDetail.setCollar(YesNoAnswer.YES);
 
         //gas specific properties
-        gasDetail.setClamped(Optional.ofNullable(true));
-        gasDetail.setCapped(Optional.ofNullable(true));
-        gasDetail.setValve(Optional.ofNullable(true));
-        gasDetail.setBypass(Optional.ofNullable(true));
+        gasDetail.setClamped(YesNoAnswer.YES);
+        gasDetail.setCapped(YesNoAnswer.YES);
+        gasDetail.setValve(YesNoAnswer.YES);
+        gasDetail.setBypass(YesNoAnswer.YES);
         gasDetail.setBypassStatus(BypassStatus.OPEN);
         gasDetail.setGrounded(true);
         gasDetail.setInterruptible(true);
@@ -303,8 +304,7 @@ public class UsagePointDetailImplIT {
 
     protected void checkElectricityDetailContent(ElectricityDetail elecDetail) {
         //general properties
-        assertThat(elecDetail.getCollar().isPresent()).isTrue();
-        assertThat(elecDetail.getCollar().get()).isTrue();
+        assertThat(elecDetail.isCollarInstalled()).isEqualTo(YesNoAnswer.YES);
 
         //electriciy specific properties
         assertThat(elecDetail.isGrounded() == true).isTrue();
@@ -317,16 +317,12 @@ public class UsagePointDetailImplIT {
 
     protected void checkGasDetailContent(GasDetail gasDetail) {
         //general properties
-        assertThat(gasDetail.getCollar().isPresent()).isTrue();
-        assertThat(gasDetail.getCollar().get()).isTrue();
+        assertThat(gasDetail.isBypassInstalled()).isEqualTo(YesNoAnswer.YES);
 
         //gas specific properties
-        assertThat(gasDetail.getCapped().isPresent()).isTrue();
-        assertThat(gasDetail.getCapped().get()).isTrue();
-        assertThat(gasDetail.getClamped().isPresent()).isTrue();
-        assertThat(gasDetail.getClamped().get()).isTrue();
-        assertThat(gasDetail.getBypass().isPresent()).isTrue();
-        assertThat(gasDetail.getBypass().get()).isTrue();
+        assertThat(gasDetail.isCapped()).isEqualTo(YesNoAnswer.YES);
+        assertThat(gasDetail.isClamped()).isEqualTo(YesNoAnswer.YES);
+        assertThat(gasDetail.isBypassInstalled()).isEqualTo(YesNoAnswer.YES);
         assertThat(gasDetail.getBypassStatus().equals(BypassStatus.OPEN)).isTrue();
         assertThat(gasDetail.isGrounded()).isTrue();
         assertThat(gasDetail.isInterruptible()).isTrue();

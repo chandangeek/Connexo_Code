@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.ElectricityDetail;
-import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
@@ -17,17 +16,17 @@ import java.time.Clock;
 
 public class ElectricityDetailImpl extends UsagePointDetailImpl implements ElectricityDetail {
 
-    private Boolean grounded;
+    private boolean grounded;
     private Quantity nominalServiceVoltage;
     private PhaseCode phaseCode;
     private Quantity ratedCurrent;
     private Quantity ratedPower;
     private Quantity estimatedLoad;
-    private Boolean limiter;
+    private boolean limiter;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String loadLimiterType;
     private Quantity loadLimit;
-    private Boolean interruptible;
+    private boolean interruptible;
 
     @Inject
     ElectricityDetailImpl(Clock clock, DataModel dataModel) {
@@ -45,7 +44,7 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
     }
 
     @Override
-    public Boolean isGrounded() {
+    public boolean isGrounded() {
         return grounded;
     }
     @Override
@@ -70,7 +69,7 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
     }
 
     @Override
-    public Boolean isLimiter() {
+    public boolean isLimiter() {
         return limiter;
     }
 
@@ -85,11 +84,11 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
     }
 
     @Override
-    public Boolean isInterruptible() {
+    public boolean isInterruptible() {
         return interruptible;
     }
 
-    public void setGrounded(Boolean grounded) {
+    public void setGrounded(boolean grounded) {
         this.grounded = grounded;
     }
 
@@ -113,7 +112,7 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
         this.estimatedLoad = estimatedLoad;
     }
 
-    public void setLimiter(Boolean limiter) {
+    public void setLimiter(boolean limiter) {
         this.limiter = limiter;
     }
 
@@ -125,7 +124,7 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
         this.loadLimit = loadLimit;
     }
 
-    public void setInterruptible(Boolean interruptible) {
+    public void setInterruptible(boolean interruptible) {
         this.interruptible = interruptible;
     }
 }

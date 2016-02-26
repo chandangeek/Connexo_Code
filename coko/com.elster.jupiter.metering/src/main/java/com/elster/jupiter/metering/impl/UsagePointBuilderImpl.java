@@ -60,13 +60,13 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
-    public UsagePointBuilder withIsSdp(Boolean isSdp) {
+    public UsagePointBuilder withIsSdp(boolean isSdp) {
         this.isSdp = isSdp;
         return this;
     }
 
     @Override
-    public UsagePointBuilder withIsVirtual(Boolean isVirtual) {
+    public UsagePointBuilder withIsVirtual(boolean isVirtual) {
         this.isVirtual = isVirtual;
         return this;
     }

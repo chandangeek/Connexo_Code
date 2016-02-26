@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.WaterDetail;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Unit;
 
 import java.math.BigDecimal;
@@ -60,11 +61,11 @@ public class UsagePointDetailsPersistentTestIT {
                 .get().newUsagePoint("test").withInstallationTime(inMemoryPersistentModule.getClock().instant().minusSeconds(1000)).create();
 
         up.newGasDetailBuilder(inMemoryPersistentModule.getClock().instant())
-                .withCollar(true)
-                .withCapped(true)
-                .withClamped(true)
-                .withValve(true)
-                .withBypass(true)
+                .withCollar(YesNoAnswer.YES)
+                .withCap(YesNoAnswer.YES)
+                .withClamp(YesNoAnswer.YES)
+                .withValve(YesNoAnswer.YES)
+                .withBypass(YesNoAnswer.YES)
                 .withBypassStatus(BypassStatus.OPEN)
                 .withGrounded(true)
                 .withInterruptible(true)
@@ -83,16 +84,12 @@ public class UsagePointDetailsPersistentTestIT {
         GasDetail gasDetail = (GasDetail) inMemoryPersistentModule.getMeteringService().getUsagePoints(usagePointFilter).find().get(0).getDetail(inMemoryPersistentModule.getClock().instant()).get();
 
         //general properties
-        assertThat(gasDetail.getCollar().isPresent()).isTrue();
-        assertThat(gasDetail.getCollar().get()).isTrue();
+        assertThat(gasDetail.isCollarInstalled()).isEqualTo(YesNoAnswer.YES);
 
         //gas specific properties
-        assertThat(gasDetail.getCapped().isPresent()).isTrue();
-        assertThat(gasDetail.getCapped().get()).isTrue();
-        assertThat(gasDetail.getClamped().isPresent()).isTrue();
-        assertThat(gasDetail.getClamped().get()).isTrue();
-        assertThat(gasDetail.getBypass().isPresent()).isTrue();
-        assertThat(gasDetail.getBypass().get()).isTrue();
+        assertThat(gasDetail.isCapped()).isEqualTo(YesNoAnswer.YES);
+        assertThat(gasDetail.isClamped()).isEqualTo(YesNoAnswer.YES);
+        assertThat(gasDetail.isBypassInstalled()).isEqualTo(YesNoAnswer.YES);
         assertThat(gasDetail.getBypassStatus().equals(BypassStatus.OPEN)).isTrue();
         assertThat(gasDetail.isGrounded()).isTrue();
         assertThat(gasDetail.isInterruptible()).isTrue();
@@ -111,11 +108,11 @@ public class UsagePointDetailsPersistentTestIT {
                 .get().newUsagePoint("test").withInstallationTime(inMemoryPersistentModule.getClock().instant().minusSeconds(1000)).create();
 
         up.newWaterDetailBuilder(inMemoryPersistentModule.getClock().instant())
-                .withCollar(true)
-                .withCapped(true)
-                .withClamped(true)
-                .withValve(true)
-                .withBypass(true)
+                .withCollar(YesNoAnswer.YES)
+                .withCap(YesNoAnswer.YES)
+                .withClamp(YesNoAnswer.YES)
+                .withValve(YesNoAnswer.YES)
+                .withBypass(YesNoAnswer.YES)
                 .withBypassStatus(BypassStatus.OPEN)
                 .withGrounded(true)
                 .withLimiter(true)
@@ -133,16 +130,12 @@ public class UsagePointDetailsPersistentTestIT {
         WaterDetail waterDetail = (WaterDetail) inMemoryPersistentModule.getMeteringService().getUsagePoints(usagePointFilter).find().get(0).getDetail(inMemoryPersistentModule.getClock().instant()).get();
 
         //general properties
-        assertThat(waterDetail.getCollar().isPresent()).isTrue();
-        assertThat(waterDetail.getCollar().get()).isTrue();
+        assertThat(waterDetail.isCollarInstalled()).isEqualTo(YesNoAnswer.YES);
 
         //gas specific properties
-        assertThat(waterDetail.getCapped().isPresent()).isTrue();
-        assertThat(waterDetail.getCapped().get()).isTrue();
-        assertThat(waterDetail.getClamped().isPresent()).isTrue();
-        assertThat(waterDetail.getClamped().get()).isTrue();
-        assertThat(waterDetail.getBypass().isPresent()).isTrue();
-        assertThat(waterDetail.getBypass().get()).isTrue();
+        assertThat(waterDetail.isCapped()).isEqualTo(YesNoAnswer.YES);
+        assertThat(waterDetail.isClamped()).isEqualTo(YesNoAnswer.YES);
+        assertThat(waterDetail.isBypassInstalled()).isEqualTo(YesNoAnswer.YES);
         assertThat(waterDetail.getBypassStatus().equals(BypassStatus.OPEN)).isTrue();
         assertThat(waterDetail.isGrounded()).isTrue();
         assertThat(waterDetail.isLimiter()).isTrue();
@@ -160,9 +153,9 @@ public class UsagePointDetailsPersistentTestIT {
                 .get().newUsagePoint("test").withInstallationTime(inMemoryPersistentModule.getClock().instant().minusSeconds(1000)).create();
 
         up.newHeatDetailBuilder(inMemoryPersistentModule.getClock().instant())
-                .withCollar(true)
-                .withValve(true)
-                .withBypass(true)
+                .withCollar(YesNoAnswer.YES)
+                .withValve(YesNoAnswer.YES)
+                .withBypass(YesNoAnswer.YES)
                 .withBypassStatus(BypassStatus.OPEN)
                 .withPhysicalCapacity(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))
                 .withPressure(Unit.PASCAL.amount(BigDecimal.valueOf(34.5)))
@@ -176,12 +169,10 @@ public class UsagePointDetailsPersistentTestIT {
         HeatDetail waterDetail = (HeatDetail) inMemoryPersistentModule.getMeteringService().getUsagePoints(usagePointFilter).find().get(0).getDetail(inMemoryPersistentModule.getClock().instant()).get();
 
         //general properties
-        assertThat(waterDetail.getCollar().isPresent()).isTrue();
-        assertThat(waterDetail.getCollar().get()).isTrue();
+        assertThat(waterDetail.isCollarInstalled()).isEqualTo(YesNoAnswer.YES);
 
         //gas specific properties
-        assertThat(waterDetail.getBypass().isPresent()).isTrue();
-        assertThat(waterDetail.getBypass().get()).isTrue();
+        assertThat(waterDetail.isBypassInstalled()).isEqualTo(YesNoAnswer.YES);
         assertThat(waterDetail.getBypassStatus().equals(BypassStatus.OPEN)).isTrue();
         assertThat(waterDetail.getPhysicalCapacity().equals(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))).isTrue();
         assertThat(waterDetail.getPressure().equals(Unit.PASCAL.amount(BigDecimal.valueOf(34.5)))).isTrue();

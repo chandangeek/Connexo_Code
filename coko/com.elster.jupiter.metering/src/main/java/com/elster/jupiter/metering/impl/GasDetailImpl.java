@@ -3,34 +3,33 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.GasDetail;
-import com.elster.jupiter.metering.GasDetailBuilder;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Clock;
-import java.util.Optional;
 
 public class GasDetailImpl extends UsagePointDetailImpl implements GasDetail {
 
-    private Boolean grounded;
+    private boolean grounded;
     private Quantity pressure;
     private Quantity physicalCapacity;
-    private Boolean limiter;
+    private boolean limiter;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String loadLimiterType;
     private Quantity loadLimit;
-    private Boolean bypass;
+    private YesNoAnswer bypass;
     private BypassStatus bypassStatus;
-    private Boolean valve;
-    private Boolean capped;
-    private Boolean clamped;
-    private Boolean interruptible;
+    private YesNoAnswer valve;
+    private YesNoAnswer capped;
+    private YesNoAnswer clamped;
+    private boolean interruptible;
 
     @Inject
     GasDetailImpl(Clock clock, DataModel dataModel) {
@@ -48,12 +47,12 @@ public class GasDetailImpl extends UsagePointDetailImpl implements GasDetail {
 
 
     @Override
-    public Boolean isGrounded() {
+    public boolean isGrounded() {
         return grounded;
     }
 
     @Override
-    public Boolean isLimiter() {
+    public boolean isLimiter() {
         return limiter;
     }
 
@@ -78,8 +77,8 @@ public class GasDetailImpl extends UsagePointDetailImpl implements GasDetail {
     }
 
     @Override
-    public Optional<Boolean> getBypass() {
-        return Optional.ofNullable(bypass);
+    public YesNoAnswer isBypassInstalled() {
+        return bypass;
     }
 
     @Override
@@ -88,30 +87,30 @@ public class GasDetailImpl extends UsagePointDetailImpl implements GasDetail {
     }
 
     @Override
-    public Optional<Boolean> getValve() {
-        return Optional.ofNullable(valve);
+    public YesNoAnswer isValveInstalled() {
+        return valve;
     }
 
     @Override
-    public Optional<Boolean> getCapped() {
-        return Optional.ofNullable(capped);
+    public YesNoAnswer isCapped() {
+        return capped;
     }
 
     @Override
-    public Optional<Boolean> getClamped() {
-        return Optional.ofNullable(clamped);
+    public YesNoAnswer isClamped() {
+        return clamped;
     }
 
     @Override
-    public Boolean isInterruptible() {
+    public boolean isInterruptible() {
         return interruptible;
     }
 
-    public void setGrounded(Boolean grounded) {
+    public void setGrounded(boolean grounded) {
         this.grounded = grounded;
     }
 
-    public void setLimiter(Boolean limiter) {
+    public void setLimiter(boolean limiter) {
         this.limiter = limiter;
     }
 
@@ -131,27 +130,27 @@ public class GasDetailImpl extends UsagePointDetailImpl implements GasDetail {
         this.physicalCapacity = physicalCapacity;
     }
 
-    public void setBypass(Optional<Boolean> bypass) {
-        this.bypass = bypass.isPresent() ? bypass.get() : null;
+    public void setBypass(YesNoAnswer bypass) {
+        this.bypass = bypass;
     }
 
     public void setBypassStatus(BypassStatus bypassStatus) {
         this.bypassStatus = bypassStatus;
     }
 
-    public void setValve(Optional<Boolean> valve) {
-        this.valve = valve.isPresent() ? valve.get() : null;
+    public void setValve(YesNoAnswer valve) {
+        this.valve = valve;
     }
 
-    public void setCapped(Optional<Boolean> capped) {
-        this.capped = capped.isPresent() ? capped.get() : null;
+    public void setCapped(YesNoAnswer capped) {
+        this.capped = capped;
     }
 
-    public void setClamped(Optional<Boolean> clamped) {
-        this.clamped = clamped.isPresent() ? clamped.get() : null;
+    public void setClamped(YesNoAnswer clamped) {
+        this.clamped = clamped;
     }
 
-    public void setInterruptible(Boolean interruptible) {
+    public void setInterruptible(boolean interruptible) {
         this.interruptible = interruptible;
     }
 }

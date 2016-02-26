@@ -1,15 +1,14 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.cbo.PhaseCode;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
-
-import java.util.Optional;
 
 public interface ElectricityDetailBuilder extends UsagePointDetailBuilder{
 
-    ElectricityDetailBuilder withCollar(Boolean collar);
+    ElectricityDetailBuilder withCollar(YesNoAnswer collar);
 
-    ElectricityDetailBuilder withGrounded(Boolean grounded);
+    ElectricityDetailBuilder withGrounded(boolean grounded);
 
     ElectricityDetailBuilder withNominalServiceVoltage(Quantity nominalServiceVoltage);
 
@@ -21,35 +20,13 @@ public interface ElectricityDetailBuilder extends UsagePointDetailBuilder{
 
     ElectricityDetailBuilder withEstimatedLoad(Quantity estimatedLoad);
 
-    ElectricityDetailBuilder withLimiter(Boolean limiter);
+    ElectricityDetailBuilder withLimiter(boolean limiter);
 
     ElectricityDetailBuilder withLoadLimit(Quantity loadLimit);
 
     ElectricityDetailBuilder withLoadLimiterType(String loadLimiterType);
 
-    ElectricityDetailBuilder withInterruptible(Boolean interruptible);
-
-    Optional<Boolean> getCollar();
-
-    Boolean isGrounded();
-
-    Quantity getNominalServiceVoltage();
-
-    PhaseCode getPhaseCode();
-
-    Quantity getRatedCurrent();
-
-    Quantity getRatedPower();
-
-    Quantity getEstimatedLoad();
-
-    Boolean isLimiter();
-
-    String getLoadLimiterType();
-
-    Quantity getLoadLimit();
-
-    Boolean isInterruptible();
+    ElectricityDetailBuilder withInterruptible(boolean interruptible);
 
     ElectricityDetail create();
 

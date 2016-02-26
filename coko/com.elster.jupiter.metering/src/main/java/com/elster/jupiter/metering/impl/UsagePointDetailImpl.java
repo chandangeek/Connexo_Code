@@ -1,15 +1,11 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.ElectricityDetailBuilder;
-import com.elster.jupiter.metering.GasDetailBuilder;
-import com.elster.jupiter.metering.HeatDetailBuilder;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
-import com.elster.jupiter.metering.UsagePointDetailBuilder;
-import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.ImmutableMap;
@@ -20,7 +16,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 
@@ -37,7 +32,7 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
                 .put("D", DefaultDetailImpl.class).build();
     }
 
-    private Boolean collar;
+    private YesNoAnswer collar;
 
     @SuppressWarnings("unused")
     private long version;
@@ -105,11 +100,12 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
         interval = Interval.of(Range.closedOpen(getRange().lowerEndpoint(), date));
     }
 
-    public Optional<Boolean> getCollar() {
-        return Optional.ofNullable(collar);
+    @Override
+    public YesNoAnswer isCollarInstalled() {
+        return collar;
     }
 
-    public void setCollar(Optional<Boolean> collar) {
-        this.collar = collar.isPresent() ? collar.get() : null;
+    public void setCollar(YesNoAnswer collar) {
+        this.collar = collar;
     }
 }

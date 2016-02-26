@@ -1,14 +1,12 @@
 package com.elster.jupiter.metering;
 
-import java.util.Optional;
+import com.elster.jupiter.util.YesNoAnswer;
 
 public interface UsagePointDetailBuilder {
 
     UsagePointDetail create();
 
-    UsagePointDetailBuilder withCollar(Boolean collar);
-
-    Optional<Boolean> getCollar();
+    UsagePointDetailBuilder withCollar(YesNoAnswer collar);
 
     void validate();
 }

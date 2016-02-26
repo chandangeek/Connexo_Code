@@ -6,26 +6,25 @@ import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.GasDetailBuilder;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 
-import java.util.Optional;
-
 public class GasDetailBuilderImpl implements GasDetailBuilder {
 
-    private Optional<Boolean> collar = Optional.empty();
-    private Boolean grounded;
+    private YesNoAnswer collar = YesNoAnswer.UNKNOWN;
+    private boolean grounded;
     private Quantity pressure;
     private Quantity physicalCapacity;
-    private Boolean limiter;
+    private boolean limiter;
     private String loadLimiterType;
     private Quantity loadLimit;
-    private Optional<Boolean> bypass = Optional.empty();
+    private YesNoAnswer bypass = YesNoAnswer.UNKNOWN;
     private BypassStatus bypassStatus;
-    private Optional<Boolean> valve = Optional.empty();
-    private Optional<Boolean> capped = Optional.empty();
-    private Optional<Boolean> clamped = Optional.empty();
-    private Boolean interruptible;
+    private YesNoAnswer valve = YesNoAnswer.UNKNOWN;
+    private YesNoAnswer capped = YesNoAnswer.UNKNOWN;
+    private YesNoAnswer clamped = YesNoAnswer.UNKNOWN;
+    private boolean interruptible;
 
     private UsagePoint usagePoint;
     private Interval interval;
@@ -38,13 +37,13 @@ public class GasDetailBuilderImpl implements GasDetailBuilder {
     }
 
     @Override
-    public GasDetailBuilder withCollar(Boolean collar) {
-        this.collar = Optional.ofNullable(collar);
+    public GasDetailBuilder withCollar(YesNoAnswer collar) {
+        this.collar = collar;
         return this;
     }
 
     @Override
-    public GasDetailBuilder withGrounded(Boolean grounded) {
+    public GasDetailBuilder withGrounded(boolean grounded) {
         this.grounded = grounded;
         return this;
     }
@@ -62,7 +61,7 @@ public class GasDetailBuilderImpl implements GasDetailBuilder {
     }
 
     @Override
-    public GasDetailBuilder withLimiter(Boolean limiter) {
+    public GasDetailBuilder withLimiter(boolean limiter) {
         this.limiter = limiter;
         return this;
     }
@@ -80,8 +79,8 @@ public class GasDetailBuilderImpl implements GasDetailBuilder {
     }
 
     @Override
-    public GasDetailBuilder withBypass(Boolean bypass) {
-        this.bypass = Optional.ofNullable(bypass);
+    public GasDetailBuilder withBypass(YesNoAnswer bypass) {
+        this.bypass = bypass;
         return this;
     }
 
@@ -92,94 +91,28 @@ public class GasDetailBuilderImpl implements GasDetailBuilder {
     }
 
     @Override
-    public GasDetailBuilder withValve(Boolean valve) {
-        this.valve = Optional.ofNullable(valve);
+    public GasDetailBuilder withValve(YesNoAnswer valve) {
+        this.valve = valve;
         return this;
     }
 
     @Override
-    public GasDetailBuilder withCapped(Boolean capped) {
-        this.capped = Optional.ofNullable(capped);
+    public GasDetailBuilder withCap(YesNoAnswer capped) {
+        this.capped = capped;
         return this;
     }
 
     @Override
-    public GasDetailBuilder withClamped(Boolean clamped) {
-        this.clamped = Optional.ofNullable(clamped);
+    public GasDetailBuilder withClamp(YesNoAnswer clamped) {
+        this.clamped = clamped;
         return this;
     }
 
     @Override
-    public GasDetailBuilder withInterruptible(Boolean interruptible) {
+    public GasDetailBuilder withInterruptible(boolean interruptible) {
         this.interruptible = interruptible;
         return this;
     }
-
-    @Override
-    public Optional<Boolean> getCollar() {
-        return collar;
-    }
-
-    @Override
-    public Optional<Boolean> getClamped() {
-        return clamped;
-    }
-
-    @Override
-    public Boolean isGrounded() {
-        return grounded;
-    }
-
-    @Override
-    public Quantity getPressure() {
-        return pressure;
-    }
-
-    @Override
-    public Quantity getPhysicalCapacity() {
-        return physicalCapacity;
-    }
-
-    @Override
-    public Boolean isLimiter() {
-        return limiter;
-    }
-
-    @Override
-    public String getLoadLimiterType() {
-        return loadLimiterType;
-    }
-
-    @Override
-    public Quantity getLoadLimit() {
-        return loadLimit;
-    }
-
-    @Override
-    public Optional<Boolean> getBypass() {
-        return bypass;
-    }
-
-    @Override
-    public BypassStatus getBypassStatus() {
-        return bypassStatus;
-    }
-
-    @Override
-    public Optional<Boolean> getValve() {
-        return valve;
-    }
-
-    @Override
-    public Optional<Boolean> getCapped() {
-        return capped;
-    }
-
-    @Override
-    public Boolean isInterruptible() {
-        return interruptible;
-    }
-
 
     @Override
     public GasDetail create() {
@@ -195,19 +128,19 @@ public class GasDetailBuilderImpl implements GasDetailBuilder {
 
     private GasDetail buildDetail(){
         GasDetailImpl detail = dataModel.getInstance(GasDetailImpl.class).init(usagePoint, interval);
-        detail.setCollar(this.getCollar());
-        detail.setGrounded(this.isGrounded());
-        detail.setPressure(this.getPressure());
-        detail.setPhysicalCapacity(this.getPhysicalCapacity());
-        detail.setLimiter(this.isLimiter());
-        detail.setLoadLimiterType(this.getLoadLimiterType());
-        detail.setLoadLimit(this.getLoadLimit());
-        detail.setBypass(this.getBypass());
-        detail.setBypassStatus(this.getBypassStatus());
-        detail.setValve(this.getValve());
-        detail.setCapped(this.getCapped());
-        detail.setClamped(this.getClamped());
-        detail.setInterruptible(this.isInterruptible());
+        detail.setCollar(collar);
+        detail.setGrounded(grounded);
+        detail.setPressure(pressure);
+        detail.setPhysicalCapacity(physicalCapacity);
+        detail.setLimiter(limiter);
+        detail.setLoadLimiterType(loadLimiterType);
+        detail.setLoadLimit(loadLimit);
+        detail.setBypass(bypass);
+        detail.setBypassStatus(bypassStatus);
+        detail.setValve(valve);
+        detail.setCapped(capped);
+        detail.setClamped(clamped);
+        detail.setInterruptible(interruptible);
         return detail;
     }
 }

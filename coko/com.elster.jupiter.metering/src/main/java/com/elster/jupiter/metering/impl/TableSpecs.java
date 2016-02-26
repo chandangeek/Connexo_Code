@@ -555,12 +555,12 @@ public enum TableSpecs {
             table.addQuantityColumns("LOADLIMIT", false, "loadLimit");
             table.addQuantityColumns("PRESSURE", false, "pressure");
             table.column("INTERRUPTIBLE").type("char(1)").conversion(CHAR2BOOLEAN).map("interruptible").add();
-            table.column("COLLAR").type("char(1)").conversion(CHAR2BOOLEAN).map("collar").add();
-            table.column("BYPASS").type("char(1)").conversion(CHAR2BOOLEAN).map("bypass").add();
+            table.column("COLLAR").type("varchar2(7)").conversion(CHAR2ENUM).map("collar").add();
+            table.column("BYPASS").type("varchar2(7)").conversion(CHAR2ENUM).map("bypass").add();
             table.column("BYPASSSTATUS").type("varchar2(7)").conversion(CHAR2ENUM).map("bypassStatus").add();
-            table.column("VALVE").type("char(1)").conversion(CHAR2BOOLEAN).map("valve").add();
-            table.column("CAPPED").type("char(1)").conversion(CHAR2BOOLEAN).map("capped").add();
-            table.column("CLAMPED").type("char(1)").conversion(CHAR2BOOLEAN).map("clamped").add();
+            table.column("VALVE").type("varchar2(7)").conversion(CHAR2ENUM).map("valve").add();
+            table.column("CAPPED").type("varchar2(7)").conversion(CHAR2ENUM).map("capped").add();
+            table.column("CLAMPED").type("varchar2(7)").conversion(CHAR2ENUM).map("clamped").add();
 
             table.addAuditColumns();
             table.primaryKey("MTR_PK_USAGEPOINTDETAIL").on(usagePointIdColumn, intervalColumns.get(0)).add();

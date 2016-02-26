@@ -4,31 +4,31 @@ import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 
 import javax.validation.constraints.Size;
-import java.util.Optional;
 
 public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
 
-    private Optional<Boolean> collar = Optional.empty();
+    private YesNoAnswer collar = YesNoAnswer.UNKNOWN;
 
-    private Boolean grounded;
+    private boolean grounded;
     private Quantity nominalServiceVoltage;
     private PhaseCode phaseCode;
     private Quantity ratedCurrent;
     private Quantity ratedPower;
     private Quantity estimatedLoad;
-    private Boolean limiter;
+    private boolean limiter;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String loadLimiterType;
     private Quantity loadLimit;
-    private Boolean interruptible;
+    private boolean interruptible;
 
     private UsagePoint usagePoint;
     private Interval interval;
@@ -41,13 +41,13 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
     }
 
     @Override
-    public ElectricityDetailBuilder withCollar(Boolean collar) {
-        this.collar = Optional.ofNullable(collar);
+    public ElectricityDetailBuilder withCollar(YesNoAnswer collar) {
+        this.collar = collar;
         return this;
     }
 
     @Override
-    public ElectricityDetailBuilder withGrounded(Boolean grounded) {
+    public ElectricityDetailBuilder withGrounded(boolean grounded) {
         this.grounded = grounded;
         return this;
     }
@@ -83,7 +83,7 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
     }
 
     @Override
-    public ElectricityDetailBuilder withLimiter(Boolean limiter) {
+    public ElectricityDetailBuilder withLimiter(boolean limiter) {
         this.limiter = limiter;
         return this;
     }
@@ -101,64 +101,9 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
     }
 
     @Override
-    public ElectricityDetailBuilder withInterruptible(Boolean interruptible) {
+    public ElectricityDetailBuilder withInterruptible(boolean interruptible) {
         this.interruptible = interruptible;
         return this;
-    }
-
-    @Override
-    public Optional<Boolean> getCollar() {
-        return collar;
-    }
-
-    @Override
-    public Boolean isGrounded() {
-        return grounded;
-    }
-
-    @Override
-    public Quantity getNominalServiceVoltage() {
-        return nominalServiceVoltage;
-    }
-
-    @Override
-    public PhaseCode getPhaseCode() {
-        return phaseCode;
-    }
-
-    @Override
-    public Quantity getRatedCurrent() {
-        return ratedCurrent;
-    }
-
-    @Override
-    public Quantity getRatedPower() {
-        return ratedPower;
-    }
-
-    @Override
-    public Quantity getEstimatedLoad() {
-        return estimatedLoad;
-    }
-
-    @Override
-    public Boolean isLimiter() {
-        return limiter;
-    }
-
-    @Override
-    public String getLoadLimiterType() {
-        return loadLimiterType;
-    }
-
-    @Override
-    public Quantity getLoadLimit() {
-        return loadLimit;
-    }
-
-    @Override
-    public Boolean isInterruptible() {
-        return interruptible;
     }
 
     @Override
@@ -175,17 +120,17 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
 
     private ElectricityDetail buildDetail(){
         ElectricityDetailImpl ed = dataModel.getInstance(ElectricityDetailImpl.class).init(usagePoint, interval);
-        ed.setCollar(this.getCollar());
-        ed.setGrounded(this.isGrounded());
-        ed.setNominalServiceVoltage(this.getNominalServiceVoltage());
-        ed.setPhaseCode(this.getPhaseCode());
-        ed.setRatedCurrent(this.getRatedCurrent());
-        ed.setRatedPower(this.getRatedPower());
-        ed.setEstimatedLoad(this.getEstimatedLoad());
-        ed.setLimiter(this.isLimiter());
-        ed.setLoadLimiterType(this.getLoadLimiterType());
-        ed.setLoadLimit(this.getLoadLimit());
-        ed.setInterruptible(this.isInterruptible());
+        ed.setCollar(collar);
+        ed.setGrounded(grounded);
+        ed.setNominalServiceVoltage(nominalServiceVoltage);
+        ed.setPhaseCode(phaseCode);
+        ed.setRatedCurrent(ratedCurrent);
+        ed.setRatedPower(ratedPower);
+        ed.setEstimatedLoad(estimatedLoad);
+        ed.setLimiter(limiter);
+        ed.setLoadLimiterType(loadLimiterType);
+        ed.setLoadLimit(loadLimit);
+        ed.setInterruptible(interruptible);
         return ed;
     }
 }

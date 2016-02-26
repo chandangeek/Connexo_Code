@@ -6,25 +6,24 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 
-import java.util.Optional;
-
 public class WaterDetailBuilderImpl implements WaterDetailBuilder{
 
-	private Optional<Boolean> collar = Optional.empty();
-	private Boolean grounded;
+	private YesNoAnswer collar = YesNoAnswer.UNKNOWN;
+	private boolean grounded;
 	private Quantity pressure;
 	private Quantity physicalCapacity;
-	private Boolean limiter;
+	private boolean limiter;
 	private String loadLimiterType;
 	private Quantity loadLimit;
-	private Optional<Boolean> bypass = Optional.empty();
+	private YesNoAnswer bypass = YesNoAnswer.UNKNOWN;
 	private BypassStatus bypassStatus;
-	private Optional<Boolean> valve = Optional.empty();
-	private Optional<Boolean> capped = Optional.empty();
-	private Optional<Boolean> clamped = Optional.empty();
+	private YesNoAnswer valve = YesNoAnswer.UNKNOWN;
+	private YesNoAnswer capped = YesNoAnswer.UNKNOWN;
+	private YesNoAnswer clamped = YesNoAnswer.UNKNOWN;
 
 	private UsagePoint usagePoint;
 	private Interval interval;
@@ -38,13 +37,13 @@ public class WaterDetailBuilderImpl implements WaterDetailBuilder{
 	}
 
 	@Override
-	public WaterDetailBuilder withCollar(Boolean collar) {
-		this.collar = Optional.ofNullable(collar);
+	public WaterDetailBuilder withCollar(YesNoAnswer collar) {
+		this.collar = collar;
 		return this;
 	}
 
 	@Override
-	public WaterDetailBuilder withGrounded(Boolean grounded) {
+	public WaterDetailBuilder withGrounded(boolean grounded) {
 		this.grounded = grounded;
 		return this;
 	}
@@ -62,7 +61,7 @@ public class WaterDetailBuilderImpl implements WaterDetailBuilder{
 	}
 
 	@Override
-	public WaterDetailBuilder withLimiter(Boolean limiter) {
+	public WaterDetailBuilder withLimiter(boolean limiter) {
 		this.limiter = limiter;
 		return this;
 	}
@@ -80,8 +79,8 @@ public class WaterDetailBuilderImpl implements WaterDetailBuilder{
 	}
 
 	@Override
-	public WaterDetailBuilder withBypass(Boolean bypass) {
-		this.bypass = Optional.ofNullable(bypass);
+	public WaterDetailBuilder withBypass(YesNoAnswer bypass) {
+		this.bypass = bypass;
 		return this;
 	}
 
@@ -92,81 +91,21 @@ public class WaterDetailBuilderImpl implements WaterDetailBuilder{
 	}
 
 	@Override
-	public WaterDetailBuilder withValve(Boolean valve) {
-		this.valve = Optional.ofNullable(valve);
+	public WaterDetailBuilder withValve(YesNoAnswer valve) {
+		this.valve = valve;
 		return this;
 	}
 
 	@Override
-	public WaterDetailBuilder withCapped(Boolean capped) {
-		this.capped = Optional.ofNullable(capped);
+	public WaterDetailBuilder withCap(YesNoAnswer capped) {
+		this.capped = capped;
 		return this;
 	}
 
 	@Override
-	public WaterDetailBuilder withClamped(Boolean clamped) {
-		this.clamped = Optional.ofNullable(clamped);
+	public WaterDetailBuilder withClamp(YesNoAnswer clamped) {
+		this.clamped = clamped;
 		return this;
-	}
-
-	@Override
-	public Optional<Boolean> getCollar() {
-		return collar;
-	}
-
-	@Override
-	public Optional<Boolean> getClamped() {
-		return clamped;
-	}
-
-	@Override
-	public Boolean isGrounded() {
-		return grounded;
-	}
-
-	@Override
-	public Quantity getPressure() {
-		return pressure;
-	}
-
-	@Override
-	public Quantity getPhysicalCapacity() {
-		return physicalCapacity;
-	}
-
-	@Override
-	public Boolean isLimiter() {
-		return limiter;
-	}
-
-	@Override
-	public String getLoadLimiterType() {
-		return loadLimiterType;
-	}
-
-	@Override
-	public Quantity getLoadLimit() {
-		return loadLimit;
-	}
-
-	@Override
-	public Optional<Boolean> getBypass() {
-		return bypass;
-	}
-
-	@Override
-	public BypassStatus getBypassStatus() {
-		return bypassStatus;
-	}
-
-	@Override
-	public Optional<Boolean> getValve() {
-		return valve;
-	}
-
-	@Override
-	public Optional<Boolean> getCapped() {
-		return capped;
 	}
 
 
@@ -184,18 +123,18 @@ public class WaterDetailBuilderImpl implements WaterDetailBuilder{
 
 	private WaterDetail buildDetail(){
 		WaterDetailImpl wd = dataModel.getInstance(WaterDetailImpl.class).init(usagePoint, interval);
-		wd.setCollar(this.getCollar());
-		wd.setGrounded(isGrounded());
-		wd.setPressure(getPressure());
-		wd.setPhysicalCapacity(getPhysicalCapacity());
-		wd.setLimiter(isLimiter());
-		wd.setLoadLimiterType(getLoadLimiterType());
-		wd.setLoadLimit(getLoadLimit());
-		wd.setBypass(getBypass());
-		wd.setBypassStatus(getBypassStatus());
-		wd.setValve(getValve());
-		wd.setCapped(getCapped());
-		wd.setClamped(getClamped());
+		wd.setCollar(collar);
+		wd.setGrounded(grounded);
+		wd.setPressure(pressure);
+		wd.setPhysicalCapacity(physicalCapacity);
+		wd.setLimiter(limiter);
+		wd.setLoadLimiterType(loadLimiterType);
+		wd.setLoadLimit(loadLimit);
+		wd.setBypass(bypass);
+		wd.setBypassStatus(bypassStatus);
+		wd.setValve(valve);
+		wd.setCap(capped);
+		wd.setClamp(clamped);
 		return wd;
 	}
 }
