@@ -257,7 +257,7 @@ public class ServiceCallTypeIT {
                         .getName()).get();
                 serviceCallType = serviceCallService.createServiceCallType("CustomTest", "CustomVersion")
                         .customPropertySet(customPropertySet)
-                        .add();
+                        .create();
             } catch (InvalidPropertySetDomainTypeException e) {
                 fail("Should not have had an exception here");
             }
@@ -273,7 +273,7 @@ public class ServiceCallTypeIT {
             RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySet(ServiceCallTypeDomainExtension.class
                     .getName()).get();
             ServiceCallType serviceCallType = serviceCallService.createServiceCallType("CustomTest", "CustomVersion")
-                    .add();
+                    .create();
             serviceCallType.addCustomPropertySet(customPropertySet);
         }
     }
