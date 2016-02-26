@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.rest;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.issue.rest.impl.IssueApplication;
+import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
@@ -29,7 +30,6 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
@@ -75,6 +75,9 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     RestQueryService restQueryService;
     @Mock
     static SecurityContext securityContext;
+    @Mock
+    IssueInfoFactoryService issueInfoFactoryService;
+
 
     @Provider
     @Priority(Priorities.AUTHORIZATION)
@@ -109,6 +112,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         application.setTransactionService(transactionService);
         application.setRestQueryService(restQueryService);
         application.setUserService(userService);
+        application.setIssueInfoFactoryService(issueInfoFactoryService);
         return application;
     }
 

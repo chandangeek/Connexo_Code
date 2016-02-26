@@ -3,7 +3,6 @@ package com.elster.jupiter.issue.rest.response;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
 import com.elster.jupiter.issue.share.entity.Issue;
-
 import java.util.List;
 import java.util.stream.Collectors;
 

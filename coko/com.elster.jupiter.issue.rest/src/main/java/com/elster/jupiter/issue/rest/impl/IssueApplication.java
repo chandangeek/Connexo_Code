@@ -18,6 +18,7 @@ import com.elster.jupiter.issue.rest.response.PropertyUtils;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfoFactory;
+import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -39,6 +40,8 @@ import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.ws.rs.core.Application;
 import java.util.Arrays;
@@ -64,6 +67,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     private volatile MeteringService meteringService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
+    private volatile IssueInfoFactoryService issueInfoFactoryService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -121,6 +125,11 @@ public class IssueApplication extends Application implements TranslationKeyProvi
         this.thesaurus = nlsService.getThesaurus(ISSUE_REST_COMPONENT, Layer.REST);
     }
 
+    @Reference
+    public void setIssueInfoFactoryService(IssueInfoFactoryService issueInfoFactoryService) {
+        this.issueInfoFactoryService = issueInfoFactoryService;
+    }
+
     @Override
     public String getComponentName() {
         return ISSUE_REST_COMPONENT;
@@ -163,6 +172,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
             bind(IssueResourceHelper.class).to(IssueResourceHelper.class);
             bind(IssueInfoFactory.class).to(IssueInfoFactory.class);
             bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
+            bind(issueInfoFactoryService).to(IssueInfoFactoryService.class);
         }
     }
 

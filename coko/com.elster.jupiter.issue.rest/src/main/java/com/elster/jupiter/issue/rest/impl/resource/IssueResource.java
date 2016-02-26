@@ -14,6 +14,8 @@ import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
 import com.elster.jupiter.issue.rest.response.IssueInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
+import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
+import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.IssueProvider;
@@ -62,13 +64,14 @@ public class IssueResource extends BaseResource {
     private final IssueResourceHelper issueResourceHelper;
     private final IssueInfoFactory issueInfoFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
-
+    private final IssueInfoFactoryService issueInfoFactoryService;
 
     @Inject
-    public IssueResource(IssueResourceHelper issueResourceHelper, IssueInfoFactory issueInfoFactory, ConcurrentModificationExceptionFactory conflictFactory) {
+    public IssueResource(IssueResourceHelper issueResourceHelper, IssueInfoFactory issueInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, IssueInfoFactoryService issueInfoFactoryService) {
         this.issueResourceHelper = issueResourceHelper;
         this.issueInfoFactory = issueInfoFactory;
         this.conflictFactory = conflictFactory;
+        this.issueInfoFactoryService = issueInfoFactoryService;
     }
 
     @GET @Transactional
@@ -82,7 +85,17 @@ public class IssueResource extends BaseResource {
         if (queryParams.getStart().isPresent() && queryParams.getLimit().isPresent()) {
             finder.paged(queryParams.getStart().get(), queryParams.getLimit().get());
         }
-        return PagedInfoList.fromPagedList("data", issueInfoFactory.asInfos(finder.find()), queryParams);
+        List<? extends Issue> issues = finder.find();
+        List<IssueInfo> issueInfos = new ArrayList<>();
+        for(Issue baseIssue : issues) {
+            for (IssueProvider issueProvider : getIssueService().getIssueProviders()) {
+                Optional<? extends Issue> issueRef = issueProvider.findIssue(baseIssue.getId());
+               if (issueRef.isPresent()) {
+                    issueInfos.add(IssueInfo.class.cast(issueInfoFactoryService.getInfoFactoryFor(issueRef.get()).from(issueRef.get())));
+                }
+            }
+        }
+        return PagedInfoList.fromPagedList("data", issueInfos, queryParams);
     }
 
     @GET @Transactional

@@ -25,11 +25,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.elster.jupiter.issue.rest.TranslationKeys.ISSUE_ASSIGNEE_UNASSIGNED;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_TYPE;
@@ -58,22 +55,8 @@ public class AssigneeResource extends BaseResource {
             return PagedInfoListCustomized.fromPagedList("data", assigneeFilterListInfo.getData(), queryParameters, 0);
         }
         String searchText = params.getFirst(LIKE);
-        List<String> assignees = new ArrayList<>();
-
-        if (searchText != null && !searchText.isEmpty()) {
-            String[] users = searchText.split(",");
-            assignees = Arrays.asList(users).stream().map(u -> u.trim()).collect(Collectors.toList());
-            assignees.set(assignees.size()-1, "*" + assignees.get(assignees.size()-1) + "*");
-        }
-
-        Condition conditionUser = Condition.FALSE;
-        if (assignees.isEmpty()) {
-            conditionUser = where("authenticationName").likeIgnoreCase("*");
-        } else {
-            for(String assignee : assignees) {
-                conditionUser = conditionUser.or(where("authenticationName").likeIgnoreCase(assignee));
-            }
-        }
+        String dbSearchText = (searchText != null && !searchText.isEmpty()) ? ("*" + searchText + "*") : "*";
+        Condition conditionUser = where("authenticationName").likeIgnoreCase(dbSearchText);
         Query<User> queryUser = getUserService().getUserQuery();
 
         AssigneeFilterListInfo assigneeFilterListInfo;
