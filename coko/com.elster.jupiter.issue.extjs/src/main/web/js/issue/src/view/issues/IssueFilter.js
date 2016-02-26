@@ -49,6 +49,9 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 listeners: {
                     expand: {
                         fn: me.comboLimitNotification
+                    },
+                    blur: {
+                        fn: me.onAssigneeBlur
                     }
                 }
             },
@@ -200,5 +203,9 @@ Ext.define('Isu.view.issues.IssueFilter', {
         picker.on('beforehide', function () {
             picker.un('refresh', fn);
         }, combo, {single: true});
+    },
+
+    onAssigneeBlur: function (field) {
+        field.setValue(field.lastSelection);
     }
 });
