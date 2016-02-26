@@ -126,10 +126,10 @@ class MdcAppPrivileges {
                 com.energyict.mdc.device.lifecycle.config.Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE,
 
                 //com.elster.jupiter.metering.security - usage points
-                com.elster.jupiter.metering.security.Privileges.Constants.ADMIN_ANY,
-                com.elster.jupiter.metering.security.Privileges.Constants.ADMIN_OWN,
-                com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_ANY,
-                com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_OWN,
+                com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_ANY_USAGEPOINT,
+                com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_OWN_USAGEPOINT,
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ANY_USAGEPOINT,
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_OWN_USAGEPOINT,
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
 
                 //mdc.scheduling.security

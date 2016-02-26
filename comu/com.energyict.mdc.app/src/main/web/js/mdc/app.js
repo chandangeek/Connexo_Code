@@ -70,7 +70,11 @@ Ext.onReady(function () {
         {
             name: 'Dbp',
             path: '../../apps/dbp/src'
-        },
+        }
+        //{
+        //    name: 'Scs',
+        //    path: '../../apps/scs/src'
+        //}
 //        {
 //            name: 'PlaygroundApp',
 //            path: '../../apps/playground/app'
