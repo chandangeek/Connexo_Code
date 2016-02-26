@@ -1,4 +1,4 @@
-package com.elster.insight.usagepoint.config.rest.impl;
+package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;

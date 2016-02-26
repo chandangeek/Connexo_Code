@@ -1,9 +1,9 @@
-package com.elster.insight.usagepoint.config.rest.impl;
+package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
+import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigurationInfo;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
 
 import javax.inject.Inject;
 import java.util.stream.Collectors;

@@ -1,4 +1,4 @@
-package com.elster.insight.usagepoint.config.rest;
+package com.elster.jupiter.mdm.usagepoint.config.rest;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
