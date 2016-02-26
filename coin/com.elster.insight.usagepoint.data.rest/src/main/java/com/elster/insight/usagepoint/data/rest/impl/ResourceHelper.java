@@ -34,7 +34,7 @@ public class ResourceHelper {
     }
 
     public UsagePoint lockUsagePointOrThrowException(UsagePointInfo info) {
-        return lockUsagePointOrThrowException(info.id, info.version, info.name);
+        return lockUsagePointOrThrowException(info.id, info.version, info.mRID);
     }
 
     public UsagePoint lockUsagePointOrThrowException(long id, long version, String name) {
