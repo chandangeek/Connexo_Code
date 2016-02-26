@@ -68,6 +68,8 @@ public class ComServerOperationalStatisticsImplTest {
     @Test
     public void testCompositeDataItemTypes () {
         when(this.clock.instant()).thenReturn(Instant.now());
+        when(runningComServer.getComServer()).thenReturn(comServer);
+        when(comServer.getSchedulingInterPollDelay()).thenReturn(new TimeDuration(3, TimeDuration.TimeUnit.MINUTES));
         ComServerOperationalStatisticsImpl operationalStatistics = new ComServerOperationalStatisticsImpl(this.runningComServer, this.clock, this.thesaurus);
 
         // Business method
@@ -80,6 +82,7 @@ public class ComServerOperationalStatisticsImplTest {
         assertThat(compositeData.getCompositeType().getType(ComServerOperationalStatisticsImpl.LAST_CHECK_FOR_CHANGES_ITEM_NAME)).isNotNull();
         assertThat(compositeData.getCompositeType().getType(ComServerOperationalStatisticsImpl.SERVER_LOG_LEVEL_ITEM_NAME)).isNotNull();
         assertThat(compositeData.getCompositeType().getType(ComServerOperationalStatisticsImpl.COMMUNICATION_LOG_LEVEL_ITEM_NAME)).isNotNull();
+        assertThat(compositeData.getCompositeType().getType(ComServerOperationalStatisticsImpl.SCHEDULING_INTERPOLL_DELAY_ITEM_NAME)).isNotNull();
     }
 
     @Test
@@ -87,6 +90,8 @@ public class ComServerOperationalStatisticsImplTest {
         Date startTimestamp = new DateTime(2013, 4, 6, 22, 23, 4, 0).toDate();
         Date now = new DateTime(2013, 4, 6, 23, 24, 5, 0).toDate();
         when(this.clock.instant()).thenReturn(startTimestamp.toInstant(), now.toInstant());
+        when(runningComServer.getComServer()).thenReturn(comServer);
+        when(comServer.getSchedulingInterPollDelay()).thenReturn(new TimeDuration(3, TimeDuration.TimeUnit.MINUTES));
         ComServerOperationalStatisticsImpl operationalStatistics = new ComServerOperationalStatisticsImpl(this.runningComServer, this.clock, this.thesaurus);
 
         // Business method
@@ -99,6 +104,8 @@ public class ComServerOperationalStatisticsImplTest {
         assertThat(compositeData.get(ComServerOperationalStatisticsImpl.LAST_CHECK_FOR_CHANGES_ITEM_NAME)).isNull();
         assertThat(compositeData.get(ComServerOperationalStatisticsImpl.SERVER_LOG_LEVEL_ITEM_NAME)).isEqualTo(ComServer.LogLevel.WARN.toString());
         assertThat(compositeData.get(ComServerOperationalStatisticsImpl.COMMUNICATION_LOG_LEVEL_ITEM_NAME)).isEqualTo(ComServer.LogLevel.TRACE.toString());
+        assertThat(compositeData.get(ComServerOperationalStatisticsImpl.SCHEDULING_INTERPOLL_DELAY_ITEM_NAME)).isEqualTo("3 minutes");
+
     }
 
 }

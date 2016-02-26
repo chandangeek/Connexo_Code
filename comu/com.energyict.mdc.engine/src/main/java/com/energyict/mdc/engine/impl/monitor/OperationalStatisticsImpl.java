@@ -134,6 +134,10 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
         return itemTypes.toArray(new OpenType[itemTypes.size()]);
     }
 
+    protected Thesaurus getThesaurus(){
+        return thesaurus;
+    }
+
     protected void addItemTypes (List<OpenType> itemTypes) {
         itemTypes.add(SimpleType.DATE);
         itemTypes.add(SimpleType.STRING);

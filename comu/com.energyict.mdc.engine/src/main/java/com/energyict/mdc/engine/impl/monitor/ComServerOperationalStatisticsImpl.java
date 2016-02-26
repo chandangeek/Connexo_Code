@@ -100,7 +100,10 @@ public class ComServerOperationalStatisticsImpl extends OperationalStatisticsImp
         super.initializeAccessors(accessors);
         accessors.add( new CompositeDataItemAccessor(SERVER_LOG_LEVEL_ITEM_NAME, this::getServerLogLevelString));
         accessors.add( new CompositeDataItemAccessor(COMMUNICATION_LOG_LEVEL_ITEM_NAME, this::getCommunicationLogLevelString));
-        accessors.add( new CompositeDataItemAccessor(SCHEDULING_INTERPOLL_DELAY_ITEM_NAME, this::getSchedulingInterPollDelayString));
+        accessors.add(
+                new CompositeDataItemAccessor(
+                        SCHEDULING_INTERPOLL_DELAY_ITEM_NAME,
+                        () -> new PrettyPrintTimeDuration(getSchedulingInterPollDelay(), getThesaurus()).toString()));
     }
 
 }

@@ -25,6 +25,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
 
