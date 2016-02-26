@@ -1,5 +1,6 @@
 package com.energyict.mdc.issue.datacollection.rest.response;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -9,6 +10,8 @@ import javax.inject.Inject;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.rest.util.InfoFactory;
+import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -17,12 +20,23 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 
-public class DataCollectionIssueInfoFactory {
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
-    private final DeviceService deviceService;
+@Component(name="issue.data.collection.info.factory", service = { InfoFactory.class }, immediate = true)
+public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataCollection> {
+
+    private DeviceService deviceService;
+
+    public DataCollectionIssueInfoFactory() {}
 
     @Inject
     public DataCollectionIssueInfoFactory(DeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
 
@@ -70,5 +84,20 @@ public class DataCollectionIssueInfoFactory {
                              (es.getSuccessIndicator() == ComTaskExecutionSession.SuccessIndicator.Failure || es.getSuccessIndicator() == ComTaskExecutionSession.SuccessIndicator.Interrupted))
                 .findFirst()
                 .map(es -> es.getId()).orElse(null);
+    }
+
+    @Override
+    public Object from(IssueDataCollection issueDataCollection) {
+        return asInfo(issueDataCollection, DeviceInfo.class);
+    }
+
+    @Override
+    public List<PropertyDescriptionInfo> modelStructure() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public Class<IssueDataCollection> getDomainClass() {
+        return IssueDataCollection.class;
     }
 }
