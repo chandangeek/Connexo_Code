@@ -140,9 +140,7 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
     static class DeviceStateInfo extends HasIdAndName {
         private transient DeviceLifeCycle deviceLifeCycle;
         private transient State deviceState;
-
-        @JsonIgnore
-        private Thesaurus thesaurus;
+        private transient Thesaurus thesaurus;
 
         DeviceStateInfo(Thesaurus thesaurus, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, State deviceState) {
             this.thesaurus = thesaurus;
