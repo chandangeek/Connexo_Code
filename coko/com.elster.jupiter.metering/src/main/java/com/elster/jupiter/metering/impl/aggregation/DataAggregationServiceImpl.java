@@ -216,13 +216,9 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
     }
 
     private List<AggregatedReadingRecord> execute(PreparedStatement statement) throws SQLException {
-        List<AggregatedReadingRecord> aggregatedReadingRecords = new ArrayList<>();
         try (ResultSet resultSet = statement.executeQuery()) {
-            while (resultSet.next()) {
-                aggregatedReadingRecords.add(AggregatedReadingRecord.from(resultSet));
-            }
+            return this.getDataModel().getInstance(AggregatedReadingRecordFactory.class).consume(resultSet);
         }
-        return aggregatedReadingRecords;
     }
 
 }

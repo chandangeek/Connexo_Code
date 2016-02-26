@@ -123,6 +123,8 @@ class ReadingTypeDeliverableForMeterActivation {
         this.appendValueToSelectClause(sqlBuilder);
         sqlBuilder.append(", ");
         this.appendTimelineToSelectClause(sqlBuilder);
+        sqlBuilder.append(", ");
+        this.appendProcessStatusToSelectClause(sqlBuilder);
         sqlBuilder.append("\n  FROM ");
         sqlBuilder.append(this.sqlName());
         this.appendGroupByClauseIfApplicable(sqlBuilder);
@@ -163,6 +165,21 @@ class ReadingTypeDeliverableForMeterActivation {
         sqlBuilder.append(this.sqlName());
         sqlBuilder.append(".");
         sqlBuilder.append(columnName.sqlName());
+    }
+
+    private void appendProcessStatusToSelectClause(SqlBuilder sqlBuilder) {
+        if (!this.resultValueNeedsAggregation()) {
+            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS, sqlBuilder);
+        } else {
+            this.appendAggregatedProcessStatus(sqlBuilder);
+        }
+    }
+
+    private void appendAggregatedProcessStatus(SqlBuilder sqlBuilder) {
+        sqlBuilder.append(AggregationFunction.BIT_OR.sqlName());
+        sqlBuilder.append("(");
+        this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS, sqlBuilder);
+        sqlBuilder.append(")");
     }
 
     private void appendGroupByClauseIfApplicable(SqlBuilder sqlBuilder) {

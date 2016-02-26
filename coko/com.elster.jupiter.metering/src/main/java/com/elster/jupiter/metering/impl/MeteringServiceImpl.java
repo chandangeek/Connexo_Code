@@ -37,6 +37,8 @@ import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.impl.aggregation.AggregatedReadingRecordFactory;
+import com.elster.jupiter.metering.impl.aggregation.AggregatedReadingRecordFactoryImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import com.elster.jupiter.metering.security.Privileges;
@@ -397,6 +399,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 bind(Clock.class).toInstance(clock);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(MetrologyConfigurationService.class).to(MetrologyConfigurationServiceImpl.class);
+                bind(AggregatedReadingRecordFactory.class).to(AggregatedReadingRecordFactoryImpl.class);
             }
         });
     }

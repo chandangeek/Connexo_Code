@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.units.Quantity;
+
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -66,7 +67,7 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
     public Quantity getQuantity(int offset) {
         return getQuantity(offset,channel.getReadingTypes().get(offset));
     }
-    
+
     private Quantity getQuantity(int offset, ReadingType readingType) {
     	return ((IReadingType) readingType).toQuantity(doGetValue(offset));
     }
@@ -82,6 +83,7 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
     	}
     	return result;
     }
+
     @Override
     public Quantity getQuantity(ReadingType readingType) {
         return getQuantity(getIndex(readingType),readingType);
@@ -132,7 +134,7 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
     public Optional<Range<Instant>> getTimePeriod() {
         return channel.getTimePeriod(this, entry.getValues());
     }
-    
+
     public List<? extends ReadingQualityRecord> getReadingQualities() {
     	return getChannel().findReadingQuality(getTimeStamp());
     }

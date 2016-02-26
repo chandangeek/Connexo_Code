@@ -96,6 +96,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.dataModel.getConnection(true)).thenReturn(this.connection);
         when(this.connection.prepareStatement(anyString())).thenReturn(this.preparedStatement);
         when(this.preparedStatement.executeQuery()).thenReturn(this.resultSet);
+        when(this.dataModel.getInstance(AggregatedReadingRecordFactory.class)).thenReturn(new AggregatedReadingRecordFactoryImpl(this.dataModel));
     }
 
     /**
