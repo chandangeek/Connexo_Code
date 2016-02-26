@@ -39,7 +39,8 @@ Ext.define('Imt.usagepointhistory.view.VersionsOverview', {
                         itemId: 'custom-attribute-set-add-version-btn',
                         hidden: true,
                         action: 'moveToAddVersionPage',
-                        type: me.type
+                        type: me.type,
+                        privileges: Imt.privileges.UsagePoint.adminTimeSlicedCps
                     }
                 ]
             },

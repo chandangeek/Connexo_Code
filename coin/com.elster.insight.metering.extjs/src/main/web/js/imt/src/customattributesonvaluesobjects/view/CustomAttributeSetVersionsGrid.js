@@ -45,7 +45,8 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionsG
                         hidden: true,
                         xtype: 'button',
                         action: 'moveToAddVersionPage',
-                        type: me.type
+                        type: me.type,
+                        privileges: Imt.privileges.UsagePoint.adminTimeSlicedCps
                     }
                 ]
             },

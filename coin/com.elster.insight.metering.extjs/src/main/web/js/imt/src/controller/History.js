@@ -292,7 +292,7 @@ Ext.define('Imt.controller.History', {
                                 customattributesversionsadd: {
                                     title: Uni.I18n.translate('general.add', 'IMT', 'Add'),
                                     route: 'customattributes/{customAttributeSetId}/versions/add',
-                                    privileges: Imt.privileges.UsagePoint.admin,
+                                    privileges: Imt.privileges.UsagePoint.hasFullAdministrateTimeSlicedCps(),
                                     controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
                                     action: 'editCasVersion',
                                     callback: function (route) {
