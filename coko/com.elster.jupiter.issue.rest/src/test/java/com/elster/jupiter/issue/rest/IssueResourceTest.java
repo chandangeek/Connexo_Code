@@ -4,7 +4,10 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
+import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
+import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueShortInfo;
+import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
@@ -15,12 +18,14 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueFilter;
 import com.elster.jupiter.issue.share.service.IssueGroupFilter;
+import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import org.junit.Test;
 import org.mockito.Matchers;
+import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -43,6 +48,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class IssueResourceTest extends IssueRestApplicationJerseyTest {
+    @Mock
+    IssueProvider issueProvider;
+
+    @Mock
+    InfoFactory infoFactory;
 
     @Test
     public void testGetAllIssuesWithoutParameters() {
@@ -75,6 +85,14 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
 
         List<? extends Issue> issues = Arrays.asList(getDefaultIssue(), getDefaultIssue());
         doReturn(issues).when(issueFinder).find();
+
+        List<IssueProvider> issueProviders = Arrays.asList(issueProvider);
+        doReturn(issueProviders).when(issueService).getIssueProviders();
+        Optional<? extends Issue> issueRef = Optional.of(issues.get(0));
+        doReturn(issueRef).when(issueProvider).findIssue(1L);
+        IssueInfo issueInfo = new IssueInfo<>(issues.get(0), DeviceInfo.class);
+        when(infoFactory.from(issues.get(0))).thenReturn(issueInfo);
+        when(issueInfoFactoryService.getInfoFactoryFor(issues.get(0))).thenReturn(infoFactory);
 
         String filter = URLEncoder.encode("[{\"property\":\"status\",\"value\":[\"open\"]}]");
         Map<?, ?> map = target("/issues").queryParam(FILTER, filter).queryParam(START, "0").queryParam(LIMIT, "1").request().get(Map.class);
