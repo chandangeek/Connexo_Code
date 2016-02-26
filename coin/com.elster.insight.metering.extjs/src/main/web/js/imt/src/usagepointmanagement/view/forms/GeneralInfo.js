@@ -80,7 +80,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.GeneralInfo', {
                 fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name')
             },
             {
-                xtype: 'installationtimefield',
+                xtype: 'techinfo-installationtimefield',
                 dateFieldName: 'installationTime',
                 itemId: 'up-createTime-installationtimefield',
                 fieldLabel: Uni.I18n.translate('general.label.created', 'IMT', 'Created'),

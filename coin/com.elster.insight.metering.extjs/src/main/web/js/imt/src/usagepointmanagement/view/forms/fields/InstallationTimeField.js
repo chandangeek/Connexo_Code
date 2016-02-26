@@ -1,6 +1,6 @@
 Ext.define('Imt.usagepointmanagement.view.forms.fields.InstallationTimeField', {
     extend: 'Ext.form.RadioGroup',
-    alias: 'widget.installationtimefield',
+    alias: 'widget.techinfo-installationtimefield',
     columns: 1,
 
     listeners: {

@@ -14,7 +14,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
             fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
         },
         {
-            xtype: 'measurefield',
+            xtype: 'techinfo-measurefield',
             name: 'nominalServiceVoltage',
             itemId: 'up-nominalServiceVoltage-measurefield',
             fieldLabel: Uni.I18n.translate('general.label.nominalServiceVoltage', 'IMT', 'Nominal voltage'),
@@ -43,7 +43,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
             }
         },
         {
-            xtype: 'measurefield',
+            xtype: 'techinfo-measurefield',
             name: 'ratedPower',
             itemId: 'up-ratedPower-measurefield',
             fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power'),
@@ -51,7 +51,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
             value: {value: null, unit: 'W', multiplier: 0}
         },
         {
-            xtype: 'measurefield',
+            xtype: 'techinfo-measurefield',
             name: 'ratedCurrent',
             itemId: 'up-ratedCurrent-measurefield',
             fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current'),
@@ -59,7 +59,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
             value: {value: null, unit: 'A', multiplier: 0}
         },
         {
-            xtype: 'measurefield',
+            xtype: 'techinfo-measurefield',
             name: 'estimatedLoad',
             itemId: 'up-estimatedLoad-measurefield',
             fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load'),
@@ -67,23 +67,23 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
             value: {value: null, unit: 'W', multiplier: 0}
         },
         {
-            xtype: 'limitercheckbox',
+            xtype: 'techinfo-limitercheckbox',
             itemId: 'up-limiter-checkbox'
         },
         {
-            xtype: 'loadlimitertypefield',
+            xtype: 'techinfo-loadlimitertypefield',
             itemId: 'up-loadLimiterType-textfield',
             hidden: true
         },
         {
-            xtype: 'loadlimitfield',
-            itemId: 'up-loadLimit-measurefield',
+            xtype: 'techinfo-loadlimitfield',
+            itemId: 'up-loadLimit-techinfo-measurefield',
             store: 'Imt.usagepointmanagement.store.measurementunits.Power',
             value: {value: null, unit: 'W', multiplier: 0},
             hidden: true
         },
         {
-            xtype: 'threevaluesfield',
+            xtype: 'techinfo-threevaluesfield',
             name: 'collar',
             itemId: 'up-collar-combo',
             fieldLabel: Uni.I18n.translate('general.label.collar', 'IMT', 'Collar')

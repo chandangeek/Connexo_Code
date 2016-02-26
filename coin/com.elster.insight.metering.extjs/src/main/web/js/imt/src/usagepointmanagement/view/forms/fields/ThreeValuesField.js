@@ -1,6 +1,6 @@
 Ext.define('Imt.usagepointmanagement.view.forms.fields.ThreeValuesField', {
     extend: 'Ext.form.field.ComboBox',
-    alias: 'widget.threevaluesfield',
+    alias: 'widget.techinfo-threevaluesfield',
     displayField: 'displayValue',
     valueField: 'value',
     queryMode: 'local',

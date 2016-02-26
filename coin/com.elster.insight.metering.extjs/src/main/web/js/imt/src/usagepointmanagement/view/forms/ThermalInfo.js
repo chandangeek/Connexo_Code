@@ -8,7 +8,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.ThermalInfo', {
             hidden: true
         },
         {
-            xtype: 'measurefield',
+            xtype: 'techinfo-measurefield',
             name: 'pressure',
             itemId: 'up-pressure-measurefield',
             fieldLabel: Uni.I18n.translate('general.label.pressure', 'IMT', 'Pressure'),
@@ -16,7 +16,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.ThermalInfo', {
             value: {value: null, unit: 'Pa', multiplier: 0}
         },
         {
-            xtype: 'measurefield',
+            xtype: 'techinfo-measurefield',
             name: 'physicalCapacity',
             itemId: 'up-physicalCapacity-measurefield',
             fieldLabel: Uni.I18n.translate('general.label.physicalCapacity', 'IMT', 'Physical capacity'),
@@ -24,22 +24,22 @@ Ext.define('Imt.usagepointmanagement.view.forms.ThermalInfo', {
             value: {value: null, unit: 'Wh', multiplier: 0}
         },
         {
-            xtype: 'bypassfield',
+            xtype: 'techinfo-bypassfield',
             itemId: 'up-bypass-combo'
         },
         {
-            xtype: 'bypassstatuscombobox',
+            xtype: 'techinfo-bypassstatuscombobox',
             itemId: 'up-bypassStatus-combo',
             hidden: true
         },
         {
-            xtype: 'threevaluesfield',
+            xtype: 'techinfo-threevaluesfield',
             name: 'valve',
             itemId: 'up-valve-combo',
             fieldLabel: Uni.I18n.translate('general.label.valve', 'IMT', 'Valve')
         },
         {
-            xtype: 'threevaluesfield',
+            xtype: 'techinfo-threevaluesfield',
             name: 'collar',
             itemId: 'up-collar-combo',
             fieldLabel: Uni.I18n.translate('general.label.collar', 'IMT', 'Collar')

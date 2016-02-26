@@ -1,6 +1,6 @@
 Ext.define('Imt.usagepointmanagement.view.forms.fields.BypassStatusCombobox', {
     extend: 'Ext.form.field.ComboBox',
-    alias: 'widget.bypassstatuscombobox',
+    alias: 'widget.techinfo-bypassstatuscombobox',
     name: 'bypassStatus',
     fieldLabel: Uni.I18n.translate('general.label.bypassStatus', 'IMT', 'Bypass status'),
     store: 'Imt.usagepointmanagement.store.BypassStatuses',
