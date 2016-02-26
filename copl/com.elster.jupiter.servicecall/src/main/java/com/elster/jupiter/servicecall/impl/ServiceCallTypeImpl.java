@@ -2,9 +2,11 @@ package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.InvalidPropertySetDomainTypeException;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.Status;
@@ -41,10 +43,12 @@ public class ServiceCallTypeImpl implements IServiceCallType {
 
 
     private final DataModel dataModel;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public ServiceCallTypeImpl(DataModel dataModel) {
+    public ServiceCallTypeImpl(DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
         this.status = Status.ACTIVE;
     }
 
@@ -134,6 +138,9 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     @Override
     public void addCustomPropertySet(RegisteredCustomPropertySet customPropertySet) {
         Objects.requireNonNull(customPropertySet);
+        if (!customPropertySet.getCustomPropertySet().getDomainClass().isAssignableFrom(ServiceCallType.class)) {
+            throw new InvalidPropertySetDomainTypeException(thesaurus, MessageSeeds.INVALID_CPS_TYPE, customPropertySet);
+        }
         ServiceCallTypeCustomPropertySetUsageImpl usage = dataModel.getInstance(ServiceCallTypeCustomPropertySetUsageImpl.class);
         usage.initialize(this, customPropertySet);
         this.customPropertySets.add(usage);
