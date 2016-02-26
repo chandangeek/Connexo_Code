@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.rest.impl.ServiceLocationInfo;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -51,12 +52,12 @@ public class UsagePointInfo {
     public Boolean interruptible;
     public Quantity pressure;
     public Quantity physicalCapacity;
-    public Boolean bypass;
+    public YesNoAnswer bypass;
     public BypassStatus bypassStatus;
-    public Boolean valve;
-    public Boolean capped;
-    public Boolean clamped;
-    public Boolean collar;
+    public YesNoAnswer valve;
+    public YesNoAnswer capped;
+    public YesNoAnswer clamped;
+    public YesNoAnswer collar;
 
     public long version;
     public long createTime;
@@ -87,7 +88,7 @@ public class UsagePointInfo {
         Optional<? extends UsagePointDetail> detailHolder = usagePoint.getDetail(clock.instant());
         if (detailHolder.isPresent()) {
             UsagePointDetail detail = detailHolder.get();
-            collar = detail.getCollar().isPresent() ? detail.getCollar().get() : null;
+            collar = detail.isCollarInstalled();
             if (detail instanceof ElectricityDetail) {
                 ElectricityDetail eDetail = (ElectricityDetail) detail;
                 estimatedLoad = eDetail.getEstimatedLoad();
@@ -109,11 +110,11 @@ public class UsagePointInfo {
                 limiter = wDetail.isLimiter();
                 loadLimiterType = wDetail.getLoadLimiterType();
                 loadLimit = wDetail.getLoadLimit();
-                bypass = wDetail.getBypass().isPresent() ? wDetail.getBypass().get() : null;
+                bypass = wDetail.isBypassInstalled();
                 bypassStatus =wDetail.getBypassStatus();
-                valve = wDetail.getValve().isPresent() ? wDetail.getValve().get() : null;
-                capped = wDetail.getCapped().isPresent() ? wDetail.getCapped().get() : null;
-                clamped = wDetail.getClamped().isPresent() ? wDetail.getClamped().get() : null;
+                valve = wDetail.isValveInstalled();
+                capped = wDetail.isCapped();
+                clamped = wDetail.isClamped();
             }
             else if (detail instanceof GasDetail) {
                 GasDetail gDetail = (GasDetail) detail;
@@ -123,20 +124,20 @@ public class UsagePointInfo {
                 limiter = gDetail.isLimiter();
                 loadLimiterType = gDetail.getLoadLimiterType();
                 loadLimit = gDetail.getLoadLimit();
-                bypass = gDetail.getBypass().isPresent() ? gDetail.getBypass().get() : null;
+                bypass = gDetail.isBypassInstalled();
                 bypassStatus =gDetail.getBypassStatus();
-                valve = gDetail.getValve().isPresent() ? gDetail.getValve().get() : null;
-                capped = gDetail.getCapped().isPresent() ? gDetail.getCapped().get() : null;
-                clamped = gDetail.getClamped().isPresent() ? gDetail.getClamped().get() : null;
+                valve = gDetail.isValveInstalled();
+                capped = gDetail.isCapped();
+                clamped = gDetail.isClamped();
                 interruptible = gDetail.isInterruptible();
             }
             else if (detail instanceof HeatDetail) {
                 HeatDetail hDetail = (HeatDetail) detail;
                 physicalCapacity = hDetail.getPhysicalCapacity();
                 pressure = hDetail.getPressure();
-                bypass = hDetail.getBypass().isPresent() ? hDetail.getBypass().get() : null;
+                bypass = hDetail.isBypassInstalled();
                 bypassStatus =hDetail.getBypassStatus();
-                valve = hDetail.getValve().isPresent() ? hDetail.getValve().get() : null;
+                valve = hDetail.isValveInstalled();
                 interruptible = hDetail.isInterruptible();
             }
         }
