@@ -85,6 +85,7 @@ public class ServiceCallLifeCycleImpl implements IServiceCallLifeCycle {
                 .getState(defaultState.getKey());
     }
 
+    @Override
     public void triggerTransition(ServiceCall serviceCall, DefaultState to) {
 
         DefaultState from = serviceCall.getState();

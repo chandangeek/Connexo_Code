@@ -14,8 +14,12 @@ import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.fsm.impl.StateTransitionTriggerEventTopicHandler;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
@@ -48,12 +52,14 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.json.JsonService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import org.hamcrest.Matchers;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -69,6 +75,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -79,8 +86,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.jayway.awaitility.Awaitility.await;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceCallTransitionIT {
@@ -92,7 +103,7 @@ public class ServiceCallTransitionIT {
     private NlsService nlsService;
     private TransactionService transactionService;
     private MessageService messageService;
-    private ServiceCallService serviceCallService;
+    private IServiceCallService serviceCallService;
     private PropertySpecService propertySpecService;
 
     @Rule
@@ -117,6 +128,7 @@ public class ServiceCallTransitionIT {
     private MyCustomPropertySet customPropertySet;
     private Person person;
     private PartyService partyService;
+    private JsonService jsonService;
 
     private class MockModule extends AbstractModule {
 
@@ -161,14 +173,18 @@ public class ServiceCallTransitionIT {
         transactionService.execute(new Transaction<Void>() {
 
 
+            private EventService eventService;
+
             @Override
             public Void perform() {
                 nlsService = injector.getInstance(NlsService.class);
                 customPropertySetService = injector.getInstance(CustomPropertySetService.class);
                 messageService = injector.getInstance(MessageService.class);
-                serviceCallService = injector.getInstance(ServiceCallService.class);
+                serviceCallService = (IServiceCallService) injector.getInstance(ServiceCallService.class);
                 propertySpecService = injector.getInstance(PropertySpecService.class);
                 partyService = injector.getInstance(PartyService.class);
+                jsonService = injector.getInstance(JsonService.class);
+                eventService = injector.getInstance(EventService.class);
 
                 customPropertySet = new MyCustomPropertySet(propertySpecService);
                 customPropertySetService.addCustomPropertySet(customPropertySet);
@@ -182,6 +198,14 @@ public class ServiceCallTransitionIT {
                         .handler("someHandler")
                         .customPropertySet(registeredCustomPropertySet)
                         .create();
+
+                ServiceCallStateChangeTopicHandler serviceCallStateChangeTopicHandler = new ServiceCallStateChangeTopicHandler();
+                serviceCallStateChangeTopicHandler.setFiniteStateMachineService(injector.getInstance(FiniteStateMachineService.class));
+                EventServiceImpl eventService = (EventServiceImpl) this.eventService;
+                eventService.addTopicHandler(serviceCallStateChangeTopicHandler);
+                StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler();
+                stateTransitionTriggerEventTopicHandler.setEventService(eventService);
+                eventService.addTopicHandler(stateTransitionTriggerEventTopicHandler);
 
                 person = partyService.newPerson("Test", "test")
                         .create();
@@ -197,6 +221,8 @@ public class ServiceCallTransitionIT {
 
     @Test
     public void transitionServiceCall() {
+        when(serviceCallHandler.allowStateChange(any(), any(), any())).thenReturn(true);
+
         MyExtension extension = new MyExtension();
         extension.setValue(BigDecimal.valueOf(65456));
 
@@ -215,9 +241,24 @@ public class ServiceCallTransitionIT {
 
         serviceCall.requestTransition(DefaultState.PENDING);
 
-        SubscriberSpec subscriberSpec = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME).get();
+        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME).get();
 
-        assertThat((Runnable) () -> subscriberSpec.receive()).
+        try (TransactionContext context = transactionService.getContext()) {
+            Message message = await().atMost(200, TimeUnit.MILLISECONDS)
+                    .until(messageQueue::receive, Matchers.any(Message.class));
+
+            ServiceCallMessageHandler serviceCallMessageHandler = new ServiceCallMessageHandler(jsonService, serviceCallService);
+
+            serviceCallMessageHandler.process(message);
+
+            context.commit();
+        }
+
+        verify(serviceCallHandler).onStateChange(serviceCall, DefaultState.CREATED, DefaultState.PENDING);
+
+        serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
+
+        assertThat(serviceCall.getState()).isEqualTo(DefaultState.PENDING);
 
     }
 

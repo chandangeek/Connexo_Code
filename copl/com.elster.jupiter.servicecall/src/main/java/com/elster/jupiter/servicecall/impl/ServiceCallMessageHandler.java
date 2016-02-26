@@ -20,7 +20,8 @@ public class ServiceCallMessageHandler implements MessageHandler {
         TransitionRequest transitionRequest = jsonService.deserialize(message.getPayload(), TransitionRequest.class);
         ServiceCall serviceCall = serviceCallService.getServiceCall(transitionRequest.getServiceCallId())
                 .orElseThrow(IllegalStateException::new);
-
+        serviceCall.getType().getServiceCallLifeCycle()
+                .triggerTransition(serviceCall, transitionRequest.getRequestedState());
     }
 
 }
