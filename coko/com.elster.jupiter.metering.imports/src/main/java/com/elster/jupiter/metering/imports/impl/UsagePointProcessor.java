@@ -108,36 +108,13 @@ public class UsagePointProcessor {
             if (!usagePointFileInfo.getOutageregion().isEmpty()) {
                 usagePoint.setOutageRegion(usagePointFileInfo.getOutageregion());
             }
-            if (!usagePointFileInfo.getReadcycle().isEmpty()) {
-                usagePoint.setReadCycle(usagePointFileInfo.getReadcycle());
-            }
             if (!usagePointFileInfo.getReadroute().isEmpty()) {
                 usagePoint.setReadRoute(usagePointFileInfo.getReadroute());
             }
             if (!usagePointFileInfo.getReadcycle().isEmpty()) {
                 usagePoint.setServicePriority(usagePointFileInfo.getReadcycle());
             }
-            UsagePointDetail usagePointDetail = usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, clock.instant());
-            if (usagePointDetail instanceof ElectricityDetail) {
-                ElectricityDetail eDetail = (ElectricityDetail) usagePointDetail;
-                eDetail.setGrounded(usagePointFileInfo.getGrounded().equalsIgnoreCase("true"));
-                if (!usagePointFileInfo.getPhaseCode().isEmpty()) {
-                    eDetail.setPhaseCode(PhaseCode.valueOf(usagePointFileInfo.getPhaseCode()));
-                }
-                if (!usagePointFileInfo.getRatedPowerValue().isEmpty()) {
-                    eDetail.setRatedPower(Quantity.create(new BigDecimal(usagePointFileInfo.getRatedPowerValue()), usagePointFileInfo.getRatedPowerMultiplier(), usagePointFileInfo.getRatedPowerUnit()));
-                }
-                if (!usagePointFileInfo.getRatedCurrentValue().isEmpty()) {
-                    eDetail.setRatedCurrent(Quantity.create(new BigDecimal(usagePointFileInfo.getRatedCurrentValue()), usagePointFileInfo.getRatedCurrentMultiplier(), usagePointFileInfo.getRatedCurrentUnit()));
-                }
-                if (!usagePointFileInfo.getEstimatedLoadValue().isEmpty()) {
-                    eDetail.setEstimatedLoad(Quantity.create(new BigDecimal(usagePointFileInfo.getEstimatedLoadValue()), usagePointFileInfo.getEstimatedLoadMultiplier(), usagePointFileInfo.getEstimatedLoadUnit()));
-                }
-                if (!usagePointFileInfo.getNominalVoltageValue().isEmpty()) {
-                    eDetail.setNominalServiceVoltage(Quantity.create(new BigDecimal(usagePointFileInfo.getNominalVoltageValue()), usagePointFileInfo.getNominalVoltageMultiplier(), usagePointFileInfo.getNominalVoltageUnit()));
-                }
-                usagePoint.addDetail(usagePointDetail);
-            }
+
             usagePoint.update();
         }
         return true;
