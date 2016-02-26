@@ -57,7 +57,7 @@ public class ServiceCallTypeOneCustomPropertySet implements CustomPropertySet<Se
 
     @Override
     public Class<ServiceCallType> getDomainClass() {
-        return ServiceCall.class;
+        return ServiceCallType.class;
     }
 
     @Override
