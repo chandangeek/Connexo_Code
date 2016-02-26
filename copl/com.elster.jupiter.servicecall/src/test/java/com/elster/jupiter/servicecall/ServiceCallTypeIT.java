@@ -68,7 +68,7 @@ import static org.junit.Assert.fail;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class ServiceCallIT {
+public class ServiceCallTypeIT {
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private final Instant now = ZonedDateTime.of(2016, 1, 8, 10, 0, 0, 0, ZoneId.of("UTC")).toInstant();
@@ -249,7 +249,7 @@ public class ServiceCallIT {
     @Test
     public void testCreateServiceCallTypeWithDefaultLogLevel() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").handler("DisconnectHandler1").add();
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").handler("DisconnectHandler1").create();
 
             List<ServiceCallType> serviceCallTypes = serviceCallService.getServiceCallTypes().find();
             assertThat(serviceCallTypes).hasSize(1);
@@ -268,7 +268,7 @@ public class ServiceCallIT {
             ServiceCallType serviceCallType = serviceCallService.createServiceCallType("CustomTest", "CustomVersion")
                     .customPropertySet(customPropertySet)
                     .handler("DisconnectHandler1")
-                    .add();
+                    .create();
 
             List<ServiceCallType> serviceCallTypes = serviceCallService.getServiceCallTypes().find();
             assertThat(serviceCallTypes).hasSize(1);
@@ -287,7 +287,38 @@ public class ServiceCallIT {
             ServiceCallType serviceCallType = serviceCallService
                     .createServiceCallType("CustomTest", "CustomVersion")
                     .customPropertySet(wrongType)
-                    .add();
+                    .create();
+        }
+    }
+
+    @Test
+    @Expected(value = InvalidPropertySetDomainTypeException.class)
+    public void testAddIllegalCustomPropertySetToServiceCallType() throws Exception {
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallType serviceCallType = null;
+            try {
+                RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySet(ServiceCallTypeDomainExtension.class
+                        .getName()).get();
+                serviceCallType = serviceCallService.createServiceCallType("CustomTest", "CustomVersion")
+                        .customPropertySet(customPropertySet)
+                        .create();
+            } catch (InvalidPropertySetDomainTypeException e) {
+                fail("Should not have had an exception here");
+            }
+            RegisteredCustomPropertySet wrongType = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.servicecall.impl.ServiceCallLifeCycleDomainExtension")
+                    .get();
+            serviceCallType.addCustomPropertySet(wrongType);
+        }
+    }
+
+    @Test
+    public void testAddLegalCustomPropertySetToServiceCallType() throws Exception {
+        try (TransactionContext context = transactionService.getContext()) {
+            RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySet(ServiceCallTypeDomainExtension.class
+                    .getName()).get();
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("CustomTest", "CustomVersion")
+                    .create();
+            serviceCallType.addCustomPropertySet(customPropertySet);
         }
     }
 

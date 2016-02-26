@@ -6,17 +6,20 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallType;
+
+import com.google.common.util.concurrent.Service;
 
 import javax.validation.constraints.Size;
 
 /**
  * Created by bvn on 2/15/16.
  */
-public class ServiceCallTypeDomainExtension implements PersistentDomainExtension<ServiceCallType> {
+public class ServiceCallTypeDomainExtension implements PersistentDomainExtension<ServiceCall> {
 
     public enum FieldNames {
-        DOMAIN("serviceCallType", "serviceCallType"),
+        DOMAIN("serviceCall", "serviceCall"),
         TEST_ATTRIBUTE_STRING("testString", "test_string"),
         TEST_ATTRIBUTE_BOOLEAN("testBoolean", "test_boolean");
 
@@ -37,7 +40,7 @@ public class ServiceCallTypeDomainExtension implements PersistentDomainExtension
         }
     }
 
-    private Reference<ServiceCallType> serviceCallType = Reference.empty();
+    private Reference<ServiceCall> serviceCall = Reference.empty();
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "FieldTooLong")
@@ -69,8 +72,8 @@ public class ServiceCallTypeDomainExtension implements PersistentDomainExtension
     }
 
     @Override
-    public void copyFrom(ServiceCallType serviceCallType, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
-        this.serviceCallType.set(serviceCallType);
+    public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
+        this.serviceCall.set(serviceCall);
         this.setTestString((String) propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_STRING.javaName()));
         this.setTestBoolean((boolean) propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName()));
     }

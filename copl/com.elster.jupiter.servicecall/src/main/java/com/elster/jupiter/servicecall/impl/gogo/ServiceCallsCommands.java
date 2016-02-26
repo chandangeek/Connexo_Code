@@ -10,6 +10,7 @@ import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
@@ -95,14 +96,15 @@ public class ServiceCallsCommands {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallService.ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName)
-                    .logLevel(LogLevel.valueOf(logLevel))
-                    .handler(handler);
+            ServiceCallTypeBuilder builder = serviceCallService
+                    .createServiceCallType(name, versionName)
+                    .handler(handler)
+                    .logLevel(LogLevel.valueOf(logLevel));
 
             customPropertySetService.findActiveCustomPropertySets().stream()
                     .filter(cps -> ids.contains(cps.getId()))
                     .forEach(builder::customPropertySet);
-            builder.add();
+            builder.create();
             context.commit();
         }
     }
@@ -114,14 +116,14 @@ public class ServiceCallsCommands {
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCallLifeCycle serviceCallLifeCycle = serviceCallService.getServiceCallLifeCycle(lifeCycleName)
                     .orElseThrow(() -> new NoSuchElementException("No service call life cycle with name: " + lifeCycleName));
-            ServiceCallService.ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName, serviceCallLifeCycle)
+            ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName, serviceCallLifeCycle)
                     .logLevel(LogLevel.valueOf(logLevel))
                     .handler(handler);
 
             customPropertySetService.findActiveCustomPropertySets().stream()
                     .filter(cps -> ids.contains(cps.getId()))
                     .forEach(builder::customPropertySet);
-            builder.add();
+            builder.create();
             context.commit();
         }
     }

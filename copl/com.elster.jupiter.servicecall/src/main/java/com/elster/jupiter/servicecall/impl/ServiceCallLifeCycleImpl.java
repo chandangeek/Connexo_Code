@@ -2,16 +2,19 @@ package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 
 import javax.inject.Inject;
+import java.util.Optional;
 
 /**
  * Created by bvn on 2/4/16.
  */
-public class ServiceCallLifeCycleImpl implements ServiceCallLifeCycle {
+public class ServiceCallLifeCycleImpl implements IServiceCallLifeCycle {
 
     public enum Fields {
         name("name"),
@@ -66,4 +69,11 @@ public class ServiceCallLifeCycleImpl implements ServiceCallLifeCycle {
     public FiniteStateMachine getFiniteStateMachine() {
         return finiteStateMachine.orElseThrow(IllegalStateException::new);
     }
+
+    @Override
+    public Optional<State> getState(DefaultState defaultState) {
+        return finiteStateMachine.get()
+                .getState(defaultState.getKey());
+    }
+
 }
