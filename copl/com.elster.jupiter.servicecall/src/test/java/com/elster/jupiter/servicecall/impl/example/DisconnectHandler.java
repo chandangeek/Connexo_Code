@@ -2,7 +2,7 @@ package com.elster.jupiter.servicecall.impl.example;
 
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.elster.jupiter.servicecall.impl.ServiceCallServiceImpl;
+import com.elster.jupiter.servicecall.impl.IServiceCallService;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -24,7 +24,7 @@ public class DisconnectHandler implements ServiceCallHandler {
     }
 
     @Inject
-    public DisconnectHandler(ServiceCallServiceImpl serviceCallService) {
+    public DisconnectHandler(IServiceCallService serviceCallService) {
         HashMap<String, Object> map = new HashMap<>();
         map.put("name", "DisconnectHandler1");
         serviceCallService.addServiceCallHandler(this, map);

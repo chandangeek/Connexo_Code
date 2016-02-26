@@ -9,12 +9,10 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.HandlerDisappearedException;
 import com.elster.jupiter.servicecall.InvalidPropertySetDomainTypeException;
 import com.elster.jupiter.servicecall.LogLevel;
-import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
-import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.Status;
 
 import javax.inject.Inject;

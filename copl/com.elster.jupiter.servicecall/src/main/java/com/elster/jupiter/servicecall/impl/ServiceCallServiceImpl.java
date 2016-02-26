@@ -13,11 +13,9 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.servicecall.InvalidPropertySetDomainTypeException;
-import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.MissingHandlerNameException;
-import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -44,7 +42,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -55,7 +52,7 @@ import java.util.concurrent.ConcurrentHashMap;
         service = {ServiceCallService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
         property = "name=" + ServiceCallService.COMPONENT_NAME,
         immediate = true)
-public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
+public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
 
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile DataModel dataModel;
@@ -101,6 +98,7 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @Override
     public void addServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties) {
         String name = (String) properties.get("name");
         if (Checks.is(name).emptyOrOnlyWhiteSpace()) {
@@ -109,7 +107,8 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
         handlerMap.put(name, serviceCallHandler);
     }
 
-    public void removeServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String,Object> properties ) {
+    @Override
+    public void removeServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties) {
         String name = (String) properties.get("name");
         handlerMap.remove(name);
     }
@@ -175,6 +174,7 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
                 bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(ServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
+                bind(IServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
             }
         };
     }
@@ -211,13 +211,17 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
 
     @Override
     public Optional<ServiceCallType> findServiceCallType(String name, String versionName) {
-        return dataModel.mapper(IServiceCallType.class).getUnique(ServiceCallTypeImpl.Fields.name.fieldName(), name, ServiceCallTypeImpl.Fields.versionName.fieldName(), versionName).map(ServiceCallType.class::cast);
+        return dataModel.mapper(IServiceCallType.class)
+                .getUnique(ServiceCallTypeImpl.Fields.name.fieldName(), name, ServiceCallTypeImpl.Fields.versionName.fieldName(), versionName)
+                .map(ServiceCallType.class::cast);
     }
 
 
     @Override
     public Optional<ServiceCallType> findAndLockServiceCallType(long id, long version) {
-        return dataModel.mapper(IServiceCallType.class).lockObjectIfVersion(version, id).map(ServiceCallType.class::cast);
+        return dataModel.mapper(IServiceCallType.class)
+                .lockObjectIfVersion(version, id)
+                .map(ServiceCallType.class::cast);
     }
 
     @Override

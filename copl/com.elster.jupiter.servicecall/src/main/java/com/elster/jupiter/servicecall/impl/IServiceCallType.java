@@ -1,6 +1,5 @@
 package com.elster.jupiter.servicecall.impl;
 
-import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallType;
 
 /**

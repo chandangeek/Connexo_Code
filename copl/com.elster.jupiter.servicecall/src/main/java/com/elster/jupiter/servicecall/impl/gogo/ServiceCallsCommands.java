@@ -86,7 +86,7 @@ public class ServiceCallsCommands {
                     .customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class)
                             .get(0))
                     .handler("DisconnectHandler1")
-                    .add();
+                    .create();
             context.commit();
         }
     }
