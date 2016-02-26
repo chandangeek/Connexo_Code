@@ -6,6 +6,8 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.rest.util.InfoFactory;
+import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -15,18 +17,29 @@ import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
 import com.energyict.mdc.issue.datavalidation.rest.impl.DataValidationIssueInfo.NotEstimatedBlockInfo;
 import com.energyict.mdc.issue.datavalidation.rest.impl.DataValidationIssueInfo.NotEstimatedDataInfo;
 import com.google.common.collect.Range;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class DataValidationIssueInfoFactory {
+@Component(name="issue.data.validation.info.factory", service = { InfoFactory.class }, immediate = true)
+public class DataValidationIssueInfoFactory implements InfoFactory<IssueDataValidation> {
 
-    private final DeviceService deviceService;
+    private DeviceService deviceService;
+
+    public DataValidationIssueInfoFactory() {}
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
 
     @Inject
     public DataValidationIssueInfoFactory(DeviceService deviceService) {
@@ -112,5 +125,20 @@ public class DataValidationIssueInfoFactory {
 
     private Optional<Register> findRegister(Device device, ReadingType readingType) {
         return device.getRegisters().stream().filter(register -> register.getReadingType().equals(readingType)).findFirst();
+    }
+
+    @Override
+    public Object from(IssueDataValidation issueDataValidation) {
+        return asInfo(issueDataValidation, DeviceInfo.class);
+    }
+
+    @Override
+    public List<PropertyDescriptionInfo> modelStructure() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public Class<IssueDataValidation> getDomainClass() {
+        return IssueDataValidation.class;
     }
 }
