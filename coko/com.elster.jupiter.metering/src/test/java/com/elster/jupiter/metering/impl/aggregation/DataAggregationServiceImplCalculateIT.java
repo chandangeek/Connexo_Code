@@ -34,6 +34,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.config.ConstantNode;
 import com.elster.jupiter.metering.impl.config.OperationNode;
 import com.elster.jupiter.metering.impl.config.Operator;
 import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNode;
@@ -59,6 +60,7 @@ import com.google.inject.Scopes;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -431,7 +433,7 @@ public class DataAggregationServiceImplCalculateIT {
      *       A- ::= any Wh with flow = forward (aka consumption)
      *       A+ ::= any Wh with flow = reverse (aka production)
      *    deliverables:
-     *       netConsumption (monthly kWh) ::= A- + A+
+     *       netConsumption (monthly kWh) ::= A- + (A+ * 2)
      * Device:
      *    meter activations:
      *       Jan 1st 2015 -> forever
@@ -469,7 +471,10 @@ public class DataAggregationServiceImplCalculateIT {
                 new OperationNode(
                         Operator.PLUS,
                         new ReadingTypeRequirementNode(production),
-                        new ReadingTypeRequirementNode(consumption)))
+                        new OperationNode(
+                                Operator.MULTIPLY,
+                                new ReadingTypeRequirementNode(consumption),
+                                new ConstantNode(BigDecimal.valueOf(2L)))))
                 .when(formula).expressionNode();
         when(netConsumption.getFormula()).thenReturn(formula);
         // Setup contract deliverables
@@ -518,7 +523,7 @@ public class DataAggregationServiceImplCalculateIT {
                     .matches("SELECT -1, rid97_99_1\\.timestamp,.*");
             // Assert that one of both requirements' values are added up in the select clause
             assertThat(this.netConsumptionWithClauseBuilder.getText())
-                    .matches("SELECT.*\\(rid97_99_1\\.value \\+ rid98_99_1\\.value\\).*");
+                    .matches("SELECT.*\\(rid97_99_1\\.value \\+ \\(rid98_99_1\\.value\\s\\*\\s*\\?\\s*\\)\\).*");
             // Assert that the with clauses for both requirements are joined on the utc timestamp
             assertThat(this.netConsumptionWithClauseBuilder.getText())
                     .matches("SELECT.*JOIN rid98_99_1 ON rid98_99_1\\.timestamp = rid97_99_1\\.timestamp.*");
