@@ -14,7 +14,7 @@ Ext.define('Bpm.controller.TaskBulk', {
         },
         {
             ref: 'groupGrid',
-            selector: 'tasks-bulk-browse #bpm-tasks-complete'
+            selector: 'tasks-bulk-browse #tasks-complete-grid'
         },
         {
             ref: 'taskExecutionContent',
@@ -61,7 +61,7 @@ Ext.define('Bpm.controller.TaskBulk', {
             'tasks-bulk-browse #tasks-bulk-navigation': {
                 movetostep: this.moveTo
             },
-            'tasks-bulk-browse #bpm-tasks-complete': {
+            'tasks-bulk-browse #tasks-complete-grid': {
                 beforedeselect: this.beforeDeselect,
                 select: this.showGroupPreview
             }
