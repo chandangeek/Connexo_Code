@@ -46,7 +46,7 @@ Ext.define('Imt.controller.Main', {
     ],
     stores: [
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
-        'Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets'
+        'Imt.customattributesonvaluesobjects.store.ServiceCategoryCustomAttributeSets'
     ],
 
     refs: [
