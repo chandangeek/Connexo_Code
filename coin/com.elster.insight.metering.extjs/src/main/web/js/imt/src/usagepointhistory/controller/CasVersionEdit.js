@@ -45,7 +45,7 @@ Ext.define('Imt.usagepointhistory.controller.CasVersionEdit', {
         });
         attributeSetModel.getProxy().setUrl(mRID);
 
-        if (!Ext.isDefined(versionId)) {
+        if (Ext.isDefined(versionId)) {
             attributeSetModel.load(customAttributeSetId, {
                 success: function (customattributeset) {
                     app.fireEvent('loadCasOnUsagePoint', customattributeset);
