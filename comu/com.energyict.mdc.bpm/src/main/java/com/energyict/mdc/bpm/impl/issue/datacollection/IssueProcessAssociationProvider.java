@@ -140,12 +140,11 @@ public class IssueProcessAssociationProvider implements ProcessAssociationProvid
         }
 
         @Override
-        public Long getId() {
-            return issueReason.getId();
+        public String getId() {
+            return issueReason.getKey();
         }
 
         @Override
-        //TODO: translatable?
         public String getName() {
             return issueReason.getName();
         }
@@ -171,7 +170,7 @@ public class IssueProcessAssociationProvider implements ProcessAssociationProvid
         @Override
         public int hashCode() {
             int result = super.hashCode();
-            result = 31 * result + Long.hashCode(issueReason.getId());
+            result = 31 * result + issueReason.getKey().hashCode();
             return result;
         }
     }

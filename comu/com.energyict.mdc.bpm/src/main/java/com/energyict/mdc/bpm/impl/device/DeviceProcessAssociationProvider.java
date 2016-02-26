@@ -14,9 +14,11 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableList;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -87,15 +89,16 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
     }
 
     @Override
-    public Optional<PropertySpec> getPropertySpec(String name) {
-        return (TranslationKeys.DEVICE_STATE_TITLE.getKey().equals(name)) ? Optional.of(getDeviceStatePropertySpec()) : Optional.empty();
-    }
-
-    @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(getDeviceStatePropertySpec());
         return builder.build();
+    }
+
+    @Override
+    public Optional<PropertySpec> getPropertySpec(String name) {
+        return (TranslationKeys.DEVICE_STATE_TITLE.getKey()
+                .equals(name)) ? Optional.of(getDeviceStatePropertySpec()) : Optional.empty();
     }
 
     private PropertySpec getDeviceStatePropertySpec() {
@@ -104,7 +107,7 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
                         .findAllDeviceLifeCycles()
                         .stream()
                         .flatMap(lifeCycle -> lifeCycle.getFiniteStateMachine().getStates().stream())
-                        .map(state -> new DeviceStateInfo(deviceLifeCycleConfigurationService, state))
+                        .map(state -> new DeviceStateInfo(thesaurus, deviceLifeCycleConfigurationService, state))
                         .toArray(DeviceStateInfo[]::new);
 
         return this.propertySpecService
@@ -133,12 +136,79 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
         return Arrays.asList(TranslationKeys.values());
     }
 
+    @XmlRootElement
+    static class DeviceStateInfo extends HasIdAndName {
+        private transient DeviceLifeCycle deviceLifeCycle;
+        private transient State deviceState;
+
+        @JsonIgnore
+        private Thesaurus thesaurus;
+
+        DeviceStateInfo(Thesaurus thesaurus, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, State deviceState) {
+            this.thesaurus = thesaurus;
+            this.deviceState = deviceState;
+            this.deviceLifeCycle = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles()
+                    .stream()
+                    .filter(lifeCycle -> lifeCycle.getFiniteStateMachine().equals(deviceState.getFiniteStateMachine()))
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        @Override
+        public Long getId() {
+            return deviceState.getId();
+        }
+
+        @Override
+        public String getName() {
+            Optional<DefaultState> defaultState = DefaultState.from(deviceState);
+            if (defaultState.isPresent()) {
+                return thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getKey());
+            } else {
+                return deviceState.getName();
+            }
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            if (!super.equals(o)) {
+                return false;
+            }
+
+            DeviceStateInfo that = (DeviceStateInfo) o;
+
+            return deviceState.getId() == that.deviceState.getId();
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = super.hashCode();
+            result = 31 * result + Long.hashCode(deviceState.getId());
+            return result;
+        }
+
+        public Long getLifeCycleId() {
+            return (deviceLifeCycle != null) ? deviceLifeCycle.getId() : null;
+        }
+
+        public String getLifeCycleName() {
+            return (deviceLifeCycle != null) ? deviceLifeCycle.getName() : null;
+        }
+    }
+
     private class DeviceStateInfoValueFactory implements ValueFactory<HasIdAndName> {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
             return finiteStateMachineService
                     .findFiniteStateById(Long.parseLong(stringValue))
-                    .map(state -> new DeviceStateInfo(deviceLifeCycleConfigurationService, state))
+                    .map(state -> new DeviceStateInfo(thesaurus, deviceLifeCycleConfigurationService, state))
                     .orElse(null);
         }
 
@@ -180,61 +250,6 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
             else {
                 builder.addNull(Types.VARCHAR);
             }
-        }
-    }
-
-    @XmlRootElement
-    static class DeviceStateInfo extends HasIdAndName {
-        private transient DeviceLifeCycle deviceLifeCycle;
-        private transient State deviceState;
-
-        DeviceStateInfo(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, State deviceState) {
-            this.deviceState = deviceState;
-            this.deviceLifeCycle = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().stream()
-                    .filter(lifeCycle -> lifeCycle.getFiniteStateMachine().equals(deviceState.getFiniteStateMachine())).findFirst().orElse(null);
-        }
-
-        @Override
-        public Long getId() {
-            return deviceState.getId();
-        }
-
-        @Override
-        public String getName() {
-            return deviceState.getName();
-        }
-
-        public Long getLifeCycleId() {
-            return (deviceLifeCycle != null) ? deviceLifeCycle.getId() : null;
-        }
-
-        public String getLifeCycleName() {
-            return (deviceLifeCycle != null) ? deviceLifeCycle.getName() : null;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            if (!super.equals(o)) {
-                return false;
-            }
-
-            DeviceStateInfo that = (DeviceStateInfo) o;
-
-            return deviceState.getId() == that.deviceState.getId();
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = super.hashCode();
-            result = 31 * result + Long.hashCode(deviceState.getId());
-            return result;
         }
     }
 }
