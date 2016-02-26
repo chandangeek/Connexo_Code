@@ -10,6 +10,7 @@ import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.cps.rest.ValuesRangeConflictInfo;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
@@ -45,17 +46,14 @@ public class UsagePointCustomPropertySetResource {
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
     private final ResourceHelper resourceHelper;
     private final CustomPropertySetService customPropertySetService;
-    private final UsagePointInfoFactory usagePointInfoFactory;
 
     @Inject
     public UsagePointCustomPropertySetResource(CustomPropertySetInfoFactory customPropertySetInfoFactory,
                                                ResourceHelper resourceHelper,
-                                               CustomPropertySetService customPropertySetService,
-                                               UsagePointInfoFactory usagePointInfoFactory) {
+                                               CustomPropertySetService customPropertySetService) {
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
         this.resourceHelper = resourceHelper;
         this.customPropertySetService = customPropertySetService;
-        this.usagePointInfoFactory = usagePointInfoFactory;
     }
 
     private PagedInfoList getCustomPropertySetValues(List<UsagePointPropertySet> customPropertySetValues,
@@ -65,7 +63,7 @@ public class UsagePointCustomPropertySetResource {
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .map(rcps -> {
                     CustomPropertySetInfo info = customPropertySetInfoFactory.getFullInfo(rcps, rcps.getValues());
-                    info.parent = usagePointInfoFactory.from(rcps.getUsagePoint());
+                    info.parent = getParentInfo(rcps.getUsagePoint());
                     return info;
                 })
                 .collect(Collectors.toList());
@@ -114,6 +112,15 @@ public class UsagePointCustomPropertySetResource {
         return PagedInfoList.fromCompleteList("conflicts", valuesRangeConflicts, queryParameters);
     }
 
+    private UsagePointInfo getParentInfo(UsagePoint usagePoint) {
+        UsagePointInfo info = new UsagePointInfo();
+        info.id = usagePoint.getId();
+        info.mRID = usagePoint.getMRID();
+        info.version = usagePoint.getVersion();
+        info.name = usagePoint.getName();
+        return info;
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getAllCustomPropertySets(@PathParam("mrid") String usagePointMrid,
@@ -157,7 +164,7 @@ public class UsagePointCustomPropertySetResource {
                 .forCustomProperties()
                 .getPropertySet(rcpsId);
         CustomPropertySetInfo info = customPropertySetInfoFactory.getFullInfo(propertySet, propertySet.getValues());
-        info.parent = usagePointInfoFactory.from(propertySet.getUsagePoint());
+        info.parent = getParentInfo(propertySet.getUsagePoint());
         return info;
     }
 
@@ -256,7 +263,10 @@ public class UsagePointCustomPropertySetResource {
                 .findUsagePointByMrIdOrThrowException(usagePointMrid)
                 .forCustomProperties()
                 .getVersionedPropertySet(rcpsId);
-        return customPropertySetInfoFactory.getFullInfo(versionedPropertySet, versionedPropertySet.getVersionValues(Instant.ofEpochMilli(timestamp)));
+        CustomPropertySetInfo info = customPropertySetInfoFactory.getFullInfo(versionedPropertySet,
+                versionedPropertySet.getVersionValues(Instant.ofEpochMilli(timestamp)));
+        info.parent = getParentInfo(versionedPropertySet.getUsagePoint());
+        return info;
     }
 
     @PUT
