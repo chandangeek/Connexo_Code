@@ -50,6 +50,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -225,6 +226,23 @@ public class ServiceCallIT {
                     .handler("BLABLALBA")
                     .logLevel(LogLevel.INFO)
                     .add();
+        }
+    }
+
+    @Test
+    @Expected(value = HandlerDisappearedException.class)
+    public void testCreateServiceCallTypeWithDisappearedHandler() throws Exception {
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
+                    .handler("DisconnectHandler1")
+                    .logLevel(LogLevel.INFO)
+                    .add();
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("name", "DisconnectHandler1");
+            Optional<ServiceCallHandler> disconnectHandler1 = serviceCallService.findHandler("DisconnectHandler1");
+            ((ServiceCallServiceImpl) serviceCallService).removeServiceCallHandler(disconnectHandler1.get(), map);
+            Optional<ServiceCallType> serviceCallTypeReloaded = serviceCallService.findServiceCallType("primer", "v1");
+            serviceCallTypeReloaded.get().getServiceCallHandler(); // expect exception here
         }
     }
 

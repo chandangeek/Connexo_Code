@@ -15,7 +15,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_NAME_FOR_HANDLER(4, "NoNameForHandler", "Handler can not be registered: it does not have a name. Add @Component field property='name=xxx'"),
     INVALID_CPS_TYPE(5, Constants.INVALID_TYPE, "Custom property set {0} does not have the required domain class of service call type"),
     REQUIRED_FIELD(6, Constants.REQUIRED_FIELD, "This field is required"),
-    UNKNOWN_HANDLER(7, Constants.UNKNOWN_HANDLER, "Handler has not been registered yet");
+    UNKNOWN_HANDLER(7, Constants.UNKNOWN_HANDLER, "Handler has not been registered yet"),
+    HANDLER_DISAPPEARED(8, Constants.HANDLER_DISAPPEARED, "The service call handler was created with a handler ''{0}'' that can no longer be found in the system");
     ;
 
     private final int number;
@@ -57,5 +58,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_TYPE = "com.elster.jupiter.servicecall.invalidType";
         public static final String REQUIRED_FIELD = "com.elster.jupiter.servicecall.field.required";
         public static final String UNKNOWN_HANDLER = "com.elster.jupiter.servicecall.handler.unknown";
+        public static final String HANDLER_DISAPPEARED = "com.elster.jupiter.servicecall.handler.disappeared";
     }
 }

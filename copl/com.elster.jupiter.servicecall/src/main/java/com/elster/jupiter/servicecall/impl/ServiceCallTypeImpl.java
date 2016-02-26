@@ -2,9 +2,11 @@ package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.HandlerDisappearedException;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
@@ -53,11 +55,13 @@ public class ServiceCallTypeImpl implements ServiceCallType {
 
     private final DataModel dataModel;
     private final ServiceCallService serviceCallService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public ServiceCallTypeImpl(DataModel dataModel, ServiceCallService serviceCallService) {
+    public ServiceCallTypeImpl(DataModel dataModel, ServiceCallService serviceCallService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.serviceCallService = serviceCallService;
+        this.thesaurus = thesaurus;
         this.status = Status.ACTIVE;
     }
 
@@ -108,7 +112,8 @@ public class ServiceCallTypeImpl implements ServiceCallType {
 
     @Override
     public ServiceCallHandler getServiceCallHandler() {
-        return serviceCallService.findHandler(serviceCallHandler).get();
+        return serviceCallService.findHandler(serviceCallHandler)
+                .orElseThrow(() -> new HandlerDisappearedException(thesaurus, MessageSeeds.HANDLER_DISAPPEARED, serviceCallHandler));
     }
 
     public String getHandlerName() {
