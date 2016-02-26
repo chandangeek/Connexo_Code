@@ -1,10 +1,9 @@
-package com.elster.insight.usagepoint.data.impl;
+package com.elster.jupiter.mdm.usagepoint.data.impl;
 
+import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 

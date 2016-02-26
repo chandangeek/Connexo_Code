@@ -1,14 +1,12 @@
-package com.elster.insight.usagepoint.data.exceptions;
-
-import java.time.Instant;
-import java.util.Date;
+package com.elster.jupiter.mdm.usagepoint.data.exceptions;
 
 import aQute.bnd.annotation.ProviderType;
-import org.osgi.service.device.Device;
-
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+
+import java.time.Instant;
+import java.util.Date;
 
 /**
  * Models the exceptional situation that occurs when validation

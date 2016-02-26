@@ -1,6 +1,6 @@
-package com.elster.insight.usagepoint.data.impl;
+package com.elster.jupiter.mdm.usagepoint.data.impl;
 
-import com.elster.insight.usagepoint.data.exceptions.MessageSeeds;
+import com.elster.jupiter.mdm.usagepoint.data.exceptions.MessageSeeds;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;

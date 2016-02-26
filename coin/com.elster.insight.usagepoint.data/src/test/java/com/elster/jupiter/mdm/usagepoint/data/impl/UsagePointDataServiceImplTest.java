@@ -1,4 +1,4 @@
-package com.elster.insight.usagepoint.data.impl;
+package com.elster.jupiter.mdm.usagepoint.data.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import org.junit.AfterClass;

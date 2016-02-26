@@ -1,4 +1,4 @@
-package com.elster.insight.usagepoint.data;
+package com.elster.jupiter.mdm.usagepoint.data;
 
 
 import aQute.bnd.annotation.ProviderType;

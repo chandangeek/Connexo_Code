@@ -1,8 +1,8 @@
-package com.elster.insight.usagepoint.data.impl;
+package com.elster.jupiter.mdm.usagepoint.data.impl;
 
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.insight.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
