@@ -411,6 +411,18 @@ public class BpmResource {
         return Response.notModified().build();
     }
 
+    @GET
+    @Path("/process/associations")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_BPM)
+    public ProcessAssociationInfos getProcessAssociations() {
+        List<ProcessAssociationInfo> infos = bpmService.getProcessAssociationProviders().stream()
+                .map(provider -> new ProcessAssociationInfo(provider.getName(), propertyUtils.convertPropertySpecsToPropertyInfos(provider
+                        .getPropertySpecs())))
+                .collect(Collectors.toList());
+        return new ProcessAssociationInfos(infos);
+    }
+
     @PUT
     @Transactional
     @Path("/process/activate/{id}")
