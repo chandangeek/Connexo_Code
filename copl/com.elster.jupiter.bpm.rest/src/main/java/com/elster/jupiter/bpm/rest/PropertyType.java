@@ -5,8 +5,7 @@ import com.elster.jupiter.properties.ValueFactory;
 
 public enum PropertyType implements com.elster.jupiter.rest.util.properties.PropertyType {
     UNKNOWN(new NeverMatch()),
-    DEVICESTATELIST(new ClassBasedValueFactoryMatcher(ListValueFactory.class)),
-    ISSUEREASONLIST(new ClassBasedValueFactoryMatcher(ListValueFactory.class)),;
+    SELECTIONGRID(new ClassBasedValueFactoryMatcher(ListValueFactory.class));
 
     private final ValueFactoryMachter matcher;
 

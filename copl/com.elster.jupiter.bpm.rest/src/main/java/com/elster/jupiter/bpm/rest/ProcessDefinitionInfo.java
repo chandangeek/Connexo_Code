@@ -16,7 +16,7 @@ public class ProcessDefinitionInfo {
     public String id;
     public String version;
     public String active;
-    public String associatedTo;
+    public String type;
     public String deploymentId;
     public List<ProcessesPrivilegesInfo> privileges;
     public List<PropertyInfo> properties = Collections.emptyList();
@@ -39,7 +39,7 @@ public class ProcessDefinitionInfo {
     public ProcessDefinitionInfo(BpmProcessDefinition bpmProcessDefinition){
         this.version = bpmProcessDefinition.getVersion();
         this.name = bpmProcessDefinition.getProcessName();
-        this.associatedTo = bpmProcessDefinition.getAssociationProvider()
+        this.type = bpmProcessDefinition.getAssociationProvider()
                 .isPresent() ? bpmProcessDefinition.getAssociationProvider()
                 .get()
                 .getType() : "";
@@ -49,7 +49,7 @@ public class ProcessDefinitionInfo {
     public ProcessDefinitionInfo(BpmProcessDefinition bpmProcessDefinition, List<Group> groups){
         this.version = bpmProcessDefinition.getVersion();
         this.name = bpmProcessDefinition.getProcessName();
-        this.associatedTo = bpmProcessDefinition.getAssociationProvider()
+        this.type = bpmProcessDefinition.getAssociationProvider()
                 .isPresent() ? bpmProcessDefinition.getAssociationProvider()
                 .get()
                 .getType() : "";

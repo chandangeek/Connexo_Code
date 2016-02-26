@@ -417,7 +417,7 @@ public class BpmResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_BPM)
     public ProcessAssociationInfos getProcessAssociations() {
         List<ProcessAssociationInfo> infos = bpmService.getProcessAssociationProviders().stream()
-                .map(provider -> new ProcessAssociationInfo(provider.getName(), propertyUtils.convertPropertySpecsToPropertyInfos(provider
+                .map(provider -> new ProcessAssociationInfo(provider.getName(), provider.getType(), propertyUtils.convertPropertySpecsToPropertyInfos(provider
                         .getPropertySpecs())))
                 .collect(Collectors.toList());
         return new ProcessAssociationInfos(infos);
@@ -429,48 +429,38 @@ public class BpmResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_BPM)
     public Response activateProcess(ProcessDefinitionInfo info) {
-        List<Errors> err = new ArrayList<>();
-
-        Optional<ProcessAssociationProvider> foundProvider = bpmService.getProcessAssociationProvider(info.associatedTo);
+        Optional<ProcessAssociationProvider> foundProvider = bpmService.getProcessAssociationProvider(info.type);
         List<PropertySpec> propertySpecs = foundProvider.isPresent() ? foundProvider.get()
                 .getPropertySpecs() : Collections.<PropertySpec>emptyList();
 
         BpmProcessDefinition process;
         Optional<BpmProcessDefinition> foundProcess = bpmService.getBpmProcessDefinition(info.name, info.version);
         if (!foundProcess.isPresent()) {
+            List<BpmProcessPrivilege> targetPrivileges = info.privileges.stream()
+                    .map(s -> bpmService.prepareBpmProcessPrivilege(s.id, s.applicationName))
+                    .collect(Collectors.toList());
+
             BpmProcessDefinitionBuilder processBuilder = bpmService.newProcessBuilder()
                     .setId(info.id).setProcessName(info.name)
-                    .setAssociation(info.associatedTo)
+                    .setAssociation(info.type.toLowerCase())
                     .setVersion(info.version)
                     .setStatus(info.active)
-                    .setProperties(propertyUtils.convertPropertyInfosToProperties(propertySpecs, info.properties));
+                    .setProperties(propertyUtils.convertPropertyInfosToProperties(propertySpecs, info.properties))
+                    .setPrivileges(targetPrivileges);
             process = processBuilder.create();
+            targetPrivileges.stream().forEach(privilege -> {
+                privilege.setProcessId(process.getId());
+                privilege.persist();
+            });
         } else {
             process = foundProcess.get();
-            process.setAssociation(info.associatedTo);
+            process.setAssociation(info.type.toLowerCase());
             process.setStatus(info.active);
             process.setProperties(propertyUtils.convertPropertyInfosToProperties(propertySpecs, info.properties));
-        }
-        /*if (provider.isPresent()) {
-            //TO DO: rename properties to associationData
-            //provider.get().update(bpmProcessDefinition.get(),info.associationData);
-            try {
-                provider.get().checkPresentAssociationData(info.properties);
-            } catch (IllegalStateException e) {
-                err.add(new Errors(e.getMessage(), MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
-            }
-            provider.get().update(bpmProcessDefinition.get(), info.properties);
-        }
-        if (info.privileges.isEmpty()) {
-            err.add(new Errors("noPrivileges", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
+            doUpdatePrivileges(process, info);
+            process.save();
         }
 
-        if (!err.isEmpty()) {
-            return Response.status(400).entity(new LocalizedFieldException(err)).build();
-        }*/
-
-        doUpdatePrivileges(process, info);
-        process.save();
         return Response.ok().build();
     }
 
@@ -611,7 +601,7 @@ public class BpmResource {
                 for (ProcessDefinitionInfo eachBpm : bpmProcessDefinition.processes) {
                     if (eachConnexo.getProcessName().equals(eachBpm.name) && eachConnexo.getVersion().equals(eachBpm.version)) {
                         eachBpm.active = eachConnexo.getStatus();
-                        eachBpm.associatedTo = eachConnexo.getAssociationProvider()
+                        eachBpm.type = eachConnexo.getAssociationProvider()
                                 .isPresent() ? eachConnexo.getAssociationProvider()
                                 .get()
                                 .getType() : "";

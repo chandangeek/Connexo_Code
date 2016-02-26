@@ -10,14 +10,16 @@ import java.util.List;
  */
 public class ProcessAssociationInfo {
     public String name;
+    public String type;
     public List<PropertyInfo> properties = Collections.emptyList();
 
     public ProcessAssociationInfo() {
 
     }
 
-    public ProcessAssociationInfo(String name, List<PropertyInfo> properties) {
+    public ProcessAssociationInfo(String name, String type, List<PropertyInfo> properties) {
         this.name = name;
+        this.type = type;
         this.properties = properties;
     }
 }
