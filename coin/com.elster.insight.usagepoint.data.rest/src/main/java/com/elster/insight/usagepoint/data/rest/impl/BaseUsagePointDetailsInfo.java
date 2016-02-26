@@ -28,6 +28,8 @@ public abstract class BaseUsagePointDetailsInfo {
         this.collar = detail.getCollar().orElse(null);
     }
 
+    public abstract ServiceKind getKind();
+
     public abstract UsagePointDetailBuilder getUsagePointDetailBuilder(UsagePoint usagePoint, Clock clock);
 
     public static class UsagePointDetailsTypeResolver implements TypeIdResolver {
@@ -46,22 +48,16 @@ public abstract class BaseUsagePointDetailsInfo {
 
         @Override
         public String idFromValueAndType(Object o, Class<?> aClass) {
-            if (aClass.equals(ElectricityUsagePointDetailsInfo.class)) {
-                return ServiceKind.ELECTRICITY.name();
-            } else if (aClass.equals(GasUsagePointDetailsInfo.class)) {
-                return ServiceKind.GAS.name();
-            } else if (aClass.equals(WaterUsagePointDetailsInfo.class)) {
-                return ServiceKind.WATER.name();
-            } else if (aClass.equals(HeatUsagePointDetailsInfo.class)) {
-                return ServiceKind.HEAT.name();
-            } else {
-                throw new IllegalStateException("class " + aClass + " is not found");
+            try {
+                return ((BaseUsagePointDetailsInfo)aClass.newInstance()).getKind().name();
+            } catch (InstantiationException | IllegalAccessException e) {
+                throw new IllegalStateException("class " + aClass.getName() + " is not found");
             }
         }
 
         @Override
         public String idFromBaseType() {
-            return "UNKONOWN";
+            return ServiceKind.OTHER.name();
         }
 
         @Override
