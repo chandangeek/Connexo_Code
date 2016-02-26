@@ -9,8 +9,8 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.servicecall.ServiceCallType;
 
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Component;
@@ -27,7 +27,7 @@ import java.util.Set;
  * Created by bvn on 2/15/16.
  */
 @Component(name = "com.elster.jupiter.ServcieCallTypeCustomPropertySet", service = CustomPropertySet.class, immediate = true)
-public class ServiceCallTypeOneCustomPropertySet implements CustomPropertySet<ServiceCallType, ServiceCallTypeDomainExtension> {
+public class ServiceCallTypeOneCustomPropertySet implements CustomPropertySet<ServiceCall, ServiceCallTypeDomainExtension> {
 
     public ServiceCallTypeOneCustomPropertySet() {
     }
@@ -56,12 +56,12 @@ public class ServiceCallTypeOneCustomPropertySet implements CustomPropertySet<Se
     }
 
     @Override
-    public Class<ServiceCallType> getDomainClass() {
-        return ServiceCallType.class;
+    public Class<ServiceCall> getDomainClass() {
+        return ServiceCall.class;
     }
 
     @Override
-    public PersistenceSupport<ServiceCallType, ServiceCallTypeDomainExtension> getPersistenceSupport() {
+    public PersistenceSupport<ServiceCall, ServiceCallTypeDomainExtension> getPersistenceSupport() {
         return new RegisterTypeFivePersistenceSupport();
     }
 
@@ -104,7 +104,7 @@ public class ServiceCallTypeOneCustomPropertySet implements CustomPropertySet<Se
                         .finish());
     }
 
-    private class RegisterTypeFivePersistenceSupport implements PersistenceSupport<ServiceCallType, ServiceCallTypeDomainExtension> {
+    private class RegisterTypeFivePersistenceSupport implements PersistenceSupport<ServiceCall, ServiceCallTypeDomainExtension> {
         private final String TABLE_NAME = "BVN_CPS_EXAMPLE_CPS";
         private final String FK_CPS_EXAMPLE_CPS = "FK_CPS_EXAMPLE_CPS";
 
