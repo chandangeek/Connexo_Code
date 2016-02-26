@@ -8,7 +8,7 @@ Ext.define('Sct.controller.Main', {
 
     controllers: [
         'Sct.controller.history.ServiceCallType',
-        'Sct.controller.ServiceCallType'
+        'Sct.controller.ServiceCallTypes'
     ],
 
     stores: [
