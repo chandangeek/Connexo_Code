@@ -5,8 +5,11 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.Clock;
 
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class DefaultUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
 
     public DefaultUsagePointDetailsInfo() {

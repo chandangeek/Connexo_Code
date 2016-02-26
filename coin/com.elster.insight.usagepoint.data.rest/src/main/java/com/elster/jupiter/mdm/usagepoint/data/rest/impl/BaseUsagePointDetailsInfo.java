@@ -4,6 +4,8 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
+import com.elster.jupiter.util.YesNoAnswer;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
@@ -18,13 +20,13 @@ import java.util.Arrays;
         property = "serviceCategory")
 @JsonTypeIdResolver(BaseUsagePointDetailsInfo.UsagePointDetailsTypeResolver.class)
 public abstract class BaseUsagePointDetailsInfo {
-    public Boolean collar;
+    public YesNoAnswer collar;
 
     public BaseUsagePointDetailsInfo() {
     }
 
     public BaseUsagePointDetailsInfo(UsagePointDetail detail) {
-        this.collar = detail.getCollar().orElse(null);
+        this.collar = detail.isCollarInstalled();
     }
 
     public abstract ServiceKind getKind();

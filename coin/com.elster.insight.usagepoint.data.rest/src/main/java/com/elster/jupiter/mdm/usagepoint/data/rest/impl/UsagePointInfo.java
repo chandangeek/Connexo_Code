@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collections;
 import java.util.List;
 
 @XmlRootElement
@@ -33,7 +34,7 @@ public class UsagePointInfo {
     @JsonTypeIdResolver(BaseUsagePointDetailsInfo.UsagePointDetailsTypeResolver.class)
     public BaseUsagePointDetailsInfo techInfo;
 
-    public List<CustomPropertySetInfo> customPropertySets;
+    public List<CustomPropertySetInfo> customPropertySets = Collections.emptyList();
 
     public long version;
     public long createTime;

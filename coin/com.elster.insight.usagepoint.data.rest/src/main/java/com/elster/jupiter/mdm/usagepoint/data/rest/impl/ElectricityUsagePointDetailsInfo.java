@@ -7,19 +7,22 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.util.units.Quantity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.Clock;
 
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class ElectricityUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
-    public Boolean grounded;
+    public boolean grounded;
     public Quantity nominalServiceVoltage;
     public PhaseCode phaseCode;
     public Quantity ratedCurrent;
     public Quantity ratedPower;
     public Quantity estimatedLoad;
-    public Boolean limiter;
+    public boolean limiter;
     public String loadLimiterType;
     public Quantity loadLimit;
-    public Boolean interruptible;
+    public boolean interruptible;
 
     public ElectricityUsagePointDetailsInfo() {
     }

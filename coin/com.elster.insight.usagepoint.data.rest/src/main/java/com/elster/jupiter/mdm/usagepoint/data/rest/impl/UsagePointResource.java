@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.users.User;
@@ -168,16 +169,21 @@ public class UsagePointResource {
     @SuppressWarnings("unchecked")
     public Response createUsagePoint(UsagePointInfo info, @QueryParam("validate") boolean validate, @QueryParam("step") long step, @QueryParam("customPropertySetId") long customPropertySetId) {
 
+        new RestValidationBuilder()
+                .notEmpty(info.mRID, "mRID")
+                .notEmpty(info.serviceCategory, "serviceCategory")
+                .notEmpty(info.isSdp, "typeOfUsagePoint")
+                .notEmpty(info.isVirtual, "typeOfUsagePoint")
+                .validate();
+        validateSeviceKind(info.serviceCategory);
+
         if (validate) {
-            new RestValidationBuilder()
-                    .notEmpty(info.mRID, "mRID")
-                    .notEmpty(info.serviceCategory, "serviceCategory")
-                    .notEmpty(info.isSdp, "typeOfUsagePoint")
-                    .notEmpty(info.isVirtual, "typeOfUsagePoint")
-                    .validate();
             if (step == 1) {
                 usagePointInfoFactory.newUsagePointBuilder(info).validate();
             } else if (step == 2) {
+                if(info.techInfo==null){
+                    throw exceptionFactory.newException(MessageSeeds.NO_SUCH_TECHNICAL_INFO, info.serviceCategory);
+                }
                 info.techInfo.getUsagePointDetailBuilder(usagePointInfoFactory.newUsagePointBuilder(info)
                         .validate(), clock).validate();
             } else if (customPropertySetId > 0) {
@@ -198,7 +204,6 @@ public class UsagePointResource {
             return Response.accepted().build();
         }
 
-
         UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
         info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
 
@@ -216,6 +221,12 @@ public class UsagePointResource {
         return Response.status(Response.Status.CREATED).entity(usagePointInfoFactory.from(usagePoint)).build();
     }
 
+    private void validateSeviceKind(String serviceKindString){
+        if (Arrays.stream(ServiceKind.values()).allMatch(sk -> !sk.name().equals(serviceKindString))){
+            throw new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_SERVICE_CATEGORY,"serviceCategory");
+        }
+    }
+
     @GET
     @Path("/{mrid}/meteractivations")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -224,7 +235,6 @@ public class UsagePointResource {
         UsagePoint usagePoint = fetchUsagePoint(mRid, securityContext);
         return new MeterActivationInfos(usagePoint.getMeterActivations());
     }
-
 
     @GET
     @Path("/{id}/readingtypes")

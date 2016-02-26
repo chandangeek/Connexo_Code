@@ -5,15 +5,23 @@ import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.google.common.collect.Range;
+import com.jayway.jsonpath.JsonModel;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.mockito.Mock;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -55,10 +63,39 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     private ReadingQuality suspect, notSuspect;
     @Mock
     private IntervalReadingRecord irr1, irr2, irr3, irr4;
+    @Mock
+    private UsagePointBuilder usagePointBuilder;
+    @Mock
+    private ElectricityDetailBuilder electricityDetailBuilder;
 
     @Before
     public void setUp1() {
         when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
+        when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
+
+        when(serviceCategory.newUsagePoint(anyString())).thenReturn(usagePointBuilder);
+        when(usagePointBuilder.withIsSdp(anyBoolean())).thenReturn(usagePointBuilder);
+        when(usagePointBuilder.withIsVirtual(anyBoolean())).thenReturn(usagePointBuilder);
+        when(usagePointBuilder.withName(anyString())).thenReturn(usagePointBuilder);
+        when(usagePointBuilder.withReadRoute(anyString())).thenReturn(usagePointBuilder);
+        when(usagePointBuilder.withServiceDeliveryRemark(anyString())).thenReturn(usagePointBuilder);
+        when(usagePointBuilder.withServicePriority(anyString())).thenReturn(usagePointBuilder);
+        when(usagePointBuilder.withInstallationTime(Instant.EPOCH)).thenReturn(usagePointBuilder);
+        when(usagePointBuilder.create()).thenReturn(usagePoint);
+        when(usagePointBuilder.validate()).thenReturn(usagePoint);
+
+        when(usagePoint.newElectricityDetailBuilder(any(Instant.class))).thenReturn(electricityDetailBuilder);
+        when(electricityDetailBuilder.withCollar(any())).thenReturn(electricityDetailBuilder);
+        when(electricityDetailBuilder.withEstimatedLoad(any(Quantity.class))).thenReturn(electricityDetailBuilder);
+        when(electricityDetailBuilder.withGrounded(anyBoolean())).thenReturn(electricityDetailBuilder);
+        when(electricityDetailBuilder.withInterruptible(anyBoolean())).thenReturn(electricityDetailBuilder);
+        when(electricityDetailBuilder.withLimiter(anyBoolean())).thenReturn(electricityDetailBuilder);
+        when(electricityDetailBuilder.withLoadLimiterType(any())).thenReturn(electricityDetailBuilder);
+        when(electricityDetailBuilder.withLoadLimit(any(Quantity.class))).thenReturn(electricityDetailBuilder);
+        when(electricityDetailBuilder.withRatedPower(any(Quantity.class))).thenReturn(electricityDetailBuilder);
+        when(electricityDetailBuilder.withRatedCurrent(any(Quantity.class))).thenReturn(electricityDetailBuilder);
+        when(electricityDetailBuilder.withPhaseCode(any())).thenReturn(electricityDetailBuilder);
+        when(electricityDetailBuilder.withNominalServiceVoltage(any(Quantity.class))).thenReturn(electricityDetailBuilder);
 
         when(clock.instant()).thenReturn(NOW);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
@@ -114,6 +151,64 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         UsagePointInfo response = target("usagepoints/MRID").request().get(UsagePointInfo.class);
 
         assertThat(response.mRID).isEqualTo("MRID");
+    }
+
+    @Test
+    public void testValidateUsagePointGeneralBeforeCreating() {
+
+        UsagePointInfo info = new UsagePointInfo();
+        info.mRID = "test";
+        info.installationTime = Instant.EPOCH.toEpochMilli();
+        info.isSdp = true;
+        info.isVirtual = true;
+        info.techInfo = new ElectricityUsagePointDetailsInfo();
+
+        Response response = target("usagepoints").queryParam("validate",true).queryParam("step",1).request().post(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(202);
+    }
+
+    @Test
+    public void testValidateUsagePointGeneralBeforeCreatingFailed() throws Exception {
+
+        UsagePointInfo info = new UsagePointInfo();
+        info.isVirtual = true;
+
+        Response response = target("usagepoints").queryParam("validate",true).queryParam("step",1).request().post(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(400);
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<Boolean>get("$.success")).isFalse();
+        assertThat(jsonModel.<String >get("$.errors[0].id")).isEqualTo("mRID");
+        assertThat(jsonModel.<String >get("$.errors[1].id")).isEqualTo("serviceCategory");
+        assertThat(jsonModel.<String >get("$.errors[2].id")).isEqualTo("typeOfUsagePoint");
+    }
+
+
+    @Test
+    public void testValidateUsagePointTechnicalBeforeCreating() {
+
+        UsagePointInfo info = new UsagePointInfo();
+        info.mRID = "test";
+        info.installationTime = Instant.EPOCH.toEpochMilli();
+        info.isSdp = true;
+        info.isVirtual = true;
+        info.techInfo = new ElectricityUsagePointDetailsInfo();
+
+        Response response = target("usagepoints").queryParam("validate",true).queryParam("step",2).request().post(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(202);
+    }
+
+    @Test
+    public void testUsagePointCreating() {
+
+        UsagePointInfo info = new UsagePointInfo();
+        info.mRID = "test";
+        info.installationTime = Instant.EPOCH.toEpochMilli();
+        info.isSdp = true;
+        info.isVirtual = true;
+        info.techInfo = new ElectricityUsagePointDetailsInfo();
+
+        Response response = target("usagepoints").request().post(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(201);
     }
 
     private DataValidationStatus mockDataValidationStatus(ReadingQualityType readingQualityType, boolean isBulk) {

@@ -20,6 +20,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_SUCH_CUSTOM_PROPERTY_SET(11, Keys.NO_SUCH_CUSTOM_PROPERTY_SET, "Custom property set with id ''{0}'' not found."),
     CUSTOM_PROPERTY_SET_IS_NOT_VERSIONED(12, Keys.CUSTOM_PROPERTY_SET_IS_NOT_VERSIONED, "Custom property set ''{0}'' is not versioned."),
     END_DATE_MUST_BE_AFTER_START_DATE(13, Keys.END_DATE_MUST_BE_AFTER_START_DATE, "End date must be after start date"),
+    NO_SUCH_SERVICE_CATEGORY(14, Keys.NO_SUCH_SERVICE_CATEGORY, "Service category not found"),
+    NO_SUCH_TECHNICAL_INFO(15, Keys.NO_SUCH_TECHNICAL_INFO, "Technical information for {0} should be provided"),
     ;
     private final int number;
     private final String key;
@@ -70,6 +72,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String NO_SUCH_CUSTOM_PROPERTY_SET = "NoSuchCustomPropertySet";
         public static final String CUSTOM_PROPERTY_SET_IS_NOT_VERSIONED = "CustomPropertySetIsNotVersioned";
         public static final String END_DATE_MUST_BE_AFTER_START_DATE = "EndDateMusBeAfterStartDate";
+        public static final String NO_SUCH_SERVICE_CATEGORY = "NoSuchServiceCtegory";
+        public static final String NO_SUCH_TECHNICAL_INFO = "NoSuchTechInfo";
 
     }
 

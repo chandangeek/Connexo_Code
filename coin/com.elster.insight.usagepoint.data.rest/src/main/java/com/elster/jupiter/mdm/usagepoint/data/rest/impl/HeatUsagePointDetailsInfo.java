@@ -2,17 +2,21 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 
 import com.elster.jupiter.metering.*;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.Clock;
 
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class HeatUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
     public Quantity pressure;
     public Quantity physicalCapacity;
-    public Boolean bypass;
+    public YesNoAnswer bypass;
     public BypassStatus bypassStatus;
-    public Boolean valve;
-    public Boolean interruptible;
+    public YesNoAnswer valve;
+    public boolean interruptible;
 
     public HeatUsagePointDetailsInfo() {
     }
@@ -21,9 +25,9 @@ public class HeatUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
         super(detail);
         this.physicalCapacity = detail.getPhysicalCapacity();
         this.pressure = detail.getPressure();
-        this.bypass = detail.getBypass().orElse(null);
+        this.bypass = detail.isBypassInstalled();
         this.bypassStatus = detail.getBypassStatus();
-        this.valve = detail.getValve().orElse(null);
+        this.valve = detail.isValveInstalled();
         this.interruptible = detail.isInterruptible();
     }
 
