@@ -80,6 +80,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             url;
 
         if (customAttributeSetId != router.queryParams.customAttributeSetId) {
+            router.queryParams.customAttributeSetId = customAttributeSetId;
             url = router.getRoute().buildUrl(router.arguments, router.queryParams);
             Uni.util.History.setParsePath(false);
             Uni.util.History.suspendEventsForNextCall();
