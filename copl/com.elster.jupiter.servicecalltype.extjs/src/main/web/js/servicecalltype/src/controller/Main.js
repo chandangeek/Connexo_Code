@@ -3,11 +3,12 @@ Ext.define('Sct.controller.Main', {
 
     requires: [
         'Uni.store.PortalItems',
-        'Uni.store.MenuItems'
+        'Uni.store.MenuItems',
     ],
 
     controllers: [
-        'Sct.controller.history.ServiceCallType'
+        'Sct.controller.history.ServiceCallType',
+        'Sct.controller.ServiceCallType'
     ],
 
     stores: [
