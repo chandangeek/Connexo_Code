@@ -1,9 +1,9 @@
-Ext.define('Mdc.view.setup.comtasks.parameters.clock.Set', {
+Ext.define('Mdc.view.setup.comtasks.parameters.time.Synchronize', {
     extend: 'Ext.form.Panel',
     requires: [
         'Mdc.view.setup.comtasks.parameters.TimeCombo'
     ],
-    alias: 'widget.communication-tasks-parameters-clock-set',
+    alias: 'widget.communication-tasks-parameters-clock-synchronize',
     name: 'parameters',
     items: [
         {
@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.clock.Set', {
             items: [
                 {
                     xtype: 'textfield',
-                    itemId: 'setMinNum',
+                    itemId: 'syncMinNum',
                     name: 'minimumclockdifference',
                     fieldLabel: Uni.I18n.translate('comtask.minimum.clock.difference','MDC','Minimum clock difference'),
                     labelWidth: 197,
@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.clock.Set', {
                 },
                 {
                     xtype: 'communication-tasks-parameters-timecombo',
-                    itemId: 'setMinTime',
+                    itemId: 'syncMinTime',
                     value: 'seconds'
                 }
             ]
@@ -33,10 +33,11 @@ Ext.define('Mdc.view.setup.comtasks.parameters.clock.Set', {
         {
             xtype: 'container',
             layout: 'column',
+            margin: '0 0 5 0',
             items: [
                 {
                     xtype: 'textfield',
-                    itemId: 'setMaxNum',
+                    itemId: 'syncMaxNum',
                     name: 'maximumclockdifference',
                     fieldLabel: Uni.I18n.translate('comtask.maximum.clock.difference','MDC','Maximum clock difference'),
                     labelWidth: 197,
@@ -48,8 +49,31 @@ Ext.define('Mdc.view.setup.comtasks.parameters.clock.Set', {
                 },
                 {
                     xtype: 'communication-tasks-parameters-timecombo',
-                    itemId: 'setMaxTime',
+                    itemId: 'syncMaxTime',
                     value: 'hours'
+                }
+            ]
+        },
+        {
+            xtype: 'container',
+            layout: 'column',
+            items: [
+                {
+                    xtype: 'textfield',
+                    itemId: 'syncMaxNumShift',
+                    name: 'maximumclockshift',
+                    fieldLabel: Uni.I18n.translate('comtask.maximum.clock.shift','MDC','Maximum clock shift'),
+                    labelWidth: 197,
+                    width: 247,
+                    maskRe: /[0-9]+/,
+                    margin: '0 10 0 0',
+                    value: 1,
+                    labelPad: 18
+                },
+                {
+                    xtype: 'communication-tasks-parameters-timecombo',
+                    itemId: 'syncMaxTimeShift',
+                    value: 'minutes'
                 }
             ]
         }

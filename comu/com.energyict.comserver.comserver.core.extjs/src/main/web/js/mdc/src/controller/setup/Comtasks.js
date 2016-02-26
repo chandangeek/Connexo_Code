@@ -80,6 +80,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         });
         this.store = this.getStore('Mdc.store.CommunicationTasks');
         this.commands = [];
+        this.recordCommands = [];
     },
 
     showCommunicationTasksView: function () {
@@ -103,10 +104,10 @@ Ext.define('Mdc.controller.setup.Comtasks', {
     },
 
     showAddCommandPopUp: function (btn) {
-        var self = this,
-            categoriesStore = this.getStore('Mdc.store.CommunicationTasksCategories'),
+        var categoriesStore = this.getStore('Mdc.store.CommunicationTasksCategories'),
             widget = btn.up('comtaskCreateEdit'),
             window;
+
         widget.setLoading(true);
         categoriesStore.load({
             scope: this,
@@ -207,10 +208,12 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         if (taskId) {
             this.getTaskEdit().getCenterContainer().down().setTitle(Uni.I18n.translate('comtask.edit', 'MDC', 'Edit communication task'));
             this.commands = [];
+            this.recordCommands = [];
             this.loadModelToEditForm(taskId, widget, selectedMessagesStore, allMessagesStore);
         } else {
             this.getTaskEdit().getCenterContainer().down().setTitle(Uni.I18n.translate('comtask.create', 'MDC', 'Add communication task'));
             this.commands = [];
+            this.recordCommands = []
             allMessagesStore.load();
         }
     },
@@ -225,7 +228,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             actionBtn = Ext.ComponentQuery.query('comtaskCreateEdit #createEditTask')[0],
             btns = Ext.ComponentQuery.query('comtaskCreateEdit tag-button');
         Ext.Array.each(btns, function (btn) {
-            if (btn.category === categoryCombo.value) {
+            if (btn.categoryId === categoryCombo.value) {
                 btn.fireEvent('closeclick', btn);
                 btn.destroy();
             }
@@ -270,8 +273,9 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             record.beginEdit();
             record.set('name', nameField.getValue());
             for(i = 0; i < me.commands.length; i++) {
-                if(me.commands[1].categoryName) {
+                if(me.commands[i].categoryName) {
                     delete me.commands[i].categoryName;
+                    delete me.commands[i].actionName;
                 }
             }
             record.set('commands', me.commands);
@@ -284,8 +288,9 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 backUrl: backUrl,
                 success: function () {
                     window.location.href = backUrl;
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comtask.saved', 'MDC', 'Communication task configuration saved'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comtask.saved', 'MDC', 'Communication task successfully saved'));
                     me.commands = [];
+                    me.recordCommands = [];
                     editView.setLoading(false);
                 },
                 failure: function (record, requestObject) {
@@ -368,10 +373,11 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                             selectedMessagesStore.add(message);
                         });
                         self.commands = record.get('commands');
+                        self.recordCommands = self.commands.slice();
                         categoriesStore.load({
                             scope: this,
                             callback: function () {
-                                if (self.commands.length === categoriesStore.totalCount) {
+                                if (self.recordCommands.length === categoriesStore.totalCount) {
                                     widget.down('#addAnotherCommandsButton').hide();
                                 }
                                 widget.setLoading(false);
@@ -420,7 +426,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 parametersContainer.down('#disContNum').setValue(command.parameters[4].value.value);
                 break;
             case 'clock':
-                switch (command.action) {
+                switch (command.actionId) {
                     case 'set':
                         parametersContainer.down('#setMinTime').setValue(command.parameters[0].value.name);
                         parametersContainer.down('#setMinNum').setValue(command.parameters[0].value.value);
@@ -580,20 +586,20 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             categoryContainer = commandContainer.down('comtaskCommandCategoryCombo'),
             editView = self.getTaskEdit(),
             form = editView.down('form').getForm(),
-            category = categoryContainer.value,
-            categoryName = categoryContainer.getRawValue(),
+            categoryId = categoryContainer.value,
+            category = categoryContainer.getRawValue(),
             newCommand = editView.down('#newCommand'),
             btns = Ext.ComponentQuery.query('comtaskCreateEdit tag-button'),
             parametersContainer,
             btnToRemoveAfterValidation,
-            action,
             numItem,
+            offset = 0,
             couldAdd = true,
             protocol = {};
 
 
         Ext.Array.each(btns, function (btn) {
-            if (btn.category === categoryName) {
+            if (btn.categoryId === categoryId) {
                 switch (button.action) {
                     case 'add':
                         categoryContainer.markInvalid(
@@ -603,12 +609,14 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         break;
                     case 'edit':
                         btnToRemoveAfterValidation = btn;
+                        offset = 1;
                         break;
                 }
+                return false; // break out of each()
             }
         });
 
-        if (Ext.isEmpty(category)) {
+        if (Ext.isEmpty(categoryId)) {
             categoryContainer.markInvalid(
                 Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
             );
@@ -616,31 +624,33 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         }
 
         if (actionContainer) {
-            action = actionContainer.value;
             parametersContainer = actionContainer.nextNode();
+            protocol.categoryId = categoryId;
             protocol.category = category;
-            protocol.categoryId = category;
-            protocol.categoryName = categoryName;
-            protocol.action = action;
+            protocol.actionId = actionContainer.value;
+            protocol.action = actionContainer.getRawValue();
             protocol.parameters = [];
 
-            if (Ext.isEmpty(protocol.action)) {
+
+            if (Ext.isEmpty(protocol.actionId)) {
                 actionContainer.markInvalid(
                     Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
-                )
+                );
                 couldAdd = false;
             }
 
             Ext.Array.each(self.commands, function (item) {
-                if (item.category === protocol.category) {
-                    protocol.id = item.id;
+                if (item.categoryId === protocol.categoryId) {
                     numItem = self.commands.indexOf(item);
                 }
             });
 
-            if (!Ext.isEmpty(numItem)) {
-                self.commands.splice(numItem, 1);
-            }
+            Ext.Array.each(self.recordCommands, function (item) {
+                if (item.categoryId === protocol.categoryId && item.actionId === protocol.actionId) {
+                    protocol.id = item.id;
+                    return false; // break out of each()
+                }
+            });
 
             if (!Ext.isEmpty(parametersContainer)) {
                 switch (parametersContainer.xtype) {
@@ -686,18 +696,25 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             }
         }
         if (couldAdd) {
-            btnToRemoveAfterValidation && btnToRemoveAfterValidation.destroy();
+            if (btnToRemoveAfterValidation) {
+                btnToRemoveAfterValidation.destroy()
+            }
 
             if (self.commands.length === 1) {
                 editView.down('#noActionsAddedMsg').hide();
                 editView.down('#addCommandsToTask').hide();
                 editView.down('#addAnotherCommandsButton').show();
-            } else if (self.commands.length === categoryContainer.getStore().totalCount) {
+            } else if ( (self.commands.length - offset) === categoryContainer.getStore().totalCount ) {
                 editView.down('#addAnotherCommandsButton').hide();
             }
 
             self.addTagButton(protocol);
             window.destroy();
+
+            if (!Ext.isEmpty(numItem)) {
+                self.commands.splice(numItem, 1);
+            }
+
         } else {
             self.commands.pop()
         }
@@ -833,7 +850,8 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         window.down('comtaskCommandCategoryCombo').disable();
         actionsStore.load({
             callback: function () {
-                window.down('comtaskCommandCategoryActionCombo').setValue(command.action);
+                window.down('comtaskCommandCategoryActionCombo').setValue(command.actionId);
+                window.down('comtaskCommandCategoryActionCombo').setRawValue(command.action);
                 window.down('comtaskCommandCategoryActionCombo').disable();
                 if (!Ext.isEmpty(command.parameters)) {
                     me.setValuesToForm(command, window);
@@ -844,19 +862,16 @@ Ext.define('Mdc.controller.setup.Comtasks', {
 
     addTagButton: function (command) {
         var self = this;
-        if(command.categoryName) {
-            command.category = command.categoryName;
-        }
         self.getCommandNames().add({
             xtype: 'tag-button',
-            itemId: 'tagBtn' + command.category,
-            text: Uni.I18n.translate('comtask.action.' + command.category + '.' + command.action, 'MDC', command.category + ' - ' + command.action),
+            itemId: 'tagBtn' + command.categoryId,
+            text: command.category + ' - ' + command.action,
             margin: '5 0 5 0',
-            width: 180,
-            category: command.category,
+            width: 200,
+            categoryId: command.categoryId,
             handler: function () {
                 var window = Ext.create('Mdc.view.setup.comtasks.ComTaskAddCommandWindow', {
-                    title: Uni.I18n.translate('communicationtasks.task.editCommand', 'MDC', 'Edit command'),
+                    title: Uni.I18n.translate('communicationtasks.task.editAction', 'MDC', 'Edit action'),
                     btnAction: 'edit',
                     btnText: Uni.I18n.translate('general.save', 'MDC', 'Save')
                 });
@@ -866,7 +881,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 closeclick: function (me) {
                     var numItem;
                     Ext.Array.each(self.commands, function (item) {
-                        if (item.category === me.category) {
+                        if (item.categoryId === me.categoryId) {
                             numItem = self.commands.indexOf(item);
                         }
                     });

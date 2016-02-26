@@ -57,11 +57,18 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
                     tabController.showTab(0);
 
                     var updateView = function (record) {
+                        var menu = widget.down('deviceLoadProfilesActionMenu');
                         if (!widget.isDestroyed) {
                             me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
                             widget.down('#deviceLoadProfilesPreviewForm').loadRecord(record);
                             tabWidget.down('#loadProfileTabPanel').setTitle(record.get('name'));
-                            widget.down('deviceLoadProfilesActionMenu').record = record;
+                            if (menu) {
+                                menu.record = record;
+                                var validateNowLoadProfile = menu.down('#validateNowLoadProfile');
+                                if (validateNowLoadProfile) {
+                                    validateNowLoadProfile.setVisible(record.get('validationInfo').validationActive);
+                                }
+                            }
                             Ext.resumeLayouts(true);
                         }
                     };

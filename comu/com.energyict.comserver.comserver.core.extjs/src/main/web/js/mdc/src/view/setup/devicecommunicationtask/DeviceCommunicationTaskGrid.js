@@ -70,7 +70,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskGrid',
                         metadata.tdAttr = 'data-qtip="' + Uni.I18n.translate('deviceCommunicationTask.noSchedule', 'MDC', 'No schedule') + '"';
                         return '-';
                     } else {
-                        return value;
+                        return Ext.String.htmlEncode(value);
                     }
             }
 
@@ -118,8 +118,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskGrid',
                 xtype: 'uni-actioncolumn',
                 menu: {
                     xtype: 'device-communication-task-action-menu'
-                },
-                flex: 0.5
+                }
             }
 
         ];

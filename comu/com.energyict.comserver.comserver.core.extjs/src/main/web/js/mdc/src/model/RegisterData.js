@@ -7,6 +7,7 @@ Ext.define('Mdc.model.RegisterData', {
         {name: 'validationStatus', type:'auto', useNull: true, persist: false},
         {name: 'type', type:'string'},
         {name: 'value', type:'string'},
+        {name: 'unit', type:'string'},
         {name: 'deltaValue', type:'string'},
         {name: 'dataValidated', type:'auto', persist: false},
         {name: 'suspectReason', type:'auto', persist: false},
@@ -17,7 +18,21 @@ Ext.define('Mdc.model.RegisterData', {
             persist: false,
             mapping: function (data) {
                 var result = null;
-                if (data.modificationFlag && data.reportedDateTime) {
+                if (!data.multiplier && data.modificationFlag && data.reportedDateTime) {
+                    result = {
+                        flag: data.modificationFlag,
+                        date: data.reportedDateTime
+                    }
+                }
+                return result;
+            }
+        },
+        {
+            name: 'calculatedModificationState',
+            persist: false,
+            mapping: function (data) {
+                var result = null;
+                if (data.multiplier && data.modificationFlag && data.reportedDateTime) {
                     result = {
                         flag: data.modificationFlag,
                         date: data.reportedDateTime

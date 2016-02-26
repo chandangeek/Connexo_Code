@@ -144,6 +144,18 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 }
             },
             {
+                name: 'multiplier',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.multiplier', 'MDC', 'Multiplier'),
+                fullInfo: me.fullInfo,
+                renderer: function (value) {
+                    if (!Ext.isEmpty(value) && !Ext.isEmpty(value.displayValue)) {
+                        return value.displayValue
+                    } else {
+                        return '-'
+                    }
+                }
+            },
+            {
                 xtype: 'deviceFormDateField',
                 name: 'shipmentDate',
                 itemId: 'fld-device-shipment-date',

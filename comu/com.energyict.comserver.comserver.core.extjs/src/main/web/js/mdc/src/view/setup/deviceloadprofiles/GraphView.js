@@ -25,7 +25,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
 
     drawGraph: function (title, yAxis, series, channels, seriesToYAxisMap, intervalLength, zoomLevels) {
         var me = this;
-
         me.chart = new Highcharts.StockChart({
 
             title: {

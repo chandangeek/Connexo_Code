@@ -68,9 +68,9 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         form.updateRecord();
         form.getRecord().save({
             backUrl: me.getLandingUrl(),
-            success: function () {
+            success: function (record) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAttributes.saved', 'MDC', 'Device attributes saved'));
-                me.goToAttributesLanding();
+                me.goToAttributesLanding(record);
             },
             callback: function () {
                 editView.setLoading(false);
@@ -103,12 +103,11 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         editPage.setLoading(true);
         updatedRecord = me.getUpdatedRecord(attributesRecord);
         editForm.getForm().clearInvalid();
-
         updatedRecord.save({
             backUrl: me.getLandingUrl(),
-            success: function () {
+            success: function (record) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAttributes.saved', 'MDC', 'Device attributes saved'));
-                me.goToAttributesLanding();
+                me.goToAttributesLanding(record);
             },
             failure: function (record, operation) {
                 if (operation && operation.response && operation.response.status === 400) {
@@ -137,6 +136,9 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         var editForm = this.getDeviceAttributesEditForm();
 
         if (editForm) {
+            if(key === 'mRID'){
+                key = 'mrid';
+            }
             return editForm.down('#' + key + 'Edit');
         } else {
             return null
@@ -154,7 +156,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
     },
 
     goToAttributesLanding: function () {
-        this.getController('Uni.controller.history.Router').getRoute('devices/device/attributes').forward();
+        this.getController('Uni.controller.history.Router').getRoute('devices/device/attributes').forward({mRID:this.getDeviceAttributesEditPage().device.get('mRID')});
     },
 
     getLandingUrl: function () {
@@ -270,7 +272,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
                 if (editField) {
                     if (key === 'usagePoint') {
                         record.set(key, {attributeId: editField.getValue(), available: true, editable: true});
-                    } else if (key === 'installationDate' || key === 'deactivationDate' || key === 'decommissioningDate' || key === 'shipmentDate') {
+                    } else if (me.isDateField(key)) {
                         record.set(key, {displayValue: editField.getTimeStampValue(), available: true, editable: true});
                     } else {
                         record.set(key, {displayValue: editField.getValue(), available: true, editable: true});
@@ -286,7 +288,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         var me = this,
             store;
 
-        if (key === 'installationDate' || key === 'deactivationDate' || key === 'decommissioningDate' || key === 'shipmentDate') {
+        if (me.isDateField(key)) {
             if (!Ext.isEmpty(value.displayValue)) {
                 var dt = new Date(value.displayValue);
                 field.setValue(dt);
@@ -306,7 +308,15 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         } else {
             field.setValue(value.displayValue);
         }
-    }
+    },
 
+    isDateField: function(key) {
+        return (
+            key === 'installationDate' ||
+            key === 'deactivationDate' ||
+            key === 'decommissioningDate' ||
+            key === 'shipmentDate'
+        );
+    }
 });
 

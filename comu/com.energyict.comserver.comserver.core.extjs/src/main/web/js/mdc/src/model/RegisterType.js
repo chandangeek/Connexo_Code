@@ -9,12 +9,17 @@ Ext.define('Mdc.model.RegisterType', {
         {name: 'isLinkedByDeviceType', type: 'boolean', useNull: true},
         {name: 'isLinkedByActiveRegisterConfig', type: 'boolean', useNull: true},
         {name: 'isLinkedByInactiveRegisterConfig', type: 'boolean', useNull: true},
-        'readingType',
+        {name: 'isCumulative', type: 'boolean', useNull: true},
+        {name: 'readingType', type: 'auto', defaultValue: null},
+        {name: 'collectedReadingType', type: 'auto', defaultValue: null},
+        {name: 'calculatedReadingType', type: 'auto', defaultValue: null},
+        {name: 'possibleCalculatedReadingTypes', type: 'auto', defaultValue: null, useNull: true},
         {name: 'name', type: 'string', persist: false, mapping: 'readingType.fullAliasName'}
     ],
     idProperty: 'id',
     associations: [
         {
+            instanceName: 'readingType',
             name: 'readingType',
             associationKey: 'readingType',
             type: 'hasOne',
@@ -22,6 +27,33 @@ Ext.define('Mdc.model.RegisterType', {
             getterName: 'getReadingType',
             setterName: 'setReadingType',
             foreignKey: 'readingType'
+        },
+        {
+            instanceName: 'collectedReadingType',
+            name: 'collectedReadingType',
+            associationKey: 'collectedReadingType',
+            type: 'hasOne',
+            model: 'Mdc.model.ReadingType',
+            getterName: 'getCollectedReadingType',
+            setterName: 'setCollectedReadingType',
+            foreignKey: 'collectedReadingType'
+        },
+        {
+            instanceName: 'calculatedReadingType',
+            name: 'calculatedReadingType',
+            associationKey: 'calculatedReadingType',
+            type: 'hasOne',
+            model: 'Mdc.model.ReadingType',
+            getterName: 'getCalculatedReadingType',
+            setterName: 'setCalculatedReadingType',
+            foreignKey: 'calculatedReadingType'
+        },
+        {
+            name: 'possibleCalculatedReadingTypes',
+            associationKey: 'possibleCalculatedReadingTypes',
+            type: 'hasMany',
+            model: 'Mdc.model.ReadingType',
+            foreignKey: 'possibleCalculatedReadingTypes'
         }
     ],
     proxy: {

@@ -31,6 +31,12 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.mrid', 'MDC', 'MRID')
             },
             {
+                name: 'mrid',
+                itemId: 'mridEdit',
+                xtype: 'textfield',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.mrid', 'MDC', 'MRID')
+            },
+            {
                 name: 'lifeCycleState',
                 itemId: 'lifeCycleStateView',
                 fieldLabel: Uni.I18n.translate('general.state', 'MDC', 'State')
@@ -113,6 +119,19 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                         }
                     }
                 }
+            },
+            {
+                name: 'multiplier',
+                itemId: 'multiplierView',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.multiplier', 'MDC', 'Multiplier'),
+            },
+            {
+                xtype: 'numberfield',
+                name: 'multiplierEdit',
+                minValue: 1,
+                maxValue: 2147483647,
+                itemId: 'multiplierEdit',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.multiplier', 'MDC', 'Multiplier'),
             },
             {
 

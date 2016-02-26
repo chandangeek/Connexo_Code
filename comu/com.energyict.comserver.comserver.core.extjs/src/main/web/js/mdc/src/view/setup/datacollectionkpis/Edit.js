@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Edit', {
         {
             xtype: 'form',
             itemId: 'dataCollectionKpiEditForm',
-            title: '&nbsp;',
+            title: ' ',
             ui: 'large',
             width: '100%',
             defaults: {

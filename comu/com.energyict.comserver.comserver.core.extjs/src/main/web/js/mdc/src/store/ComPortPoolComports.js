@@ -1,6 +1,6 @@
 Ext.define('Mdc.store.ComPortPoolComports',{
     extend: 'Ext.data.Store',
-    model: 'Mdc.model.ComPort',
+    model: 'Mdc.model.ComPortPoolComPort',
     autoLoad: false,
     pageSize: 1000,
     proxy: {

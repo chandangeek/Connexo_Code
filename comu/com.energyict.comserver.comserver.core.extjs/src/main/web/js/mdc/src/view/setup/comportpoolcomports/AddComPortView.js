@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.comportpoolcomports.AddComPortView', {
         'Mdc.view.setup.comportpoolcomports.AddComPortGrid'
     ],
     config:{
-        poolId: null
+        poolId: null,
+        comportPoolStore: null
     },
     initComponent: function () {
         var me = this;
@@ -34,9 +35,9 @@ Ext.define('Mdc.view.setup.comportpoolcomports.AddComPortView', {
                         {
                             xtype: 'comport-selection-grid',
                             itemid: 'addComportToComportPoolGrid',
+                            comportPoolStore: me.comportPoolStore,
                             maxHeight: 450,
-                            flex: 3 ,
-                            selectionListeners: [this.updateAddButton]
+                            flex: 3
                         },
                         {
                             xtype: 'container',
@@ -50,8 +51,7 @@ Ext.define('Mdc.view.setup.comportpoolcomports.AddComPortView', {
                                     itemId: 'addButton',
                                     text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                     ui: 'action',
-                                    disabled: true /*,
-                                    listeners:[{click: {fn: me.onAddButtonClick}}] */
+                                    disabled: true
                                 },
                                 {
                                     itemId: 'cancelButton',
@@ -84,5 +84,9 @@ Ext.define('Mdc.view.setup.comportpoolcomports.AddComPortView', {
     noItemsAvailable: function () {
         this.down('#addComportToComportPoolGrid').getLayout().setActiveItem(0);
         this.down('#addButton').setVisible(false);
+    },
+
+    showPoolColumn: function() {
+        this.down('#addComportToComportPoolGrid').showPoolColumn();
     }
 });

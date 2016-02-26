@@ -62,7 +62,10 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         me.control({
             '#add-devicegroup-browse #staticDynamicRadioButton': {
                 change: function(f, val) {
+                    var step2 = me.getAddDeviceGroupWizard().down('device-group-wizard-step2');
+
                     this.isDynamic = val.dynamic;
+                    step2.isPrepared = false;
                 }
             },
             '#add-devicegroup-browse adddevicegroup-wizard button[navigationBtn=true]': {
@@ -337,6 +340,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         var me = this,
             wizard = me.getAddDeviceGroupWizard(),
             step2 = wizard.down('device-group-wizard-step2'),
+            searchBtn = step2.down('#search-button'),
             domainsStore = me.service.getSearchDomainsStore(),
             staticGrid,
             isDynamic = me.isDynamic,
@@ -344,18 +348,23 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             devices = me.getStore('Mdc.store.DevicesOfDeviceGroupWithoutPagination'),
             store = me.getStore(isDynamic ? 'Mdc.store.DynamicGroupDevices' : 'Mdc.store.StaticGroupDevices');
 
+        if (step2.isPrepared) {
+            return
+        }
+
         step2.getLayout().setActiveItem(isDynamic ? 1 : 0);
         me.service.setSearchResultsStore(store);
         me.setColumnPicker(isDynamic);
 
         if (!isDynamic) {
+            searchBtn.setText(Uni.I18n.translate('general.apply', 'MDC', 'Apply'));
             me.service.excludedCriteria = undefined;
             staticGrid = step2.down('static-group-devices-grid');
             staticGrid.setVisible(false);
             if(wizard.isEdit) {
                 staticGrid.setLoading(true);
             }
-            if(!devices.getRange()){
+            if(!devices.getRange().length){
                 selectionGroupType = {};
                 staticGrid.getSelectionModel().deselectAll(true); // fix the ExtJS error: "getById called for ID that is not present in local cache"
                 staticGrid.setDevices([]);
@@ -364,6 +373,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 staticGrid.getSelectionGroupType().setValue(selectionGroupType);
             }
         } else {
+            searchBtn.setText(Uni.I18n.translate('general.preview', 'MDC', 'Preview'));
             staticGrid = step2.down('dynamic-group-devices-grid');
             staticGrid.down('pagingtoolbartop').resetPaging();
             staticGrid.down('pagingtoolbarbottom').resetPaging();
@@ -398,6 +408,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 }
             });
         }
+        step2.isPrepared = true;
     },
 
     setColumnPicker: function (isDynamic) {
@@ -498,7 +509,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     countNumberOfSearchCriteria: function () {
         var me = this;
 
-        return me.service.getSearchResultsStore().filters.getCount();
+        return me.service.getFilters().length;
     },
 
     prepareStep4: function (wizard, finishBtn, navigationMenu) {

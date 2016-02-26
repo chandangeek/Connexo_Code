@@ -33,33 +33,6 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         {ref: 'readingTypeCombo', selector: '#registerTypeEditForm #readingTypeCombo'}
     ],
 
-    /*  loadReadingTypes: function (combo) {
-     var me = this,
-     editView = me.getRegisterTypeEditView(),
-     readingTypeCombo = me.getReadingTypeCombo(),
-     readingTypeStore = readingTypeCombo.getStore(),
-     readingHiddenDisplayField = editView.down('#noReadingAvailable');
-
-     readingTypeCombo.disable();
-     readingTypeCombo.setValue(null);
-
-     readingTypeStore.load({
-     callback: function () {
-     if (this.getCount()) {
-     readingTypeCombo.show();
-     readingHiddenDisplayField.hide();
-     } else {
-     readingTypeCombo.hide();
-     readingHiddenDisplayField.show();
-     }
-     editView.setLoading(false);
-     readingTypeCombo.enable();
-     }
-     });
-
-     },*/
-
-
     init: function () {
         this.getRegisterTypesStore().on('load', this.onRegisterTypesStoreLoad, this);
 
@@ -108,7 +81,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var registerTypes = this.getRegisterTypeGrid().getSelectionModel().getSelection();
         if (registerTypes.length == 1) {
             this.getRegisterTypePreviewForm().loadRecord(registerTypes[0]);
-            this.getRegisterTypePreview().setTitle(registerTypes[0].get('readingType').fullAliasName);
+            this.getRegisterTypePreview().setTitle(Ext.String.htmlEncode(registerTypes[0].get('readingType').fullAliasName));
         }
     },
 
@@ -183,6 +156,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 widget.down('#readingTypeCombo').disable();
                 if (registerType.get('isLinkedByDeviceType') === true) {
                     widget.down('obis-field').disable();
+                    widget.down('#createEditButton').disable();
                     widget.down('#registerTypeEditCreateInformation').update(Uni.I18n.translate('registertype.warningLinkedTodeviceType', 'MDC', 'The register type has been added to a device type'));
                     widget.down('#registerTypeEditCreateInformation').show();
                 } else {

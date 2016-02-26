@@ -58,7 +58,10 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
     },
 
     showProtocolDialectsView: function (deviceTypeId, deviceConfigurationId) {
-        var me = this;
+        var me = this,
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0];
+
+        if (mainView) mainView.setLoading(Uni.I18n.translate('general.loading', 'MDC', 'Loading...'));
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigurationId = deviceConfigurationId;
         var widget = Ext.widget('protocolDialectSetup', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId});
@@ -69,6 +72,7 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
+                        if (mainView) mainView.setLoading(false);
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                         //widget.down('#registerConfigTitle').html = '<h1>' + deviceConfigName + ' > ' + Uni.I18n.translate('registerConfig.registerConfigurations', 'MDC', 'Register configurations') + '</h1>';

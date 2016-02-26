@@ -58,8 +58,18 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'changeDeviceConfigurationForm', selector: '#change-device-configuration-form'},
         {ref: 'changeDeviceConfigurationFormErrors', selector: '#change-device-configuration-form #form-errors'},
         {ref: 'saveChangeDeviceConfigurationBtn', selector: '#save-change-device-configuration'},
-        {ref: 'deviceConfigurationClonePage', selector: 'deviceConfigurationClone'}
+        {ref: 'deviceConfigurationClonePage', selector: 'deviceConfigurationClone'},
+        {
+            ref: 'obisCodeField',
+            selector: 'edit-logbook-configuration #obis-code-field'
+        },
+        {
+            ref: 'restoreObisCodeBtn',
+            selector: 'edit-logbook-configuration #mdc-restore-obiscode-btn'
+        }
     ],
+
+    originalObisCode: null,
 
     init: function () {
         this.control({
@@ -116,6 +126,12 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             '#new-device-configuration': {
                 afterrender: this.deviceConfigRestoreState,
                 select: this.deviceConfigSaveState
+            },
+            'edit-logbook-configuration #obis-code-field': {
+                change: this.onObisCodeChange
+            },
+            'edit-logbook-configuration #mdc-restore-obiscode-btn': {
+                click: this.onRestoreObisCodeBtnClicked
             }
         });
     },
@@ -716,7 +732,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         deviceConfigModel.getProxy().setExtraParam('deviceType', deviceTypeId);
         store.load(
             {
-                callback: function (records) {
+                callback: function (logbookConfigurations) {
                     var widget = Ext.widget('edit-logbook-configuration', {
                         deviceTypeId: deviceTypeId,
                         deviceConfigurationId: deviceConfigurationId,
@@ -724,15 +740,12 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     });
                     me.getApplication().fireEvent('changecontentevent', widget);
                     widget.setLoading(true);
-                    var editView = me.getEditLogbookConfiguration(),
-                        form = editView.down('form'),
-                        overruledObisField = form.down('[name=overruledObisCode]');
-                    Ext.Array.each(records, function (rec) {
-                        if (rec.data.id == logbookConfigurationId) {
-                            form.loadRecord(rec);
-                            if (rec.data.overruledObisCode == rec.data.obisCode) {
-                                overruledObisField.setValue('');
-                            }
+                    var form = me.getEditLogbookConfiguration().down('form');
+                    Ext.Array.each(logbookConfigurations, function (logbookConfiguration) {
+                        if (logbookConfiguration.get('id') == logbookConfigurationId) {
+                            me.originalObisCode = logbookConfiguration.get('obisCode');
+                            form.loadRecord(logbookConfiguration);
+                            return false; // break out of the loop
                         }
                     });
                     model.load(deviceTypeId, {
@@ -878,5 +891,22 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         var router = this.getController('Uni.controller.history.Router');
         Ext.state.Manager.clear('deviceConfigState');
         router.getRoute('devices/device').forward();
+    },
+
+    onObisCodeChange: function(obisCodeField, newValue) {
+        var me = this;
+        me.getRestoreObisCodeBtn().setDisabled(newValue === me.originalObisCode);
+        me.getRestoreObisCodeBtn().setTooltip(
+            newValue === me.originalObisCode
+                ? null
+                : Uni.I18n.translate('general.obisCode.reset.tooltip3', 'MDC', 'Reset to {0}, the OBIS code of the logbook type', me.originalObisCode)
+        );
+    },
+
+    onRestoreObisCodeBtnClicked: function() {
+        var me = this;
+        me.getObisCodeField().setValue(me.originalObisCode);
+        me.onObisCodeChange(me.getObisCodeField(), me.originalObisCode);
     }
+
 });

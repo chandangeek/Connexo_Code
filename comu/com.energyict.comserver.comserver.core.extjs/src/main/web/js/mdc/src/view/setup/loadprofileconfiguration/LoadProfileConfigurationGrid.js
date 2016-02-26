@@ -28,7 +28,8 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
             },
             {
                 xtype: 'obis-column',
-                dataIndex: 'overruledObisCode'
+                dataIndex: 'overruledObisCode',
+                width: 180
             },
             {
                 header: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),

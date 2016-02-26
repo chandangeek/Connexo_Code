@@ -20,6 +20,8 @@ Ext.define('Mdc.controller.Search', {
         'Uni.view.search.field.Simple',
         'Uni.grid.column.search.DeviceType',
         'Uni.grid.column.search.DeviceConfiguration',
+        'Uni.grid.column.search.Quantity',
+        'Uni.grid.column.search.Boolean',
         'Mdc.service.Search'
     ],
 
@@ -62,7 +64,6 @@ Ext.define('Mdc.controller.Search', {
 
     init: function () {
         var me = this,
-            searchResults = Ext.getStore('Uni.store.search.Results'),
             router = me.getController('Uni.controller.history.Router');
 
         me.service = Ext.create('Mdc.service.Search', {
@@ -97,45 +98,50 @@ Ext.define('Mdc.controller.Search', {
                 }
             }
         });
-
-        searchResults.on('load', function (store, items) {
-            var grid = me.getResultsGrid();
-            var btn = grid.down('#search-bulk-actions-button');
-            btn.setDisabled(!(me.service.searchDomain && me.service.searchDomain.getId() === "com.energyict.mdc.device.data.Device" && items && items.length));
-        });
     },
 
     showOverview: function () {
         var me = this,
             searchDomains = Ext.getStore('Uni.store.search.Domains'),
+            searchResults = Ext.getStore('Uni.store.search.Results'),
             router = this.getController('Uni.controller.history.Router'),
             widget = Ext.widget('uni-view-search-overview', {
                 service: me.service
             });
 
+        Ext.suspendLayouts();
         me.getApplication().fireEvent('changecontentevent', widget);
 
+        if (searchDomains.isLoading() && searchDomains.lastRequest) {
+            Ext.Ajax.suspendEvent('requestexception');
+            Ext.Ajax.abort(searchDomains.lastRequest);
+            Ext.Ajax.resumeEvent('requestexception');
+        }
         searchDomains.clearFilter(true);
         searchDomains.addFilter({property: 'application', value: 'COMU'}, false);
-        searchDomains.load({callback: function(records) {
-            var value = router.queryParams.searchDomain,
-                selector = me.getObjectSelector(),
-                state, isStateChange;
+        searchDomains.load({callback: function(records, op, success) {
+            if (widget.rendered && success) {
+                var value = router.queryParams.searchDomain,
+                    selector = me.getObjectSelector(),
+                    state, isStateChange;
 
-            if (!!router.queryParams.restore === true) {
-                me.service.initState();
-                state = me.service.getState();
-                isStateChange = !!(state && state.domain);
-            }
+                if (!!router.queryParams.restore === true) {
+                    me.service.initState();
+                    state = me.service.getState();
+                    isStateChange = !!(state && state.domain);
+                }
 
-            if (!isStateChange) {
-                if (value && !Ext.isEmpty(records) && searchDomains.getById(value) !== null) {
-                    me.service.setDomain(searchDomains.getById(value));
-                } else if (selector && !Ext.isEmpty(records)) {
-                    me.service.setDomain(records[0]);
+                if (!isStateChange) {
+                    if (value && !Ext.isEmpty(records) && searchDomains.getById(value) !== null) {
+                        me.service.setDomain(searchDomains.getById(value));
+                    } else if (selector && !Ext.isEmpty(records)) {
+                        me.service.setDomain(records[0]);
+                    }
                 }
             }
         }});
+
+        searchDomains.lastRequest = Ext.Ajax.getLatest();
 
         var grid = me.getResultsGrid();
 
@@ -147,9 +153,23 @@ Ext.define('Mdc.controller.Search', {
             scope: me
         });
 
-        me.service.on('change', me.availableClearAll, me);
+        Ext.resumeLayouts(true);
+
+        var listeners = me.service.on({
+            change: me.availableClearAll,
+            reset: me.availableClearAll,
+            scope: me,
+            destroyable: true
+        });
+
+        var storeListeners = searchResults.on('load', function (store, items) {
+            var btn = grid.down('#search-bulk-actions-button');
+            btn.setDisabled(!(me.service.searchDomain && me.service.searchDomain.getId() === "com.energyict.mdc.device.data.Device" && items && items.length));
+        }, this, {destroyable: true});
+
         widget.on('destroy', function () {
-            me.service.un('change', me.availableClearAll, me);
+            listeners.destroy();
+            storeListeners.destroy();
         }, me)
     },
 

@@ -34,7 +34,7 @@ Ext.define('Mdc.controller.setup.DeviceGeneralAttributes', {
         });
     },
 
-    showRestoreAllBtn: function(value) {
+    showRestoreAllBtn: function (value) {
         var restoreBtn = this.getRestoreToDefaultBtn();
         if (restoreBtn) {
             if (value) {
@@ -45,31 +45,52 @@ Ext.define('Mdc.controller.setup.DeviceGeneralAttributes', {
         }
     },
 
-    saveGeneralAttributes: function() {
+    saveGeneralAttributes: function () {
         var me = this,
             form = me.getEditPropertyForm(),
-            editView = me.getDeviceGeneralAttributesEdit();
+            editView = me.getDeviceGeneralAttributesEdit(),
+            formErrorsPanel = editView.down('#form-errors');
 
         editView.setLoading();
 
         form.updateRecord();
-        form.getRecord().save({
-            backUrl: me.getController('Uni.controller.history.Router').getRoute('devices/device/generalattributes').buildUrl(),
-            callback: function (model, operation, success) {
-                editView.setLoading(false);
-                if (success) {
+        if (!form.isValid()) {
+            formErrorsPanel.show();
+            editView.setLoading(false);
+        } else {
+            if (!formErrorsPanel.isHidden()) {
+                formErrorsPanel.hide();
+            }
+
+            form.getRecord().save({
+                backUrl: me.getController('Uni.controller.history.Router').getRoute('devices/device/generalattributes').buildUrl(),
+                success: function () {
+                    editView.setLoading(false);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('generalAttributes.saved', 'MDC', 'General attributes saved.'));
                     me.moveToPreviousPage();
+
+                },
+                failure: function (record, operation) {
+                    if (operation.response.status == 400) {
+                        if (!Ext.isEmpty(operation.response.responseText)) {
+                            var json = Ext.decode(operation.response.responseText, true);
+                            if (json && json.errors) {
+                                formErrorsPanel.show();
+                                form.getForm().markInvalid(json.errors);
+                            }
+                        }
+                    }
+                    editView.setLoading(false);
                 }
-            }
-        });
+            });
+        }
     },
 
-    moveToPreviousPage: function() {
+    moveToPreviousPage: function () {
         this.getController('Uni.controller.history.Router').getRoute('devices/device/generalattributes').forward();
     },
 
-    restoreDefault: function() {
+    restoreDefault: function () {
         this.getEditPropertyForm().restoreAll();
     },
 
@@ -83,7 +104,7 @@ Ext.define('Mdc.controller.setup.DeviceGeneralAttributes', {
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
-                widget = Ext.widget('deviceGeneralAttributesSetup', { device: device, router: router });
+                widget = Ext.widget('deviceGeneralAttributesSetup', {device: device, router: router});
                 me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.loadPropertiesRecord(mRID, widget);
@@ -102,7 +123,7 @@ Ext.define('Mdc.controller.setup.DeviceGeneralAttributes', {
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
-                widget = Ext.widget('deviceGeneralAttributesEdit', { device: device, router: router });
+                widget = Ext.widget('deviceGeneralAttributesEdit', {device: device, router: router});
                 me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.loadPropertiesRecord(mRID, widget);
@@ -111,7 +132,7 @@ Ext.define('Mdc.controller.setup.DeviceGeneralAttributes', {
         });
     },
 
-    loadPropertiesRecord: function(mRID, widget) {
+    loadPropertiesRecord: function (mRID, widget) {
         var model = Ext.ModelManager.getModel('Mdc.model.DeviceGeneralAttributes'),
             form = widget.down('property-form'),
             idProperty = 1;

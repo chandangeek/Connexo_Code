@@ -34,6 +34,7 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                             items: [
                                 {
                                     xtype: 'reading-type-displayfield',
+                                    fieldLabel: Uni.I18n.translate('general.collectedReadingType', 'MDC', 'Collected reading type'),
                                     name: 'readingType',
                                     itemId: 'readingType',
                                     showTimeAttribute: false
@@ -42,16 +43,26 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                     xtype: 'reading-type-displayfield',
                                     name: 'calculatedReadingType',
                                     itemId: 'calculatedReadingType',
-                                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.calculatedReadingType', 'MDC', 'Calculated reading type'),
+                                    fieldLabel: Uni.I18n.translate('general.calculatedReadingType', 'MDC', 'Calculated reading type'),
                                     showTimeAttribute: false,
                                     hidden: true
                                 },
                                 {
-                                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),
+                                    xtype: 'obis-displayfield',
+                                    name: 'obisCode'
+                                },
+                                {
+                                    fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
+                                    name: 'multiplier',
+                                    itemId: 'mdc-channel-preview-multiplier',
+                                    hidden: true
+                                },
+                                {
+                                    fieldLabel: Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval'),
                                     name: 'interval_formatted'
                                 },
                                 {
-                                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.lastReading', 'MDC', 'Last reading'),
+                                    fieldLabel: Uni.I18n.translate('devicechannels.lastReading', 'MDC', 'Last reading'),
                                     name: 'lastReading',
                                     renderer: function (value) {
                                         var tooltip = Uni.I18n.translate('deviceloadprofiles.tooltip.lastreading', 'MDC', 'The moment when the data was read out for the last time.');
@@ -65,15 +76,11 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                     name: 'lastValueTimestamp_formatted'
                                 },
                                 {
-                                    xtype: 'obis-displayfield',
-                                    name: 'obisCode'
-                                },
-                                {
-                                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.overflowValue', 'MDC', 'Overflow value'),
+                                    fieldLabel: Uni.I18n.translate('channelConfig.overflowValue', 'MDC', 'Overflow value'),
                                     name: 'overflowValue'
                                 },
                                 {
-                                    fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.nbrOfFractionDigits', 'MDC', 'Number of fraction digits'),
+                                    fieldLabel: Uni.I18n.translate('channelConfig.numberOfFractionDigits', 'MDC' ,'Number of fraction digits'),
                                     name: 'nbrOfFractionDigits'
                                 },
                                 {

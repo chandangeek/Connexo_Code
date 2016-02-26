@@ -338,7 +338,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                     grid: {
                         xtype: 'device-communications-list',
                         itemId: 'communicationslist',
-                        title: '&nbsp;',
+                        title: ' ',
                         store: me.device.communications(),
                         router: me.router,
                         viewConfig: {

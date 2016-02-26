@@ -16,7 +16,8 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandAdd', {
                 itemId: 'device-command-add-panel',
                 title: Uni.I18n.translate('deviceCommand.add.title', 'MDC', 'Add command'),
                 layout: {
-                    type: 'vbox'
+                    type: 'vbox',
+                    align: 'stretch'
                 },
                 items: [
                     {
