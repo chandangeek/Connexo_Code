@@ -30,6 +30,7 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
 
                         {
                             xtype: 'checkbox',
+                            itemId: 'task-bulk-assignee-check',
                             name: 'cbAssignee',
                             inputValue: 'assign',
                             listeners: {
@@ -86,6 +87,7 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
                     items: [
                         {
                             xtype: 'checkbox',
+                            itemId: 'task-bulk-due-date-check',
                             margin: '10 0 0 0',
                             name: 'cbDuedate',
                             inputValue: 'dueDate',
@@ -141,6 +143,7 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
                     items: [
                         {
                             xtype: 'checkbox',
+                            itemId: 'task-bulk-priority-check',
                             name: 'cbPriority',
                             inputValue: 'priority',
                             listeners: {
