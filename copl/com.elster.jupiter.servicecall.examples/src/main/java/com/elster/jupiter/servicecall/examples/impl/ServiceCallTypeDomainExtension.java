@@ -6,14 +6,14 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallType;
 
 import javax.validation.constraints.Size;
 
 /**
  * Created by bvn on 2/15/16.
  */
-public class ServiceCallDomainExtension implements PersistentDomainExtension<ServiceCall> {
+public class ServiceCallTypeDomainExtension implements PersistentDomainExtension<ServiceCallType> {
 
     public enum FieldNames {
         DOMAIN("serviceCallType", "serviceCallType"),
@@ -37,14 +37,14 @@ public class ServiceCallDomainExtension implements PersistentDomainExtension<Ser
         }
     }
 
-    private Reference<ServiceCall> serviceCall = Reference.empty();
+    private Reference<ServiceCallType> serviceCallType = Reference.empty();
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "FieldTooLong")
     private String testString;
     private boolean testBoolean;
 
-    public ServiceCallDomainExtension() {
+    public ServiceCallTypeDomainExtension() {
         super();
     }
 
@@ -69,8 +69,8 @@ public class ServiceCallDomainExtension implements PersistentDomainExtension<Ser
     }
 
     @Override
-    public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
-        this.serviceCall.set(serviceCall);
+    public void copyFrom(ServiceCallType serviceCallType, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
+        this.serviceCallType.set(serviceCallType);
         this.setTestString((String) propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_STRING.javaName()));
         this.setTestBoolean((boolean) propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName()));
     }
