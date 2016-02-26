@@ -34,8 +34,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import java.time.Instant;
 import java.util.List;
 import java.util.function.Function;
@@ -231,7 +233,11 @@ public class UsagePointCustomPropertySetResource {
                                                                  @PathParam("rcpsId") long rcpsId,
                                                                  @BeanParam JsonQueryParameters queryParameters,
                                                                  @QueryParam("forced") boolean forced,
+                                                                 @Context SecurityContext securityContext,
                                                                  CustomPropertySetInfo<UsagePointInfo> info) {
+        if (!securityContext.isUserInRole(Privileges.Constants.ADMINISTER_USAGEPOINT_TIME_SLICED_CPS)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
         info.isVersioned = true;
         UsagePointVersionedPropertySet versionedPropertySet = resourceHelper
                 .findUsagePointByMrIdOrThrowException(usagePointMrid)
@@ -279,6 +285,7 @@ public class UsagePointCustomPropertySetResource {
                                                               @PathParam("rcpsId") long rcpsId,
                                                               @BeanParam JsonQueryParameters queryParameters,
                                                               @QueryParam("forced") boolean forced,
+                                                              @Context SecurityContext securityContext,
                                                               CustomPropertySetInfo<UsagePointInfo> info) {
         UsagePointVersionedPropertySet versionedPropertySet = resourceHelper
                 .lockUsagePointOrThrowException(info.parent)
@@ -286,6 +293,12 @@ public class UsagePointCustomPropertySetResource {
                 .getVersionedPropertySet(rcpsId);
         validateRangeSourceValues(info.startTime, info.endTime);
         Instant versionStartTime = Instant.ofEpochMilli(info.versionId);
+        CustomPropertySetValues values = customPropertySetInfoFactory
+                .getCustomPropertySetValues(info, versionedPropertySet.getCustomPropertySet().getPropertySpecs());
+        if (!securityContext.isUserInRole(Privileges.Constants.ADMINISTER_USAGEPOINT_TIME_SLICED_CPS)
+                && !values.getEffectiveRange().equals(versionedPropertySet.getVersionValues(versionStartTime).getEffectiveRange())) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
         Function<OverlapCalculatorBuilder, List<ValuesRangeConflict>> conflictValuesSupplier =
                 builder -> builder.whenUpdating(versionStartTime, RangeInstantBuilder.closedOpenRange(info.startTime, info.endTime));
         List<ValuesRangeConflict> valuesRangeConflicts = getValuesRangeConflicts(versionedPropertySet, forced, conflictValuesSupplier);
@@ -293,8 +306,6 @@ public class UsagePointCustomPropertySetResource {
             UsagePointAddVersionFailResponse errorInfo = new UsagePointAddVersionFailResponse(valuesRangeConflicts);
             return Response.status(Response.Status.BAD_REQUEST).entity(errorInfo).build();
         }
-        CustomPropertySetValues values = customPropertySetInfoFactory
-                .getCustomPropertySetValues(info, versionedPropertySet.getCustomPropertySet().getPropertySpecs());
         versionedPropertySet.setVersionValues(versionStartTime, values);
         return Response.ok(customPropertySetInfoFactory.getFullInfo(versionedPropertySet,
                 versionedPropertySet.getVersionValues(versionStartTime))).build();
