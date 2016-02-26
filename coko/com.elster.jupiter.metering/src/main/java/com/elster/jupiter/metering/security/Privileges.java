@@ -7,17 +7,20 @@ import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
 
-	BROWSE_ANY(Constants.BROWSE_ANY, "Browse any usage point"),
-	ADMIN_ANY(Constants.ADMIN_ANY, "Administrate any usage point"),
-	BROWSE_OWN(Constants.BROWSE_OWN, "Browse own usage point"),
-	ADMIN_OWN(Constants.ADMIN_OWN, "Administrate own usage point"),
+    //Privileges
+    VIEW_ANY_USAGEPOINT(Constants.VIEW_ANY_USAGEPOINT, "View any usage point"),
+    ADMINISTER_ANY_USAGEPOINT(Constants.ADMINISTER_ANY_USAGEPOINT, "Administer any usage point"),
+    VIEW_OWN_USAGEPOINT(Constants.VIEW_OWN_USAGEPOINT, "View own usage point"),
+    ADMINISTER_OWN_USAGEPOINT(Constants.ADMINISTER_OWN_USAGEPOINT, "Administer own usage point"),
+
 	VIEW_READINGTYPE(Constants.VIEW_READINGTYPE, "View reading types"),
-	ADMINISTRATE_READINGTYPE(Constants.ADMINISTRATE_READINGTYPE, "Administer reading types"),
+    ADMINISTER_READINGTYPE(Constants.ADMINISTER_READINGTYPE, "Administer reading types"),
+
 	VIEW_SERVICECATEGORY(Constants.VIEW_SERVICECATEGORY, "View service categories"),
-	RESOURCE_METROLOGY_CONFIG("usagePoint.metrologyConfiguration", "Metrology configuration"),
-	RESOURCE_METROLOGY_CONFIGURATION_DESCRIPTION("usagePoint.metrologyConfiguration.description", "Manage metrology configuration"),
-	ADMINISTER_ANY_METROLOGY_CONFIG(Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION, "Administer any metrology configuration"),
-	BROWSE_ANY_METROLOGY_CONFIG(Constants.BROWSE_ANY_METROLOGY_CONFIGURATION, "Browse any metrology configuration");
+
+    ADMINISTER_METROLOGY_CONFIGURATION(Constants.ADMINISTER_METROLOGY_CONFIGURATION, "Administer metrology configuration"),
+    VIEW_METROLOGY_CONFIGURATION(Constants.VIEW_METROLOGY_CONFIGURATION, "View metrology configuration"),
+    ;
 
 	private final String key;
 	private final String description;
@@ -48,15 +51,14 @@ public enum Privileges implements TranslationKey {
 	}
 
 	public interface Constants {
-		String BROWSE_ANY = "MTR_BROWSE_ANYUSAGEPOINT";
-		String ADMIN_ANY = "MTR_ADMIN_ANYUSAGEPOINT";
-		String BROWSE_OWN = "MTR_BROWSE_OWNUSAGEPOINT";
-		String ADMIN_OWN = "MTR_ADMIN_OWN";
-		String VIEW_READINGTYPE = "privilege.view.readingType";
-		String ADMINISTRATE_READINGTYPE = "privilege.administrate.readingType";
-		String VIEW_SERVICECATEGORY = "privilege.view.serviceCategory";
-		String ADMINISTER_ANY_METROLOGY_CONFIGURATION = "UCR_ADMINISTER_ANY_METROLOGY_CONFIG";
-		String BROWSE_ANY_METROLOGY_CONFIGURATION = "UCR_BROWSE_ANY_METROLOGY_CONFIG";
-	}
-
+        String VIEW_ANY_USAGEPOINT = "privilege.view.anyUsagePoint";
+        String ADMINISTER_ANY_USAGEPOINT = "privilege.administer.anyUsagePoint";
+        String VIEW_OWN_USAGEPOINT = "privilege.view.ownUsagePoint";
+        String ADMINISTER_OWN_USAGEPOINT = "privilege.administer.ownUsagePoint";
+        String VIEW_READINGTYPE = "privilege.view.readingType";
+        String ADMINISTER_READINGTYPE = "privilege.administer.readingType";
+        String VIEW_SERVICECATEGORY = "privilege.view.serviceCategory";
+        String VIEW_METROLOGY_CONFIGURATION = "privilege.view.metrologyConfiguration";
+        String ADMINISTER_METROLOGY_CONFIGURATION = "privilege.administer.metrologyConfiguration";
+    }
 }
