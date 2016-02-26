@@ -1,19 +1,18 @@
-package com.elster.insight.usagepoint.config.impl;
+package com.elster.jupiter.mdm.usagepoint.config.impl;
 
+import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-
-import java.util.Optional;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

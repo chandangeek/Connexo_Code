@@ -1,15 +1,8 @@
-package com.elster.insight.usagepoint.config.impl;
+package com.elster.jupiter.mdm.usagepoint.config.impl;
 
 import com.elster.jupiter.cbo.PhaseCode;
-import com.elster.jupiter.metering.AmiBillingReadyKind;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointBuilder;
-import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
@@ -20,8 +13,6 @@ import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-
 import org.apache.felix.service.command.Descriptor;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -180,10 +171,8 @@ public class ConsoleCommands {
             UsagePointBuilder builder = category.newUsagePoint(upId);
             UsagePoint up = builder.withName(name).withIsSdp(true).withIsVirtual(false).create();
             up.newElectricityDetailBuilder(Instant.now())
-                    .withAmiBillingReady(AmiBillingReadyKind.BILLINGAPPROVED)
-                    .withConnectionState(UsagePointConnectedKind.CONNECTED)
                     .withGrounded(true)
-                    .withPhaseCode(PhaseCode.UNKNOWN).build();
+                    .withPhaseCode(PhaseCode.UNKNOWN).create();
             meter.activate(up, Instant.parse("2014-01-01T08:00:00Z"));
             meter.update();
             up.update();

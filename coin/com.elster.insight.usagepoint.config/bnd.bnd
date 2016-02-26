@@ -1,8 +1,8 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package:  \
-	com.elster.insight.usagepoint.config.impl, \
-	com.elster.insight.usagepoint.config.impl.errors, \
-	com.elster.insight.usagepoint.config.impl.validation
+	com.elster.jupiter.mdm.usagepoint.config.impl, \
+	com.elster.jupiter.mdm.usagepoint.config.impl.errors, \
+	com.elster.jupiter.mdm.usagepoint.config.impl.validation
 Export-Package:  \
-	com.elster.insight.usagepoint.config
+	com.elster.jupiter.mdm.usagepoint.config
