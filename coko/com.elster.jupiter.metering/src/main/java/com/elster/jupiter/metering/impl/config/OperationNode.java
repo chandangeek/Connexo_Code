@@ -13,7 +13,7 @@ public class OperationNode extends AbstractNode {
 
     public OperationNode() {}
 
-    public OperationNode(Operator operator, AbstractNode operand1, AbstractNode operand2) {
+    public OperationNode(Operator operator, ExpressionNode operand1, ExpressionNode operand2) {
         super(Arrays.asList(operand1, operand2));
         this.operator = operator;
     }
@@ -22,11 +22,11 @@ public class OperationNode extends AbstractNode {
         return operator;
     }
 
-    public AbstractNode getLeftOperand() {
+    public ExpressionNode getLeftOperand() {
         return this.getChildren().get(0);
     }
 
-    public AbstractNode getRightOperand() {
+    public ExpressionNode getRightOperand() {
         return this.getChildren().get(1);
     }
 

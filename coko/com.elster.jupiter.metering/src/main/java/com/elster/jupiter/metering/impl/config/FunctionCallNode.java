@@ -18,7 +18,7 @@ public class FunctionCallNode extends AbstractNode {
         return this;
     }
 
-    public FunctionCallNode(List<AbstractNode> children, Function function) {
+    public FunctionCallNode(List<? extends ExpressionNode> children, Function function) {
         super(children);
         this.function = function;
     }

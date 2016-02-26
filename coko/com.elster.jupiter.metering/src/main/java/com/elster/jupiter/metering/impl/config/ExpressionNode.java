@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.config.FormulaPart;
 import com.elster.jupiter.orm.DataModel;
 
 /**
@@ -35,7 +36,7 @@ import com.elster.jupiter.orm.DataModel;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-04 (15:08)
  */
-public interface ExpressionNode {
+public interface ExpressionNode extends FormulaPart {
 
     interface Visitor<T> {
         T visitConstant(ConstantNode constant);
