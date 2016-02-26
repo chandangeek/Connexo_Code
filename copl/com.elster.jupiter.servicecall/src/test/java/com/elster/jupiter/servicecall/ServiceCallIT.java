@@ -268,6 +268,17 @@ public class ServiceCallIT {
     }
 
     @Test
+    public void testAddLegalCustomPropertySetToServiceCallType() throws Exception {
+        try (TransactionContext context = transactionService.getContext()) {
+            RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySet(ServiceCallTypeDomainExtension.class
+                    .getName()).get();
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("CustomTest", "CustomVersion")
+                    .add();
+            serviceCallType.addCustomPropertySet(customPropertySet);
+        }
+    }
+
+    @Test
     public void testUpdateServiceCallTypeLogLevel() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
             serviceCallService.createServiceCallType("primer", "v1").add();
