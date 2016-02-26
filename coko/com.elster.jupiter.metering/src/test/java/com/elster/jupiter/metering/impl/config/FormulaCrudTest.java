@@ -88,10 +88,10 @@ public class FormulaCrudTest {
             assertThat(myNode).isInstanceOf(FunctionCallNode.class);
             FunctionCallNode functionCallNode = (FunctionCallNode) myNode;
             assertThat(functionCallNode.getFunction().equals(myFunction));
-            List<AbstractNode> children = functionCallNode.getChildren();
+            List<ExpressionNode> children = functionCallNode.getChildren();
             assertThat(children).hasSize(2);
-            AbstractNode child1 = children.get(0);
-            AbstractNode child2 = children.get(1);
+            ExpressionNode child1 = children.get(0);
+            ExpressionNode child2 = children.get(1);
             assertThat(child1).isInstanceOf(ConstantNode.class);
             assertThat(child2).isInstanceOf(ConstantNode.class);
             ConstantNode constant1 = (ConstantNode) child1;
@@ -131,7 +131,7 @@ public class FormulaCrudTest {
             assertThat(myNode).isInstanceOf(FunctionCallNode.class);
             FunctionCallNode functionCallNode = (FunctionCallNode) myNode;
             assertThat(functionCallNode.getFunction().equals(myFunction));
-            List<AbstractNode> children = functionCallNode.getChildren();
+            List<ExpressionNode> children = functionCallNode.getChildren();
             assertThat(children).hasSize(2);
             ExpressionNode child1 = children.get(0);
             ExpressionNode child2 = children.get(1);
