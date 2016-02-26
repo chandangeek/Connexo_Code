@@ -27,9 +27,8 @@ import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-import com.energyict.mdc.engine.impl.monitor.ServerEventAPIStatistics;
+import com.energyict.mdc.engine.impl.monitor.*;
 import com.energyict.mdc.engine.monitor.ComServerMonitor;
-import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
@@ -593,6 +592,8 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         for (ComPortListener comPort : this.comPortListeners) {
             comPort.schedulingInterpollDelayChanged(schedulingInterPollDelay);
         }
+        ComServerMonitor monitor = this.getOperationalMonitor();
+        ((ComServerOperationalStatisticsImpl) monitor.getOperationalStatistics()).setSchedulingInterpollDelay(schedulingInterPollDelay);
     }
 
     private void notifyChangesInterPollDelayChange(TimeDuration changesInterPollDelay) {
@@ -602,6 +603,8 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         for (ComPortListener comPort : this.comPortListeners) {
             comPort.changesInterpollDelayChanged(changesInterPollDelay);
         }
+        ComServerMonitor monitor = this.getOperationalMonitor();
+        ((ComServerOperationalStatisticsImpl) monitor.getOperationalStatistics()).setChangesInterpollDelay(changesInterPollDelay);
     }
 
     private void applyChanges(InboundCapable newVersion) {

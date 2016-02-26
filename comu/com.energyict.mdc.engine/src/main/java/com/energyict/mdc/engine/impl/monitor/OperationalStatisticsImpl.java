@@ -39,7 +39,7 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
     private final Clock clock;
     private final Thesaurus thesaurus;
     private final Date startTimestamp;
-    private final TimeDuration changesInterPollDelay;
+    private TimeDuration changesInterPollDelay;
     private Date lastCheckForChangesTimestamp;
 
     public OperationalStatisticsImpl(Clock clock, Thesaurus thesaurus, TimeDuration changesInterPollDelay) {
@@ -68,6 +68,10 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
     @Override
     public TimeDuration getChangesInterPollDelay () {
         return this.changesInterPollDelay;
+    }
+
+    protected void setChangesInterpollDelay(TimeDuration changesInterpollDelay){
+        this.changesInterPollDelay = changesInterpollDelay;
     }
 
     @Override

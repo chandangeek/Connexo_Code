@@ -86,6 +86,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
                 this.unRegisterMBean(oldJmxName);
                 ObjectName newJmxName = this.nameFor(runningComServer);
                 this.registerMBean(registeredMBean, newJmxName);
+                LOGGER.finest("Online comserver \'" + oldJmxName + "\' renamed to " + newJmxName );
             }
         }
     }
@@ -162,13 +163,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
 
     @Override
     public void removeIfExistsFor(ScheduledComPort comPort) {
-        synchronized (this.registeredMBeans) {
-            ObjectName jmxName = this.nameFor(comPort.getComPort());
-            Object registeredMBean = this.registeredMBeans.get(jmxName);
-            if (registeredMBean != null) {
-                this.unRegisterMBean(jmxName);
-            }
-        }
+        removeIfExistsFor(this.nameFor(comPort.getComPort()));
     }
 
     @Override
@@ -203,8 +198,11 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
 
     @Override
     public void removeIfExistsFor(ComPortListener inboundComPort) {
+        removeIfExistsFor(this.nameFor(inboundComPort.getComPort()));
+    }
+
+    private void removeIfExistsFor(ObjectName jmxName) {
         synchronized (this.registeredMBeans) {
-            ObjectName jmxName = this.nameFor(inboundComPort.getComPort());
             Object registeredMBean = this.registeredMBeans.get(jmxName);
             if (registeredMBean != null) {
                 this.unRegisterMBean(jmxName);

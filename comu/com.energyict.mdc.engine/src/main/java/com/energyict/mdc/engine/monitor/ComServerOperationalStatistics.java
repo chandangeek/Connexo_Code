@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.monitor;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.monitor.ServerOperationalStatistics;
 
@@ -31,5 +32,14 @@ public interface ComServerOperationalStatistics extends ServerOperationalStatist
      * @return The LogLevel that is used for communication.
      */
      ComServer.LogLevel getCommunicationLogLevel ();
+
+    /**
+     * Gets the {@link TimeDuration} between each poll for communication
+     * work that needs to be done.
+     *
+     * @return The TimeDuration between polls to find communication tasks
+     */
+     TimeDuration getSchedulingInterPollDelay ();
+
 
 }
