@@ -109,14 +109,25 @@ public class HeatDetailBuilderImpl implements HeatDetailBuilder {
 
     @Override
     public HeatDetail create() {
-        HeatDetail hd = dataModel.getInstance(HeatDetailImpl.class).init(usagePoint, this, interval);
-        usagePoint.addDetail(hd);
-        return hd;
+        HeatDetail detail = buildDetail();
+        usagePoint.addDetail(detail);
+        return detail;
     }
 
     @Override
     public void validate() {
-        HeatDetail hd = dataModel.getInstance(HeatDetailImpl.class).init(usagePoint, this, interval);
-        Save.CREATE.validate(dataModel, hd);
+        Save.CREATE.validate(dataModel, buildDetail());
+    }
+
+    private HeatDetail buildDetail(){
+        HeatDetailImpl detail = dataModel.getInstance(HeatDetailImpl.class).init(usagePoint, interval);
+        detail.setCollar(this.getCollar());
+        detail.setPressure(this.getPressure());
+        detail.setPhysicalCapacity(this.getPhysicalCapacity());
+        detail.setBypass(this.getBypass());
+        detail.setBypassStatus(this.getBypassStatus());
+        detail.setValve(this.getValve());
+        detail.setInterruptible(this.isInterruptible());
+        return detail;
     }
 }

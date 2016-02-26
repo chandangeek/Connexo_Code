@@ -514,7 +514,7 @@ public class EndDeviceImplIT {
 
     private FiniteStateMachine createBiggerFiniteStateMachine() {
         FiniteStateMachineServiceImpl finiteStateMachineService = this.injector.getInstance(FiniteStateMachineServiceImpl.class);
-        CustomStateTransitionEventType eventType = finiteStateMachineService.newCustomStateTransitionEventType("#whatever", "enddevice");
+        CustomStateTransitionEventType eventType = finiteStateMachineService.newCustomStateTransitionEventType("#whatever");
         FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("Bigger");
         State second = builder.newCustomState("Second").complete();
         State first = builder.newCustomState("First").on(eventType).transitionTo(second).complete();

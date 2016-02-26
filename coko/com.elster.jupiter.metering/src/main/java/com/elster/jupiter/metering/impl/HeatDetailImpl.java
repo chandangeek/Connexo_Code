@@ -35,17 +35,6 @@ public class HeatDetailImpl extends UsagePointDetailImpl implements HeatDetail {
         return this;
     }
 
-    HeatDetailImpl init(UsagePoint usagePoint, HeatDetailBuilder builder, Interval interval) {
-        super.init(usagePoint, builder, interval);
-        this.setPressure(builder.getPressure());
-        this.setPhysicalCapacity(builder.getPhysicalCapacity());
-        this.setBypass(builder.getBypass());
-        this.setBypassStatus(builder.getBypassStatus());
-        this.setValve(builder.getValve());
-        this.setInterruptible(builder.isInterruptible());
-        return this;
-    }
-
     @Override
     public Quantity getPhysicalCapacity() {
         return physicalCapacity;

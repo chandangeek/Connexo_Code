@@ -23,9 +23,4 @@ public class DefaultUsagePointDetailImpl extends UsagePointDetailImpl {
         super.init(usagePoint, interval);
         return this;
     }
-
-    DefaultUsagePointDetailImpl init(UsagePoint usagePoint, UsagePointDetailBuilder builder, Interval interval) {
-        super.init(usagePoint, builder, interval);
-        return this;
-    }
 }

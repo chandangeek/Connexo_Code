@@ -178,10 +178,9 @@ public enum TableSpecs {
             table.column("ISSDP").bool().map("isSdp").add();
             table.column("ISVIRTUAL").bool().map("isVirtual").add();
             table.column("OUTAGEREGION").varChar(NAME_LENGTH).map("outageRegion").add();
-            table.column("READCYCLE").varChar(NAME_LENGTH).map("readCycle").add();
             table.column("READROUTE").varChar(NAME_LENGTH).map("readRoute").add();
             table.column("SERVICEPRIORITY").varChar(NAME_LENGTH).map("servicePriority").add();
-            table.column("SERVICEDELIVERYREMARK").varChar(NAME_LENGTH).map("serviceDeliveryRemark").add();
+            table.column("SERVICEDELIVERYREMARK").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceDeliveryRemark").add();
             table.column("INSTALLATIONTIME").number().conversion(ColumnConversion.NUMBER2INSTANT).map("installationTime").add();
 
             table.addAuditColumns();

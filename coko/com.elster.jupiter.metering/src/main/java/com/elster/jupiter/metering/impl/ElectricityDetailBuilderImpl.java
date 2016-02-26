@@ -5,10 +5,13 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 
+import javax.validation.constraints.Size;
 import java.util.Optional;
 
 public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
@@ -22,6 +25,7 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
     private Quantity ratedPower;
     private Quantity estimatedLoad;
     private Boolean limiter;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String loadLimiterType;
     private Quantity loadLimit;
     private Boolean interruptible;
@@ -159,14 +163,29 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
 
     @Override
     public ElectricityDetail create() {
-        ElectricityDetail ed = dataModel.getInstance(ElectricityDetailImpl.class).init(usagePoint, this, interval);
-        usagePoint.addDetail(ed);
-        return ed;
+        ElectricityDetail detail = buildDetail();
+        usagePoint.addDetail(detail);
+        return detail;
     }
 
     @Override
     public void validate() {
-        ElectricityDetail ed = dataModel.getInstance(ElectricityDetailImpl.class).init(usagePoint, this, interval);
-        Save.CREATE.validate(dataModel,ed);
+        Save.CREATE.validate(dataModel,buildDetail());
+    }
+
+    private ElectricityDetail buildDetail(){
+        ElectricityDetailImpl ed = dataModel.getInstance(ElectricityDetailImpl.class).init(usagePoint, interval);
+        ed.setCollar(this.getCollar());
+        ed.setGrounded(this.isGrounded());
+        ed.setNominalServiceVoltage(this.getNominalServiceVoltage());
+        ed.setPhaseCode(this.getPhaseCode());
+        ed.setRatedCurrent(this.getRatedCurrent());
+        ed.setRatedPower(this.getRatedPower());
+        ed.setEstimatedLoad(this.getEstimatedLoad());
+        ed.setLimiter(this.isLimiter());
+        ed.setLoadLimiterType(this.getLoadLimiterType());
+        ed.setLoadLimit(this.getLoadLimit());
+        ed.setInterruptible(this.isInterruptible());
+        return ed;
     }
 }

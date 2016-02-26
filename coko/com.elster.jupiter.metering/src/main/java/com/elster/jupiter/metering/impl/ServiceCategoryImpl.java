@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -18,7 +19,6 @@ import javax.inject.Provider;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ServiceCategoryImpl implements ServiceCategory {
@@ -156,6 +156,11 @@ public class ServiceCategoryImpl implements ServiceCategory {
                 .filter(f -> f.getServiceCategory().getId() == this.getId())
                 .filter(f -> f.getRegisteredCustomPropertySet().getId() == registeredCustomPropertySet.getId())
                 .findAny().ifPresent(serviceCategoryCustomPropertySetUsages::remove);
+    }
+
+    @Override
+    public String getDisplayName() {
+        return this.kind.getDisplayName(thesaurus);
     }
 
     @Override

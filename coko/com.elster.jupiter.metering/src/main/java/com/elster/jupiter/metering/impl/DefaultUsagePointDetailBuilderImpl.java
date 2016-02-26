@@ -37,7 +37,8 @@ public class DefaultUsagePointDetailBuilderImpl implements UsagePointDetailBuild
     @Override
     public UsagePointDetail create() {
         DefaultUsagePointDetailImpl ed = dataModel.getInstance(DefaultUsagePointDetailImpl.class)
-                .init(usagePoint, this, interval);
+                .init(usagePoint, interval);
+        ed.setCollar(collar);
         usagePoint.addDetail(ed);
         return ed;
     }
@@ -45,7 +46,8 @@ public class DefaultUsagePointDetailBuilderImpl implements UsagePointDetailBuild
     @Override
     public void validate() {
         DefaultUsagePointDetailImpl ed = dataModel.getInstance(DefaultUsagePointDetailImpl.class)
-                .init(usagePoint, this, interval);
+                .init(usagePoint, interval);
+        ed.setCollar(collar);
         Save.CREATE.validate(dataModel, ed);
     }
 }
