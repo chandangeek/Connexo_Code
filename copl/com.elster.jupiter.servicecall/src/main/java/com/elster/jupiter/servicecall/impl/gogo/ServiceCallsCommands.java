@@ -63,15 +63,21 @@ public class ServiceCallsCommands {
     }
 
     public void serviceCallTypes() {
-        serviceCallService.getServiceCallTypes().stream()
-                .forEach(sct -> System.out.println(sct.getName() + " " + sct.getVersionName() + " custom property sets: " + String
-                        .join(" + ", sct.getCustomPropertySets()
+        for (ServiceCallType serviceCallType : serviceCallService.getServiceCallTypes().find()) {
+            try {
+                System.out.print(serviceCallType.getName() + " " + serviceCallType.getVersionName() + " ");
+                System.out.println(" cps: [" + String
+                        .join(" + ", serviceCallType.getCustomPropertySets()
                                 .stream()
                                 .map(RegisteredCustomPropertySet::getCustomPropertySet)
                                 .map(CustomPropertySet::getName)
-                                .collect(toList())) + " handled by " + sct.getServiceCallHandler()
+                                .collect(toList())) + "] handled by " + serviceCallType.getServiceCallHandler()
                         .getClass()
-                        .getSimpleName()));
+                        .getSimpleName());
+            } catch (Exception e) {
+                System.err.println(e);
+            }
+        }
     }
 
     public void createServiceCallType() {
