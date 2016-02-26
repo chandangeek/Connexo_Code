@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.impl.DefaultTranslationKey;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
@@ -85,11 +86,11 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
         resources.add(
                 userService.createModuleResourceWithPrivileges(
                         getModuleName(),
-                        Privileges.RESOURCE_METROLOGY_CONFIG.getKey(),
-                        Privileges.RESOURCE_METROLOGY_CONFIGURATION_DESCRIPTION.getKey(),
+                        DefaultTranslationKey.RESOURCE_METROLOGY_CONFIGURATION.getKey(),
+                        DefaultTranslationKey.RESOURCE_METROLOGY_CONFIGURATION_DESCRIPTION.getKey(),
                         Arrays.asList(
-                                Privileges.Constants.ADMINISTER_ANY_METROLOGY_CONFIGURATION,
-                                Privileges.Constants.BROWSE_ANY_METROLOGY_CONFIGURATION)));
+                                Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION,
+                                Privileges.Constants.VIEW_METROLOGY_CONFIGURATION)));
         return resources;
     }
 
