@@ -1,4 +1,4 @@
-package com.elster.insight.metering.extjs;
+package com.elster.jupiter.mdm.metering.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 
-@Component(name = "com.elster.insight.metering.extjs", service = TranslationKeyProvider.class,
+@Component(name = "com.elster.jupiter.mdm.metering.extjs", service = TranslationKeyProvider.class,
         property = "name=" + ImtUiInstaller.COMPONENT_NAME + "-UI", immediate = true)
 public class ImtUiInstaller implements TranslationKeyProvider {
     public static final String APP_KEY = "INS";
@@ -38,7 +38,7 @@ public class ImtUiInstaller implements TranslationKeyProvider {
     public void activate(BundleContext context) {
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
         // EXAMPLE: Below is how to enable local development mode.
-//        HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "/home/kurtk/Projects/git/Insight2/com.elster.insight.metering.extjs/src/main/web/js/imt", new FileResolver());
+//        HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "/home/kurtk/Projects/git/Insight2/com.elster.jupiter.mdm.metering.extjs/src/main/web/js/imt", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 
