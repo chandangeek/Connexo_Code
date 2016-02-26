@@ -96,9 +96,10 @@ public class UsagePointValidationResourceTest extends UsagePointDataRestApplicat
         when(usagePoint.getCurrentMeterActivation()).thenReturn(Optional.of(meterActivation));
         when(usagePoint.getInstallationTime()).thenReturn(Instant.EPOCH);
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
+        when(usagePoint.getServiceLocation()).thenReturn(Optional.empty());
 
         UsagePointCustomPropertySetExtension extension = mock(UsagePointCustomPropertySetExtension.class);
-        when(extension.getAllCustomPropertySets()).thenReturn(Collections.emptyList());
+        when(extension.getAllPropertySets()).thenReturn(Collections.emptyList());
         when(usagePoint.forCustomProperties()).thenReturn(extension);
       
         doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();

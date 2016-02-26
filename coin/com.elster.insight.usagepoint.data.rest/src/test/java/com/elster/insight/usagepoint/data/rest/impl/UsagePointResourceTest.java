@@ -88,7 +88,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
 
         UsagePointCustomPropertySetExtension extension = mock(UsagePointCustomPropertySetExtension.class);
-        when(extension.getAllCustomPropertySets()).thenReturn(Collections.emptyList());
+        when(extension.getAllPropertySets()).thenReturn(Collections.emptyList());
         when(usagePoint.forCustomProperties()).thenReturn(extension);
       
         doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();

@@ -15,7 +15,6 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 
 public class UsagePointInfo {
-    private UsagePoint usagePoint;
 
     public Long id;
     public String serviceCategory;
@@ -45,20 +44,5 @@ public class UsagePointInfo {
     public MetrologyConfigurationInfo metrologyConfiguration;
 
     public UsagePointInfo() {
-    }
-
-    public UsagePointInfo(UsagePoint usagePoint) {
-        this.usagePoint = usagePoint;
-    }
-
-
-    void addServiceLocationInfo() {
-        if (usagePoint.getServiceLocation().isPresent()) {
-            serviceLocation = new ServiceLocationInfo(usagePoint.getServiceLocation().get());
-        }
-    }
-
-    void addMetrologyConfigurationInfo(MetrologyConfigurationInfo mci) {
-        metrologyConfiguration = mci;
     }
 }

@@ -65,6 +65,12 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
     public void before() {
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
         when(usagePoint.forCustomProperties()).thenReturn(usagePointExtension);
+        when(usagePoint.getServiceLocation()).thenReturn(Optional.empty());
+        when(usagePoint.getInstallationTime()).thenReturn(Instant.EPOCH);
+        when(usagePoint.getCreateDate()).thenReturn(Instant.EPOCH);
+        when(usagePoint.getModificationDate()).thenReturn(Instant.EPOCH);
+        when(usagePoint.getDetail(any(Instant.class))).thenReturn(Optional.empty());
+        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
         when(usagePointExtension.getVersionedPropertySet(RCPS_ID)).thenReturn(usagePointPropertySet);
         when(usagePointExtension.getPropertySet(RCPS_ID)).thenReturn(usagePointPropertySet);
         PropertySpec propertySpec = mock(PropertySpec.class);
@@ -87,6 +93,7 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
         when(usagePointPropertySet.getViewPrivileges()).thenReturn(EnumSet.of(ViewPrivilege.LEVEL_1));
         when(usagePointPropertySet.getEditPrivileges()).thenReturn(EnumSet.of(EditPrivilege.LEVEL_1));
         when(usagePointPropertySet.getId()).thenReturn(RCPS_ID);
+        when(usagePointPropertySet.getUsagePoint()).thenReturn(usagePoint);
     }
 
     private void testAnyCustomPropertySetsResponse(String url) {
