@@ -2,6 +2,7 @@ Ext.define('Scs.view.ServiceCallPreviewContainer', {
     extend: 'Uni.view.container.PreviewContainer',
     alias: 'widget.service-call-preview-container',
     router: null,
+    store: null,
 
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
@@ -24,10 +25,11 @@ Ext.define('Scs.view.ServiceCallPreviewContainer', {
     initComponent: function () {
         var me = this;
         //me.title =  me.title === 'none' ? '' : Uni.I18n.translate('general.serviceCalls', 'SCS', 'Service calls');
-         me.grid = {
+        me.grid = {
             xtype: 'servicecalls-grid',
             itemId: 'grd-service-calls',
-            router: me.router
+            router: me.router,
+            store: me.store
         };
 
         me.previewComponent = {

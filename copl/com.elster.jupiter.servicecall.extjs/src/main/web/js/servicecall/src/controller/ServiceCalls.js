@@ -12,6 +12,7 @@ Ext.define('Scs.controller.ServiceCalls', {
         'Scs.store.Logs'
     ],
     models: [
+        'Scs.model.ServiceCall'
     ],
 
     refs: [
@@ -34,10 +35,22 @@ Ext.define('Scs.controller.ServiceCalls', {
 
     showServiceCalls: function() {
         var me = this,
-            //store = Ext.getStore('Scs.store.ServiceCalls'),
-            view = Ext.widget('servicecalls-setup', {
-                router: me.getController('Uni.controller.history.Router')
-            });
+            store = Ext.getStore('Scs.store.ServiceCalls'),
+            view;
+
+        store.setProxy({
+            type: 'rest',
+            url: '/api/scs/servicecalls',
+            timeout: 120000,
+            reader: {
+                type: 'json',
+                root: 'serviceCalls'
+            }
+        });
+        view= Ext.widget('servicecalls-setup', {
+                router: me.getController('Uni.controller.history.Router'),
+                store: store
+        });
 
         me.getApplication().fireEvent('changecontentevent', view);
     },
@@ -49,21 +62,36 @@ Ext.define('Scs.controller.ServiceCalls', {
             view,
             servicecallId = arguments[arguments.length - 1];
 
-        //TODO: check if the service call has children or not using the correct rest info, then decide what screen to show
         if (servicecallId) {
+            store.setProxy({
+                type: 'rest',
+                url: '/api/scs/servicecalls/' + servicecallId + '/children',
+                timeout: 120000,
+                reader: {
+                    type: 'json',
+                    root: 'serviceCalls'
+                }
+            });
             me.getApplication().fireEvent('servicecallload', arguments);
-            record = store.getAt(store.find('internalId', servicecallId));
-            if (record.get('hasChildren')) {
-                view = Ext.widget('servicecalls-setup-overview', {
-                    router: me.getController('Uni.controller.history.Router'),
-                    serviceCallId: servicecallId
-                });
-            } else {
-                view = Ext.widget('scs-landing-page', {serviceCallId: servicecallId});
+            me.getModel('Scs.model.ServiceCall').load(servicecallId, {
+                success: function (record) {
+                    if (record.get('hasChildren')) {
+                        view = Ext.widget('servicecalls-setup-overview', {
+                            router: me.getController('Uni.controller.history.Router'),
+                            serviceCallId: servicecallId,
+                            store: store
+                        });
+                    } else {
+                        view = Ext.widget('scs-landing-page', {serviceCallId: servicecallId});
 
-            }
-            view.down('scs-landing-page-form').updateLandingPage(record);
-            me.getApplication().fireEvent('changecontentevent', view);
+                    }
+                    view.down('scs-landing-page-form').updateLandingPage(record);
+                    me.getApplication().fireEvent('changecontentevent', view);
+                },
+                failure: function (record, operation) {
+                    debugger;
+                }
+            });
         }
     },
 

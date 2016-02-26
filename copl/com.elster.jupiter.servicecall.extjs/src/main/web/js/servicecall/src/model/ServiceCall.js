@@ -3,6 +3,10 @@ Ext.define('Scs.model.ServiceCall', {
     fields: [
         'number', 'externalReference', 'state', 'type',
         {
+            name: 'hasChildren',
+            type: 'boolean'
+        },
+        {
             name: 'version',
             defaultValue: 0
         },
@@ -52,12 +56,13 @@ Ext.define('Scs.model.ServiceCall', {
             }
         }
     ],
-/*
+
     proxy: {
         type: 'rest',
-        url: '/api/apr/appserver',
+        url: '/api/scs/servicecalls',
+        timeout: 120000,
         reader: {
             type: 'json'
         }
-    }*/
+    }
 });

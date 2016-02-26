@@ -2,6 +2,7 @@ Ext.define('Scs.view.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.servicecalls-setup',
     router: null,
+    store: null,
 
     requires: [
         'Scs.view.ServiceCallPreviewContainer',
@@ -20,7 +21,8 @@ Ext.define('Scs.view.Setup', {
                 },
                 {
                     xtype: 'service-call-preview-container',
-                    router: me.router
+                    router: me.router,
+                    store: me.store
                 }
             ]
         };

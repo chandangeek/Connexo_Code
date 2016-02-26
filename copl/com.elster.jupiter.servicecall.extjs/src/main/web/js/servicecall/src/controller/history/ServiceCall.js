@@ -4,10 +4,10 @@ Ext.define('Scs.controller.history.ServiceCall', {
     rootToken: 'workspace',
 
     routeConfig: {
-        administration: {
+        workspace: {
             title: Uni.I18n.translate('general.workspace', 'SCS', 'Workspace'),
             route: 'workspace',
-            disabled: true,
+            disabled:true,
             items: {
                 servicecalls: {
                     title: Uni.I18n.translate('general.serviceCalls', 'SCS', 'Service calls'),
