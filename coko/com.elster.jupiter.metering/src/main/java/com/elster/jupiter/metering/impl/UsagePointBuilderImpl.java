@@ -20,7 +20,6 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     private boolean isSdp;
     private boolean isVirtual;
     private String outageRegion;
-    private String readCycle;
     private String readRoute;
     private String servicePriority;
     private String serviceDeliveryRemark;
@@ -74,12 +73,6 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     @Override
     public UsagePointBuilder withOutageRegion(String outageRegion) {
         this.outageRegion = outageRegion;
-        return this;
-    }
-
-    @Override
-    public UsagePointBuilder withReadCycle(String readCycle) {
-        this.readCycle = readCycle;
         return this;
     }
 

@@ -18,8 +18,6 @@ public interface UsagePointBuilder {
 
     UsagePointBuilder withOutageRegion(String outageRegion);
 
-    UsagePointBuilder withReadCycle(String readCycle);
-
     UsagePointBuilder withReadRoute(String readRoute);
 
     UsagePointBuilder withServicePriority(String servicePriority);
