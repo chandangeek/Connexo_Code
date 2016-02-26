@@ -6,6 +6,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.text.MessageFormat;
 
 /**
  * Represents a LogBookIdentifier for a LogBook that is already know (should not be fetched anymore)
@@ -38,5 +39,10 @@ public class LogBookIdentifierForAlreadyKnowLogBook implements LogBookIdentifier
     @Override
     public DeviceIdentifier<?> getDeviceIdentifier() {
         return new DeviceIdentifierForAlreadyKnownDeviceByMrID(getLogBook().getDevice());
+    }
+
+    @Override
+    public String toString() {
+        return MessageFormat.format("logbook with name ''{0}'' on device having MRID {1}", logBook.getLogBookType().getName(), logBook.getId());
     }
 }

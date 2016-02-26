@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -9,7 +10,6 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -32,6 +32,7 @@ public class ConnectionCommunicationPortPoolSearchableProperty extends AbstractS
 
     @Inject
     public ConnectionCommunicationPortPoolSearchableProperty(PropertySpecService propertySpecService, EngineConfigurationService engineConfigurationService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.propertySpecService = propertySpecService;
         this.engineConfigurationService = engineConfigurationService;
         this.thesaurus = thesaurus;
@@ -85,12 +86,14 @@ public class ConnectionCommunicationPortPoolSearchableProperty extends AbstractS
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.referencePropertySpec(
-                PROPERTY_NAME,
-                false,
-                FactoryIds.CONNECTION_TASK,
-                engineConfigurationService.findAllComPortPools()
-        );
+        List<ComPortPool> comPortPools = engineConfigurationService.findAllComPortPools();
+        return this.propertySpecService
+                .referenceSpec(ComPortPool.class)
+                .named(PROPERTY_NAME, this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .addValues(comPortPools.toArray(new ComPortPool[comPortPools.size()]))
+                .markExhaustive()
+                .finish();
     }
 
     @Override
@@ -104,8 +107,8 @@ public class ConnectionCommunicationPortPoolSearchableProperty extends AbstractS
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.CONNECTION_PORTPOOL).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.CONNECTION_PORTPOOL;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -9,7 +10,6 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
@@ -22,19 +22,17 @@ import java.util.Optional;
 
 public class ComTaskNameSearchableProperty extends AbstractSearchableDeviceProperty {
     static final String PROPERTY_NAME = "device.comtask.name";
-    static final int DEFAULT_PAGE_SIZE = 50;
 
     private final PropertySpecService propertySpecService;
     private final TaskService taskService;
-    private final Thesaurus thesaurus;
     private SearchDomain searchDomain;
     private SearchablePropertyGroup group;
 
     @Inject
     public ComTaskNameSearchableProperty(PropertySpecService propertySpecService, TaskService taskService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.propertySpecService = propertySpecService;
         this.taskService = taskService;
-        this.thesaurus = thesaurus;
     }
 
     ComTaskNameSearchableProperty init(SearchDomain searchDomain, SearchablePropertyGroup parentGroup) {
@@ -85,12 +83,14 @@ public class ComTaskNameSearchableProperty extends AbstractSearchableDevicePrope
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.referencePropertySpec(
-                PROPERTY_NAME,
-                false,
-                FactoryIds.COMTASK,
-                taskService.findAllComTasks().paged(1, DEFAULT_PAGE_SIZE).find()
-        );
+        List<ComTask> comTasks = taskService.findAllComTasks().find();
+        return this.propertySpecService
+                .referenceSpec(ComTask.class)
+                .named(PROPERTY_NAME, getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .addValues(comTasks.toArray(new ComTask[comTasks.size()]))
+                .markExhaustive()
+                .finish();
     }
 
     @Override
@@ -104,8 +104,8 @@ public class ComTaskNameSearchableProperty extends AbstractSearchableDevicePrope
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.COMTASK_NAME).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.COMTASK_NAME;
     }
 
     @Override

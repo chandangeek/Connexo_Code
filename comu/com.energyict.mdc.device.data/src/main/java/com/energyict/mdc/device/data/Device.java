@@ -15,42 +15,20 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
 import com.google.common.collect.Range;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
@@ -131,6 +109,18 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     void setYearOfCertification(Integer yearOfCertification);
 
+    void setMultiplier(BigDecimal multiplier);
+
+    void setMultiplier(BigDecimal multiplier, Instant from);
+
+    void setmRID(String mrid);
+
+    BigDecimal getMultiplier();
+
+    Optional<BigDecimal> getMultiplierAt(Instant multiplierEffectiveTimeStamp);
+
+    Instant getMultiplierEffectiveTimeStamp();
+
     /**
      * Gets the year of certification of a device.
      *
@@ -201,6 +191,10 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
 
+    /**
+     * Note that this setter does not yet persist the given security properties.
+     * This is done in the save method of this device.
+     */
     void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties properties);
 
     List<ProtocolDialectProperties> getProtocolDialectPropertiesList();
@@ -216,7 +210,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      *
      * @param meterReading the meterReadings which will be stored
      */
-    List<Warning> store(MeterReading meterReading);
+    void store(MeterReading meterReading);
 
     boolean hasData();
 
@@ -237,28 +231,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     Optional<? extends MeterActivation> getCurrentMeterActivation();
 
     List<MeterActivation> getMeterActivationsMostRecentFirst();
-
-    /**
-     * Gets a list of all device multipliers that were active for a device.
-     *
-     * @return a list of device multipliers
-     */
-    List<DeviceMultiplier> getDeviceMultipliers();
-
-    /**
-     * Gets the active device multiplier for a certain Timestamp.
-     *
-     * @param date The timestamp
-     * @return a device multiplier
-     */
-    DeviceMultiplier getDeviceMultiplier(Instant date);
-
-    /**
-     * Gets the active device multiplier at the moment the method is called.
-     *
-     * @return a device multiplier
-     */
-    DeviceMultiplier getDeviceMultiplier();
 
     /**
      * Gets the Unique mRID of the device.
@@ -360,6 +332,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     DeviceEstimation forEstimation();
 
     Optional<UsagePoint> getUsagePoint();
+
+    void setUsagePoint(UsagePoint usagePoint);
 
     GatewayType getConfigurationGatewayType();
 

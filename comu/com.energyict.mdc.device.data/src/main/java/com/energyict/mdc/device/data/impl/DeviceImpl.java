@@ -19,7 +19,24 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.LifecycleDates;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeterConfiguration;
+import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -44,11 +61,43 @@ import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.TextualRegisterSpec;
+import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
-import com.energyict.mdc.device.data.exceptions.*;
+import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
+import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
+import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
+import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
+import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
+import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertyServiceForConfigChange;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
@@ -57,13 +106,32 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidSecurityProperties;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.ServerDeviceForValidation;
-import com.energyict.mdc.device.data.impl.tasks.*;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.FirmwareComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTask;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.issues.Warning;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -77,12 +145,30 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
-import java.time.*;
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -99,6 +185,8 @@ import static java.util.stream.Collectors.toList;
 @ValidSecurityProperties(groups = {Save.Update.class})
 public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDeviceForValidation {
 
+    private static final BigDecimal maxMultiplier = BigDecimal.valueOf(Integer.MAX_VALUE);
+
     private final DataModel dataModel;
     private final EventService eventService;
     private final IssueService issueService;
@@ -110,8 +198,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final MeteringGroupsService meteringGroupsService;
     private final CustomPropertySetService customPropertySetService;
 
+    private final MdcReadingTypeUtilService readingTypeUtilService;
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
+    private static final String MULTIPLIER_TYPE = "Default";
+    private final BigDecimal MULTIPLIER_ONE = BigDecimal.ONE;
 
     @SuppressWarnings("unused")
     private long id;
@@ -165,6 +256,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private transient DeviceValidationImpl deviceValidation;
     private final Reference<DeviceEstimation> deviceEstimation = ValueReference.absent();
 
+    private transient Optional<Meter> meter = Optional.empty();
+    private transient AmrSystem amrSystem;
+    private transient Optional<MeterActivation> currentMeterActivation = Optional.empty();
+    private transient MultiplierType multiplierType;
+    private transient BigDecimal multiplier;
+
     @Inject
     public DeviceImpl(
             DataModel dataModel,
@@ -182,7 +279,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider,
             Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider,
             MeteringGroupsService meteringGroupsService,
-            CustomPropertySetService customPropertySetService) {
+            CustomPropertySetService customPropertySetService,
+            MdcReadingTypeUtilService readingTypeUtilService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
@@ -199,6 +297,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.firmwareComTaskExecutionProvider = firmwareComTaskExecutionProvider;
         this.meteringGroupsService = meteringGroupsService;
         this.customPropertySetService = customPropertySetService;
+        this.readingTypeUtilService = readingTypeUtilService;
     }
 
     DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, String mRID) {
@@ -206,7 +305,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.deviceConfiguration.set(deviceConfiguration);
         this.setDeviceTypeFromDeviceConfiguration();
         setName(name);
-        this.setMRID(mRID);
+        this.setmRID(mRID);
         createLoadProfiles();
         createLogBooks();
         return this;
@@ -249,14 +348,23 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         boolean alreadyPersistent = this.id > 0;
         if (alreadyPersistent) {
             Save.UPDATE.save(dataModel, this);
+            findKoreMeter(getMdcAmrSystem())
+                    .filter(meter -> !Objects.equals(meter.getMRID(), this.getmRID()))
+                    .ifPresent(meter -> {
+                        meter.setMRID(getmRID());
+                        meter.update();
+                    });
+
             this.saveDirtySecurityProperties();
             this.saveDirtyConnectionProperties();
             this.saveNewAndDirtyDialectProperties();
             this.notifyUpdated();
         } else {
             Save.CREATE.save(dataModel, this);
-            this.createKoreMeter();
+            Meter meter = this.createKoreMeter();
+            this.createMeterConfiguration(meter, this.clock.instant(), false);
             this.saveNewDialectProperties();
+            this.createComTaskExecutionsForEnablementsMarkedAsAlwaysExecuteForInbound();
             this.notifyCreated();
         }
     }
@@ -265,6 +373,62 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.getConnectionTaskImpls()
                 .filter(ConnectionTaskImpl::hasDirtyProperties)
                 .forEach(ConnectionTaskPropertyProvider::saveAllProperties);
+    }
+
+    private void createMeterConfiguration(Meter meter, Instant timeStamp, boolean validMultiplierSet) {
+        meter.getConfiguration(timeStamp).ifPresent(meterConfiguration -> meterConfiguration.endAt(timeStamp));
+        if (getDeviceConfiguration().getChannelSpecs().size() > 0 || getDeviceConfiguration().getRegisterSpecs().size() > 0) {
+            MultiplierType defaultMultiplierType = getDefaultMultiplierType();
+            Meter.MeterConfigurationBuilder meterConfigurationBuilder = meter.startingConfigurationOn(timeStamp);
+            createMeterConfigurationsForChannelSpecs(defaultMultiplierType, meterConfigurationBuilder, validMultiplierSet);
+            createMeterConfigurationsForRegisterSpecs(defaultMultiplierType, meterConfigurationBuilder, validMultiplierSet);
+            meterConfigurationBuilder.create();
+        }
+    }
+
+    private void createMeterConfigurationsForChannelSpecs(MultiplierType defaultMultiplierType, Meter.MeterConfigurationBuilder meterConfigurationBuilder, boolean addCalculatedReadingType) {
+        getDeviceConfiguration().getChannelSpecs().forEach(channelSpec -> {
+            Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = meterConfigurationBuilder
+                    .configureReadingType(channelSpec.getReadingType())
+                    .withNumberOfFractionDigits(channelSpec.getNbrOfFractionDigits());
+            channelSpec.getOverflow().ifPresent(meterReadingTypeConfigurationBuilder::withOverflowValue);
+            if (addCalculatedReadingType && channelSpec.isUseMultiplier()) {
+                meterReadingTypeConfigurationBuilder
+                        .withMultiplierOfType(defaultMultiplierType)
+                        .calculating(getMultipliedReadingTypeForChannelSpec(channelSpec));
+            }
+        });
+    }
+
+    private void createMeterConfigurationsForRegisterSpecs(MultiplierType defaultMultiplierType, Meter.MeterConfigurationBuilder meterConfigurationBuilder, boolean addCalculatedReadingType) {
+        getDeviceConfiguration().getRegisterSpecs().stream().filter(registerSpec -> !registerSpec.isTextual())
+                .map(registerSpec1 -> ((NumericalRegisterSpec) registerSpec1)).forEach(registerSpec -> {
+            Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = meterConfigurationBuilder
+                    .configureReadingType(registerSpec.getReadingType())
+                    .withNumberOfFractionDigits(registerSpec.getNumberOfFractionDigits());
+            registerSpec.getOverflowValue().ifPresent(meterReadingTypeConfigurationBuilder::withOverflowValue);
+            if (addCalculatedReadingType && registerSpec.isUseMultiplier()) {
+                meterReadingTypeConfigurationBuilder
+                        .withMultiplierOfType(defaultMultiplierType)
+                        .calculating(registerSpec.getCalculatedReadingType().get());
+            }
+        });
+    }
+
+    private ReadingType getMultipliedReadingTypeForChannelSpec(ChannelSpec channelSpec) {
+        ReadingType calculatedReadingType = channelSpec.getCalculatedReadingType().get();
+        if (channelSpec.getReadingType().isCumulative()) {
+            String code = readingTypeUtilService.createReadingTypeCodeBuilderFrom(calculatedReadingType)
+                    .accumulate(channelSpec.getReadingType().getAccumulation()).code();
+            return readingTypeUtilService.findOrCreateReadingType(code, calculatedReadingType.getAliasName());
+        } else {
+            return calculatedReadingType;
+        }
+    }
+
+    private void createComTaskExecutionsForEnablementsMarkedAsAlwaysExecuteForInbound() {
+        List<ComTaskEnablement> comTaskEnablements = getDeviceConfiguration().getComTaskEnablements();
+        comTaskEnablements.stream().filter(ComTaskEnablement::isIgnoreNextExecutionSpecsForInbound).forEach(cte -> newManuallyScheduledComTaskExecution(cte, null).add());
     }
 
     private void saveNewAndDirtyDialectProperties() {
@@ -328,6 +492,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private void doDelete() {
         deleteAllIssues();
         deleteProperties();
+        this.removeCustomProperties();
         deleteLoadProfiles();
         deleteLogBooks();
         deleteComTaskExecutions();
@@ -336,13 +501,23 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         deleteSecuritySettings();
         removeDeviceFromStaticGroups();
         closeCurrentMeterActivation();
-        this.removeCustomProperties();
         this.obsoleteKoreDevice();
         this.getDataMapper().remove(this);
     }
 
     private void removeCustomProperties() {
         this.getDeviceType().getCustomPropertySets().forEach(this::removeCustomPropertiesFor);
+        this.getRegisters().stream()
+                .forEach(register ->
+                        this.getDeviceType().getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType())
+                                .ifPresent(set -> this.customPropertySetService.removeValuesFor(set.getCustomPropertySet(), register.getRegisterSpec(), this.getId()))
+                );
+
+        this.getLoadProfiles().stream().flatMap(lp -> lp.getChannels().stream())
+                .forEach(channel ->
+                        this.getDeviceType().getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType())
+                                .ifPresent(set -> this.customPropertySetService.removeValuesFor(set.getCustomPropertySet(), channel.getChannelSpec(), this.getId()))
+                );
     }
 
     private void removeCustomPropertiesFor(RegisteredCustomPropertySet customPropertySet) {
@@ -355,7 +530,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private void obsoleteKoreDevice() {
-        getMdcAmrSystem().ifPresent(this::obsoleteKoreDevice);
+        findMdcAmrSystem().ifPresent(this::obsoleteKoreDevice);
     }
 
     private void obsoleteKoreDevice(AmrSystem amrSystem) {
@@ -363,7 +538,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private void removeDeviceFromStaticGroups() {
-        getMdcAmrSystem().ifPresent(amrSystem ->
+        findMdcAmrSystem().ifPresent(amrSystem ->
                 findKoreMeter(amrSystem).ifPresent(meter ->
                         this.meteringGroupsService.findEnumeratedEndDeviceGroupsContaining(meter).stream()
                                 .forEach(enumeratedEndDeviceGroup -> removeDeviceFromGroup(enumeratedEndDeviceGroup, meter))));
@@ -446,11 +621,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    private void setMRID(String mRID) {
+    @Override
+    public void setmRID(String mRID) {
         this.mRID = null;
-        if (mRID != null) {
-            this.mRID = mRID.trim();
-        }
+        Optional.ofNullable(mRID)
+                .map(String::trim)
+                .ifPresent(trimmed -> this.mRID = trimmed);
     }
 
     public long getId() {
@@ -512,7 +688,108 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public BigDecimal getMultiplier() {
+        if (this.multiplier == null) {
+            Optional<MeterActivation> optionalCurrentMeterActivation = getCurrentMeterActivation();
+            if (optionalCurrentMeterActivation.isPresent()) {
+                this.multiplier = optionalCurrentMeterActivation.get().getMultiplier(getDefaultMultiplierType()).orElse(MULTIPLIER_ONE);
+            } else {
+                this.multiplier = MULTIPLIER_ONE;
+            }
+        }
+        return this.multiplier;
+    }
 
+    @Override
+    public Optional<BigDecimal> getMultiplierAt(Instant multiplierEffectiveTimeStamp) {
+        List<MeterActivation> meterActivationsMostRecentFirst = getMeterActivationsMostRecentFirst();
+        Optional<MeterActivation> meterActivationForEffectiveTimeStamp = meterActivationsMostRecentFirst.stream().filter(meterActivation -> meterActivation.getInterval().toOpenClosedRange().contains(multiplierEffectiveTimeStamp)).findAny();
+        if (meterActivationForEffectiveTimeStamp.isPresent()) {
+            return meterActivationForEffectiveTimeStamp.get().getMultiplier(getDefaultMultiplierType());
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Instant getMultiplierEffectiveTimeStamp() {
+        List<MeterActivation> meterActivationsMostRecentFirst = getMeterActivationsMostRecentFirst();
+        Instant effectiveTimeStamp = clock.instant();
+        BigDecimal currentMultiplier = getMultiplier();
+        for (MeterActivation meterActivation : meterActivationsMostRecentFirst) {
+            Optional<BigDecimal> multiplier = meterActivation.getMultiplier(getDefaultMultiplierType());
+            if (multiplier.isPresent()) {
+                if (currentMultiplier.compareTo(multiplier.get()) == 0) {
+                    effectiveTimeStamp = meterActivation.getStart();
+                } else {
+                    break;
+                }
+            }
+        }
+        return effectiveTimeStamp;
+    }
+
+    private MultiplierType getDefaultMultiplierType() {
+        if (this.multiplierType == null) {
+            Optional<MultiplierType> multiplierType = meteringService.getMultiplierType(MULTIPLIER_TYPE);
+            if (multiplierType.isPresent()) {
+                this.multiplierType = multiplierType.get();
+            } else {
+                this.multiplierType = createDefaultMultiplierType();
+            }
+        }
+        return this.multiplierType;
+    }
+
+    private MultiplierType createDefaultMultiplierType() {
+        return meteringService.createMultiplierType(MULTIPLIER_TYPE);
+    }
+
+    @Override
+    public void setMultiplier(BigDecimal multiplier) {
+        this.setMultiplier(multiplier, null);
+    }
+
+    @Override
+    public void setMultiplier(BigDecimal multiplier, Instant from) {
+        if (multiplier.compareTo(getMultiplier()) != 0) {
+            validateMultiplierValue(multiplier);
+            Instant now = clock.instant();
+            Optional<Instant> startDateMultiplier = Optional.ofNullable(from);
+            validateStartDateOfNewMultiplier(now, startDateMultiplier);
+            boolean validMultiplierValue = multiplier.compareTo(BigDecimal.ONE) == 1;
+            MeterActivation newMeterActivation = activate(startDateMultiplier.orElse(now), validMultiplierValue);
+            if(validMultiplierValue){
+                newMeterActivation.setMultiplier(getDefaultMultiplierType(), multiplier);
+            }
+            createMeterConfiguration(findOrCreateKoreMeter(getMdcAmrSystem()), startDateMultiplier.orElse(now), validMultiplierValue);
+            this.multiplier = multiplier;
+        }
+    }
+
+    private void validateMultiplierValue(BigDecimal multiplier) {
+        if (multiplier.compareTo(BigDecimal.ZERO) != 1) {
+            throw MultiplierConfigurationException.multiplierShouldBeLargerThanZero(thesaurus);
+        } else if (multiplier.compareTo(maxMultiplier) == 1) {
+            throw MultiplierConfigurationException.multiplierValueExceedsMax(thesaurus);
+        }
+    }
+
+    private void validateStartDateOfNewMultiplier(Instant now, Optional<Instant> startDateMultiplier) {
+        if (startDateMultiplier.isPresent()) {
+            Meter meter = findOrCreateKoreMeter(getMdcAmrSystem());
+            if (meter.hasData() && startDateMultiplier.get().isBefore(now)) {
+                throw MultiplierConfigurationException.canNotConfigureMultiplierInPastWhenYouAlreadyHaveData(thesaurus);
+            }
+            if (meter.getCurrentMeterActivation().isPresent()) {
+                if (!meter.getCurrentMeterActivation().get().getRange().contains(startDateMultiplier.get())) {
+                    throw MultiplierConfigurationException.canNotConfigureMultiplierWithStartDateOutOfCurrentMeterActivation(thesaurus);
+                }
+            }
+        }
+    }
+
+    @Override
     public Integer getYearOfCertification() {
         return this.yearOfCertification;
     }
@@ -605,7 +882,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == originDeviceConfiguration.getId()
                         && deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == destinationDeviceConfiguration.getId())
                 .filter(Predicates.not(DeviceConfigConflictMapping::isSolved)).findFirst()
-                .ifPresent(deviceConfigConflictMapping1 -> {throw new CannotChangeDeviceConfigStillUnresolvedConflicts(thesaurus, this, destinationDeviceConfiguration);});
+                .ifPresent(deviceConfigConflictMapping1 -> {
+                    throw new CannotChangeDeviceConfigStillUnresolvedConflicts(thesaurus, this, destinationDeviceConfiguration);
+                });
     }
 
     @Override
@@ -614,8 +893,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public void createNewMeterActivation() {
-        activate(clock.instant());
+    public void createNewMeterActivation(Instant meterActivationStartTime) {
+        activate(meterActivationStartTime);
+    }
+
+    @Override
+    public void updateMeterConfiguration(Instant updateTimeStamp) {
+        createMeterConfiguration(findKoreMeter(getMdcAmrSystem()).get(), updateTimeStamp, getMultiplier().compareTo(BigDecimal.ONE) == 1);
     }
 
     @Override
@@ -652,6 +936,19 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public void deleteSecurityPropertiesFor(SecurityPropertySet securityPropertySet) {
         ((ServerSecurityPropertyServiceForConfigChange) securityPropertyService).deleteSecurityPropertiesFor(this, securityPropertySet);
+    }
+
+    public Optional<ReadingType> getCalculatedReadingTypeFromMeterConfiguration(ReadingType readingType, Instant timeStamp) {
+        Optional<MeterConfiguration> configuration = findKoreMeter(getMdcAmrSystem()).get().getConfiguration(timeStamp);
+        if (configuration.isPresent()) {
+            Optional<MeterReadingTypeConfiguration> mrtConfiguration = configuration.get().getReadingTypeConfigs().stream().filter(meterReadingTypeConfiguration -> meterReadingTypeConfiguration.getMeasured().equals(readingType)).findAny();
+            if (mrtConfiguration.isPresent()) {
+                return mrtConfiguration.get().getCalculated();
+            } else {
+                return Optional.empty();
+            }
+        }
+        return Optional.empty();
     }
 
     class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
@@ -766,7 +1063,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             String propertyValue = optionalPropertySpec.get().getValueFactory().toStringValue(value);
             boolean notUpdated = !updatePropertyIfExists(name, propertyValue);
             if (notUpdated) {
-                addDeviceProperty(name, propertyValue);
+                addDeviceProperty(optionalPropertySpec, propertyValue);
             }
             if (getId() > 0) {
                 dataModel.touch(this);
@@ -783,9 +1080,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         //Don't persist yet, need to be validated (done in the save step of this device)
     }
 
-    private void addDeviceProperty(String name, String propertyValue) {
+    private void addDeviceProperty(Optional<PropertySpec> propertySpec, String propertyValue) {
         if (propertyValue != null) {
-            DeviceProtocolPropertyImpl deviceProtocolProperty = this.dataModel.getInstance(DeviceProtocolPropertyImpl.class).initialize(this, name, propertyValue);
+            DeviceProtocolPropertyImpl deviceProtocolProperty = this.dataModel.getInstance(DeviceProtocolPropertyImpl.class).initialize(this, propertySpec, propertyValue);
             Save.CREATE.validate(dataModel, deviceProtocolProperty);
             this.deviceProperties.add(deviceProtocolProperty);
         }
@@ -844,19 +1141,35 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public List<Warning> store(MeterReading meterReading) {
-        OverflowCheck overflowCheck = OverflowCheck.from(dataModel, this);
-        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
-        if (amrSystem.isPresent()) {
-            Meter meter = findOrCreateKoreMeter(amrSystem.get());
-            meter.store(overflowCheck.toCheckedMeterReading(meterReading));
-        }
-        return overflowCheck.getWarnings();
+    public void store(MeterReading meterReading) {
+        Meter meter = findOrCreateKoreMeter(getMdcAmrSystem());
+        meter.store(meterReading);
     }
 
     @Override
     public Optional<UsagePoint> getUsagePoint() {
         return this.getOptionalMeterAspect(this::getUsagePointFromMeterActivation);
+    }
+
+    @Override
+    public void setUsagePoint(UsagePoint usagePoint) {
+        findKoreMeter(getMdcAmrSystem()).ifPresent(meter -> {
+            Optional<UsagePoint> currentUsagePoint = getUsagePoint();
+            Optional<Provider<MeterActivation>> activateOperation = Optional.empty();
+            Instant startTime = this.clock.instant();
+            if (usagePoint == null) {
+                // remove the old usage point
+                activateOperation = Optional.of(() -> meter.activate(startTime));
+            } else if (!currentUsagePoint.isPresent() || usagePoint.getId() != currentUsagePoint.get().getId()) {
+                // set the new usage point
+                activateOperation = Optional.of(() -> meter.activate(usagePoint, startTime));
+            }
+            activateOperation.ifPresent(activator -> {
+                getCurrentMeterActivation().ifPresent(ma -> ma.endAt(startTime));
+                MeterActivation meterActivation = activator.get();
+                meterActivation.setMultiplier(getDefaultMultiplierType(), getMultiplier());
+            });
+        });
     }
 
     private Optional<UsagePoint> getUsagePointFromMeterActivation(Meter meter) {
@@ -869,7 +1182,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     Optional<Meter> findKoreMeter(AmrSystem amrSystem) {
-        return amrSystem.findMeter(String.valueOf(getId()));
+        if (!this.meter.isPresent()) {
+            this.meter = amrSystem.findMeter(String.valueOf(getId()));
+        }
+        return this.meter;
     }
 
     Meter findOrCreateKoreMeter(AmrSystem amrSystem) {
@@ -882,7 +1198,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private Meter createKoreMeter() {
-        return this.createKoreMeter(this.getMdcAmrSystem().orElseThrow(this.mdcAMRSystemDoesNotExist()));
+        return this.createKoreMeter(getMdcAmrSystem());
     }
 
     private Supplier<RuntimeException> mdcAMRSystemDoesNotExist() {
@@ -895,25 +1211,33 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     Meter createKoreMeter(AmrSystem amrSystem) {
         FiniteStateMachine stateMachine = this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine();
-        Meter meter = amrSystem.newMeter(String.valueOf(getId()))
+        Meter newMeter = amrSystem.newMeter(String.valueOf(getId()))
                 .setMRID(getmRID())
                 .setStateMachine(stateMachine)
                 .setSerialNumber(getSerialNumber())
                 .create();
-        meter.getLifecycleDates().setReceivedDate(this.clock.instant());
-        meter.update();
-        return meter;
+        newMeter.getLifecycleDates().setReceivedDate(this.clock.instant());
+        newMeter.update();
+        this.meter = Optional.of(newMeter);
+        return newMeter;
     }
 
-    private Optional<AmrSystem> getMdcAmrSystem() {
+    private Optional<AmrSystem> findMdcAmrSystem() {
         return this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
     }
 
-    List<ReadingRecord> getReadingsFor(Register<?> register, Range<Instant> interval) {
+    private AmrSystem getMdcAmrSystem() {
+        if (this.amrSystem == null) {
+            this.amrSystem = findMdcAmrSystem().orElseThrow(mdcAMRSystemDoesNotExist());
+        }
+        return this.amrSystem;
+    }
+
+    List<ReadingRecord> getReadingsFor(Register<?, ?> register, Range<Instant> interval) {
         return this.getListMeterAspect(meter -> this.getReadingsFor(register, interval, meter));
     }
 
-    private List<ReadingRecord> getReadingsFor(Register<?> register, Range<Instant> interval, Meter meter) {
+    private List<ReadingRecord> getReadingsFor(Register<?, ?> register, Range<Instant> interval, Meter meter) {
         List<? extends BaseReadingRecord> readings = meter.getReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType());
         return readings
                 .stream()
@@ -922,24 +1246,21 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     List<LoadProfileReading> getChannelData(LoadProfile loadProfile, Range<Instant> interval) {
-        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         List<LoadProfileReading> loadProfileReadings = Collections.emptyList();
         boolean meterHasData = false;
-        if (amrSystem.isPresent()) {
-            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
-            if (meter.isPresent()) {
-                Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap =
-                        getPreFilledLoadProfileReadingMap(
-                                loadProfile,
-                                interval,
-                                meter.get());
-                Range<Instant> clipped = Ranges.openClosed(interval.lowerEndpoint(), this.lastReadingClipped(loadProfile, interval));
-                for (Channel channel : loadProfile.getChannels()) {
-                    meterHasData |= this.addChannelDataToMap(clipped, meter.get(), channel, sortedLoadProfileReadingMap);
-                }
-                if (meterHasData) {
-                    loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
-                }
+        Optional<Meter> meter = this.findKoreMeter(getMdcAmrSystem());
+        if (meter.isPresent()) {
+            Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap =
+                    getPreFilledLoadProfileReadingMap(
+                            loadProfile,
+                            interval,
+                            meter.get());
+            Range<Instant> clipped = Ranges.openClosed(interval.lowerEndpoint(), this.lastReadingClipped(loadProfile, interval));
+            for (Channel channel : loadProfile.getChannels()) {
+                meterHasData |= this.addChannelDataToMap(clipped, meter.get(), channel, sortedLoadProfileReadingMap);
+            }
+            if (meterHasData) {
+                loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
             }
         }
 
@@ -947,22 +1268,19 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     List<LoadProfileReading> getChannelData(Channel channel, Range<Instant> interval) {
-        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         List<LoadProfileReading> loadProfileReadings = Collections.emptyList();
         boolean meterHasData;
-        if (amrSystem.isPresent()) {
-            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
-            if (meter.isPresent()) {
-                Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap =
-                        getPreFilledLoadProfileReadingMap(
-                                channel.getLoadProfile(),
-                                interval,
-                                meter.get());
-                Range<Instant> clipped = Ranges.openClosed(interval.lowerEndpoint(), lastReadingClipped(channel.getLoadProfile(), interval));
-                meterHasData = this.addChannelDataToMap(clipped, meter.get(), channel, sortedLoadProfileReadingMap);
-                if (meterHasData) {
-                    loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
-                }
+        Optional<Meter> meter = this.findKoreMeter(getMdcAmrSystem());
+        if (meter.isPresent()) {
+            Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap =
+                    getPreFilledLoadProfileReadingMap(
+                            channel.getLoadProfile(),
+                            interval,
+                            meter.get());
+            Range<Instant> clipped = Ranges.openClosed(interval.lowerEndpoint(), lastReadingClipped(channel.getLoadProfile(), interval));
+            meterHasData = this.addChannelDataToMap(clipped, meter.get(), channel, sortedLoadProfileReadingMap);
+            if (meterHasData) {
+                loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
             }
         }
         return Lists.reverse(loadProfileReadings);
@@ -1225,7 +1543,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return interval.upperEndpoint();
     }
 
-    Optional<ReadingRecord> getLastReadingFor(Register<?> register) {
+    Optional<ReadingRecord> getLastReadingFor(Register<?, ?> register) {
         return this.getOptionalMeterAspect(meter -> this.getLastReadingsFor(register, meter));
     }
 
@@ -1260,7 +1578,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.hasData(this.findKoreChannels(channel));
     }
 
-    boolean hasData(Register<?> register) {
+    boolean hasData(Register<?, ?> register) {
         return this.hasData(this.findKoreChannels(register));
     }
 
@@ -1272,20 +1590,52 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public MeterActivation activate(Instant start) {
-        AmrSystem amrSystem = this.getMdcAmrSystem().orElseThrow(this.mdcAMRSystemDoesNotExist());
+        return activate(start, true);
+    }
+
+    /**
+     * Activate the meter. Either end the current MeterActivation and create a new one, or just create a new one.
+     * Depending on 'copyMultiplier' also copy the multiplierValue
+     *
+     * @param start          start of the meterActivation
+     * @param copyMultiplier indication to copy the multiplier
+     * @return the new meterActivation
+     */
+    private MeterActivation activate(Instant start, boolean copyMultiplier) {
+        Optional<MeterActivation> currentMeterActivation = getCurrentMeterActivation();
+        AmrSystem amrSystem = getMdcAmrSystem();
         Meter meter = this.findOrCreateKoreMeter(amrSystem);
-        Optional<UsagePoint> usagePoint = meter.getUsagePoint(start);
-        meter.getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.endAt(start));
-        if (usagePoint.isPresent()) {
-            return meter.activate(usagePoint.get(), start);
+        if (currentMeterActivation.isPresent()) {
+            this.currentMeterActivation = Optional.of(endMeterActivationAndCreateNewWithCurrentAsTemplate(start, meter, currentMeterActivation.get(), copyMultiplier));
         } else {
-            return meter.activate(start);
+            this.currentMeterActivation = Optional.of(meter.activate(start));
         }
+        return this.currentMeterActivation.get();
+    }
+
+    private MeterActivation endMeterActivationAndCreateNewWithCurrentAsTemplate(Instant start, Meter meter, MeterActivation meterActivation, boolean copyMultiplier) {
+        Optional<UsagePoint> usagePoint = meter.getUsagePoint(start);
+        meterActivation.endAt(start);
+        MeterActivation newMeterActivation;
+        if (usagePoint.isPresent()) {
+            newMeterActivation = meter.activate(usagePoint.get(), start);
+        } else {
+            newMeterActivation = meter.activate(start);
+        }
+        if (copyMultiplier) {
+            meterActivation.getMultiplier(getDefaultMultiplierType()).ifPresent(multiplier -> newMeterActivation.setMultiplier(getDefaultMultiplierType(), multiplier));
+        }
+        return newMeterActivation;
     }
 
     @Override
     public void deactivate(Instant when) {
         this.getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.endAt(when));
+        removeCachedCurrentMeterActivation();
+    }
+
+    private void removeCachedCurrentMeterActivation() {
+        this.currentMeterActivation = Optional.empty();
     }
 
     @Override
@@ -1295,18 +1645,16 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public Optional<MeterActivation> getCurrentMeterActivation() {
-        return this.getOptionalMeterAspect(m -> m.getCurrentMeterActivation().map(Function.<MeterActivation>identity()));
+        if (!this.currentMeterActivation.isPresent()) {
+            this.currentMeterActivation = this.getOptionalMeterAspect(m -> m.getCurrentMeterActivation().map(Function.<MeterActivation>identity()));
+        }
+        return this.currentMeterActivation;
     }
 
     private <AT> Optional<AT> getOptionalMeterAspect(Function<Meter, Optional<AT>> aspectFunction) {
-        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
-        if (amrSystem.isPresent()) {
-            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
-            if (meter.isPresent()) {
-                return aspectFunction.apply(meter.get());
-            } else {
-                return Optional.empty();
-            }
+        Optional<Meter> meter = this.findKoreMeter(getMdcAmrSystem());
+        if (meter.isPresent()) {
+            return aspectFunction.apply(meter.get());
         } else {
             return Optional.empty();
         }
@@ -1314,14 +1662,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @SuppressWarnings("unchecked")
     private <AT> List<AT> getListMeterAspect(Function<Meter, List<AT>> aspectFunction) {
-        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
-        if (amrSystem.isPresent()) {
-            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
-            if (meter.isPresent()) {
-                return aspectFunction.apply(meter.get());
-            } else {
-                return Collections.emptyList();
-            }
+        Optional<Meter> meter = this.findKoreMeter(getMdcAmrSystem());
+        if (meter.isPresent()) {
+            return aspectFunction.apply(meter.get());
         } else {
             return Collections.emptyList();
         }
@@ -1359,14 +1702,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      * @param when The Instant in time
      */
     void ensureActiveOn(Instant when) {
-        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
-        if (amrSystem.isPresent()) {
-            Meter meter = this.findKoreMeter(amrSystem.get()).get();
-            if (meter.getMeterActivations().isEmpty()) {
-                meter.activate(when);
-            }
-        } else {
-            throw this.mdcAMRSystemDoesNotExist().get();
+        Meter meter = this.findKoreMeter(getMdcAmrSystem()).get();
+        if (meter.getMeterActivations().isEmpty()) {
+            meter.activate(when);
         }
     }
 
@@ -1395,7 +1733,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return findKoreChannels(channel::getReadingType);
     }
 
-    List<com.elster.jupiter.metering.Channel> findKoreChannels(Register<?> register) {
+    List<com.elster.jupiter.metering.Channel> findKoreChannels(Register<?, ?> register) {
         return findKoreChannels(register::getReadingType);
     }
 
@@ -1403,7 +1741,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.getListMeterAspect(meter -> this.findKoreChannels(readingTypeSupplier, meter));
     }
 
-    com.elster.jupiter.metering.Channel findOrCreateKoreChannel(Instant when, Register<?> register) {
+    com.elster.jupiter.metering.Channel findOrCreateKoreChannel(Instant when, Register<?, ?> register) {
         return findOrCreateKoreChannel(when, register.getReadingType());
     }
 
@@ -1456,18 +1794,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         } else {
             return Optional.of(readings.get(readings.size() - 1));
         }
-    }
-
-    public List<DeviceMultiplier> getDeviceMultipliers() {
-        return Collections.emptyList();
-    }
-
-    public DeviceMultiplier getDeviceMultiplier(Instant date) {
-        return null;
-    }
-
-    public DeviceMultiplier getDeviceMultiplier() {
-        return null;
     }
 
     public DataMapper<DeviceImpl> getDataMapper() {
@@ -1664,7 +1990,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public DeviceValidation forValidation() {
         if (deviceValidation == null) {
-            deviceValidation = new DeviceValidationImpl(getMdcAmrSystem().get(), this.validationService, this.clock, this.thesaurus, this);
+            deviceValidation = new DeviceValidationImpl(getMdcAmrSystem(), this.validationService, this.clock, this.thesaurus, this);
         }
         return deviceValidation;
     }
@@ -1694,10 +2020,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void addToGroup(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, Range<Instant> range) {
-        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
-        if (amrSystem.isPresent()) {
-            enumeratedEndDeviceGroup.add(this.findOrCreateKoreMeter(amrSystem.get()), range);
-        }
+        enumeratedEndDeviceGroup.add(this.findOrCreateKoreMeter(getMdcAmrSystem()), range);
     }
 
     @Override
@@ -1725,21 +2048,16 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public Optional<State> getState(Instant instant) {
-        Optional<AmrSystem> amrSystem = getMdcAmrSystem();
-        if (amrSystem.isPresent()) {
-            if (this.id > 0) {
-                Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
-                if (meter.isPresent()) {
-                    return meter.get().getState(instant);
-                } else {
-                    // Kore meter was not created yet
-                    throw new IllegalStateException("Kore meter was not created when this Device was created");
-                }
+        if (this.id > 0) {
+            Optional<Meter> meter = this.findKoreMeter(getMdcAmrSystem());
+            if (meter.isPresent()) {
+                return meter.get().getState(instant);
             } else {
-                return Optional.of(this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine().getInitialState());
+                // Kore meter was not created yet
+                throw new IllegalStateException("Kore meter was not created when this Device was created");
             }
         } else {
-            throw new IllegalStateException("MDC AMR system does not exist");
+            return Optional.of(this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine().getInitialState());
         }
     }
 
@@ -1750,14 +2068,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public CIMLifecycleDates getLifecycleDates() {
-        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
-        if (amrSystem.isPresent()) {
-            Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
-            if (meter.isPresent()) {
-                return new CIMLifecycleDatesImpl(meter.get(), meter.get().getLifecycleDates());
-            } else {
-                return new NoCimLifecycleDates();
-            }
+        Optional<Meter> meter = this.findKoreMeter(getMdcAmrSystem());
+        if (meter.isPresent()) {
+            return new CIMLifecycleDatesImpl(meter.get(), meter.get().getLifecycleDates());
         } else {
             return new NoCimLifecycleDates();
         }
@@ -2042,7 +2355,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
             @Override
             RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new TextRegisterImpl(device, registerSpec);
+                return new TextRegisterImpl(device, (TextualRegisterSpec) registerSpec);
             }
         },
 
@@ -2055,7 +2368,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
             @Override
             RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new BillingRegisterImpl(device, registerSpec);
+                return new BillingRegisterImpl(device, (NumericalRegisterSpec) registerSpec);
             }
         },
 
@@ -2067,7 +2380,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
             @Override
             RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new FlagsRegisterImpl(device, registerSpec);
+                return new FlagsRegisterImpl(device, (NumericalRegisterSpec) registerSpec);
             }
         },
 
@@ -2080,7 +2393,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
             @Override
             RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new NumericalRegisterImpl(device, registerSpec);
+                return new NumericalRegisterImpl(device, (NumericalRegisterSpec) registerSpec);
             }
         };
 
@@ -2247,5 +2560,4 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             // Since there were no dates to start with, there is nothing to save
         }
     }
-
 }

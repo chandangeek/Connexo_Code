@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
@@ -18,21 +22,16 @@ import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpda
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
+import org.assertj.core.api.Condition;
+import org.junit.Test;
 
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
-
-import org.assertj.core.api.Condition;
-import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -615,6 +614,84 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
         // Asserts
         assertThat(isExecuting).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void isExecutingBecauseInboundComTasksMarkedAsAlwaysExecuteForInboundTest() {
+        InboundComPort inboundComPort = createInboundComPort();
+        ComServer comServer = inboundComPort.getComServer();
+        ComTaskEnablement comTaskEnablement = enableComTask(true);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        device.save();
+        comTaskEnablement.setIgnoreNextExecutionSpecsForInbound(true);
+        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, null);
+        InboundConnectionTaskImpl connectionTask = createInboundConnectionStandardTask(device);
+        comTaskExecutionBuilder.connectionTask(connectionTask);
+        ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        device.save();
+
+        // Note: for this test, ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP field should remain null
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        ComTaskExecution reloadedComTaskExecution = reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
+
+        // Business method
+        boolean isExecuting = reloadedComTaskExecution.isExecuting();
+
+        // Asserts
+        assertThat(isExecuting).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void isNotExecutingBecauseOutboundComTaskMarkedAsAlwaysExecuteForInboundTest() {
+        OutboundComPort outboundComPort = createOutboundComPort();
+        ComServer comServer = outboundComPort.getComServer();
+        ComTaskEnablement comTaskEnablement = enableComTask(true);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        device.save();
+        comTaskEnablement.setIgnoreNextExecutionSpecsForInbound(true);
+        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
+        ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
+        comTaskExecutionBuilder.connectionTask(connectionTask);
+        ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        device.save();
+
+        // Note: for this test, ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP field should remain null
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        ComTaskExecution reloadedComTaskExecution = reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
+
+        // Business method
+        boolean isExecuting = reloadedComTaskExecution.isExecuting();
+
+        // Asserts
+        assertThat(isExecuting).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void isNotExecutingBecauseInboundComTasksNotMarkedAsAlwaysExecuteForInboundTest() {
+        InboundComPort inboundComPort = createInboundComPort();
+        ComServer comServer = inboundComPort.getComServer();
+        ComTaskEnablement comTaskEnablement = enableComTask(true);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        device.save();
+        comTaskEnablement.setIgnoreNextExecutionSpecsForInbound(false);
+        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, null);
+        InboundConnectionTaskImpl connectionTask = createInboundConnectionStandardTask(device);
+        comTaskExecutionBuilder.connectionTask(connectionTask);
+        ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        device.save();
+
+        // Note: for this test, ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP field should remain null
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        ComTaskExecution reloadedComTaskExecution = reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
+
+        // Business method
+        boolean isExecuting = reloadedComTaskExecution.isExecuting();
+
+        // Asserts
+        assertThat(isExecuting).isFalse();
     }
 
     @Test

@@ -3,11 +3,10 @@ package com.energyict.mdc.device.data.impl.identifiers;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifierType;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 
 import javax.xml.bind.annotation.XmlElement;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -61,7 +60,7 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
 
     @Override
     public String toString() {
-        return "messageId = " + deviceMessage.getId();
+        return "message having id " + deviceMessage.getId();
     }
 
     @Override

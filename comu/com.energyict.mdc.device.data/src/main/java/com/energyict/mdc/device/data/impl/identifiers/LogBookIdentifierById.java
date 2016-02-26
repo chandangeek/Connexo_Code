@@ -82,7 +82,6 @@ public class LogBookIdentifierById implements LogBookIdentifier<LogBook> {
 
     @Override
     public String toString() {
-        return String.valueOf(this.logBookId);
+        return "logbook having id " + this.logBookId;
     }
-
 }

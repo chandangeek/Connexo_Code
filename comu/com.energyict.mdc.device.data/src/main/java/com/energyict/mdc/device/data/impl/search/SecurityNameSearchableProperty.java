@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
@@ -47,8 +48,8 @@ public class SecurityNameSearchableProperty extends AbstractNameSearchableProper
     }
 
     @Override
-    public String getDisplayName() {
-        return getThesaurus().getFormat(PropertyTranslationKeys.SECURITY_NAME).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.SECURITY_NAME;
     }
 
     @Override

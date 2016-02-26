@@ -5,26 +5,20 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.energyict.mdc.device.data.*;
 import com.google.common.collect.Range;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.Reading;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.RegisterDataUpdater;
 
+import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -36,18 +30,18 @@ import java.util.stream.Collectors;
  * Date: 11/03/14
  * Time: 11:19
  */
-public abstract class RegisterImpl<R extends Reading> implements Register<R> {
+public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> implements Register<R, RS> {
 
     /**
      * The {@link RegisterSpec} for which this Register is serving.
      */
-    private final RegisterSpec registerSpec;
+    private final RS registerSpec;
     /**
      * The Device which <i>owns</i> this Register.
      */
-    private final DeviceImpl device;
+    protected final DeviceImpl device;
 
-    public RegisterImpl(DeviceImpl device, RegisterSpec registerSpec) {
+    public RegisterImpl(DeviceImpl device, RS registerSpec) {
         this.registerSpec = registerSpec;
         this.device = device;
     }
@@ -58,8 +52,18 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
     }
 
     @Override
-    public RegisterSpec getRegisterSpec() {
+    public RS getRegisterSpec() {
         return registerSpec;
+    }
+
+    @Override
+    public Optional<ReadingType> getCalculatedReadingType(Instant timeStamp) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<BigDecimal> getMultiplier(Instant timeStamp) {
+        return Optional.empty();
     }
 
     @Override
@@ -176,13 +180,13 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
     }
 
     private class RegisterDataUpdaterImpl implements RegisterDataUpdater {
-        private final RegisterImpl<R> register;
+        private final RegisterImpl<R, RS> register;
         private final List<BaseReading> edited = new ArrayList<>();
         private final List<BaseReading> confirmed = new ArrayList<>();
         private final Map<Channel, List<BaseReadingRecord>> obsolete = new HashMap<>();
         private Optional<Instant> activationDate = Optional.empty();
 
-        private RegisterDataUpdaterImpl(RegisterImpl<R> register) {
+        private RegisterDataUpdaterImpl(RegisterImpl<R, RS> register) {
             super();
             this.register = register;
         }
@@ -229,13 +233,13 @@ public abstract class RegisterImpl<R extends Reading> implements Register<R> {
         private void addOrEdit(BaseReading reading) {
             this.register.device
                 .findOrCreateKoreChannel(reading.getTimeStamp(), this.register)
-                .editReadings(Arrays.asList(reading));
+                .editReadings(Collections.singletonList(reading));
         }
 
         private void confirm(BaseReading reading) {
             this.register.device
                     .findOrCreateKoreChannel(reading.getTimeStamp(), this.register)
-                    .confirmReadings(Arrays.asList(reading));
+                    .confirmReadings(Collections.singletonList(reading));
         }
     }
 

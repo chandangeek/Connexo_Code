@@ -1,50 +1,53 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.device.data.impl.SearchHelperValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ConnectionMethodSearchableProperty extends AbstractSearchableDeviceProperty {
 
     static final String PROPERTY_NAME = "device.connection.method";
-
-    private DeviceSearchDomain domain;
     private final ProtocolPluggableService protocolPluggableService;
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
+    private DeviceSearchDomain domain;
 
     @Inject
     public ConnectionMethodSearchableProperty(ProtocolPluggableService protocolPluggableService, PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        super();
+        super(thesaurus);
         this.protocolPluggableService = protocolPluggableService;
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
     }
 
     @Override
     protected boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof ConnectionTypePluggableClass;
+        return value instanceof ConnectionMethodInfo;
     }
 
     @Override
     protected String toDisplayAfterValidation(Object value) {
-        return ((ConnectionTypePluggableClass) value).getName();
+        return ((ConnectionMethodInfo) value).getName();
     }
 
     @Override
@@ -69,6 +72,15 @@ public class ConnectionMethodSearchableProperty extends AbstractSearchableDevice
     }
 
     @Override
+    public void bindSingleValue(PreparedStatement statement, int bindPosition, Object value) throws SQLException {
+        if (value instanceof ConnectionMethodInfo) {
+            statement.setObject(bindPosition, ((ConnectionMethodInfo) value).getId());
+        } else {
+            super.bindSingleValue(statement, bindPosition, value);
+        }
+    }
+
+    @Override
     public SearchDomain getDomain() {
         return this.domain;
     }
@@ -90,11 +102,21 @@ public class ConnectionMethodSearchableProperty extends AbstractSearchableDevice
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.referencePropertySpec(
-                getName(),
-                false,
-                FactoryIds.CONNECTION_TYPE,
-                this.protocolPluggableService.findAllConnectionTypePluggableClasses());
+        return propertySpecService
+                .specForValuesOf(new ConnectionMethodValueFactory(this.protocolPluggableService))
+                .named(this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .addValues(getPossibleValues())
+                .markExhaustive()
+                .finish();
+    }
+
+    private ConnectionMethodInfo[] getPossibleValues() {
+        List<ConnectionMethodInfo> connectionMethods = this.protocolPluggableService.findAllConnectionTypePluggableClasses()
+                .stream()
+                .map(ConnectionMethodInfo::new)
+                .collect(Collectors.toList());
+        return connectionMethods.toArray(new ConnectionMethodInfo[connectionMethods.size()]);
     }
 
     @Override
@@ -108,8 +130,8 @@ public class ConnectionMethodSearchableProperty extends AbstractSearchableDevice
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.CONNECTION_METHOD).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.CONNECTION_METHOD;
     }
 
     @Override
@@ -120,5 +142,53 @@ public class ConnectionMethodSearchableProperty extends AbstractSearchableDevice
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
         //nothing to refresh
+    }
+
+    static class ConnectionMethodValueFactory extends SearchHelperValueFactory<ConnectionMethodInfo> {
+        private final ProtocolPluggableService protocolPluggableService;
+
+        private ConnectionMethodValueFactory(ProtocolPluggableService protocolPluggableService) {
+            super(ConnectionMethodInfo.class);
+            this.protocolPluggableService = protocolPluggableService;
+        }
+
+        @Override
+        public ConnectionMethodInfo fromStringValue(String stringValue) {
+            if (Checks.is(stringValue).emptyOrOnlyWhiteSpace()) {
+                return null;
+            }
+            Optional<ConnectionTypePluggableClass> connectionTypePluggableClass = this.protocolPluggableService.findConnectionTypePluggableClass(Long.valueOf(stringValue));
+            if (!connectionTypePluggableClass.isPresent()) {
+                return null;
+            }
+            return new ConnectionMethodInfo(connectionTypePluggableClass.get());
+        }
+
+        @Override
+        public String toStringValue(ConnectionMethodInfo object) {
+            return object.getId();
+        }
+    }
+
+    static class ConnectionMethodInfo extends HasIdAndName {
+        ConnectionTypePluggableClass ctpClass;
+
+        ConnectionMethodInfo(ConnectionTypePluggableClass ctpClass) {
+            this.ctpClass = ctpClass;
+        }
+
+        @Override
+        public String getId() {
+            return String.valueOf(ctpClass.getId());
+        }
+
+        @Override
+        public String getName() {
+            return ctpClass.getName();
+        }
+
+        public ConnectionTypePluggableClass getConnectionTypeClass() {
+            return ctpClass;
+        }
     }
 }

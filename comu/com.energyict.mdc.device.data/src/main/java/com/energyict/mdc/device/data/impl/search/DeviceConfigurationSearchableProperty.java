@@ -1,13 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceFields;
-import com.energyict.mdc.dynamic.PropertySpecService;
-
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -16,14 +10,17 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.Predicates;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceFields;
+import com.energyict.mdc.dynamic.PropertySpecService;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Exposes the {@link DeviceConfiguration}
@@ -39,15 +36,12 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
     private DeviceSearchDomain domain;
     private SearchableProperty parent;
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
-    private List<Object> deviceConfigurations = Collections.emptyList();
-    private DisplayStrategy displayStrategy = DisplayStrategy.NAME_ONLY;
+    private DeviceConfiguration[] deviceConfigurations = new DeviceConfiguration[0];
 
     @Inject
     public DeviceConfigurationSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        super();
+        super(thesaurus);
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
     }
 
     DeviceConfigurationSearchableProperty init(DeviceSearchDomain domain, DeviceTypeSearchableProperty parent) {
@@ -82,22 +76,24 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_CONFIGURATION).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.DEVICE_CONFIGURATION;
     }
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.referencePropertySpec(
-                PROPERTY_NAME,
-                false,
-                FactoryIds.DEVICE_CONFIGURATION,
-                this.deviceConfigurations);
+        return this.propertySpecService
+                .referenceSpec(DeviceConfiguration.class)
+                .named(PROPERTY_NAME, this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .addValues(this.deviceConfigurations)
+                .markExhaustive()
+                .finish();
     }
 
     @Override
     public List<SearchableProperty> getConstraints() {
-        return Arrays.asList(this.parent);
+        return Collections.singletonList(this.parent);
     }
 
     @Override
@@ -120,17 +116,11 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
 
     private void refreshWithConstrictionValues(List<Object> list) {
         this.validateAllParentsAreDeviceTypes(list);
-        if (list.size() > 1) {
-            this.displayStrategy = DisplayStrategy.WITH_DEVICE_TYPE;
-        }
-        else {
-            this.displayStrategy = DisplayStrategy.NAME_ONLY;
-        }
         this.deviceConfigurations =
             list.stream()
                 .map(DeviceType.class::cast)
                 .flatMap(each -> each.getConfigurations().stream())
-                .collect(Collectors.toList());
+                .toArray(DeviceConfiguration[]::new);
     }
 
     private void validateAllParentsAreDeviceTypes(List<Object> list) {
@@ -160,25 +150,7 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
 
     @Override
     protected String toDisplayAfterValidation(Object value) {
-        return this.displayStrategy.toDisplay((DeviceConfiguration) value);
+        DeviceConfiguration deviceConfiguration = (DeviceConfiguration) value;
+        return deviceConfiguration.getName() + " (" + deviceConfiguration.getDeviceType().getName() + ")";
     }
-
-    private enum DisplayStrategy {
-        NAME_ONLY {
-            @Override
-            public String toDisplay(DeviceConfiguration deviceConfiguration) {
-                return deviceConfiguration.getName();
-            }
-        },
-
-        WITH_DEVICE_TYPE {
-            @Override
-            public String toDisplay(DeviceConfiguration deviceConfiguration) {
-                return deviceConfiguration.getName() + " (" + deviceConfiguration.getDeviceType().getName() + ")";
-            }
-        };
-
-        public abstract String toDisplay(DeviceConfiguration deviceConfiguration);
-    }
-
 }

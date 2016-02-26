@@ -28,6 +28,7 @@ import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.google.common.collect.Range;
@@ -101,6 +102,8 @@ public class DeviceLifeCycleChangeEventsTest {
     private MeteringGroupsService meteringGroupsService;
     @Mock
     private CustomPropertySetService customPropertySetService;
+    @Mock
+    private MdcReadingTypeUtilService readingTypeUtilService;
     @Mock
     private User user;
     @Mock
@@ -286,7 +289,9 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.scheduledComTaskExecutionProvider,
                 this.manuallyScheduledComTaskExecutionProvider,
                 this.firmwareComTaskExecutionProvider,
-                this.meteringGroupsService, customPropertySetService)
+                this.meteringGroupsService,
+                customPropertySetService,
+                this.readingTypeUtilService)
             .initialize(this.deviceConfiguration, "Hello world", "mRID");
     }
 

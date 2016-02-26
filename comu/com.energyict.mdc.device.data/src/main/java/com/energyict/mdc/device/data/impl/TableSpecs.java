@@ -14,8 +14,6 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
@@ -52,22 +50,14 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
-import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
-import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
-import static com.elster.jupiter.orm.ColumnConversion.DATE2INSTANT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
@@ -115,7 +105,7 @@ public enum TableSpecs {
             Table<DeviceProtocolProperty> table = dataModel.addTable(name(), DeviceProtocolProperty.class);
             table.map(DeviceProtocolPropertyImpl.class);
             Column deviceId = table.column("DEVICEID").number().notNull().conversion(NUMBER2LONG).add();
-            Column propertySpec = table.column("PROPERTYSPEC").map("propertySpec").varChar().notNull().add();
+            Column propertySpec = table.column("PROPERTYSPEC").map("propertyName").varChar().notNull().add();
             table.column("INFOVALUE").varChar().map("propertyValue").add();
             table.addAuditColumns();
             table.primaryKey("PK_DDC_DEVICEPROTOCOLPROPERTY").on(deviceId, propertySpec).add();
@@ -132,7 +122,7 @@ public enum TableSpecs {
     DDC_LOADPROFILE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<LoadProfile> table = dataModel.addTable(name(), LoadProfile.class);
+            Table<LoadProfile> table = dataModel.addTable(name(), LoadProfile.class).alsoReferredToAs(BaseLoadProfile.class);
             table.map(LoadProfileImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();

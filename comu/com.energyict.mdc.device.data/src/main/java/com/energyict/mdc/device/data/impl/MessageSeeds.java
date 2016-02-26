@@ -24,6 +24,8 @@ public enum MessageSeeds implements MessageSeed {
     VETO_COMPORTPOOL_DELETION(1012, "comPortPoolXstillInUseByY", "ComPortPool {0} is still in use by at least one device"),
     VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUse", "Device group {0} is still in use by a data collection KPI"),
     FIELD_IS_REQUIRED(1014, Keys.FIELD_REQUIRED, "This field is required"),
+    CANNOT_CONFIGURE_DEVICE_MULTIPLIER_IN_PAST_WHEN_DATA_EXISTS(1015, Keys.CANNOT_CONFIGURE_DEVICE_MULTIPLIER_IN_PAST_WHEN_DATA_EXISTS, "You can not configure a multiplier in the past when your device already has data"),
+    CANNOT_CONFIGURE_DEVICE_MULTIPLIER_START_DATE_OUT_CURRENT_METERACTIVATION(1016, Keys.CANNOT_CONFIGURE_DEVICE_MULTIPLIER_START_DATE_OUT_CURRENT_METERACTIVATION, "You can not configure a multiplier with a start date outside of the current meter activation"),
     CONNECTION_TASK_DEVICE_REQUIRED(2000, Keys.CONNECTION_TASK_DEVICE_REQUIRED, "A connection type should be linked to a device"),
     CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED(2001, Keys.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED, "A connection type should be linked to a partial connection task from the device configuration"),
     DUPLICATE_CONNECTION_TASK(2002, Keys.DUPLICATE_CONNECTION_TASK, "The partial connection task {0} is already used by connection task {1} on device {2} and therefore no other connection task with the same partial connection task can be added"),
@@ -90,14 +92,14 @@ public enum MessageSeeds implements MessageSeed {
     CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER(2067, Keys.CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER, "Could not find a loadprofile for identifier ''{0}''"),
     CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER(2068, Keys.CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER, "Could not find a logbook for identifier ''{0}''"),
     CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER(2069, Keys.CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER, "Could not find a message for identifier ''{0}''"),
-    CAN_NOT_REPLACE_EXISTING_KPI(2070, Keys.CAN_NOT_REPLACE_EXISTING_KPI, "An existing KPI can not be replaced", Level.SEVERE ),
+    CAN_NOT_REPLACE_EXISTING_KPI(2070, Keys.CAN_NOT_REPLACE_EXISTING_KPI, "An existing KPI can not be replaced", Level.SEVERE),
     DUPLICATE_DEVICE_MRID(2071, Keys.DUPLICATE_DEVICE_MRID, "MRID must be unique"),
     FIRMWARE_COMTASKEXEC_NEEDS_FIRMAWARE_COMTASKENABLEMENT(2072, Keys.FIRMWARE_COMTASKEXEC_NEEDS_FIRMAWARE_COMTASKENABLEMENT, "The firmware comtask execution needs to have the 'Firmware management' ComTask"),
     DEVICE_GROUP_MUST_BE_UNIQUE(2073, Keys.DEVICE_GROUP_MUST_BE_UNIQUE, "There is already a KPI for this device group"),
     CAN_NOT_CHANGE_FREQUENCY(2074, Keys.CAN_NOT_CHANGE_FREQUENCY, "The frequency can not be changed"),
     USER_IS_NOT_ALLOWED_TO_EDIT_SECURITY_PROPERTIES(2075, Keys.USER_IS_NOT_ALLOWED_TO_EDIT_SECURITY_PROPERTIES, "You are not allowed to edit the security properties"),
-    NO_SUCH_COM_SCHEDULE(2076, "NoSuchComSchedule" , "No communication schedule with id {0}"),
-    NO_SUCH_DEVICE(2077, "NoSuchDevice" , "No device with MRID {0}"),
+    NO_SUCH_COM_SCHEDULE(2076, "NoSuchComSchedule", "No communication schedule with id {0}"),
+    NO_SUCH_DEVICE(2077, "NoSuchDevice", "No device with MRID {0}"),
     NO_METER_ACTIVATION_AT(2078, Keys.NO_METER_ACTIVATION_AT, "There is no meter activation at {0}"),
     LAST_CHECKED_CANNOT_BE_NULL(2079, Keys.LAST_CHECKED_CANNOT_BE_NULL, "The new last checked timestamp cannot be null"),
     LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED(2080, Keys.LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED, "The new last checked {2,date,yyyy-MM-dd HH:mm:ss} cannot be after current last checked {1,date,yyyy-MM-dd HH:mm:ss}"),
@@ -118,7 +120,12 @@ public enum MessageSeeds implements MessageSeed {
     BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE(2095, Keys.BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE, "You provided an invalid search value for the property {0}"),
     PRIORITY_NOT_IN_RANGE(2096, Keys.PRIORITY_NOT_IN_RANGE, "Value must be between {min} and {max}"),
     CHANGE_CONFIG_WRONG_DEVICE_STATE(2097, Keys.CHANGE_CONFIG_WRONG_DEVICE_STATE, "Device configuration cannot be changed on device with MRID: {0} as this device has the {1} state."),
-    READING_OVERFLOW_DETECTED(2098, Keys.READING_OVERFLOW_DETECTED, "Reading of device {0} and reading type {1} overflowed at {2}, corrected value from {3} to {4}.", Level.WARNING),
+    MULTIPLIER_SHOULD_BE_LARGER_THAN_ZERO(2098, Keys.MULTIPLIER_OF_ZERO_IS_NOT_ALLOWED, "The multiplier should be larger than zero"),
+    MULTIPLIER_VALUE_EXCEEDS_MAX_VALUE(2099, Keys.MULTIPLIER_VALUE_EXCEEDS_MAX_VALUE, "The multiplier exceeds the max value " + Integer.MAX_VALUE),
+    READING_OVERFLOW_DETECTED(2100, Keys.READING_OVERFLOW_DETECTED, "Reading of device {0} and reading type {1} overflowed at {2}, corrected value from {3} to {4}.", Level.WARNING),
+    COM_TASK_ENABLEMENT_UPDATE_RESTRICTED(2101, Keys.COM_TASK_ENABLEMENT_UPDATE_RESTRICTED, "The communication task configuration is part of shared communication schedule on some devices" +
+            " and all communication tasks in that shared communication schedule should have the same connection method, security set, protocol dialect and/or urgency", Level.SEVERE),
+    NO_SUCH_COMTASK_ENABLEMENT(2102, Keys.NO_SUCH_COM_TASK_ENABLEMENT, "No comtask enablement with id {0}"),
     ;
 
     private final int number;
@@ -267,6 +274,12 @@ public enum MessageSeeds implements MessageSeed {
         public static final String BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_UNIQUE_CONFIG = "bulk.device.configchange.needto.search.on.unique.config";
         public static final String BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE = "bulk.device.configchange.invalid.search.item";
         public static final String CHANGE_CONFIG_WRONG_DEVICE_STATE = "change.config.wrong.device.state";
+        public static final String CANNOT_CONFIGURE_DEVICE_MULTIPLIER_IN_PAST_WHEN_DATA_EXISTS = "cannot.configure.device.multiplier.in.past.when.data.exists";
+        public static final String CANNOT_CONFIGURE_DEVICE_MULTIPLIER_START_DATE_OUT_CURRENT_METERACTIVATION = "cannot.configure.device.multiplier.start.out.current.meteractivation";
+        public static final String MULTIPLIER_OF_ZERO_IS_NOT_ALLOWED = "multiplier.zero.not.allowed";
+        public static final String MULTIPLIER_VALUE_EXCEEDS_MAX_VALUE = "multiplier.exceeds.max.value";
         public static final String READING_OVERFLOW_DETECTED = "reading.overflow";
+        public static final String COM_TASK_ENABLEMENT_UPDATE_RESTRICTED = "com.task.enablement.update.restricted";
+        public static final String NO_SUCH_COM_TASK_ENABLEMENT = "NoSuchComTaskEnablement";
     }
 }

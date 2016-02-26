@@ -49,21 +49,21 @@ public interface DeviceValidation {
 
     boolean isValidationActive(Channel channel, Instant when);
 
-    boolean isValidationActive(Register<?> register, Instant when);
+    boolean isValidationActive(Register<?, ?> register, Instant when);
 
     boolean allDataValidated(Channel channel, Instant when);
 
-    boolean allDataValidated(Register<?> register, Instant when);
+    boolean allDataValidated(Register<?, ?> register, Instant when);
 
     Optional<Instant> getLastChecked();
 
     Optional<Instant> getLastChecked(Channel channel);
 
-    Optional<Instant> getLastChecked(Register<?> register);
+    Optional<Instant> getLastChecked(Register<?, ?> register);
 
     List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Range<Instant> interval);
 
-    List<DataValidationStatus> getValidationStatus(Register<?> register, List<? extends BaseReading> readings, Range<Instant> interval);
+    List<DataValidationStatus> getValidationStatus(Register<?, ?> register, List<? extends BaseReading> readings, Range<Instant> interval);
 
     void validateData();
 
@@ -71,10 +71,10 @@ public interface DeviceValidation {
 
     void validateChannel(Channel channel);
 
-    void validateRegister(Register<?> register);
+    void validateRegister(Register<?, ?> register);
 
     void setLastChecked(Channel c, Instant start);
 
-    void setLastChecked(Register<?> c, Instant start);
+    void setLastChecked(Register<?, ?> c, Instant start);
 
 }

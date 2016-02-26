@@ -9,6 +9,7 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
@@ -18,6 +19,8 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
@@ -25,15 +28,15 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+import org.junit.Before;
 
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.Optional;
 import java.util.TimeZone;
-
-import org.junit.*;
 
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.mock;
@@ -117,6 +120,15 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         return ipComPortPool;
     }
 
+    protected static InboundComPortPool createInboundComPortPool(String name) {
+        InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass = mock(InboundDeviceProtocolPluggableClass.class);
+        when(inboundDeviceProtocolPluggableClass.getId()).thenReturn(1L);
+        InboundComPortPool inboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool(name, ComPortType.TCP, inboundDeviceProtocolPluggableClass);
+        inboundComPortPool.setActive(true);
+        inboundComPortPool.update();
+        return inboundComPortPool;
+    }
+
     protected ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolations(String name, Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool outboundTcpipComPortPool) {
         partialConnectionTask.setName(name);
         partialConnectionTask.save();
@@ -124,6 +136,15 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         return (ScheduledConnectionTaskImpl) device.getScheduledConnectionTaskBuilder(partialConnectionTask)
                 .setComPortPool(outboundTcpipComPortPool)
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .add();
+    }
+
+    protected InboundConnectionTaskImpl createInboundWithNoPropertiesWithoutViolations(String name, Device device, PartialInboundConnectionTask partialConnectionTask, InboundComPortPool inboundComPortPool) {
+        partialConnectionTask.setName(name);
+        partialConnectionTask.save();
+
+        return (InboundConnectionTaskImpl) device.getInboundConnectionTaskBuilder(partialConnectionTask)
+                .setComPortPool(inboundComPortPool)
                 .add();
     }
 
@@ -170,6 +191,26 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
                 .add();
     }
 
+    protected InboundConnectionTaskImpl createInboundConnectionStandardTask(Device device) {
+        PartialInboundConnectionTask partialInboundConnectionTask = createPartialInboundConnectionTask();
+        InboundComPortPool inboundComPortPool = createInboundComPortPool("MyInboundPool");
+        return createInboundWithNoPropertiesWithoutViolations("MyInboundConnectionTask", device, partialInboundConnectionTask, inboundComPortPool);
+    }
+
+    protected PartialInboundConnectionTask createPartialInboundConnectionTask() {
+        ConnectionTypePluggableClass connectionTypePluggableClass =
+                inMemoryPersistence.getProtocolPluggableService()
+                    .newConnectionTypePluggableClass(
+                            InboundNoParamsConnectionTypeImpl.class.getSimpleName(),
+                            InboundNoParamsConnectionTypeImpl.class.getName());
+        connectionTypePluggableClass.save();
+        return deviceConfiguration.
+                newPartialInboundConnectionTask(
+                        "Inbound (1)",
+                        connectionTypePluggableClass)
+                .build();
+    }
+
     protected ComSchedule createComSchedule(ComTask comTask) {
         return createComSchedule(comTask, new TemporalExpression(TimeDuration.days(1)));
     }
@@ -203,6 +244,21 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = onlineComServer.newOutboundComPort("ComPort", 1);
         outboundComPortBuilder.comPortType(ComPortType.TCP);
         return outboundComPortBuilder.add();
+    }
+
+    protected InboundComPort createInboundComPort() {
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = inMemoryPersistence.getEngineConfigurationService().newOnlineComServerBuilder();
+        onlineComServerBuilder.name("ComServer");
+        onlineComServerBuilder.storeTaskQueueSize(1);
+        onlineComServerBuilder.storeTaskThreadPriority(1);
+        onlineComServerBuilder.changesInterPollDelay(TimeDuration.minutes(5));
+        onlineComServerBuilder.communicationLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServerBuilder.schedulingInterPollDelay(TimeDuration.minutes(1));
+        onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServerBuilder.numberOfStoreTaskThreads(2);
+        final OnlineComServer onlineComServer = onlineComServerBuilder.create();
+        InboundComPort.InboundComPortBuilder inboundComPortBuilder = onlineComServer.newTCPBasedInboundComPort("ComPort", 1, 80);
+        return (InboundComPort) inboundComPortBuilder.add();
     }
 
     protected Instant createFixedTimeStamp(int years, int months, int days, int hours, int minutes, int seconds, int millis) {

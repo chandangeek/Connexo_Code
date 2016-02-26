@@ -21,10 +21,9 @@ public class ProtocolDialectDynamicPropertyJoinType implements JoinType {
     public void appendTo(SqlBuilder sqlBuilder) {
         sqlBuilder.append(" left join "); // left join to support a search by device configuration properties
         sqlBuilder.append(this.relationTableName);
-        sqlBuilder.append("  on " + this.relationTableName + ".");
-        sqlBuilder.append(DeviceProtocolDialectPropertyRelationAttributeTypeNames.DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME);
+        sqlBuilder.append("  on " + this.relationTableName + ".DIALECT_PROPS_PROVIDER");
         sqlBuilder.append(" = " + JoinClauseBuilder.Aliases.PROTOCOL_DIALECT_PROPS  + this.deviceProtocolId + ".id");
-        sqlBuilder.append(" and (" + this.relationTableName + ".todate is null or " + this.relationTableName + ".todate >");
+        sqlBuilder.append(" and (" + this.relationTableName + ".ENDTIME is null or " + this.relationTableName + ".ENDTIME >");
         sqlBuilder.addLong(Instant.now().getEpochSecond());
         sqlBuilder.closeBracketSpace();
     }

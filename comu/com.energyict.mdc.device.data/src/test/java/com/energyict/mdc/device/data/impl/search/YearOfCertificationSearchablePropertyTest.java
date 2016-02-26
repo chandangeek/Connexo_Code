@@ -3,33 +3,35 @@ package com.energyict.mdc.device.data.impl.search;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.properties.*;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
-import com.energyict.mdc.device.data.DeviceFields;
-
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.AdditionalMatchers;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,6 +43,8 @@ public class YearOfCertificationSearchablePropertyTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
+    private NlsMessageFormat messageFormat;
+    @Mock
     private DataModel dataModel;
     @Mock
     private TimeService timeService;
@@ -48,15 +52,21 @@ public class YearOfCertificationSearchablePropertyTest {
     private OrmService ormService;
     @Mock
     private DataVaultService dataVaultService;
-    @Mock
+
+    private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
+
+    @Before
+    public void initializeThesaurus() {
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(this.messageFormat);
+        when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(this.messageFormat);
+        when(this.messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+    }
 
     @Before
     public void initializeMocks() {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-
-        when(this.propertySpecService.longPropertySpecWithValues(eq(DeviceFields.CERT_YEAR.fieldName()), eq(false), Matchers.anyVararg()))
-                .thenReturn(new BasicPropertySpec(DeviceFields.CERT_YEAR.fieldName(), false, new LongFactory()));
+        this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
     }
 
     @Test
@@ -131,14 +141,14 @@ public class YearOfCertificationSearchablePropertyTest {
     }
 
     @Test
-    public void noPossibleValuesWithoutRefresh() {
+    public void testPossibleValues() {
         YearOfCertificationSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
 
         // Asserts
-        assertThat(specification.getPossibleValues()).isNull();
+        assertThat(specification.getPossibleValues()).isNotNull();
     }
 
     @Test
@@ -161,7 +171,7 @@ public class YearOfCertificationSearchablePropertyTest {
 
         // Asserts
         PropertySpec specification = property.getSpecification();
-        assertThat(specification.getPossibleValues()).isNull();
+        assertThat(specification.getPossibleValues()).isNotNull();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -171,7 +181,7 @@ public class YearOfCertificationSearchablePropertyTest {
         SearchablePropertyConstriction constriction = SearchablePropertyConstriction.noValues(searchableProperty);
 
         // Business method
-        property.refreshWithConstrictions(Arrays.asList(constriction));
+        property.refreshWithConstrictions(Collections.singletonList(constriction));
 
         // Asserts: see expected exception rule
     }

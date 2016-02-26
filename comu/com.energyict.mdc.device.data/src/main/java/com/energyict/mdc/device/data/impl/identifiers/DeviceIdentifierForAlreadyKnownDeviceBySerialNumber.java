@@ -57,7 +57,7 @@ public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements Devi
 
     @Override
     public String toString() {
-        return this.device.getSerialNumber();
+        return "device having serial number '" + this.device.getSerialNumber() + "'";
     }
 
 }

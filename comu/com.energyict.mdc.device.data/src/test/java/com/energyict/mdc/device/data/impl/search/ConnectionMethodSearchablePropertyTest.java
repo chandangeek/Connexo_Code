@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl.search;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
@@ -10,34 +11,36 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.device.data.impl.finders.ConnectionTypeFinder;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.DefaultBeanService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyVararg;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionMethodSearchablePropertyTest {
     @Mock
     DataVaultService dataVaultService;
-    @Mock
-    com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     @Mock
     DataModel dataModel;
     @Mock
@@ -51,27 +54,28 @@ public class ConnectionMethodSearchablePropertyTest {
     @Mock
     Thesaurus thesaurus;
     @Mock
-    ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
-    @Mock
-    ConnectionTypeFinder connectionTypeFinder;
+    NlsMessageFormat messageFormat;
 
+    private BeanService beanService = new DefaultBeanService();
+    com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     PropertySpecService propertySpecService;
 
     @Before
+    public void initializeThesaurus() {
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(this.messageFormat);
+        when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(this.messageFormat);
+        when(this.messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+    }
+
+    @Before
     public void initializeMocks() {
-        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.CONNECTION_METHOD.getDefaultFormat());
-        when(thesaurus.getFormat(PropertyTranslationKeys.CONNECTION_METHOD)).thenReturn(messageFormat);
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, timeService, ormService);
-        when(connectionTypeFinder.factoryId()).thenReturn(FactoryIds.CONNECTION_TYPE);
-        when(connectionTypeFinder.valueDomain()).thenReturn(ConnectionTypePluggableClass.class);
-        when(referencePropertySpecFinderProvider.finders()).thenReturn(Arrays.asList(connectionTypeFinder));
+        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
+        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, ormService);
         ConnectionTypePluggableClass ctpc = mock(ConnectionTypePluggableClass.class);
         when(ctpc.getId()).thenReturn(13L);
         when(ctpc.getName()).thenReturn("EIWEB");
-        when(protocolPluggableService.findAllConnectionTypePluggableClasses()).thenReturn(Arrays.asList(ctpc));
-        this.propertySpecService.addFactoryProvider(this.referencePropertySpecFinderProvider);
+        when(protocolPluggableService.findAllConnectionTypePluggableClasses()).thenReturn(Collections.singletonList(ctpc));
     }
 
     @Test
@@ -138,8 +142,8 @@ public class ConnectionMethodSearchablePropertyTest {
 
         // Asserts
         assertThat(specification).isNotNull();
-        assertThat(specification.isReference()).isTrue();
-        assertThat(specification.getValueFactory().getValueType()).isEqualTo(ConnectionTypePluggableClass.class);
+        assertThat(specification.isReference()).isFalse();
+        assertThat(specification.getValueFactory().getValueType()).isEqualTo(ConnectionMethodSearchableProperty.ConnectionMethodInfo.class);
     }
 
     @Test
@@ -183,7 +187,7 @@ public class ConnectionMethodSearchablePropertyTest {
         when(connectionTypePluggableClass.getName()).thenReturn("EIWEB");
 
         // Business method
-        String displayValue = property.toDisplay(connectionTypePluggableClass);
+        String displayValue = property.toDisplay(new ConnectionMethodSearchableProperty.ConnectionMethodInfo(connectionTypePluggableClass));
 
         // Asserts
         assertThat(displayValue).isEqualTo("EIWEB");

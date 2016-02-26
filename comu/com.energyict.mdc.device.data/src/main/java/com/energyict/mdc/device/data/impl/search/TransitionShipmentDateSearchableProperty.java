@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpecService;
+
 import com.google.inject.Inject;
 
 public class TransitionShipmentDateSearchableProperty extends AbstractTransitionSearchableProperty<TransitionShipmentDateSearchableProperty> {
@@ -14,8 +16,8 @@ public class TransitionShipmentDateSearchableProperty extends AbstractTransition
     }
 
     @Override
-    public String getDisplayName() {
-        return getThesaurus().getFormat(PropertyTranslationKeys.TRANSITION_SHIPMENT).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.TRANSITION_SHIPMENT;
     }
 
     protected String getCIMDateColumnAlias() {
@@ -26,4 +28,5 @@ public class TransitionShipmentDateSearchableProperty extends AbstractTransition
     public String getName() {
         return TransitionShipmentDateSearchableProperty.PROPERTY_NAME;
     }
+
 }

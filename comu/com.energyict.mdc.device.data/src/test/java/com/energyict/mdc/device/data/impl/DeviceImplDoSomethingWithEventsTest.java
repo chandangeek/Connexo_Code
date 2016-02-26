@@ -349,8 +349,10 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 mock(QueryService.class),
                                 mock(com.energyict.mdc.tasks.TaskService.class),
                                 mock(MasterDataService.class),
-                                transactionService, injector.getInstance(JsonService.class),
-                                mdcIssueService);
+                                transactionService,
+                                injector.getInstance(JsonService.class),
+                                mdcIssueService,
+                                injector.getInstance(MdcReadingTypeUtilService.class));
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
             }

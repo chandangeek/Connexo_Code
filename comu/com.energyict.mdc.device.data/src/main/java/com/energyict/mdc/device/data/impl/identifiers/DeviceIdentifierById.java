@@ -54,7 +54,7 @@ public final class DeviceIdentifierById implements DeviceIdentifier<Device> {
 
     @Override
     public String toString() {
-        return "id " + this.id;
+        return "device having id " + this.id;
     }
 
     @Override

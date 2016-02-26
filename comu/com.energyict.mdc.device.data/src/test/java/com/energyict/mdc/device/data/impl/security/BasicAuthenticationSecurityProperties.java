@@ -5,7 +5,6 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.energyict.mdc.common.Password;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 
@@ -49,10 +48,10 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
         }
 
         public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.
-                    newPropertySpecBuilder(new StringFactory()).
-                    name(javaName(), javaName()).
-                    finish();
+            return propertySpecService
+                    .specForValuesOf(new StringFactory())
+                    .named(javaName(), javaName()).describedAs("Description for " + javaName())
+                    .finish();
         }
 
     }
@@ -74,12 +73,6 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
             propertySetValues.setProperty(ActualFields.PASSWORD.javaName(), this.password);
         }
         this.setPropertyIfNotNull(propertySetValues, ActualFields.USER_NAME.javaName(), this.userName);
-    }
-
-    private void setPropertyIfNotNull(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {
-        if (propertyValue != null) {
-            propertySetValues.setProperty(propertyName, propertyValue);
-        }
     }
 
     @Override

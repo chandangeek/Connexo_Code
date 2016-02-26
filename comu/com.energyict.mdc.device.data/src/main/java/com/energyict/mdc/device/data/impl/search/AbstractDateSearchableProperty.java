@@ -21,6 +21,7 @@ public abstract class AbstractDateSearchableProperty<T> extends AbstractSearchab
     private SearchablePropertyGroup propertyGroup;
 
     public AbstractDateSearchableProperty(Class<T> clazz, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.implClass = clazz;
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
@@ -58,15 +59,12 @@ public abstract class AbstractDateSearchableProperty<T> extends AbstractSearchab
     }
 
     @Override
-    public abstract String getName();
-
-    @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.basicPropertySpec(
-                getName(),
-                false,
-                new InstantFactory()
-        );
+        return this.propertySpecService
+                .specForValuesOf(new InstantFactory())
+                .named(getNameTranslationKey())
+                .fromThesaurus(this.thesaurus)
+                .finish();
     }
 
     @Override

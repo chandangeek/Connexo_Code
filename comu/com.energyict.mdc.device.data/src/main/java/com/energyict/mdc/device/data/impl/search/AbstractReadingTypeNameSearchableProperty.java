@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpecService;
 
 public abstract class AbstractReadingTypeNameSearchableProperty<T> extends AbstractNameSearchableProperty<T> {
@@ -10,7 +11,8 @@ public abstract class AbstractReadingTypeNameSearchableProperty<T> extends Abstr
     }
 
     @Override
-    public String getDisplayName() {
-        return getThesaurus().getFormat(PropertyTranslationKeys.READING_TYPE_NAME).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.READING_TYPE_NAME;
     }
+
 }

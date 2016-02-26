@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -147,7 +146,7 @@ public class DeviceConfigChangeHandler implements MessageHandler {
             void handle(Map<String, Object> properties, ConfigChangeContext configChangeContext) {
                 SingleConfigChangeQueueMessage queueMessage = configChangeContext.jsonService.deserialize(((String) properties.get(ServerDeviceForConfigChange.CONFIG_CHANGE_MESSAGE_VALUE)), SingleConfigChangeQueueMessage.class);
                 Device device = configChangeContext.deviceService.findByUniqueMrid(queueMessage.deviceMrid).orElseThrow(DeviceConfigurationChangeException.noDeviceFoundForConfigChange(configChangeContext.thesaurus, queueMessage.deviceMrid));
-                Device deviceWithNewConfig = new DeviceConfigChangeExecutor(configChangeContext.deviceService).execute((DeviceImpl) device, configChangeContext.deviceDataModelService.deviceConfigurationService().findDeviceConfiguration(queueMessage.destinationDeviceConfigurationId).get());
+                Device deviceWithNewConfig = new DeviceConfigChangeExecutor(configChangeContext.deviceService, configChangeContext.deviceDataModelService.clock()).execute((DeviceImpl) device, configChangeContext.deviceDataModelService.deviceConfigurationService().findDeviceConfiguration(queueMessage.destinationDeviceConfigurationId).get());
                 DeviceConfigChangeInAction deviceConfigInAction = getDeviceConfigInAction(configChangeContext, queueMessage.deviceConfigChangeInActionId);
                 deviceConfigInAction.remove();
                 sendMessageOnConfigQueue(configChangeContext, String.valueOf(queueMessage.deviceConfigChangeRequestId), ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SINGLE_COMPLETED_ACTION);

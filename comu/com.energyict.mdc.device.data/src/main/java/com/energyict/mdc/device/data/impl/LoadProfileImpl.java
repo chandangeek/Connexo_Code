@@ -199,9 +199,9 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
         /**
          * The LoadProfile that 'owns' this Channel.
          */
-        private final LoadProfile loadProfile;
+        private final LoadProfileImpl loadProfile;
 
-        private ChannelImpl(ChannelSpec channelSpec, LoadProfile loadProfile) {
+        private ChannelImpl(ChannelSpec channelSpec, LoadProfileImpl loadProfile) {
             this.channelSpec = channelSpec;
             this.loadProfile = loadProfile;
         }
@@ -223,7 +223,7 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
 
         @Override
         public Unit getUnit() {
-            return this.channelSpec.getChannelType().getUnit();
+            return channelSpec.getChannelType().getUnit();
         }
 
         @Override
@@ -262,13 +262,42 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
         }
 
         @Override
-        public BigDecimal getOverflow() {
+        public Optional<BigDecimal> getOverflow() {
             return channelSpec.getOverflow();
         }
 
         @Override
         public ReadingType getReadingType() {
             return channelSpec.getReadingType();
+        }
+
+        @Override
+        public Optional<ReadingType> getCalculatedReadingType(Instant timeStamp) {
+            Optional<BigDecimal> multiplierAt = getDevice().getMultiplierAt(timeStamp);
+            if (multiplierAt.isPresent() && multiplierAt.get().compareTo(BigDecimal.ONE) == 1) {
+                Optional<ReadingType> koreMeterConfigBulkReadingType = loadProfile.device.get().getCalculatedReadingTypeFromMeterConfiguration(channelSpec.getReadingType(), timeStamp);
+                if (koreMeterConfigBulkReadingType.isPresent()) {
+                    Optional<ReadingType> calculatedReadingType = koreMeterConfigBulkReadingType.get().getCalculatedReadingType();
+                    if (calculatedReadingType.isPresent()) {
+                        return calculatedReadingType;       // in case of a bulk we need the delta
+                    } else {
+                        return koreMeterConfigBulkReadingType;   // in case of a delta, we just need the delta
+                    }
+                }
+            }
+            return channelSpec.getReadingType().getCalculatedReadingType();
+        }
+
+        @Override
+        public Optional<BigDecimal> getMultiplier(Instant timeStamp) {
+            Optional<BigDecimal> multiplierAt = getDevice().getMultiplierAt(timeStamp);
+            if (multiplierAt.isPresent() && multiplierAt.get().compareTo(BigDecimal.ONE) == 1) {
+                Optional<ReadingType> koreMeterConfigBulkReadingType = loadProfile.device.get().getCalculatedReadingTypeFromMeterConfiguration(channelSpec.getReadingType(), timeStamp);
+                if (koreMeterConfigBulkReadingType.isPresent()) { // if it is present, then it means we configured a ReadingType to calculate
+                    return multiplierAt;
+                }
+            }
+            return Optional.empty();
         }
 
         @Override

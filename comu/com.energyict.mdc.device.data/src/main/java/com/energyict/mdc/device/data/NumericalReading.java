@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
@@ -15,6 +16,8 @@ import java.math.BigDecimal;
 public interface NumericalReading extends Reading {
 
     Quantity getQuantity();
+
+    Quantity getQuantityFor(ReadingType readingType);
 
     BigDecimal getValue();
 

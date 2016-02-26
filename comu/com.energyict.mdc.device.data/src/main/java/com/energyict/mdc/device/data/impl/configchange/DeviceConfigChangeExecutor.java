@@ -4,6 +4,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -13,14 +15,17 @@ import java.util.stream.Stream;
 public final class DeviceConfigChangeExecutor {
 
     private final DeviceService deviceService;
+    private final Clock clock;
 
-    public DeviceConfigChangeExecutor(DeviceService deviceService) {
+    public DeviceConfigChangeExecutor(DeviceService deviceService, Clock clock) {
         this.deviceService = deviceService;
+        this.clock = clock;
     }
 
     public Device execute(ServerDeviceForConfigChange device, DeviceConfiguration destinationDeviceConfiguration) {
+        Instant configChangeTimeStamp = clock.instant();
         final DeviceConfiguration originDeviceConfiguration = device.getDeviceConfiguration();
-        prepareForChangeDeviceConfig(device, destinationDeviceConfiguration);
+        prepareForChangeDeviceConfig(device, destinationDeviceConfiguration, configChangeTimeStamp);
         device.setNewDeviceConfiguration(destinationDeviceConfiguration);
         Stream.of(
                 LoadProfileConfigChangeItems.getInstance(),
@@ -30,6 +35,7 @@ public final class DeviceConfigChangeExecutor {
                 ComTaskExecutionConfigChangeItem.getInstance(),
                 ProtocolDialectPropertyChangeItem.getInstance())
                 .forEach(performDataSourceChanges(device, destinationDeviceConfiguration, originDeviceConfiguration));
+        device.updateMeterConfiguration(configChangeTimeStamp);
         device.save();
         return device;
     }
@@ -48,11 +54,12 @@ public final class DeviceConfigChangeExecutor {
      *
      * @param device                         the device to change it's configuration
      * @param destinationDeviceConfiguration the configuration to change to
+     * @param configChangeTimeStamp          the timeStamp of the config change
      */
-    private void prepareForChangeDeviceConfig(ServerDeviceForConfigChange device, DeviceConfiguration destinationDeviceConfiguration) {
+    private void prepareForChangeDeviceConfig(ServerDeviceForConfigChange device, DeviceConfiguration destinationDeviceConfiguration, Instant configChangeTimeStamp) {
         this.deviceService.findAndLockDeviceByIdAndVersion(device.getId(), device.getVersion());
         device.validateDeviceCanChangeConfig(destinationDeviceConfiguration);
-        device.createNewMeterActivation();
+        device.createNewMeterActivation(configChangeTimeStamp);
     }
 
 }

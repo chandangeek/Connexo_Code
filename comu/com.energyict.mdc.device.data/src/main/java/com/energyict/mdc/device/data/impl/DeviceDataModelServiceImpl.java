@@ -25,12 +25,10 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceDataServices;
@@ -39,6 +37,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementChangeMessageHandler;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementPriorityMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageHandlerFactory;
@@ -61,15 +60,14 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
@@ -93,8 +91,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link DeviceDataModelService} interface.
@@ -102,10 +98,9 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-30 (17:33)
  */
+@Component(name = "com.energyict.mdc.device.data", service = {DeviceDataModelService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME, "osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
 @LiteralSql
-@Component(name = "com.energyict.mdc.device.data", service = {DeviceDataModelService.class, ReferencePropertySpecFinderProvider.class,
-        InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME, "osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
-public class DeviceDataModelServiceImpl implements DeviceDataModelService, ReferencePropertySpecFinderProvider, InstallService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
+public class DeviceDataModelServiceImpl implements DeviceDataModelService, InstallService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -132,6 +127,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile SecurityPropertyService securityPropertyService;
     private volatile QueryService queryService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile MdcReadingTypeUtilService readingTypeUtilService;
     private volatile MasterDataService masterDataService;
     private volatile TransactionService transactionService;
     private volatile JsonService jsonService;
@@ -166,7 +162,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
             SchedulingService schedulingService, MessageService messageService,
             SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
             QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService,
-            TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService) {
+            TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -196,6 +192,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setTransactionService(transactionService);
         this.setJsonService(jsonService);
         this.setMdcIssueService(mdcIssueService);
+        this.setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
         this.activate(bundleContext);
         if (!this.dataModel.isInstalled()) {
             this.install(true);
@@ -220,13 +217,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 MessageService.COMPONENTNAME,
                 EstimationService.COMPONENTNAME
         );
-    }
-
-    @Override
-    public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
-        return Stream.of(this.connectionTaskService, this.deviceService, this.logBookService, this.loadProfileService).
-                flatMap(p -> p.finders().stream()).
-                collect(Collectors.toList());
     }
 
     @Reference
@@ -270,7 +260,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
+        Thesaurus meteringThesaurus = nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN).join(meteringThesaurus);
     }
 
     @Override
@@ -467,6 +458,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.mdcIssueService = mdcIssueService;
     }
 
+    @Reference
+    public void setMdcReadingTypeUtilService(MdcReadingTypeUtilService readingTypeUtilService){
+        this.readingTypeUtilService = readingTypeUtilService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -507,6 +503,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(DataCollectionKpiService.class).toInstance(dataCollectionKpiService);
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
+                bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
                 bind(BatchService.class).toInstance(batchService);
                 bind(TaskService.class).toInstance(mdcTaskService);
                 bind(MasterDataService.class).toInstance(masterDataService);
@@ -530,7 +527,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.connectionTaskReportService = new ConnectionTaskReportServiceImpl(this, meteringService);
         this.communicationTaskService = new CommunicationTaskServiceImpl(this);
         this.communicationTaskReportService = new CommunicationTaskReportServiceImpl(this, meteringService);
-        this.deviceService = new DeviceServiceImpl(this, protocolPluggableService, queryService, thesaurus, meteringGroupsService, meteringService);
+        this.deviceService = new DeviceServiceImpl(this, queryService, thesaurus);
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
@@ -635,7 +632,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 new SimpleTranslationKey(ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_SUBSCRIBER, ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_DISPLAY_NAME),
                 new SimpleTranslationKey(SchedulingService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, SchedulingService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME),
                 new SimpleTranslationKey(SchedulingService.COM_SCHEDULER_QUEUE_SUBSCRIBER, SchedulingService.COM_SCHEDULER_QUEUE_DISPLAYNAME),
-                new SimpleTranslationKey(ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SUBSCRIBER, ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SUBSCRIBER_DISPLAY_NAME)));
+                new SimpleTranslationKey(ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SUBSCRIBER, ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SUBSCRIBER_DISPLAY_NAME),
+                new SimpleTranslationKey(ComTaskEnablementChangeMessageHandler.COMTASK_ENABLEMENT_QUEUE_SUBSCRIBER, ComTaskEnablementChangeMessageHandler.COMTASK_ENABLEMENT_QUEUE_SUBSCRIBER_DISPLAY_NAME)));
         keys.addAll(Arrays.asList(Privileges.values()));
         return keys;
     }

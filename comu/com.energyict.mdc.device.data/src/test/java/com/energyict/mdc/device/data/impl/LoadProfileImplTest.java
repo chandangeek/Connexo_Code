@@ -1,12 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
@@ -22,15 +16,20 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 import org.assertj.core.api.Condition;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the persistent {@link LoadProfileImpl} component.
@@ -46,9 +45,12 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
     private final TimeDuration interval = TimeDuration.minutes(15);
     private final Unit unit1 = Unit.get("kWh");
     private final Unit unit2 = Unit.get("MWh");
+    private final BigDecimal overflow = BigDecimal.TEN;
+    private final Instant januaryTenth = Instant.ofEpochSecond(1452384000L);
 
-    private ReadingType readingType1;
-    private ReadingType readingType2;
+    private ReadingType rt_bulkActiveEnergySecondary;
+    private ReadingType rt_deltaActiveEnergyPrimary15Min;
+    private ReadingType rt_bulkReactiveEnergySecondary;
     private ObisCode obisCode1;
     private ObisCode obisCode2;
     private ObisCode overruledObisCode = ObisCode.fromString("0.0.0.0.0.0");
@@ -56,6 +58,32 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
     private RegisterType registerType1;
     private RegisterType registerType2;
     private LoadProfileType loadProfileType;
+    private final String bulkActiveEnergySecondaryMrid = ReadingTypeCodeBuilder
+            .of(Commodity.ELECTRICITY_SECONDARY_METERED)
+            .accumulate(Accumulation.BULKQUANTITY)
+            .flow(FlowDirection.FORWARD)
+            .measure(MeasurementKind.ENERGY)
+            .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
+    private final String deltaActiveEnergyPrimary15MinMrid = ReadingTypeCodeBuilder
+            .of(Commodity.ELECTRICITY_PRIMARY_METERED)
+            .period(TimeAttribute.MINUTE15)
+            .accumulate(Accumulation.DELTADELTA)
+            .flow(FlowDirection.FORWARD)
+            .measure(MeasurementKind.ENERGY)
+            .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
+    private final String deltaActiveEnergySecondary15MinMrid = ReadingTypeCodeBuilder
+            .of(Commodity.ELECTRICITY_SECONDARY_METERED)
+            .period(TimeAttribute.MINUTE15)
+            .accumulate(Accumulation.DELTADELTA)
+            .flow(FlowDirection.FORWARD)
+            .measure(MeasurementKind.ENERGY)
+            .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
+    private final String bulkReactiveEnergySecondaryMrid = ReadingTypeCodeBuilder
+            .of(Commodity.ELECTRICITY_SECONDARY_METERED)
+            .accumulate(Accumulation.BULKQUANTITY)
+            .flow(FlowDirection.REVERSE)
+            .measure(MeasurementKind.ENERGY)
+            .in(MetricMultiplier.MEGA, ReadingTypeUnit.WATTHOUR).code();
 
     @Before
     public void initBefore() {
@@ -63,28 +91,22 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         deviceConfigurationWithLoadProfileAndChannels = createDeviceConfigurationWithLoadProfileSpecAndTwoChannelSpecsSpecs();
     }
 
+    @After
+    public void reset() {
+        when(inMemoryPersistence.getClock().instant()).thenReturn(januaryFirst);
+    }
+
     private void setupReadingTypes() {
-        String code = ReadingTypeCodeBuilder
-                .of(Commodity.ELECTRICITY_SECONDARY_METERED)
-                .accumulate(Accumulation.BULKQUANTITY)
-                .flow(FlowDirection.FORWARD)
-                .measure(MeasurementKind.ENERGY)
-                .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
-        this.readingType1 = inMemoryPersistence.getMeteringService().getReadingType(code).get();
-        this.obisCode1 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(readingType1).getObisCode();
-        String code2 = ReadingTypeCodeBuilder
-                .of(Commodity.ELECTRICITY_SECONDARY_METERED)
-                .accumulate(Accumulation.BULKQUANTITY)
-                .flow(FlowDirection.REVERSE)
-                .measure(MeasurementKind.ENERGY)
-                .in(MetricMultiplier.MEGA, ReadingTypeUnit.WATTHOUR).code();
-        this.readingType2 = inMemoryPersistence.getMeteringService().getReadingType(code2).get();
-        this.obisCode2 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(readingType2).getObisCode();
+        this.rt_bulkActiveEnergySecondary = inMemoryPersistence.getMeteringService().getReadingType(bulkActiveEnergySecondaryMrid).get();
+        this.obisCode1 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(rt_bulkActiveEnergySecondary).getObisCode();
+        this.rt_bulkReactiveEnergySecondary = inMemoryPersistence.getMeteringService().getReadingType(bulkReactiveEnergySecondaryMrid).get();
+        this.obisCode2 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(rt_bulkReactiveEnergySecondary).getObisCode();
+        this.rt_deltaActiveEnergyPrimary15Min = inMemoryPersistence.getMeteringService().getReadingType(deltaActiveEnergyPrimary15MinMrid).get();
     }
 
     private DeviceConfiguration createDeviceConfigurationWithLoadProfileSpecAndTwoChannelSpecsSpecs() {
-        this.registerType1 = this.createRegisterTypeIfMissing(this.obisCode1, this.readingType1);
-        this.registerType2 = this.createRegisterTypeIfMissing(this.obisCode2, this.readingType2);
+        this.registerType1 = this.createRegisterTypeIfMissing(this.obisCode1, this.rt_bulkActiveEnergySecondary);
+        this.registerType2 = this.createRegisterTypeIfMissing(this.obisCode2, this.rt_bulkReactiveEnergySecondary);
         loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType("LoadProfileType", loadProfileObisCode, interval, Arrays.asList(registerType1, registerType2));
         ChannelType channelTypeForRegisterType1 = loadProfileType.findChannelType(registerType1).get();
         ChannelType channelTypeForRegisterType2 = loadProfileType.findChannelType(registerType2).get();
@@ -92,8 +114,8 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         deviceType.addLoadProfileType(loadProfileType);
         DeviceType.DeviceConfigurationBuilder configurationWithLoadProfileAndChannel = deviceType.newConfiguration("ConfigurationWithLoadProfileAndChannel");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationWithLoadProfileAndChannel.newLoadProfileSpec(loadProfileType);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder);
-        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder).setOverruledObisCode(overruledObisCode);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(2);
+        configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder).overruledObisCode(overruledObisCode).overflow(overflow).nbrOfFractionDigits(2);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
         deviceType.save();
         deviceConfiguration.activate();
@@ -294,6 +316,104 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         reloadedDevice.delete();
 
         assertThat(inMemoryPersistence.getDataModel().mapper(LoadProfile.class).find()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void createLoadProfilesWithMultipliedConfiguredChannelsNoMultiplierYetOnDeviceTest() {
+        DeviceConfiguration deviceConfiguration = createDeviceConfigWithOneChannelConfiguredToMultiply();
+        when(inMemoryPersistence.getClock().instant()).thenReturn(januaryFirst);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createLoadProfilesWithMultipliedConfiguredChannelsNoMultiplierYetOnDeviceTest", MRID);
+        device.save();
+        final LoadProfile reloadedLoadProfile = getReloadedLoadProfile(device);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(januaryTenth);
+
+        assertThat(reloadedLoadProfile.getChannels()).haveExactly(1, new Condition<Channel>(){
+            @Override
+            public boolean matches(Channel channel) {
+                return channel.getCalculatedReadingType(inMemoryPersistence.getClock().instant()).isPresent()
+                        && channel.getCalculatedReadingType(inMemoryPersistence.getClock().instant()).get().getMRID().equals(deltaActiveEnergySecondary15MinMrid);
+            }
+        });
+    }
+
+    @Test
+    @Transactional
+    public void createLoadProfilesWithMultipliedConfiguredChannelsAndMultiplierOnDeviceTest() {
+        DeviceConfiguration deviceConfiguration = createDeviceConfigWithOneChannelConfiguredToMultiply();
+        when(inMemoryPersistence.getClock().instant()).thenReturn(januaryFirst);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createLoadProfilesWithMultipliedConfiguredChannelsAndMultiplierOnDeviceTest", MRID);
+        device.save();
+        device.setMultiplier(BigDecimal.valueOf(7L));
+        final LoadProfile reloadedLoadProfile = getReloadedLoadProfile(device);
+
+        when(inMemoryPersistence.getClock().instant()).thenReturn(januaryTenth);
+
+        assertThat(reloadedLoadProfile.getChannels()).haveExactly(1, new Condition<Channel>(){
+            @Override
+            public boolean matches(Channel channel) {
+                return channel.getCalculatedReadingType(inMemoryPersistence.getClock().instant()).isPresent()
+                        && channel.getCalculatedReadingType(inMemoryPersistence.getClock().instant()).get().getMRID().equals(deltaActiveEnergyPrimary15MinMrid);
+            }
+        });
+    }
+
+    @Test
+    @Transactional
+    public void getMultiplierOfChannelWhenNoMultiplierOnDeviceTest() {
+        DeviceConfiguration deviceConfiguration = createDeviceConfigWithOneChannelConfiguredToMultiply();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "getMultiplierOfChannelWhenNoMultiplierOnDeviceTest", MRID);
+        device.save();
+        final LoadProfile reloadedLoadProfile = getReloadedLoadProfile(device);
+
+        assertThat(reloadedLoadProfile.getChannels()).haveExactly(2, new Condition<Channel>(){
+            @Override
+            public boolean matches(Channel channel) {
+                return !channel.getMultiplier(januaryFirst).isPresent();
+            }
+        });
+    }
+
+    @Test
+    @Transactional
+    public void getMultiplierOfChannelWhenAMultiplierIsConfiguredOnDeviceTest() {
+        DeviceConfiguration deviceConfiguration = createDeviceConfigWithOneChannelConfiguredToMultiply();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "getMultiplierOfChannelWhenAMultiplierIsConfiguredOnDeviceTest", MRID);
+        device.save();
+        BigDecimal multiplier = BigDecimal.valueOf(13L);
+        device.setMultiplier(multiplier);
+        final LoadProfile reloadedLoadProfile = getReloadedLoadProfile(device);
+
+        assertThat(reloadedLoadProfile.getChannels()).haveExactly(1, new Condition<Channel>(){
+            @Override
+            public boolean matches(Channel channel) {
+                return channel.getMultiplier(januaryTenth).isPresent() && channel.getMultiplier(januaryTenth).get().compareTo(multiplier) == 0;
+            }
+        });
+        assertThat(reloadedLoadProfile.getChannels()).haveExactly(1, new Condition<Channel>(){
+            @Override
+            public boolean matches(Channel channel) {
+                return !channel.getMultiplier(januaryTenth).isPresent();
+            }
+        });
+    }
+
+    private DeviceConfiguration createDeviceConfigWithOneChannelConfiguredToMultiply() {
+        LoadProfileType lpWithMultipliedChannels = inMemoryPersistence.getMasterDataService().newLoadProfileType("LPWithMultipliedChannels", ObisCode.fromString("1.1.1.1.1.1"), interval, Arrays.asList(registerType1, registerType2));
+        ChannelType channelTypeForRegisterType1 = lpWithMultipliedChannels.findChannelType(registerType1).get();
+        ChannelType channelTypeForRegisterType2 = lpWithMultipliedChannels.findChannelType(registerType2).get();
+        lpWithMultipliedChannels.save();
+        deviceType.addLoadProfileType(lpWithMultipliedChannels);
+        DeviceType.DeviceConfigurationBuilder configWithMultipliedChannelBuilder = deviceType.newConfiguration("ConfigWithMultipliedChannel");
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configWithMultipliedChannelBuilder.newLoadProfileSpec(lpWithMultipliedChannels);
+        configWithMultipliedChannelBuilder.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(2).useMultiplierWithCalculatedReadingType(rt_deltaActiveEnergyPrimary15Min);
+        configWithMultipliedChannelBuilder.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(2);
+        DeviceConfiguration deviceConfiguration = configWithMultipliedChannelBuilder.add();
+        deviceType.save();
+        deviceConfiguration.activate();
+        return deviceConfiguration;
     }
 
 }

@@ -210,7 +210,8 @@ public class DeviceSearchDomain implements SearchDomain {
                             .getProtocolDialect()
                             .getPropertySpecs()
                             .stream()
-                            .map(propertySpec -> injector.getInstance(ProtocolDialectDynamicSearchableProperty.class).init(this, propertiesGroup, propertySpec, protocolDialect, relationTableName))
+                            .map(propertySpec -> injector.getInstance(ProtocolDialectDynamicSearchableProperty.class)
+                                    .init(this, propertiesGroup, propertySpec, protocolDialectConstriction.get().getConstrainingProperty(), protocolDialect, relationTableName))
                             .forEach(dynamicProperties::add);
                 });
             }
@@ -236,7 +237,7 @@ public class DeviceSearchDomain implements SearchDomain {
                 }
                 for (PropertySpec propertySpec : pluggableClass.getDeviceProtocol().getPropertySpecs()) {
                     dynamicProperties.add(injector.getInstance(GeneralAttributeDynamicSearchableProperty.class)
-                            .init(this, propertiesGroup, propertySpec, pluggableClass));
+                            .init(this, propertiesGroup, propertySpec, deviceTypeConstriction.get().getConstrainingProperty(), pluggableClass));
                 }
             }
             return dynamicProperties;
@@ -261,7 +262,7 @@ public class DeviceSearchDomain implements SearchDomain {
                 }
                 for (PropertySpec propertySpec : pluggableClass.getPropertySpecs()) {
                     dynamicProperties.add(injector.getInstance(ConnectionDynamicSearchableProperty.class)
-                            .init(this, propertiesGroup, propertySpec, pluggableClass));
+                            .init(this, propertiesGroup, propertySpec, connectionMethodConstriction.get().getConstrainingProperty(), pluggableClass));
                 }
             }
             return dynamicProperties;

@@ -1,15 +1,13 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 
-import com.elster.jupiter.tasks.TaskOccurrence;
-
-import java.text.MessageFormat;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,8 +22,8 @@ enum KpiType {
 
     CONNECTION {
         @Override
-        public String recurrentTaskNamePattern() {
-            return "ConnectionKpiCalculator({0})";
+        public String recurrentTaskName(EndDeviceGroup deviceGroup) {
+            return deviceGroup.getName() + " - Connection KPI";
         }
 
         @Override
@@ -36,8 +34,8 @@ enum KpiType {
 
     COMMUNICATION {
         @Override
-        public String recurrentTaskNamePattern() {
-            return "CommunicationKpiCalculator({0})";
+        public String recurrentTaskName(EndDeviceGroup deviceGroup) {
+            return deviceGroup.getName() + " - Communication KPI";
         }
 
         @Override
@@ -55,11 +53,8 @@ enum KpiType {
     private static final Logger LOGGER = Logger.getLogger(DataCollectionKpiCalculatorHandler.class.getName());
 
     private static final Pattern PAYLOAD_PARSE_PATTERN = Pattern.compile("(\\w*)-(\\d*)");
-    public abstract String recurrentTaskNamePattern();
 
-    public String recurrentTaskName() {
-        return MessageFormat.format(this.recurrentTaskNamePattern(), UUID.randomUUID());
-    }
+    public abstract String recurrentTaskName(EndDeviceGroup endDeviceGroup);
 
     public String recurrentPayload(DataCollectionKpiImpl dataCollectionKpi) {
         return this.name() + '-' + dataCollectionKpi.getId();

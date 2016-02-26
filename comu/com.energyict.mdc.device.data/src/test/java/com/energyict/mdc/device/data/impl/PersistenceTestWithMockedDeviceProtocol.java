@@ -12,6 +12,9 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Optional;
 
 import org.junit.*;
@@ -34,6 +37,11 @@ public abstract class PersistenceTestWithMockedDeviceProtocol {
     static final String DEVICE_TYPE_NAME = PersistenceTestWithMockedDeviceProtocol.class.getName() + "Type";
     static final String DEVICE_CONFIGURATION_NAME = PersistenceTestWithMockedDeviceProtocol.class.getName() + "Config";
     static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
+    static final Instant januaryFirst = Instant.ofEpochSecond(1451606400L);
+    static final Instant firstInterval = januaryFirst;
+    static final Instant secondInterval = firstInterval.plusSeconds(900);
+    static final Instant thirdInterval = secondInterval.plusSeconds(900);
+
     protected DeviceType deviceType;
     protected DeviceConfiguration deviceConfiguration;
 
@@ -49,14 +57,17 @@ public abstract class PersistenceTestWithMockedDeviceProtocol {
     @Mock
     DeviceProtocol deviceProtocol;
 
-    static InMemoryPersistenceWithMockedDeviceProtocol inMemoryPersistence = new InMemoryPersistenceWithMockedDeviceProtocol();
+    static InMemoryPersistenceWithMockedDeviceProtocol inMemoryPersistence;
 
     public PersistenceTestWithMockedDeviceProtocol() {
     }
 
     @BeforeClass
     public static void initialize() {
-        inMemoryPersistence = new InMemoryPersistenceWithMockedDeviceProtocol();
+        Clock clock = mock(Clock.class);
+        when(clock.instant()).thenReturn(januaryFirst);
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
+        inMemoryPersistence = new InMemoryPersistenceWithMockedDeviceProtocol(clock);
         inMemoryPersistence.initializeDatabase("PersistenceTest.mdc.device.data", false);
     }
 

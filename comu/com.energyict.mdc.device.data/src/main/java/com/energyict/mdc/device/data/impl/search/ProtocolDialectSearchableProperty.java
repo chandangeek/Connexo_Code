@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.CanFindByStringKey;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -15,6 +15,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.impl.SearchHelperValueFactory;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -34,18 +35,16 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
 
     private final PropertySpecService propertySpecService;
     private final ProtocolPluggableService protocolPluggableService;
-    private final Thesaurus thesaurus;
 
     private DeviceSearchDomain domain;
     private SearchableProperty parent;
     private List<ProtocolDialect> protocolDialects = Collections.emptyList();
-    private DisplayStrategy displayStrategy = DisplayStrategy.NAME_ONLY;
 
     @Inject
     public ProtocolDialectSearchableProperty(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
-        this.thesaurus = thesaurus;
     }
 
     ProtocolDialectSearchableProperty init(DeviceSearchDomain domain, SearchableProperty parent) {
@@ -61,7 +60,8 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
 
     @Override
     protected String toDisplayAfterValidation(Object value) {
-        return this.displayStrategy.toDisplay((ProtocolDialect) value);
+        ProtocolDialect protocolDialect = (ProtocolDialect) value;
+        return protocolDialect.getName() + " (" + protocolDialect.getPluggableClass().getName() + ")";
     }
 
     @Override
@@ -100,11 +100,13 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.stringReferencePropertySpec(
-                PROPERTY_NAME,
-                false,
-                new ProtocolDialectFinder(this.protocolPluggableService),
-                this.protocolDialects.toArray(new ProtocolDialect[this.protocolDialects.size()]));
+        return this.propertySpecService
+                .specForValuesOf(new ProtocolDialectValueFactory())
+                .named(PROPERTY_NAME, this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .addValues(this.protocolDialects.toArray(new ProtocolDialect[this.protocolDialects.size()]))
+                .markExhaustive()
+                .finish();
     }
 
     @Override
@@ -118,8 +120,8 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.PROTOCOL_DIALECT).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.PROTOCOL_DIALECT;
     }
 
     @Override
@@ -145,12 +147,6 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
 
     private void refreshWithConstrictionValues(List<Object> deviceTypes) {
         this.validateObjectsType(deviceTypes);
-        if (deviceTypes.size() > 1) {
-            this.displayStrategy = DisplayStrategy.WITH_PROTOCOL;
-        }
-        else {
-            this.displayStrategy = DisplayStrategy.NAME_ONLY;
-        }
         this.protocolDialects = deviceTypes.stream()
                 .map(DeviceType.class::cast)
                 .flatMap(this::getProtocolDialectsOnDeviceType)
@@ -173,36 +169,35 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
                 .map(protocolDialect -> new ProtocolDialect(pluggableClass, protocolDialect));
     }
 
-    public static final class ProtocolDialectFinder implements CanFindByStringKey<ProtocolDialect> {
-        private final ProtocolPluggableService protocolPluggableService;
-
-        public ProtocolDialectFinder(ProtocolPluggableService protocolPluggableService) {
-            this.protocolPluggableService = protocolPluggableService;
+    private class ProtocolDialectValueFactory extends SearchHelperValueFactory<ProtocolDialect> {
+        private ProtocolDialectValueFactory() {
+            super(ProtocolDialect.class);
         }
 
         @Override
-        public Optional<ProtocolDialect> find(String key) {
-            if (key != null) {
-                String[] keyParts = key.split(ProtocolDialect.KEY_DELIMITER);
+        public ProtocolDialect fromStringValue(String stringValue) {
+            if (stringValue != null) {
+                String[] keyParts = stringValue.split(ProtocolDialect.KEY_DELIMITER);
                 if (keyParts.length == 2
                         && !Checks.is(keyParts[0]).emptyOrOnlyWhiteSpace()
                         && !Checks.is(keyParts[1]).emptyOrOnlyWhiteSpace()) {
-                    Optional<DeviceProtocolPluggableClass> pluggableClassOptional = this.protocolPluggableService.findDeviceProtocolPluggableClass(Long.valueOf(keyParts[0]));
+                    Optional<DeviceProtocolPluggableClass> pluggableClassOptional = protocolPluggableService.findDeviceProtocolPluggableClass(Long.valueOf(keyParts[0]));
                     if (pluggableClassOptional.isPresent()) {
                         return pluggableClassOptional.get().getDeviceProtocol().getDeviceProtocolDialects()
                                 .stream()
                                 .filter(protocolDialect -> protocolDialect.getDeviceProtocolDialectName().equals(keyParts[1]))
                                 .findFirst()
-                                .map(protocolDialect -> new ProtocolDialect(pluggableClassOptional.get(), protocolDialect));
+                                .map(protocolDialect -> new ProtocolDialect(pluggableClassOptional.get(), protocolDialect))
+                                .orElse(null);
                     }
                 }
             }
-            return Optional.empty();
+            return null;
         }
 
         @Override
-        public Class<ProtocolDialect> valueDomain() {
-            return ProtocolDialect.class;
+        public String toStringValue(ProtocolDialect object) {
+            return object.getId();
         }
     }
 
@@ -214,7 +209,7 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
 
         private String id;
 
-        public ProtocolDialect(DeviceProtocolPluggableClass pluggableClass, DeviceProtocolDialect protocolDialect) {
+        ProtocolDialect(DeviceProtocolPluggableClass pluggableClass, DeviceProtocolDialect protocolDialect) {
             this.pluggableClass = pluggableClass;
             this.protocolDialect = protocolDialect;
         }
@@ -243,23 +238,5 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
         public DeviceProtocolDialect getProtocolDialect() {
             return this.protocolDialect;
         }
-    }
-
-    private enum DisplayStrategy {
-        NAME_ONLY {
-            @Override
-            public String toDisplay(ProtocolDialect protocolDialect) {
-                return protocolDialect.getName();
-            }
-        },
-
-        WITH_PROTOCOL {
-            @Override
-            public String toDisplay(ProtocolDialect protocolDialect) {
-                return protocolDialect.getName() + " (" + protocolDialect.getPluggableClass().getName() + ")";
-            }
-        };
-
-        public abstract String toDisplay(ProtocolDialect protocolDialect);
     }
 }

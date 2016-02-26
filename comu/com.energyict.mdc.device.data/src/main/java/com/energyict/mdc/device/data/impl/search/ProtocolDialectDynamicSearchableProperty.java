@@ -1,11 +1,15 @@
 package com.energyict.mdc.device.data.impl.search;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+
 import com.google.inject.Inject;
 
 import java.time.Instant;
@@ -16,12 +20,14 @@ public class ProtocolDialectDynamicSearchableProperty extends AbstractDynamicSea
     private ProtocolDialectSearchableProperty.ProtocolDialect protocolDialect;
 
     @Inject
-    public ProtocolDialectDynamicSearchableProperty() {
-        super(ProtocolDialectDynamicSearchableProperty.class);
+    public ProtocolDialectDynamicSearchableProperty(Thesaurus thesaurus) {
+        super(ProtocolDialectDynamicSearchableProperty.class, thesaurus);
     }
 
-    public ProtocolDialectDynamicSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group, PropertySpec propertySpec, ProtocolDialectSearchableProperty.ProtocolDialect protocolDialect, String relationTableName) {
-        super.init(domain, group, propertySpec);
+    public ProtocolDialectDynamicSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group, PropertySpec propertySpec,
+                                                         SearchableProperty constraintProperty, ProtocolDialectSearchableProperty.ProtocolDialect protocolDialect,
+                                                         String relationTableName) {
+        super.init(domain, group, propertySpec, constraintProperty);
         this.protocolDialect = protocolDialect;
         this.relationTableName = relationTableName;
         return this;
@@ -30,6 +36,11 @@ public class ProtocolDialectDynamicSearchableProperty extends AbstractDynamicSea
     @Override
     public String getName() {
         return getGroup().get().getId() + "." + this.protocolDialect.getProtocolDialect().getDeviceProtocolDialectName() + "." + getPropertySpec().getName();
+    }
+
+    @Override
+    protected TranslationKey getNameTranslationKey() {
+        return null;    // Should be fine since I am overwritting getDisplayName also
     }
 
     @Override

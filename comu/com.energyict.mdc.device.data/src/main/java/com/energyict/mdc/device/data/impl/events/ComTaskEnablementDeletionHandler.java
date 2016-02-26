@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
-
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -54,7 +53,7 @@ public class ComTaskEnablementDeletionHandler implements TopicHandler {
     /**
      * Vetos the deletion of the {@link ComTaskEnablement}
      * by throwing an exception when the ComTaskEnablement
-     * is used by at least on Device, i.e. at least one
+     * is used by at least one Device, i.e. at least one
      * ComTaskExecution that uses it on a Device.
      *
      * @param comTaskEnablement The ComTaskEnablement that is about to be deleted

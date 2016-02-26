@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentif
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -92,7 +93,7 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
 
     @Override
     public String toString() {
-        return "ObisCode " + loadProfileObisCode + " on device " + deviceIdentifier;
+        return MessageFormat.format("load profile having OBIS code {0} on device with deviceIdentifier ''{1}''", loadProfileObisCode, deviceIdentifier);
     }
 
 }

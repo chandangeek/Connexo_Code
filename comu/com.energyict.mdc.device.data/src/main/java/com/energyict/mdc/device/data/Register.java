@@ -7,6 +7,7 @@ import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Interval;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +33,7 @@ import java.util.Optional;
  * Time: 10:32
  */
 @ProviderType
-public interface Register<R extends Reading> extends BaseRegister {
+public interface Register<R extends Reading, RS extends RegisterSpec> extends BaseRegister {
 
     Device getDevice();
 
@@ -41,7 +42,7 @@ public interface Register<R extends Reading> extends BaseRegister {
      *
      * @return the spec
      */
-    RegisterSpec getRegisterSpec();
+    RS getRegisterSpec();
 
     /**
      * Gets the list of {@link Reading}s whose timestamp is within the given interval.
@@ -77,4 +78,24 @@ public interface Register<R extends Reading> extends BaseRegister {
 
     RegisterDataUpdater startEditingData();
 
+    /**
+     * Returns the readingtype of the calculated value.
+     * <ul>
+     * <li>Either the delta if the readingType was a bulk and no multiplier was provided</li>
+     * <li>Or the multiplied readingType if a multiplier was provided</li>
+     * </ul>
+     * Depending on the timeStamp a different ReadingType can be provided
+     *
+     * @param timeStamp the timeStamp for which we want the calculated readingType
+     * @return the calculated ReadingType
+     */
+    Optional<ReadingType> getCalculatedReadingType(Instant timeStamp);
+
+    /**
+     * Provides the value of the multiplier of this register at the given timestamp. The value will only be present if
+     * the multiplier is larger than one (1)
+     *
+     * @return the optional multiplier
+     */
+    Optional<BigDecimal> getMultiplier(Instant timeStamp);
 }

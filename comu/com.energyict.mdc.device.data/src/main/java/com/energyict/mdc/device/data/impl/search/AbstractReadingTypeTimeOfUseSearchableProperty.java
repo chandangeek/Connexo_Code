@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
@@ -29,6 +30,7 @@ public abstract class AbstractReadingTypeTimeOfUseSearchableProperty<T> extends 
     private SearchablePropertyGroup group;
 
     public AbstractReadingTypeTimeOfUseSearchableProperty(Class<T> clazz, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.implClass = clazz;
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
@@ -104,11 +106,13 @@ public abstract class AbstractReadingTypeTimeOfUseSearchableProperty<T> extends 
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.longPropertySpecWithValues(
-                getName(),
-                false,
-                LongStream.rangeClosed(0, 255).mapToObj(Long::valueOf).toArray(Long[]::new)
-        );
+        return this.propertySpecService
+                .longSpec()
+                .named(getName(), PropertyTranslationKeys.READING_TYPE_TOU)
+                .fromThesaurus(this.getThesaurus())
+                .addValues(LongStream.rangeClosed(0, 255).mapToObj(Long::valueOf).toArray(Long[]::new))
+                .markExhaustive()
+                .finish();
     }
 
     @Override
@@ -122,8 +126,8 @@ public abstract class AbstractReadingTypeTimeOfUseSearchableProperty<T> extends 
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.READING_TYPE_TOU).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.READING_TYPE_TOU;
     }
 
     @Override

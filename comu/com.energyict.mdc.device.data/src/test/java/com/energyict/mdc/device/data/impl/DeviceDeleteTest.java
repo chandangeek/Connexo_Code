@@ -25,6 +25,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
+import com.energyict.mdc.device.data.impl.tasks.*;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -106,6 +108,8 @@ public class DeviceDeleteTest {
     private MeteringGroupsService meteringGroupsService;
     @Mock
     private CustomPropertySetService customPropertySetService;
+    @Mock
+    private MdcReadingTypeUtilService readingTypeUtilService;
     @Mock
     private Query<OpenIssue> openIssueQuery;
     @Mock
@@ -276,7 +280,7 @@ public class DeviceDeleteTest {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
                 securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider,
                 connectionInitiationProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider, firmwareComTaskExecutionProvider,
-                meteringGroupsService, customPropertySetService);
+                meteringGroupsService, customPropertySetService, readingTypeUtilService);
         device.initialize(this.deviceConfiguration, "For testing purposes", "mRID");
         return device;
     }

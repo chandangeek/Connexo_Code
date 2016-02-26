@@ -53,9 +53,30 @@ public interface Channel extends BaseChannel {
 
     ObisCode getObisCode();
 
-    BigDecimal getOverflow();
+    Optional<BigDecimal> getOverflow();
 
     ReadingType getReadingType();
+
+    /**
+     * Returns the readingtype of the calculated value.
+     * <ul>
+     * <li>Either the delta if the readingType was a bulk and no multiplier was provided</li>
+     * <li>Or the multiplied readingType if a multiplier was provided</li>
+     * </ul>
+     * Depending on the timeStamp a different ReadingType can be provided
+     *
+     * @param timeStamp the timeStamp for which we want the calculated readingType
+     * @return the calculated ReadingType
+     */
+    Optional<ReadingType> getCalculatedReadingType(Instant timeStamp);
+
+    /**
+     * Provides the value of the multiplier at the given timeStamp of this channel. The value will only be present if
+     * the multiplier is larger than one (1)
+     *
+     * @return the optional multiplier
+     */
+    Optional<BigDecimal> getMultiplier(Instant timeStamp);
 
     /**
      * Returns the data of this Channel.

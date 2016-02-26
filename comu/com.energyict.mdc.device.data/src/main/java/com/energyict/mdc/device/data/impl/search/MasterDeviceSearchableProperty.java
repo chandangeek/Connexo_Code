@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
@@ -28,12 +28,11 @@ public class MasterDeviceSearchableProperty extends AbstractSearchableDeviceProp
     private DeviceSearchDomain domain;
     private SearchablePropertyGroup group;
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
 
     @Inject
     public MasterDeviceSearchableProperty(PropertySpecService mdcPropertySpecService, Thesaurus thesaurus) {
+        super(thesaurus);
         this.propertySpecService = mdcPropertySpecService;
-        this.thesaurus = thesaurus;
     }
 
     MasterDeviceSearchableProperty init(DeviceSearchDomain domain, SearchablePropertyGroup group) {
@@ -93,10 +92,11 @@ public class MasterDeviceSearchableProperty extends AbstractSearchableDeviceProp
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.basicPropertySpec(
-                PROPERTY_NAME,
-                false,
-                new StringFactory());
+        return this.propertySpecService
+                .stringSpec()
+                .named(PROPERTY_NAME, this.getNameTranslationKey())
+                .fromThesaurus(this.getThesaurus())
+                .finish();
     }
 
     @Override
@@ -110,8 +110,8 @@ public class MasterDeviceSearchableProperty extends AbstractSearchableDeviceProp
     }
 
     @Override
-    public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_MASTER_MRID).format();
+    protected TranslationKey getNameTranslationKey() {
+        return PropertyTranslationKeys.DEVICE_MASTER_MRID;
     }
 
     @Override

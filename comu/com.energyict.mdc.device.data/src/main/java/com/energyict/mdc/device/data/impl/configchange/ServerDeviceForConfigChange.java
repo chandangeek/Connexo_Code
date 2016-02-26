@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -18,7 +19,7 @@ public interface ServerDeviceForConfigChange extends Device {
 
     String CONFIG_CHANGE_BULK_QUEUE_DESTINATION = "ConfigChangeBulkQD";
     String DEVICE_CONFIG_CHANGE_SUBSCRIBER = "DeviceConfigChangeSubscriber";
-    String DEVICE_CONFIG_CHANGE_SUBSCRIBER_DISPLAY_NAME = "Handles bulk actions for device configuration changes";
+    String DEVICE_CONFIG_CHANGE_SUBSCRIBER_DISPLAY_NAME = "Handle bulk actions for device configuration changes";
 
     String CONFIG_CHANGE_MESSAGE_VALUE = "ConfigChangeMessageValue";
     String DEVICE_CONFIG_CHANGE_BULK_SETUP_ACTION = "deviceConfigChange/SETUP";
@@ -34,7 +35,7 @@ public interface ServerDeviceForConfigChange extends Device {
 
     void setNewDeviceConfiguration(DeviceConfiguration deviceConfiguration);
 
-    void createNewMeterActivation();
+    void createNewMeterActivation(Instant meterActivationStartTime);
 
     void removeLoadProfiles(List<LoadProfile> loadProfiles);
 
@@ -58,4 +59,11 @@ public interface ServerDeviceForConfigChange extends Device {
      * @param securityPropertySet the set which modelled the securityProperties
      */
     void deleteSecurityPropertiesFor(SecurityPropertySet securityPropertySet);
+
+    /**
+     * Updates the meterConfiguration with the current DeviceConfiguration
+     *
+     * @param updateTimeStamp the timeStamp of the update
+     */
+    void updateMeterConfiguration(Instant updateTimeStamp);
 }
