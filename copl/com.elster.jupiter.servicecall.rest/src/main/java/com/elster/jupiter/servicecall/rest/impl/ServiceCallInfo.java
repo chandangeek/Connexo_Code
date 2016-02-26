@@ -22,6 +22,7 @@ public class ServiceCallInfo {
     public Object targetObject;
     public List<String> parents;
     public String type;
+    public boolean hasChildren;
 
     public ServiceCallInfo() {
 
@@ -40,7 +41,8 @@ public class ServiceCallInfo {
         origin = serviceCall.getOrigin().isPresent() ? serviceCall.getOrigin().get() : null;
         externalReference = serviceCall.getExternalReference().isPresent() ? serviceCall.getExternalReference().get() : null;
 //        targetObject = serviceCall.getTargetObject().isPresent() ? serviceCall.getTargetObject().get() : null;
-        //addParents(serviceCall.getParent());
+        addParents(serviceCall.getParent());
+        addChildrenInfo(serviceCall.getChildren().find());
         type = serviceCall.getType().getName();
     }
 
@@ -56,5 +58,13 @@ public class ServiceCallInfo {
                 stillHasParent = false;
             }
         }
+    }
+
+    private void addChildrenInfo(List<ServiceCall> children) {
+        if(children.size() > 0) {
+            hasChildren = true;
+        }
+
+
     }
 }

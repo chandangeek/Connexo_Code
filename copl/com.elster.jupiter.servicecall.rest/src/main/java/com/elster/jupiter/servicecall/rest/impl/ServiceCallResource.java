@@ -99,13 +99,17 @@ public class ServiceCallResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PagedInfoList getChildren(@PathParam("id") String number, @BeanParam JsonQueryParameters queryParameters) {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
-        Finder<ServiceCall> serviceCallFinder = serviceCallService.getChildrenOf(number);
-        List<ServiceCall> serviceCalls = serviceCallFinder.from(queryParameters).find();
+        Optional<ServiceCall> serviceCallOptional = serviceCallService.getServiceCall(number);
+        if(serviceCallOptional.isPresent()) {
+            Finder<ServiceCall> serviceCallFinder = serviceCallOptional.get().getChildren();
+            List<ServiceCall> serviceCalls = serviceCallFinder.from(queryParameters).find();
 
-        serviceCalls.stream()
-                .forEach(serviceCall -> serviceCallInfos.add(new ServiceCallInfo(serviceCall, thesaurus)));
+            serviceCalls.stream()
+                    .forEach(serviceCall -> serviceCallInfos.add(new ServiceCallInfo(serviceCall, thesaurus)));
 
-        return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
+            return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
+        }
+        return null;
     }
 
     @PUT
