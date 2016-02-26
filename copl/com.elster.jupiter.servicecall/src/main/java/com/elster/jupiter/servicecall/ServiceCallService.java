@@ -97,13 +97,6 @@ public interface ServiceCallService {
     ServiceCallFinder getServiceCallFinder();
 
     /**
-     * Returns list of children of a service call, identified by his number
-     * @param number The unique number of the service call
-     * @return Finder
-     */
-    Finder<ServiceCall> getChildrenOf(String number);
-
-    /**
      * Returns information about the status of the children in a given service call
      * @param number The unique number that identifies the service call
      * @return Map of the names of the states, with their respective percentage

@@ -18,7 +18,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 public class ServiceCallFinderImpl implements ServiceCallFinder {
     private DataModel dataModel;
-    private Condition condition;
+    private Condition condition = Condition.TRUE;
     private Order order;
     private Integer start;
     private Integer limit;
@@ -47,7 +47,7 @@ public class ServiceCallFinderImpl implements ServiceCallFinder {
 
     @Override
     public ServiceCallFinder setReference(String reference) {
-        this.condition = this.condition.and(where(ServiceCallImpl.Fields.externalReference.fieldName()).like(reference));
+        this.condition = this.condition.and(where(ServiceCallImpl.Fields.externalReference.fieldName()).like(reference).or(where("id").like(Long.parseLong(reference.substring(3)) + "")));
         return this;
     }
 

@@ -29,7 +29,8 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=createServiceCallType",
                 "osgi.command.function=customPropertySets",
                 "osgi.command.function=createServiceCallLifeCycle",
-                "osgi.command.function=createServiceCall"
+                "osgi.command.function=createServiceCall",
+                "osgi.command.function=createChildServiceCall"
         }, immediate = true)
 public class ServiceCallsCommands {
 
@@ -156,7 +157,34 @@ public class ServiceCallsCommands {
                         .create();
                 context.commit();
 
-                System.out.println("Child with reference '" + serviceCall.getNumber() + "' has been created");
+                System.out.println("Service call with reference '" + serviceCall.getNumber() + "' has been created");
+            }
+        }
+    }
+
+    public void createChildServiceCall() {
+        System.out.println("Usage: createChildServiceCall <type> <typeVersion> <externalReference> <parentReference>");
+    }
+
+    public void createChildServiceCall(String type, String typeVersion, String externalReference, String parent) {
+        Optional<ServiceCallType> serviceCallType = serviceCallService.findServiceCallType(type, typeVersion);
+        Optional<ServiceCall> serviceCall = serviceCallService.getServiceCall(parent);
+        if(!serviceCall.isPresent()) {
+            System.out.println("There is no parent service call with the reference '" + parent + "'.");
+            return;
+        } else if(!serviceCallType.isPresent()) {
+            System.out.println("There is no service call type with name: '" + type + "' and version: '" + typeVersion + "'");
+            return;
+        } else {
+            ServiceCallType scType = serviceCallType.get();
+            ServiceCall call = serviceCall.get();
+
+            try (TransactionContext context = transactionService.getContext()) {
+                ServiceCall child = call.newChildCall(scType)
+                    .externalReference(externalReference)
+                    .create();
+                context.commit();
+                System.out.println("Child service call of '" + parent +"' with reference '" + child.getNumber() + "' has been created");
             }
         }
     }

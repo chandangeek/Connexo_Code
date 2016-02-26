@@ -2,6 +2,7 @@ package com.elster.jupiter.servicecall;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.util.HasId;
 
 import aQute.bnd.annotation.ProviderType;
@@ -47,6 +48,8 @@ public interface ServiceCall extends HasId {
     void cancel();
 
     void save();
+
+    Finder<ServiceCall> getChildren();
 
     <T extends PersistentDomainExtension<ServiceCall>> Optional<T> getExtensionFor(CustomPropertySet<ServiceCall, T> customPropertySet, Object... additionalPrimaryKeyValues);
 
