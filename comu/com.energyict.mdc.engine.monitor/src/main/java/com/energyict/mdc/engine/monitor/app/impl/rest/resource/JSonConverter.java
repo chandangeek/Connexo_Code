@@ -84,7 +84,7 @@ public class JSonConverter {
 
     public JSonConverter convertDetails() throws JSONException {
         ComServerStatus status = statusService.getStatus();
-        OperationalStatistics operationalStatistics= status.getComServerMonitor().getOperationalStatistics();
+        ComServerOperationalStatistics operationalStatistics= status.getComServerMonitor().getOperationalStatistics();
 
         JSONObject result = new JSONObject();
         result.put("serverId", status.getComServerId());
@@ -108,9 +108,7 @@ public class JSonConverter {
 
     public JSonConverter convertGeneralInfo() throws JSONException {
         ComServerStatus status = statusService.getStatus();
-        OperationalStatistics operationalStatistics= status.getComServerMonitor().getOperationalStatistics();
-        ComServer comServer = engineConfigurationService.findComServer(status.getComServerId()).orElse(null);
-
+        ComServerOperationalStatistics operationalStatistics= status.getComServerMonitor().getOperationalStatistics();
         JSONObject result = new JSONObject();
         TimeDuration changesInterPollDelay = operationalStatistics.getChangesInterPollDelay();
         Date lastCheckForChanges = operationalStatistics.getLastCheckForChangesTimestamp().orElse(null);
@@ -128,21 +126,24 @@ public class JSonConverter {
                 result.put("changeDetectionNextRun", format(lastCheckForChanges.toInstant().plusSeconds(changesInterPollDelay.getSeconds()),FormatKey.LONG_DATETIME));
             }
         }
-        if (comServer != null) {
-            TimeDuration schedulingInterPollDelay = comServer.getSchedulingInterPollDelay();
-            if (schedulingInterPollDelay != null) {
-                int numberOf = schedulingInterPollDelay.getCount();
-                String unit = schedulingInterPollDelay.getTimeUnit().getDescription();
-                if (numberOf == 1){
-                    unit = unit.substring(0, unit.length() - 1);
-                }
-                JSONObject jsDuration = new JSONObject();
-                jsDuration.put("count", numberOf);
-                jsDuration.put("time-unit", unit);
-                result.put("pollingFrequency", jsDuration);
+
+        TimeDuration schedulingInterPollDelay = operationalStatistics.getSchedulingInterPollDelay();
+        if (schedulingInterPollDelay != null) {
+            int numberOf = schedulingInterPollDelay.getCount();
+            String unit = schedulingInterPollDelay.getTimeUnit().getDescription();
+            if (numberOf == 1){
+                unit = unit.substring(0, unit.length() - 1);
             }
+            JSONObject jsDuration = new JSONObject();
+            jsDuration.put("count", numberOf);
+            jsDuration.put("time-unit", unit);
+            result.put("pollingFrequency", jsDuration);
+        }
+        ComServer comServer = engineConfigurationService.findComServer(status.getComServerId()).orElse(null);
+        if (comServer != null) {
             result.put("eventRegistrationUri", comServer.getEventRegistrationUriIfSupported());
         }
+
         setLastConVerted(result);
         return this;
     }

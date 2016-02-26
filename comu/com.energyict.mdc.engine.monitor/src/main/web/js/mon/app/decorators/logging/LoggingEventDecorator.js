@@ -8,7 +8,7 @@ Ext.define('CSMonitor.decorators.logging.LoggingEventDecorator', {
         if (!this.getEvent()['details']) {
             return this.occurrenceDateAsHTMLString() + ' - ' + this.getEvent()['log-level'] + ': ' + this.getEvent()['message'];
         }else{
-            return this.occurrenceDateAsHTMLString() + ' - ' + this.getEvent()['log-level'] + ': ' + this.getEvent()['message']+ this.getEvent()['details'];
+            return this.occurrenceDateAsHTMLString() + ' - ' + this.getEvent()['log-level'] + ': ' + this.getEvent()['message'] + ': ' + Ext.decode(this.getEvent()['details'], true);
         }
     }
 });
