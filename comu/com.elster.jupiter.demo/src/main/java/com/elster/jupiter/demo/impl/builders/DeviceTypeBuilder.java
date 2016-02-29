@@ -3,6 +3,7 @@ package com.elster.jupiter.demo.impl.builders;
 import com.elster.jupiter.demo.impl.Log;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -16,6 +17,7 @@ import java.util.Optional;
 public class DeviceTypeBuilder extends NamedBuilder<DeviceType, DeviceTypeBuilder> {
     private final DeviceConfigurationService deviceConfigurationService;
     private final ProtocolPluggableService protocolPluggableService;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     private String protocol;
     private List<RegisterType> registerTypes;
@@ -23,28 +25,29 @@ public class DeviceTypeBuilder extends NamedBuilder<DeviceType, DeviceTypeBuilde
     private List<LogBookType> logBookTypes;
 
     @Inject
-    public DeviceTypeBuilder(DeviceConfigurationService deviceConfigurationService, ProtocolPluggableService protocolPluggableService) {
+    public DeviceTypeBuilder(DeviceConfigurationService deviceConfigurationService, ProtocolPluggableService protocolPluggableService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         super(DeviceTypeBuilder.class);
         this.deviceConfigurationService = deviceConfigurationService;
         this.protocolPluggableService = protocolPluggableService;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
-    public DeviceTypeBuilder withProtocol(String protocol){
+    public DeviceTypeBuilder withProtocol(String protocol) {
         this.protocol = protocol;
         return this;
     }
 
-    public DeviceTypeBuilder withRegisterTypes(List<RegisterType> registerTypes){
+    public DeviceTypeBuilder withRegisterTypes(List<RegisterType> registerTypes) {
         this.registerTypes = registerTypes;
         return this;
     }
 
-    public DeviceTypeBuilder withLoadProfileTypes(List<LoadProfileType> loadProfileTypes){
+    public DeviceTypeBuilder withLoadProfileTypes(List<LoadProfileType> loadProfileTypes) {
         this.loadProfileTypes = loadProfileTypes;
         return this;
     }
 
-    public DeviceTypeBuilder withLogBookTypes(List<LogBookType> logBookTypes){
+    public DeviceTypeBuilder withLogBookTypes(List<LogBookType> logBookTypes) {
         this.logBookTypes = logBookTypes;
         return this;
     }
@@ -58,26 +61,21 @@ public class DeviceTypeBuilder extends NamedBuilder<DeviceType, DeviceTypeBuilde
     public DeviceType create() {
         Log.write(this);
         List<DeviceProtocolPluggableClass> protocols = protocolPluggableService.findDeviceProtocolPluggableClassesByClassName(this.protocol);
-        if (protocols.isEmpty()){
+        if (protocols.isEmpty()) {
             throw new IllegalStateException("Unable to retrieve the " + this.protocol + " protocol. Please check that license was correctly installed and that indexing process was finished for protocols.");
         }
-        DeviceType deviceType = deviceConfigurationService.newDeviceType(getName(), protocols.get(0));
-        if (this.registerTypes != null){
-            for (RegisterType registerType : registerTypes) {
-                deviceType.addRegisterType(registerType);
-            }
+        DeviceType.DeviceTypeBuilder deviceType = deviceConfigurationService.newDeviceTypeBuilder(getName(), protocols.get(0), deviceLifeCycleConfigurationService
+                .findDefaultDeviceLifeCycle()
+                .get());
+        if (this.registerTypes != null) {
+            deviceType.withRegisterTypes(registerTypes);
         }
-        if (this.loadProfileTypes != null){
-            for (LoadProfileType loadProfileType : loadProfileTypes) {
-                deviceType.addLoadProfileType(loadProfileType);
-            }
+        if (this.loadProfileTypes != null) {
+            deviceType.withLoadProfileTypes(loadProfileTypes);
         }
         if (logBookTypes != null) {
-            for (LogBookType logBookType : logBookTypes) {
-                deviceType.addLogBookType(logBookType);
-            }
+            deviceType.withLogBookTypes(logBookTypes);
         }
-        deviceType.save();
-        return deviceType;
+        return deviceType.create();
     }
 }
