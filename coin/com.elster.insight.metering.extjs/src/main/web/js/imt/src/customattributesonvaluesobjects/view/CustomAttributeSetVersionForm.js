@@ -2,7 +2,6 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
     extend: 'Ext.container.Container',
     alias: 'widget.custom-attribute-set-version-form',
     itemId: 'centerContainer',
-    id: 'zaebalo',
     layout: {
         type: 'hbox',
         align: 'stretch'
