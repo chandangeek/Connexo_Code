@@ -97,7 +97,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .map(rcps -> customPropertySetInfoFactory.getFullInfo(rcps, rcps.getValues()))
                 .collect(Collectors.toList());
 
-        usagePoint.getServiceLocation().ifPresent(sl -> info.serviceLocation = new ServiceLocationInfo(sl));
+        info.serviceLocation = usagePoint.getServiceLocationString();
 
         return info;
     }
@@ -122,6 +122,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .withReadRoute(usagePointInfo.readRoute)
                 .withServicePriority(usagePointInfo.servicePriority)
                 .withServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark)
+                .withServiceLocationString(usagePointInfo.serviceLocation)
                 .withInstallationTime(usagePointInfo.installationTime != null ? Instant.ofEpochMilli(usagePointInfo.installationTime) : clock
                         .instant());
     }
