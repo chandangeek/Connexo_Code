@@ -21,6 +21,7 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -32,10 +33,12 @@ public class CustomPropertySetInfoFactory {
 
     private final Thesaurus thesaurus;
     private final PropertyValueInfoService propertyValueInfoService;
+    private final Clock clock;
 
     @Inject
-    public CustomPropertySetInfoFactory(Thesaurus thesaurus) {
+    public CustomPropertySetInfoFactory(Thesaurus thesaurus, Clock clock) {
         this.thesaurus = thesaurus;
+        this.clock = clock;
         this.propertyValueInfoService = new PropertyValueInfoService();
         this.propertyValueInfoService.addPropertyValueInfoConverter(new BooleanPropertyValueConverter());
         this.propertyValueInfoService.addPropertyValueInfoConverter(new NumberPropertyValueConverter());
@@ -94,7 +97,7 @@ public class CustomPropertySetInfoFactory {
             info.versionId = effective.hasLowerBound() ? effective.lowerEndpoint().toEpochMilli() : 0;
             info.startTime = effective.hasLowerBound() ? effective.lowerEndpoint().toEpochMilli() : null;
             info.endTime = effective.hasUpperBound() ? effective.upperEndpoint().toEpochMilli() : null;
-            info.isActive = !customPropertySetValue.isEmpty();
+            info.isActive = !customPropertySetValue.isEmpty() && effective.contains(this.clock.instant());
         } else {
             info.isActive = false;
         }
