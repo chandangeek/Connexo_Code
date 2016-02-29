@@ -165,7 +165,6 @@ public class IssueResource extends BaseResource {
                     JSONObject obj = new JSONObject(jsonContent);
                     arr = obj.getJSONArray("processInstances");
                 }
-
             } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
                     .entity(getThesaurus().getString("error.flow.unavailable", "Cannot connect to Flow; HTTP error {0}."))
@@ -177,10 +176,9 @@ public class IssueResource extends BaseResource {
             }
             List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
             issueProcessInfos = new IssueProcessInfos(arr);
-            List<IssueProcessInfo> runningProcessesList = issueProcessInfos.processes.stream()
+            issueProcessInfos.processes = issueProcessInfos.processes.stream()
                     .filter(s -> !s.status.equals("1") || activeProcesses.stream().anyMatch(a -> s.name.equals(a.getProcessName()) && s.version.equals(a.getVersion())))
                     .collect(Collectors.toList());
-            issueProcessInfos.processes = runningProcessesList;
         }
         return issueProcessInfos;
 
