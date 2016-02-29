@@ -35,7 +35,7 @@ Ext.define('Bpm.monitorprocesses.view.RunningProcesses', {
                         xtype: 'tabpanel',
                         deferredRender : false,
                         ui: 'large',
-                        itemId: 'tab-process-preview',
+                        itemId: 'tab-running-process-preview',
                         activeTab: 0,
                         items: [
                             {

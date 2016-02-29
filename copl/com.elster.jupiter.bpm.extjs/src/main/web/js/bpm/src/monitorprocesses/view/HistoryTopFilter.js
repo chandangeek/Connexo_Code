@@ -10,6 +10,7 @@ Ext.define('Bpm.monitorprocesses.view.HistoryTopFilter', {
                 type: 'combobox',
                 dataIndex: 'process',
                 emptyText: Uni.I18n.translate('bpm.process.filter.process', 'BPM', 'Process'),
+                itemId: 'bpm-view-history-processes-topfilter-process',
                 multiSelect: true,
                 displayField: 'name',
                 valueField: 'process',
@@ -21,12 +22,14 @@ Ext.define('Bpm.monitorprocesses.view.HistoryTopFilter', {
                 dataIndex: 'startedBetween',
                 dataIndexFrom: 'startedOnFrom',
                 dataIndexTo: 'startedOnTo',
-                text: Uni.I18n.translate('bpm.process.startedBetween', 'BPM', 'Started between')
+                text: Uni.I18n.translate('bpm.process.startedBetween', 'BPM', 'Started between'),
+                itemId: 'bpm-view-history-processes-topfilter-started'
             },
             {
                 type: 'combobox',
                 dataIndex: 'status',
                 emptyText: Uni.I18n.translate('bpm.process.filter.status', 'BPM', 'Status'),
+                itemId: 'bpm-view-history-processes-topfilter-status',
                 multiSelect: true,
                 displayField: 'display',
                 valueField: 'value',
@@ -36,6 +39,7 @@ Ext.define('Bpm.monitorprocesses.view.HistoryTopFilter', {
                 type: 'combobox',
                 dataIndex: 'user',
                 emptyText: Uni.I18n.translate('bpm.process.filter.startedBy', 'BPM', 'Started by'),
+                itemId: 'bpm-view-history-processes-topfilter-startedBy',
                 multiSelect: true,
                 displayField: 'name',
                 valueField: 'name',

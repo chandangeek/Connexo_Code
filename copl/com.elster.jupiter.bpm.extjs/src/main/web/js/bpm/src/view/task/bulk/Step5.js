@@ -4,6 +4,7 @@ Ext.define('Bpm.view.task.bulk.Step5', {
     html: '',
     margin: '0 0 15 0',
     router: null,
+
     showProgressBar: function (action) {
 
         var me = this,
@@ -20,7 +21,7 @@ Ext.define('Bpm.view.task.bulk.Step5', {
         );
         Ext.resumeLayouts(true);
     },
-    setResultMessage: function (action, success) {
+    setResultMessage: function (action, success, totalNumber, failedNumber) {
         var me = this,
             text = '';
         me.removeAll(true);
@@ -28,26 +29,35 @@ Ext.define('Bpm.view.task.bulk.Step5', {
         switch (action) {
             case 'taskmanagement':
                 if (success) {
-                    text = '<h3>'
-                    + Uni.I18n.translate('bpm.task.bulk.result.success.taskmanagementTitle', 'BPM', 'Successfully saved the selected tasks.')
-                    + '</h3><br>'
-                    + Uni.I18n.translate('bpm.task.bulk.result.success.taskmanagementDescription', 'BPM', 'The selected tasks have been modified. Check modfications in tasks overview.');
+                    text = '<h3>';
+                    text  += Uni.I18n.translate('bpm.task.bulk.success.taskmanagementTitle', 'BPM', 'Saved successfully. {0} tasks have been saved.', totalNumber);
+                    text  += '</h3>';
                 } else {
-                    text = '<h3>' + Uni.I18n.translate('task.bulk.result.failure.taskmanagementTitle', 'BPM', 'Failed to save the selected tasks.') + '</h3>';
+                    text = '<h3>'
+                    text += Ext.String.format(Uni.I18n.translate('bpm.task.bulk.failure.taskmanagementTitle', 'BPM', 'Failed to save. {0} tasks of {1} saved successfully.'), totalNumber - failedNumber, totalNumber);
+                    text += '</h3>';
                 }
                 break;
             case 'taskexecute':
                 if (success) {
-                    text = '<h3>'
-                    + Uni.I18n.translate('bpm.task.bulk.result.success.taskexecuteTitle', 'BPM', 'Successfully queued the selected tasks.')
-                    + '</h3><br>'
-                    + Uni.I18n.translate('bpm.task.bulk.result.success.taskexecuteDescription', 'BPM', 'The selected tasks have been queued for an immediate run. Check status in tasks overview.');
+
+                    text = '<h3>';
+                    text += Uni.I18n.translate('bpm.task.bulk.success.taskexecuteTitle', 'BPM', 'Executed successfully. {0} tasks have been completed.', totalNumber);
+                    text += '</h3>';
+
                 } else {
-                    text = '<h3>' + Uni.I18n.translate('bpm.task.bulk.result.failure.taskexecuteTitle', 'BPM', 'Failed to queue the selected tasks.') + '</h3>';
+                    text = '<h3>';
+                    text += Ext.String.format(Uni.I18n.translate('bpm.task.bulk.failure.taskexecuteTitle', 'BPM', 'Failed to complete. {0} tasks of {1} completed successfully.'), totalNumber - failedNumber, totalNumber);
+                    text += '</h3>';
+
                 }
                 break;
         }
-
-        me.add({xtype: 'box', width: '100%', html: text, itemId: 'text-message4', text: text});
+        me.add({
+                xtype: 'box',
+                width: '100%',
+                html: text,
+                itemId: 'text-message4'
+            });
     }
 });

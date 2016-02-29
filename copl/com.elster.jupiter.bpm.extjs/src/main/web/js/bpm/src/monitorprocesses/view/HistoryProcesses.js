@@ -37,7 +37,7 @@ Ext.define('Bpm.monitorprocesses.view.HistoryProcesses', {
                         xtype: 'tabpanel',
                         deferredRender: false,
                         ui: 'large',
-                        itemId: 'tab-process-preview',
+                        itemId: 'tab-history-process-preview',
                         activeTab: 0,
                         items: [
                             {
