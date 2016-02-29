@@ -6,10 +6,14 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -17,6 +21,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,6 +39,12 @@ public class UsagePointVersionedCustomPropertySet implements CustomPropertySet<U
 
     public volatile PropertySpecService propertySpecService;
     public volatile MeteringService meteringService;
+    public volatile NlsService nlsService;
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
+    }
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     public void setMeteringService(MeteringService meteringService) {
@@ -74,7 +85,7 @@ public class UsagePointVersionedCustomPropertySet implements CustomPropertySet<U
 
     @Override
     public PersistenceSupport<UsagePoint, UsagePointVersionedDomainExtension> getPersistenceSupport() {
-        return new UsagePointVerPeristenceSupport();
+        return new UsagePointVerPeristenceSupport(nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Override
@@ -137,6 +148,12 @@ public class UsagePointVersionedCustomPropertySet implements CustomPropertySet<U
     }
 
     private static class UsagePointVerPeristenceSupport implements PersistenceSupport<UsagePoint, UsagePointVersionedDomainExtension> {
+        private Thesaurus thesaurus;
+
+        public UsagePointVerPeristenceSupport(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
+
         @Override
         public String componentName() {
             return "CPM3";
@@ -164,7 +181,12 @@ public class UsagePointVersionedCustomPropertySet implements CustomPropertySet<U
 
         @Override
         public Optional<Module> module() {
-            return Optional.empty();
+            return Optional.of(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(MessageInterpolator.class).toInstance(thesaurus);
+                }
+            });
         }
 
         @Override

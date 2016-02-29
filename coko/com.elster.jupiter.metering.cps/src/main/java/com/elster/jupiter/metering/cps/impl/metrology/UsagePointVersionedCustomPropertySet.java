@@ -21,13 +21,12 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.metering.cps.impl.metrology.UsagePointVersionedCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+@Component(name = "c.e.j.m.cps.impl.metrology.UsagePointVersionedCustomPropertySet", service = CustomPropertySet.class, immediate = true)
 @SuppressWarnings("unused")
 public class UsagePointVersionedCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointVersionedPersistentDomainExtension> {
     private volatile PropertySpecService propertySpecService;
     private volatile MeteringService meteringService;
     private volatile Thesaurus thesaurus;
-    private volatile PersistenceSupport<UsagePoint, UsagePointVersionedPersistentDomainExtension> persistentSupport;
 
     public UsagePointVersionedCustomPropertySet() {
     }
@@ -40,7 +39,7 @@ public class UsagePointVersionedCustomPropertySet implements CustomPropertySet<U
 
     @Activate
     public void activate(){
-        this.persistentSupport = new UsagePointVersionedPersistentSupport();
+
     }
 
     @Reference
@@ -60,7 +59,7 @@ public class UsagePointVersionedCustomPropertySet implements CustomPropertySet<U
 
     @Override
     public PersistenceSupport<UsagePoint, UsagePointVersionedPersistentDomainExtension> getPersistenceSupport() {
-        return this.persistentSupport;
+        return new UsagePointVersionedPersistentSupport(thesaurus);
     }
 
     @Override
@@ -85,7 +84,7 @@ public class UsagePointVersionedCustomPropertySet implements CustomPropertySet<U
 
     @Override
     public String getId() {
-        return UsagePointVersionedCustomPropertySet.class.getName();
+        return "c.e.j.m.cps.impl.metrology.UsagePointVersionedCustomPropertySet";
     }
 
     @Override

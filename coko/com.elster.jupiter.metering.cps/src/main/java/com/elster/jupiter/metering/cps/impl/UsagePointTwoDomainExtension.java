@@ -8,6 +8,8 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
@@ -42,13 +44,17 @@ public class UsagePointTwoDomainExtension implements PersistentDomainExtension<U
     private Reference<UsagePoint> usagePoint = Reference.empty();
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "CannotBeNull")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{NotNumber}")
+    @Min(value = 0, groups = {Save.Create.class, Save.Update.class}, message = "{NumberMinValue}")
+    @Max(value = 999999999, groups = {Save.Create.class, Save.Update.class}, message = "{NumberMaxValue}")
     private BigDecimal testNumber;
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "FieldTooLong")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{CannotBeNull}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{FieldTooLong}")
     private String testString;
-    @NotNull(groups = {Save.Create.class, Save.Update.class})
+    @Min(value = 0, groups = {Save.Create.class, Save.Update.class}, message = "{NumberMinValue}")
+    @Max(value = 999999999, groups = {Save.Create.class, Save.Update.class}, message = "{NumberMaxValue}")
     private BigDecimal testEnumNumber;
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "FieldTooLong")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{FieldTooLong}")
     private String testEnumString;
     private boolean testBoolean;
 
@@ -103,9 +109,11 @@ public class UsagePointTwoDomainExtension implements PersistentDomainExtension<U
     @Override
     public void copyFrom(UsagePoint usagePoint, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(usagePoint);
-        this.setTestNumber(new BigDecimal(propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_NUMBER.javaName()).toString()));
+        this.setTestNumber(propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_NUMBER.javaName()) != null ?
+                new BigDecimal(propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_NUMBER.javaName()).toString()) : null);
         this.setTestString((String) propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_STRING.javaName()));
-        this.setTestEnumNumber(new BigDecimal(propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName()).toString()));
+        this.setTestEnumNumber(propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName()) != null ?
+                new BigDecimal(propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_ENUM_NUMBER.javaName()).toString()) : null);
         this.setTestEnumString((String) propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_ENUM_STRING.javaName()));
         this.setTestBoolean((boolean) propertyValues.getProperty(FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName()));
     }
