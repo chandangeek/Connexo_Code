@@ -72,7 +72,6 @@ public class UsagePointGeneralDomainExtension implements PersistentDomainExtensi
         this.prepay = (Boolean) propertyValues.getProperty(Fields.PREPAY.javaName());
         this.marketCodeSector = (String) propertyValues.getProperty(Fields.MARKET_CODE_SECTOR.javaName());
         this.meteringPointType = (String) propertyValues.getProperty(Fields.METERING_POINT_TYPE.javaName());
-
     }
 
     @Override

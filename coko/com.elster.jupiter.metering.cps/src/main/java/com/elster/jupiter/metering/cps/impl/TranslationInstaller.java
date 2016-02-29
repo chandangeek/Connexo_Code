@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Component(
@@ -41,7 +42,7 @@ public class TranslationInstaller implements TranslationKeyProvider, MessageSeed
 
     @Override
     public List<MessageSeed> getSeeds() {
-        return Arrays.asList(MessageSeeds.values());
+        return Collections.emptyList();
     }
 
     @Override
@@ -50,3 +51,4 @@ public class TranslationInstaller implements TranslationKeyProvider, MessageSeed
     }
 
 }
+

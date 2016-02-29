@@ -10,7 +10,6 @@ import com.elster.jupiter.metering.cps.impl.metrology.UsagePointConvertorDomainE
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointDecentralizedProductionDomainExtension;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointMeterGeneralCustomPropertySet;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointMeterTechInformationAllDomainExtension;
-import com.elster.jupiter.metering.cps.impl.metrology.UsagePointMeterTechInformationElectricityDomainExtension;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointMeterTechInformationGTWDomainExtension;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointMetrologyGeneralDomainExtension;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointSettlementDomainExtension;
@@ -84,8 +83,8 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService {
                 .getName()).ifPresent(this::addElectricitySets);
         customPropertySetService.findActiveCustomPropertySet(UsagePointDecentralizedProductionDomainExtension.class.getName())
                 .ifPresent(this::addElectricitySets);
-        customPropertySetService.findActiveCustomPropertySet(UsagePointMeterTechInformationElectricityDomainExtension.class
-                .getName()).ifPresent(this::addElectricitySets);
+      //  customPropertySetService.findActiveCustomPropertySet(UsagePointMeterTechInformationElectricityDomainExtension.class
+      //          .getName()).ifPresent(this::addElectricitySets);
 
         gas = meteringService.getServiceCategory(ServiceKind.GAS).get();
         customPropertySetService.findActiveCustomPropertySet(UsagePointOneDomainExtension.class.getName()).ifPresent(this::addGasSets);
