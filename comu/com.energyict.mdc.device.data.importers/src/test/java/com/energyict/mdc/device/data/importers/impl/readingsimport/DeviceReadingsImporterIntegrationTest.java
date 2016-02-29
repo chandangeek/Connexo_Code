@@ -30,12 +30,8 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+
 import com.google.common.collect.Range;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
@@ -50,11 +46,23 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.NUMBER_FORMAT;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
 import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT3;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.contains;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegrationTest {
@@ -129,7 +137,6 @@ public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegratio
         DeviceType deviceType = deviceConfigurationService.newDeviceType("Device Type", deviceProtocolPluggableClass);
         deviceType.addRegisterType(registerType);
         deviceType.addLoadProfileType(loadProfileType);
-        deviceType.save();
 
         //change initial state of default lifecycle to have newly created devices not in In Stock state
         FiniteStateMachine fsm = deviceType.getDeviceLifeCycle().getFiniteStateMachine();
