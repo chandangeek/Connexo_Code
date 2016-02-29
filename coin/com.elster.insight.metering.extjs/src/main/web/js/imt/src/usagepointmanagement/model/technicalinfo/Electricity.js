@@ -10,7 +10,7 @@ Ext.define('Imt.usagepointmanagement.model.technicalinfo.Electricity', {
         {name: 'limiter', type: 'boolean'},
         {name: 'loadLimiterType', type: 'string'},
         {name: 'loadLimit', type: 'auto', defaultValue: null},
-        {name: 'collar', type: 'boolean', useNull: true},
+        {name: 'collar', type: 'string', useNull: true, defaultValue: 'UNKNOWN'},
         {name: 'interruptible', type: 'boolean'}
     ]
 });

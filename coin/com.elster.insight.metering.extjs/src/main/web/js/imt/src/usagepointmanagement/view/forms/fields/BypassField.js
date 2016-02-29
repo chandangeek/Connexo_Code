@@ -1,5 +1,5 @@
 Ext.define('Imt.usagepointmanagement.view.forms.fields.BypassField', {
-    extend: 'Ext.form.field.Checkbox',
+    extend: 'Imt.usagepointmanagement.view.forms.fields.ThreeValuesField',
     alias: 'widget.techinfo-bypassfield',
     name: 'bypass',
     fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass'),
@@ -7,7 +7,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.BypassField', {
         change: {
             fn: function (field, newValue) {
                 if (field.rendered) {
-                    field.nextSibling('techinfo-bypassstatuscombobox').setVisible(newValue);
+                    field.nextSibling('techinfo-bypassstatuscombobox').setVisible(newValue === 'YES');
                 }
             }
         }

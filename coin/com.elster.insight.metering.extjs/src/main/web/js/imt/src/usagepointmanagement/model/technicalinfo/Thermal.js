@@ -3,10 +3,10 @@ Ext.define('Imt.usagepointmanagement.model.technicalinfo.Thermal', {
     fields: [
         {name: 'pressure', type: 'auto', defaultValue: null},
         {name: 'physicalCapacity', type: 'auto', defaultValue: null},
-        {name: 'bypass', type: 'boolean', useNull: true},
+        {name: 'bypass', type: 'string', useNull: true, defaultValue: 'UNKNOWN'},
         {name: 'bypassStatus', type: 'auto', defaultValue: null},
-        {name: 'valve', type: 'boolean', useNull: true},
-        {name: 'collar', type: 'boolean', useNull: true},
+        {name: 'valve', type: 'string', useNull: true, defaultValue: 'UNKNOWN'},
+        {name: 'collar', type: 'string', useNull: true, defaultValue: 'UNKNOWN'},
         {name: 'interruptible', type: 'boolean'}
     ]
 });
