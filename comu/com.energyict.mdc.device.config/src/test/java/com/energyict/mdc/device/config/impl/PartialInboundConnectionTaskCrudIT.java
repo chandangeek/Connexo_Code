@@ -77,9 +77,19 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.security.Principal;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
+
 import org.assertj.core.api.Assertions;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -90,14 +100,6 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import java.security.Principal;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -269,7 +271,6 @@ public class PartialInboundConnectionTaskCrudIT {
         PartialInboundConnectionTaskImpl inboundConnectionTask;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
@@ -303,7 +304,6 @@ public class PartialInboundConnectionTaskCrudIT {
         PartialInboundConnectionTaskImpl theDefault;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
@@ -331,7 +331,6 @@ public class PartialInboundConnectionTaskCrudIT {
         PartialInboundConnectionTaskImpl theDefault;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
@@ -358,7 +357,6 @@ public class PartialInboundConnectionTaskCrudIT {
         PartialInboundConnectionTaskImpl inboundConnectionTask;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
@@ -398,7 +396,6 @@ public class PartialInboundConnectionTaskCrudIT {
         final String connectionTaskName1 = "MyOutbound";
         final String connectionTaskName2 = "MyDefault";
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
@@ -433,7 +430,6 @@ public class PartialInboundConnectionTaskCrudIT {
         final String connectionTaskName1 = "MyOutbound";
         final String connectionTaskName2 = "MyDefault";
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
@@ -479,7 +475,6 @@ public class PartialInboundConnectionTaskCrudIT {
         PartialInboundConnectionTaskImpl inboundConnectionTask;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
@@ -503,7 +498,6 @@ public class PartialInboundConnectionTaskCrudIT {
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC + '}')
     public void testCreateWithUnspecifiedProperty() {
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.newPartialInboundConnectionTask("MyInbound", connectionTypePluggableClass)
@@ -519,7 +513,6 @@ public class PartialInboundConnectionTaskCrudIT {
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.NAME_UNIQUE + '}')
     public void testCreateWithDuplicateName() {
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
@@ -544,7 +537,6 @@ public class PartialInboundConnectionTaskCrudIT {
         outboundConnectionTypePluggableClass.save();
 
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
@@ -590,7 +582,6 @@ public class PartialInboundConnectionTaskCrudIT {
         DeviceConfiguration deviceConfiguration;
         DeviceConfiguration clonedDeviceConfig;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();

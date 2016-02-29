@@ -104,9 +104,13 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import org.assertj.core.api.Condition;
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -312,7 +316,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         PartialScheduledConnectionTaskImpl outboundConnectionTask;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -355,7 +358,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         PartialScheduledConnectionTaskImpl theDefault;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -386,7 +388,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         PartialScheduledConnectionTaskImpl theDefault;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -416,7 +417,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         PartialScheduledConnectionTaskImpl outboundConnectionTask;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -468,7 +468,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         final String connectionTaskName1 = "MyOutbound";
         final String connectionTaskName2 = "MyDefault";
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -503,7 +502,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         final String connectionTaskName1 = "MyOutbound";
         final String connectionTaskName2 = "MyDefault";
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -540,7 +538,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         PartialScheduledConnectionTaskImpl outboundConnectionTask;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -578,7 +575,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     public void testCanNotCreateConnectionTaskWhenConfigurationIsNotDirectlyAddressable() {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(false);
@@ -597,7 +593,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     public void testCannotCreateConnectionTaskWithNextExecutionSpecIfAsSoonAsPossible() {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -616,7 +611,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         PartialScheduledConnectionTaskImpl outboundConnectionTask;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -653,7 +647,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         PartialScheduledConnectionTaskImpl outboundConnectionTask;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -684,7 +677,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType;
         deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -732,7 +724,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     public void testCreateWithoutConnectionStrategy() {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -752,7 +743,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     public void testCreateMinimizingConnectionsWithoutNextExecutionSpecs() {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -771,7 +761,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     public void testCreateWithNextExecutionSpecsOffsetNotWithinComWindowTest() {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -791,7 +780,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     public void testCreateWithTooLowReschedulingRetryDelayTest() {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -811,7 +799,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     public void testCreateWithNonSpecifiedProperty() {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
@@ -833,7 +820,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         connectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("IPConnectionType", IpConnectionType.class.getName());
         connectionTypePluggableClass.save();
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
@@ -853,7 +839,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         PartialScheduledConnectionTaskImpl outboundConnectionTask;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -887,7 +872,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         ConnectionTypePluggableClass inboundConnectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("Inboundtype", InboundNoParamsConnectionTypeImpl.class.getName());
         inboundConnectionTypePluggableClass.save();
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -908,7 +892,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         DeviceConfiguration deviceConfiguration;
         DeviceConfiguration clonedDeviceConfig;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("CloneCreate", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Original").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -957,7 +940,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     @Transactional
     public void partialConnectionTaskConflictTest() {
         DeviceType deviceType = deviceConfigurationService.newDeviceType("ConflictTest", deviceProtocolPluggableClass);
-        deviceType.save();
 
         DeviceConfiguration firstConfig = createDirectlyAddressableConfig(deviceType, "firstConfig");
         PartialScheduledConnectionTaskImpl outboundConnectionTask1 = createPartialConnectionTask(firstConfig, "FirstConnectionTask");
@@ -988,8 +970,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     @Transactional
     public void resolveConflictsWhenDeviceConfigBecomesInactiveTest() {
         DeviceType deviceType = deviceConfigurationService.newDeviceType("ConflictTest", deviceProtocolPluggableClass);
-        deviceType.save();
-
 
         DeviceConfiguration firstConfig = createDirectlyAddressableConfig(deviceType, "firstConfig");
         PartialScheduledConnectionTaskImpl outboundConnectionTask1 = createPartialConnectionTask(firstConfig, "FirstConnectionTask");
@@ -1007,8 +987,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     @Transactional
     public void resolveConnectionTaskConflictWhenRemovalOfConnectionTaskTest() {
         DeviceType deviceType = deviceConfigurationService.newDeviceType("ConflictTest", deviceProtocolPluggableClass);
-        deviceType.save();
-
 
         DeviceConfiguration firstConfig = createDirectlyAddressableConfig(deviceType, "firstConfig");
         PartialScheduledConnectionTaskImpl outboundConnectionTask1 = createPartialConnectionTask(firstConfig, "FirstConnectionTask");
@@ -1018,9 +996,6 @@ public class PartialOutboundConnectionTaskCrudIT {
 
         assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2); // what is in here is checked in another test
 
-        deviceType.save();
-
-
         removeConnectionTaskFromConfig(secondConfig, outboundConnectionTask2);
         assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
     }
@@ -1029,8 +1004,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     @Transactional
     public void solvedMappingsAreNotRemovedWhenNewConflictArisesTest() {
         DeviceType deviceType = deviceConfigurationService.newDeviceType("ConflictTest", deviceProtocolPluggableClass);
-        deviceType.save();
-
 
         DeviceConfiguration firstConfig = createDirectlyAddressableConfig(deviceType, "firstConfig");
         PartialScheduledConnectionTaskImpl outboundConnectionTask1 = createPartialConnectionTask(firstConfig, "FirstConnectionTask");

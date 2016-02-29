@@ -1,15 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.util.collections.KPermutation;
@@ -18,6 +8,16 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 public class DeviceConfigurationEstimationRuleSetUsageTest extends PersistenceTest {
 
@@ -128,9 +128,7 @@ public class DeviceConfigurationEstimationRuleSetUsageTest extends PersistenceTe
     }
 
     private DeviceType createDeviceType(String name) {
-        DeviceType deviceType = deviceConfigurationService.newDeviceType(name, deviceProtocolPluggableClass);
-        deviceType.save();
-        return deviceType;
+        return deviceConfigurationService.newDeviceType(name, deviceProtocolPluggableClass);
     }
 
     private DeviceConfiguration createDeviceConfiguration(String name, DeviceType deviceType) {

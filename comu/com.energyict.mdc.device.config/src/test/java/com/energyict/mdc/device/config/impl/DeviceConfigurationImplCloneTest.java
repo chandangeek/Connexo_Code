@@ -20,8 +20,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -353,8 +353,7 @@ public class DeviceConfigurationImplCloneTest extends PersistenceTest {
     }
 
     private DeviceType createSimpleDeviceType() {
-        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
-        deviceType.save();
-        return deviceType;
+        return inMemoryPersistence.getDeviceConfigurationService()
+                .newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
     }
 }

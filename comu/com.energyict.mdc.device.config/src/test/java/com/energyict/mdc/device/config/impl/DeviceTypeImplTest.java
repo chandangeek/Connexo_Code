@@ -27,16 +27,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.validation.ValidationRuleSet;
-
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -45,9 +35,11 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -117,9 +109,12 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         String deviceTypeName = "testDeviceTypeCreation";
         DeviceType deviceType;
         // Business method
-        deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
-        deviceType.setDescription("For testing purposes only");
-        deviceType.save();
+        DeviceType.DeviceTypeBuilder deviceTypeBuilder = inMemoryPersistence.getDeviceConfigurationService()
+                .newDeviceTypeBuilder(deviceTypeName, this.deviceProtocolPluggableClass, inMemoryPersistence.getDeviceLifeCycleConfigurationService()
+                        .findDefaultDeviceLifeCycle()
+                        .get());
+        deviceTypeBuilder.setDescription("For testing purposes only");
+        deviceType = deviceTypeBuilder.create();
 
         // Asserts
         assertThat(deviceType).isNotNull();
@@ -139,7 +134,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         String deviceTypeName = "testFindDeviceTypeAfterCreation";
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
-        deviceType.save();
 
         // Business method
         Optional<DeviceType> deviceType2 = inMemoryPersistence.getDeviceConfigurationService().findDeviceTypeByName(deviceTypeName);
@@ -155,7 +149,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         String deviceTypeName = "canActAsGateway";
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
-        deviceType.save();
 
         assertThat(deviceType.canActAsGateway()).isTrue();
         assertThat(deviceType.isDirectlyAddressable()).isFalse();
@@ -169,7 +162,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         String deviceTypeName = "directaddress";
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
-        deviceType.save();
 
         assertThat(deviceType.isDirectlyAddressable()).isTrue();
         assertThat(deviceType.canActAsGateway()).isFalse();
@@ -184,12 +176,10 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         // Setup first device type
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
-        deviceType.save();
 
         // Business method
         DeviceType deviceType2 = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType2.setDescription("For testing purposes only");
-        deviceType2.save();
 
         // Asserts: see ExpectedConstraintViolation rule
     }
@@ -200,9 +190,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     public void testDeviceTypeCreationWithoutName() {
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(null, this.deviceProtocolPluggableClass);
 
-        // Business method
-        deviceType.save();
-
         // Asserts: See ExpectedConstraintViolation rule
     }
 
@@ -212,9 +199,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     public void testDeviceTypeCreationWithEmptyName() {
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("", this.deviceProtocolPluggableClass);
 
-        // Business method
-        deviceType.save();
-
         // Asserts: See the ExpectedConstraintViolation rule
     }
 
@@ -223,9 +207,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "name")
     public void testDeviceTypeCreationWithTooLongAName() {
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(longUnicodeString(81), this.deviceProtocolPluggableClass);
-
-        // Business method
-        deviceType.save();
 
         // Asserts: See the ExpectedConstraintViolation rule
     }
@@ -238,7 +219,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.setDescription(longUnicodeString(4001));
 
         // Business method
-        deviceType.save();
+        deviceType.update();
 
         // Asserts: See the ExpectedConstraintViolation rule
     }
@@ -248,9 +229,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     public void testDeviceTypeCreationWithoutProtocol() {
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("testDeviceTypeCreationWithoutProtocol", (DeviceProtocolPluggableClass) null);
-
-        // Business method
-        deviceType.save();
 
         // Asserts: See the ExpectedConstraintViolation rule
     }
@@ -266,7 +244,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.setDescription("For testing purposes only");
         // Business method
         deviceType.addLogBookType(this.logBookType);
-        deviceType.save();
 
         // Asserts
         assertThat(deviceType.getLogBookTypes()).containsOnly(this.logBookType);
@@ -284,7 +261,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         // Business method
         deviceType.addLogBookType(this.logBookType);
         deviceType.addLogBookType(this.logBookType2);
-        deviceType.save();
 
         // Asserts
         assertThat(deviceType.getLogBookTypes()).containsOnly(this.logBookType, this.logBookType2);
@@ -300,7 +276,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
         deviceType.addLogBookType(this.logBookType);
-        deviceType.save();
 
         // Business method
         deviceType.addLogBookType(this.logBookType);
@@ -318,11 +293,9 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
         deviceType.addLogBookType(this.logBookType);
-        deviceType.save();
 
         // Business method
         deviceType.addLogBookType(this.logBookType2);
-        deviceType.save();
 
         assertThat(deviceType.getLogBookTypes()).containsOnly(this.logBookType, this.logBookType2);
     }
@@ -337,7 +310,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
         deviceType.addLogBookType(this.logBookType);
-        deviceType.save();
 
         // Business method
         deviceType.removeLogBookType(this.logBookType);
@@ -363,8 +335,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceConfigurationBuilder.newLogBookSpec(this.logBookType);
         deviceConfigurationBuilder.add();
 
-        deviceType.save();
-
         try {
             // Business method
             deviceType.removeLogBookType(this.logBookType);
@@ -386,7 +356,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.setDescription("For testing purposes only");
         // Business method
         deviceType.addLoadProfileType(this.loadProfileType);
-        deviceType.save();
 
         // Asserts
         assertThat(deviceType.getLoadProfileTypes()).containsOnly(this.loadProfileType);
@@ -403,7 +372,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         // Business method
         deviceType.addLoadProfileType(this.loadProfileType);
         deviceType.addLoadProfileType(this.loadProfileType2);
-        deviceType.save();
 
         // Asserts
         assertThat(deviceType.getLoadProfileTypes()).containsOnly(this.loadProfileType, this.loadProfileType2);
@@ -418,7 +386,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
         deviceType.addLoadProfileType(this.loadProfileType);
-        deviceType.save();
 
         // Business method
         deviceType.addLoadProfileType(this.loadProfileType);
@@ -435,11 +402,9 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
         deviceType.addLoadProfileType(this.loadProfileType);
-        deviceType.save();
 
         // Business method
         deviceType.addLoadProfileType(this.loadProfileType2);
-        deviceType.save();
 
         assertThat(deviceType.getLoadProfileTypes()).containsOnly(this.loadProfileType, this.loadProfileType2);
     }
@@ -453,7 +418,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
         deviceType.addLoadProfileType(this.loadProfileType);
-        deviceType.save();
 
         // Business method
         deviceType.removeLoadProfileType(this.loadProfileType);
@@ -474,7 +438,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType = deviceConfigurationService.newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
         deviceType.addLoadProfileType(this.loadProfileType);
-        deviceType.save();
 
         // Add device configuration with a LoadProfileSpec that uses the LoadProfileType
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Conf 1 for " + deviceTypeName);
@@ -503,7 +466,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.setDescription("For testing purposes only");
         // Business method
         deviceType.addRegisterType(this.registerType1);
-        deviceType.save();
 
         // Asserts
         assertThat(deviceType.getRegisterTypes()).containsOnly(this.registerType1);
@@ -513,21 +475,20 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     public void testUpdateDeviceTypeWithConfigWithSameProtocolDoesNotDetectChange() {
         // JP-1845
-        String deviceTypeName = "testCreateDeviceTypeWithRegisterType";
+        String deviceTypeName = "testUpdateDeviceTypeWithConfigWithSameProtocolDoesNotDetectChange";
         DeviceType deviceType;
         this.setupRegisterTypesInExistingTransaction();
 
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
         deviceType.addRegisterType(this.registerType1);
-        deviceType.save();
 
         deviceType.newConfiguration("first").description("at least one").add();
 
         deviceType = this.reloadCreatedDeviceType(deviceType.getId());
         // Business method
         deviceType.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass);
-        deviceType.save();
+        deviceType.update();
     }
 
     @Test
@@ -535,21 +496,20 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_PROTOCOL_CANNOT_CHANGE_WITH_EXISTING_CONFIGURATIONS + "}")
     public void testUpdateDeviceTypeWithConfigWithOtherProtocolDoesDetectChange() {
         // JP-1845
-        String deviceTypeName = "testCreateDeviceTypeWithRegisterType";
+        String deviceTypeName = "testUpdateDeviceTypeWithConfigWithOtherProtocolDoesDetectChange";
         DeviceType deviceType;
         this.setupRegisterTypesInExistingTransaction();
 
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
         deviceType.addRegisterType(this.registerType1);
-        deviceType.save();
 
         deviceType.newConfiguration("first").description("at least one").add();
 
         deviceType = this.reloadCreatedDeviceType(deviceType.getId());
         // Business method
         deviceType.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass2);
-        deviceType.save();
+        deviceType.update();
     }
 
     @Test
@@ -564,7 +524,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
         deviceType.addRegisterType(this.registerType1);
-        deviceType.save();
 
         deviceType.newConfiguration("first").description("at least one").add();
 
@@ -572,7 +531,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
         // Business method
         deviceType.setDeviceProtocolPluggableClass((DeviceProtocolPluggableClass) null);
-        deviceType.save();
+        deviceType.update();
     }
 
     @Test
@@ -587,7 +546,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         // Business method
         deviceType.addRegisterType(this.registerType1);
         deviceType.addRegisterType(this.registerType2);
-        deviceType.save();
 
         // Asserts
         assertThat(deviceType.getRegisterTypes()).containsOnly(this.registerType1, this.registerType2);
@@ -603,7 +561,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
         deviceType.addRegisterType(this.registerType1);
-        deviceType.save();
 
         // Business method
         deviceType.addRegisterType(this.registerType1);
@@ -620,7 +577,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
-        deviceType.save();
 
         // Business method
         deviceType.addRegisterType(this.registerType1);
@@ -639,7 +595,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
         deviceType.addRegisterType(this.registerType1);
-        deviceType.save();
 
         // Business method
         deviceType.removeRegisterType(this.registerType1);
@@ -660,7 +615,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType = deviceConfigurationService.newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
         deviceType.addRegisterType(this.registerType1);
-        deviceType.save();
 
         // Add DeviceConfiguration with a RegisterSpec that uses the RegisterType
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Conf 1 for " + deviceTypeName);
@@ -692,12 +646,11 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.setDescription("For testing purposes only");
         deviceType.addRegisterType(this.registerType1);
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Active Configuration").add();
-        deviceType.save();
         deviceConfiguration.activate();
 
         // Business method
         deviceType.setDeviceProtocolPluggableClass(this.deviceProtocolPluggableClass2);
-        deviceType.save();
+        deviceType.update();
 
         // Asserts: see ExpectedConstraintViolation
     }
@@ -709,7 +662,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         DeviceType deviceType;
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
-        deviceType.save();
 
         // Business method
         deviceType.isLogicalSlave();
@@ -726,7 +678,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         DeviceType deviceType;
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
-        deviceType.save();
 
         // Business method
         boolean isLogicalSlave = deviceType.isLogicalSlave();
@@ -743,7 +694,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         DeviceType deviceType;
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(deviceTypeName, this.deviceProtocolPluggableClass);
         deviceType.setDescription("For testing purposes only");
-        deviceType.save();
 
         // Business method
         boolean isLogicalSlave = deviceType.isLogicalSlave();
@@ -763,7 +713,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.setDescription("For testing purposes only");
         deviceType.addLogBookType(this.logBookType);
         deviceType.addLogBookType(this.logBookType2);
-        deviceType.save();
         long deviceTypeId = deviceType.getId();
 
         // Business method
@@ -785,7 +734,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.setDescription("For testing purposes only");
         deviceType.addLoadProfileType(this.loadProfileType);
         deviceType.addLoadProfileType(this.loadProfileType2);
-        deviceType.save();
         long deviceTypeId = deviceType.getId();
 
         // Business method
@@ -807,7 +755,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.setDescription("For testing purposes only");
         deviceType.newConfiguration("first").description("this is it!").add();
         deviceType.newConfiguration("second").description("this is it!").add();
-        deviceType.save();
 
         long deviceTypeId = deviceType.getId();
 
@@ -829,7 +776,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.setDescription("For testing purposes only");
         deviceType.newConfiguration("first").description("this is it!").add();
         DeviceConfiguration second = deviceType.newConfiguration("second").description("this is it!").add();
-        deviceType.save();
         second.activate();
 
         // Business method
@@ -846,7 +792,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.setDescription("For testing purposes only");
         DeviceConfiguration first = deviceType.newConfiguration("first").description("this is it!").add();
         DeviceConfiguration second = deviceType.newConfiguration("second").description("this is it!").add();
-        deviceType.save();
         second.activate();
         second.createLoadProfileSpec(loadProfileType);
         second.save();
@@ -875,7 +820,6 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.setDescription("For testing purposes only");
         deviceType.addRegisterType(this.registerType1);
         deviceType.addRegisterType(this.registerType2);
-        deviceType.save();
         long deviceTypeId = deviceType.getId();
 
         // Business method

@@ -32,6 +32,7 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
+import com.energyict.mdc.device.config.exceptions.DataloggerSlaveException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.RegisterTypeAlreadyInDeviceTypeException;
@@ -56,14 +57,14 @@ import javax.validation.constraints.Size;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@ProtocolCannotChangeWithExistingConfigurations(groups = {Save.Update.class})
+@ValidChangesWithExistingConfigurations(groups = {Save.Update.class})
 @DeviceProtocolPluggableClassValidation(groups = {Save.Create.class, Save.Update.class})
-@DeviceLifeCycleOnDeviceTypeValidation(groups = {Save.Create.class, Save.Update.class})
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements ServerDeviceType {
 
     enum Fields {
@@ -151,12 +152,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     DeviceConfigurationService getDeviceConfigurationService() {
         return deviceConfigurationService;
-    }
-
-    @Override
-    public void save() {
-        super.save();
-        this.deviceProtocolPluggableClassChanged = false;
     }
 
     public void touch() {
@@ -408,6 +403,10 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public void setDeviceTypePurpose(DeviceTypePurpose deviceTypePurpose) {
+        if (!this.deviceTypePurpose.equals(deviceTypePurpose)) {
+            deviceTypePurposeChanged = true;
+            getLogBookTypeBehavior().purposeChangedTo(deviceTypePurpose);
+        }
         this.deviceTypePurpose = deviceTypePurpose;
     }
 
@@ -466,6 +465,10 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         return deviceProtocolPluggableClassChanged;
     }
 
+    boolean isDeviceTypePurposeChanged() {
+        return deviceTypePurposeChanged;
+    }
+
     public List<RegisterSpec> getRegisterSpecs() {
         List<RegisterSpec> registerSpecs = new ArrayList<>();
         for (DeviceConfiguration deviceConfiguration : this.deviceConfigurations) {
@@ -476,10 +479,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public List<LogBookType> getLogBookTypes() {
-        return this.logBookTypeUsages
-                .stream()
-                .map(DeviceTypeLogBookTypeUsage::getLogBookType)
-                .collect(Collectors.toList());
+        return getLogBookTypeBehavior().getLogBookTypes();
     }
 
     @Override
@@ -499,7 +499,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public void addLoadProfileType(LoadProfileType loadProfileType) {
+    public void update() {
+        super.save();
+        this.deviceProtocolPluggableClassChanged = false;
+    }
+
+    private void addSingleLoadProfileType(LoadProfileType loadProfileType) {
         for (DeviceTypeLoadProfileTypeUsage loadProfileTypeUsage : this.loadProfileTypeUsages) {
             if (loadProfileTypeUsage.sameLoadProfileType(loadProfileType)) {
                 throw new LoadProfileTypeAlreadyInDeviceTypeException(this, loadProfileType, this.getThesaurus());
@@ -509,9 +514,18 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                 .initialize(this, loadProfileType);
         Save.UPDATE.validate(getDataModel(), loadProfileTypeOnDeviceTypeUsage);
         this.loadProfileTypeUsages.add(loadProfileTypeOnDeviceTypeUsage);
+    }
+
+    @Override
+    public void addLoadProfileType(LoadProfileType loadProfileType) {
+        addSingleLoadProfileType(loadProfileType);
         if (getId() > 0) {
             getDataModel().touch(this);
         }
+    }
+
+    private void addLoadProfileTypes(List<LoadProfileType> loadProfileTypes) {
+        loadProfileTypes.stream().forEach(this::addSingleLoadProfileType);
     }
 
     @Override
@@ -580,21 +594,17 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                         .collect(Collectors.toList()));
     }
 
-    @Override
-    public void addLogBookType(LogBookType logBookType) {
-        for (DeviceTypeLogBookTypeUsage logBookTypeUsage : this.logBookTypeUsages) {
-            if (logBookTypeUsage.sameLogBookType(logBookType)) {
-                throw new LogBookTypeAlreadyInDeviceTypeException(this, logBookType, this.getThesaurus());
-            }
-        }
-        this.logBookTypeUsages.add(new DeviceTypeLogBookTypeUsage(this, logBookType));
-        if (getId() > 0) {
-            getDataModel().touch(this);
-        }
-    }
 
     @Override
-    public void addRegisterType(RegisterType registerType) {
+    public void addLogBookType(LogBookType logBookType) {
+        getLogBookTypeBehavior().addLogBookType(logBookType);
+    }
+
+    private void addLogBookTypes(List<LogBookType> logBookTypes) {
+        getLogBookTypeBehavior().addLogBookTypes(logBookTypes);
+    }
+
+    private void addSingleRegisterType(RegisterType registerType) {
         for (DeviceTypeRegisterTypeUsage registerTypeUsage : this.registerTypeUsages) {
             if (registerTypeUsage.sameRegisterType(registerType)) {
                 throw new RegisterTypeAlreadyInDeviceTypeException(this, registerType, this.getThesaurus());
@@ -604,9 +614,18 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                 .initialize(this, registerType);
         Save.UPDATE.validate(getDataModel(), registerTypeOnDeviceTypeUsage);
         this.registerTypeUsages.add(registerTypeOnDeviceTypeUsage);
+    }
+
+    @Override
+    public void addRegisterType(RegisterType registerType) {
+        addSingleRegisterType(registerType);
         if (getId() > 0) {
             getDataModel().touch(this);
         }
+    }
+
+    private void addRegisterTypes(List<RegisterType> registerTypes) {
+        registerTypes.stream().forEach(this::addSingleRegisterType);
     }
 
     public void addRegisterTypeCustomPropertySet(RegisterType registerType, RegisteredCustomPropertySet registeredCustomPropertySet) {
@@ -696,51 +715,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public void removeLogBookType(LogBookType logBookType) {
-        Iterator<DeviceTypeLogBookTypeUsage> logBookTypeUsageIterator = this.logBookTypeUsages.iterator();
-        while (logBookTypeUsageIterator.hasNext()) {
-            DeviceTypeLogBookTypeUsage logBookTypeUsage = logBookTypeUsageIterator.next();
-            if (logBookTypeUsage.sameLogBookType(logBookType)) {
-                this.validateLogBookTypeNotUsedByLogBookSpec(logBookType);
-                logBookTypeUsageIterator.remove();
-                getDataModel().touch(this);
-                break;
-            }
-        }
-    }
-
-    private void validateLogBookTypeNotUsedByLogBookSpec(LogBookType logBookType) {
-        List<LogBookSpec> logBookSpecs = this.getLogBookSpecsForLogBookType(logBookType);
-        if (!logBookSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.logBookTypeIsStillInUseByLogBookSpec(this.getThesaurus(), logBookType, logBookSpecs, MessageSeeds.LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS);
-        }
-    }
-
-    /**
-     * Finds all {@link LogBookSpec}s from all {@link DeviceConfiguration}s
-     * that are using the specified {@link LogBookType}.
-     *
-     * @param logBookType The LogBookType
-     * @return The List of LogBookSpec
-     */
-    private List<LogBookSpec> getLogBookSpecsForLogBookType(LogBookType logBookType) {
-        List<LogBookSpec> logBookSpecs = new ArrayList<>(0);
-        this.collectLogBookSpecsForLogBookType(logBookType, logBookSpecs);
-        return logBookSpecs;
-    }
-
-    private void collectLogBookSpecsForLogBookType(LogBookType logBookType, List<LogBookSpec> logBookSpecs) {
-        for (DeviceConfiguration deviceConfiguration : this.getConfigurations()) {
-            this.collectLogBookSpecsForLogBookType(logBookType, deviceConfiguration, logBookSpecs);
-        }
-    }
-
-    private void collectLogBookSpecsForLogBookType(LogBookType logBookType, DeviceConfiguration deviceConfiguration, List<LogBookSpec> logBookSpecs) {
-        logBookSpecs.addAll(
-                deviceConfiguration
-                        .getLogBookSpecs()
-                        .stream()
-                        .filter(logBookSpec -> logBookSpec.getLogBookType().getId() == logBookType.getId())
-                        .collect(Collectors.toList()));
+        getLogBookTypeBehavior().removeLogBookType(logBookType);
     }
 
     public boolean supportsMessaging() {
@@ -888,6 +863,192 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         }
     }
 
+    private LogBookBehavior getLogBookTypeBehavior() {
+        return isDataloggerSlave() ? new DataloggerSlaveLogBookBehavior() : new RegularLogBookBehavior();
+    }
+
+    /**
+     * Models different behavior for logbooks on the different 'types' of a DeviceType
+     */
+    interface LogBookBehavior {
+        void addLogBookTypes(List<LogBookType> logBookTypes);
+
+        void addLogBookType(LogBookType logBookType);
+
+        List<LogBookType> getLogBookTypes();
+
+        void removeLogBookType(LogBookType logBookType);
+
+        void purposeChangedTo(DeviceTypePurpose deviceTypePurpose);
+    }
+
+    class RegularLogBookBehavior implements LogBookBehavior {
+        @Override
+        public void addLogBookTypes(List<LogBookType> logBookTypes) {
+            logBookTypes.forEach(this::addSingleLogBookType);
+        }
+
+        @Override
+        public void addLogBookType(LogBookType logBookType) {
+            addSingleLogBookType(logBookType);
+            if (getId() > 0) {
+                getDataModel().touch(DeviceTypeImpl.this);
+            }
+        }
+
+        @Override
+        public List<LogBookType> getLogBookTypes() {
+            return DeviceTypeImpl.this.logBookTypeUsages
+                    .stream()
+                    .map(DeviceTypeLogBookTypeUsage::getLogBookType)
+                    .collect(Collectors.toList());
+        }
+
+        @Override
+        public void removeLogBookType(LogBookType logBookType) {
+            Iterator<DeviceTypeLogBookTypeUsage> logBookTypeUsageIterator = DeviceTypeImpl.this.logBookTypeUsages.iterator();
+            while (logBookTypeUsageIterator.hasNext()) {
+                DeviceTypeLogBookTypeUsage logBookTypeUsage = logBookTypeUsageIterator.next();
+                if (logBookTypeUsage.sameLogBookType(logBookType)) {
+                    this.validateLogBookTypeNotUsedByLogBookSpec(logBookType);
+                    logBookTypeUsageIterator.remove();
+                    getDataModel().touch(DeviceTypeImpl.this);
+                    break;
+                }
+            }
+        }
+
+        @Override
+        public void purposeChangedTo(DeviceTypePurpose deviceTypePurpose) {
+            if (deviceTypePurpose.equals(DeviceTypePurpose.DATALOGGER_SLAVE)) {
+                getLogBookTypes().stream().forEach(logBookType -> {
+                    List<LogBookSpec> logBookSpecs = this.getLogBookSpecsForLogBookType(logBookType);
+                    if (!logBookSpecs.isEmpty()) {
+                        throw DataloggerSlaveException.cannotChangeLogBookTypeWhenConfigsExistWithLogBookSpecs(DeviceTypeImpl.this
+                                .getThesaurus(), DeviceTypeImpl.this);
+                    }
+                });
+                logBookTypeUsages.clear();
+            }
+        }
+
+        private void validateLogBookTypeNotUsedByLogBookSpec(LogBookType logBookType) {
+            List<LogBookSpec> logBookSpecs = this.getLogBookSpecsForLogBookType(logBookType);
+            if (!logBookSpecs.isEmpty()) {
+                throw CannotDeleteBecauseStillInUseException.logBookTypeIsStillInUseByLogBookSpec(DeviceTypeImpl.this.getThesaurus(), logBookType, logBookSpecs, MessageSeeds.LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS);
+            }
+        }
+
+        /**
+         * Finds all {@link LogBookSpec}s from all {@link DeviceConfiguration}s
+         * that are using the specified {@link LogBookType}.
+         *
+         * @param logBookType The LogBookType
+         * @return The List of LogBookSpec
+         */
+        private List<LogBookSpec> getLogBookSpecsForLogBookType(LogBookType logBookType) {
+            List<LogBookSpec> logBookSpecs = new ArrayList<>(0);
+            this.collectLogBookSpecsForLogBookType(logBookType, logBookSpecs);
+            return logBookSpecs;
+        }
+
+        private void collectLogBookSpecsForLogBookType(LogBookType logBookType, List<LogBookSpec> logBookSpecs) {
+            for (DeviceConfiguration deviceConfiguration : DeviceTypeImpl.this.getConfigurations()) {
+                this.collectLogBookSpecsForLogBookType(logBookType, deviceConfiguration, logBookSpecs);
+            }
+        }
+
+        private void collectLogBookSpecsForLogBookType(LogBookType logBookType, DeviceConfiguration deviceConfiguration, List<LogBookSpec> logBookSpecs) {
+            logBookSpecs.addAll(
+                    deviceConfiguration
+                            .getLogBookSpecs()
+                            .stream()
+                            .filter(logBookSpec -> logBookSpec.getLogBookType().getId() == logBookType.getId())
+                            .collect(Collectors.toList()));
+        }
+
+        private void addSingleLogBookType(LogBookType logBookType) {
+            for (DeviceTypeLogBookTypeUsage logBookTypeUsage : DeviceTypeImpl.this.logBookTypeUsages) {
+                if (logBookTypeUsage.sameLogBookType(logBookType)) {
+                    throw new LogBookTypeAlreadyInDeviceTypeException(DeviceTypeImpl.this, logBookType, DeviceTypeImpl.this
+                            .getThesaurus());
+                }
+            }
+            DeviceTypeImpl.this.logBookTypeUsages.add(new DeviceTypeLogBookTypeUsage(DeviceTypeImpl.this, logBookType));
+        }
+    }
+
+    class DataloggerSlaveLogBookBehavior implements LogBookBehavior {
+        @Override
+        public void addLogBookTypes(List<LogBookType> logBookTypes) {
+            throw DataloggerSlaveException.logbookTypesAreNotSupported(getThesaurus(), DeviceTypeImpl.this);
+        }
+
+        @Override
+        public void addLogBookType(LogBookType logBookType) {
+            throw DataloggerSlaveException.logbookTypesAreNotSupported(getThesaurus(), DeviceTypeImpl.this);
+        }
+
+        @Override
+        public List<LogBookType> getLogBookTypes() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public void removeLogBookType(LogBookType logBookType) {
+            throw DataloggerSlaveException.logbookTypesAreNotSupported(getThesaurus(), DeviceTypeImpl.this);
+        }
+
+        @Override
+        public void purposeChangedTo(DeviceTypePurpose deviceTypePurpose) {
+            // nothing to do
+        }
+    }
+
+    static class DeviceTypeBuilderImpl implements DeviceTypeBuilder {
+
+        private final DeviceTypeImpl underConstruction;
+
+        public DeviceTypeBuilderImpl(DeviceTypeImpl underConstruction, String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle, boolean isDataloggerSlave) {
+            this.underConstruction = underConstruction;
+            if (isDataloggerSlave) {
+                this.underConstruction.initializeDataloggerSlave(name, deviceLifeCycle);
+            } else {
+                this.underConstruction.initializeRegular(name, deviceProtocolPluggableClass, deviceLifeCycle);
+            }
+        }
+
+        @Override
+        public DeviceTypeBuilder withRegisterTypes(List<RegisterType> registerTypes) {
+            underConstruction.addRegisterTypes(registerTypes);
+            return this;
+        }
+
+        @Override
+        public DeviceTypeBuilder withLoadProfileTypes(List<LoadProfileType> loadProfileTypes) {
+            underConstruction.addLoadProfileTypes(loadProfileTypes);
+            return this;
+        }
+
+        @Override
+        public DeviceTypeBuilder withLogBookTypes(List<LogBookType> logBookTypes) {
+            underConstruction.addLogBookTypes(logBookTypes);
+            return this;
+        }
+
+        @Override
+        public DeviceTypeBuilder setDescription(String description) {
+            underConstruction.setDescription(description);
+            return this;
+        }
+
+        @Override
+        public DeviceType create() {
+            underConstruction.save();
+            return underConstruction;
+        }
+    }
+
     private class ConfigurationBuilder implements DeviceConfigurationBuilder {
 
         private BuildingMode mode;
@@ -992,4 +1153,32 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             this.nestedBuilders.forEach(DeviceTypeImpl.NestedBuilder::add);
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        DeviceTypeImpl that = (DeviceTypeImpl) o;
+
+        return id == that.id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
+
+    //***** Deprecated methods, we should delete these one day ...
+
+    @Override
+    public void save() {
+        update();
+    }
+
 }

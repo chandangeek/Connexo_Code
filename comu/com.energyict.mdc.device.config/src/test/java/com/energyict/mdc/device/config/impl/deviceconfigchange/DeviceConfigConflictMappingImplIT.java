@@ -9,13 +9,12 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.impl.MessageSeeds;
 import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.config.impl.ServerDeviceType;
+
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 
 /**
  * Copyrights EnergyICT
@@ -28,7 +27,6 @@ public class DeviceConfigConflictMappingImplIT extends AbstractConflictIT {
     @Transactional
     public void createWithoutViolationsTest() {
         ServerDeviceType deviceType = (ServerDeviceType) deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         DeviceConfiguration sourceConfig = deviceType.newConfiguration("Source").isDirectlyAddressable(true).add();
         sourceConfig.activate();
@@ -49,7 +47,6 @@ public class DeviceConfigConflictMappingImplIT extends AbstractConflictIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MULTIPLE_SOLUTIONS_FOR_SAME_CONFLICT + "}")
     public void createWithMultipleSolutionsForSameDataSourceTest() {
         ServerDeviceType deviceType = (ServerDeviceType) deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         DeviceConfiguration sourceConfig = deviceType.newConfiguration("Source").isDirectlyAddressable(true).add();
         sourceConfig.activate();

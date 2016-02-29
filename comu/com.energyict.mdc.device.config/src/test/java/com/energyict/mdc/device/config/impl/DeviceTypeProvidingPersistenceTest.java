@@ -4,9 +4,10 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.RegisterType;
-import org.junit.Before;
 
 import java.util.Optional;
+
+import org.junit.Before;
 
 /**
  * Copyrights EnergyICT
@@ -21,7 +22,6 @@ public abstract class DeviceTypeProvidingPersistenceTest extends PersistenceTest
     @Before
     public void initializeDeviceType() {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
-        deviceType.save();
     }
 
     RegisterType createOrSetRegisterType(ReadingType readingType, ObisCode channelTypeObisCode){

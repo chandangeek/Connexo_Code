@@ -18,16 +18,20 @@ import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.exceptions.CannotDisableComTaskThatWasNotEnabledException;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
+
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.List;
-import java.util.Optional;
-
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link ComTaskEnablementImpl} component.
@@ -78,7 +82,6 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
     private void createDeviceType() {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
-        deviceType.save();
     }
 
     private void registerNoParamsConnectionType() {
@@ -108,7 +111,6 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
         this.deviceConfiguration1.setDirectlyAddressable(true);
         this.deviceConfiguration2 = this.deviceType.newConfiguration("Config 2").add();
         this.deviceConfiguration2.setDirectlyAddressable(true);
-        this.deviceType.save();
     }
 
     private void createSecurityPropertySets () {

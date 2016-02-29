@@ -2,10 +2,16 @@ package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.impl.MessageSeeds;
 import com.energyict.mdc.device.config.impl.ServerDeviceType;
+
 import org.fest.assertions.core.Condition;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -25,7 +31,6 @@ public class ConflictingSecuritySetSolutionImpIT extends AbstractConflictIT{
     @Transactional
     public void createRemoveSolutionWithoutViolationsTest() {
         ServerDeviceType deviceType = (ServerDeviceType) deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         DeviceConfiguration sourceConfig = deviceType.newConfiguration("Source").isDirectlyAddressable(true).add();
         sourceConfig.activate();
@@ -54,7 +59,6 @@ public class ConflictingSecuritySetSolutionImpIT extends AbstractConflictIT{
     @Transactional
     public void createMapSolutionWithoutViolationsTest() {
         ServerDeviceType deviceType = (ServerDeviceType) deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         DeviceConfiguration sourceConfig = deviceType.newConfiguration("Source").isDirectlyAddressable(true).add();
         sourceConfig.activate();
@@ -86,7 +90,6 @@ public class ConflictingSecuritySetSolutionImpIT extends AbstractConflictIT{
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DESTINATION_DATA_SOURCE_IS_EMPTY + "}")
     public void createMapSolutionWithViolationsTest() {
         ServerDeviceType deviceType = (ServerDeviceType) deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         DeviceConfiguration sourceConfig = deviceType.newConfiguration("Source").isDirectlyAddressable(true).add();
         sourceConfig.activate();

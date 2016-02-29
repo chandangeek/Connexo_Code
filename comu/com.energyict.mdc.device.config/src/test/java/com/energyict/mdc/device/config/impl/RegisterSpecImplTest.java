@@ -1,5 +1,10 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -12,16 +17,11 @@ import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
 import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.masterdata.RegisterType;
 
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.metering.ReadingType;
-
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_PRIMARY_METERED;
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
@@ -86,7 +86,6 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         this.deviceType.addRegisterType(deltaRegisterType);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         this.deviceConfiguration = deviceConfigurationBuilder.add();
-        this.deviceType.save();
     }
 
     private NumericalRegisterSpec createNumericalRegisterSpecWithDefaults() {
@@ -315,7 +314,6 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         NumericalRegisterSpec registerSpec2;
         RegisterType otherType = getRegisterType(readingType2);
         this.deviceType.addRegisterType(otherType);
-        this.deviceType.save();
         NumericalRegisterSpec.Builder registerSpecBuilder = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(otherType);
         setRegisterSpecDefaultFields(registerSpecBuilder);
         registerSpec2 = registerSpecBuilder.add();

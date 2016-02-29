@@ -1,5 +1,10 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -12,19 +17,15 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.time.TimeDuration;
-
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
@@ -76,7 +77,6 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
         // Setup DeviceType with a DeviceConfiguration and a LoadProfileSpec that uses the LoadProfileType
         DeviceType deviceType = deviceConfigurationService.newDeviceType("testUpdateIntervalWhileInUse", this.deviceProtocolPluggableClass);
         deviceType.addLoadProfileType(loadProfileType);
-        deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         configurationBuilder.newLoadProfileSpec(loadProfileType);
         configurationBuilder.add();
@@ -114,7 +114,6 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
         DeviceType deviceType = deviceConfigurationService.newDeviceType("testUpdateIntervalWhileInUse", this.deviceProtocolPluggableClass);
         deviceType.addLoadProfileType(loadProfileType);
         deviceType.addRegisterType(registerType);
-        deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(loadProfileType);
         configurationBuilder.newChannelSpec(channelTypeForRegisterType, loadProfileSpecBuilder).overflow(BigDecimal.valueOf(999999L)).nbrOfFractionDigits(3);
@@ -155,7 +154,6 @@ public class LoadProfileTypeInUseTest extends PersistenceTest {
         DeviceType deviceType = deviceConfigurationService.newDeviceType("testUpdateIntervalWhileInUse", this.deviceProtocolPluggableClass);
         deviceType.addRegisterType(registerType);
         deviceType.addLoadProfileType(loadProfileType);
-        deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(loadProfileType);
         configurationBuilder.newChannelSpec(channelTypeForRegisterType, loadProfileSpecBuilder).overflow(BigDecimal.valueOf(999999L)).nbrOfFractionDigits(3);

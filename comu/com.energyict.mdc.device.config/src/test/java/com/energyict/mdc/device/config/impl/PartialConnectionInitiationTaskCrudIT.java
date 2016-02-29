@@ -73,9 +73,17 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.security.Principal;
+import java.util.Arrays;
+import java.util.Optional;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -85,12 +93,6 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import java.security.Principal;
-import java.util.Arrays;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -254,7 +256,6 @@ public class PartialConnectionInitiationTaskCrudIT {
         PartialConnectionInitiationTaskImpl connectionInitiationTask;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -292,7 +293,6 @@ public class PartialConnectionInitiationTaskCrudIT {
         PartialConnectionInitiationTaskImpl connectionInitiationTask;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -336,7 +336,6 @@ public class PartialConnectionInitiationTaskCrudIT {
         PartialConnectionInitiationTaskImpl connectionInitiationTask;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -369,7 +368,6 @@ public class PartialConnectionInitiationTaskCrudIT {
         ConnectionTypePluggableClass inboundConnectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("OutboundNoParamsConnectionType", OutboundNoParamsConnectionTypeImpl.class.getName());
         inboundConnectionTypePluggableClass.save();
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -397,7 +395,6 @@ public class PartialConnectionInitiationTaskCrudIT {
         DeviceConfiguration deviceConfiguration;
         DeviceConfiguration clonedDeviceConfig;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.setDirectlyAddressable(true);

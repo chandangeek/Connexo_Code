@@ -2,12 +2,17 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
-import com.elster.jupiter.fsm.State;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.config.DeviceTypePurpose;
+import com.energyict.mdc.device.config.exceptions.DataloggerSlaveException;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.masterdata.LogBookType;
 
+import java.util.Collections;
+
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -24,34 +29,15 @@ public class DataloggerSlaveTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DATALOGGER_SLAVE_LIFECYCLE_WITH_COMMUNICATION + "}", property = "deviceLifeCycle")
-    public void createDataloggerSlaveWithCommunicationRelatedDeviceLifeCycleTest() {
-        String deviceTypeName = "createDataloggerSlaveWithCommunicationRelatedDeviceLifeCycleTest";
-        DeviceType deviceType;
-        // Business method
-        deviceType = inMemoryPersistence.getDeviceConfigurationService()
-                .newDataloggerSlaveDeviceType(deviceTypeName, getDefaultDeviceLifeCycle());
-        String description = "For testing purposes only";
-        deviceType.setDescription(description);
-        deviceType.save();
-    }
-
-    private DeviceLifeCycle getDefaultDeviceLifeCycle() {
-        return inMemoryPersistence
-                .getDeviceLifeCycleConfigurationService().findDefaultDeviceLifeCycle().get();
-    }
-
-    @Test
-    @Transactional
     public void createDataloggerSlaveWithoutViolations() {
         String deviceTypeName = "createDataloggerSlaveWithoutViolations";
         DeviceType deviceType;
         // Business method
-        deviceType = inMemoryPersistence.getDeviceConfigurationService()
-                .newDataloggerSlaveDeviceType(deviceTypeName, createNoCommunicationRelatedDeviceLifeCycle());
+        DeviceType.DeviceTypeBuilder deviceTypeBuilder = inMemoryPersistence.getDeviceConfigurationService()
+                .newDataloggerSlaveDeviceTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle());
         String description = "For testing purposes only";
-        deviceType.setDescription(description);
-        deviceType.save();
+        deviceTypeBuilder.setDescription(description);
+        deviceType = deviceTypeBuilder.create();
 
         // Asserts
         assertThat(deviceType).isNotNull();
@@ -65,16 +51,145 @@ public class DataloggerSlaveTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(deviceType.isDataloggerSlave()).isTrue();
     }
 
-    private DeviceLifeCycle createNoCommunicationRelatedDeviceLifeCycle() {
-        FiniteStateMachineBuilder nothingBuilder = inMemoryPersistence.getFiniteStateMachineService()
-                .newFiniteStateMachine("Nothing");
-        State removed = nothingBuilder.newStandardState(DefaultState.REMOVED.getKey()).complete();
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "deviceLifeCycle")
+    public void createDataloggerSlaveWithoutDeviceLifeCycleTest() {
+        String deviceTypeName = "createDataloggerSlaveWithoutViolations";
+        DeviceType deviceType;
+        // Business method
+        DeviceType.DeviceTypeBuilder deviceTypeBuilder = inMemoryPersistence.getDeviceConfigurationService()
+                .newDataloggerSlaveDeviceTypeBuilder(deviceTypeName, null);
+        String description = "For testing purposes only";
+        deviceTypeBuilder.setDescription(description);
+        deviceType = deviceTypeBuilder.create();
+    }
 
-        DeviceLifeCycle noComs = inMemoryPersistence.getDeviceLifeCycleConfigurationService()
-                .newDeviceLifeCycleUsing("NoComs", nothingBuilder.complete(removed))
-                .complete();
-        noComs.save();
-        return noComs;
+    @Test
+    @Transactional
+    public void canChangeFromDataloggerSlaveToRegularWhenNoConfigsTest() {
+        String deviceTypeName = "canChangeFromDataloggerSlaveToRegularWhenNoConfigsTest";
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
+                .newDataloggerSlaveDeviceTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle())
+                .create();
+
+        assertThat(deviceType.isDataloggerSlave()).isTrue();
+
+        deviceType.setDeviceTypePurpose(DeviceTypePurpose.REGULAR);
+        deviceType.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass);
+        deviceType.update();
+
+        DeviceType reloadedDeviceType = reloadDeviceType(deviceType);
+        assertThat(reloadedDeviceType.isDataloggerSlave()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void canChangeFromRegularDeviceTypeToDataloggerSlaveWhenNoConfigsTest() {
+        String deviceTypeName = "canChangeFromRegularDeviceTypeToDataloggerSlaveWhenNoConfigsTest";
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
+                .newDeviceTypeBuilder(deviceTypeName, deviceProtocolPluggableClass, getDefaultDeviceLifeCycle())
+                .create();
+
+        assertThat(deviceType.isDataloggerSlave()).isFalse();
+
+        deviceType.setDeviceTypePurpose(DeviceTypePurpose.DATALOGGER_SLAVE);
+        deviceType.update();
+
+        DeviceType reloadedDeviceType = reloadDeviceType(deviceType);
+        assertThat(reloadedDeviceType.isDataloggerSlave()).isTrue();
+    }
+
+    @Ignore
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CANNOT_CHANGE_DEVICE_TYPE_PURPOSE_WHEN_CONFIGS + "}", property = "deviceTypePurpose")
+    public void cannotChangeFromDataloggerSlaveToRegularWhenConfigsTest() {
+        String deviceTypeName = "cannotChangeFromDataloggerSlaveToRegularWhenConfigsTest";
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
+                .newDataloggerSlaveDeviceTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle())
+                .create();
+
+        deviceType.newConfiguration("Default").add();
+
+        deviceType.setDeviceTypePurpose(DeviceTypePurpose.REGULAR);
+        deviceType.update();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CANNOT_CHANGE_DEVICE_TYPE_PURPOSE_WHEN_CONFIGS + "}", property = "deviceTypePurpose")
+    public void cannotChangeFromRegularToDataloggerSlaveWhenConfigsTest() {
+        String deviceTypeName = "cannotChangeFromRegularToDataloggerSlaveWhenConfigsTest";
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
+                .newDeviceTypeBuilder(deviceTypeName, deviceProtocolPluggableClass, getDefaultDeviceLifeCycle())
+                .create();
+
+        deviceType.newConfiguration("Default").add();
+
+        deviceType.setDeviceTypePurpose(DeviceTypePurpose.DATALOGGER_SLAVE);
+        deviceType.update();
+    }
+
+    @Test(expected = DataloggerSlaveException.class)
+    @Transactional
+    public void cannotChangeDeviceTypePurposeToDataloggerSlaveWhenAlreadyHaveConfigsWithLogBookSpecsTest() {
+        LogBookType logBookType = createLogBookType();
+        String deviceTypeName = "cannotChangeDeviceTypePurposeToDataloggerSlaveWhen";
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
+                .newDeviceTypeBuilder(deviceTypeName, deviceProtocolPluggableClass, getDefaultDeviceLifeCycle())
+                .withLogBookTypes(Collections.singletonList(logBookType))
+                .create();
+
+        assertThat(deviceType.isDataloggerSlave()).isFalse();
+
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Test");
+        deviceConfigurationBuilder.newLogBookSpec(logBookType);
+        DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
+
+        try {
+            deviceType.setDeviceTypePurpose(DeviceTypePurpose.DATALOGGER_SLAVE);
+            deviceType.update();
+        } catch (DataloggerSlaveException e) {
+            // Asserts
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CANNOT_CHANGE_DEVICE_TYPE_PURPOSE_TO_DATALOGGER_SLAVE_WHEN_LOGBOOK_SPECS_EXIST);
+            throw e;
+        }
+    }
+
+    @Test(expected = DataloggerSlaveException.class)
+    @Transactional
+    public void cannotAddLogBookTypesToADataloggerSlaveDeviceTypeTest() {
+        LogBookType logBookType = createLogBookType();
+        String deviceTypeName = "cannotAddLogBookTypesToADataloggerSlaveDeviceTypeTest";
+        try {
+            DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
+                    .newDataloggerSlaveDeviceTypeBuilder(deviceTypeName, getDefaultDeviceLifeCycle())
+                    .withLogBookTypes(Collections.singletonList(logBookType))
+                    .create();
+        } catch (DataloggerSlaveException e) {
+            // Asserts
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.DATALOGGER_SLAVE_NO_LOGBOOKTYPE_SUPPORT);
+            throw e;
+        }
+    }
+
+    private LogBookType createLogBookType() {
+        LogBookType logBookType = inMemoryPersistence.getMasterDataService()
+                .newLogBookType("LBT1", ObisCode.fromString("0.0.99.98.0.255"));
+        logBookType.save();
+        return logBookType;
+    }
+
+    private DeviceLifeCycle getDefaultDeviceLifeCycle() {
+        return inMemoryPersistence
+                .getDeviceLifeCycleConfigurationService().findDefaultDeviceLifeCycle().get();
+    }
+
+    private DeviceType reloadDeviceType(DeviceType deviceType) {
+        return inMemoryPersistence.getDeviceConfigurationService()
+                .findDeviceType(deviceType.getId())
+                .get();
     }
 
 }

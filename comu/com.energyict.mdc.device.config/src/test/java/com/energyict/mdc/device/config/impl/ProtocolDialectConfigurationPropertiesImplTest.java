@@ -118,9 +118,12 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -275,7 +278,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
             protocolPluggableClass.save();
 
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", protocolPluggableClass);
-            deviceType.save();
 
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();

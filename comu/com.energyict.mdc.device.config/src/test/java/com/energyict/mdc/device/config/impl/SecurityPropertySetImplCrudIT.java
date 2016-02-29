@@ -71,11 +71,21 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.fest.assertions.api.Assertions;
 import org.fest.assertions.core.Condition;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Optional;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -85,14 +95,6 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import java.time.Clock;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Optional;
 
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1;
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2;
@@ -482,7 +484,6 @@ public class SecurityPropertySetImplCrudIT {
         SecurityPropertySet propertySet;
         String expectedName = "Name";
         deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         DeviceConfiguration deviceConfiguration1 = deviceType.newConfiguration("Normal-1").add();
         deviceConfiguration1.save();
@@ -518,7 +519,6 @@ public class SecurityPropertySetImplCrudIT {
         SecurityPropertySet propertySet;
         String expectedName = "Name";
         deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
-        deviceType.save();
 
         DeviceConfiguration deviceConfiguration1 = deviceType.newConfiguration("Normal-1").add();
         deviceConfiguration1.save();
@@ -714,9 +714,7 @@ public class SecurityPropertySetImplCrudIT {
     }
 
     private DeviceType createDeviceType(String name) {
-        DeviceType deviceType = deviceConfigurationService.newDeviceType(name, deviceProtocolPluggableClass);
-        deviceType.save();
-        return deviceType;
+        return deviceConfigurationService.newDeviceType(name, deviceProtocolPluggableClass);
     }
 
     private DeviceConfiguration createNewInactiveConfiguration(DeviceType deviceType, String name) {

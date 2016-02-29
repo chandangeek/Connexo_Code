@@ -20,7 +20,7 @@ import java.util.List;
  */
 public abstract class PersistentIdObject<T> {
 
-    private long id;
+    long id;
 
     private final Class<T> domainClass;
     private final DataModel dataModel;

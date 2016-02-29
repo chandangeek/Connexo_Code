@@ -47,7 +47,7 @@ public interface DeviceConfigurationService {
      *
      * @param name The name of the new DeviceType
      * @param deviceProtocolPluggableClass The DeviceProtocolPluggableClass
-     * @return The newly created DeviceType
+     * @return The newly persisted DeviceType
      */
     public DeviceType newDeviceType(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
@@ -62,21 +62,36 @@ public interface DeviceConfigurationService {
      * @param name The name of the new DeviceType
      * @param deviceProtocolPluggableClass The DeviceProtocolPluggableClass
      * @param deviceLifeCycle The DeviceLifeCycle
-     * @return The newly created DeviceType
+     * @return The newly persisted DeviceType
      */
     public DeviceType newDeviceType(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle);
 
     /**
-     * Creates a new datalogger slave {@link DeviceType} with the specified name.
+     * Creates a new {@link com.energyict.mdc.device.config.DeviceType.DeviceTypeBuilder} with the specified name
+     * that uses the specified {@link DeviceProtocolPluggableClass device protocol}
+     * to communicate with the actual device.
      * The {@link com.elster.jupiter.fsm.State} of the devices
      * of this type are managed by the provided {@link DeviceLifeCycle}.
-     * This deviceType does not have communication related settings.
+     * This deviceType will not be usable for a datalogger slave
+     *
+     * @param name The name of the new DeviceType
+     * @param deviceProtocolPluggableClass The DeviceProtocolPluggableClass
+     * @param deviceLifeCycle The DeviceLifeCycle
+     * @return The newly created DeviceType
+     */
+    public DeviceType.DeviceTypeBuilder newDeviceTypeBuilder(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle);
+
+    /**
+     * Creates a new datalogger slave {@link com.energyict.mdc.device.config.DeviceType.DeviceTypeBuilder} with the specified name.
+     * The {@link com.elster.jupiter.fsm.State} of the devices
+     * of this type are managed by the provided {@link DeviceLifeCycle}.
+     * Devices of this deviceType will not be able to define communication related items.
      *
      * @param name The name of the new DeviceType
      * @param deviceLifeCycle The DeviceLifeCycle
      * @return The newly created datalogger slave DeviceType
      */
-    public DeviceType newDataloggerSlaveDeviceType(String name, DeviceLifeCycle deviceLifeCycle);
+    public DeviceType.DeviceTypeBuilder newDataloggerSlaveDeviceTypeBuilder(String name, DeviceLifeCycle deviceLifeCycle);
 
     /**
      * Find the {@link DeviceType} which is uniquely identified by the provided ID.

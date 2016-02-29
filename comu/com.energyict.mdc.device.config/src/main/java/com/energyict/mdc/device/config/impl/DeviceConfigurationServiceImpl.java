@@ -171,18 +171,23 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public DeviceType newDeviceType(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-        return this.newDeviceType(name, deviceProtocolPluggableClass, this.deviceLifeCycleConfigurationService.findDefaultDeviceLifeCycle().get());
+        return newDeviceTypeBuilder(name, deviceProtocolPluggableClass, this.deviceLifeCycleConfigurationService.findDefaultDeviceLifeCycle()
+                .get()).create();
     }
 
     @Override
     public DeviceType newDeviceType(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
-        return getDataModel().getInstance(DeviceTypeImpl.class)
-                .initializeRegular(name, deviceProtocolPluggableClass, deviceLifeCycle);
+        return newDeviceTypeBuilder(name, deviceProtocolPluggableClass, deviceLifeCycle).create();
     }
 
     @Override
-    public DeviceType newDataloggerSlaveDeviceType(String name, DeviceLifeCycle deviceLifeCycle) {
-        return getDataModel().getInstance(DeviceTypeImpl.class).initializeDataloggerSlave(name, deviceLifeCycle);
+    public DeviceType.DeviceTypeBuilder newDeviceTypeBuilder(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
+        return new DeviceTypeImpl.DeviceTypeBuilderImpl(getDataModel().getInstance(DeviceTypeImpl.class), name, deviceProtocolPluggableClass, deviceLifeCycle, false);
+    }
+
+    @Override
+    public DeviceType.DeviceTypeBuilder newDataloggerSlaveDeviceTypeBuilder(String name, DeviceLifeCycle deviceLifeCycle) {
+        return new DeviceTypeImpl.DeviceTypeBuilderImpl(getDataModel().getInstance(DeviceTypeImpl.class), name, null, deviceLifeCycle, true);
     }
 
     @Override

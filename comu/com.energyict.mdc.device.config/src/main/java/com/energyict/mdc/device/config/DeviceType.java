@@ -160,8 +160,6 @@ public interface DeviceType extends HasId, HasName {
 
     void removeConfiguration(DeviceConfiguration deviceConfigurationToDelete);
 
-    void save();
-
     void delete();
 
     boolean canActAsGateway();
@@ -170,10 +168,23 @@ public interface DeviceType extends HasId, HasName {
 
     boolean isDataloggerSlave();
 
-    //TODO remove this setter and use a proper updater
     void setDeviceTypePurpose(DeviceTypePurpose deviceTypePurpose);
 
     List<DeviceConfigConflictMapping> getDeviceConfigConflictMappings();
+
+    void update();
+
+    interface DeviceTypeBuilder {
+        DeviceTypeBuilder withRegisterTypes(List<RegisterType> registerTypes);
+
+        DeviceTypeBuilder withLoadProfileTypes(List<LoadProfileType> loadProfileTypes);
+
+        DeviceTypeBuilder withLogBookTypes(List<LogBookType> logBookTypes);
+
+        DeviceTypeBuilder setDescription(String description);
+
+        DeviceType create();
+    }
 
     interface DeviceConfigurationBuilder {
 
@@ -275,4 +286,10 @@ public interface DeviceType extends HasId, HasName {
 
         DeviceConfigurationBuilder gatewayType(GatewayType gatewayType);
     }
+
+    /**
+     * Please use the {@link DeviceTypeBuilder} instead, via the {@link DeviceConfigurationService}
+     */
+    @Deprecated
+    void save();
 }

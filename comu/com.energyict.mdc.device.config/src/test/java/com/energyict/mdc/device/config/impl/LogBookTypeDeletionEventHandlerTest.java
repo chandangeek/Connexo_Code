@@ -4,8 +4,12 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.exceptions.VetoLogBookTypeDeletionBecauseStillUsedByDeviceTypesException;
 import com.energyict.mdc.masterdata.LogBookType;
+
 import java.util.Optional;
-import org.junit.*;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -54,7 +58,6 @@ public class LogBookTypeDeletionEventHandlerTest extends DeviceTypeProvidingPers
 
         // Add the LogBookType to our DeviceType
         deviceType.addLogBookType(logBookType);
-        deviceType.save();
 
         // Business method
         logBookType.delete();

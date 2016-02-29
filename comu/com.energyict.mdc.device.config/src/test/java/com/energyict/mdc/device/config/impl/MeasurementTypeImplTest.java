@@ -1,6 +1,12 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.cbo.*;
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -16,6 +22,11 @@ import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenMeasur
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
+
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Optional;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -23,10 +34,6 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -87,7 +94,6 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(registerTypeName, this.deviceProtocolPluggableClass);
         deviceType.addRegisterType(registerType);
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
-        deviceType.save();
         NumericalRegisterSpec.Builder registerSpecBuilder = configurationBuilder.newNumericalRegisterSpec(registerType);
         registerSpecBuilder.overflowValue(overflowValue);
         registerSpecBuilder.numberOfFractionDigits(2);
@@ -128,7 +134,6 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(registerTypeName, this.deviceProtocolPluggableClass);
         deviceType.addLoadProfileType(this.loadProfileType);
         deviceType.addRegisterType(registerType);
-        deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(this.loadProfileType);
         configurationBuilder.newChannelSpec(channelTypeForRegisterType, loadProfileSpecBuilder).overflow(BigDecimal.valueOf(999999L)).nbrOfFractionDigits(3);
@@ -163,7 +168,6 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         // Use it in a DeviceType and DeviceConfiguration
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(registerTypeName, this.deviceProtocolPluggableClass);
         deviceType.addRegisterType(registerType);
-        deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         NumericalRegisterSpec.Builder registerSpecBuilder = configurationBuilder.newNumericalRegisterSpec(registerType);
         registerSpecBuilder.overflowValue(overflowValue);
@@ -201,7 +205,6 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         // Use it in a DeviceType and DeviceConfiguration
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(registerTypeName, this.deviceProtocolPluggableClass);
         deviceType.addRegisterType(registerType);
-        deviceType.save();
 
         try {
             registerType.delete();
