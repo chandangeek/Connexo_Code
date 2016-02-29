@@ -66,14 +66,10 @@ import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -82,8 +78,16 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class FavoritesServiceImplTest {
 
@@ -205,7 +209,6 @@ public class FavoritesServiceImplTest {
             when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
             deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             DeviceType deviceType = deviceConfigurationService.newDeviceType("Device type", deviceProtocolPluggableClass);
-            deviceType.save();
             DeviceConfiguration configuration = deviceType.newConfiguration("Configuration").add();
             configuration.save();
             configuration.activate();
