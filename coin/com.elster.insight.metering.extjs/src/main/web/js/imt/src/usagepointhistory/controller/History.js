@@ -112,7 +112,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
         attributeSetModel.getProxy().setUrl(mRID);
         attributeSetModel.load(customAttributeSetId, {
             success: function (record) {
-                var isEditable, addBtn, addBtnTop, actionColumn;
+                var isEditable, addBtn, addBtnTop, actionColumn, actionBtn;
 
                 if (newCard.rendered) {
                     Ext.suspendLayouts();
@@ -120,6 +120,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                     addBtn = newCard.down('#custom-attribute-set-add-version-btn');
                     addBtnTop = newCard.down('#custom-attribute-set-add-version-btn-top');
                     actionColumn = newCard.down('#custom-attribute-set-versions-grid-action-column');
+                    actionBtn = newCard.down('#custom-attribute-set-versions-preview-action-button');
 
                     if (addBtn) {
                         addBtn.setVisible(isEditable);
@@ -129,6 +130,9 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                     }
                     if (actionColumn) {
                         actionColumn.setVisible(isEditable);
+                    }
+                    if (actionBtn) {
+                        actionBtn.setVisible(isEditable);
                     }
                     Ext.resumeLayouts(true);
                 }

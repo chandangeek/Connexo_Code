@@ -12,6 +12,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionsP
         me.tools = [
             {
                 xtype: 'button',
+                itemId: 'custom-attribute-set-versions-preview-action-button',
                 hidden: me.hideAction,
                 privileges: Imt.privileges.UsagePoint.admin,
                 text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),

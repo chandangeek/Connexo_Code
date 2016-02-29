@@ -47,7 +47,8 @@ Ext.define('Imt.usagepointhistory.view.VersionsOverview', {
             previewComponent: {
                 xtype: 'custom-attribute-set-versions-preview',
                 itemId: 'custom-attribute-set-versions-preview',
-                type: me.type
+                type: me.type,
+                hideAction: true
             }
         };
 
