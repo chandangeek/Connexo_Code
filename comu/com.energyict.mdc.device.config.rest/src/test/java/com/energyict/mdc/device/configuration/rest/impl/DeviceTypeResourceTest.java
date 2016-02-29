@@ -126,14 +126,17 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         deviceTypeInfo.name = "newName";
         deviceTypeInfo.deviceProtocolPluggableClassName = "theProtocol";
         deviceTypeInfo.deviceTypePurpose = DeviceTypePurpose.REGULAR.name();
+        deviceTypeInfo.deviceLifeCycleId = null;
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
         DeviceType deviceType = mock(DeviceType.class);
+        DeviceType.DeviceTypeBuilder deviceTypeBuilder = mock(DeviceType.DeviceTypeBuilder.class);
+        when(deviceTypeBuilder.create()).thenReturn(deviceType);
 
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = Optional.empty();
         when(protocolPluggableService.findDeviceProtocolPluggableClassByName("theProtocol")).thenReturn(deviceProtocolPluggableClass);
-        when(deviceConfigurationService.newDeviceType("newName", null, null)).thenReturn(deviceType);
+        when(deviceConfigurationService.newDeviceTypeBuilder("newName", null, null)).thenReturn(deviceTypeBuilder);
         Response response = target("/devicetypes/").request().post(json);
-        verify(deviceType).save();
+        verify(deviceTypeBuilder).create();
     }
 
     @Test
@@ -152,7 +155,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(protocolPluggableService.findDeviceProtocolPluggableClassByName("theProtocol")).thenReturn(deviceProtocolPluggableClass);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
-        when(deviceConfigurationService.newDeviceType("newName", protocol, deviceLifeCycle)).thenReturn(deviceType);
+        DeviceType.DeviceTypeBuilder deviceTypeBuilder = mock(DeviceType.DeviceTypeBuilder.class);
+        when(deviceTypeBuilder.create()).thenReturn(deviceType);
+        when(deviceConfigurationService.newDeviceTypeBuilder("newName", protocol, deviceLifeCycle)).thenReturn(deviceTypeBuilder);
 
         Response response = target("/devicetypes/").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -168,9 +173,11 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
 
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(deviceLifeCycle));
+        DeviceType.DeviceTypeBuilder deviceTypeBuilder = mock(DeviceType.DeviceTypeBuilder.class);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
-        when(deviceConfigurationService.newDataloggerSlaveDeviceType("newName", deviceLifeCycle)).thenReturn(deviceType);
+        when(deviceTypeBuilder.create()).thenReturn(deviceType);
+        when(deviceConfigurationService.newDataloggerSlaveDeviceTypeBuilder("newName", deviceLifeCycle)).thenReturn(deviceTypeBuilder);
 
         Response response = target("/devicetypes/").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -1447,7 +1454,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
         when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
         MessageSeed messageSeed = mock(MessageSeed.class);
-        doThrow(new SomeLocalizedException(thesaurus, messageSeed)).when(deviceType).save();
+        doThrow(new SomeLocalizedException(thesaurus, messageSeed)).when(deviceType).update();
 
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.registerTypes = Arrays.asList(registerTypeInfo1);
@@ -1515,6 +1522,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
     @Test
     public void testUpdateDeviceLifeCycleForDeviceTypeFail() throws Exception {
+        long initialDeviceLifeCycleId = 1L;
+        long targetDeviceLifeCycleId = 2L;
+
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getId()).thenReturn(1L);
         when(deviceType.getName()).thenReturn("Device Type 1");
@@ -1527,15 +1537,17 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceType.getVersion()).thenReturn(1L);
 
         DeviceLifeCycle targetDeviceLifeCycle = mock(DeviceLifeCycle.class, RETURNS_DEEP_STUBS);
-        when(targetDeviceLifeCycle.getId()).thenReturn(2L);
+        when(targetDeviceLifeCycle.getId()).thenReturn(targetDeviceLifeCycleId);
         when(targetDeviceLifeCycle.getName()).thenReturn("Device life cycle 2");
+        when(targetDeviceLifeCycle.getAuthorizedActions()).thenReturn(Collections.emptyList());
 
         DeviceLifeCycle oldDeviceLifeCycle = mock(DeviceLifeCycle.class, RETURNS_DEEP_STUBS);
-        when(oldDeviceLifeCycle.getId()).thenReturn(1L);
+        when(oldDeviceLifeCycle.getId()).thenReturn(initialDeviceLifeCycleId);
         when(oldDeviceLifeCycle.getName()).thenReturn("Device life cycle 1");
+        when(oldDeviceLifeCycle.getAuthorizedActions()).thenReturn(Collections.emptyList());
 
         when(deviceConfigurationService.findAndLockDeviceType(1L, 1)).thenReturn(Optional.of(deviceType));
-        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(2L)).thenReturn(Optional.of(targetDeviceLifeCycle));
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(targetDeviceLifeCycleId)).thenReturn(Optional.of(targetDeviceLifeCycle));
         when(deviceType.getDeviceLifeCycle()).thenReturn(oldDeviceLifeCycle);
 
         State state = mock(State.class, RETURNS_DEEP_STUBS);
@@ -1547,7 +1559,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         doThrow(dldEx).when(deviceConfigurationService).changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
         ChangeDeviceLifeCycleInfo info = new ChangeDeviceLifeCycleInfo();
         info.targetDeviceLifeCycle = new DeviceLifeCycleInfo();
-        info.targetDeviceLifeCycle.id = 2;
+        info.targetDeviceLifeCycle.id = targetDeviceLifeCycleId;
         info.version = 1;
         Entity<ChangeDeviceLifeCycleInfo> json = Entity.json(info);
         Response response = target("/devicetypes/1/devicelifecycle").request().put(json);

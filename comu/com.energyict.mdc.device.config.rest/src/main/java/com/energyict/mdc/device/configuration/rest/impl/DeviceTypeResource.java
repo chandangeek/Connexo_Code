@@ -16,6 +16,7 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeException;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
@@ -48,6 +49,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -122,14 +124,13 @@ public class DeviceTypeResource {
                 .empty();
         DeviceType deviceType;
         if (deviceTypeInfo.deviceTypePurpose.equals(DeviceTypePurposeTranslationKeys.DATALOGGER_SLAVE.getKey())) {
-            deviceType = deviceConfigurationService.newDataloggerSlaveDeviceType(deviceTypeInfo.name, deviceLifeCycleRef
-                    .isPresent() ? deviceLifeCycleRef.get() : null);
+            deviceType = deviceConfigurationService.newDataloggerSlaveDeviceTypeBuilder(deviceTypeInfo.name, deviceLifeCycleRef
+                    .isPresent() ? deviceLifeCycleRef.get() : null).create();
         } else {
-            deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name,
+            deviceType = deviceConfigurationService.newDeviceTypeBuilder(deviceTypeInfo.name,
                     deviceProtocolPluggableClass.isPresent() ? deviceProtocolPluggableClass.get() : null,
-                    deviceLifeCycleRef.isPresent() ? deviceLifeCycleRef.get() : null);
+                    deviceLifeCycleRef.isPresent() ? deviceLifeCycleRef.get() : null).create();
         }
-        deviceType.save();
         return DeviceTypeInfo.from(deviceType);
     }
 
@@ -144,6 +145,7 @@ public class DeviceTypeResource {
         DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(deviceTypeInfo);
         deviceType.setName(deviceTypeInfo.name);
         deviceType.setDeviceProtocolPluggableClass(deviceTypeInfo.deviceProtocolPluggableClassName);
+        deviceType.setDeviceTypePurpose(getDeviceTypePurpose(deviceTypeInfo));
         if (deviceTypeInfo.registerTypes != null) {
             updateRegisterTypeAssociations(deviceType, deviceTypeInfo.registerTypes);
         }
@@ -158,9 +160,17 @@ public class DeviceTypeResource {
                 return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
             }
         }
-        deviceType.save();
+        deviceType.update();
         return Response.ok(DeviceTypeInfo.from(deviceType)).build();
     }
+
+    private DeviceTypePurpose getDeviceTypePurpose(DeviceTypeInfo deviceTypeInfo) {
+        return Arrays.stream(DeviceTypePurpose.values())
+                .filter(candidate -> candidate.name().equals(deviceTypeInfo.deviceTypePurpose))
+                .findFirst()
+                .orElse(null);
+    }
+
 
     private ChangeDeviceLifeCycleInfo getChangeDeviceLifeCycleFailInfo(IncompatibleDeviceLifeCycleChangeException lifeCycleChangeError, DeviceLifeCycle currentDeviceLifeCycle, DeviceLifeCycle targetDeviceLifeCycle) {
         ChangeDeviceLifeCycleInfo info = new ChangeDeviceLifeCycleInfo();
