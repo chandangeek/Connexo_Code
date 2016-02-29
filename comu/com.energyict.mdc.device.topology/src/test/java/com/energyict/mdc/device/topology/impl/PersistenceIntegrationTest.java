@@ -28,9 +28,13 @@ import java.util.EnumSet;
 import java.util.Optional;
 import java.util.TimeZone;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -114,7 +118,6 @@ public abstract class PersistenceIntegrationTest {
         when(clock.getZone()).thenReturn(utcTimeZone.toZoneId());
         when(clock.instant()).thenReturn(Instant.ofEpochMilli(0L));  // Create DeviceType as early as possible to support unit tests that go back in time
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
-        deviceType.save();
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfigurationBuilder.isDirectlyAddressable(true);
         deviceConfiguration = deviceConfigurationBuilder.add();

@@ -83,8 +83,10 @@ import java.security.Principal;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -224,7 +226,6 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
 
         try (TransactionContext ctx = this.transactionService.getContext()) {
             DeviceType deviceType = this.deviceConfigurationService.newDeviceType(DEVICE_TYPE_NAME, this.deviceProtocolPluggableClass);
-            deviceType.save();
             DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
             DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
             deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new TestDialect());

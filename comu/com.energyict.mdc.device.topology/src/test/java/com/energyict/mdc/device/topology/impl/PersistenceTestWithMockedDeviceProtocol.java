@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -7,16 +10,15 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
-import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
-import com.elster.jupiter.transaction.TransactionService;
-
 import java.sql.SQLException;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -77,7 +79,6 @@ public abstract class PersistenceTestWithMockedDeviceProtocol {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfiguration = deviceConfigurationBuilder.add();
-        deviceType.save();
         deviceConfiguration.activate();
     }
 

@@ -25,14 +25,15 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import org.assertj.core.api.Condition;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.assertj.core.api.Condition;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -104,7 +105,6 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
         configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(3);
         configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(3);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
-        deviceType.save();
         deviceConfiguration.activate();
         return deviceConfiguration;
     }
@@ -226,7 +226,6 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
         configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(3);
         configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(3);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
-        slaveDeviceType.save();
         deviceConfiguration.activate();
 
         Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave", MRID);
