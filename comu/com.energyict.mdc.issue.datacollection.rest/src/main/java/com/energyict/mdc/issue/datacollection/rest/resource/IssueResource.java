@@ -2,6 +2,7 @@ package com.energyict.mdc.issue.datacollection.rest.resource;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
@@ -40,21 +41,18 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
+import com.energyict.mdc.issue.datacollection.rest.IssueProcessInfo;
+import com.energyict.mdc.issue.datacollection.rest.IssueProcessInfos;
 import com.energyict.mdc.issue.datacollection.rest.i18n.DataCollectionIssueTranslationKeys;
 import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -144,9 +142,48 @@ public class IssueResource extends BaseResource {
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getComments(@PathParam(ID) long id, @BeanParam JsonQueryParameters queryParameters) {
         IssueDataCollection issue = getIssueDataCollectionService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return PagedInfoList.fromCompleteList("comments", issueResourceHelper.getIssueComments(issue), queryParameters);
+    }
+
+    @GET @Transactional
+    @Path("/{" + ID + "}/processes")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
+    public IssueProcessInfos getTimeine(@PathParam(ID) long id, @BeanParam StandardParametersBean params, @HeaderParam("Authorization") String auth) {
+        IssueDataCollection issue = getIssueDataCollectionService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         List<IssueCommentInfo> x = issueResourceHelper.getIssueComments(issue);
-        bpmService.getBpmServer();
-        return PagedInfoList.fromCompleteList("comments", x, queryParameters);
+        String jsonContent;
+        IssueProcessInfos issueProcessInfos = new IssueProcessInfos();
+        JSONArray arr = null;
+        if(params.get("variableid") != null && params.get("variablevalue") != null ) {
+            try {
+                String rest = "/rest/tasks/allprocesses?";
+                rest += "variableid=" + params.get("variableid").get(0);
+                rest += "&variablevalue=" + params.get("variablevalue").get(0);
+                jsonContent = bpmService.getBpmServer().doGet(rest, auth);
+                if (!"".equals(jsonContent)) {
+                    JSONObject obj = new JSONObject(jsonContent);
+                    arr = obj.getJSONArray("processInstances");
+                }
+
+            } catch (JSONException e) {
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(getThesaurus().getString("error.flow.unavailable", "Cannot connect to Flow; HTTP error {0}."))
+                    .build());
+            } catch (RuntimeException e) {
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(String.format(getThesaurus().getString("error.flow.invalid.response", "Invalid response received, please check your Flow version."), e.getMessage()))
+                    .build());
+            }
+            List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
+            issueProcessInfos = new IssueProcessInfos(arr);
+            List<IssueProcessInfo> runningProcessesList = issueProcessInfos.processes.stream()
+                    .filter(s -> !s.status.equals("1") || activeProcesses.stream().anyMatch(a -> s.name.equals(a.getProcessName()) && s.version.equals(a.getVersion())))
+                    .collect(Collectors.toList());
+            issueProcessInfos.processes = runningProcessesList;
+        }
+        return issueProcessInfos;
+
     }
 
     @POST @Transactional
