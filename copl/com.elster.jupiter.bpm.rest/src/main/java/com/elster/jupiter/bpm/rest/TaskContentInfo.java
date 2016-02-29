@@ -55,6 +55,14 @@ public class TaskContentInfo {
                                 isReadOnly = false;
                             }
                         }
+                    }else{
+                        if (prop.getString("name").equals("readonly")) {
+                            if (prop.getString("value").equals("true")) {
+                                isReadOnly = true;
+                            } else {
+                                isReadOnly = false;
+                            }
+                        }
                     }
                     if(prop.getString("name").equals("inputBinding")){
                         if(!prop.getString("value").equals("")) {
