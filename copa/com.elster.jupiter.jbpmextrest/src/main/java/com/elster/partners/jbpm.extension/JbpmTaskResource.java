@@ -396,12 +396,14 @@ public class JbpmTaskResource {
     @Produces("application/json")
     public ProcessInstanceNodeInfos getProcessInstanceNode(@Context UriInfo uriInfo,@PathParam("processInstanceId") long processInstanceId){
         String processInstanceState = "";
-        if(runtimeDataService.getProcessInstanceById(processInstanceId).getState() == 1){
-            processInstanceState = "Active";
-        }else if(runtimeDataService.getProcessInstanceById(processInstanceId).getState() == 2){
-            processInstanceState = "Completed";
-        }else{
-            processInstanceState = "Aborted";
+        if(runtimeDataService.getProcessInstanceById(processInstanceId) != null) {
+            if (runtimeDataService.getProcessInstanceById(processInstanceId).getState() == 1) {
+                processInstanceState = "Active";
+            } else if (runtimeDataService.getProcessInstanceById(processInstanceId).getState() == 2) {
+                processInstanceState = "Completed";
+            } else {
+                processInstanceState = "Aborted";
+            }
         }
         EntityManager em = emf.createEntityManager();
         String queryString = "select * from(select n.NODENAME, n.NODETYPE, n.log_date,n.NODEINSTANCEID, n.NODEID, n.ID from NODEINSTANCELOG n " +
