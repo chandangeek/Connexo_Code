@@ -49,6 +49,8 @@ public class ServiceCallResource {
         //Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCalls();
         ServiceCallFinder serviceCallFinder = serviceCallService.getServiceCallFinder();
         applyFilterToFinder(filter, serviceCallFinder);
+        queryParameters.getLimit().ifPresent(limit -> serviceCallFinder.setLimit(limit + 1));
+        queryParameters.getStart().ifPresent(start -> serviceCallFinder.setStart(start));
 
         List<ServiceCall> serviceCalls = serviceCallFinder.find();
 
@@ -59,14 +61,13 @@ public class ServiceCallResource {
     }
 
     private void applyFilterToFinder(JsonQueryFilter filter, ServiceCallFinder serviceCallFinder) {
-        //TODO: SET START AND LIMIT
         //TODO: CHECK TYPE AND STATE REF ISSUE
 
         if(filter.hasProperty("number")) {
             serviceCallFinder.setReference(filter.getString("number"));
         }
         if(filter.hasProperty("type")) {
-            //serviceCallFinder.setType(filter.getString("type"));
+            serviceCallFinder.setType(filter.getStringList("type"));
         }
         if(filter.hasProperty("state")) {
             //serviceCallFinder.setState(filter.getString("state"))
