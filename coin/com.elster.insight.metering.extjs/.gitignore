@@ -1,5 +1,13 @@
-.settings
 .classpath
 .project
-target
-src/main/web/js/imt/build/
+.settings/
+.idea/
+*.iml
+*.iws
+.DS_Store
+log/
+target/
+build/
+.gradle/
+bin/
+generated/

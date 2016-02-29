@@ -45,6 +45,9 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
                     dataIndex: 'startTime',
                     flex: 3,
                     renderer: function (value, meta, record, index, column) {
+                        if (record.get('editable')) {
+                            meta.style = 'font-weight: bold';
+                        }
                         if (record.get('editable') && value) {
                             var icon = '<span id="edit-column-icon-' + column + '" class="icon-calendar2" style="cursor: pointer; display: inline-block; width: 20px; height: 20px; float: right; font-size: 20px"></span>';
 
@@ -59,8 +62,8 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
                                 timeString = Uni.I18n.translate('general.infinite', 'IMT', 'Infinite');
                             }
 
-                            if (record.get('conflictAtStart')) {
-                                valueToShow = '<span style="font-style:normal; font-family: Lato, helvetica, arial, verdana, sans-serif; color: #eb5642;">' + timeString + '</span>';
+                            if (record.get('conflictAtStart') || record.get('conflictType') === 'RANGE_OVERLAP_DELETE') {
+                                valueToShow = '<span style="color: #eb5642;">' + timeString + '</span>';
                             } else {
                                 valueToShow = timeString;
                             }
@@ -74,6 +77,9 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
                     dataIndex: 'endTime',
                     flex: 3,
                     renderer: function (value, meta, record, index, column) {
+                        if (record.get('editable')) {
+                            meta.style = 'font-weight: bold';
+                        }
                         if (record.get('editable') && value) {
                             var icon = '<span id="edit-column-icon-' + column + '" class="icon-calendar2" style="cursor: pointer; display: inline-block; width: 20px; height: 20px; float: right; font-size: 20px"></span>';
 
@@ -88,8 +94,8 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
                                 timeString = Uni.I18n.translate('general.infinite', 'IMT', 'Infinite');
                             }
 
-                            if (record.get('conflictAtEnd')) {
-                                valueToShow = '<span style="font-style:normal; font-family: Lato, helvetica, arial, verdana, sans-serif; color: #eb5642;">' + timeString + '</span>';
+                            if (record.get('conflictAtEnd') || record.get('conflictType') === 'RANGE_OVERLAP_DELETE') {
+                                valueToShow = '<span style="color: #eb5642;">' + timeString + '</span>';
                             } else {
                                 valueToShow = timeString;
                             }
@@ -102,8 +108,12 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
                     header: Uni.I18n.translate('general.remark', 'IMT', 'Remark'),
                     dataIndex: 'message',
                     flex: 2,
-                    renderer: function (value) {
-                        return '<span style="font-style:normal; font-family: Lato, helvetica, arial, verdana, sans-serif; color: #eb5642;">' + value + '</span>';
+                    renderer: function (value, meta, record) {
+                        meta.style = 'color: #eb5642;';
+                        if (record.get('editable')) {
+                            meta.style += 'font-weight: bold;';
+                        }
+                        return value;
                     }
                 },
                 {
@@ -133,7 +143,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
                         xtype: 'container',
                         margin: '10 0 0 20',
                         flex: 1,
-                        html: '<span style="font-style:normal; font-family: Lato, helvetica, arial, verdana, sans-serif; color: #eb5642;">' + Uni.I18n.translate('customattributesetsversions.conflictedtoptext', 'IMT', 'There are conflicting versions') + '</span>'
+                        html: '<span style="color: #eb5642;">' + Uni.I18n.translate('customattributesetsversions.conflictedtoptext', 'IMT', 'There are conflicting versions') + '</span>'
                     },
                     {
                         text: Uni.I18n.translate('general.undo', 'IMT', 'Undo'),
@@ -146,7 +156,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
                 xtype: 'container',
                 margin: '10 0 -10 20',
                 dock: 'bottom',
-                html: '<span style="font-style:normal; font-family: Lato, helvetica, arial, verdana, sans-serif; color: #eb5642;">' + Uni.I18n.translate('customattributesetsversions.overlappanelbottomtext', 'IMT', 'Changes, made here, will take effect to other versions') + '</span>'
+                html: '<span style="color: #eb5642;">' + Uni.I18n.translate('customattributesetsversions.overlappanelbottomtext', 'IMT', 'Changes, made here, will take effect to other versions') + '</span>'
             }
         ];
 

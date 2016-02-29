@@ -7,12 +7,11 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
     fields: [
         {name: 'id', type: 'int'},
         {name: 'mRID', type: 'string'},
-        {name: 'serviceCategory', type: 'auto', defaultValue: null},
+        {name: 'serviceCategory', type: 'string'},
         {name: 'name', type: 'string'},
-        {name: 'version', type: 'int'},
-        //{name: 'createTime', type: 'date', dateFormat: 'time', defaultValue: new Date().getTime()},
-        {name: 'createTime', type: 'int'},
+        {name: 'installationTime', type: 'int', defaultValue: null, useNull: true},
         {name: 'location', type: 'string'},
+        {name: 'version', type: 'int'},
         {
             name: 'typeOfUsagePoint',
             persist: false,
@@ -58,8 +57,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
                 }
                 record.endEdit();
                 return value;
-            },
-
+            }
         },
         {name: 'isSdp', type: 'boolean', useNull: true},
         {name: 'isVirtual', type: 'boolean', useNull: true},
@@ -67,20 +65,12 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'connectionState', type: 'string', defaultValue: 'UNKNOWN'},
         {name: 'servicePriority', type: 'string'},
         {name: 'serviceDeliveryRemark', type: 'string'},
-        {name: 'techInfo', type: 'auto', defaultValue: null},
-        {name: 'techInfoType', type: 'string'},
-        {
-            name: 'created',
-            persist: false,
-            mapping: function(data){
-                return Uni.DateTime.formatDateTimeLong(new Date(data.createTime));
-            }
-        },
+        {name: 'techInfo', type: 'auto', defaultValue: {}}
     ],
 
     associations: [
         {
-            name: 'customProperties',
+            name: 'customPropertySets',
             associationKey: 'customProperties',
             type: 'hasMany',
             model: 'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'

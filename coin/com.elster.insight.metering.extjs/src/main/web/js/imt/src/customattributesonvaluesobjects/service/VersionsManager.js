@@ -13,13 +13,13 @@ Ext.define('Imt.customattributesonvaluesobjects.service.VersionsManager', {
 
         if (record.get('isActive')) {
             if (record.get('startTime')) {
-                htmlString += Ext.String.format("{0} {1}", Uni.I18n.translate('general.from', 'IMT', 'From'), Uni.DateTime.formatDateTimeLong(record.get('startTime')));
+                htmlString += Ext.String.format("{0} {1}", Uni.I18n.translate('general.from', 'IMT', 'From'), Uni.DateTime.formatDateTimeLong(new Date(record.get('startTime'))));
             }
             if (record.get('startTime') && record.get('endTime')) {
                 htmlString += ' - ';
             }
             if (record.get('endTime')) {
-                htmlString += Ext.String.format("{0} {1}", Uni.I18n.translate('general.until', 'IMT', 'Until'), Uni.DateTime.formatDateTimeLong(record.get('endTime')));
+                htmlString += Ext.String.format("{0} {1}", Uni.I18n.translate('general.until', 'IMT', 'Until'), Uni.DateTime.formatDateTimeLong(new Date(record.get('endTime'))));
             }
             if (!record.get('endTime') && !record.get('startTime')) {
                 htmlString += Uni.I18n.translate('general.infinite', 'IMT', 'Infinite');

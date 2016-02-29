@@ -3,8 +3,8 @@ Ext.define('Imt.privileges.UsagePoint', {
         'Uni.Auth'
     ],
     singleton: true,
-    view : ['MTR_ADMIN_ANYUSAGEPOINT','MTR_BROWSE_ANYUSAGEPOINT','MTR_ADMIN_OWN','MTR_BROWSE_OWNUSAGEPOINT'],
-    admin: ['MTR_ADMIN_OWN','MTR_ADMIN_ANYUSAGEPOINT'],
+    view: ['privilege.administer.anyUsagePoint', 'privilege.view.anyUsagePoint', 'privilege.administer.ownUsagePoint', 'privilege.view.ownUsagePoint'],
+    admin: ['privilege.administer.ownUsagePoint', 'privilege.administer.anyUsagePoint'],
 
     all: function() {
         return Ext.Array.merge(Imt.privileges.UsagePoint.view, Imt.privileges.UsagePoint.admin);

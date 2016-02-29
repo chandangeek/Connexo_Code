@@ -2,11 +2,11 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
     extend: 'Ext.container.Container',
     alias: 'widget.custom-attribute-set-version-form',
     itemId: 'centerContainer',
+    id: 'zaebalo',
     layout: {
         type: 'hbox',
         align: 'stretch'
     },
-    overflowX: 'auto',
     margin: '0 20',
 
     requires: [
@@ -62,6 +62,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                 items: [
                     {
                         xtype: 'uni-form-error-message',
+                        itemId: 'form-errors',
                         name: 'errors',
                         hidden: true,
                         width: 600,
@@ -105,7 +106,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                             {
                                 xtype: 'button',
                                 text: Uni.I18n.translate('general.restoretodefaults', 'IMT', 'Restore to defaults'),
-                                icon: '../sky/build/resources/images/form/restore.png',
+                                iconCls: 'icon-spinner12',
                                 itemId: 'custom-attributes-versions-restore-to-default-btn',
                                 handler: function () {
                                     me.restoreDefaultCustomAttributes();
@@ -190,6 +191,8 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
 
         showOverlap = function(scope, startDateField, endDateField, overlapContainer) {
             Ext.suspendLayouts();
+            me.minWidth = 1600;
+            me.up('viewport').updateLayout();
             overlapContainer.show();
             startDateField.disableWithText();
             endDateField.disableWithText();
@@ -212,9 +215,12 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
         record.propertiesStore = propertyForm.getRecord().properties();
         record.set('startTime', startDate);
         record.set('endTime', endDate);
+        me.minWidth = 1160;
+        me.up('viewport').updateLayout();
         overlapContainer.hide();
         Ext.resumeLayouts(true);
 
+        propertyForm.clearInvalid();
         record.save({
             backUrl: me.backUrl,
             params: {
@@ -252,6 +258,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                                 break;
                         }
                     });
+                    propertyForm.markInvalid(response.errors);
                 }
             },
             callback: function () {
@@ -279,6 +286,8 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                 callback: function () {
                     if (this.getCount() === 0) {
                         Ext.suspendLayouts();
+                        me.minWidth = 1160;
+                        me.up('viewport').updateLayout();
                         overlapContainer.hide();
                         me.down('uni-form-error-message').hide();
                         startDateField.enableWithText();

@@ -1,6 +1,7 @@
 Ext.define('Imt.usagepointmanagement.view.forms.CustomPropertySetInfo', {
     extend: 'Uni.property.form.Property',
     alias: 'widget.cps-info-form',
+    predefinedRecord: null,
 
     defaults: {
         labelWidth: 260,
@@ -36,5 +37,8 @@ Ext.define('Imt.usagepointmanagement.view.forms.CustomPropertySetInfo', {
         ];
 
         me.callParent(arguments);
+        if (me.predefinedRecord) {
+            me.loadRecord(me.predefinedRecord);
+        }
     }
 });

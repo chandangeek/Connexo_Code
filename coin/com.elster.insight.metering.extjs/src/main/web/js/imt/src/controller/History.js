@@ -10,6 +10,7 @@ Ext.define('Imt.controller.History', {
             	add: {
                 	title: Uni.I18n.translate('general.label.usagepoint.add', 'IMT', 'Add usage point'),
                     route: 'add',
+                    privileges: Imt.privileges.UsagePoint.admin,
                     controller: 'Imt.usagepointmanagement.controller.Edit',
                     action: 'showWizard'
             	},
@@ -269,17 +270,19 @@ Ext.define('Imt.controller.History', {
                         history: {
                             title: Uni.I18n.translate('general.history', 'IMT', 'History'),
                             route: 'history',
+                            privileges: Imt.privileges.UsagePoint.view,
                             controller: 'Imt.usagepointhistory.controller.History',
                             action: 'showHistory',
                             items: {
                                 customattributesversionsedit: {
                                     title: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
                                     route: 'customattributes/{customAttributeSetId}/versions/{versionId}/edit',
+                                    privileges: Imt.privileges.UsagePoint.admin,
                                     controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
                                     action: 'editCasVersion',
                                     callback: function (route) {
                                         this.getApplication().on('loadCasVersionOnUsagePoint', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [record.get('period')]));
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [record.get('period')], false));
                                             return true;
                                         }, {single: true});
 
@@ -289,11 +292,27 @@ Ext.define('Imt.controller.History', {
                                 customattributesversionsadd: {
                                     title: Uni.I18n.translate('general.add', 'IMT', 'Add'),
                                     route: 'customattributes/{customAttributeSetId}/versions/add',
+                                    privileges: Imt.privileges.UsagePoint.admin,
                                     controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
                                     action: 'editCasVersion',
                                     callback: function (route) {
                                         this.getApplication().on('loadCasOnUsagePointAdd', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.addxversion', 'IMT', "Add '{0}' version", [record.get('name')]));
+                                            route.setTitle(Uni.I18n.translate('general.addxversion', 'IMT', "Add '{0}' version", [record.get('name')], false));
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
+                                },
+                                customattributesversionsclone: {
+                                    title: Uni.I18n.translate('general.clone', 'IMT', 'Clone'),
+                                    route: 'customattributes/{customAttributeSetId}/versions/{versionId}/clone',
+                                    privileges: Imt.privileges.UsagePoint.admin,
+                                    controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
+                                    action: 'cloneCustomAttributeVersion',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadCustomAttributeSetVersionOnUsagePointClone', function (record) {
+                                            route.setTitle(Uni.I18n.translate('general.clonex', 'IMT', "Clone '{0}'", [record.get('period')], false));
                                             return true;
                                         }, {single: true});
 

@@ -1,17 +1,6 @@
 Ext.define('Imt.usagepointmanagement.view.forms.ThermalInfo', {
-    extend: 'Ext.form.Panel',
+    extend: 'Imt.usagepointmanagement.view.forms.BaseInfo',
     alias: 'widget.thermal-info-form',
-    requires: [
-        'Uni.util.FormErrorMessage',
-        'Imt.usagepointmanagement.view.forms.fields.MeasureField',
-        'Imt.usagepointmanagement.view.forms.fields.ThreeValuesField',
-        'Imt.usagepointmanagement.view.forms.fields.BypassField',
-        'Imt.usagepointmanagement.view.forms.fields.BypassStatusCombobox'
-    ],
-    defaults: {
-        labelWidth: 260,
-        width: 595
-    },
     items: [
         {
             itemId: 'technical-info-warning',
