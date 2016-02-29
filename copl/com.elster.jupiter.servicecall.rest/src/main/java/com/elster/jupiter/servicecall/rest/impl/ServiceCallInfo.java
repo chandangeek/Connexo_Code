@@ -7,6 +7,7 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,13 +59,12 @@ public class ServiceCallInfo {
                 stillHasParent = false;
             }
         }
+        Collections.reverse(parents);
     }
 
     private void addChildrenInfo(List<ServiceCall> children) {
         if(children.size() > 0) {
             hasChildren = true;
         }
-
-
     }
 }
