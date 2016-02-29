@@ -149,7 +149,8 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
                         text: Uni.I18n.translate('general.undo', 'IMT', 'Undo'),
                         itemId: 'overlap-panel-undo-btn',
                         xtype: 'button',
-                        margin: 0
+                        margin: 0,
+                        hidden: true
                     }
                 ]
             },
@@ -216,6 +217,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
             centerContainer.suspendCheckVersion = true;
             startDateField.setValue(timestamp);
             centerContainer.suspendCheckVersion = false;
+            undoBtn.show();
             Ext.resumeLayouts(true);
             centerContainer.checkRecord();
         });
@@ -227,6 +229,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
             centerContainer.suspendCheckVersion = true;
             endDateField.setValue(timestamp);
             centerContainer.suspendCheckVersion = false;
+            undoBtn.show();
             Ext.resumeLayouts(true);
             centerContainer.checkRecord();
         });
@@ -240,6 +243,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
             startDateField.setValue(e.record.get('startTime'));
             endDateField.setValue(e.record.get('endTime'));
             centerContainer.suspendCheckVersion = false;
+            undoBtn.show();
             Ext.resumeLayouts(true);
             centerContainer.checkRecord();
         });
@@ -253,6 +257,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
             startDateField.setValue(centerContainer.savedStartDate);
             endDateField.setValue(centerContainer.savedEndDate);
             centerContainer.suspendCheckVersion = false;
+            undoBtn.hide();
             Ext.resumeLayouts(true);
             centerContainer.checkRecord();
         });
