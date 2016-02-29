@@ -1,28 +1,8 @@
 package com.elster.jupiter.cps.impl;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.CustomPropertySetValues;
-import com.elster.jupiter.cps.HardCodedFieldNames;
-import com.elster.jupiter.cps.OverlapCalculatorBuilder;
-import com.elster.jupiter.cps.PersistenceSupport;
-import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.cps.Privileges;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.cps.ValuesRangeConflict;
-import com.elster.jupiter.cps.ValuesRangeConflictType;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DeleteRule;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.cps.*;
+import com.elster.jupiter.nls.*;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.CommitException;
@@ -38,20 +18,12 @@ import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
@@ -278,7 +250,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 try (TransactionContext ctx = transactionService.getContext()) {
                     this.registerCustomPropertySet(customPropertySet, systemDefined);
                     ctx.commit();
-                } catch (Exception ex) {
+                } catch (UnderlyingSQLFailedException | CommitException ex) {
                     ex.printStackTrace();
                 }
             }
