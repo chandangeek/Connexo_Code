@@ -1,4 +1,4 @@
-Ext.define('InsightApp.Application', {
+Ext.define('MdmApp.Application', {
     extend: 'Ext.app.Application',
 
     requires:[
@@ -8,7 +8,7 @@ Ext.define('InsightApp.Application', {
     ],
 
     controllers: [
-        'InsightApp.controller.Main'
+        'MdmApp.controller.Main'
     ],
     launch: function () {
         // Removes the loading indicator.

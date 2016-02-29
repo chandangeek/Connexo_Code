@@ -12,7 +12,7 @@
     <artifactId>mdm.app</artifactId>
     <packaging>bundle</packaging>
     <version>1.1.0-SNAPSHOT</version>
-    <name>[MDM] mdm.app [init INSAPP]</name>
+    <name>[MDM] mdm.app [init MDMAPP]</name>
     <description>
         Contains ExtJS code for the insight app
     </description>
@@ -116,7 +116,7 @@
         <profile>
             <id>sencha-build</id>
             <properties>
-                <js.dir>js/insight</js.dir>
+                <js.dir>js/mdm</js.dir>
             </properties>
         </profile>
     </profiles>

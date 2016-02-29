@@ -1,7 +1,7 @@
-package com.elster.insight.app;
+package com.elster.jupiter.mdm;
 
-public interface InsightAppService {
-    String COMPONENTNAME = "INSAPP";
+public interface MdmAppService {
+    String COMPONENTNAME = "MDMAPP";
     String APPLICATION_KEY = "INS";
     String APPLICATION_NAME = "Insight";
 

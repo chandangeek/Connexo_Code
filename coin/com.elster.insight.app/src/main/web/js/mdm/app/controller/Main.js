@@ -1,7 +1,7 @@
 /**
- * @class InsightApp.controller.Main
+ * @class MdmApp.controller.Main
  */
-Ext.define('InsightApp.controller.Main', {
+Ext.define('MdmApp.controller.Main', {
     extend: 'Uni.controller.AppController',
 
     requires: [

@@ -1,11 +1,11 @@
-package com.elster.insight.app.impl;
+package com.elster.jupiter.mdm.impl;
 
-import com.elster.insight.app.InsightAppService;
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.DefaultStartPage;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.mdm.MdmAppService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
@@ -27,16 +27,16 @@ import java.util.List;
 import java.util.logging.Logger;
 
 @Component(
-        name = "com.elster.insight.app",
-        service = {InsightAppService.class, ApplicationPrivilegesProvider.class, TranslationKeyProvider.class},
+        name = "com.elster.jupiter.mdm.app",
+        service = {MdmAppService.class, ApplicationPrivilegesProvider.class, TranslationKeyProvider.class},
         immediate = true)
 @SuppressWarnings("unused")
-public class InsightAppServiceImpl implements InsightAppService, ApplicationPrivilegesProvider, TranslationKeyProvider {
+public class MdmAppServiceImpl implements MdmAppService, ApplicationPrivilegesProvider, TranslationKeyProvider {
 
-    private static final Logger LOGGER = Logger.getLogger(InsightAppServiceImpl.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(MdmAppServiceImpl.class.getName());
 
     public static final String HTTP_RESOURCE_ALIAS = "/insight";
-    public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/insight";
+    public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/mdm";
 
     public static final String APP_ICON = "connexo";
 
@@ -44,11 +44,11 @@ public class InsightAppServiceImpl implements InsightAppService, ApplicationPriv
     private volatile UserService userService;
     private volatile License license;
 
-    public InsightAppServiceImpl() {
+    public MdmAppServiceImpl() {
     }
 
     @Inject
-    public InsightAppServiceImpl(UserService userService, BundleContext context) {
+    public MdmAppServiceImpl(UserService userService, BundleContext context) {
         setUserService(userService);
         activate(context);
     }
@@ -88,7 +88,7 @@ public class InsightAppServiceImpl implements InsightAppService, ApplicationPriv
 
     @Override
     public List<String> getApplicationPrivileges() {
-        return InsightAppPrivileges.getApplicationAllPrivileges();
+        return MdmAppPrivileges.getApplicationAllPrivileges();
     }
 
     @Override
