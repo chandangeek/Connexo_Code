@@ -81,6 +81,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePointBuilder.withServiceDeliveryRemark(anyString())).thenReturn(usagePointBuilder);
         when(usagePointBuilder.withServicePriority(anyString())).thenReturn(usagePointBuilder);
         when(usagePointBuilder.withInstallationTime(Instant.EPOCH)).thenReturn(usagePointBuilder);
+        when(usagePointBuilder.withServiceLocationString(anyString())).thenReturn(usagePointBuilder);
         when(usagePointBuilder.create()).thenReturn(usagePoint);
         when(usagePointBuilder.validate()).thenReturn(usagePoint);
 
@@ -110,6 +111,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePoint.getMRID()).thenReturn("MRID");
         when(usagePoint.getInstallationTime()).thenReturn(Instant.EPOCH);
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
+        when(usagePoint.getServiceLocationString()).thenReturn("serviceLocation");
 
         UsagePointCustomPropertySetExtension extension = mock(UsagePointCustomPropertySetExtension.class);
         when(extension.getAllPropertySets()).thenReturn(Collections.emptyList());

@@ -18,6 +18,7 @@ public class UsagePointInfo {
     public Long id;
     public String serviceCategory;
     public Long serviceLocationId;
+    public String serviceLocation;
 
     public String mRID;
     public String name;
@@ -39,7 +40,6 @@ public class UsagePointInfo {
     public long version;
     public long createTime;
     public long modTime;
-    public ServiceLocationInfo serviceLocation;
     public MetrologyConfigurationInfo metrologyConfiguration;
 
     public UsagePointInfo() {
