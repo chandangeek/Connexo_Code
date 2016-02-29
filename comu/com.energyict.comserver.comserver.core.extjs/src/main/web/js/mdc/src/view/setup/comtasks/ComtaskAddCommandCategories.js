@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskAddCommandCategories', {
                     margin: '15 0 20 0',
                     title: Uni.I18n.translate('comtask.commandCategories.empty.title', 'MDC', 'No command categories found'),
                     reasons: [
-                        Uni.I18n.translate('comtask.commandCategories.empty.list.item1', 'MDC', 'All command categories have already been added to the communication task.')
+                        Uni.I18n.translate('comtask.commandCategories.empty.list.item1', 'MDC', 'No command categories have been added yet.')
                     ]
                 }
             },
