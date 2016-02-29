@@ -23,6 +23,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     private String readRoute;
     private String servicePriority;
     private String serviceDeliveryRemark;
+    private String serviceLocationString;
     private Instant installationTime;
 
     private ServiceCategory serviceCategory;
@@ -95,8 +96,14 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
-    public UsagePointBuilder setServiceLocation(ServiceLocation location) {
+    public UsagePointBuilder withServiceLocation(ServiceLocation location) {
         this.serviceLocation = location;
+        return this;
+    }
+
+    @Override
+    public UsagePointBuilder withServiceLocationString(String serviceLocationString) {
+        this.serviceLocationString = serviceLocationString;
         return this;
     }
 
@@ -131,6 +138,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
         usagePoint.setServiceLocation(serviceLocation);
         usagePoint.setInstallationTime(installationTime);
         usagePoint.setServiceDeliveryRemark(serviceDeliveryRemark);
+        usagePoint.setServiceLocationString(serviceLocationString);
         return usagePoint;
     }
 }

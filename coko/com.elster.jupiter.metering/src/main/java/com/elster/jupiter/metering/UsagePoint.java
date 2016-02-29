@@ -40,6 +40,8 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
 
     Optional<ServiceLocation> getServiceLocation();
 
+    String getServiceLocationString();
+
     ServiceCategory getServiceCategory();
 
     public Instant getInstallationTime();
@@ -51,6 +53,8 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
     void setServiceDeliveryRemark(String serviceDeliveryRemark);
 
     void setServiceLocation(ServiceLocation serviceLocation);
+
+    void setServiceLocationString(String serviceLocationString);
 
     void setServicePriority(String servicePriority);
 

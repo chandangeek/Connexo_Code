@@ -157,7 +157,7 @@ public class UsagePointQueryTest {
                 .create();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID")
                 .withInstallationTime(Instant.EPOCH)
-                .setServiceLocation(location).create();
+                .withServiceLocation(location).create();
         usagePoint.setServiceLocation(location);
         ElectricityDetailImpl detail = (ElectricityDetailImpl) serviceCategory.newUsagePointDetail(usagePoint, Instant.now());
         detail.setRatedPower(Unit.WATT_HOUR.amount(BigDecimal.valueOf(1000),3));

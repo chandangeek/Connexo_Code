@@ -24,7 +24,9 @@ public interface UsagePointBuilder {
 
     UsagePointBuilder withServiceDeliveryRemark(String serviceDeliveryRemark);
 
-    UsagePointBuilder setServiceLocation(ServiceLocation location);
+    UsagePointBuilder withServiceLocation(ServiceLocation location);
+
+    UsagePointBuilder withServiceLocationString(String serviceLocationString);
 
     UsagePointBuilder withInstallationTime(Instant installationTime);
 
