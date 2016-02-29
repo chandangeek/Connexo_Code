@@ -1,6 +1,13 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.cbo.*;
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
@@ -15,18 +22,17 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
 import org.assertj.core.api.Condition;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -117,7 +123,6 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(2);
         configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder).overruledObisCode(overruledObisCode).overflow(overflow).nbrOfFractionDigits(2);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
-        deviceType.save();
         deviceConfiguration.activate();
         return deviceConfiguration;
     }
@@ -411,7 +416,6 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         configWithMultipliedChannelBuilder.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(2).useMultiplierWithCalculatedReadingType(rt_deltaActiveEnergyPrimary15Min);
         configWithMultipliedChannelBuilder.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder).overflow(overflow).nbrOfFractionDigits(2);
         DeviceConfiguration deviceConfiguration = configWithMultipliedChannelBuilder.add();
-        deviceType.save();
         deviceConfiguration.activate();
         return deviceConfiguration;
     }

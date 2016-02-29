@@ -15,7 +15,14 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterConfiguration;
+import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -26,7 +33,11 @@ import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.BillingReading;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -42,15 +53,9 @@ import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.google.common.collect.Range;
-import org.assertj.core.api.Condition;
 import org.joda.time.DateTimeConstants;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -58,7 +63,21 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TimeZone;
+
+import org.assertj.core.api.Condition;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -530,7 +549,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void createWithInActiveDeviceConfigurationTest() {
         DeviceType.DeviceConfigurationBuilder inactiveConfig = deviceType.newConfiguration("Inactie");
         DeviceConfiguration deviceConfiguration = inactiveConfig.add();
-        deviceType.save();
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "MySimpleName", "BlaBla");
         device.save();
@@ -541,11 +559,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void testGatewayTypeMethodsForHAN() {
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("GatewayTypeMethodsForHAN", deviceProtocolPluggableClass);
-        deviceType.save();
         DeviceType.DeviceConfigurationBuilder config = deviceType.newConfiguration("some config").gatewayType(GatewayType.HOME_AREA_NETWORK);
         DeviceConfiguration deviceConfiguration = config.add();
         deviceConfiguration.activate();
-        deviceType.save();
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "name", "description");
         device.save();
@@ -558,11 +574,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void testGatewayTypeMethodsForLAN() {
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("GatewayTypeMethodsForLAN", deviceProtocolPluggableClass);
-        deviceType.save();
         DeviceType.DeviceConfigurationBuilder config = deviceType.newConfiguration("some config").gatewayType(GatewayType.LOCAL_AREA_NETWORK);
         DeviceConfiguration deviceConfiguration = config.add();
         deviceConfiguration.activate();
-        deviceType.save();
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "name", "description");
         device.save();
@@ -575,11 +589,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void testGatewayTypeMethodsForNonConcentrator() {
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("GatewayTypeMethodsForNonConcentrator", deviceProtocolPluggableClass);
-        deviceType.save();
         DeviceType.DeviceConfigurationBuilder config = deviceType.newConfiguration("some config");
         DeviceConfiguration deviceConfiguration = config.add();
         deviceConfiguration.activate();
-        deviceType.save();
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "name", "description");
         device.save();
@@ -1237,7 +1249,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         registerSpecBuilder2.numberOfFractionDigits(0);
         registerSpecBuilder2.overflowValue(overflowValue);
         DeviceConfiguration deviceConfiguration = configurationWithRegisterTypes.add();
-        deviceType.save();
         deviceConfiguration.activate();
         return deviceConfiguration;
     }
@@ -1396,7 +1407,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         registerSpecBuilder2.overflowValue(overflowValue);
         registerSpecBuilder2.useMultiplierWithCalculatedReadingType(reverseBulkPrimaryEnergyReadingType);
         DeviceConfiguration deviceConfiguration = configurationWithRegisterTypes.add();
-        deviceType.save();
         deviceConfiguration.activate();
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultiplierOnRegister", "DeviceWithMultiplierOnRegister");
@@ -1440,7 +1450,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         registerSpecBuilder2.overflowValue(overflowValue);
         registerSpecBuilder2.useMultiplierWithCalculatedReadingType(reverseBulkPrimaryEnergyReadingType);
         DeviceConfiguration deviceConfiguration = configurationWithRegisterTypes.add();
-        deviceType.save();
         deviceConfiguration.activate();
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultiplierOnRegister", "DeviceWithMultiplierOnRegister");
@@ -1495,7 +1504,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
 
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
-        deviceType.save();
         deviceConfiguration.activate();
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultipliers", "DeviceWithMultipliers");
@@ -1562,7 +1570,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
 
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
-        deviceType.save();
         deviceConfiguration.activate();
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultipliers", "DeviceWithMultipliers");
@@ -1676,7 +1683,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         registerSpecBuilder2.numberOfFractionDigits(0);
         registerSpecBuilder2.overflowValue(overflowValue);
         DeviceConfiguration deviceConfiguration = configurationWithRegisterTypes.add();
-        deviceType.save();
         deviceConfiguration.activate();
         return deviceConfiguration;
     }
@@ -1695,7 +1701,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder).overflow(overflowValue).nbrOfFractionDigits(numberOfFractionDigits);
         configurationWithLoadProfileAndChannel.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder).overflow(overflowValue).nbrOfFractionDigits(numberOfFractionDigits);
         DeviceConfiguration deviceConfiguration = configurationWithLoadProfileAndChannel.add();
-        deviceType.save();
         deviceConfiguration.activate();
         return deviceConfiguration;
     }

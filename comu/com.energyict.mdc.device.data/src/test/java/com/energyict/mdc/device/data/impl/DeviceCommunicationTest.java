@@ -48,8 +48,11 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.assertj.core.api.Condition;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -135,7 +138,6 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = configurationWithConnectionType.add();
         addPartialOutboundConnectionTask(deviceConfiguration);
         deviceConfiguration.activate();
-        deviceType.save();
         return deviceConfiguration;
     }
 
@@ -144,7 +146,6 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         configurationWithConnectionType.isDirectlyAddressable(true);
         DeviceConfiguration deviceConfiguration = configurationWithConnectionType.add();
         addPartialIpOutboundConnectionTask(deviceConfiguration);
-        deviceType.save();
         deviceConfiguration.activate();
         return deviceConfiguration;
     }
@@ -153,7 +154,6 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         DeviceType.DeviceConfigurationBuilder configurationWithConnectionType = deviceType.newConfiguration("ConfigurationWithPartialInboundConnectionTask");
         DeviceConfiguration deviceConfiguration = configurationWithConnectionType.add();
         addPartialInboundConnectionTask(deviceConfiguration);
-        deviceType.save();
         return deviceConfiguration;
     }
 
@@ -161,7 +161,6 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         DeviceType.DeviceConfigurationBuilder configurationWithConnectionType = deviceType.newConfiguration("ConfigurationWithPartialInboundConnectionTask");
         DeviceConfiguration deviceConfiguration = configurationWithConnectionType.add();
         addPartialInboundConnectionTask(deviceConfiguration);
-        deviceType.save();
         deviceConfiguration.activate();
         return deviceConfiguration;
     }
@@ -172,7 +171,6 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = configurationWithConnectionType.add();
         addPartialConnectionInitiationConnectionTask(deviceConfiguration);
         deviceConfiguration.activate();
-        deviceType.save();
         return deviceConfiguration;
     }
 
@@ -183,7 +181,6 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         addPartialOutboundConnectionTask(deviceConfiguration);
         addPartialInboundConnectionTask(deviceConfiguration);
         addPartialConnectionInitiationConnectionTask(deviceConfiguration);
-        deviceType.save();
         return deviceConfiguration;
     }
 

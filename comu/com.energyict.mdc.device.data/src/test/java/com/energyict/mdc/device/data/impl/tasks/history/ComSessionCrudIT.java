@@ -117,9 +117,12 @@ import java.util.EnumSet;
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -297,7 +300,6 @@ public class ComSessionCrudIT {
 
         try (TransactionContext ctx = transactionService.getContext()) {
             deviceType = deviceConfigurationService.newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
-            deviceType.save();
             DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
             deviceConfigurationBuilder.isDirectlyAddressable(true);
             deviceConfiguration = deviceConfigurationBuilder.add();

@@ -17,9 +17,12 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -90,7 +93,6 @@ public abstract class PersistenceTestWithMockedDeviceProtocol {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfiguration = deviceConfigurationBuilder.add();
-        deviceType.save();
         deviceConfiguration.activate();
         IssueStatus wontFix = mock(IssueStatus.class);
         when(inMemoryPersistence.getIssueService().findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.of(wontFix));

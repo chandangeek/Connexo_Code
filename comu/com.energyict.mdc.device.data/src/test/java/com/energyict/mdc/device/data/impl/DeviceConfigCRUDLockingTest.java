@@ -8,6 +8,7 @@ import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConfl
 import com.energyict.mdc.device.data.impl.configchange.ConflictCreationEventHandler;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
 import com.energyict.mdc.device.data.impl.configchange.VetoCreateNewConflictForActiveConfigChange;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -37,7 +38,6 @@ public class DeviceConfigCRUDLockingTest extends PersistenceIntegrationTest {
     public void eventHandlerGeneratesProperVetoWhenLockExists() {
         final DeviceConfiguration myConfig = deviceType.newConfiguration("MyConfig").add();
         myConfig.save();
-        deviceType.save();
         final DeviceConfigConflictMappingImpl deviceConfigConflictMapping = ((ServerDeviceType) deviceType).newConflictMappingFor(myConfig, myConfig);
         final LocalEvent localEvent = mockLocalEvent(com.energyict.mdc.device.config.events.EventType.DEVICE_CONFIG_CONFLICT_VALIDATE_CREATE.topic(), deviceConfigConflictMapping);
 
