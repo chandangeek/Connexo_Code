@@ -63,8 +63,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.*;
-import org.junit.rules.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -324,7 +328,6 @@ public class DataValidationIssueCreationRuleTemplateTest {
     private DeviceType createDeviceType() {
         DeviceConfigurationService deviceConfigurationService = inMemoryPersistence.getService(DeviceConfigurationService.class);
         DeviceType deviceType = deviceConfigurationService.newDeviceType("DeviceType", mock(DeviceProtocolPluggableClass.class, Mockito.RETURNS_DEEP_STUBS));
-        deviceType.save();
         return deviceType;
     }
 
