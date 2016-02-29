@@ -3,16 +3,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.elster</groupId>
-        <artifactId>insight.parent</artifactId>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>mdm.parent</artifactId>
         <version>1.1.0-SNAPSHOT</version>
         <relativePath>../com.elster.insight.parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>insight.app</artifactId>
+    <artifactId>mdm.app</artifactId>
     <packaging>bundle</packaging>
     <version>1.1.0-SNAPSHOT</version>
-    <name>[Insight] insight.app [init INSAPP]</name>
+    <name>[MDM] mdm.app [init INSAPP]</name>
     <description>
         Contains ExtJS code for the insight app
     </description>
@@ -99,12 +99,12 @@
             <artifactId>cps</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.elster</groupId>
-            <artifactId>insight.usagepoint.config</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.usagepoint.config</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.elster</groupId>
-            <artifactId>insight.metering.extjs</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.metering.extjs</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
