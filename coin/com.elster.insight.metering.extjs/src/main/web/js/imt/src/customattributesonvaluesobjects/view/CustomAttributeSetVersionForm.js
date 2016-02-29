@@ -2,11 +2,9 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
     extend: 'Ext.container.Container',
     alias: 'widget.custom-attribute-set-version-form',
     itemId: 'centerContainer',
-    layout: {
-        type: 'hbox',
-        align: 'stretch'
-    },
-    margin: '0 20',
+    padding: '0 16 16 16',
+    overflowY: 'auto',
+    layout: 'hbox',
 
     requires: [
         'Uni.property.form.Property',
@@ -141,7 +139,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                 margin: '40 0 0 0',
                 hidden: true,
                 privileges: Imt.privileges.UsagePoint.adminTimeSlicedCps,
-                width: 950,
+                width: 968,
                 items: [
                     {
                         xtype: 'custom-attribute-set-versions-overlap-grid',
@@ -207,7 +205,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
 
         showOverlap = function(scope, startDateField, endDateField, overlapContainer) {
             Ext.suspendLayouts();
-            me.minWidth = 1620;
+            me.minWidth = 1650;
             me.up('viewport').updateLayout();
             overlapContainer.show();
             startDateField.disableWithText();
