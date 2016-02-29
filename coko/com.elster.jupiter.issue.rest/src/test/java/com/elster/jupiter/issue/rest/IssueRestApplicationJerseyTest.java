@@ -5,6 +5,7 @@ import com.elster.jupiter.issue.rest.impl.IssueApplication;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueAction;
+import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
@@ -48,6 +49,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import static org.mockito.Matchers.anyVararg;
@@ -333,6 +335,20 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn(translation);
         return messageFormat;
+    }
+
+    protected IssueGroupFilter mockIssueGroupFilter() {
+        IssueGroupFilter issueGroupFilter = mock(IssueGroupFilter.class);
+        when(issueGroupFilter.using(Matchers.<Class>anyObject())).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.onlyGroupWithKey(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.withIssueTypes(Matchers.<List<String>>anyObject())).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.withStatuses(Matchers.<List<String>>anyObject())).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.withMeterMrid(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.groupBy(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.setAscOrder(false)).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.from(1L)).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.to(2L)).thenReturn(issueGroupFilter);
+        return issueGroupFilter;
     }
 
 }

@@ -13,6 +13,7 @@ import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.PropertyUtils;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.share.IssueActionResult;
+import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
@@ -20,7 +21,6 @@ import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
-import com.elster.jupiter.issue.share.service.IssueFilter;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -124,7 +124,7 @@ public class IssueResourceHelper {
     }
 
     public IssueFilter buildFilterFromQueryParameters(JsonQueryFilter jsonFilter) {
-        IssueFilter filter = new IssueFilter();
+        IssueFilter filter = issueService.newIssueFilter();
         jsonFilter.getStringList(IssueRestModuleConst.STATUS).stream()
                 .flatMap(s -> issueService.findStatus(s).map(Stream::of).orElse(Stream.empty()))
                 .forEach(filter::addStatus);

@@ -7,6 +7,8 @@ import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueShortInfo;
+import com.elster.jupiter.issue.share.IssueFilter;
+import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
@@ -16,8 +18,6 @@ import com.elster.jupiter.issue.share.entity.IssueGroup;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.share.service.IssueFilter;
-import com.elster.jupiter.issue.share.service.IssueGroupFilter;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
@@ -54,6 +54,9 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
     @Mock
     InfoFactory infoFactory;
 
+    @Mock
+    IssueFilter issueFilter;
+
     @Test
     public void testGetAllIssuesWithoutParameters() {
         Response response = target("/issues").request().get();
@@ -76,7 +79,7 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
     public void testGetAllIssuesNominalCase() {
         Optional<IssueStatus> status = Optional.of(getDefaultStatus());
         when(issueService.findStatus("open")).thenReturn(status);
-
+        when(issueService.newIssueFilter()).thenReturn(issueFilter);
         Finder<? extends Issue> issueFinder = mock(Finder.class);
         doReturn(issueFinder).when(issueService).findIssues(any(IssueFilter.class), anyVararg());
 
@@ -224,8 +227,9 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         when(entity.getCount()).thenReturn(5L);
 
         List<IssueGroup> groupedList = Arrays.asList(entity);
-        when(issueService.getIssueGroupList(Matchers.<IssueGroupFilter>anyObject())).thenReturn(groupedList);
-
+        IssueGroupFilter issueGroupFilter = mockIssueGroupFilter();
+        when(issueService.newIssueGroupFilter()).thenReturn(issueGroupFilter);
+        doReturn(groupedList).when(issueService).getIssueGroupList(issueGroupFilter);
         TransactionContext context = mock(TransactionContext.class);
         when(transactionService.getContext()).thenReturn(context);
 

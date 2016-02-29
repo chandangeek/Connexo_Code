@@ -18,9 +18,9 @@ import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.security.Privileges;
+import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.*;
-import com.elster.jupiter.issue.share.service.IssueGroupFilter;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -175,7 +175,7 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getGroupedList(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
-        IssueGroupFilter groupFilter = new IssueGroupFilter();
+        IssueGroupFilter groupFilter = getIssueService().newIssueGroupFilter();
         groupFilter.using(getQueryApiClass(filter)) // Issues, Historical Issues or Both
               .onlyGroupWithKey(filter.getString(IssueRestModuleConst.REASON))  // Reason id
               .withIssueTypes(filter.getStringList(IssueRestModuleConst.ISSUE_TYPE)) // Reasons only with specific issue type
