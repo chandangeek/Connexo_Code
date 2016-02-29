@@ -3,6 +3,9 @@ Ext.define('Bpm.controller.FilterSortTasks', {
     stores: [
 		'Bpm.store.task.Tasks'
     ],
+    views: [
+        'Uni.view.button.SortItemButton'
+    ],
     refs: [
         {
             ref: 'page',

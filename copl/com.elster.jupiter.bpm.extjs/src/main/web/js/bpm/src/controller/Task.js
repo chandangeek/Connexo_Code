@@ -3,7 +3,8 @@ Ext.define('Bpm.controller.Task', {
     requires: [
         'Bpm.privileges.BpmManagement',
         'Bpm.controller.FilterSortTasks',
-        'Bpm.controller.OpenTask'
+        'Bpm.controller.OpenTask',
+        'Uni.component.sort.model.Sort'
     ],
     views: [
         'Bpm.view.task.Tasks'
