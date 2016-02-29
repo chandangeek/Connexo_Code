@@ -158,7 +158,6 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
                     deviceConfigurationBuilder.newLogBookSpec(logBookType);
                 }
                 this.deviceConfiguration = deviceConfigurationBuilder.add();
-                getDeviceType().save();
                 this.deviceConfiguration.activate();
             }
             return deviceConfiguration;
@@ -173,7 +172,6 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
                 for (LogBookType logBookType : logBookTypes) {
                     this.deviceType.addLogBookType(logBookType);
                 }
-                this.deviceType.save();
             }
             return deviceType;
         }
