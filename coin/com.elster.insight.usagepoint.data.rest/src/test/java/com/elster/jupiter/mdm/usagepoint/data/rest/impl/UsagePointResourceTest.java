@@ -1,7 +1,18 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.devtools.tests.rules.Using;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ElectricityDetailBuilder;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointBuilder;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Ranges;
@@ -10,18 +21,15 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.mockito.Mock;
 
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -33,7 +41,14 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyTest {
 
@@ -211,6 +226,37 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         Response response = target("usagepoints").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(201);
+    }
+
+    @Test
+    public void testUpadateUsagePoint() {
+        when(meteringService.findUsagePoint(1L)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findAndLockUsagePointByIdAndVersion(1L, 1L)).thenReturn(Optional.of(usagePoint));
+        UsagePointInfo info = new UsagePointInfo();
+        info.id = 1L;
+        info.mRID = "upd";
+        info.name = "upd";
+        info.location = "upd";
+        info.installationTime = Instant.EPOCH.toEpochMilli();
+        info.isSdp = true;
+        info.isVirtual = true;
+        info.readRoute = "upd";
+        info.serviceDeliveryRemark = "upd";
+        info.version = 1L;
+        info.techInfo = new ElectricityUsagePointDetailsInfo();
+
+        Response response = target("usagepoints/1").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(usagePoint, never()).setMRID(anyString());
+        verify(usagePoint, times(1)).setName("upd");
+        verify(usagePoint, times(1)).setServiceLocationString("upd");
+        verify(usagePoint, never()).setInstallationTime(any(Instant.class));
+        verify(usagePoint, never()).setSdp(anyBoolean());
+        verify(usagePoint, never()).setVirtual(anyBoolean());
+        verify(usagePoint, times(1)).setReadRoute("upd");
+        verify(usagePoint, times(1)).setServiceDeliveryRemark("upd");
+        verify(usagePoint, times(1)).update();
+        verify(usagePoint, times(1)).newElectricityDetailBuilder(any(Instant.class));
     }
 
     private DataValidationStatus mockDataValidationStatus(ReadingQualityType readingQualityType, boolean isBulk) {
