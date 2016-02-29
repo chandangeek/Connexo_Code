@@ -18,7 +18,7 @@ public class UsagePointInfo {
     public Long id;
     public String serviceCategory;
     public Long serviceLocationId;
-    public String serviceLocation;
+    public String location;
 
     public String mRID;
     public String name;
@@ -47,7 +47,7 @@ public class UsagePointInfo {
 
     public void writeTo(UsagePoint usagePoint) {
         usagePoint.setName(this.name);
-        // TODO update the service location
+        usagePoint.setServiceLocationString(this.location);
         usagePoint.setReadRoute(this.readRoute);
         usagePoint.setServicePriority(this.servicePriority);
         usagePoint.setServiceDeliveryRemark(this.serviceDeliveryRemark);

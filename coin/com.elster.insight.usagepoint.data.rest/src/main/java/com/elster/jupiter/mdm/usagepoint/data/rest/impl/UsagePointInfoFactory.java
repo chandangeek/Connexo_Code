@@ -2,7 +2,16 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigurationInfo;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.ElectricityDetail;
+import com.elster.jupiter.metering.GasDetail;
+import com.elster.jupiter.metering.HeatDetail;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointBuilder;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -49,11 +58,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     @Reference
-    public void setCustomPropertySetInfoFactory(CustomPropertySetInfoFactory customPropertySetInfoFactory) {
-        this.customPropertySetInfoFactory = customPropertySetInfoFactory;
-    }
-
-    @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(UsagePointApplication.COMPONENT_NAME, Layer.REST);
     }
@@ -64,6 +68,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.id = usagePoint.getId();
         info.mRID = usagePoint.getMRID();
         info.serviceLocationId = usagePoint.getServiceLocationId();
+        info.location = usagePoint.getServiceLocationString();
         info.name = usagePoint.getName();
         info.isSdp = usagePoint.isSdp();
         info.isVirtual = usagePoint.isVirtual();
@@ -97,7 +102,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .map(rcps -> customPropertySetInfoFactory.getFullInfo(rcps, rcps.getValues()))
                 .collect(Collectors.toList());
 
-        info.serviceLocation = usagePoint.getServiceLocationString();
 
         return info;
     }
@@ -122,7 +126,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .withReadRoute(usagePointInfo.readRoute)
                 .withServicePriority(usagePointInfo.servicePriority)
                 .withServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark)
-                .withServiceLocationString(usagePointInfo.serviceLocation)
+                .withServiceLocationString(usagePointInfo.location)
                 .withInstallationTime(usagePointInfo.installationTime != null ? Instant.ofEpochMilli(usagePointInfo.installationTime) : clock
                         .instant());
     }
