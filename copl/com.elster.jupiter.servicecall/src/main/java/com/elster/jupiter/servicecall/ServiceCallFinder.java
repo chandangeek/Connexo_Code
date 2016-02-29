@@ -15,7 +15,7 @@ public interface ServiceCallFinder {
 
     ServiceCallFinder setReference(String reference);
 
-    ServiceCallFinder setType(int type);
+    ServiceCallFinder setType(List<String> types);
 
     ServiceCallFinder setState(int state);
 

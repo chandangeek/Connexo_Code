@@ -5,7 +5,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFinder;
+import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Or;
 import com.elster.jupiter.util.conditions.Order;
 
 import com.google.common.collect.Range;
@@ -19,7 +21,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class ServiceCallFinderImpl implements ServiceCallFinder {
     private DataModel dataModel;
     private Condition condition = Condition.TRUE;
-    private Order order;
+    private Order parentOrder;
+    private Order modTimeOrder;
     private Integer start;
     private Integer limit;
 
@@ -27,10 +30,10 @@ public class ServiceCallFinderImpl implements ServiceCallFinder {
 
     }
 
-    public ServiceCallFinderImpl(DataModel dataModel, Order order) {
+    public ServiceCallFinderImpl(DataModel dataModel, Order parentOrder, Order modTimeOrder) {
         this.dataModel = dataModel;
-       // this.condition = condition;
-        this.order = order;
+        this.parentOrder = parentOrder;
+        this.modTimeOrder = modTimeOrder;
     }
 
     @Override
@@ -52,9 +55,19 @@ public class ServiceCallFinderImpl implements ServiceCallFinder {
     }
 
     @Override
-    public ServiceCallFinder setType(int type) {
-        this.condition = this.condition.and(where(ServiceCallImpl.Fields.type.fieldName()).isEqualTo(type));
+    public ServiceCallFinder setType(List<String> types) {
+        if (types.isEmpty()) {
+            return this;
+        }
+        this.condition = this.condition.and(ofAnyType(types));
         return this;
+    }
+
+    private Condition ofAnyType(List<String> types) {
+        return types.stream()
+                .map(typeName -> where(ServiceCallImpl.Fields.type.fieldName() + "." + ServiceCallTypeImpl.Fields.name.fieldName())
+                        .isEqualTo(typeName))
+                .reduce(Condition.FALSE, Condition::or);
     }
 
     @Override
@@ -83,8 +96,9 @@ public class ServiceCallFinderImpl implements ServiceCallFinder {
     @Override
     public QueryStream<ServiceCall> stream() {
         QueryStream<ServiceCall> queryStream = dataModel.stream(ServiceCall.class)
+                .join(ServiceCallType.class)
                 .filter(condition)
-                .sorted(order);
+                .sorted(parentOrder, modTimeOrder);
         if (start != null) {
             queryStream.skip(start);
         }

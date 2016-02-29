@@ -25,11 +25,13 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Or;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import com.google.common.util.concurrent.Service;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -213,13 +215,16 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
 
     @Override
     public Finder<ServiceCall> getServiceCalls() {
-        return DefaultFinder.of(ServiceCall.class, dataModel).defaultSortColumn(ServiceCallImpl.Fields.type.fieldName());
+        return DefaultFinder.of(ServiceCall.class, dataModel)
+                .sorted("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ", 0))", true)
+                .sorted(ServiceCallImpl.Fields.modTime.fieldName(), false);
     }
 
     @Override
     public ServiceCallFinder getServiceCallFinder() {
-        Order order = Order.descending(ServiceCallImpl.Fields.externalReference.fieldName());
-        return new ServiceCallFinderImpl(dataModel, order);
+        Order parentOrder = Order.ascending("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ", 0))");
+        Order modeTimeOrder = Order.descending(ServiceCallImpl.Fields.modTime.fieldName());
+        return new ServiceCallFinderImpl(dataModel, parentOrder, modeTimeOrder);
     }
 
     @Override
