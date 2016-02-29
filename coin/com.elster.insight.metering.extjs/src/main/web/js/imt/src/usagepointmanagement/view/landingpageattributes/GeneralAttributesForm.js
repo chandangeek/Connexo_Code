@@ -59,12 +59,12 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                     {
                         name: 'typeOfUsagePoint',
                         itemId: 'fld-up-typeOfUsagePoint',
-                        fieldLabel: Uni.I18n.translate('general.label.typeOfUsagePoint', 'IMT', 'Type of usage point'),
+                        fieldLabel: Uni.I18n.translate('general.label.typeOfUsagePoint', 'IMT', 'Type of usage point')/*,
                         renderer: function (data) {
                             var value;
                             value = Ext.getStore('Imt.usagepointmanagement.store.UsagePointTypes').getById(data);
                             return value.get('displayValue');
-                        }
+                     }*/
                     },
                     {
                         xtype: 'displayfieldwithicon',

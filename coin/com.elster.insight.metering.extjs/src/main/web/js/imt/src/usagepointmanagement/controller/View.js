@@ -10,7 +10,8 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         'Imt.usagepointmanagement.store.MeterActivations',
         'Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets',
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
-        'Imt.metrologyconfiguration.store.MetrologyConfiguration'
+        'Imt.metrologyconfiguration.store.MetrologyConfiguration',
+        'Imt.usagepointmanagement.store.UsagePointTypes'
     ],
     views: [
         'Imt.usagepointmanagement.view.Setup',
@@ -49,24 +50,33 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             usagePointModel = me.getModel('Imt.usagepointmanagement.model.UsagePoint'),
-            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            dependenciesCounter = 2,
+            upSuccessLoadFunction = function () {
+                dependenciesCounter--;
+                if (!dependenciesCounter) {
+                    me.getApplication().fireEvent('usagePointLoaded', up);
+                    var widget = Ext.widget('usage-point-management-setup', {router: router, parent: up.getData()});
+                    me.parent = up.getData();
+
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                    me.initAttributes(up);
+                    me.getOverviewLink().setText(up.get('mRID'));
+                    if (up.get('metrologyConfiguration') && up.get('metrologyConfiguration').name) {
+                        widget.down('#fld-mc-name').setValue(up.get('metrologyConfiguration').name);
+                    }
+
+                    pageMainContent.setLoading(false);
+                }
+            },
+            up;
        
         pageMainContent.setLoading(true);
-
+        me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(upSuccessLoadFunction);
         usagePointModel.load(mRID, {
             success: function (record) {
-                me.getApplication().fireEvent('usagePointLoaded', record);
-                var widget = Ext.widget('usage-point-management-setup', {router: router, parent: record.getData()});
-                me.parent = record.getData();
-
-                me.getApplication().fireEvent('changecontentevent', widget);
-                me.initAttributes(record);
-                me.getOverviewLink().setText(record.get('mRID'));
-                if(record.get('metrologyConfiguration') && record.get('metrologyConfiguration').name){
-                    widget.down('#fld-mc-name').setValue(record.get('metrologyConfiguration').name);
-                }
-
-                pageMainContent.setLoading(false);
+                up = record;
+                upSuccessLoadFunction();
             }
         });
     },
