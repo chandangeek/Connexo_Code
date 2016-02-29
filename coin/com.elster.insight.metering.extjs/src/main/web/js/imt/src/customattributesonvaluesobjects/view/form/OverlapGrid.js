@@ -148,7 +148,8 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
                     {
                         text: Uni.I18n.translate('general.undo', 'IMT', 'Undo'),
                         itemId: 'overlap-panel-undo-btn',
-                        xtype: 'button'
+                        xtype: 'button',
+                        margin: 0
                     }
                 ]
             },

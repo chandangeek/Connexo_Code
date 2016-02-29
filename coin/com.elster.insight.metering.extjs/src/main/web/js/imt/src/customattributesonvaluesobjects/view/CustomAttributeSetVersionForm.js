@@ -61,13 +61,15 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                     labelWidth: 260,
                     width: 605
                 },
+                width: 650,
                 items: [
                     {
                         xtype: 'uni-form-error-message',
                         itemId: 'form-errors',
                         name: 'errors',
                         hidden: true,
-                        margin: '0 0 0 0'
+                        margin: '0 0 0 0',
+                        width: 602
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.start', 'IMT', 'Start'),
@@ -205,7 +207,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
 
         showOverlap = function(scope, startDateField, endDateField, overlapContainer) {
             Ext.suspendLayouts();
-            me.minWidth = 1600;
+            me.minWidth = 1620;
             me.up('viewport').updateLayout();
             overlapContainer.show();
             startDateField.disableWithText();
