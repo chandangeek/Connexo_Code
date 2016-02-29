@@ -17,9 +17,9 @@ Ext.define('Scs.view.ServiceCallFilter', {
                 dataIndex: 'type',
                 emptyText: Uni.I18n.translate('general.type', 'SCS', 'Type'),
                 multiSelect: true,
-                displayField: 'type',
-                valueField: 'type',
-                store: 'Scs.store.ServiceCalls'
+                displayField: 'name',
+                valueField: 'name',
+                store: 'Scs.store.ServiceCallTypes'
             },
             {
                 type: 'combobox',
