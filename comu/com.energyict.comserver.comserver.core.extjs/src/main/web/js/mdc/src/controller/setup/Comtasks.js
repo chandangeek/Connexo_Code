@@ -633,7 +633,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             fn: function (state) {
                 if (state === 'confirm') {
                     var item2Remove = null;
-                    view.setLoading(Uni.I18n.translate('general.removing', 'DLC', 'Removing...'));
+                    view.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
                     Ext.Array.each(comTaskRecord.get(me.COMMAND_CATEGORIES), function(message) {
                         if (message.id === commandCategoryRecord.get('id')) {
                             item2Remove = message;
@@ -648,7 +648,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         success: function () {
                             window.location.href = backUrl;
                             me.getApplication().fireEvent('acknowledge',
-                                Uni.I18n.translate('commandCategory.remove.success.msg', 'DLC', 'Command category removed')
+                                Uni.I18n.translate('commandCategory.remove.success.msg', 'MDC', 'Command category removed')
                             );
                             view.setLoading(false);
                             grid.getStore().removeAt(rowIndex);
@@ -731,7 +731,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             fn: function (state) {
                 if (state === 'confirm') {
                     var item2Remove = null;
-                    view.setLoading(Uni.I18n.translate('general.removing', 'DLC', 'Removing...'));
+                    view.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
                     Ext.Array.each(comTaskRecord.get(me.ACTIONS), function(action) {
                         if ( action.categoryId === actionRecord.get('categoryId') &&
                              action.actionId === actionRecord.get('actionId') ) {
@@ -747,7 +747,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         success: function () {
                             window.location.href = backUrl;
                             me.getApplication().fireEvent('acknowledge',
-                                Uni.I18n.translate('comtask.action.remove.success.msg', 'DLC', 'Action removed')
+                                Uni.I18n.translate('comtask.action.remove.success.msg', 'MDC', 'Action removed')
                             );
                             view.setLoading(false);
                             grid.getStore().removeAt(rowIndex);

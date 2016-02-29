@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCommandCategoriesGrid', {
                 privileges: Mdc.privileges.Communication.admin,
                 items: [
                     {
-                        tooltip: Uni.I18n.translate('general.remove', 'DLC', 'Remove'),
+                        tooltip: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                         handler: function (grid, rowIndex, colIndex, item, e, record) {
                             this.fireEvent('removeCommandCategory', grid, rowIndex, record);
                         }
