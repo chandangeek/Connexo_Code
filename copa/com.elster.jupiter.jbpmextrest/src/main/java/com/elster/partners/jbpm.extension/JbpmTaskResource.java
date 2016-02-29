@@ -392,16 +392,62 @@ public class JbpmTaskResource {
     }
 
     @GET
+    @Path("/allprocesses")
+    @Produces("application/json")
+    public RunningProcessInfos getAllProcesses(@Context UriInfo uriInfo){
+        String variableId = getQueryValue(uriInfo, "variableid");
+        String variableValue = getQueryValue(uriInfo, "variablevalue");
+        int startIndex = 0;
+        int endIndex = Integer.MAX_VALUE;
+        try {
+            startIndex = Integer.valueOf(getQueryValue(uriInfo, "start"));
+            endIndex = Integer.valueOf(getQueryValue(uriInfo, "limit"));
+            endIndex++;
+        }catch (NumberFormatException e){
+        }
+        if(variableId != null && variableValue != null) {
+            EntityManager em = emf.createEntityManager();
+            String queryString = "select p.STATUS, p.PROCESSID, p.PROCESSNAME, p.PROCESSVERSION, " +
+                    "p.USER_IDENTITY, p.START_DATE, p.PROCESSINSTANCEID as processLogid " +
+                    "from processinstancelog p " +
+                    "LEFT JOIN VARIABLEINSTANCELOG v ON p.PROCESSINSTANCEID = v.PROCESSINSTANCEID " +
+                    "where UPPER (v.VARIABLEID) = UPPER (:variableid) and UPPER (v.VALUE) = UPPER (:variablevalue) " +
+                    "order by p.START_DATE";
+            Query query = em.createNativeQuery(queryString);
+            query.setParameter("variableid", variableId);
+            query.setParameter("variablevalue", variableValue);
+            query.setFirstResult(startIndex);
+            query.setMaxResults(endIndex);
+            List<Object[]> list = query.getResultList();
+            RunningProcessInfos runningProcessInfos = new RunningProcessInfos(list);
+            for(RunningProcessInfo info : runningProcessInfos.processInstances){
+                info.tasks = info.processInstanceId == -1 ? null : getTaskForProceessInstance(info.processInstanceId);
+            }
+            if(runningProcessInfos.total == endIndex){
+                int total = startIndex + endIndex;
+                runningProcessInfos.removeLast(total);
+            }else{
+                int total = startIndex + runningProcessInfos.total;
+                runningProcessInfos.setTotal(total);
+            }
+            return runningProcessInfos;
+        }
+        return null;
+    }
+
+    @GET
     @Path("/process/instance/{processInstanceId: [0-9-]+}/node")
     @Produces("application/json")
     public ProcessInstanceNodeInfos getProcessInstanceNode(@Context UriInfo uriInfo,@PathParam("processInstanceId") long processInstanceId){
         String processInstanceState = "";
-        if(runtimeDataService.getProcessInstanceById(processInstanceId).getState() == 1){
-            processInstanceState = "Active";
-        }else if(runtimeDataService.getProcessInstanceById(processInstanceId).getState() == 2){
-            processInstanceState = "Completed";
-        }else{
-            processInstanceState = "Aborted";
+        if(runtimeDataService.getProcessInstanceById(processInstanceId) != null) {
+            if (runtimeDataService.getProcessInstanceById(processInstanceId).getState() == 1) {
+                processInstanceState = "Active";
+            } else if (runtimeDataService.getProcessInstanceById(processInstanceId).getState() == 2) {
+                processInstanceState = "Completed";
+            } else {
+                processInstanceState = "Aborted";
+            }
         }
         EntityManager em = emf.createEntityManager();
         String queryString = "select * from(select n.NODENAME, n.NODETYPE, n.log_date,n.NODEINSTANCEID, n.NODEID, n.ID from NODEINSTANCELOG n " +
