@@ -20,6 +20,8 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                 defaults: {
                     xtype: 'displayfield',
                     labelWidth: 250,
+                    //maxHeight: 24,
+                    paddingBottom: 0,
                     width: 600
                 },
                 items: [
@@ -122,6 +124,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                 hidden: true,
                 defaults: {
                     width: 520,
+                    minHeight: 27,
                     labelWidth: 250
                 }
             }

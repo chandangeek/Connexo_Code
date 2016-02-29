@@ -44,9 +44,12 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                         }
                     },
                     {
-                        name: 'created',
+                        name: 'installationTime',
                         itemId: 'fld-up-created',
-                        fieldLabel: Uni.I18n.translate('general.label.created', 'IMT', 'Created')
+                        fieldLabel: Uni.I18n.translate('general.label.created', 'IMT', 'Created'),
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateTimeShort(new Date(value * 1000)) : '-';
+                        }
                     },
                     {
                         name: 'location',
@@ -59,12 +62,12 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                     {
                         name: 'typeOfUsagePoint',
                         itemId: 'fld-up-typeOfUsagePoint',
-                        fieldLabel: Uni.I18n.translate('general.label.typeOfUsagePoint', 'IMT', 'Type of usage point')/*,
+                        fieldLabel: Uni.I18n.translate('general.label.typeOfUsagePoint', 'IMT', 'Type of usage point'),
                         renderer: function (data) {
                             var value;
-                            value = Ext.getStore('Imt.usagepointmanagement.store.UsagePointTypes').getById(data);
-                            return value.get('displayValue');
-                     }*/
+                            value = Ext.getStore('Imt.usagepointmanagement.store.UsagePointTypes').findRecord('name', data);
+                            return value.get('displayName');
+                        }
                     },
                     {
                         xtype: 'displayfieldwithicon',
@@ -120,9 +123,12 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                     },
                     {
                         xtype: 'displayfield',
-                        name: 'created',
+                        name: 'installationTime',
                         itemId: 'fld-up-created',
-                        fieldLabel: Uni.I18n.translate('general.label.created', 'IMT', 'Created')
+                        fieldLabel: Uni.I18n.translate('general.label.created', 'IMT', 'Created'),
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
+                        }
                     },
                     {
                         xtype: 'textfield',
@@ -131,23 +137,14 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                         fieldLabel: Uni.I18n.translate('general.label.location', 'IMT', 'Location')
                     },
                     {
-                        xtype: 'combobox',
+                        xtype: 'displayfield',
                         name: 'typeOfUsagePoint',
                         itemId: 'fld-up-typeOfUsagePoint',
                         fieldLabel: Uni.I18n.translate('general.label.typeOfUsagePoint', 'IMT', 'Type of usage point'),
-                        store: 'Imt.usagepointmanagement.store.UsagePointTypes',
-                        displayField: 'displayValue',
-                        valueField: 'id',
-                        queryMode: 'local',
-                        forceSelection: true,
-                        listeners: {
-                            change: {
-                                fn: function (combo, newValue) {
-                                    if (Ext.isEmpty(newValue)) {
-                                        combo.reset();
-                                    }
-                                }
-                            }
+                        renderer: function (data) {
+                            var value;
+                            value = Ext.getStore('Imt.usagepointmanagement.store.UsagePointTypes').findRecord('name', data);
+                            return value.get('displayName');
                         }
                     },
                     {

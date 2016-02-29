@@ -161,7 +161,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
 
         Ext.each(cancelBtnArray, function (item) {
             if(item.editMode){
-                item.model.load(me.record.get('id'),{
+                item.model.load(item.record.get('id'),{
                     url: Ext.String.format('/api/udr/usagepoints/{0}/customproperties/', encodeURIComponent(item.parent.mRID)),
                     success: function(record){
                         item.record = record;
@@ -174,7 +174,6 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
                         Ext.resumeLayouts(true);
                         Imt.customattributesonvaluesobjects.service.ActionMenuManager.setAvailableEditBtns(false);
                         me.toEditMode(true);
-                        console.log(this);
                         confirmationWindow.destroy();
                     }
                 });
@@ -194,6 +193,8 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
 
         Ext.suspendLayouts();
         if(isEdit){
+            Ext.getStore('Imt.usagepointmanagement.store.PhaseCodes').load();
+            Ext.getStore('Imt.usagepointmanagement.store.BypassStatuses').load();
             me.down('#pencil-btn').hide();
             me.down('#view-form').hide();
             me.down('#edit-form').show();

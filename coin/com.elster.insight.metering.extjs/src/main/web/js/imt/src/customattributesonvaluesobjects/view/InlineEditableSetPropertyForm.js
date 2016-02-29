@@ -193,7 +193,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
 
         Ext.each(cancelBtnArray, function (item) {
             if(item.editMode){
-                item.model.load(me.record.get('id'),{
+                item.model.load(item.record.get('id'),{
                     url: Ext.String.format('/api/udr/usagepoints/{0}/customproperties/', encodeURIComponent(item.parent.mRID)),
                     success: function(record){
                         item.record = record;
@@ -206,7 +206,6 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                         Ext.resumeLayouts(true);
                         Imt.customattributesonvaluesobjects.service.ActionMenuManager.setAvailableEditBtns(false);
                         me.toEditMode(true);
-                        console.log(this);
                         confirmationWindow.destroy();
                     }
                 });
