@@ -2,6 +2,7 @@ package com.energyict.mdc.issue.datacollection.rest.resource;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
@@ -14,6 +15,7 @@ import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
 import com.elster.jupiter.issue.rest.response.IssueAssigneeInfoAdapter;
+import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.security.Privileges;
@@ -79,10 +81,11 @@ public class IssueResource extends BaseResource {
     private final IssueResourceHelper issueResourceHelper;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final ExceptionFactory exceptionFactory;
+    private final BpmService bpmService;
 
 
     @Inject
-    public IssueResource(IssueService issueService, MeteringService meteringService, UserService userService, MessageService messageService, AppService appService, JsonService jsonService, IssueDataCollectionService issueDataCollectionService, DataCollectionIssueInfoFactory dataCollectionIssuesInfoFactory, IssueResourceHelper issueResourceHelper, ConcurrentModificationExceptionFactory conflictFactory, ExceptionFactory exceptionFactory) {
+    public IssueResource(IssueService issueService, MeteringService meteringService, UserService userService, MessageService messageService, AppService appService, JsonService jsonService, IssueDataCollectionService issueDataCollectionService, DataCollectionIssueInfoFactory dataCollectionIssuesInfoFactory, IssueResourceHelper issueResourceHelper, ConcurrentModificationExceptionFactory conflictFactory, ExceptionFactory exceptionFactory, BpmService bpmService) {
         this.issueService = issueService;
         this.meteringService = meteringService;
         this.userService = userService;
@@ -94,6 +97,7 @@ public class IssueResource extends BaseResource {
         this.exceptionFactory = exceptionFactory;
         this.appService = appService;
         this.jsonService = jsonService;
+        this.bpmService = bpmService;
     }
 
     @GET @Transactional
@@ -140,7 +144,9 @@ public class IssueResource extends BaseResource {
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getComments(@PathParam(ID) long id, @BeanParam JsonQueryParameters queryParameters) {
         IssueDataCollection issue = getIssueDataCollectionService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        return PagedInfoList.fromCompleteList("comments", issueResourceHelper.getIssueComments(issue), queryParameters);
+        List<IssueCommentInfo> x = issueResourceHelper.getIssueComments(issue);
+        bpmService.getBpmServer();
+        return PagedInfoList.fromCompleteList("comments", x, queryParameters);
     }
 
     @POST @Transactional
