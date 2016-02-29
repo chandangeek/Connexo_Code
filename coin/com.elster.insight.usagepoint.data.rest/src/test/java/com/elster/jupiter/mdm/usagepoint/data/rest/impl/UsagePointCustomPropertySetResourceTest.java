@@ -6,7 +6,11 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.cps.rest.CustomPropertySetAttributeInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetValuesManageException;
+import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
@@ -23,12 +27,18 @@ import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestApplicationJerseyTest {
 
@@ -291,8 +301,8 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
         String json = target("usagepoints/" + USAGE_POINT_MRID + "/customproperties/" + RCPS_ID + "/versions").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<List>get("$.versions")).hasSize(2);
-        assertThat(jsonModel.<String>get("$.versions[0].properties[0].propertyValueInfo.value")).isEqualTo("version 1");
-        assertThat(jsonModel.<String>get("$.versions[1].properties[0].propertyValueInfo.value")).isEqualTo("version 2");
+        assertThat(jsonModel.<String>get("$.versions[0].properties[0].propertyValueInfo.value")).isEqualTo("version 2");
+        assertThat(jsonModel.<String>get("$.versions[1].properties[0].propertyValueInfo.value")).isEqualTo("version 1");
     }
 
     @Test
