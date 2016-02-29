@@ -25,9 +25,7 @@ public interface MetrologyConfigurationService {
 
     boolean isInUse(MetrologyConfiguration metrologyConfiguration);
 
-    Formula newFormula(Formula.Mode mode, FormulaPart formulaPart);
-
-    FormulaBuilder newFormulaBuilder();
+    FormulaBuilder newFormulaBuilder(Formula.Mode mode);
 
     /**
      * Good for now but will need to be facaded with another API before final release.
