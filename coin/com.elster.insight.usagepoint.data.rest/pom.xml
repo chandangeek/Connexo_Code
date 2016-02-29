@@ -4,16 +4,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.elster</groupId>
-        <artifactId>insight.parent</artifactId>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>mdm.parent</artifactId>
         <version>1.1.0-SNAPSHOT</version>
         <relativePath>../com.elster.insight.parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>insight.usagepoint.data.rest</artifactId>
+    <artifactId>mdm.usagepoint.data.rest</artifactId>
     <version>2.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>[Insight] insight.usagepoint.data.rest [init UDR]</name>
+    <name>[MDM] mdm.usagepoint.data.rest [init UDR]</name>
     <description>
         Contains Rest implementations to interface between the FrontEnd and BackEnd regarding usage point data
     </description>
@@ -43,20 +43,20 @@
             <artifactId>validation.rest</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.elster</groupId>
-            <artifactId>insight.common</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.common</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.elster</groupId>
-            <artifactId>insight.usagepoint.data</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.usagepoint.data</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.elster</groupId>
-            <artifactId>insight.usagepoint.config</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.usagepoint.config</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.elster</groupId>
-            <artifactId>insight.usagepoint.config.rest</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.usagepoint.config.rest</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
