@@ -81,7 +81,7 @@ Ext.define('Scs.controller.ServiceCalls', {
                 success: function (record) {
                     compareParentsArray = record.get('parents').slice();
                     compareParentsArray.push(servicecallId);
-                    if(me.getDiff(me.uniqueValuesArray(servicecallIds), me.uniqueValuesArray(compareParentsArray)).length !== 0) {
+                    if(!me.isEqual(servicecallIds, compareParentsArray)) {
                         view = Ext.widget('errorNotFound');
                         me.getBreadcrumbs().hide();
                     } else if (record.get('hasChildren')) {
@@ -134,26 +134,18 @@ Ext.define('Scs.controller.ServiceCalls', {
         }
     },
 
-    getDiff: function (array1, array2) {
-        var diff = [];
-
+    isEqual: function (array1, array2) {
+        var i;
         if(array1.length !== array2.length) {
-            return ["FALSE"];
+            return false;
         }
 
-        for (var i = array1.length - 1; i >= 0; i--) {
-            var key = array1[i];
-            if (-1 === array2.indexOf(key)) {
-                diff.push(key);
+        for(i = 0; i < array1.length; i++) {
+            if(array1[i] !== array2[i]) {
+                return false;
             }
         }
 
-        return diff;
-    },
-
-    uniqueValuesArray: function (a) {
-        return a.sort().filter(function(item, pos, ary) {
-            return !pos || item != ary[pos - 1];
-        })
+        return true;
     }
 });
