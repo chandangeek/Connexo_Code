@@ -3,6 +3,7 @@ Ext.define('Imt.usagepointhistory.view.VersionsOverview', {
     alias: 'widget.custom-attribute-set-versions-overview',
 
     store: null,
+    selectByDefault: true,
 
     requires: [
         'Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionsGrid',
@@ -15,6 +16,7 @@ Ext.define('Imt.usagepointhistory.view.VersionsOverview', {
 
         me.items = {
             xtype: 'preview-container',
+            selectByDefault: me.selectByDefault,
             grid: {
                 xtype: 'custom-attribute-set-versions-grid',
                 type: me.type,
