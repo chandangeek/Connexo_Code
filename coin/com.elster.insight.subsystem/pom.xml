@@ -9,8 +9,8 @@
         <version>1.2.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.elster</groupId>
-    <artifactId>insight.subsystem</artifactId>
+    <groupId>com.elster.jupiter</groupId>
+    <artifactId>mdm.subsystem</artifactId>
     <version>1.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>[Insight Subsystem] com.elster.insight.subsystem</name>
@@ -20,8 +20,8 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.elster</groupId>
-                <artifactId>insight.bom</artifactId>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>mdm.bom</artifactId>
                 <version>1.1.0-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
@@ -32,32 +32,32 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.elster</groupId>
-            <artifactId>insight.app</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.app</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.elster</groupId>
-            <artifactId>insight.common</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.common</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.elster</groupId>
-            <artifactId>insight.metering.extjs</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.metering.extjs</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.elster</groupId>
-            <artifactId>insight.usagepoint.config</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.usagepoint.config</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.elster</groupId>
-            <artifactId>insight.usagepoint.config.rest</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.usagepoint.config.rest</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.elster</groupId>
-            <artifactId>insight.usagepoint.data</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.usagepoint.data</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.elster</groupId>
-            <artifactId>insight.usagepoint.data.rest</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.usagepoint.data.rest</artifactId>
         </dependency>
     </dependencies>
 
