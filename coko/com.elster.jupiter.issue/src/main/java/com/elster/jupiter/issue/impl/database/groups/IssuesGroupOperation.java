@@ -4,13 +4,14 @@ import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.records.IssueGroupImpl;
 
+import com.elster.jupiter.issue.share.IssueGroupFilter;
+import com.elster.jupiter.issue.share.entity.AssigneeDetails;
 import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.DueDateRange;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueGroup;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.share.service.IssueGroupFilter;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -147,7 +148,7 @@ public abstract class IssuesGroupOperation {
 
     protected String getAssigneeCondition(){
             StringBuilder builder = new StringBuilder();
-            for (IssueGroupFilter.AssigneeDetails assigneeDetails : getFilter().getAssignees()) {
+            for (AssigneeDetails assigneeDetails : getFilter().getAssignees()) {
                 if (builder.length() != 0){
                     builder.append(" OR ");
                 }

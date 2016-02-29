@@ -5,13 +5,13 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.records.IssueImpl;
+import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueGroup;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.share.service.IssueGroupFilter;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import org.junit.Test;
@@ -77,7 +77,7 @@ public class IssueServiceImplTest extends BaseTest {
     public void testIssueGroupList() {
         createIssueMinInfo();
         createIssueMinInfo();
-        IssueGroupFilter builder = new IssueGroupFilter();
+        IssueGroupFilter builder = getIssueService().newIssueGroupFilter();
         builder.using(Issue.class)
                 .onlyGroupWithKey(ISSUE_DEFAULT_REASON)
                 .withIssueTypes(Arrays.asList(ISSUE_DEFAULT_TYPE_UUID))

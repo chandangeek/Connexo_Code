@@ -1,5 +1,7 @@
-package com.elster.jupiter.issue.share.service;
+package com.elster.jupiter.issue.impl;
 
+import com.elster.jupiter.issue.share.IssueGroupFilter;
+import com.elster.jupiter.issue.share.entity.AssigneeDetails;
 import com.elster.jupiter.issue.share.entity.DueDateRange;
 
 import java.util.ArrayList;
@@ -9,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public final class IssueGroupFilter {
+public final class IssueGroupFilterImpl implements IssueGroupFilter {
     private Object key;
     private long to;
     private long from;
@@ -22,39 +24,14 @@ public final class IssueGroupFilter {
     private Set<String> issueTypes;
     private List<DueDateRange> dueDates;
 
-    public IssueGroupFilter() {
+    public IssueGroupFilterImpl() {
         this.statuses = new HashSet<>();
         this.assignees = new ArrayList<>();
         this.issueTypes = new HashSet<>();
         this.dueDates = new ArrayList<>();
     }
 
-    public static class AssigneeDetails {
-        private long assigneeId;
-        private String assigneeType;
-
-        public AssigneeDetails(long assigneeId, String assigneeType) {
-            this.assigneeId = assigneeId;
-            this.assigneeType = assigneeType;
-        }
-
-        public String getAssigneeType() {
-            return assigneeType;
-        }
-
-        public void setAssigneeType(String assigneeType) {
-            this.assigneeType = assigneeType;
-        }
-
-        public long getAssigneeId() {
-            return assigneeId;
-        }
-
-        public void setAssigneeId(long assigneeId) {
-            this.assigneeId = assigneeId;
-        }
-    }
-
+    @Override
     public Object getGroupKey() {
         return key;
     }
@@ -64,49 +41,59 @@ public final class IssueGroupFilter {
      * @param key
      * @return the same instanse of filter
      */
-    public IssueGroupFilter onlyGroupWithKey(Object key) {
+    @Override
+    public IssueGroupFilterImpl onlyGroupWithKey(Object key) {
         if (key != null) {
             this.key = getSafeString(key.toString());
         }
         return this;
     }
 
+    @Override
     public long getTo() {
         return to;
     }
 
+    @Override
     public IssueGroupFilter to(long to) {
         this.to = to;
         return this;
     }
 
+    @Override
     public long getFrom() {
         return from;
     }
 
+    @Override
     public IssueGroupFilter from(long from) {
         this.from = from;
         return this;
     }
 
+    @Override
     public boolean isAscOrder() {
         return isAsc;
     }
 
-    public IssueGroupFilter setAscOrder(boolean isAsc) {
+    @Override
+    public IssueGroupFilterImpl setAscOrder(boolean isAsc) {
         this.isAsc = isAsc;
         return this;
     }
 
+    @Override
     public Class<?> getSourceClass() {
         return sourceClass;
     }
 
-    public IssueGroupFilter using(Class<?> sourceClass) {
+    @Override
+    public IssueGroupFilterImpl using(Class<?> sourceClass) {
         this.sourceClass = sourceClass;
         return this;
     }
 
+    @Override
     public String getGroupBy() {
         return groupBy;
     }
@@ -116,11 +103,13 @@ public final class IssueGroupFilter {
      * @param groupColumn attribute for grouping
      * @return the same instanse of filter
      */
-    public IssueGroupFilter groupBy(String groupColumn) {
+    @Override
+    public IssueGroupFilterImpl groupBy(String groupColumn) {
         this.groupBy = getSafeString(groupColumn);
         return this;
     }
 
+    @Override
     public Collection<String> getStatuses() {
         return statuses;
     }
@@ -130,47 +119,56 @@ public final class IssueGroupFilter {
      * @param statuses list which contains keys of allowed statuses
      * @return the same instanse of filter
      */
-    public IssueGroupFilter withStatuses(Collection<String> statuses) {
+    @Override
+    public IssueGroupFilterImpl withStatuses(Collection<String> statuses) {
         if (statuses != null) {
             this.statuses = statuses.stream().map(this::getSafeString).collect(Collectors.toSet());
         }
         return this;
     }
 
+    @Override
     public IssueGroupFilter withAssignee(long id, String type) {
         this.assignees.add(new AssigneeDetails(id, type));
         return this;
     }
 
+    @Override
     public List<AssigneeDetails> getAssignees() {
         return this.assignees;
     }
 
+    @Override
     public List<DueDateRange> getDueDates() {
         return this.dueDates;
     }
 
+    @Override
     public String getMeterMrid() {
         return mrid;
     }
 
-    public IssueGroupFilter withMeterMrid(String mrid) {
+    @Override
+    public IssueGroupFilterImpl withMeterMrid(String mrid) {
         this.mrid = mrid;
         return this;
     }
 
-    public IssueGroupFilter withIssueTypes(Collection<String> issueTypes) {
+    @Override
+    public IssueGroupFilterImpl withIssueTypes(Collection<String> issueTypes) {
         if (issueTypes != null) {
             this.issueTypes = issueTypes.stream().map(this::getSafeString).collect(Collectors.toSet());
         }
         return this;
     }
 
+    @Override
     public IssueGroupFilter withDueDate(long startTime, long endTime) {
         this.dueDates.add(new DueDateRange(startTime, endTime));
         return this;
     }
 
+    @Override
     public Collection<String> getIssueTypes() {
         return issueTypes;
     }

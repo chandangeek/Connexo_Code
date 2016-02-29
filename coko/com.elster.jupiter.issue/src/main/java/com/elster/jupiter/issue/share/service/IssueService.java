@@ -6,6 +6,8 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
+import com.elster.jupiter.issue.share.IssueFilter;
+import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.Entity;
@@ -97,5 +99,9 @@ public interface IssueService {
     Finder<? extends Issue> findIssues(IssueFilter filter, Class<?>... eagers);
 
     Optional<? extends Issue> findAndLockIssueByIdAndVersion(long id, long version);
+
+    IssueFilter newIssueFilter();
+
+    IssueGroupFilter newIssueGroupFilter();
     
 }

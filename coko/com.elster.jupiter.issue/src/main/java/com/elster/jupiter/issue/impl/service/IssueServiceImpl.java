@@ -16,6 +16,8 @@ import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
+import com.elster.jupiter.issue.share.IssueFilter;
+import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.Entity;
@@ -32,8 +34,8 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.share.service.IssueFilter;
-import com.elster.jupiter.issue.share.service.IssueGroupFilter;
+import com.elster.jupiter.issue.impl.IssueFilterImpl;
+import com.elster.jupiter.issue.impl.IssueGroupFilterImpl;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
@@ -516,6 +518,16 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
             return dataModel.mapper(OpenIssue.class).lockObjectIfVersion(version, id);
         }
         return dataModel.mapper(HistoricalIssue.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public IssueFilter newIssueFilter() {
+        return new IssueFilterImpl();
+    }
+
+    @Override
+    public IssueGroupFilter newIssueGroupFilter() {
+        return new IssueGroupFilterImpl();
     }
 
     private List<Class<?>> determineMainApiClass(IssueFilter filter) {
