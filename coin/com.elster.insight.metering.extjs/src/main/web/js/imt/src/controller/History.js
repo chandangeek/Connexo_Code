@@ -278,6 +278,8 @@ Ext.define('Imt.controller.History', {
                                     title: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
                                     route: 'customattributes/{customAttributeSetId}/versions/{versionId}/edit',
                                     privileges: Imt.privileges.UsagePoint.admin,
+                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.usagePointStore,
+                                    dynamicPrivilege: Imt.dynamicprivileges.UsagePoint.viable,
                                     controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
                                     action: 'editCasVersion',
                                     callback: function (route) {
@@ -293,6 +295,8 @@ Ext.define('Imt.controller.History', {
                                     title: Uni.I18n.translate('general.add', 'IMT', 'Add'),
                                     route: 'customattributes/{customAttributeSetId}/versions/add',
                                     privileges: Imt.privileges.UsagePoint.hasFullAdministrateTimeSlicedCps(),
+                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.usagePointStore,
+                                    dynamicPrivilege: Imt.dynamicprivileges.UsagePoint.viable,
                                     controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
                                     action: 'editCasVersion',
                                     callback: function (route) {
@@ -308,6 +312,8 @@ Ext.define('Imt.controller.History', {
                                     title: Uni.I18n.translate('general.clone', 'IMT', 'Clone'),
                                     route: 'customattributes/{customAttributeSetId}/versions/{versionId}/clone',
                                     privileges: Imt.privileges.UsagePoint.hasFullAdministrateTimeSlicedCps(),
+                                    dynamicPrivilegeStores: Imt.dynamicprivileges.Stores.usagePointStore,
+                                    dynamicPrivilege: Imt.dynamicprivileges.UsagePoint.viable,
                                     controller: 'Imt.usagepointhistory.controller.CasVersionEdit',
                                     action: 'cloneCustomAttributeVersion',
                                     callback: function (route) {
