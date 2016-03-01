@@ -115,7 +115,9 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             versionsStore.on('load', function () {
                 var currentVersion = versionsStore.find('isActive', true);
 
-                cardView.down('custom-attribute-set-versions-grid').getSelectionModel().select(currentVersion > -1 ? currentVersion : 0);
+                if (cardView.rendered) {
+                    cardView.down('custom-attribute-set-versions-grid').getSelectionModel().select(currentVersion > -1 ? currentVersion : 0);
+                }
             }, me, {single: true});
         }
 
