@@ -529,7 +529,21 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         byte[] response = getCosemObjectFactory().getSecuritySetup().keyAgreement(array);
 
         //Now verify the received server ephemeral public key and use it to derive the shared secret.
-        byte[] serverKeyData = AXDRDecoder.decode(response, OctetString.class).getOctetStr();
+        Array resultArray = AXDRDecoder.decode(response, Array.class);
+        AbstractDataType dataType = resultArray.getDataType(0);
+        Structure structure = dataType.getStructure();
+        if (structure == null) {
+            throw new ProtocolException("Expected the response of the key agreement to be an array of structures. However, the first element of the array was of type '" + dataType.getClass().getSimpleName() + "'.");
+        }
+        if (structure.nrOfDataTypes() != 2) {
+            throw new ProtocolException("Expected the response of the key agreement to be structures with 2 elements each. However, the received structure contains " + structure.nrOfDataTypes() + " elements.");
+        }
+        OctetString octetString = structure.getDataType(1).getOctetString();
+        if (octetString == null) {
+            throw new ProtocolException("The responding key_data should be of type octetstring, but was of type '" + structure.getDataType(1).getClass().getSimpleName() + "'.");
+        }
+        byte[] serverKeyData = octetString.getOctetStr();
+
         int keySize = KeyUtils.getKeySize(eccCurve);
         byte[] serverEphemeralPublicKeyBytes = ProtocolTools.getSubArray(serverKeyData, 0, keySize);
         byte[] serverSignature = ProtocolTools.getSubArray(serverKeyData, keySize, serverKeyData.length);
