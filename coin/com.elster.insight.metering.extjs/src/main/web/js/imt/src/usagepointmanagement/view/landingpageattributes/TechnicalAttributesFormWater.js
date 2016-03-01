@@ -38,7 +38,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                     },
                     {
                         xtype: 'measuredisplayfield',
-                        name: 'capacity',
+                        name: 'physicalCapacity',
                         itemId: 'fld-up-capacity',
                         fieldLabel: Uni.I18n.translate('general.label.capacity', 'IMT', 'Physical capacity'),
                         unitType: 'volume'
@@ -66,7 +66,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                     },
                     {
                         xtype: 'measuredisplayfield',
-                        name: 'LoadLimit',
+                        name: 'loadLimit',
                         itemId: 'fld-up-load-limit',
                         fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Load limit'),
                         unitType: 'volume',
