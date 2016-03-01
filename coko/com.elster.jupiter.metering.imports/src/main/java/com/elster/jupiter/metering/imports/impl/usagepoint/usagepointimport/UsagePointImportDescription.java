@@ -11,6 +11,8 @@ import com.elster.jupiter.metering.imports.impl.usagepoint.fields.CommonField;
 import com.elster.jupiter.metering.imports.impl.usagepoint.fields.FileImportField;
 import com.elster.jupiter.metering.imports.impl.usagepoint.parsers.*;
 import com.elster.jupiter.metering.imports.impl.usagepoint.properties.SupportedNumberFormat;
+import com.elster.jupiter.util.YesNoAnswer;
+
 import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.ArrayList;
@@ -41,6 +43,7 @@ public class UsagePointImportDescription implements FileImportDescription<UsageP
         LiteralStringParser stringParser = new LiteralStringParser();
         BooleanParser booleanParser = new BooleanParser();
         NumberParser numberParser = new NumberParser();
+        YesNoAnswerParser yesNoAnswerParser = new YesNoAnswerParser();
         //mRID
         fields.put("mRID",CommonField.withParser(stringParser)
                 .withSetter(record::setmRID)
@@ -61,33 +64,40 @@ public class UsagePointImportDescription implements FileImportDescription<UsageP
                 .withSetter(record::setName)
                 .withName("name")
                 .build());
-        fields.put("aliasName",CommonField.withParser(stringParser)
-                .withSetter(record::setAliasName)
-                .withName("aliasName")
+        fields.put("installationTime",CommonField.withParser(dateParser)
+                .withSetter(record::setInstallationTime)
+                .withName("installationTime")
+                .markMandatory()
                 .build());
-        fields.put("description",CommonField.withParser(stringParser)
-                .withSetter(record::setDescription)
-                .withName("description")
+        fields.put("serviceLocationString",CommonField.withParser(stringParser)
+                .withSetter(record::setServiceLocationString)
+                .withName("serviceLocationString")
                 .build());
         fields.put("outageregion",CommonField.withParser(stringParser)
-                .withSetter(record::setOutageregion)
+                .withSetter(record::setOutageRegion)
                 .withName("outageregion")
                 .build());
-        fields.put("readcycle",CommonField.withParser(stringParser)
-                .withSetter(record::setReadcycle)
-                .withName("readcycle")
-                .build());
         fields.put("readroute",CommonField.withParser(stringParser)
-                .withSetter(record::setReadroute)
+                .withSetter(record::setReadRoute)
                 .withName("readroute")
                 .build());
         fields.put("servicePriority",CommonField.withParser(stringParser)
                 .withSetter(record::setServicePriority)
                 .withName("servicePriority")
                 .build());
+        fields.put("serviceDeliveryRemark",CommonField.withParser(stringParser)
+                .withSetter(record::setServicePriority)
+                .withName("serviceDeliveryRemark")
+                .build());
         fields.put("allowUpdate",CommonField.withParser(booleanParser)
                 .withSetter(record::setAllowUpdate)
                 .withName("allowUpdate")
+                .build());
+
+        //Technical attributes
+        fields.put("collar",CommonField.withParser(yesNoAnswerParser)
+                .withSetter(record::setCollar)
+                .withName("collar")
                 .build());
         fields.put("grounded",CommonField.withParser(booleanParser)
                 .withSetter(record::setGrounded)
@@ -145,6 +155,75 @@ public class UsagePointImportDescription implements FileImportDescription<UsageP
                 .withSetter(record::setNominalVoltageUnit)
                 .withName("nominalVoltageUnit")
                 .build());
+        fields.put("pressureValue",CommonField.withParser(bigDecimalParser)
+                .withSetter(record::setPressureValue)
+                .withName("pressureValue")
+                .build());
+        fields.put("pressureMultiplier",CommonField.withParser(numberParser)
+                .withSetter(number -> record.setPressureMultiplier(number != null ? number.intValue() : null))
+                .withName("pressureMultiplier")
+                .build());
+        fields.put("pressureUnit",CommonField.withParser(stringParser)
+                .withSetter(record::setPressureUnit)
+                .withName("pressureUnit")
+                .build());
+        fields.put("physicalCapacityValue",CommonField.withParser(bigDecimalParser)
+                .withSetter(record::setPhysicalCapacityValue)
+                .withName("physicalCapacityValue")
+                .build());
+        fields.put("physicalCapacityMultiplier",CommonField.withParser(numberParser)
+                .withSetter(number -> record.setPhysicalCapacityMultiplier(number != null ? number.intValue() : null))
+                .withName("physicalCapacityMultiplier")
+                .build());
+        fields.put("physicalCapacityUnit",CommonField.withParser(stringParser)
+                .withSetter(record::setPhysicalCapacityUnit)
+                .withName("physicalCapacityUnit")
+                .build());
+        fields.put("limiter",CommonField.withParser(booleanParser)
+                .withSetter(record::setLimiter)
+                .withName("limiter")
+                .build());
+        fields.put("loadLimiterType",CommonField.withParser(stringParser)
+                .withSetter(record::setLoadLimiterType)
+                .withName("loadLimiterType")
+                .build());
+        fields.put("loadLimitValue",CommonField.withParser(bigDecimalParser)
+                .withSetter(record::setLoadLimitValue)
+                .withName("loadLimitValue")
+                .build());
+        fields.put("loadLimitMultiplier",CommonField.withParser(numberParser)
+                .withSetter(number -> record.setLoadLimitMultiplier(number != null ? number.intValue() : null))
+                .withName("loadLimitMultiplier")
+                .build());
+        fields.put("loadLimitUnit",CommonField.withParser(stringParser)
+                .withSetter(record::setLoadLimitUnit)
+                .withName("loadLimitUnit")
+                .build());
+        fields.put("bypass",CommonField.withParser(yesNoAnswerParser)
+                .withSetter(record::setBypass)
+                .withName("bypass")
+                .build());
+        fields.put("bypassStatus",CommonField.withParser(stringParser)
+                .withSetter(record::setBypassStatus)
+                .withName("bypassStatus")
+                .build());
+        fields.put("valve",CommonField.withParser(yesNoAnswerParser)
+                .withSetter(record::setValve)
+                .withName("valve")
+                .build());
+        fields.put("capped",CommonField.withParser(yesNoAnswerParser)
+                .withSetter(record::setCap)
+                .withName("capped")
+                .build());
+        fields.put("clamped",CommonField.withParser(yesNoAnswerParser)
+                .withSetter(record::setClamp)
+                .withName("clamped")
+                .build());
+        fields.put("interruptible",CommonField.withParser(booleanParser)
+                .withSetter(record::setInterruptible)
+                .withName("interruptible")
+                .build());
+        //Custom property Sets
         fields.put("customPropertySetValue",CommonField
                 .withParser((FieldParser<Map<CustomPropertySet, CustomPropertySetValues>>) value -> {throw new UnsupportedOperationException();})
                 .withSetter(record::setCustomPropertySetValues)
