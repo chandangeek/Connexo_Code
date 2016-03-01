@@ -84,81 +84,87 @@ public class JSonConverter {
 
     public JSonConverter convertDetails() throws JSONException {
         ComServerStatus status = statusService.getStatus();
-        ComServerOperationalStatistics operationalStatistics= status.getComServerMonitor().getOperationalStatistics();
+        if (status != null && status.isRunning()) {
+            ComServerOperationalStatistics operationalStatistics = status.getComServerMonitor().getOperationalStatistics();
 
-        JSONObject result = new JSONObject();
-        result.put("serverId", status.getComServerId());
-        result.put("currentDate", format(Instant.now(), FormatKey.SHORT_DATETIME));
-        if (status.isRunning() && operationalStatistics != null) {
-            Date startTime = operationalStatistics.getStartTimestamp();
-            if (startTime != null) {
-                String startedAndDurationText = format(startTime.toInstant(), FormatKey.SHORT_DATETIME);
-                TimeDuration duration = operationalStatistics.getRunningTime();
-                if (duration != null) {
-                    startedAndDurationText += " (" + formatDuration(duration) + ")";
+            JSONObject result = new JSONObject();
+            result.put("serverId", status.getComServerId());
+            result.put("currentDate", format(Instant.now(), FormatKey.SHORT_DATETIME));
+            if (status.isRunning() && operationalStatistics != null) {
+                Date startTime = operationalStatistics.getStartTimestamp();
+                if (startTime != null) {
+                    String startedAndDurationText = format(startTime.toInstant(), FormatKey.SHORT_DATETIME);
+                    TimeDuration duration = operationalStatistics.getRunningTime();
+                    if (duration != null) {
+                        startedAndDurationText += " (" + formatDuration(duration) + ")";
+                    }
+                    result.put("started", startedAndDurationText);
                 }
-                result.put("started", startedAndDurationText);
             }
-        }
-        result.put("serverName", status.getComServerName());
+            result.put("serverName", status.getComServerName());
 
-        setLastConVerted(result);
+            setLastConVerted(result);
+        }
         return this;
     }
 
     public JSonConverter convertGeneralInfo() throws JSONException {
         ComServerStatus status = statusService.getStatus();
-        ComServerOperationalStatistics operationalStatistics= status.getComServerMonitor().getOperationalStatistics();
-        JSONObject result = new JSONObject();
-        TimeDuration changesInterPollDelay = operationalStatistics.getChangesInterPollDelay();
-        Date lastCheckForChanges = operationalStatistics.getLastCheckForChangesTimestamp().orElse(null);
-        if (changesInterPollDelay != null) {
-            int numberOf = changesInterPollDelay.getCount();
-            String unit = changesInterPollDelay.getTimeUnit().getDescription();
-            if (numberOf == 1){
-                unit = unit.substring(0, unit.length() - 1);
+        if (status != null && status.isRunning()) {
+            ComServerOperationalStatistics operationalStatistics = status.getComServerMonitor().getOperationalStatistics();
+            JSONObject result = new JSONObject();
+            TimeDuration changesInterPollDelay = operationalStatistics.getChangesInterPollDelay();
+            Date lastCheckForChanges = operationalStatistics.getLastCheckForChangesTimestamp().orElse(null);
+            if (changesInterPollDelay != null) {
+                int numberOf = changesInterPollDelay.getCount();
+                String unit = changesInterPollDelay.getTimeUnit().getDescription();
+                if (numberOf == 1) {
+                    unit = unit.substring(0, unit.length() - 1);
+                }
+                JSONObject jsDuration = new JSONObject();
+                jsDuration.put("count", numberOf);
+                jsDuration.put("time-unit", unit);
+                result.put("changeDetectionFrequency", jsDuration);
+                if (lastCheckForChanges != null) {
+                    result.put("changeDetectionNextRun", format(lastCheckForChanges.toInstant().plusSeconds(changesInterPollDelay.getSeconds()), FormatKey.LONG_DATETIME));
+                }
             }
-            JSONObject jsDuration = new JSONObject();
-            jsDuration.put("count", numberOf);
-            jsDuration.put("time-unit", unit);
-            result.put("changeDetectionFrequency", jsDuration);
-            if (lastCheckForChanges != null){
-                result.put("changeDetectionNextRun", format(lastCheckForChanges.toInstant().plusSeconds(changesInterPollDelay.getSeconds()),FormatKey.LONG_DATETIME));
-            }
-        }
 
-        TimeDuration schedulingInterPollDelay = operationalStatistics.getSchedulingInterPollDelay();
-        if (schedulingInterPollDelay != null) {
-            int numberOf = schedulingInterPollDelay.getCount();
-            String unit = schedulingInterPollDelay.getTimeUnit().getDescription();
-            if (numberOf == 1){
-                unit = unit.substring(0, unit.length() - 1);
+            TimeDuration schedulingInterPollDelay = operationalStatistics.getSchedulingInterPollDelay();
+            if (schedulingInterPollDelay != null) {
+                int numberOf = schedulingInterPollDelay.getCount();
+                String unit = schedulingInterPollDelay.getTimeUnit().getDescription();
+                if (numberOf == 1) {
+                    unit = unit.substring(0, unit.length() - 1);
+                }
+                JSONObject jsDuration = new JSONObject();
+                jsDuration.put("count", numberOf);
+                jsDuration.put("time-unit", unit);
+                result.put("pollingFrequency", jsDuration);
             }
-            JSONObject jsDuration = new JSONObject();
-            jsDuration.put("count", numberOf);
-            jsDuration.put("time-unit", unit);
-            result.put("pollingFrequency", jsDuration);
-        }
-        ComServer comServer = engineConfigurationService.findComServer(status.getComServerId()).orElse(null);
-        if (comServer != null) {
-            result.put("eventRegistrationUri", comServer.getEventRegistrationUriIfSupported());
-        }
 
-        setLastConVerted(result);
+            ComServer comServer = engineConfigurationService.findComServer(status.getComServerId()).orElse(null);
+            if (comServer != null) {
+                result.put("eventRegistrationUri", comServer.getEventRegistrationUriIfSupported());
+            }
+            setLastConVerted(result);
+        }
         return this;
     }
 
     public synchronized JSonConverter convertRunningInfo() throws JSONException {
         ComServerStatus status = statusService.getStatus();
-        EventAPIStatistics eventAPIStatistics = status.getComServerMonitor().getEventApiStatistics();
+        if (status != null && status.isRunning()) {
+            EventAPIStatistics eventAPIStatistics = status.getComServerMonitor().getEventApiStatistics();
 
-        JSONObject result = new JSONObject();
-        result.put("numberOfEvents", eventAPIStatistics.getNumberOfEvents());
-        result.put("maxMemory", "" + Runtime.getRuntime().maxMemory() / K / K);
-        result.put("usedMemory", "" + ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / K / K));
-        result.put("unit", "MB");
+            JSONObject result = new JSONObject();
+            result.put("numberOfEvents", eventAPIStatistics.getNumberOfEvents());
+            result.put("maxMemory", "" + Runtime.getRuntime().maxMemory() / K / K);
+            result.put("usedMemory", "" + ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / K / K));
+            result.put("unit", "MB");
 
-        setLastConVerted(result);
+            setLastConVerted(result);
+        }
         return this;
     }
 
@@ -193,44 +199,46 @@ public class JSonConverter {
 
     public synchronized JSonConverter convertCommunicationPorts(boolean active) throws JSONException {
         ComServerStatus status = statusService.getStatus();
-        List<ScheduledComPortMonitor> scheduledComportMonitors = status.getScheduledComportMonitors();
-        List<InboundComPortMonitor> inboundComportMonitors = status.getInboundComportMonitors();
-        ComServer comServer = engineConfigurationService.findComServer(status.getComServerId()).orElse(null);
+        if (status != null && status.isRunning()) {
+            List<ScheduledComPortMonitor> scheduledComportMonitors = status.getScheduledComportMonitors();
+            List<InboundComPortMonitor> inboundComportMonitors = status.getInboundComportMonitors();
+            ComServer comServer = engineConfigurationService.findComServer(status.getComServerId()).orElse(null);
 
-        List<JSONObject> comPorts = new ArrayList<>();
+            List<JSONObject> comPorts = new ArrayList<>();
 
-        for (ComPort each : comServer.getComPorts().stream().sorted((p1,p2) -> p1.getName().compareTo(p2.getName())).collect(Collectors.toList())) {
-            boolean activeProcess;
-            String lastSeen = null;
-            if (each.isInbound()){
-                Optional<InboundComPortMonitor> monitor = inboundComportMonitors.stream().filter(m -> m.isMonitoring(each)).findFirst();
-                activeProcess = (monitor.isPresent());
-            }else {
-                Optional<ScheduledComPortMonitor> monitor = scheduledComportMonitors.stream().filter(m -> m.isMonitoring(each)).findFirst();
-                activeProcess = (monitor.isPresent());
-                if (monitor.isPresent()){
-                    Optional<Date> lastCheckForWork = monitor.get().getOperationalStatistics().getLastCheckForWorkTimestamp();
-                    if (lastCheckForWork.isPresent()) {
-                        lastSeen = format(lastCheckForWork.get().toInstant(), FormatKey.LONG_DATETIME);
+            for (ComPort each : comServer.getComPorts().stream().sorted((p1, p2) -> p1.getName().compareTo(p2.getName())).collect(Collectors.toList())) {
+                boolean activeProcess;
+                String lastSeen = null;
+                if (each.isInbound()) {
+                    Optional<InboundComPortMonitor> monitor = inboundComportMonitors.stream().filter(m -> m.isMonitoring(each)).findFirst();
+                    activeProcess = (monitor.isPresent());
+                } else {
+                    Optional<ScheduledComPortMonitor> monitor = scheduledComportMonitors.stream().filter(m -> m.isMonitoring(each)).findFirst();
+                    activeProcess = (monitor.isPresent());
+                    if (monitor.isPresent()) {
+                        Optional<Date> lastCheckForWork = monitor.get().getOperationalStatistics().getLastCheckForWorkTimestamp();
+                        if (lastCheckForWork.isPresent()) {
+                            lastSeen = format(lastCheckForWork.get().toInstant(), FormatKey.LONG_DATETIME);
+                        }
                     }
                 }
-            }
-            if (active == activeProcess) {
-                JSONObject jsonComPort = new JSONObject();
-                jsonComPort.put("id", each.getId());
-                jsonComPort.put("name", each.getName());
-                jsonComPort.put("description", each.getDescription());
-                jsonComPort.put("inbound", each.isInbound());
-                if (lastSeen != null) {
-                    jsonComPort.put("lastSeen", lastSeen);
+                if (active == activeProcess) {
+                    JSONObject jsonComPort = new JSONObject();
+                    jsonComPort.put("id", each.getId());
+                    jsonComPort.put("name", each.getName());
+                    jsonComPort.put("description", each.getDescription());
+                    jsonComPort.put("inbound", each.isInbound());
+                    if (lastSeen != null) {
+                        jsonComPort.put("lastSeen", lastSeen);
+                    }
+                    if (activeProcess) {
+                        jsonComPort.put("threads", getThreadCount(each));
+                    }
+                    comPorts.add(jsonComPort);
                 }
-                if (activeProcess){
-                    jsonComPort.put("threads", getThreadCount(each));
-                }
-                comPorts.add(jsonComPort);
             }
+            setConvertedArray(comPorts.toArray(new JSONObject[comPorts.size()]));
         }
-        setConvertedArray(comPorts.toArray(new JSONObject[comPorts.size()]));
         return this;
     }
 
@@ -245,49 +253,53 @@ public class JSonConverter {
     }
 
     public synchronized JSonConverter convertCollectedDataStorageStatistics() throws JSONException {
-        CollectedDataStorageStatistics statistics = statusService.getStatus().getComServerMonitor().getCollectedDataStorageStatistics();
-        JSONObject result = new JSONObject();
-        result.put("time", Instant.now().toEpochMilli());
-        result.put("load", statistics.getLoadPercentage());
-        result.put("threads", statistics.getNumberOfThreads());
-        result.put("priority", statistics.getThreadPriority());
-        result.put("capacity", statistics.getCapacity());
-        result.put("currentSize", statistics.getCurrentSize());
-        setLastConVerted(result);
+        ComServerStatus status = statusService.getStatus();
+        if (status != null && status.isRunning()) {
+            CollectedDataStorageStatistics statistics = status.getComServerMonitor().getCollectedDataStorageStatistics();
+            JSONObject result = new JSONObject();
+            result.put("time", Instant.now().toEpochMilli());
+            result.put("load", statistics.getLoadPercentage());
+            result.put("threads", statistics.getNumberOfThreads());
+            result.put("priority", statistics.getThreadPriority());
+            result.put("capacity", statistics.getCapacity());
+            result.put("currentSize", statistics.getCurrentSize());
+            setLastConVerted(result);
+        }
         return this;
     }
 
     public synchronized JSonConverter convertThreadsInUse() throws JSONException {
-
         ComServerStatus status = statusService.getStatus();
-        List<ScheduledComPortMonitor> scheduledComportMonitors = status.getScheduledComportMonitors();
-        ComServer comServer = engineConfigurationService.findComServer(status.getComServerId()).orElse(null);
+        if (status != null && status.isRunning()) {
+            List<ScheduledComPortMonitor> scheduledComportMonitors = status.getScheduledComportMonitors();
+            ComServer comServer = engineConfigurationService.findComServer(status.getComServerId()).orElse(null);
 
-        int threadCount = 0;
-        int activeThreadCount = 0;
+            int threadCount = 0;
+            int activeThreadCount = 0;
 
-        for (ComPort each : comServer.getComPorts()) {
-            if (!each.isInbound()) {
-                Optional<ScheduledComPortMonitor> monitor = scheduledComportMonitors.stream().filter(m -> m.isMonitoring(each)).findFirst();
+            for (ComPort each : comServer.getComPorts()) {
+                if (!each.isInbound()) {
+                    Optional<ScheduledComPortMonitor> monitor = scheduledComportMonitors.stream().filter(m -> m.isMonitoring(each)).findFirst();
 
-                threadCount += getThreadCount(each);
-                if (monitor.isPresent()) {
-                    activeThreadCount += getThreadCount(each);
+                    threadCount += getThreadCount(each);
+                    if (monitor.isPresent()) {
+                        activeThreadCount += getThreadCount(each);
+                    }
                 }
             }
+
+            JSONObject threadsInUse = new JSONObject();
+            threadsInUse.put("name", "inUse");
+            threadsInUse.put("data", activeThreadCount);
+
+            JSONObject threadsNotInUse = new JSONObject();
+            threadsNotInUse.put("name", "notInUse");
+            threadsNotInUse.put("data", threadCount - activeThreadCount);
+
+            JSONObject result = new JSONObject();
+            result.put("threads", new JSONObject[]{threadsInUse, threadsNotInUse});
+            setLastConVerted(result);
         }
-
-        JSONObject threadsInUse = new JSONObject();
-        threadsInUse.put("name", "inUse");
-        threadsInUse.put("data", activeThreadCount);
-
-        JSONObject threadsNotInUse = new JSONObject();
-        threadsNotInUse.put("name", "notInUse");
-        threadsNotInUse.put("data", threadCount - activeThreadCount);
-
-        JSONObject result = new JSONObject();
-        result.put("threads", new JSONObject[] {threadsInUse, threadsNotInUse});
-        setLastConVerted(result);
         return this;
     }
 
