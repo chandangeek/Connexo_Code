@@ -143,39 +143,6 @@ Ext.define('Uni.view.search.Overview', {
                                         disabled: true
                                     }
                                 ]
-                            },
-                            {
-                                xtype: 'menuseparator'
-                            },
-                            {
-                                // Sorting. (Not in scope at this moment of writing, removing breaks the column layout so just disabling the xtypes.)
-                                xtype: 'toolbar',
-                                itemId: 'search-sorting',
-                                margin: 0,
-                                items: [
-                                    {
-                                        xtype: 'label',
-                                        text: Uni.I18n.translate('general.sort', 'UNI', 'Sort'),
-                                        width: 100
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        itemId: 'mRID-sorting-button',
-                                        ui: 'tag',
-                                        iconCls: 'x-btn-sort-item-desc',
-                                        text: Uni.I18n.translate('general.mRID', 'UNI', 'MRID')
-                                    }
-                                    //{
-                                    //    itemId: 'add-sort-button',
-                                    //    text: Uni.I18n.translate('general.addSort', 'UNI', 'Add sort')
-                                    //},
-                                    //'->',
-                                    //{
-                                    //    itemId: 'clear-sorting-button',
-                                    //    text: Uni.I18n.translate('general.clearSorting', 'UNI', 'Clear all'),
-                                    //    action: 'clearSorting'
-                                    //}
-                                ]
                             }
                         ]
                     },
