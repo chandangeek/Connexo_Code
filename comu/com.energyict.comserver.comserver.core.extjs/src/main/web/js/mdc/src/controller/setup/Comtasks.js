@@ -909,10 +909,10 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        me.comTaskBeingEdited = null;
         window.location.href = me.goToTaskOverview
             ? router.getRoute('administration/communicationtasks/view').buildUrl({ id: me.comTaskBeingEdited.get('id') })
             : router.getRoute('administration/communicationtasks').buildUrl();
+        me.comTaskBeingEdited = null;
     },
 
     setTooltips: function () {
