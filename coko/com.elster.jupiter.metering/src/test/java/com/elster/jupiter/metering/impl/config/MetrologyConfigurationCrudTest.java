@@ -1,19 +1,25 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
+
+import java.util.Optional;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import javax.validation.ConstraintViolationException;
-import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,6 +27,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MetrologyConfigurationCrudTest {
 
     private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
+
+    @Rule
+    public ExpectedConstraintViolationRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+    @Rule
+    public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
 
     @BeforeClass
     public static void setUp() {
@@ -36,99 +47,54 @@ public class MetrologyConfigurationCrudTest {
         return inMemoryBootstrapModule.getMetrologyConfigurationService();
     }
 
-    private TransactionService getTransactionService() {
-        return inMemoryBootstrapModule.getTransactionService();
+    private ServiceCategory getServiceCategory() {
+        return inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.GAS).get();
     }
 
     @Test
-    public void testCrud() {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService upcService = getMetrologyConfigurationService();
-            MetrologyConfiguration mc1 = upcService.newMetrologyConfiguration("Residenshull");
-            assertThat(mc1.getName()).isEqualTo("Residenshull");
-            MetrologyConfiguration mc2 = upcService.newMetrologyConfiguration("Commercial 1");
-            assertThat(mc2.getName()).isEqualTo("Commercial 1");
-            context.commit();
-        }
-        try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService upcService = getMetrologyConfigurationService();
-            Optional<MetrologyConfiguration> mc1 = upcService.findMetrologyConfiguration(1);
-            assertThat(mc1).isPresent();
-            assertThat(mc1.get().getName()).isEqualTo("Residenshull");
-            Optional<MetrologyConfiguration> mc2 = getMetrologyConfigurationService().findMetrologyConfiguration(2);
-            assertThat(mc2.isPresent());
-            assertThat(mc2.get().getName()).isEqualTo("Commercial 1");
-            List<MetrologyConfiguration> all = upcService.findAllMetrologyConfigurations();
-            assertThat(all.size()).isEqualTo(2);
-            context.commit();
-        }
-        try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService upcService = getMetrologyConfigurationService();
-            Optional<MetrologyConfiguration> mc1 = upcService.findMetrologyConfiguration(1);
-            assertThat(mc1).isPresent();
-            assertThat(mc1.get().getName()).isEqualTo("Residenshull");
-            mc1.get().updateName("Residential");
-            mc1 = upcService.findMetrologyConfiguration(1);
-            assertThat(mc1).isPresent();
-            assertThat(mc1.get().getName()).isEqualTo("Residential");
-            mc1 = upcService.findMetrologyConfiguration("Residential");
-            assertThat(mc1).isPresent();
-            assertThat(mc1.get().getName()).isEqualTo("Residential");
-            context.commit();
-        }
-        try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService upcService = getMetrologyConfigurationService();
-            List<MetrologyConfiguration> all = upcService.findAllMetrologyConfigurations();
-            for (MetrologyConfiguration mc : all) {
-                mc.delete();
-            }
-            context.commit();
-        }
-        try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService upcService = getMetrologyConfigurationService();
-            List<MetrologyConfiguration> all = upcService.findAllMetrologyConfigurations();
-            assertThat(all).isEmpty();
-            context.commit();
-        }
+    @Transactional
+    public void testCreateMetrologyConfiguration() {
+        // Business method
+        MetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newMetrologyConfiguration("Name", getServiceCategory()).withDescription("Description").create();
+
+        //Asserts
+        Optional<MetrologyConfiguration> found = getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId());
+        assertThat(found).isPresent();
+        assertThat(found.get().getName()).isEqualTo("Name");
+        assertThat(found.get().getDescription()).isEqualTo("Description");
+        assertThat(found.get().getServiceCategory().getKind()).isEqualTo(ServiceKind.GAS);
+        assertThat(found.get().getStatus()).isEqualTo(MetrologyConfigurationStatus.INACTIVE);
     }
 
-    @Test(expected = ConstraintViolationException.class)
-    public void testEmptyName() {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService upcService = getMetrologyConfigurationService();
-            upcService.newMetrologyConfiguration("");
-            context.commit();
-        }
+    @Test
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    public void testCreateMetrologyConfigurationWithoutName() {
+        getMetrologyConfigurationService().newMetrologyConfiguration(null, getServiceCategory()).withDescription("No name").create();
     }
 
-    @Test(expected = ConstraintViolationException.class)
-    public void testNullName() {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService upcService = getMetrologyConfigurationService();
-            upcService.newMetrologyConfiguration(null);
-            context.commit();
-        }
+    @Test
+    @ExpectedConstraintViolation(property = "serviceCategory", messageId = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    public void testCreateMetrologyConfigurationWithoutServiceCategory() {
+        getMetrologyConfigurationService().newMetrologyConfiguration("Name", null).withDescription("No service category").create();
     }
 
-    @Test(expected = ConstraintViolationException.class)
-    public void testDuplicateNameCreate() {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService upcService = getMetrologyConfigurationService();
-            upcService.newMetrologyConfiguration("dup1");
-            upcService.newMetrologyConfiguration("dup1");
-            context.commit();
-        }
+    @Test
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    public void testCreateMetrologyConfigurationWithEmptyName() {
+        getMetrologyConfigurationService().newMetrologyConfiguration("", getServiceCategory()).withDescription("Empty name").create();
     }
 
-    @Test(expected = ConstraintViolationException.class)
-    public void testDuplicateNameRename() {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService upcService = getMetrologyConfigurationService();
-            upcService.newMetrologyConfiguration("dup2");
-            MetrologyConfiguration x = upcService.newMetrologyConfiguration("x");
-            x.updateName("dup2");
-            context.commit();
-        }
+    @Test
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    public void testCreateMetrologyConfigurationWithTooLongName() {
+        getMetrologyConfigurationService().newMetrologyConfiguration("naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaame", getServiceCategory()).withDescription("Long description").create();
     }
 
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+    public void testCreateMetrologyConfigurationWithNotUniqueName() {
+        getMetrologyConfigurationService().newMetrologyConfiguration("dup1", getServiceCategory()).create();
+        getMetrologyConfigurationService().newMetrologyConfiguration("dup1", getServiceCategory()).create();
+    }
 }

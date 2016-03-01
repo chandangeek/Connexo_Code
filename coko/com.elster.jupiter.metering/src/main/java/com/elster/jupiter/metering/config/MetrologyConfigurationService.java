@@ -1,5 +1,9 @@
 package com.elster.jupiter.metering.config;
 
+import com.elster.jupiter.metering.ServiceCategory;
+
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -9,11 +13,12 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-15 (13:09)
  */
+@ProviderType
 public interface MetrologyConfigurationService {
 
     String COMPONENT_NAME = "MCF";
 
-    MetrologyConfiguration newMetrologyConfiguration(String name);
+    MetrologyConfigurationBuilder newMetrologyConfiguration(String name, ServiceCategory serviceCategory);
 
     Optional<MetrologyConfiguration> findMetrologyConfiguration(long id);
 

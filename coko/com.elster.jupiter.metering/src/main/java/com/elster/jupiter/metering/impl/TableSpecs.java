@@ -581,10 +581,17 @@ public enum TableSpecs {
             table.map(MetrologyConfigurationImpl.class);
             Column id = table.addAutoIdColumn();
             Column name = table.column(MetrologyConfigurationImpl.Fields.NAME.name()).varChar().notNull().map(MetrologyConfigurationImpl.Fields.NAME.fieldName()).add();
-            table.column(MetrologyConfigurationImpl.Fields.ACTIVE.name()).bool().map(MetrologyConfigurationImpl.Fields.ACTIVE.fieldName()).notNull().add();
+            table.column(MetrologyConfigurationImpl.Fields.DESCRIPTION.name()).varChar().map(MetrologyConfigurationImpl.Fields.DESCRIPTION.fieldName()).add();
+            table.column(MetrologyConfigurationImpl.Fields.STATUS.name()).number().conversion(NUMBER2ENUM).map(MetrologyConfigurationImpl.Fields.STATUS.fieldName()).notNull().add();
+            Column serviceCategoryColumn = table.column(MetrologyConfigurationImpl.Fields.SERVICECATEGORY.name()).number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
             table.addAuditColumns();
-            table.unique("MTR_UK_METROLOGYCONFIGURATION").on(name).add();
             table.primaryKey("MTR_PK_METROLOGYCONFIGURATION").on(id).add();
+            table.foreignKey("MTR_FK_METROLOGYCONFIG2SERVCAT")
+                    .references(MTR_SERVICECATEGORY.name())
+                    .on(serviceCategoryColumn)
+                    .map(MetrologyConfigurationImpl.Fields.SERVICECATEGORY.fieldName())
+                    .add();
+            table.unique("MTR_UK_METROLOGYCONFIGURATION").on(name).add();
         }
     },
     MTR_M_CONFIG_CPS_USAGES {

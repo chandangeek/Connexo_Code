@@ -79,7 +79,7 @@ public class ApplyMetrologyConfigurationToUsagePointTest {
             ServiceCategory serviceCategory = mtrService.getServiceCategory(ServiceKind.ELECTRICITY).get();
             up = serviceCategory.newUsagePoint("mrID").withInstallationTime(Instant.EPOCH).create();
             upId = up.getId();
-            MetrologyConfiguration mc = service.newMetrologyConfiguration("Residential");
+            MetrologyConfiguration mc = service.newMetrologyConfiguration("Residential", serviceCategory).create();
             mcId = mc.getId();
             context.commit();
         }
@@ -121,8 +121,8 @@ public class ApplyMetrologyConfigurationToUsagePointTest {
             MetrologyConfigurationService service = getMetrologyConfigurationService();
             ServiceCategory serviceCategory = mtrService.getServiceCategory(ServiceKind.ELECTRICITY).get();
             up = serviceCategory.newUsagePoint("UpdateMe").withInstallationTime(Instant.EPOCH).create();
-            mc1 = service.newMetrologyConfiguration("First");
-            mc2 = service.newMetrologyConfiguration("Second");
+            mc1 = service.newMetrologyConfiguration("First", serviceCategory).create();
+            mc2 = service.newMetrologyConfiguration("Second", serviceCategory).create();
             context.commit();
             mc1Id = mc1.getId();
             mc2Id = mc2.getId();
@@ -139,5 +139,4 @@ public class ApplyMetrologyConfigurationToUsagePointTest {
         assertThat(febConfiguration).isPresent();
         assertThat(febConfiguration.get().getId()).isEqualTo(mc2Id);
     }
-
 }

@@ -1,40 +1,35 @@
 package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
-import java.time.Instant;
 import java.util.List;
 
 @ProviderType
-public interface MetrologyConfiguration {
-    long getId();
+public interface MetrologyConfiguration extends HasId, HasName {
 
-    String getName();
+    ServiceCategory getServiceCategory();
 
-    void updateName(String name);
+    String getDescription();
 
-    void delete();
-
-    long getVersion();
-
-    Instant getCreateTime();
-
-    Instant getModTime();
-
-    String getUserName();
-
-    boolean isActive();
+    MetrologyConfigurationStatus getStatus();
 
     void activate();
 
-    void deactivate();
+    boolean isActive();
 
     List<RegisteredCustomPropertySet> getCustomPropertySets();
 
     void addCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet);
 
     void removeCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet);
+
+    void delete();
+
+    long getVersion();
 
 }

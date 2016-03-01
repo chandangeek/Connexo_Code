@@ -76,6 +76,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>transaction</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>
@@ -134,7 +138,7 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>cps</artifactId>
+            <artifactId>devtools.persistence</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

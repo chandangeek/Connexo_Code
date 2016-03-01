@@ -4,7 +4,9 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.DefaultTranslationKey;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
@@ -133,10 +135,10 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     }
 
     @Override
-    public MetrologyConfiguration newMetrologyConfiguration(String name) {
-        MetrologyConfigurationImpl metrologyConfiguration = this.getDataModel().getInstance(MetrologyConfigurationImpl.class).init(name);
-        metrologyConfiguration.update();
-        return metrologyConfiguration;
+    public MetrologyConfigurationBuilder newMetrologyConfiguration(String name, ServiceCategory serviceCategory) {
+        MetrologyConfigurationBuilderImpl builder = new MetrologyConfigurationBuilderImpl(getDataModel());
+        builder.init(name, serviceCategory);
+        return builder;
     }
 
     @Override
