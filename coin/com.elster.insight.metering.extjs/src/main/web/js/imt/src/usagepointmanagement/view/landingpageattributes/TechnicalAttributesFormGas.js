@@ -1,14 +1,12 @@
-Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttributesFormElectricity', {
+Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttributesFormGas', {
     extend: 'Ext.panel.Panel',
-    alias: 'widget.technical-attributes-form-electricity',
+    alias: 'widget.technical-attributes-form-gas',
 
 
     requires: [
-
-        'Imt.usagepointmanagement.view.forms.ElectricityInfo',
+        'Imt.usagepointmanagement.view.forms.GasInfo',
         'Imt.usagepointmanagement.view.forms.fields.MeasureDisplayField',
         'Imt.usagepointmanagement.view.forms.fields.ThreeValuesDisplayField'
-
     ],
 
     initComponent: function () {
@@ -20,8 +18,6 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                 defaults: {
                     xtype: 'displayfield',
                     labelWidth: 250,
-                    //maxHeight: 24,
-                    paddingBottom: 0,
                     width: 600
                 },
                 items: [
@@ -35,42 +31,18 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                     },
                     {
                         xtype: 'measuredisplayfield',
-                        name: 'nominalServiceVoltage',
-                        itemId: 'fld-up-service-voltage',
-                        fieldLabel: Uni.I18n.translate('general.label.voltage', 'IMT', 'Nominal voltage'),
-                        unitType: 'voltage'
-                    },
-                    {
-                        name: 'phaseCode',
-                        itemId: 'fld-up-phase',
-                        fieldLabel: Uni.I18n.translate('general.label.phaseCode', 'IMT', 'Phase code'),
-                        renderer: function (value) {
-                            return value ? value : '-';
-                        }
-                    },
-                    //{
-                    //    xtype: 'measuredisplayfield',
-                    //    name: 'ratedCurrent',
-                    //    itemId: 'fld-up-rated-current',
-                    //    fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current'),
-                    //    unitType: 'amperage'
-                    //
-                    //},
-                    {
-                        xtype: 'measuredisplayfield',
-                        name: 'ratedPower',
-                        itemId: 'fld-up-rated-power',
-                        fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power'),
-                        unitType: 'power'
+                        name: 'pressure',
+                        itemId: 'fld-up-pressure',
+                        fieldLabel: Uni.I18n.translate('general.label.pressure', 'IMT', 'Pressure'),
+                        unitType: 'pressure'
                     },
                     {
                         xtype: 'measuredisplayfield',
-                        name: 'estimatedLoad',
-                        itemId: 'fld-up-estimated-load',
-                        fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load'),
-                        unitType: 'power'
+                        name: 'capacity',
+                        itemId: 'fld-up-capacity',
+                        fieldLabel: Uni.I18n.translate('general.label.capacity', 'IMT', 'Physical capacity'),
+                        unitType: 'volume'
                     },
-
                     {
                         name: 'limiter',
                         itemId: 'fld-up-limiter',
@@ -81,9 +53,8 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                     },
                     {
                         name: 'loadLimiterType',
-                        itemId: 'fld-up-loadLimiterType',
-                        hidden: true,
-                        fieldLabel: Uni.I18n.translate('general.label.loadLimiterType', 'IMT', 'Load limiter type'),
+                        itemId: 'fld-up-load-limiter-type',
+                        fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Load limiter type'),
                         listeners: {
                             beforerender: function (fld){
                                 fld.setVisible(me.down('#fld-up-limiter').getValue())
@@ -92,10 +63,10 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                     },
                     {
                         xtype: 'measuredisplayfield',
-                        name: 'loadLimit',
-                        itemId: 'fld-up-loadLimit',
-                        fieldLabel: Uni.I18n.translate('general.label.loadLimit', 'IMT', 'Load limit'),
-                        unitType: 'power',
+                        name: 'LoadLimit',
+                        itemId: 'fld-up-load-limit',
+                        fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Load limit'),
+                        unitType: 'volume',
                         listeners: {
                             beforerender: function (fld){
                                 fld.setVisible(me.down('#fld-up-limiter').getValue())
@@ -103,10 +74,44 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         }
                     },
                     {
+                        name: 'bypass',
+                        itemId: 'fld-up-bypass',
+                        fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass')
+                    },
+                    {
+                        name: 'bypassStatus',
+                        itemId: 'fld-up-bypass-status',
+                        fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass status'),
+                        listeners: {
+                            beforerender: function (fld){
+                                fld.setVisible(me.down('#fld-up-bypass').getValue())
+                            }
+                        }
+                    },
+                    {
+                        xtype: 'threevaluesdisplayfield',
+                        name: 'valve',
+                        itemId: 'fld-up-valve',
+                        fieldLabel: Uni.I18n.translate('general.label.valve', 'IMT', 'Valve')
+                    },
+                    {
                         xtype: 'threevaluesdisplayfield',
                         name: 'collar',
                         itemId: 'fld-up-collar',
                         fieldLabel: Uni.I18n.translate('general.label.collar', 'IMT', 'Collar')
+                    },
+                    {
+                        xtype: 'threevaluesdisplayfield',
+                        name: 'capped',
+                        itemId: 'fld-up-capped',
+                        fieldLabel: Uni.I18n.translate('general.label.capped', 'IMT', 'Capped')
+                    },
+                    {
+                        xtype: 'threevaluesdisplayfield',
+                        name: 'clamped',
+                        itemId: 'fld-up-clamped',
+                        fieldLabel: Uni.I18n.translate('general.label.clamped', 'IMT', 'Clamped'),
+
                     },
                     {
                         name: 'interruptible',
@@ -119,12 +124,11 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                 ]
             },
             {
-                xtype: 'electricity-info-form',
+                xtype: 'gas-info-form',
                 itemId: 'edit-form',
                 hidden: true,
                 defaults: {
                     width: 520,
-                    minHeight: 27,
                     labelWidth: 250
                 }
             }

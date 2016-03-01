@@ -4,7 +4,9 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
 
 
     requires: [
-        'Uni.form.field.Duration'
+        'Imt.usagepointmanagement.view.forms.WaterInfo',
+        'Imt.usagepointmanagement.view.forms.fields.MeasureDisplayField',
+        'Imt.usagepointmanagement.view.forms.fields.ThreeValuesDisplayField'
     ],
 
     initComponent: function () {
@@ -28,95 +30,101 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         }
                     },
                     {
+                        xtype: 'measuredisplayfield',
                         name: 'pressure',
                         itemId: 'fld-up-pressure',
                         fieldLabel: Uni.I18n.translate('general.label.pressure', 'IMT', 'Pressure'),
-                        renderer: Ext.bind(me.renderValue, me)
+                        unitType: 'pressure'
                     },
                     {
-                        name: 'physicalCapacity',
-                        itemId: 'fld-up-physicalCapacity',
-                        fieldLabel: Uni.I18n.translate('general.label.physicalCapacity', 'IMT', 'Physical capacity'),
-                        renderer: Ext.bind(me.renderValue, me)
+                        xtype: 'measuredisplayfield',
+                        name: 'capacity',
+                        itemId: 'fld-up-capacity',
+                        fieldLabel: Uni.I18n.translate('general.label.capacity', 'IMT', 'Physical capacity'),
+                        unitType: 'volume'
+                    },
+                    {
+                        name: 'limiter',
+                        itemId: 'fld-up-limiter',
+                        fieldLabel: Uni.I18n.translate('general.label.limiter', 'IMT', 'Limiter'),
+                        renderer: function (value) {
+                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
+                        }
+                    },
+                    {
+                        name: 'loadLimiterType',
+                        itemId: 'fld-up-load-limiter-type',
+                        fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Load limiter type'),
+                        listeners: {
+                            beforerender: function (fld){
+                                fld.setVisible(me.down('#fld-up-limiter').getValue())
+                            }
+                        }
+                    },
+                    {
+                        xtype: 'measuredisplayfield',
+                        name: 'LoadLimit',
+                        itemId: 'fld-up-load-limit',
+                        fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Load limit'),
+                        unitType: 'volume',
+                        listeners: {
+                            beforerender: function (fld){
+                                fld.setVisible(me.down('#fld-up-limiter').getValue());
+                            }
+                        }
+                    },
+                    {
+                        name: 'bypass',
+                        itemId: 'fld-up-bypass',
+                        fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass')
                     },
                     {
                         name: 'bypassStatus',
-                        itemId: 'fld-up-rated-current',
-                        fieldLabel: Uni.I18n.translate('general.label.bypassStatus', 'IMT', 'Bypass status'),
-                        renderer: function (value) {
-                            return value ? value : '-';
+                        itemId: 'fld-up-bypass-status',
+                        fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass status'),
+                        listeners: {
+                            beforerender: function (fld){
+                                fld.setVisible(me.down('#fld-up-bypass').getValue())
+                            }
                         }
                     },
                     {
-                        name: 'Valve',
-                        itemId: 'fld-up-Valve',
-                        fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Valve'),
-                        renderer: function (value) {
-                            return value ? value : '-';
-                        }
+                        xtype: 'threevaluesdisplayfield',
+                        name: 'valve',
+                        itemId: 'fld-up-valve',
+                        fieldLabel: Uni.I18n.translate('general.label.valve', 'IMT', 'Valve')
                     },
                     {
+                        xtype: 'threevaluesdisplayfield',
+                        name: 'collar',
+                        itemId: 'fld-up-collar',
+                        fieldLabel: Uni.I18n.translate('general.label.collar', 'IMT', 'Collar')
+                    },
+                    {
+                        xtype: 'threevaluesdisplayfield',
+                        name: 'capped',
+                        itemId: 'fld-up-capped',
+                        fieldLabel: Uni.I18n.translate('general.label.capped', 'IMT', 'Capped')
+                    },
+                    {
+                        xtype: 'threevaluesdisplayfield',
                         name: 'clamped',
                         itemId: 'fld-up-clamped',
                         fieldLabel: Uni.I18n.translate('general.label.clamped', 'IMT', 'Clamped'),
-                        renderer: function (value) {
-                            return value ? value : '-';
-                        }
+
                     }
                 ]
             },
             {
-                xtype: 'form',
+                xtype: 'water-info-form',
                 itemId: 'edit-form',
                 hidden: true,
                 defaults: {
-                    xtype: 'textfield',
+                    width: 520,
                     labelWidth: 250
-                },
-                items: [
-                    {
-                        xtype: 'checkbox',
-                        name: 'grounded',
-                        itemId: 'up-grounded-textfield',
-                        fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
-                    },
-                    {
-                        name: 'pressure',
-                        itemId: 'fld-up-pressure',
-                        fieldLabel: Uni.I18n.translate('general.label.pressure', 'IMT', 'Pressure')
-                    },
-                    {
-                        name: 'physicalCapacity',
-                        itemId: 'fld-up-physicalCapacity',
-                        fieldLabel: Uni.I18n.translate('general.label.physicalCapacity', 'IMT', 'Physical capacity')
-                    },
-                    {
-                        name: 'bypassStatus',
-                        itemId: 'fld-up-rated-current',
-                        fieldLabel: Uni.I18n.translate('general.label.bypassStatus', 'IMT', 'Bypass status')
-                    },
-                    {
-                        name: 'Valve',
-                        itemId: 'fld-up-Valve',
-                        fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Valve')
-                    },
-                    {
-                        name: 'clamped',
-                        itemId: 'fld-up-clamped',
-                        fieldLabel: Uni.I18n.translate('general.label.clamped', 'IMT', 'Clamped')
-                    }
-                ]
+                }
             }
         ];
         me.callParent();
-    },
-    renderValue: function (data) {
-    if (data) {
-        if (data.multiplier == 0)
-            return data.value + ' ' + data.unit;
-        else
-            return data.value + '*10<span style="position: relative;top: -6px;font-size: 10px;">' + data.multiplier + '</span> ' + data.unit;
-
-    } else return '-';
-}
+    }
 });

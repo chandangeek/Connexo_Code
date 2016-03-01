@@ -62,6 +62,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'isSdp', type: 'boolean', useNull: true},
         {name: 'isVirtual', type: 'boolean', useNull: true},
         {name: 'readRoute', type: 'string'},
+        {name: 'connectionState', type: 'string', defaultValue: 'UNKNOWN'},
         {name: 'servicePriority', type: 'string'},
         {name: 'serviceDeliveryRemark', type: 'string'},
         {name: 'techInfo', type: 'auto', defaultValue: {}}
