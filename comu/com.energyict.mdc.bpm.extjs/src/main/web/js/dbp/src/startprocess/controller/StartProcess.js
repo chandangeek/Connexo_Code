@@ -35,7 +35,7 @@ Ext.define('Dbp.startprocess.controller.StartProcess', {
                     properties: {
                         activeProcessesParams: {
                             type: 'device',
-                            devicestateid: device.data.state.id,
+                            deviceStates: device.data.state.id,
                             privileges: Ext.encode(me.getPrivileges())
                         },
                         startProcessParams: [
