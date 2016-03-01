@@ -140,9 +140,28 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
             this.getApplication().getController('Mdc.controller.setup.AddDeviceGroupAction').router = null;
         }
         this.getDevicesOfDeviceGroupStore().getProxy().setExtraParam('id', currentDeviceGroupId);
+
+        var service = Ext.create('Mdc.service.Search', {
+            router: router
+        });
+        var domainsStore = service.getSearchDomainsStore();
+        domainsStore.load(function(){
+            service.applyState({
+                domain: 'com.energyict.mdc.device.data.Device',
+                filters: [{
+                    property: 'deviceGroup',
+                    value: [{
+                        criteria: currentDeviceGroupId,
+                        operator: '=='
+                    }]
+                }]
+            });
+        });
+
         widget = Ext.widget('device-groups-details', {
             router: router,
-            deviceGroupId: currentDeviceGroupId
+            deviceGroupId: currentDeviceGroupId,
+            service: service
         });
         me.getApplication().fireEvent('changecontentevent', widget);
         model.load(currentDeviceGroupId, {

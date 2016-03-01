@@ -599,17 +599,17 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
 
         if (me.registerConfigurationBeingEdited === null) {
             overflowField.setValue(isCumulative ? 99999999 : null);
-            overflowField.required = isCumulative;
-            overflowField.allowBlank = !isCumulative;
-            // Geert: I find the following lines of code not so neat. If anyone finds another way to make (dis)appear
-            //        the label's little red star indicating the field is (not) required, please tell me.
-            if (isCumulative && !overflowField.labelEl.dom.classList.contains('uni-form-item-label-required')) {
-                overflowField.labelEl.dom.classList.add('uni-form-item-label-required');
-            } else if (!isCumulative && overflowField.labelEl.dom.classList.contains('uni-form-item-label-required')) {
-                overflowField.labelEl.dom.classList.remove('uni-form-item-label-required');
-            }
-            overflowField.labelEl.repaint();
         }
+        overflowField.required = isCumulative;
+        overflowField.allowBlank = !isCumulative;
+        // Geert: I find the following lines of code not so neat. If anyone finds another way to make (dis)appear
+        //        the label's little red star indicating the field is (not) required, please tell me.
+        if (isCumulative && !overflowField.labelEl.dom.classList.contains('uni-form-item-label-required')) {
+            overflowField.labelEl.dom.classList.add('uni-form-item-label-required');
+        } else if (!isCumulative && overflowField.labelEl.dom.classList.contains('uni-form-item-label-required')) {
+            overflowField.labelEl.dom.classList.remove('uni-form-item-label-required');
+        }
+        overflowField.labelEl.repaint();
     },
 
     onOverruledObisCodeChange: function(overruledObisCodeField, newValue) {

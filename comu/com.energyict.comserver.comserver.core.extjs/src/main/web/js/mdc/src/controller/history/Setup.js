@@ -22,6 +22,15 @@ Ext.define('Mdc.controller.history.Setup', {
                         }, {single: true});
 
                         return this;
+                    },
+                    items: {
+                        startprocess: {
+                            title: Uni.I18n.translate('usagePoint.startProcess', 'MDC', 'Start process'),
+                            route: 'processes/start',
+                            privileges: Mdc.privileges.Device.deviceProcesses,
+                            controller: 'Mdc.usagepointmanagement.controller.StartProcess',
+                            action: 'showStartProcess'
+                        }
                     }
                 }
             }
@@ -1461,7 +1470,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     action: 'editCustomAttributeVersion',
                                                     callback: function (route) {
                                                         this.getApplication().on('loadCustomAttributeSetVersionOnRegister', function (record) {
-                                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('period')]));
+                                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('period')], false));
                                                             return true;
                                                         }, {single: true});
 
