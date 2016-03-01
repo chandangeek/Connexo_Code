@@ -72,6 +72,12 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
     int getSecuritySuite();
 
     /**
+     * Set the current security suite with a new value.
+     * This is the exceptional case where, in an existing session, the security suite was changed.
+     */
+    void setSecuritySuite(int securitySuite);
+
+    /**
      * Indicates the manufacturer.
      * This can be used to choose from a set of hard coded object lists instead of reading out the device's full object list.
      */

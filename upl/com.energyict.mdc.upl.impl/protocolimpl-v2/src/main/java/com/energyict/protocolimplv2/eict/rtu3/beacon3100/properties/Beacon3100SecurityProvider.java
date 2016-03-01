@@ -33,7 +33,7 @@ import java.util.Random;
  */
 public class Beacon3100SecurityProvider extends NTASecurityProvider implements GeneralCipheringSecurityProvider {
 
-    private final int securitySuite;
+    private int securitySuite;
     private byte[] sessionKey;
     private byte[] serverSessionKey;
     private X509Certificate serverSigningCertificate;
@@ -45,6 +45,10 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
     public Beacon3100SecurityProvider(TypedProperties properties, int authenticationDeviceAccessLevel, int securitySuite) {
         super(properties, authenticationDeviceAccessLevel);
         setRespondingFrameCounterHandling(new DSMR40RespondingFrameCounterHandler());
+        this.securitySuite = securitySuite;
+    }
+
+    public void setSecuritySuite(int securitySuite) {
         this.securitySuite = securitySuite;
     }
 

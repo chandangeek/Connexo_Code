@@ -19,6 +19,8 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.CIPHERING_TYPE;
  */
 public class Beacon3100Properties extends DlmsProperties {
 
+    private Integer securitySuite = null;
+
     /**
      * Property indicating to read the cache out (useful because there's no config change state)
      */
@@ -93,11 +95,11 @@ public class Beacon3100Properties extends DlmsProperties {
     @Override
     protected int doGetDataTransportSecurityLevel() {
         if (getSecurityPropertySet() instanceof AdvancedDeviceProtocolSecurityPropertySet) {
-            AdvancedDeviceProtocolSecurityPropertySet advancedSecurityPropertySet = (AdvancedDeviceProtocolSecurityPropertySet) getSecurityPropertySet();
-            if (advancedSecurityPropertySet.getSecuritySuite() == 0) {
+            if (getSecuritySuite() == 0) {
                 //Suite 0 uses the old field, EncryptionDeviceAccessLevel. It is either 0, 1, 2 or 3.
                 return super.doGetDataTransportSecurityLevel();
             } else {
+                AdvancedDeviceProtocolSecurityPropertySet advancedSecurityPropertySet = (AdvancedDeviceProtocolSecurityPropertySet) getSecurityPropertySet();
                 int result = 0;
                 result |= advancedSecurityPropertySet.getRequestSecurityLevel() << 2;
                 result |= advancedSecurityPropertySet.getResponseSecurityLevel() << 5;
@@ -118,6 +120,18 @@ public class Beacon3100Properties extends DlmsProperties {
 
     @Override
     public int getSecuritySuite() {
+        if (securitySuite == null) {
+            securitySuite = doGetSecuritySuite();
+        }
+        return securitySuite;
+    }
+
+    public void setSecuritySuite(int securitySuite) {
+        this.securitySuite = securitySuite;
+        ((Beacon3100SecurityProvider) getSecurityProvider()).setSecuritySuite(securitySuite);
+    }
+
+    private int doGetSecuritySuite() {
         if (getSecurityPropertySet() instanceof AdvancedDeviceProtocolSecurityPropertySet) {
             AdvancedDeviceProtocolSecurityPropertySet advancedSecurityPropertySet = (AdvancedDeviceProtocolSecurityPropertySet) getSecurityPropertySet();
             return advancedSecurityPropertySet.getSecuritySuite();

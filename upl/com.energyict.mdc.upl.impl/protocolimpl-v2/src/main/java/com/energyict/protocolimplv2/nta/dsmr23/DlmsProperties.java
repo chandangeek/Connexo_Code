@@ -4,7 +4,6 @@ import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
@@ -110,6 +109,11 @@ public class DlmsProperties implements DlmsSessionProperties {
     @Override
     public int getSecuritySuite() {
         return 0;
+    }
+
+    @Override
+    public void setSecuritySuite(int securitySuite) {
+        //Not used yet for most protocols, subclasses can override
     }
 
     @Override

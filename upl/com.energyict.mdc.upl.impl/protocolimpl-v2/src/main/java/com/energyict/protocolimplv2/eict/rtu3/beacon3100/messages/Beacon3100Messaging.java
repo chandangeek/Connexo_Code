@@ -486,6 +486,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void changeSecuritySuite(OfflineDeviceMessage pendingMessage) throws IOException {
         int securitySuite = getSingleIntegerAttribute(pendingMessage);
         getCosemObjectFactory().getSecuritySetup().writeSecuritySuite(new TypeEnum(securitySuite));
+        getProtocol().getDlmsSession().getAso().getSecurityContext().setSecuritySuite(securitySuite);
+        getProtocol().getDlmsSessionProperties().setSecuritySuite(securitySuite);
     }
 
     private CollectedMessage agreeNewKey(CollectedMessage collectedMessage, int keyId) throws IOException {

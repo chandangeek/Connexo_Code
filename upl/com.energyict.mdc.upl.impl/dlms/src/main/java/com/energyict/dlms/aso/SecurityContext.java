@@ -57,14 +57,6 @@ public class SecurityContext {
      */
     private final SecurityPolicy securityPolicy;
     /**
-     * Points to the encryption Method that has to be used for dataTransport.
-     * Currently 3 suites defined in the DLMS blue book:
-     * - 0 (AES-GCM-128)
-     * - 1 (ECDH-ECDSAAES-GCM-128-SHA-256)
-     * - 2 (ECDH-ECDSAAES-GCM-256-SHA-384)
-     */
-    private final int securitySuite;
-    /**
      * Holds the securityLevel for the Authentication mechanism used during
      * Association Establishment
      */
@@ -79,6 +71,14 @@ public class SecurityContext {
      */
     private final int cipheringType;
     private final GeneralCipheringKeyType generalCipheringKeyType;
+    /**
+     * Points to the encryption Method that has to be used for dataTransport.
+     * Currently 3 suites defined in the DLMS blue book:
+     * - 0 (AES-GCM-128)
+     * - 1 (ECDH-ECDSAAES-GCM-128-SHA-256)
+     * - 2 (ECDH-ECDSAAES-GCM-256-SHA-384)
+     */
+    private int securitySuite;
     private long frameCounter;
     private Integer responseFrameCounter = null;
     private byte[] systemTitle;
@@ -367,7 +367,9 @@ public class SecurityContext {
 
         return ProtocolTools.concatByteArrays(
                 generalCipheringHeader,
+                DLMSUtils.getAXDRLengthEncoding(securedRequest.length),
                 securedRequest,
+                DLMSUtils.getAXDRLengthEncoding(signature.length),
                 signature
         );
     }
@@ -382,9 +384,15 @@ public class SecurityContext {
         ptr++;  //Skip tag
         ptr += generalSigningHeader.length;
 
-        int signatureLength = getECCCurve().getSignatureComponentSize() * 2;    //64 bytes for suite1, 96 bytes for suite 2
-        byte[] content = ProtocolTools.getSubArray(generalSigningAPDU, ptr, generalSigningAPDU.length - signatureLength);
-        byte[] signature = ProtocolTools.getSubArray(generalSigningAPDU, generalSigningAPDU.length - signatureLength);
+        int contentLength = DLMSUtils.getAXDRLength(generalSigningAPDU, ptr);
+        ptr += DLMSUtils.getAXDRLengthOffset(generalSigningAPDU, ptr);
+        byte[] content = ProtocolTools.getSubArray(generalSigningAPDU, ptr, ptr + contentLength);
+        ptr += contentLength;
+
+        int signatureLength = DLMSUtils.getAXDRLength(generalSigningAPDU, ptr);
+        ptr += DLMSUtils.getAXDRLengthOffset(generalSigningAPDU, ptr);
+        byte[] signature = ProtocolTools.getSubArray(generalSigningAPDU, ptr, ptr + signatureLength);
+        ptr += signatureLength;
 
         ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
         byte[] input = ProtocolTools.concatByteArrays(generalSigningHeader, content);
@@ -866,6 +874,10 @@ public class SecurityContext {
 
     public int getSecuritySuite() {
         return securitySuite;
+    }
+
+    public void setSecuritySuite(int securitySuite) {
+        this.securitySuite = securitySuite;
     }
 
     public byte[] dataTransportDecryption(byte[] cipherFrame) throws ProtocolException, ConnectionException, DLMSConnectionException {
