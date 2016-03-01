@@ -504,7 +504,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         //We use its private key here, combined with the received ephemeral public key of the server to derive the new key.
         KeyAgreementImpl keyAgreement = new KeyAgreementImpl(eccCurve);
         PublicKey ephemeralPublicKey = keyAgreement.getEphemeralPublicKey();
-        byte[] ephemeralPublicKeyEncoded = ephemeralPublicKey.getEncoded();
+        byte[] ephemeralPublicKeyEncoded = KeyUtils.toRawData(getProtocol().getDlmsSession().getAso().getSecurityContext().getECCCurve(), ephemeralPublicKey);
 
         ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(eccCurve);
         SecurityProvider securityProvider = getProtocol().getDlmsSessionProperties().getSecurityProvider();
