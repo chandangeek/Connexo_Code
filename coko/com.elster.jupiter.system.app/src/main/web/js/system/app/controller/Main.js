@@ -13,7 +13,8 @@ Ext.define('SystemApp.controller.Main', {
         'Fim.privileges.DataImport',
         'Apr.privileges.AppServer',
         'Cps.privileges.CustomAttributeSets',
-        'Mtr.privileges.ReadingTypes'
+        'Mtr.privileges.ReadingTypes',
+        'Bpm.privileges.BpmManagement'
     ],
 
     applicationTitle: 'Connexo Admin',
@@ -29,7 +30,8 @@ Ext.define('SystemApp.controller.Main', {
         Fim.privileges.DataImport.all(),
         Apr.privileges.AppServer.all(),
         Cps.privileges.CustomAttributeSets.all(),
-        Mtr.privileges.ReadingTypes.all()
+        Mtr.privileges.ReadingTypes.all(),
+        Bpm.privileges.BpmManagement.all()
     ),
 
     controllers: [
@@ -39,6 +41,10 @@ Ext.define('SystemApp.controller.Main', {
 		'Apr.controller.Main',
         'Fim.controller.Main',
         'Cps.main.controller.Main',
-        'Mtr.controller.Main'
-    ]
+        'Mtr.controller.Main',
+        'Bpm.controller.Main'
+    ],
+    onLaunch: function(){
+        this.getController('Bpm.controller.Main').addProcessManagement();
+    }
 });
