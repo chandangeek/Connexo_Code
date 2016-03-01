@@ -6,7 +6,7 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
 
     ignoreFields: ['id', 'lifeCycleId'],
     availableFields: [
-        {id: 'deviceStates.lifeCycleName', value: Uni.I18n.translate('process.deviceCycleName', 'UNI', 'Device cycle name')},
+        {id: 'deviceStates.lifeCycleName', value: Uni.I18n.translate('process.deviceCycleName', 'UNI', 'Device life cycle')},
         {id: 'deviceStates.name', value: Uni.I18n.translate('process.deviceState', 'UNI', 'Device state')},
         {id: 'issueReasons.name', value: Uni.I18n.translate('process.issueReasons', 'UNI', 'Issue reason')}
     ],
