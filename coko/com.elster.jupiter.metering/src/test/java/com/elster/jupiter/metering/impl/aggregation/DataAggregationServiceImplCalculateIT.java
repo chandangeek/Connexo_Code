@@ -4,6 +4,8 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.DataVaultService;
@@ -545,6 +547,8 @@ public class DataAggregationServiceImplCalculateIT {
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
         when(readingType.getFlowDirection()).thenReturn(FlowDirection.NET);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
         when(readingType.getMRID()).thenReturn(FIFTEEN_MINS_NET_CONSUMPTION_MRID);
         return readingType;
     }
@@ -554,6 +558,8 @@ public class DataAggregationServiceImplCalculateIT {
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
         when(readingType.getFlowDirection()).thenReturn(FlowDirection.NET);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
         when(readingType.getMRID()).thenReturn(MONTHLY_NET_CONSUMPTION_MRID);
         return readingType;
     }

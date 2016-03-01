@@ -27,16 +27,16 @@ class ReadingTypeDeliverableForMeterActivation {
     private final Range<Instant> requestedPeriod;
     private final int meterActivationSequenceNumber;
     private final ServerExpressionNode expressionNode;
-    private final IntervalLength expressionAggregationInterval;
+    private final VirtualReadingType targetReadingType;
 
-    ReadingTypeDeliverableForMeterActivation(ReadingTypeDeliverable deliverable, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber, ServerExpressionNode expressionNode, IntervalLength expressionAggregationInterval) {
+    ReadingTypeDeliverableForMeterActivation(ReadingTypeDeliverable deliverable, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber, ServerExpressionNode expressionNode, VirtualReadingType targetReadingType) {
         super();
         this.deliverable = deliverable;
         this.meterActivation = meterActivation;
         this.requestedPeriod = requestedPeriod;
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
         this.expressionNode = expressionNode;
-        this.expressionAggregationInterval = expressionAggregationInterval;
+        this.targetReadingType = targetReadingType;
     }
 
     private long getId() {
@@ -131,7 +131,7 @@ class ReadingTypeDeliverableForMeterActivation {
     }
 
     private void appendValueToSelectClause(SqlBuilder sqlBuilder) {
-        if (!this.resultValueNeedsAggregation()) {
+        if (!this.resultValueNeedsTimeBasedAggregation()) {
             this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder);
         } else {
             sqlBuilder.append(this.defaultValueAggregationFunctionFor(this.deliverable.getReadingType()).sqlName());
@@ -146,7 +146,7 @@ class ReadingTypeDeliverableForMeterActivation {
     }
 
     private void appendTimelineToSelectClause(SqlBuilder sqlBuilder) {
-        if (!this.resultValueNeedsAggregation()) {
+        if (!this.resultValueNeedsTimeBasedAggregation()) {
             this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.TIMESTAMP, sqlBuilder);
         } else {
             this.appendTrucatedTimeline(sqlBuilder);
@@ -168,7 +168,7 @@ class ReadingTypeDeliverableForMeterActivation {
     }
 
     private void appendProcessStatusToSelectClause(SqlBuilder sqlBuilder) {
-        if (!this.resultValueNeedsAggregation()) {
+        if (!this.resultValueNeedsTimeBasedAggregation()) {
             this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS, sqlBuilder);
         } else {
             this.appendAggregatedProcessStatus(sqlBuilder);
@@ -183,7 +183,7 @@ class ReadingTypeDeliverableForMeterActivation {
     }
 
     private void appendGroupByClauseIfApplicable(SqlBuilder sqlBuilder) {
-        if (this.resultValueNeedsAggregation()) {
+        if (this.resultValueNeedsTimeBasedAggregation()) {
             this.appendGroupByClause(sqlBuilder);
         }
     }
@@ -193,8 +193,8 @@ class ReadingTypeDeliverableForMeterActivation {
         this.appendTrucatedTimeline(sqlBuilder);
     }
 
-    private boolean resultValueNeedsAggregation() {
-        return this.expressionAggregationInterval != IntervalLength.from(this.deliverable.getReadingType());
+    private boolean resultValueNeedsTimeBasedAggregation() {
+        return this.targetReadingType.getIntervalLength() != IntervalLength.from(this.deliverable.getReadingType());
     }
 
     private class FinishRequirementAndDeliverableNodes implements ServerExpressionNode.Visitor<Void> {

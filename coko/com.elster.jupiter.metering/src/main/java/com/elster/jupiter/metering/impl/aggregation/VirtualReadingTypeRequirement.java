@@ -32,18 +32,18 @@ public class VirtualReadingTypeRequirement {
     private final ReadingTypeRequirement requirement;
     private final ReadingTypeDeliverable deliverable;
     private final List<Channel> matchingChannels;
-    private final IntervalLength targetIntervalLength;
+    private final VirtualReadingType targetReadingType;
     private final Range<Instant> rawDataPeriod;
     private final int meterActivationSequenceNumber;
     private ChannelContract preferredChannel;   // Lazy from the list of matching channels and the targetIntervalLength
 
-    public VirtualReadingTypeRequirement(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, List<Channel> matchingChannels, IntervalLength targetIntervalLength, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber) {
+    public VirtualReadingTypeRequirement(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, List<Channel> matchingChannels, VirtualReadingType targetReadingType, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber) {
         super();
         this.requirement = requirement;
         this.deliverable = deliverable;
         this.rawDataPeriod = requestedPeriod.intersection(meterActivation.getRange());
         this.matchingChannels = Collections.unmodifiableList(matchingChannels);
-        this.targetIntervalLength = targetIntervalLength;
+        this.targetReadingType = targetReadingType;
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
     }
 
@@ -126,7 +126,7 @@ public class VirtualReadingTypeRequirement {
 
     private ChannelContract findPreferredChannel() {
         return new MatchingChannelSelector(this.matchingChannels)
-                    .getPreferredChannel(this.targetIntervalLength)
+                    .getPreferredChannel(this.targetReadingType)
                     .map(ChannelContract.class::cast)
                     .orElseThrow(() -> new IllegalStateException("Calculation of preferred channel failed before"));
     }

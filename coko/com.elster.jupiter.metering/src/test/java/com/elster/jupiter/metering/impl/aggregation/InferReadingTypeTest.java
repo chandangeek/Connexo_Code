@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
@@ -23,13 +25,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link InferAggregationInterval} component.
+ * Tests the {@link InferReadingType} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-08 (12:13)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class InferAggregationIntervalTest {
+public class InferReadingTypeTest {
 
     @Mock
     private ReadingTypeRequirement requirement;
@@ -49,31 +51,31 @@ public class InferAggregationIntervalTest {
 
     @Test
     public void inferNumericalConstantOnly() {
-        InferAggregationInterval infer = this.testInstance();
+        InferReadingType infer = this.testInstance();
         NumericalConstantNode node = new NumericalConstantNode(BigDecimal.TEN);
 
         // Business method
-        IntervalLength preferredInterval = node.accept(infer);
+        VirtualReadingType preferredReadingType = node.accept(infer);
 
         // Asserts
-        assertThat(preferredInterval).isEqualTo(IntervalLength.HOUR1);
+        assertThat(preferredReadingType.getIntervalLength()).isEqualTo(IntervalLength.HOUR1);
     }
 
     @Test
     public void inferStringConstantOnly() {
-        InferAggregationInterval infer = this.testInstance();
+        InferReadingType infer = this.testInstance();
         StringConstantNode node = new StringConstantNode("BigDecimal.TEN");
 
         // Business method
-        IntervalLength preferredInterval = node.accept(infer);
+        VirtualReadingType preferredReadingType = node.accept(infer);
 
         // Asserts
-        assertThat(preferredInterval).isEqualTo(IntervalLength.HOUR1);
+        assertThat(preferredReadingType.getIntervalLength()).isEqualTo(IntervalLength.HOUR1);
     }
 
     @Test
     public void inferConstantsOnly() {
-        InferAggregationInterval infer = this.testInstance();
+        InferReadingType infer = this.testInstance();
         OperationNode node =
                 new OperationNode(
                         Operator.PLUS,
@@ -84,15 +86,15 @@ public class InferAggregationIntervalTest {
                                 new NumericalConstantNode(BigDecimal.TEN)));
 
         // Business method
-        IntervalLength preferredInterval = node.accept(infer);
+        VirtualReadingType preferredReadingType = node.accept(infer);
 
         // Asserts
-        assertThat(preferredInterval).isEqualTo(IntervalLength.HOUR1);
+        assertThat(preferredReadingType.getIntervalLength()).isEqualTo(IntervalLength.HOUR1);
     }
 
     @Test
     public void inferRequirementOnly() {
-        InferAggregationInterval infer = this.testInstance();
+        InferReadingType infer = this.testInstance();
         VirtualRequirementNode node =
                 new VirtualRequirementNode(
                         this.virtualFactory,
@@ -102,21 +104,23 @@ public class InferAggregationIntervalTest {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);    // Different from the target set in test instance
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
         Channel channel = mock(Channel.class);
         when(channel.getMainReadingType()).thenReturn(readingType);
         when(this.requirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(channel));
         when(this.requirement.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(readingType));
 
         // Business method
-        IntervalLength preferredInterval = node.accept(infer);
+        VirtualReadingType preferredReadingType = node.accept(infer);
 
         // Asserts
-        assertThat(preferredInterval).isEqualTo(IntervalLength.MINUTE15);
+        assertThat(preferredReadingType.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void inferIncompatibleRequirementsInOperation() {
-        InferAggregationInterval infer = this.testInstance();
+        InferReadingType infer = this.testInstance();
 
         ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
         ReadingType requirement1ReadingType = mock(ReadingType.class);
@@ -151,7 +155,7 @@ public class InferAggregationIntervalTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void inferIncompatibleRequirementsInFuntionCall() {
-        InferAggregationInterval infer = this.testInstance();
+        InferReadingType infer = this.testInstance();
 
         ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
         ReadingType requirement1ReadingType = mock(ReadingType.class);
@@ -200,7 +204,7 @@ public class InferAggregationIntervalTest {
      */
     @Test
     public void inferCompatibleRequirementsInOperation() {
-        InferAggregationInterval infer = this.testInstance();
+        InferReadingType infer = this.testInstance();
 
         ReadingType hourlyReadingType = this.mockHourlyReadingType();
         when(this.deliverable.getReadingType()).thenReturn(hourlyReadingType);
@@ -230,12 +234,12 @@ public class InferAggregationIntervalTest {
         OperationNode multiply = new OperationNode(Operator.MULTIPLY, sum, new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
-        IntervalLength intervalLength = multiply.accept(infer);
+        VirtualReadingType preferredReadingType = multiply.accept(infer);
 
         // Asserts
-        assertThat(intervalLength).isEqualTo(IntervalLength.HOUR1);
-        assertThat(requirementNode1.getTargetInterval()).isEqualByComparingTo(IntervalLength.HOUR1);
-        assertThat(requirementNode2.getTargetInterval()).isEqualByComparingTo(IntervalLength.HOUR1);
+        assertThat(preferredReadingType.getIntervalLength()).isEqualTo(IntervalLength.HOUR1);
+        assertThat(requirementNode1.getTargetReadingType().getIntervalLength()).isEqualByComparingTo(IntervalLength.HOUR1);
+        assertThat(requirementNode2.getTargetReadingType().getIntervalLength()).isEqualByComparingTo(IntervalLength.HOUR1);
     }
 
     /**
@@ -243,7 +247,7 @@ public class InferAggregationIntervalTest {
      */
     @Test
     public void inferCompatibleRequirementsInFunctionCall() {
-        InferAggregationInterval infer = this.testInstance();
+        InferReadingType infer = this.testInstance();
 
         ReadingType hourlyReadingType = this.mockHourlyReadingType();
         Channel hourlyChannel = mock(Channel.class);
@@ -278,30 +282,47 @@ public class InferAggregationIntervalTest {
                         new NumericalConstantNode(BigDecimal.TEN));
 
         // Business method
-        IntervalLength intervalLength = maximum.accept(infer);
+        VirtualReadingType preferredReadingType = maximum.accept(infer);
 
         // Asserts
-        assertThat(intervalLength).isEqualTo(IntervalLength.HOUR1);
-        assertThat(requirementNode1.getTargetInterval()).isEqualByComparingTo(IntervalLength.HOUR1);
-        assertThat(requirementNode2.getTargetInterval()).isEqualByComparingTo(IntervalLength.HOUR1);
+        assertThat(preferredReadingType.getIntervalLength()).isEqualTo(IntervalLength.HOUR1);
+        assertThat(requirementNode1.getTargetReadingType().getIntervalLength()).isEqualByComparingTo(IntervalLength.HOUR1);
+        assertThat(requirementNode2.getTargetReadingType().getIntervalLength()).isEqualByComparingTo(IntervalLength.HOUR1);
     }
 
     private ReadingType mock15minReadingType() {
-        ReadingType meterActivationReadingType = mock(ReadingType.class);
-        when(meterActivationReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
-        when(meterActivationReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
-        return meterActivationReadingType;
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        return readingType;
     }
 
     private ReadingType mockHourlyReadingType() {
-        ReadingType meterActivationReadingType = mock(ReadingType.class);
-        when(meterActivationReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
-        when(meterActivationReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE60);
-        return meterActivationReadingType;
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE60);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        return readingType;
     }
 
-    private InferAggregationInterval testInstance() {
-        return new InferAggregationInterval(IntervalLength.HOUR1);
+    private InferReadingType testInstance() {
+        return new InferReadingType(this.hourlyVirtualReadingType());
+    }
+
+    private VirtualReadingType hourlyVirtualReadingType() {
+        return VirtualReadingType.from(this.mock60MinkWh());
+    }
+
+    private ReadingType mock60MinkWh() {
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE60);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        return readingType;
     }
 
 }

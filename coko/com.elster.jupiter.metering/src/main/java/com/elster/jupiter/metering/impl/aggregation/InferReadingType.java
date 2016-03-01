@@ -12,45 +12,45 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
- * Infers the most appropriate aggregation interval for the
+ * Infers the most appropriate {@link VirtualReadingType} for the
  * expressions in the tree that define the way a {@link ReadingTypeDeliverable}
  * should be calculated.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-08 (12:13)
  */
-public class InferAggregationInterval implements  ServerExpressionNode.Visitor<IntervalLength> {
+public class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingType> {
 
-    private final IntervalLength requestedInterval;
+    private final VirtualReadingType requestedReadingType;
 
-    public InferAggregationInterval(IntervalLength requestedInterval) {
+    public InferReadingType(VirtualReadingType requestedReadingType) {
         super();
-        this.requestedInterval = requestedInterval;
+        this.requestedReadingType = requestedReadingType;
     }
 
     @Override
-    public IntervalLength visitVirtualRequirement(VirtualRequirementNode node) {
-        return node.getPreferredInterval();
+    public VirtualReadingType visitVirtualRequirement(VirtualRequirementNode node) {
+        return node.getPreferredReadingType();
     }
 
     @Override
-    public IntervalLength visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
+    public VirtualReadingType visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
         // Just another reference to a deliverable that we can aggregate to whatever level we need anyway
-        return this.requestedInterval;
+        return this.requestedReadingType;
     }
 
     @Override
-    public IntervalLength visitConstant(NumericalConstantNode constant) {
-        return this.requestedInterval;
+    public VirtualReadingType visitConstant(NumericalConstantNode constant) {
+        return this.requestedReadingType;
     }
 
     @Override
-    public IntervalLength visitConstant(StringConstantNode constant) {
-        return this.requestedInterval;
+    public VirtualReadingType visitConstant(StringConstantNode constant) {
+        return this.requestedReadingType;
     }
 
     @Override
-    public IntervalLength visitOperation(OperationNode operationNode) {
+    public VirtualReadingType visitOperation(OperationNode operationNode) {
         List<ServerExpressionNode> operands = Arrays.asList(operationNode.getLeftOperand(), operationNode.getRightOperand());
         return this.visitChildren(
                 operands,
@@ -59,7 +59,7 @@ public class InferAggregationInterval implements  ServerExpressionNode.Visitor<I
     }
 
     @Override
-    public IntervalLength visitFunctionCall(FunctionCallNode functionCall) {
+    public VirtualReadingType visitFunctionCall(FunctionCallNode functionCall) {
         /* Two cases: 1. The function call represents one of the known functions
                          and each of these operate on TimeSeries and maintain
                          the interval of the TimeSeries
@@ -73,11 +73,11 @@ public class InferAggregationInterval implements  ServerExpressionNode.Visitor<I
                         "Not all arguments of the function " + this.getFunctionName(functionCall) + " can support the same interval"));
     }
 
-    private IntervalLength visitChildren(List<ServerExpressionNode> children, Supplier<UnsupportedOperationException> unsupportedOperationExceptionSupplier) {
-        Set<IntervalLength> preferredIntervals = children.stream().map(this::getPreferredInterval).collect(Collectors.toSet());
+    private VirtualReadingType visitChildren(List<ServerExpressionNode> children, Supplier<UnsupportedOperationException> unsupportedOperationExceptionSupplier) {
+        Set<VirtualReadingType> preferredIntervals = children.stream().map(this::getPreferredInterval).collect(Collectors.toSet());
         if (preferredIntervals.size() == 1) {
             // All child nodes are fine with the same interval, now enforce that interval
-            IntervalLength preferredInterval = preferredIntervals.iterator().next();
+            VirtualReadingType preferredInterval = preferredIntervals.iterator().next();
             EnforceAggregationInterval enforce = new EnforceAggregationInterval(preferredInterval);
             children.stream().forEach(enforce::onto);
             return preferredInterval;
@@ -89,7 +89,7 @@ public class InferAggregationInterval implements  ServerExpressionNode.Visitor<I
     }
 
     /**
-     * Searches for a compromise when multiple {@link IntervalLength}s were
+     * Searches for a compromise when multiple {@link VirtualReadingType}s were
      * returned by the express nodes. These are the steps involved:
      * <ol>
      * <li>check if every node can agree on the actual requested target interval and use that if that is the case</li>
@@ -98,23 +98,23 @@ public class InferAggregationInterval implements  ServerExpressionNode.Visitor<I
      * </ol>
      *
      * @param nodes The expression nodes
-     * @param preferredIntervals The preferred IntervalLength of each of the nodes
+     * @param preferredReadingTypes The preferred VirtualReadingType of each of the nodes
      * @param unsupportedOperationExceptionSupplier The supplier of the UnsupportedOperationException that will be thrown when no compromise can be found
-     * @return The compromising IntervalLength
+     * @return The compromising VirtualReadingType
      */
-    private IntervalLength searchCompromise(List<ServerExpressionNode> nodes, Set<IntervalLength> preferredIntervals, Supplier<UnsupportedOperationException> unsupportedOperationExceptionSupplier) {
+    private VirtualReadingType searchCompromise(List<ServerExpressionNode> nodes, Set<VirtualReadingType> preferredReadingTypes, Supplier<UnsupportedOperationException> unsupportedOperationExceptionSupplier) {
         if (this.checkForCompromiseOnRequestedInterval(nodes)) {
-            new EnforceAggregationInterval(this.requestedInterval).enforceOntoAll(nodes);
-            return this.requestedInterval;
+            new EnforceAggregationInterval(this.requestedReadingType).enforceOntoAll(nodes);
+            return this.requestedReadingType;
         } else {
-            List<IntervalLength> smallestToBiggest = new ArrayList<>(preferredIntervals);
+            List<VirtualReadingType> smallestToBiggest = new ArrayList<>(preferredReadingTypes);
             Collections.sort(smallestToBiggest);
-            Optional<IntervalLength> compromise =
+            Optional<VirtualReadingType> compromise =
                     smallestToBiggest
                             .stream()
                             .map(CheckEnforceAggregationInterval::new)
                             .filter(checker -> checker.forAll(nodes))
-                            .map(CheckEnforceAggregationInterval::getInterval)
+                            .map(CheckEnforceAggregationInterval::getReadingType)
                             .findFirst();
             if (compromise.isPresent()) {
                 new EnforceAggregationInterval(compromise.get()).enforceOntoAll(nodes);
@@ -126,38 +126,38 @@ public class InferAggregationInterval implements  ServerExpressionNode.Visitor<I
     }
 
     private Boolean checkForCompromiseOnRequestedInterval(List<ServerExpressionNode> nodes) {
-        return new CheckEnforceAggregationInterval(this.requestedInterval).forAll(nodes);
+        return new CheckEnforceAggregationInterval(this.requestedReadingType).forAll(nodes);
     }
 
     private String getFunctionName(FunctionCallNode functionCall) {
         return functionCall.getFunction().name();
     }
 
-    private IntervalLength getPreferredInterval(ServerExpressionNode expression) {
+    private VirtualReadingType getPreferredInterval(ServerExpressionNode expression) {
         return expression.accept(this);
     }
 
     /**
-     * Checks if enforcing a IntervalLength onto all expressions will work
+     * Checks if enforcing a VirtualReadingType onto all expressions will work
      * and returns <code>true</code> if that is the case.
-     * As an example, the IntervalLength 15min cannot be forced into a
+     * As an example, the VirtualReadingType 15min cannot be forced into a
      * {@link VirtualReadingTypeRequirement} if none of the backing channels
      * are capable of providing that interval.
      */
     private class CheckEnforceAggregationInterval implements ServerExpressionNode.Visitor<Boolean> {
-        private final IntervalLength interval;
+        private final VirtualReadingType readingType;
 
-        private CheckEnforceAggregationInterval(IntervalLength interval) {
+        private CheckEnforceAggregationInterval(VirtualReadingType readingType) {
             super();
-            this.interval = interval;
+            this.readingType = readingType;
         }
 
-        public IntervalLength getInterval() {
-            return interval;
+        public VirtualReadingType getReadingType() {
+            return readingType;
         }
 
         private Boolean forAll(List<ServerExpressionNode> expressions) {
-            if (IntervalLength.NOT_SUPPORTED.equals(this.interval)) {
+            if (this.readingType.isUnsupported()) {
                 return Boolean.FALSE;
             }
             else {
@@ -177,7 +177,7 @@ public class InferAggregationInterval implements  ServerExpressionNode.Visitor<I
 
         @Override
         public Boolean visitVirtualRequirement(VirtualRequirementNode requirement) {
-            return requirement.supportsInterval(this.getInterval());
+            return requirement.supportsInterval(this.getReadingType());
         }
 
         @Override
@@ -198,15 +198,15 @@ public class InferAggregationInterval implements  ServerExpressionNode.Visitor<I
     }
 
     /**
-     * Enforces a IntervalLength onto all visited expressions
+     * Enforces a VirtualReadingType onto all visited expressions
      * after it has been verified that this will work.
      *
      * @see CheckEnforceAggregationInterval
      */
     private class EnforceAggregationInterval implements  ServerExpressionNode.Visitor<Void> {
-        private final IntervalLength interval;
+        private final VirtualReadingType interval;
 
-        private EnforceAggregationInterval(IntervalLength interval) {
+        private EnforceAggregationInterval(VirtualReadingType interval) {
             this.interval = interval;
         }
 
@@ -230,13 +230,13 @@ public class InferAggregationInterval implements  ServerExpressionNode.Visitor<I
 
         @Override
         public Void visitVirtualRequirement(VirtualRequirementNode requirement) {
-            requirement.setTargetInterval(this.interval);
+            requirement.setTargetReadingType(this.interval);
             return null;
         }
 
         @Override
         public Void visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
-            deliverable.setTargetInterval(this.interval);
+            deliverable.setTargetReadingType(this.interval);
             return null;
         }
 

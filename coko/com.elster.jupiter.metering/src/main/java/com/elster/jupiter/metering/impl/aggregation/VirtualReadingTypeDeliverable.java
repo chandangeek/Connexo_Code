@@ -14,12 +14,12 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 class VirtualReadingTypeDeliverable {
 
     private final ReadingTypeDeliverableForMeterActivation deliverable;
-    private final IntervalLength targetInterval;
+    private final VirtualReadingType targetReadingType;
 
-    VirtualReadingTypeDeliverable(ReadingTypeDeliverableForMeterActivation deliverable, IntervalLength targetInterval) {
+    VirtualReadingTypeDeliverable(ReadingTypeDeliverableForMeterActivation deliverable, VirtualReadingType targetReadingType) {
         super();
         this.deliverable = deliverable;
-        this.targetInterval = targetInterval;
+        this.targetReadingType = targetReadingType;
     }
 
     ReadingType getReadingType () {

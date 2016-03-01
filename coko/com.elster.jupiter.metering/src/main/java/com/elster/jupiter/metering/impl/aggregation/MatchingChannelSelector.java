@@ -15,8 +15,6 @@ import java.util.Optional;
  * that match a {@link ReadingTypeRequirement}.<br>
  * Todo:
  * <ul>
- * <li>Take unit into account</li>
- * <li>Take unit's multiplier into account</li>
  * <li>Take accumulation (BULK, DELTA) into account</li>
  * </ul>
  *
@@ -37,61 +35,62 @@ class MatchingChannelSelector {
     }
 
     /**
-     * Returns the {@link IntervalLength} that is used by preference to extract data
+     * Returns the {@link VirtualReadingType} that is used by preference to extract data
      * for the {@link ReadingTypeRequirement} from the {@link MeterActivation}
-     * that needs to be converted to the specified target IntervalLength.
+     * that needs to be converted to the specified target VirtualReadingType.
      *
-     * @return The preferred IntervalLength
+     * @return The preferred VirtualReadingType
      */
-    Optional<IntervalLength> getPreferredInterval(IntervalLength targetInterval) {
-        return this.getPreferredChannel(targetInterval).map(Channel::getMainReadingType).map(IntervalLength::from);
+    Optional<VirtualReadingType> getPreferredReadingType(VirtualReadingType readingType) {
+        return this.getPreferredChannel(readingType).map(Channel::getMainReadingType).map(VirtualReadingType::from);
     }
 
     /**
      * Returns the {@link Channel} that is used by preference to extract data
      * for the {@link ReadingTypeRequirement} from the {@link MeterActivation}
-     * that needs to be converted to the specified target IntervalLength.
+     * that needs to be converted to the specified target VirtualReadingType.
      *
-     * @return The preferred IntervalLength
+     * @return The preferred VirtualReadingType
      */
-    Optional<Channel> getPreferredChannel(IntervalLength targetInterval) {
+    Optional<Channel> getPreferredChannel(VirtualReadingType readingType) {
         /* For now, the preferred interval is the smallest matching reading type
          * that is compatible with the target interval. */
         return this.matchingChannels
                 .stream()
-                .sorted(new ChannelComparator(targetInterval))
-                .filter(each -> this.areCompatible(each, targetInterval))
+                .sorted(new ChannelComparator(readingType))
+                .filter(each -> this.areCompatible(each, readingType))
                 .findFirst();
     }
 
     /**
-     * Tests if the specified {@link IntervalLength} is supported to extract data
+     * Tests if the specified {@link VirtualReadingType} is supported to extract data
      * for the {@link ReadingTypeRequirement} from the {@link MeterActivation}.
      *
-     * @param interval The IntervalLength
-     * @return A flag that indicates if the IntervalLength is supported
+     * @param readingType The VirtualReadingType
+     * @return A flag that indicates if the VirtualReadingType is supported
      */
-    boolean isIntervalSupported(IntervalLength interval) {
+    boolean isReadingTypeSupported(VirtualReadingType readingType) {
         return this.matchingChannels
                 .stream()
                 .map(Channel::getMainReadingType)
-                .map(IntervalLength::from)
-                .anyMatch(readingTypeInterval -> this.areCompatible(readingTypeInterval, interval));
+                .map(VirtualReadingType::from)
+                .anyMatch(readingTypeInterval -> this.areCompatible(readingTypeInterval, readingType));
     }
 
-    private boolean areCompatible(IntervalLength first, IntervalLength second) {
+    private boolean areCompatible(VirtualReadingType first, VirtualReadingType second) {
         /* Todo: uncomment when adding support for disaggregation
-         * return first.isMultipleOf(second) || first.multipliesTo(second);
+         * return first.getIntervalLength().isMultipleOf(second.getIntervalLength()) || first.getIntervalLength().multipliesTo(second.getIntervalLength());
          */
-        return first.multipliesTo(second);
+        return first.getIntervalLength().multipliesTo(second.getIntervalLength())
+            && UnitConversionSupport.areCompatibleForAutomaticUnitConversion(first.getUnit(), second.getUnit());
     }
 
-    private boolean areCompatible(Channel channel, IntervalLength intervalLength) {
-        return this.areCompatible(this.intervalLengthOf(channel), intervalLength);
+    private boolean areCompatible(Channel channel, VirtualReadingType intervalLength) {
+        return this.areCompatible(this.readingTypeFor(channel), intervalLength);
     }
 
-    private IntervalLength intervalLengthOf(Channel channel) {
-        return IntervalLength.from(channel.getMainReadingType());
+    private VirtualReadingType readingTypeFor(Channel channel) {
+        return VirtualReadingType.from(channel.getMainReadingType());
     }
 
     /**
@@ -100,54 +99,54 @@ class MatchingChannelSelector {
      * i.e. it will make sure those are sorted first.
      */
     private class ChannelComparator implements Comparator<Channel> {
-        private final IntervalLength targetInterval;
+        private final VirtualReadingType targetReadingType;
 
-        private ChannelComparator(IntervalLength targetInterval) {
+        private ChannelComparator(VirtualReadingType targetReadingType) {
             super();
-            this.targetInterval = targetInterval;
+            this.targetReadingType = targetReadingType;
         }
 
         @Override
         public int compare(Channel o1, Channel o2) {
-            IntervalLength il1 = intervalLengthOf(o1);
-            IntervalLength il2 = intervalLengthOf(o2);
-            int il1ComparedToTarget = il1.compareTo(this.targetInterval);
-            int il2ComparedToTarget = il2.compareTo(this.targetInterval);
-            if (compareSameToTargetInterval(il1ComparedToTarget, il2ComparedToTarget)) {
-                /* Both compare the same way to the target interval
-                 * so they are both smaller, bigger or equal to the target interval. */
+            VirtualReadingType rt1 = readingTypeFor(o1);
+            VirtualReadingType rt2 = readingTypeFor(o2);
+            int il1ComparedToTarget = rt1.compareTo(this.targetReadingType);
+            int il2ComparedToTarget = rt2.compareTo(this.targetReadingType);
+            if (compareSameToTargetReadingType(il1ComparedToTarget, il2ComparedToTarget)) {
+                /* Both compare the same way to the target reading type
+                 * so they are both smaller, bigger or equal to the target reading type. */
                 if (il1ComparedToTarget == 0) {
-                    // Both are equal to the target interval, consider them equal for now
+                    // Both are equal to the target reading type, consider them equal for now
                     return 0;
                 }
                 else if (il1ComparedToTarget < 0) {
                     // Both are smaller, sort them in descending order
-                    return -il1.compareTo(il2);
+                    return -rt1.compareTo(rt2);
                 }
                 else {
                     // Both are bigger, sort them in ascending order
-                    return il1.compareTo(il2);
+                    return rt1.compareTo(rt2);
                 }
             }
             else if (il1ComparedToTarget == 0) {
-                // il2 != target interval
+                // rt2 != target reading type
                 return -1;
             }
             else if (il2ComparedToTarget == 0) {
-                // il1 != target interval
+                // rt1 != target reading type
                 return 1;
             }
             else if (il1ComparedToTarget < 0) {
-                // il1 < target interval < il2
+                // rt1 < target reading type < rt2
                 return -1;
             }
             else {
-                // il2 < target interval < il1
+                // rt2 < target readng type < rt1
                 return 1;
             }
         }
 
-        private boolean compareSameToTargetInterval(int il1ComparedToTarget, int il2ComparedToTarget) {
+        private boolean compareSameToTargetReadingType(int il1ComparedToTarget, int il2ComparedToTarget) {
             return (il1ComparedToTarget < 0 && il2ComparedToTarget <0)
                     || (il1ComparedToTarget == 0 && il2ComparedToTarget == 0)
                     || (il1ComparedToTarget > 0 && il2ComparedToTarget > 0);

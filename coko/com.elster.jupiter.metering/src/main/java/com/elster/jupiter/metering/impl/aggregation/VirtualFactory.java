@@ -20,28 +20,28 @@ public interface VirtualFactory {
 
     /**
      * Returns a new {@link VirtualReadingTypeRequirement} for the specified
-     * {@link ReadingTypeRequirement}, {@link ReadingTypeDeliverable} and interval length
-     * or one that was already produced before if such a node has already
-     * been produced before.
+     * {@link ReadingTypeRequirement}, {@link ReadingTypeDeliverable} and
+     * {@link VirtualReadingType} or one that was already produced before
+     * if such a node has already been produced before.
      *
      * @param requirement The ReadingTypeRequirement
      * @param deliverable The ReadingTypeDeliverable
-     * @param intervalLength The IntervalLength
+     * @param readingType The VirtualReadingType
      * @return The VirtualRequirementNode
      */
-    VirtualReadingTypeRequirement requirementFor(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, IntervalLength intervalLength);
+    VirtualReadingTypeRequirement requirementFor(ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, VirtualReadingType readingType);
 
     /**
      * Returns a new {@link VirtualDeliverableNode} for the specified
-     * {@link ReadingTypeDeliverableForMeterActivation} and interval length
+     * {@link ReadingTypeDeliverableForMeterActivation} and {@link VirtualReadingType}
      * or one that was already produced before if such a node has already
      * been produced before.
      *
      * @param deliverable The ReadingTypeDeliverable
-     * @param intervalLength The IntervalLength
+     * @param readingType The VirtualReadingType
      * @return The VirtualDeliverableNode
      */
-    VirtualReadingTypeDeliverable deliverableFor(ReadingTypeDeliverableForMeterActivation deliverable, IntervalLength intervalLength);
+    VirtualReadingTypeDeliverable deliverableFor(ReadingTypeDeliverableForMeterActivation deliverable, VirtualReadingType readingType);
 
     /**
      * Returns all the {@link VirtualReadingTypeRequirement}s that were produced by this factory.

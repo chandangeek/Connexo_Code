@@ -24,18 +24,18 @@ class VirtualDeliverableNode implements ServerExpressionNode {
 
     private final VirtualFactory virtualFactory;
     private final ReadingTypeDeliverableForMeterActivation deliverable;
-    private IntervalLength targetInterval;
+    private VirtualReadingType targetReadingType;
     private VirtualReadingTypeDeliverable virtualDeliverable;
 
     VirtualDeliverableNode(VirtualFactory virtualFactory, ReadingTypeDeliverableForMeterActivation deliverable) {
         super();
         this.virtualFactory = virtualFactory;
         this.deliverable = deliverable;
-        this.targetInterval = IntervalLength.from(this.deliverable.getReadingType());
+        this.targetReadingType = VirtualReadingType.from(this.deliverable.getReadingType());
     }
 
-    void setTargetInterval(IntervalLength targetInterval) {
-        this.targetInterval = targetInterval;
+    void setTargetReadingType(VirtualReadingType targetReadingType) {
+        this.targetReadingType = targetReadingType;
     }
 
     void finish() {
@@ -53,7 +53,7 @@ class VirtualDeliverableNode implements ServerExpressionNode {
     }
 
     private void virtualize() {
-        this.virtualDeliverable = this.virtualFactory.deliverableFor(this.deliverable, this.targetInterval);
+        this.virtualDeliverable = this.virtualFactory.deliverableFor(this.deliverable, this.targetReadingType);
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -214,6 +216,8 @@ public class CopyAndVirtualizeReferencesTest {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
         when(readingTypeDeliverable.getReadingType()).thenReturn(readingType);
         com.elster.jupiter.metering.impl.config.OperationNode node =
                 new com.elster.jupiter.metering.impl.config.OperationNode(
@@ -230,7 +234,7 @@ public class CopyAndVirtualizeReferencesTest {
                         Range.all(),
                         1,
                         mock(ServerExpressionNode.class),
-                        IntervalLength.MINUTE15);
+                        VirtualReadingType.from(readingType));
         when(this.readingTypeDeliverableForMeterActivationProvider.from(readingTypeDeliverable, this.meterActivation)).thenReturn(readingTypeDeliverableForMeterActivation);
 
         // Business method

@@ -40,9 +40,9 @@ import java.util.stream.Stream;
 @Component(name = "com.elster.jupiter.metering.aggregation", service = {DataAggregationService.class})
 public class DataAggregationServiceImpl implements DataAggregationService, ReadingTypeDeliverableForMeterActivationProvider {
 
-    private ServerMeteringService meteringService;
-    private Provider<VirtualFactory> virtualFactoryProvider;
-    private SqlBuilderFactory sqlBuilderFactory;
+    private volatile ServerMeteringService meteringService;
+    private volatile Provider<VirtualFactory> virtualFactoryProvider;
+    private volatile SqlBuilderFactory sqlBuilderFactory;
     private Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation;
     private ClauseAwareSqlBuilder sqlBuilder;
 
@@ -127,7 +127,7 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
                         period,
                         virtualFactory.meterActivationSequenceNumber(),
                         preparedExpression,
-                        this.inferAggregationInterval(deliverable, preparedExpression)));
+                        this.inferReadingType(deliverable, preparedExpression)));
     }
 
     /**
@@ -146,20 +146,21 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
     }
 
     /**
-     * Infers the most appropriate aggregation interval for the expressions in the tree.
+     * Infers the most appropriate {@link VirtualReadingType} for the expressions in the tree.
      * Uses information provided by
      * <ul>
-     * <li>the {@link ReadingTypeDeliverable} (for which the expression tree defines the calculation) that specifies the requested or desired aggregation interval</li>
+     * <li>the {@link ReadingTypeDeliverable} (for which the expression tree defines the calculation)
+     *     that specifies the requested or desired reading type</li>
      * <li>other ReadingTypeDeliverable that are found in the expression tree</li>
-     * <li>ReadingTypeRequirements that are not using wildcards in the interval</li>
+     * <li>ReadingTypeRequirements that are not using wildcards in the interval or unit multiplier</li>
      * </ul>
      *
      * @param deliverable The ReadingTypeDeliverable
      * @param expressionTree The expression tree that defines how the ReadingTypeDeliverable should be calculated
      * @return The most appropriate aggregation interval for all expressions in the tree
      */
-    private IntervalLength inferAggregationInterval(ReadingTypeDeliverable deliverable, ServerExpressionNode expressionTree) {
-        return expressionTree.accept(new InferAggregationInterval(IntervalLength.from(deliverable.getReadingType())));
+    private VirtualReadingType inferReadingType(ReadingTypeDeliverable deliverable, ServerExpressionNode expressionTree) {
+        return expressionTree.accept(new InferReadingType(VirtualReadingType.from(deliverable.getReadingType())));
     }
 
     @Override

@@ -31,7 +31,7 @@ class VirtualRequirementNode implements ServerExpressionNode {
     private final ReadingTypeRequirement requirement;
     private final ReadingTypeDeliverable deliverable;
     private final MeterActivation meterActivation;
-    private IntervalLength targetInterval;
+    private VirtualReadingType targetReadingType;
     private VirtualReadingTypeRequirement virtualRequirement;
 
     VirtualRequirementNode(VirtualFactory virtualFactory, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
@@ -40,7 +40,7 @@ class VirtualRequirementNode implements ServerExpressionNode {
         this.requirement = requirement;
         this.deliverable = deliverable;
         this.meterActivation = meterActivation;
-        this.targetInterval = IntervalLength.from(this.deliverable.getReadingType());
+        this.targetReadingType = VirtualReadingType.from(this.deliverable.getReadingType());
     }
 
     ReadingTypeRequirement getRequirement() {
@@ -48,42 +48,42 @@ class VirtualRequirementNode implements ServerExpressionNode {
     }
 
     /**
-     * Calculates the preferred target interval,
+     * Calculates the preferred target reading type,
      * taking all the backing channels of the actual
      * {@link ReadingTypeRequirement} into account.
      *
-     * @return The preferred interval
+     * @return The preferred reading type
      */
-    IntervalLength getPreferredInterval() {
+    VirtualReadingType getPreferredReadingType() {
         /* Preferred interval is the smallest matching reading type
          * that is compatible with the target interval. */
-        Optional<IntervalLength> preferredInterval = new MatchingChannelSelector(this.requirement, this.meterActivation).getPreferredInterval(this.getTargetInterval());
+        Optional<VirtualReadingType> preferredInterval = new MatchingChannelSelector(this.requirement, this.meterActivation).getPreferredReadingType(this.getTargetReadingType());
         if (preferredInterval.isPresent()) {
             return preferredInterval.get();
         }
         else {
-            return IntervalLength.NOT_SUPPORTED;
+            return VirtualReadingType.notSupported();
         }
     }
 
     /**
-     * Tests if the specified {@link IntervalLength}
+     * Tests if the specified {@link VirtualReadingType}
      * can be supported by looking at the backing channels of
      * the actual {@link ReadingTypeRequirement}.
      *
-     * @param interval The interval
-     * @return A flag that indicates if the interval is backed by one of the channels
+     * @param readingType The readingType
+     * @return A flag that indicates if the readingType is backed by one of the channels
      */
-    boolean supportsInterval(IntervalLength interval) {
-        return new MatchingChannelSelector(this.requirement, this.meterActivation).isIntervalSupported(interval);
+    boolean supportsInterval(VirtualReadingType readingType) {
+        return new MatchingChannelSelector(this.requirement, this.meterActivation).isReadingTypeSupported(readingType);
     }
 
-    IntervalLength getTargetInterval() {
-        return this.targetInterval;
+    VirtualReadingType getTargetReadingType() {
+        return this.targetReadingType;
     }
 
-    void setTargetInterval(IntervalLength targetInterval) {
-        this.targetInterval = targetInterval;
+    void setTargetReadingType(VirtualReadingType targetReadingType) {
+        this.targetReadingType = targetReadingType;
     }
 
     void finish() {
@@ -107,7 +107,7 @@ class VirtualRequirementNode implements ServerExpressionNode {
      * Todo: support changing the target interval with notification to the factory that old requirement is no longer necessary
      */
     private void virtualize() {
-        this.virtualRequirement = this.virtualFactory.requirementFor(this.requirement, this.deliverable, this.targetInterval);
+        this.virtualRequirement = this.virtualFactory.requirementFor(this.requirement, this.deliverable, this.targetReadingType);
     }
 
     @Override
