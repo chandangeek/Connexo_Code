@@ -51,7 +51,7 @@ public class GeneralBlockTransferHandler {
      */
     private DlmsV2Connection dlmsConnection;
     /**
-     * Boolean indicating whether or not general blcok transfer is enalbled/allowed or not
+     * Boolean indicating whether or not general block transfer is enabled/allowed or not
      */
     private boolean generalBlockTransferEnabled;
     /**
