@@ -113,9 +113,12 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
         DeviceStateInfo[] possibleValues =
                 this.deviceLifeCycleConfigurationService
                         .findAllDeviceLifeCycles()
-                        .stream()
+                        .stream().sorted((lc1, lc2) -> lc1.getName().compareToIgnoreCase(lc2.getName()))
                         .flatMap(lifeCycle -> lifeCycle.getFiniteStateMachine().getStates().stream())
                         .map(state -> new DeviceStateInfo(thesaurus, deviceLifeCycleConfigurationService, state))
+                        .sorted((info1, info2) -> (info1.getLifeCycleId() != info2.getLifeCycleId()) ?
+                                info1.getLifeCycleName().compareToIgnoreCase(info2.getLifeCycleName()) :
+                                info1.getName().compareToIgnoreCase(info2.getName()))
                         .toArray(DeviceStateInfo[]::new);
 
         return this.propertySpecService

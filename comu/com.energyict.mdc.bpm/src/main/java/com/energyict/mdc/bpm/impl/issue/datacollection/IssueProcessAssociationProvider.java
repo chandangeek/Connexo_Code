@@ -106,7 +106,9 @@ public class IssueProcessAssociationProvider implements ProcessAssociationProvid
         IssueType issueType = issueService.findIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE).orElse(null);
         IssueReasonInfo[] possibleValues = issueService.query(IssueReason.class)
                 .select(where("issueType").isEqualTo(issueType))
-                .stream().map(IssueReasonInfo::new).toArray(IssueReasonInfo[]::new);
+                .stream().map(IssueReasonInfo::new)
+                .sorted((info1, info2) -> info1.getName().compareToIgnoreCase(info2.getName()))
+                .toArray(IssueReasonInfo[]::new);
 
         return this.propertySpecService
                 .specForValuesOf(new IssueReasonInfoValueFactory())
