@@ -362,7 +362,13 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 throw ConnectionCommunicationException.protocolConnectFailed(e);
             } catch (IOException e) {
                 throw ConnectionCommunicationException.numberOfRetriesReached(e, getDlmsV2Connection().getMaxTries());
+            } catch (ConnectionCommunicationException e) {
+                if (e.getExceptionReference().equals(ProtocolExceptionReference.UNEXPECTED_RESPONSE) || e.getExceptionReference().equals(ProtocolExceptionReference.UNEXPECTED_PROTOCOL_ERROR)) {
+                    silentDisconnect();
+                }
+                throw e;
             }
+
             try {
                 decryptedResponse = new OctetString(berEncodedData, 0);
             } catch (IOException e) {
