@@ -29,7 +29,7 @@ Ext.define('Sct.controller.Main', {
     },
 
     initMenu: function () {
-        //if (Sct.privileges.ServiceCallType.canView() ){
+        if (Sct.privileges.ServiceCallType.canView() ){
 
             var menuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'SCT', 'Administration'),
@@ -46,7 +46,7 @@ Ext.define('Sct.controller.Main', {
                     {
                         text: Uni.I18n.translate('general.serviceCallTypes', 'SCT', 'Service call types'),
                         href: '#/administration/servicecalltypes',
-                        //hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.appServer') &&  Uni.Auth.hasNoPrivilege('privilege.view.appServer'),
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.view.serviceCallTypes'),
                         route: 'servicecalltypes'
                     }
                 ]
@@ -56,5 +56,5 @@ Ext.define('Sct.controller.Main', {
                 serviceCallItem
             );
         }
-    //}
+    }
 });
