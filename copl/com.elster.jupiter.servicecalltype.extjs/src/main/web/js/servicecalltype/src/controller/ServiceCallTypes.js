@@ -97,9 +97,6 @@ Ext.define('Sct.controller.ServiceCallTypes', {
             success: function (record) {
                 me.getPage().down('#grd-service-call-types').getStore().load();
                 window.close();
-            },
-            failure: function (record, operation) {
-                //TODO
             }
         });
     },
