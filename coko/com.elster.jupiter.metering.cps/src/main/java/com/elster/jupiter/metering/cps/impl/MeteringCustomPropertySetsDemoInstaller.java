@@ -67,12 +67,6 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService {
                 .ifPresent(this::addAllSets);
 
         electricity = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-        customPropertySetService.findActiveCustomPropertySet(UsagePointOneDomainExtension.class.getName())
-                .ifPresent(this::addElectricitySets);
-        customPropertySetService.findActiveCustomPropertySet(UsagePointTwoDomainExtension.class.getName())
-                .ifPresent(this::addElectricitySets);
-        customPropertySetService.findActiveCustomPropertySet(UsagePointVersionedDomainExtension.class.getName())
-                .ifPresent(this::addElectricitySets);
         customPropertySetService.findActiveCustomPropertySet(UsagePointTechnicalElectricityDomainExtension.class.getName())
                 .ifPresent(this::addElectricitySets);
         customPropertySetService.findActiveCustomPropertySet(UsagePointLicenseDomainExtension.class.getName())
@@ -83,12 +77,8 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService {
                 .getName()).ifPresent(this::addElectricitySets);
         customPropertySetService.findActiveCustomPropertySet(UsagePointDecentralizedProductionDomainExtension.class.getName())
                 .ifPresent(this::addElectricitySets);
-      //  customPropertySetService.findActiveCustomPropertySet(UsagePointMeterTechInformationElectricityDomainExtension.class
-      //          .getName()).ifPresent(this::addElectricitySets);
 
         gas = meteringService.getServiceCategory(ServiceKind.GAS).get();
-        customPropertySetService.findActiveCustomPropertySet(UsagePointOneDomainExtension.class.getName()).ifPresent(this::addGasSets);
-        customPropertySetService.findActiveCustomPropertySet(UsagePointVersionedDomainExtension.class.getName()).ifPresent(this::addGasSets);
         customPropertySetService.findActiveCustomPropertySet(UsagePointSettlementDomainExtension.class.getName())
                 .ifPresent(this::addGasSets);
         customPropertySetService.findActiveCustomPropertySet(UsagePointConvertorDomainExtension.class.getName())
@@ -99,15 +89,12 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService {
                 .ifPresent(this::addGasSets);
 
         water = meteringService.getServiceCategory(ServiceKind.WATER).get();
-        customPropertySetService.findActiveCustomPropertySet(UsagePointOneDomainExtension.class.getName()).ifPresent(this::addWaterSets);
-        customPropertySetService.findActiveCustomPropertySet(UsagePointTwoDomainExtension.class.getName()).ifPresent(this::addWaterSets);
         customPropertySetService.findActiveCustomPropertySet(UsagePointTechnicalWGTDomainExtension.class.getName())
                 .ifPresent(this::addWaterSets);
         customPropertySetService.findActiveCustomPropertySet(UsagePointMeterTechInformationGTWDomainExtension.class.getName())
                 .ifPresent(this::addWaterSets);
 
         internet = meteringService.getServiceCategory(ServiceKind.INTERNET).get();
-        customPropertySetService.findActiveCustomPropertySet(UsagePointTwoDomainExtension.class.getName()).ifPresent(this::addInternetSets);
 
         thermal = meteringService.getServiceCategory(ServiceKind.HEAT).get();
         customPropertySetService.findActiveCustomPropertySet(UsagePointTechnicalWGTDomainExtension.class.getName())
