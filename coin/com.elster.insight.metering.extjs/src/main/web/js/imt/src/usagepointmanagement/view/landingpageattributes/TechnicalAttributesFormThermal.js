@@ -46,7 +46,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass status'),
                         listeners: {
                             beforerender: function (fld){
-                                fld.setVisible(me.down('#fld-up-bypass').getValue())
+                                fld.setVisible(me.down('#fld-up-bypass').getValue() == 'YES')
                             }
                         }
                     },

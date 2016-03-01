@@ -4,6 +4,11 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.BypassField', {
     name: 'bypass',
     fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass'),
     listeners: {
+        afterrender: {
+            fn: function (field) {
+                field.nextSibling('techinfo-bypassstatuscombobox').setVisible(field.value === 'YES');
+            }
+        },
         change: {
             fn: function (field, newValue) {
                 if (field.rendered) {
