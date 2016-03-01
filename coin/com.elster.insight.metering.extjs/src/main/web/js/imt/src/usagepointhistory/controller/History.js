@@ -78,6 +78,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             mRID = router.arguments.mRID,
             customAttributeSetId = newCard.customAttributeSetId,
             cardView,
+            onVersionsStoreLoad,
             url;
 
         if (customAttributeSetId != router.queryParams.customAttributeSetId) {
@@ -112,13 +113,17 @@ Ext.define('Imt.usagepointhistory.controller.History', {
         });
         Ext.resumeLayouts(true);
         if (router.queryParams.selectCurrent) {
-            versionsStore.on('load', function () {
+            onVersionsStoreLoad = function () {
                 var currentVersion = versionsStore.find('isActive', true);
 
                 if (cardView.rendered) {
                     cardView.down('custom-attribute-set-versions-grid').getSelectionModel().select(currentVersion > -1 ? currentVersion : 0);
                 }
-            }, me, {single: true});
+            };
+            versionsStore.on('load', onVersionsStoreLoad, me);
+            cardView.on('destroy', function () {
+                versionsStore.un('load', onVersionsStoreLoad, me);
+            })
         }
 
         attributeSetModel.getProxy().setUrl(mRID);
