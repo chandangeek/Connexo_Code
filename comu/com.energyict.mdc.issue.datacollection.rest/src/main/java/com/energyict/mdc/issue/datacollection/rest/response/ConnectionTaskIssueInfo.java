@@ -1,12 +1,6 @@
 package com.energyict.mdc.issue.datacollection.rest.response;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.rest.IdWithNameInfo;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.issue.datacollection.rest.i18n.ComSessionSuccessIndicatorTranslationKeys;
-import com.energyict.mdc.issue.datacollection.rest.i18n.ConnectionTaskSuccessIndicatorTranslationKeys;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import java.time.Instant;
 import java.util.List;

@@ -2,7 +2,7 @@ package com.energyict.mdc.issue.datacollection.rest.response;
 
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
-import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 
 import java.time.Instant;

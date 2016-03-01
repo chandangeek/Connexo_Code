@@ -1,5 +1,6 @@
 package com.energyict.mdc.issue.datacollection.rest.response;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -10,8 +11,12 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.InfoFactory;
+import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -24,22 +29,47 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 
+import com.energyict.mdc.issue.datacollection.rest.IssueDataCollectionApplication;
 import com.energyict.mdc.issue.datacollection.rest.ModuleConstants;
-import com.energyict.mdc.issue.datacollection.rest.i18n.TaskStatusTranslationKeys;
 import com.energyict.mdc.tasks.ComTask;
 
-public class DataCollectionIssueInfoFactory {
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
-    private final DeviceService deviceService;
-    private final Thesaurus thesaurus;
-    private final CommunicationTaskService communicationTaskService;
+@Component(name="issue.data.collection.info.factory", service = { InfoFactory.class }, immediate = true)
+public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataCollection> {
+
+    private DeviceService deviceService;
+    private Thesaurus thesaurus;
+    private CommunicationTaskService communicationTaskService;
+
+    public DataCollectionIssueInfoFactory() {}
 
     @Inject
     public DataCollectionIssueInfoFactory(DeviceService deviceService, Thesaurus thesaurus, CommunicationTaskService communicationTaskService) {
         this.deviceService = deviceService;
         this.thesaurus = thesaurus;
+        this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        Thesaurus domainThesaurus = nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN);
+        Thesaurus restThesaurus = nlsService.getThesaurus(IssueDataCollectionApplication.ISSUE_DATACOLLECTION_REST_COMPONENT, Layer.REST);
+        Thesaurus dashboardRestThesaurus = nlsService.getThesaurus(IssueDataCollectionApplication.DASHBOARD_REST_COMPONENT_NAME, Layer.REST);
+        this.thesaurus = domainThesaurus.join(restThesaurus).join(dashboardRestThesaurus);
+    }
+
+    @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
     }
 
@@ -99,6 +129,21 @@ public class DataCollectionIssueInfoFactory {
                              (es.getSuccessIndicator() == ComTaskExecutionSession.SuccessIndicator.Failure || es.getSuccessIndicator() == ComTaskExecutionSession.SuccessIndicator.Interrupted))
                 .findFirst()
                 .map(es -> es.getId()).orElse(null);
+    }
+
+    @Override
+    public Object from(IssueDataCollection issueDataCollection) {
+        return asInfo(issueDataCollection, DeviceInfo.class);
+    }
+
+    @Override
+    public List<PropertyDescriptionInfo> modelStructure() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public Class<IssueDataCollection> getDomainClass() {
+        return IssueDataCollection.class;
     }
 
     private void addConnectionAttempts(DataCollectionIssueInfo<?> info, IssueDataCollection issue) {
@@ -169,8 +214,10 @@ public class DataCollectionIssueInfoFactory {
         } else {
             communicationTaskInfo.name = comTaskExecution.getComTasks().stream().map(ComTask::getName).collect(Collectors.joining(" + "));
         }
-        TaskStatusTranslationKeys taskStatusTranslationKey = TaskStatusTranslationKeys.from(comTaskExecution.getStatus());
-        communicationTaskInfo.latestStatus = new IdWithNameInfo(taskStatusTranslationKey.getKey(), thesaurus.getFormat(taskStatusTranslationKey).format());
+        //TaskStatusTranslationKeys taskStatusTranslationKey = TaskStatusTranslationKeys.from(comTaskExecution.getStatus());
+        String thesaurusKey = comTaskExecution.getStatus().name();
+        communicationTaskInfo.latestStatus = new IdWithNameInfo(thesaurusKey, thesaurus.getString(thesaurusKey, thesaurusKey));
+        //communicationTaskInfo.latestStatus = new IdWithNameInfo(taskStatusTranslationKey.getKey(), thesaurus.getFormat(taskStatusTranslationKey).format());
         Optional<ComTaskExecutionSession> lastComTaskExecutionSessionRef = this.communicationTaskService.findLastSessionFor(comTaskExecution);
         if (lastComTaskExecutionSessionRef.isPresent()) {
             communicationTaskInfo.latestResult = lastComTaskExecutionSessionRef
