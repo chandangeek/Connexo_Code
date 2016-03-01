@@ -65,19 +65,26 @@ import java.util.stream.Collectors;
 public class UsagePointImpl implements UsagePoint {
     // persistent fields
     private long id;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String aliasName;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String description;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String serviceLocationString;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String mRID;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private boolean isSdp;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private boolean isVirtual;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String outageRegion;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String readRoute;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String servicePriority;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Instant installationTime;
@@ -397,14 +404,14 @@ public class UsagePointImpl implements UsagePoint {
         return result;
     }
 
-	@Override
-	public List<Instant> toList(ReadingType readingType, Range<Instant> exportInterval) {
-		return getCurrentMeterActivation()
-				.map(meterActivation -> meterActivation.toList(readingType, exportInterval))
-				.orElseGet(Collections::emptyList);
-	}
+    @Override
+    public List<Instant> toList(ReadingType readingType, Range<Instant> exportInterval) {
+        return getCurrentMeterActivation()
+                .map(meterActivation -> meterActivation.toList(readingType, exportInterval))
+                .orElseGet(Collections::emptyList);
+    }
 
-	public void adopt(MeterActivationImpl meterActivation) {
+    public void adopt(MeterActivationImpl meterActivation) {
         meterActivations.stream()
                 .filter(activation -> activation.getId() != meterActivation.getId())
                 .reduce((m1, m2) -> m2)
@@ -412,7 +419,9 @@ public class UsagePointImpl implements UsagePoint {
                     if (last.getRange().lowerEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
                         throw new IllegalArgumentException("Invalid start date");
                     } else {
-                        if (!last.getRange().hasUpperBound() || last.getRange().upperEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
+                        if (!last.getRange().hasUpperBound() || last.getRange()
+                                .upperEndpoint()
+                                .isAfter(meterActivation.getRange().lowerEndpoint())) {
                             last.endAt(meterActivation.getRange().lowerEndpoint());
                         }
                     }
@@ -453,7 +462,8 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public Optional<MetrologyConfiguration> getMetrologyConfiguration(Instant when) {
-        return this.metrologyConfiguration.effective(when).map(UsagePointMetrologyConfiguration::getMetrologyConfiguration);
+        return this.metrologyConfiguration.effective(when)
+                .map(UsagePointMetrologyConfiguration::getMetrologyConfiguration);
     }
 
     @Override
@@ -474,9 +484,9 @@ public class UsagePointImpl implements UsagePoint {
     public void apply(MetrologyConfiguration metrologyConfiguration, Instant when) {
         this.removeMetrologyConfiguration(when);
         this.metrologyConfiguration.add(
-            this.dataModel
-                .getInstance(UsagePointMetrologyConfigurationImpl.class)
-                .initAndSave(this, metrologyConfiguration, when));
+                this.dataModel
+                        .getInstance(UsagePointMetrologyConfigurationImpl.class)
+                        .initAndSave(this, metrologyConfiguration, when));
     }
 
     @Override
@@ -547,6 +557,7 @@ public class UsagePointImpl implements UsagePoint {
                 throw new IllegalArgumentException("Conflicts with existing usage point characteristics : " + candidate);
             }
         }
+        Save.CREATE.validate(dataModel, candidate);
     }
 
     @Override
@@ -556,7 +567,8 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public List<? extends BaseReadingRecord> getReadingsWithFill(Range<Instant> range, ReadingType readingType) {
-        List<? extends BaseReadingRecord> notFilled = MeterActivationsImpl.from(meterActivations, range).getReadings(range, readingType);
+        List<? extends BaseReadingRecord> notFilled = MeterActivationsImpl.from(meterActivations, range)
+                .getReadings(range, readingType);
         List<IntervalReadingRecord> filled = new ArrayList<>();
 
         if (!readingType.isRegular()) {
@@ -570,7 +582,8 @@ public class UsagePointImpl implements UsagePoint {
                 previous = irr;
                 continue;
             }
-            Instant previousTime = previous.getTimeStamp().plus(Duration.ofMinutes(readingType.getMeasuringPeriod().getMinutes()));
+            Instant previousTime = previous.getTimeStamp()
+                    .plus(Duration.ofMinutes(readingType.getMeasuringPeriod().getMinutes()));
             while (previousTime.compareTo(brr.getTimeStamp()) != 0) {
                 IntervalReadingRecord irri = new EmptyIntervalReadingRecordImpl(readingType, previousTime);
                 previousTime = previousTime.plus(Duration.ofMinutes(readingType.getMeasuringPeriod().getMinutes()));
@@ -645,19 +658,20 @@ public class UsagePointImpl implements UsagePoint {
         return Optional.of(this);
     }
 
-	@Override
-	public ZoneId getZoneId() {
-		return getCurrentMeterActivation()
-				.map(MeterActivation::getZoneId)
-				.orElse(ZoneId.systemDefault());
-	}
+    @Override
+    public ZoneId getZoneId() {
+        return getCurrentMeterActivation()
+                .map(MeterActivation::getZoneId)
+                .orElse(ZoneId.systemDefault());
+    }
 
-	@Override
-	public List<ReadingQualityRecord> getReadingQualities(ReadingQualityType readingQualityType, ReadingType readingType, Range<Instant> interval) {
-		return meterActivations.stream()
-				.flatMap(meterActivation -> meterActivation.getReadingQualities(readingQualityType, readingType, interval).stream())
-				.collect(Collectors.toList());
-	}
+    @Override
+    public List<ReadingQualityRecord> getReadingQualities(ReadingQualityType readingQualityType, ReadingType readingType, Range<Instant> interval) {
+        return meterActivations.stream()
+                .flatMap(meterActivation -> meterActivation.getReadingQualities(readingQualityType, readingType, interval)
+                        .stream())
+                .collect(Collectors.toList());
+    }
 
     void addConfiguration(UsagePointConfigurationImpl usagePointConfiguration) {
         usagePointConfigurations.add(usagePointConfiguration);

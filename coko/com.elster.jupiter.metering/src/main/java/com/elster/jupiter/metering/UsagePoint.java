@@ -54,7 +54,7 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
 
     void setServiceLocation(ServiceLocation serviceLocation);
 
-    void setServiceLocationString(String serviceLocationString);
+    public void setServiceLocationString(String serviceLocationString);
 
     void setServicePriority(String servicePriority);
 
