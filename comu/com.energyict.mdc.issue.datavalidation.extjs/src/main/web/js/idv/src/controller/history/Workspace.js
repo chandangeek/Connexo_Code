@@ -10,7 +10,7 @@ Ext.define('Idv.controller.history.Workspace', {
     routeConfig: {
         "workspace/datavalidationoverview": {
             title: Uni.I18n.translate('validation.validationOverview.title', 'IDV', 'Validation overview'),
-            route: 'datavalidationoverview',
+            route: 'workspace/datavalidationoverview',
             controller: 'Ddv.controller.ValidationOverview',
             action: 'showOverview',
             filter: 'Ddv.model.ValidationOverviewFilter'
