@@ -13,10 +13,10 @@ import javax.validation.constraints.Size;
 /**
  * Created by bvn on 2/15/16.
  */
-public class ServiceCallTypeDomainExtension implements PersistentDomainExtension<ServiceCall> {
+public class ServiceCallDomainExtension implements PersistentDomainExtension<ServiceCall> {
 
     public enum FieldNames {
-        DOMAIN("serviceCallType", "serviceCallType"),
+        DOMAIN("serviceCall", "serviceCall"),
         TEST_ATTRIBUTE_STRING("testString", "test_string"),
         TEST_ATTRIBUTE_BOOLEAN("testBoolean", "test_boolean");
 
@@ -44,7 +44,7 @@ public class ServiceCallTypeDomainExtension implements PersistentDomainExtension
     private String testString;
     private boolean testBoolean;
 
-    public ServiceCallTypeDomainExtension() {
+    public ServiceCallDomainExtension() {
         super();
     }
 

@@ -26,14 +26,14 @@ import java.util.Set;
 /**
  * Created by bvn on 2/15/16.
  */
-@Component(name = "com.elster.jupiter.ServcieCallTypeCustomPropertySet", service = CustomPropertySet.class, immediate = true)
-public class ServiceCallTypeOneCustomPropertySet implements CustomPropertySet<ServiceCall, ServiceCallTypeDomainExtension> {
+@Component(name = "com.elster.jupiter.ServiceCallTypeCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+public class ServiceCallOneCustomPropertySet implements CustomPropertySet<ServiceCall, ServiceCallDomainExtension> {
 
-    public ServiceCallTypeOneCustomPropertySet() {
+    public ServiceCallOneCustomPropertySet() {
     }
 
     @Inject
-    public ServiceCallTypeOneCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService) {
+    public ServiceCallOneCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService) {
         this.propertySpecService = propertySpecService;
         customPropertySetService.addCustomPropertySet(this);
     }
@@ -52,7 +52,7 @@ public class ServiceCallTypeOneCustomPropertySet implements CustomPropertySet<Se
 
     @Override
     public String getName() {
-        return ServiceCallTypeOneCustomPropertySet.class.getSimpleName();
+        return ServiceCallOneCustomPropertySet.class.getSimpleName();
     }
 
     @Override
@@ -61,7 +61,7 @@ public class ServiceCallTypeOneCustomPropertySet implements CustomPropertySet<Se
     }
 
     @Override
-    public PersistenceSupport<ServiceCall, ServiceCallTypeDomainExtension> getPersistenceSupport() {
+    public PersistenceSupport<ServiceCall, ServiceCallDomainExtension> getPersistenceSupport() {
         return new RegisterTypeFivePersistenceSupport();
     }
 
@@ -90,21 +90,21 @@ public class ServiceCallTypeOneCustomPropertySet implements CustomPropertySet<Se
         return Arrays.asList(
                 this.propertySpecService
                         .stringSpec()
-                        .named(ServiceCallTypeDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName(), ServiceCallTypeDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING
+                        .named(ServiceCallDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName(), ServiceCallDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING
                                 .javaName())
                         .describedAs("infoString")
                         .setDefaultValue("description")
                         .finish(),
                 this.propertySpecService
                         .booleanSpec()
-                        .named(ServiceCallTypeDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName(), ServiceCallTypeDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN
+                        .named(ServiceCallDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName(), ServiceCallDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN
                                 .javaName())
                         .describedAs("flag")
                         .setDefaultValue(false)
                         .finish());
     }
 
-    private class RegisterTypeFivePersistenceSupport implements PersistenceSupport<ServiceCall, ServiceCallTypeDomainExtension> {
+    private class RegisterTypeFivePersistenceSupport implements PersistenceSupport<ServiceCall, ServiceCallDomainExtension> {
         private final String TABLE_NAME = "BVN_CPS_EXAMPLE_CPS";
         private final String FK_CPS_EXAMPLE_CPS = "FK_CPS_EXAMPLE_CPS";
 
@@ -120,7 +120,7 @@ public class ServiceCallTypeOneCustomPropertySet implements CustomPropertySet<Se
 
         @Override
         public String domainFieldName() {
-            return ServiceCallTypeDomainExtension.FieldNames.DOMAIN.javaName();
+            return ServiceCallDomainExtension.FieldNames.DOMAIN.javaName();
         }
 
         @Override
@@ -129,8 +129,8 @@ public class ServiceCallTypeOneCustomPropertySet implements CustomPropertySet<Se
         }
 
         @Override
-        public Class<ServiceCallTypeDomainExtension> persistenceClass() {
-            return ServiceCallTypeDomainExtension.class;
+        public Class<ServiceCallDomainExtension> persistenceClass() {
+            return ServiceCallDomainExtension.class;
         }
 
         @Override
@@ -146,15 +146,15 @@ public class ServiceCallTypeOneCustomPropertySet implements CustomPropertySet<Se
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table
-                    .column(ServiceCallTypeDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.databaseName())
+                    .column(ServiceCallDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.databaseName())
                     .varChar()
-                    .map(ServiceCallTypeDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName())
+                    .map(ServiceCallDomainExtension.FieldNames.TEST_ATTRIBUTE_STRING.javaName())
                     .notNull()
                     .add();
             table
-                    .column(ServiceCallTypeDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.databaseName())
+                    .column(ServiceCallDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.databaseName())
                     .bool()
-                    .map(ServiceCallTypeDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
+                    .map(ServiceCallDomainExtension.FieldNames.TEST_ATTRIBUTE_BOOLEAN.javaName())
                     .add();
         }
     }
