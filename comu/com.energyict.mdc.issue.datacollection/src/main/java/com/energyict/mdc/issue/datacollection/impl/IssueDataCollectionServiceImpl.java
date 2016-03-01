@@ -236,9 +236,9 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
         Condition condition = buildConditionFromFilter(filter);
         List<Class<?>> eagerClasses = determineMainApiClass(filter);
         if (eagers == null) {
-            eagerClasses.addAll(Arrays.asList(eagers));
-        } else {
             eagerClasses.addAll(Arrays.asList(IssueStatus.class, EndDevice.class, User.class, IssueReason.class, IssueType.class));
+        } else {
+            eagerClasses.addAll(Arrays.asList(eagers));
         }
         return DefaultFinder.of((Class<IssueDataCollection>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses
                 .size()]));
@@ -318,5 +318,4 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
     public Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue) {
         return issue instanceof HistoricalIssueDataCollection ? Optional.of(issue) : findHistoricalIssue(issue.getId());
     }
-
 }
