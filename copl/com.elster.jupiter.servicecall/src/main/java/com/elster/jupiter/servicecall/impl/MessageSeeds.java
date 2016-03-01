@@ -13,7 +13,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_PATH_TO_SUCCESS_FROM(2, "NoPathToSuccess", "Cannot get to Successful state from {0}"),
     NO_PATH_FROM_CREATED_TO(3, "NoPathFromCreated", "Cannot get to {0} state from Created."),
     NO_NAME_FOR_HANDLER(4, "NoNameForHandler", "Handler can not be registered: it does not have a name. Add @Component field property='name=xxx'"),
-    INVALID_CPS_TYPE(5, Constants.INVALID_TYPE, "Custom property set {0} does not have the required domain class of service call type"),
+    INVALID_CPS_TYPE(5, Constants.INVALID_TYPE, "Custom property set {0} does not have the required domain class 'service call'"),
     REQUIRED_FIELD(6, Constants.REQUIRED_FIELD, "This field is required"),
     UNKNOWN_HANDLER(7, Constants.UNKNOWN_HANDLER, "Handler has not been registered yet"),
     HANDLER_DISAPPEARED(8, Constants.HANDLER_DISAPPEARED, "The service call type was created with a handler ''{0}'' that can no longer be found in the system");
