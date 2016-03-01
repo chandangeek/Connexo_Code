@@ -6,21 +6,21 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.LimiterCheckbox', {
     listeners: {
         beforerender: {
             fn: function (field) {
-                Ext.suspendLayouts();
-                field.nextSibling('loadlimitertypefield').setVisible(field.value);
-                field.nextSibling('loadlimitfield').setVisible(field.value);
-                Ext.resumeLayouts(true);
+                field.showChildField(field.value);
             }
         },
         change: {
             fn: function (field, newValue) {
                 if (field.rendered) {
-                    Ext.suspendLayouts();
-                    field.nextSibling('techinfo-loadlimitertypefield').setVisible(newValue);
-                    field.nextSibling('techinfo-loadlimitfield').setVisible(newValue);
-                    Ext.resumeLayouts(true);
+                    field.showChildField(newValue);
                 }
             }
         }
+    },
+    showChildField: function (value) {
+        Ext.suspendLayouts();
+        this.nextSibling('techinfo-loadlimitertypefield').setVisible(value);
+        this.nextSibling('techinfo-loadlimitfield').setVisible(value);
+        Ext.resumeLayouts(true);
     }
 });

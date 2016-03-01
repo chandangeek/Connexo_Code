@@ -11,7 +11,17 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         'Imt.customattributesonvaluesobjects.store.ServiceCategoryCustomAttributeSets',
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
         'Imt.metrologyconfiguration.store.MetrologyConfiguration',
-        'Imt.usagepointmanagement.store.UsagePointTypes'
+        'Imt.usagepointmanagement.store.ServiceCategories',
+        'Imt.usagepointmanagement.store.UsagePointTypes',
+        'Imt.usagepointmanagement.store.PhaseCodes',
+        'Imt.usagepointmanagement.store.BypassStatuses',
+        'Imt.usagepointmanagement.store.measurementunits.Voltage',
+        'Imt.usagepointmanagement.store.measurementunits.Amperage',
+        'Imt.usagepointmanagement.store.measurementunits.Power',
+        'Imt.usagepointmanagement.store.measurementunits.Volume',
+        'Imt.usagepointmanagement.store.measurementunits.Pressure',
+        'Imt.usagepointmanagement.store.measurementunits.PressureExtended',
+        'Imt.usagepointmanagement.store.measurementunits.Capacity'
     ],
     views: [
         'Imt.usagepointmanagement.view.Setup',
@@ -78,8 +88,8 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
 
     initAttributes: function(record){
         var me = this,
-            customAttributesStoreUsagePoint = me.getStore('Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets'),
             customAttributesModelUsagePoint = me.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
+            customAttributesStoreUsagePoint = me.getStore('Imt.customattributesonvaluesobjects.store.ServiceCategoryCustomAttributeSets'),
             customAttributesStoreMetrology = me.getStore('Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets');
 
 
