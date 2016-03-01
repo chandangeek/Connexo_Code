@@ -1,13 +1,11 @@
 package com.elster.jupiter.servicecall.impl;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFinder;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Or;
 import com.elster.jupiter.util.conditions.Order;
 
 import com.google.common.collect.Range;

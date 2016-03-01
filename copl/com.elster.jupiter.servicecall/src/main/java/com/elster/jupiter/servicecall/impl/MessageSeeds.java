@@ -12,7 +12,8 @@ public enum MessageSeeds implements MessageSeed {
     CANNOT_REMOVE_STATE_EXCEPTION(1, "canNotRemoveState", "Default state {0} can not be removed from the state diagram."),
     NO_PATH_TO_SUCCESS_FROM(2, "NoPathToSuccess", "Cannot get to Successful state from {0}"),
     NO_PATH_FROM_CREATED_TO(3, "NoPathFromCreated", "Cannot get to {0} state from Created."),
-    INVALID_CPS_TYPE(4, Constants.INVALID_TYPE, "Custom property set {0} does not have the required domain class of service call type")
+    INVALID_CPS_TYPE(4, Constants.INVALID_TYPE, "Custom property set {0} does not have the required domain class of service call type"),
+    CANNOT_DELETE_SERVICECALLTYPE(5, "canNotRemoveType", "Service call type {0} can not be removed, since there are still service calls of that type (e.g. {1}).")
     ;
 
     private final int number;

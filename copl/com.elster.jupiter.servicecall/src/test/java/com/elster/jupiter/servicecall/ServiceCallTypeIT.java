@@ -312,4 +312,46 @@ public class ServiceCallTypeIT {
             assertThat(serviceCallTypeReloaded).isEmpty();
         }
     }
+
+    @Test
+    public void testDeleteWorksWhenThereAreNoServiceCallsForTheType() {
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").create();
+            context.commit();
+        }
+
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallType serviceCallType = serviceCallService.getServiceCallTypes().find().get(0);
+
+            serviceCallType.delete();
+            context.commit();
+        }
+
+        assertThat(serviceCallService.getServiceCallTypes().find()).isEmpty();
+    }
+
+    @Test(expected = CannotDeleteServiceCallType.class)
+    public void testDeleteDoesNotWorkWhenThereAreServiceCallsForTheType() {
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").create();
+            context.commit();
+        }
+        ServiceCallType serviceCallType = serviceCallService.getServiceCallTypes().find().get(0);
+
+        ServiceCall serviceCall = null;
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCall = serviceCallType.newServiceCall()
+                    .externalReference("external")
+                    .origin("CST")
+                    .create();
+            context.commit();
+        }
+
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCallType.delete();
+            context.commit();
+        }
+    }
+
+
 }

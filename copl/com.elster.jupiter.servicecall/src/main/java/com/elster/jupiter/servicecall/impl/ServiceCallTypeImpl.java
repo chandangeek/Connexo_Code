@@ -5,11 +5,13 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.servicecall.CannotDeleteServiceCallType;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.InvalidPropertySetDomainTypeException;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.Status;
 
 import javax.inject.Inject;
@@ -45,11 +47,13 @@ public class ServiceCallTypeImpl implements IServiceCallType {
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
+    private final ServiceCallService serviceCallService;
 
     @Inject
-    public ServiceCallTypeImpl(DataModel dataModel, Thesaurus thesaurus) {
+    public ServiceCallTypeImpl(DataModel dataModel, Thesaurus thesaurus, ServiceCallService serviceCallService) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
+        this.serviceCallService = serviceCallService;
         this.status = Status.ACTIVE;
     }
 
@@ -170,4 +174,17 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     public ServiceCallBuilder newServiceCall() {
         return ServiceCallBuilderImpl.from(dataModel, this);
     }
+
+    @Override
+    public void delete() {
+        dataModel.stream(ServiceCall.class)
+                .limit(1)
+                .findAny()
+                .ifPresent(oneOfThisType -> {
+                    throw new CannotDeleteServiceCallType(thesaurus, MessageSeeds.CANNOT_DELETE_SERVICECALLTYPE, this, oneOfThisType);
+                });
+
+        dataModel.mapper(IServiceCallType.class).remove(this);
+    }
+
 }
