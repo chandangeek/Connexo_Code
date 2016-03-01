@@ -1,6 +1,6 @@
-package com.elster.jupiter.mdm.impl;
+package com.elster.jupiter.mdm.app.impl;
 
-import com.elster.jupiter.mdm.MdmAppService;
+import com.elster.jupiter.mdm.app.MdmAppService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
 import org.osgi.service.component.annotations.Component;

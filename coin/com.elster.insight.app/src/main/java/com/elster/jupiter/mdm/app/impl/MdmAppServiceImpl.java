@@ -1,11 +1,11 @@
-package com.elster.jupiter.mdm.impl;
+package com.elster.jupiter.mdm.app.impl;
 
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.DefaultStartPage;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.license.License;
-import com.elster.jupiter.mdm.MdmAppService;
+import com.elster.jupiter.mdm.app.MdmAppService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;

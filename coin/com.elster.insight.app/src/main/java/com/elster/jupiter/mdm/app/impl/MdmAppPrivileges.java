@@ -1,4 +1,4 @@
-package com.elster.jupiter.mdm.impl;
+package com.elster.jupiter.mdm.app.impl;
 
 import java.util.Arrays;
 import java.util.List;
