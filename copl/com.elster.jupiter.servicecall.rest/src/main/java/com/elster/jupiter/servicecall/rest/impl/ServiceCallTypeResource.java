@@ -10,8 +10,10 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.security.Privileges;
 
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -39,6 +41,7 @@ public class ServiceCallTypeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALL_TYPES, Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES})
     public PagedInfoList getAllServiceCallTypes(@BeanParam JsonQueryParameters queryParameters) {
         List<ServiceCallTypeInfo> serviceCallTypeInfos = new ArrayList<>();
         Finder<ServiceCallType> serviceCallTypeFinder = serviceCallService.getServiceCallTypes();
@@ -58,20 +61,11 @@ public class ServiceCallTypeResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES})
     public Response changeLogLevel(@PathParam("id") long id, ServiceCallTypeInfo info) {
         ServiceCallType type = fetchAndLockAppServer(info);
         type.setLogLevel(LogLevel.valueOf(info.logLevel.id));
         type.save();
-        return Response.status(Response.Status.OK).build();
-    }
-
-    @PUT
-    @Path("/{serviceCallTypeName}/cancel")
-    @Transactional
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response cancelServiceCall(@PathParam("serviceCallTypeID") String serviceCallTypeName, ServiceCallTypeInfo info) {
-
         return Response.status(Response.Status.OK).build();
     }
 
