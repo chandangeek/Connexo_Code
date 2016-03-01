@@ -14,7 +14,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.GasInfo', {
             fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
         },
         {
-            xtype: 'measurefield',
+            xtype: 'techinfo-measurefield',
             name: 'pressure',
             itemId: 'up-pressure-measurefield',
             fieldLabel: Uni.I18n.translate('general.label.pressure', 'IMT', 'Pressure'),
@@ -22,7 +22,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.GasInfo', {
             value: {value: null, unit: 'Pa', multiplier: 0}
         },
         {
-            xtype: 'measurefield',
+            xtype: 'techinfo-measurefield',
             name: 'physicalCapacity',
             itemId: 'up-physicalCapacity-measurefield',
             fieldLabel: Uni.I18n.translate('general.label.physicalCapacity', 'IMT', 'Physical capacity'),
@@ -30,50 +30,50 @@ Ext.define('Imt.usagepointmanagement.view.forms.GasInfo', {
             value: {value: null, unit: 'm3/h', multiplier: 0}
         },
         {
-            xtype: 'limitercheckbox',
+            xtype: 'techinfo-limitercheckbox',
             itemId: 'up-limiter-checkbox'
         },
         {
-            xtype: 'loadlimitertypefield',
+            xtype: 'techinfo-loadlimitertypefield',
             itemId: 'up-loadLimiterType-textfield',
             hidden: true
         },
         {
-            xtype: 'loadlimitfield',
-            itemId: 'up-loadLimit-measurefield',
+            xtype: 'techinfo-loadlimitfield',
+            itemId: 'up-loadLimit-loadlimitfield',
             store: 'Imt.usagepointmanagement.store.measurementunits.Volume',
             value: {value: null, unit: 'm3/h', multiplier: 0},
             hidden: true
         },
         {
-            xtype: 'bypassfield',
+            xtype: 'techinfo-bypassfield',
             itemId: 'up-bypass-combo'
         },
         {
-            xtype: 'bypassstatuscombobox',
+            xtype: 'techinfo-bypassstatuscombobox',
             itemId: 'up-bypassStatus-combo',
             hidden: true
         },
         {
-            xtype: 'threevaluesfield',
+            xtype: 'techinfo-threevaluesfield',
             name: 'valve',
             itemId: 'up-valve-combo',
             fieldLabel: Uni.I18n.translate('general.label.valve', 'IMT', 'Valve')
         },
         {
-            xtype: 'threevaluesfield',
+            xtype: 'techinfo-threevaluesfield',
             name: 'collar',
             itemId: 'up-collar-combo',
             fieldLabel: Uni.I18n.translate('general.label.collar', 'IMT', 'Collar')
         },
         {
-            xtype: 'threevaluesfield',
+            xtype: 'techinfo-threevaluesfield',
             name: 'capped',
             itemId: 'up-capped-combo',
             fieldLabel: Uni.I18n.translate('general.label.capped', 'IMT', 'Capped')
         },
         {
-            xtype: 'threevaluesfield',
+            xtype: 'techinfo-threevaluesfield',
             name: 'clamped',
             itemId: 'up-clamped-combo',
             fieldLabel: Uni.I18n.translate('general.label.clamped', 'IMT', 'Clamped')

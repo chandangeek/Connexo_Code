@@ -3,7 +3,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.MeasureField', {
     mixins: {
         field: 'Ext.form.field.Field'
     },
-    alias: 'widget.measurefield',
+    alias: 'widget.techinfo-measurefield',
     layout: 'hbox',
     combineErrors: true,
     msgTarget: 'under',

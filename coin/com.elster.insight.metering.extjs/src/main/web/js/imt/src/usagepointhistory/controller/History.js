@@ -77,13 +77,16 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             attributeSetModel = Ext.ModelManager.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
             mRID = router.arguments.mRID,
             customAttributeSetId = newCard.customAttributeSetId,
+            cardView,
             url;
 
         if (customAttributeSetId != router.queryParams.customAttributeSetId) {
+            router.queryParams.customAttributeSetId = customAttributeSetId;
             url = router.getRoute().buildUrl(router.arguments, router.queryParams);
             Uni.util.History.setParsePath(false);
             Uni.util.History.suspendEventsForNextCall();
             router.queryParams.customAttributeSetId = customAttributeSetId;
+            delete router.queryParams.selectCurrent;
             if (isInit) {
                 window.location.replace(url);
             } else {
@@ -97,21 +100,33 @@ Ext.define('Imt.usagepointhistory.controller.History', {
         if (oldCard) {
             oldCard.removeAll();
         }
-        newCard.add({
+        cardView = newCard.add({
             xtype: 'custom-attribute-set-versions-overview',
             itemId: 'custom-attribute-set-versions-setup-id',
             title: Uni.I18n.translate('customattributesets.versions', 'IMT', 'Versions'),
             store: versionsStore,
             type: 'usagePoint',
             ui: 'medium',
-            padding: 0
+            padding: 0,
+            selectByDefault: !router.queryParams.selectCurrent
         });
         Ext.resumeLayouts(true);
+        if (router.queryParams.selectCurrent) {
+            versionsStore.on('load', function (store, records) {
+                var currentTime = new Date().getTime();
+
+                Ext.Array.each(records, function (record) {
+                    if (currentTime >= record.get('startTime') && currentTime <= record.get('endTime')) {
+                        cardView.down('custom-attribute-set-versions-grid').getSelectionModel().select(record);
+                    }
+                })
+            }, me, {single: true});
+        }
 
         attributeSetModel.getProxy().setUrl(mRID);
         attributeSetModel.load(customAttributeSetId, {
             success: function (record) {
-                var isEditable, addBtn, addBtnTop, actionColumn;
+                var isEditable, addBtn, addBtnTop, actionColumn, actionBtn;
 
                 if (newCard.rendered) {
                     Ext.suspendLayouts();
@@ -119,6 +134,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                     addBtn = newCard.down('#custom-attribute-set-add-version-btn');
                     addBtnTop = newCard.down('#custom-attribute-set-add-version-btn-top');
                     actionColumn = newCard.down('#custom-attribute-set-versions-grid-action-column');
+                    actionBtn = newCard.down('#custom-attribute-set-versions-preview-action-button');
 
                     if (addBtn) {
                         addBtn.setVisible(isEditable);
@@ -128,6 +144,9 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                     }
                     if (actionColumn) {
                         actionColumn.setVisible(isEditable);
+                    }
+                    if (actionBtn) {
+                        actionBtn.setVisible(isEditable);
                     }
                     Ext.resumeLayouts(true);
                 }

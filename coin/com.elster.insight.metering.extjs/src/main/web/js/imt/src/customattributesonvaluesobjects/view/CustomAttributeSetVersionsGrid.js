@@ -19,6 +19,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionsG
                 },
                 {
                     xtype: 'uni-actioncolumn',
+                    privileges: Imt.privileges.UsagePoint.admin,
                     hidden: true,
                     itemId: 'custom-attribute-set-versions-grid-action-column',
                     menu: {
@@ -45,7 +46,8 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionsG
                         hidden: true,
                         xtype: 'button',
                         action: 'moveToAddVersionPage',
-                        type: me.type
+                        type: me.type,
+                        privileges: Imt.privileges.UsagePoint.hasFullAdministrateTimeSlicedCps()
                     }
                 ]
             },

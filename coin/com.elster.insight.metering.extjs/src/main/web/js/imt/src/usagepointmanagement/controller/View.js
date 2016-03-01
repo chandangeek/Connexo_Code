@@ -8,7 +8,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
     ],
     stores: [
         'Imt.usagepointmanagement.store.MeterActivations',
-        'Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets',
+        'Imt.customattributesonvaluesobjects.store.ServiceCategoryCustomAttributeSets',
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
         'Imt.metrologyconfiguration.store.MetrologyConfiguration',
         'Imt.usagepointmanagement.store.UsagePointTypes'
@@ -51,25 +51,6 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
             router = me.getController('Uni.controller.history.Router'),
             usagePointModel = me.getModel('Imt.usagepointmanagement.model.UsagePoint'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
-            //dependenciesCounter = 2,
-            //upSuccessLoadFunction = function () {
-            //    dependenciesCounter--;
-            //    if (!dependenciesCounter) {
-            //        me.getApplication().fireEvent('usagePointLoaded', record);
-            //        var widget = Ext.widget('usage-point-management-setup', {router: router, parent: record.getData()});
-            //        me.parent = record.getData();
-            //
-            //        me.getApplication().fireEvent('changecontentevent', widget);
-            //        me.initAttributes(record);
-            //        me.getOverviewLink().setText(record.get('mRID'));
-            //        if (record.get('metrologyConfiguration') && record.get('metrologyConfiguration').name) {
-            //            widget.down('#fld-mc-name').setValue(record.get('metrologyConfiguration').name);
-            //        }
-            //
-            //        pageMainContent.setLoading(false);
-            //    }
-            //},
-            //up;
        
         pageMainContent.setLoading(true);
         me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load();
@@ -97,8 +78,8 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
 
     initAttributes: function(record){
         var me = this,
-            customAttributesModelUsagePoint = me.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
             customAttributesStoreUsagePoint = me.getStore('Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets'),
+            customAttributesModelUsagePoint = me.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
             customAttributesStoreMetrology = me.getStore('Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets');
 
 
@@ -106,11 +87,9 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         customAttributesModelUsagePoint.getProxy().setUrl(record.get('mRID'));
         customAttributesStoreMetrology.getProxy().setUrl(record.get('mRID'));
 
-
+        Ext.suspendLayouts();
 
         me.getUsagePointAttributes().setLoading(true);
-
-        Ext.suspendLayouts();
         me.getAttributesPanel().add({
             xtype: 'usage-point-main-attributes-panel',
             record: record

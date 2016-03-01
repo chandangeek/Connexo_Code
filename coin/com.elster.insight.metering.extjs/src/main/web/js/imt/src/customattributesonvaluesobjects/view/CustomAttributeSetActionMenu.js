@@ -11,6 +11,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetActionMen
             {
                 text: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
                 itemId: 'time-sliced-custom-attribute-set-action-menu-edit-btn-id',
+                privileges: Imt.privileges.UsagePoint.admin,
                 handler: function() {
                     me.fireEvent('moveToEditPage', me.type, me.record.get('versionId'));
                 }
@@ -18,6 +19,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetActionMen
             {
                 text: Uni.I18n.translate('general.clone', 'IMT', 'Clone'),
                 itemId: 'time-sliced-custom-attribute-set-action-menu-clone-btn-id',
+                privileges: Imt.privileges.UsagePoint.adminTimeSlicedCps,
                 handler: function() {
                     me.fireEvent('moveToClonePage', me.type, me.record.get('versionId'));
                 }

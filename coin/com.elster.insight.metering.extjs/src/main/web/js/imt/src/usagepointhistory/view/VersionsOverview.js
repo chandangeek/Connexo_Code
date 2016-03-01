@@ -3,6 +3,7 @@ Ext.define('Imt.usagepointhistory.view.VersionsOverview', {
     alias: 'widget.custom-attribute-set-versions-overview',
 
     store: null,
+    selectByDefault: true,
 
     requires: [
         'Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionsGrid',
@@ -15,6 +16,7 @@ Ext.define('Imt.usagepointhistory.view.VersionsOverview', {
 
         me.items = {
             xtype: 'preview-container',
+            selectByDefault: me.selectByDefault,
             grid: {
                 xtype: 'custom-attribute-set-versions-grid',
                 type: me.type,
@@ -39,14 +41,16 @@ Ext.define('Imt.usagepointhistory.view.VersionsOverview', {
                         itemId: 'custom-attribute-set-add-version-btn',
                         hidden: true,
                         action: 'moveToAddVersionPage',
-                        type: me.type
+                        type: me.type,
+                        privileges: Imt.privileges.UsagePoint.hasFullAdministrateTimeSlicedCps()
                     }
                 ]
             },
             previewComponent: {
                 xtype: 'custom-attribute-set-versions-preview',
                 itemId: 'custom-attribute-set-versions-preview',
-                type: me.type
+                type: me.type,
+                hideAction: true
             }
         };
 
