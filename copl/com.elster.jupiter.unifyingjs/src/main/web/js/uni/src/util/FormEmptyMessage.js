@@ -11,8 +11,7 @@ Ext.define('Uni.util.FormEmptyMessage', {
     },
     style: {
         borderColor: '#71adc7',
-        paddingTop: '10px',
-        paddingBottom: '10px'
+        padding: '10px 5px'
     },
     margin: '7 0 32 0',
     htmlEncode: true,
