@@ -257,7 +257,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             stepNumber++;
             stepsToAdd.push({
                 xtype: 'cps-info-form',
-                title: record.get('name'),
+                title: Uni.I18n.translate('usagepoint.wizard.cpsStepTitle', 'IMT', 'Step {0}: {1}', [stepNumber, record.get('name')]),
                 navigationIndex: stepNumber,
                 itemId: 'add-usage-point-step' + stepNumber,
                 ui: 'large',
