@@ -7,7 +7,6 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.servicecall.LogLevel;
-import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.security.Privileges;
@@ -63,13 +62,13 @@ public class ServiceCallTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES})
     public Response changeLogLevel(@PathParam("id") long id, ServiceCallTypeInfo info) {
-        ServiceCallType type = fetchAndLockAppServer(info);
+        ServiceCallType type = fetchAndLockServiceCallType(info);
         type.setLogLevel(LogLevel.valueOf(info.logLevel.id));
         type.save();
         return Response.status(Response.Status.OK).build();
     }
 
-    private ServiceCallType fetchAndLockAppServer(ServiceCallTypeInfo info) {
+    private ServiceCallType fetchAndLockServiceCallType(ServiceCallTypeInfo info) {
         return serviceCallService.findAndLockServiceCallType(info.id, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
                         .withActualVersion(() -> serviceCallService.findServiceCallType(info.name, info.versionName).map(ServiceCallType::getVersion).orElse(null))
