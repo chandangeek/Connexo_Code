@@ -101,7 +101,6 @@ public class ServiceCallsCommands {
     public void createServiceCallType(String name, String versionName, String logLevel, String handler, Long... cpsIds) {
         List<Long> ids = Arrays.asList(cpsIds);
         threadPrincipalService.set(() -> "Console");
-
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCallTypeBuilder builder = serviceCallService
                     .createServiceCallType(name, versionName)
