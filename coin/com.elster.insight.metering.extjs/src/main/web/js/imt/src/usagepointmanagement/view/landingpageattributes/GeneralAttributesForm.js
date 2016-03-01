@@ -4,7 +4,8 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
 
 
     requires: [
-        'Uni.form.field.Duration'
+        'Uni.form.field.Duration',
+        'Imt.usagepointmanagement.view.forms.fields.DisplayFieldWithIcon'
     ],
 
     initComponent: function () {
@@ -15,7 +16,8 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                 itemId: 'view-form',
                 defaults: {
                     xtype: 'displayfield',
-                    labelWidth: 250
+                    labelWidth: 250,
+                    maxHeight: 27
                 },
                 items: [
                     {
@@ -26,6 +28,13 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                             return value ? value : '-';
                         }
                     },
+
+                    {
+                        xtype: 'displayfieldwithicon',
+                        name: 'serviceCategory',
+                        itemId: 'fld-up-serviceCategory',
+                        fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category')
+                    },
                     {
                         name: 'name',
                         itemId: 'fld-up-name',
@@ -34,21 +43,50 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                             return value ? value : '-';
                         }
                     },
-
                     {
-                        name: 'serviceCategory',
-                        itemId: 'fld-up-serviceCategory',
-                        fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category'),
+                        name: 'installationTime',
+                        itemId: 'fld-up-created',
+                        fieldLabel: Uni.I18n.translate('general.label.created', 'IMT', 'Created'),
                         renderer: function (value) {
-                            var icon = Imt.usagepointmanagement.service.AttributesMaps.getServiceIcon(value);
-                            return value + "&nbsp" + icon;
+                            return value ? Uni.DateTime.formatDateTimeShort(new Date(value * 1000)) : '-';
                         }
                     },
-
                     {
+                        name: 'location',
+                        itemId: 'fld-up-location',
+                        fieldLabel: Uni.I18n.translate('general.label.location', 'IMT', 'Location'),
+                        renderer: function (value) {
+                            return value ? value : '-';
+                        }
+                    },
+                    {
+                        name: 'typeOfUsagePoint',
+                        itemId: 'fld-up-typeOfUsagePoint',
+                        fieldLabel: Uni.I18n.translate('general.label.typeOfUsagePoint', 'IMT', 'Type of usage point'),
+                        renderer: function (data) {
+                            var value;
+                            value = Ext.getStore('Imt.usagepointmanagement.store.UsagePointTypes').findRecord('name', data);
+                            return value.get('displayName');
+                        }
+                    },
+                    {
+                        xtype: 'displayfieldwithicon',
                         name: 'connectionState',
                         itemId: 'fld-up-connectionState',
-                        fieldLabel: Uni.I18n.translate('general.label.connectionState', 'IMT', 'Connection state'),
+                        fieldLabel: Uni.I18n.translate('general.label.connectionState', 'IMT', 'Connection state')
+                    },
+                    {
+                        name: 'readRoute',
+                        itemId: 'fld-up-readRoute',
+                        fieldLabel: Uni.I18n.translate('general.label.readRoute', 'IMT', 'Read route'),
+                        renderer: function (value) {
+                            return value ? value : '-';
+                        }
+                    },
+                    {
+                        name: 'serviceDeliveryRemark',
+                        itemId: 'fld-up-serviceDeliveryRemark',
+                        fieldLabel: Uni.I18n.translate('general.label.serviceDeliveryRemark', 'IMT', 'Service delivery remark'),
                         renderer: function (value) {
                             return value ? value : '-';
                         }
@@ -60,15 +98,22 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                 itemId: 'edit-form',
                 hidden: true,
                 defaults: {
-                    labelWidth: 250
+                    labelWidth: 250,
+                    width: 520,
+                    maxHeight: 27
                 },
                 items: [
                     {
-                        xtype: 'textfield',
-                        disabled: true,
+                        xtype: 'displayfield',
                         name: 'mRID',
                         itemId: 'up-mrid-textfield',
                         fieldLabel: Uni.I18n.translate('general.label.mRID', 'IMT', 'MRID')
+                    },
+                    {
+                        xtype: 'displayfieldwithicon',
+                        name: 'serviceCategory',
+                        itemId: 'up-service-category-combo',
+                        fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category')
                     },
                     {
                         xtype: 'textfield',
@@ -77,18 +122,48 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                         fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name')
                     },
                     {
-                        xtype: 'combobox',
-                        disabled: true,
-                        name: 'serviceCategory',
-                        itemId: 'up-service-category-combo',
-                        fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category')
+                        xtype: 'displayfield',
+                        name: 'installationTime',
+                        itemId: 'fld-up-created',
+                        fieldLabel: Uni.I18n.translate('general.label.created', 'IMT', 'Created'),
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
+                        }
                     },
                     {
-                        xtype: 'combobox',
-                        disabled: true,
+                        xtype: 'textfield',
+                        name: 'location',
+                        itemId: 'fld-up-location',
+                        fieldLabel: Uni.I18n.translate('general.label.location', 'IMT', 'Location')
+                    },
+                    {
+                        xtype: 'displayfield',
+                        name: 'typeOfUsagePoint',
+                        itemId: 'fld-up-typeOfUsagePoint',
+                        fieldLabel: Uni.I18n.translate('general.label.typeOfUsagePoint', 'IMT', 'Type of usage point'),
+                        renderer: function (data) {
+                            var value;
+                            value = Ext.getStore('Imt.usagepointmanagement.store.UsagePointTypes').findRecord('name', data);
+                            return value.get('displayName');
+                        }
+                    },
+                    {
+                        xtype: 'displayfieldwithicon',
                         name: 'connectionState',
-                        itemId: 'up-connection-state-combo',
+                        itemId: 'fld-up-connectionState',
                         fieldLabel: Uni.I18n.translate('general.label.connectionState', 'IMT', 'Connection state')
+                    },
+                    {
+                        xtype: 'textfield',
+                        name: 'readRoute',
+                        itemId: 'fld-up-readRoute',
+                        fieldLabel: Uni.I18n.translate('general.label.readRoute', 'IMT', 'Read route')
+                    },
+                    {
+                        xtype: 'textfield',
+                        name: 'serviceDeliveryRemark',
+                        itemId: 'fld-up-serviceDeliveryRemark',
+                        fieldLabel: Uni.I18n.translate('general.label.serviceDeliveryRemark', 'IMT', 'Service delivery remark')
                     }
                 ]
             }
