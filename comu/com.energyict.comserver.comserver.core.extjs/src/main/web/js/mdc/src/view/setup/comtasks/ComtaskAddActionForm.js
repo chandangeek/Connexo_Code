@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskAddActionForm', {
                 items: [
                     {
                         xtype: 'label',
-                        text: Uni.I18n.translate('general.parameters', 'MDC', 'Parameters')
+                        text: Uni.I18n.translate('general.attributes', 'MDC', 'Attributes')
                     }
                 ]
             },

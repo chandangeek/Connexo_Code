@@ -48,14 +48,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                             itemId: 'cancelLink',
                             text: Uni.I18n.translate('general.cancel','MDC','Cancel'),
                             action: 'cancel',
-                            ui: 'link',
-                            listeners: {
-                                click: {
-                                    fn: function () {
-                                        window.location.href = '#/administration/communicationtasks';
-                                    }
-                                }
-                            }
+                            ui: 'link'
                         }
                     ]
                 }

@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskActionPreviewForm', {
     items: [
     ],
 
-    addParameter: function(labelText, value) {
+    addAttribute: function(labelText, value) {
         var me = this,
             field = Ext.create('Ext.form.field.Display', Ext.apply(me.defaults, {
                 fieldLabel: labelText,
@@ -28,6 +28,18 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskActionPreviewForm', {
             }));
 
         me.add(field);
+    },
+
+    addNoAttributesInfo: function() {
+        this.add({
+            xtype: 'container',
+            layout: 'column',
+            items: {
+                xtype: 'uni-form-empty-message',
+                itemId: 'empty-message',
+                text: Uni.I18n.translate('general.actionHasNoAttributes', 'MDC', 'This action has no attributes that need to be defined')
+            }
+        });
     },
 
     reinitialize: function() {

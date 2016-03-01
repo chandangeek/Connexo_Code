@@ -55,6 +55,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
     COMMAND_CATEGORIES: 'messages', // idem
     ERROR_MESSAGE_FIELD_REQUIRED: Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'),
     goToTaskOverview: false,
+    comTaskBeingEdited: null,
 
     init: function () {
         this.control({
@@ -78,6 +79,9 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             },
             'comtaskCreateEdit #createEditTask': {
                 click: this.createEdit
+            },
+            'comtaskCreateEdit #cancelLink': {
+                click: this.onCancelCreateEditTask
             },
             'communication-tasks-profilescombo': {
                 afterrender: this.setTooltips
@@ -236,6 +240,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         if (taskId) {
             me.loadModelToEditForm(taskId, widget);
         } else {
+            me.comTaskBeingEdited = null;
             me.goToTaskOverview = true;
         }
     },
@@ -249,6 +254,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         widget.setLoading(true);
         model.load(taskId, {
             success: function (comTaskRecord) {
+                me.comTaskBeingEdited = comTaskRecord;
                 editView.getCenterContainer().down().setTitle(
                     Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", comTaskRecord.get('name'))
                 );
@@ -276,6 +282,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 widget.down('#mdc-comtask-overview-form').loadRecord(communicationTask);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.goToTaskOverview = true;
+                me.comTaskBeingEdited = communicationTask;
             }
         });
     },
@@ -428,10 +435,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             logbookTypesStore = me.getStore('Mdc.store.LogbookTypes'),
             registerGroupsStore = me.getStore('Mdc.store.RegisterGroups');
 
-        preview.setTitle(
-            Uni.I18n.translate('general.parameters.actionX', 'MDC', "Parameters of the action '{0}'",
-                actionRecord.get('category') + ' - ' + actionRecord.get('action'))
-        );
+        preview.setTitle(actionRecord.get('category') + ' - ' + actionRecord.get('action'));
         previewForm.reinitialize();
 
         // Fill up the parameters
@@ -455,7 +459,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                                 loadProfileTypes += '\n'
                             });
                             if (Ext.isEmpty(loadProfileTypes)) {
-                                loadProfileTypes = Uni.I18n.translate('general.none', 'MDC', 'None');
+                                loadProfileTypes = '-';
                             }
                         } else if (parameter.name === 'markintervalsasbadtime') {
                             markIntervalsAsBadTime = parameter.value;
@@ -470,25 +474,25 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         }
                     });
 
-                    previewForm.addParameter(
+                    previewForm.addAttribute(
                         Uni.I18n.translate('general.loadProfileTypes', 'MDC', 'Load profile types'),
                         loadProfileTypes
                     );
-                    previewForm.addParameter(
+                    previewForm.addAttribute(
                         Uni.I18n.translate('comtask.mark.intervals.as.bad.time','MDC','Mark intervals as bad time'),
                         markIntervalsAsBadTime ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No')
                     );
                     if (markIntervalsAsBadTime) {
-                        previewForm.addParameter(
+                        previewForm.addAttribute(
                             Uni.I18n.translate('comtask.minimum.clock.difference','MDC','Minimum clock difference'),
                             minimumClockDifference
                         );
                     }
-                    previewForm.addParameter(
+                    previewForm.addAttribute(
                         Uni.I18n.translate('comtask.meter.events.from.status.flag','MDC','Meter events from status flag'),
                         createMeterEvents ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No')
                     );
-                    previewForm.addParameter(
+                    previewForm.addAttribute(
                         Uni.I18n.translate('comtask.fail.profile.configuration.doesnt.match','MDC',"Fail if profile configuration doesn't match"),
                         failOnMismatch ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No')
                     );
@@ -509,9 +513,9 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                                     logbookTypes += '\n'
                                 });
                                 if (Ext.isEmpty(logbookTypes)) {
-                                    logbookTypes = Uni.I18n.translate('general.none', 'MDC', 'None');
+                                    logbookTypes = '-';
                                 }
-                                previewForm.addParameter(
+                                previewForm.addAttribute(
                                     Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),
                                     logbookTypes
                                 );
@@ -535,10 +539,10 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                                     registerGroups += '\n'
                                 });
                                 if (Ext.isEmpty(registerGroups)) {
-                                    registerGroups = Uni.I18n.translate('general.none', 'MDC', 'None');
+                                    registerGroups = '-';
                                 }
-                                previewForm.addParameter(
-                                    Uni.I18n.translate('comtask.register.groups','MDC','Register groups'),
+                                previewForm.addAttribute(
+                                    Uni.I18n.translate('comtask.register.groups', 'MDC', 'Register groups'),
                                     registerGroups
                                 );
                                 return false;
@@ -566,16 +570,16 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                     }
                 });
 
-                previewForm.addParameter(
+                previewForm.addAttribute(
                     Uni.I18n.translate('comtask.minimum.clock.difference', 'MDC', 'Minimum clock difference'),
                     minimumClockDifference
                 );
-                previewForm.addParameter(
+                previewForm.addAttribute(
                     Uni.I18n.translate('comtask.maximum.clock.difference', 'MDC', 'Maximum clock difference'),
                     maximumClockDifference
                 );
                 if (actionRecord.get('actionId') === 'synchronize') {
-                    previewForm.addParameter(
+                    previewForm.addAttribute(
                         Uni.I18n.translate('comtask.maximum.clock.shift', 'MDC', 'Maximum clock shift'),
                         maximumClockShift
                     );
@@ -583,7 +587,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 break;
 
             default:
-                previewForm.addParameter(' ', Uni.I18n.translate('general.none', 'MDC', 'None'));
+                previewForm.addNoAttributesInfo();
                 break;
         }
     },
@@ -867,8 +871,8 @@ Ext.define('Mdc.controller.setup.Comtasks', {
 
             record.beginEdit();
             record.set('name', nameField.getValue());
-            record.set('commands', []);
-            record.set('messages', []);
+            record.set('commands', me.comTaskBeingEdited ? me.comTaskBeingEdited.get('commands') : []);
+            record.set('messages', me.comTaskBeingEdited ? me.comTaskBeingEdited.get('messages') : []);
             record.endEdit();
             formErrorsPanel.hide();
             record.save({
@@ -899,6 +903,16 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             editView.setLoading(false);
             formErrorsPanel.show();
         }
+    },
+
+    onCancelCreateEditTask: function() {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        me.comTaskBeingEdited = null;
+        window.location.href = me.goToTaskOverview
+            ? router.getRoute('administration/communicationtasks/view').buildUrl({ id: me.comTaskBeingEdited.get('id') })
+            : router.getRoute('administration/communicationtasks').buildUrl();
     },
 
     setTooltips: function () {
