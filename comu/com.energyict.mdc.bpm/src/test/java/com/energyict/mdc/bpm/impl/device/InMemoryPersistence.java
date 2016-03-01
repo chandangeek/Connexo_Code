@@ -3,6 +3,7 @@ package com.energyict.mdc.bpm.impl.device;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -13,10 +14,13 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.kpi.impl.KpiModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -25,7 +29,9 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -46,6 +52,8 @@ import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.engine.impl.EngineModule;
+import com.energyict.mdc.firmware.impl.FirmwareModule;
+import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionModule;
@@ -63,6 +71,12 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import org.drools.compiler.builder.impl.KnowledgeBuilderFactoryServiceImpl;
+import org.drools.core.impl.KnowledgeBaseFactoryServiceImpl;
+import org.drools.core.io.impl.ResourceFactoryServiceImpl;
+import org.kie.api.io.KieResources;
+import org.kie.internal.KnowledgeBaseFactoryService;
+import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -125,6 +139,11 @@ public class InMemoryPersistence {
                 new FiniteStateMachineModule(),
                 new DeviceLifeCycleConfigurationModule(),
                 new MeteringModule(),
+                new IssueModule(),
+                new BasicPropertiesModule(),
+                new FirmwareModule(),
+                new MdcIOModule(),
+                new MeteringGroupsModule(),
                 new PartyModule(),
                 new IdsModule(),
                 new CustomPropertySetsModule(),
@@ -148,7 +167,9 @@ public class InMemoryPersistence {
                 new KpiModule(),
                 new EngineModule(),
                 new EngineModelModule(),
-                new MdcIOModule()
+                new MdcIOModule(),
+                new SearchModule(),
+                new BpmModule()
         );
     }
 
@@ -172,7 +193,6 @@ public class InMemoryPersistence {
             this.injector.getInstance(MasterDataService.class);
             this.deviceProvider = this.injector.getInstance(DeviceProcessAssociationProvider.class);
             this.issueProvider = this.injector.getInstance(IssueProcessAssociationProvider.class);
-            //this.dataModel = this.lifeCycleService.getDataModel();
             ctx.commit();
         }
     }
@@ -217,7 +237,12 @@ public class InMemoryPersistence {
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
-            //bind(DataModel.class).toProvider(() -> dataModel);
+
+            bind(KieResources.class).to(ResourceFactoryServiceImpl.class);
+            bind(KnowledgeBaseFactoryService.class).to(KnowledgeBaseFactoryServiceImpl.class);
+            bind(KnowledgeBuilderFactoryService.class).to(KnowledgeBuilderFactoryServiceImpl.class);
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(SerialComponentService.class).toInstance(mock(SerialComponentService.class));
         }
 
     }
