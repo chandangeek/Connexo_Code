@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
@@ -45,6 +46,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class UsagePointCustomPropertySetResource {
+    private static final String PRIVILEGE_EDITABLE_CPS = "privilege.edit.usage.point.cps";
 
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
     private final ResourceHelper resourceHelper;
@@ -169,6 +171,26 @@ public class UsagePointCustomPropertySetResource {
         CustomPropertySetInfo info = customPropertySetInfoFactory.getFullInfo(propertySet, propertySet.getValues());
         info.parent = getParentInfo(propertySet.getUsagePoint());
         return info;
+    }
+
+    @GET
+    @Path("/{rcpsId}/privileges")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response getCustomPropertySetPrivileges(@PathParam("mrid") String usagePointMrid,
+                                                   @PathParam("rcpsId") long rcpsId,
+                                                   @BeanParam JsonQueryParameters queryParameters) {
+        UsagePointPropertySet propertySet = resourceHelper
+                .findUsagePointByMrIdOrThrowException(usagePointMrid)
+                .forCustomProperties()
+                .getPropertySet(rcpsId);
+
+        List<IdWithNameInfo> privileges = (propertySet.isEditableByCurrentUser()
+                ? Collections.singletonList(PRIVILEGE_EDITABLE_CPS)
+                : Collections.<String>emptyList())
+                .stream()
+                .map(privilege -> new IdWithNameInfo(null, privilege))
+                .collect(Collectors.toList());
+        return Response.ok(PagedInfoList.fromCompleteList("privileges", privileges, queryParameters)).build();
     }
 
     @PUT
