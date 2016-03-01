@@ -2,6 +2,7 @@ package com.elster.jupiter.system.app.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.rest.impl.AppServerApplication;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.data.lifecycle.LifeCycleService;
 import com.elster.jupiter.fileimport.FileImportService;
@@ -83,10 +84,9 @@ public class SysAppServiceImpl implements SysAppService, InstallService, Transla
                 AppService.COMPONENT_NAME,
                 LicenseService.COMPONENTNAME,
                 TimeService.COMPONENT_NAME,
-                "BPM",
+                BpmService.COMPONENTNAME,
                 AppServerApplication.COMPONENT_NAME,
                 LifeCycleService.COMPONENTNAME,
-                "YFN",
                 FileImportService.COMPONENT_NAME,
                 CustomPropertySetService.COMPONENT_NAME,
                 MeteringService.COMPONENTNAME,
