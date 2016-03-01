@@ -15,7 +15,9 @@ Ext.define('Imt.controller.Main', {
         'Imt.channeldata.controller.ChannelData',
         'Imt.registerdata.controller.View',
         'Imt.validation.controller.UsagePointDataValidation',
-        'Imt.metrologyconfiguration.controller.ValidationRuleSets'
+        'Imt.metrologyconfiguration.controller.ValidationRuleSets',
+        'Imt.dynamicprivileges.UsagePoint',
+        'Imt.dynamicprivileges.Stores'
     ],
 
     privileges: [],
@@ -46,7 +48,8 @@ Ext.define('Imt.controller.Main', {
     ],
     stores: [
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
-        'Imt.customattributesonvaluesobjects.store.ServiceCategoryCustomAttributeSets'
+        'Imt.customattributesonvaluesobjects.store.ServiceCategoryCustomAttributeSets',
+        'Imt.usagepointmanagement.store.UsagePointPrivileges'
     ],
 
     refs: [
