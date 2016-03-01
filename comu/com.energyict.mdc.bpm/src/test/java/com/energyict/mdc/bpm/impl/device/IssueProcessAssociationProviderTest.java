@@ -1,5 +1,6 @@
 package com.energyict.mdc.bpm.impl.device;
 
+import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.properties.PropertySpec;
 
 import java.sql.SQLException;
@@ -35,19 +36,19 @@ public class IssueProcessAssociationProviderTest {
 
     @Test
     public void testProviderType() {
-        //DeviceProcessAssociationProvider provider = inMemoryPersistence.getDeviceProcessAssociationProvider();
-        //assertEquals("device", provider.getType());
+        ProcessAssociationProvider provider = inMemoryPersistence.getIssueAssociationProvider();
+        assertEquals("datacollectionissue", provider.getType());
     }
 
     @Test
     public void testProviderPropertySpecNotAvailable() {
-        //DeviceProcessAssociationProvider provider = inMemoryPersistence.getDeviceProcessAssociationProvider();
-        //assertFalse(provider.getPropertySpec("unavailable").isPresent());
+        ProcessAssociationProvider provider = inMemoryPersistence.getIssueAssociationProvider();
+        assertFalse(provider.getPropertySpec("unavailable").isPresent());
     }
 
     @Test
     public void testProviderDeviceStatePropertySpec() {
-        /*DeviceProcessAssociationProvider provider = inMemoryPersistence.getDeviceProcessAssociationProvider();
+        /*ProcessAssociationProvider provider = inMemoryPersistence.getIssueAssociationProvider();
         assertTrue(provider.getPropertySpec("deviceStates").isPresent());
 
         PropertySpec spec = provider.getPropertySpec("deviceStates").get();

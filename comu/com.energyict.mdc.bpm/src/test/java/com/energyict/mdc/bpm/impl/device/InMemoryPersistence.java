@@ -23,6 +23,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -243,6 +244,8 @@ public class InMemoryPersistence {
             bind(KnowledgeBuilderFactoryService.class).to(KnowledgeBuilderFactoryServiceImpl.class);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(SerialComponentService.class).toInstance(mock(SerialComponentService.class));
+
+            bind(Thesaurus.class).toInstance(mock(Thesaurus.class));
         }
 
     }
