@@ -11,6 +11,7 @@ import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
@@ -32,6 +33,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -113,6 +115,10 @@ public class MetrologyInMemoryBootstrapModule {
 
     public CustomPropertySetService getCustomPropertySetService() {
         return injector.getInstance(CustomPropertySetService.class);
+    }
+
+    public MetrologyConfigurationService getMetrologyConfigurationService() {
+        return injector.getInstance(MetrologyConfigurationService.class);
     }
 
     private static class MockModule extends AbstractModule {

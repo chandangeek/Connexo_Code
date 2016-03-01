@@ -144,26 +144,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Override
-    public MetrologyConfiguration newMetrologyConfiguration(String name) {
-        return this.metrologyConfigurationService.newMetrologyConfiguration(name);
-    }
-
-    @Override
-    public Optional<MetrologyConfiguration> findMetrologyConfiguration(long id) {
-        return this.metrologyConfigurationService.findMetrologyConfiguration(id);
-    }
-
-    @Override
-    public Optional<MetrologyConfiguration> findMetrologyConfiguration(String name) {
-        return this.metrologyConfigurationService.findMetrologyConfiguration(name);
-    }
-
-    @Override
-    public List<MetrologyConfiguration> findAllMetrologyConfigurations() {
-        return this.metrologyConfigurationService.findAllMetrologyConfigurations();
-    }
-
-    @Override
     public void link(UsagePoint usagePoint, MetrologyConfiguration metrologyConfiguration) {
         usagePoint.apply(metrologyConfiguration, this.clock.instant());
     }
@@ -192,11 +172,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 .stream()
                 .map(MetrologyConfigurationValidationRuleSetUsage::getMetrologyConfiguration)
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public Optional<MetrologyConfiguration> findAndLockMetrologyConfiguration(long id, long version) {
-        return this.metrologyConfigurationService.findAndLockMetrologyConfiguration(id, version);
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
@@ -43,6 +44,7 @@ import java.util.List;
 public class ConsoleCommands {
 
     private volatile UsagePointConfigurationService usagePointConfigurationService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile TransactionService transactionService;
     private volatile MeteringService meteringService;
     private volatile ValidationService validationService;
@@ -51,20 +53,7 @@ public class ConsoleCommands {
         try {
             transactionService.builder()
                     .principal(() -> "console")
-                    .run(() -> usagePointConfigurationService.newMetrologyConfiguration(name));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void renameMetrologyConfiguration(long id, String name) {
-        try {
-            transactionService.builder()
-                    .principal(() -> "console")
-                    .run(() -> {
-                        MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(id).get();
-                        metrologyConfiguration.updateName(name);
-                    });
+                    .run(() -> metrologyConfigurationService.newMetrologyConfiguration(name, meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get()).create());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -75,7 +64,7 @@ public class ConsoleCommands {
             transactionService.builder()
                     .principal(() -> "console")
                     .run(() -> {
-                        MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(id).get();
+                        MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(id).get();
                         metrologyConfiguration.delete();
                     });
         } catch (Exception e) {
@@ -84,7 +73,7 @@ public class ConsoleCommands {
     }
 
     public void metrologyConfigurations() {
-        usagePointConfigurationService.findAllMetrologyConfigurations().stream().forEach(System.out::println);
+        metrologyConfigurationService.findAllMetrologyConfigurations().stream().forEach(System.out::println);
     }
 
     public void linkUsagePointToMetrologyConfiguration(String usagePointMRID, String metrologyConfigName) {
@@ -95,7 +84,7 @@ public class ConsoleCommands {
                         UsagePoint up = meteringService
                                 .findUsagePoint(usagePointMRID)
                                 .orElseThrow(() -> new IllegalArgumentException("Usage Point " + usagePointMRID + " not found."));
-                        MetrologyConfiguration mc = usagePointConfigurationService
+                        MetrologyConfiguration mc = metrologyConfigurationService
                                 .findMetrologyConfiguration(metrologyConfigName)
                                 .orElseThrow(() -> new IllegalArgumentException("Metrology configuration " + metrologyConfigName + " not found."));
                         usagePointConfigurationService.link(up, mc);
@@ -122,7 +111,7 @@ public class ConsoleCommands {
             transactionService.builder()
                     .principal(() -> "console")
                     .run(() -> {
-                        MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService
+                        MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService
                                 .findMetrologyConfiguration(metrologyConfigName)
                                 .orElseThrow(() -> new IllegalArgumentException("Metrology configuration " + metrologyConfigName + " not found."));
                         ValidationRuleSet validationRuleSet = validationService
@@ -319,4 +308,8 @@ public class ConsoleCommands {
         this.validationService = validationService;
     }
 
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
 }
