@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.servicecall.InvalidPropertySetDomainTypeException;
 import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
 
@@ -38,7 +39,7 @@ class ServiceCallTypeBuilderImpl implements ServiceCallTypeBuilder {
     @Override
     public ServiceCallTypeBuilder customPropertySet(RegisteredCustomPropertySet customPropertySet) {
         Objects.requireNonNull(customPropertySet);
-        if (!customPropertySet.getCustomPropertySet().getDomainClass().isAssignableFrom(ServiceCallType.class)) {
+        if (!customPropertySet.getCustomPropertySet().getDomainClass().isAssignableFrom(ServiceCall.class)) {
             throw new InvalidPropertySetDomainTypeException(thesaurus, MessageSeeds.INVALID_CPS_TYPE, customPropertySet);
         }
         this.toBeRegisteredCustomPropertySets.add(customPropertySet);
