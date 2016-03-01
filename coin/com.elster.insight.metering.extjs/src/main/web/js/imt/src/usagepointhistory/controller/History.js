@@ -112,14 +112,10 @@ Ext.define('Imt.usagepointhistory.controller.History', {
         });
         Ext.resumeLayouts(true);
         if (router.queryParams.selectCurrent) {
-            versionsStore.on('load', function (store, records) {
-                var currentTime = new Date().getTime();
+            versionsStore.on('load', function () {
+                var currentVersion = versionsStore.find('isActive', true);
 
-                Ext.Array.each(records, function (record) {
-                    if (currentTime >= record.get('startTime') && currentTime <= record.get('endTime')) {
-                        cardView.down('custom-attribute-set-versions-grid').getSelectionModel().select(record);
-                    }
-                })
+                cardView.down('custom-attribute-set-versions-grid').getSelectionModel().select(currentVersion > -1 ? currentVersion : 0);
             }, me, {single: true});
         }
 
