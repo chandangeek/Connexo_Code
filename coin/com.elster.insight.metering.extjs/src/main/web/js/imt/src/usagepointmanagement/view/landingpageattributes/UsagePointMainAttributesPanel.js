@@ -36,6 +36,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
                 xtype: 'title-with-edit-button',
                 pencilBtnItemId: '',
                 editAvailable: true,
+                hiddenBtn: !Imt.privileges.UsagePoint.canAdministrate(),
                 title: Uni.I18n.translate('general.generalInformation', 'IMT', 'General information'),
                 editHandler: function () {
                     if (this.editAvailable) {
@@ -88,9 +89,11 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
         var me = this,
             actionMenuArray = Ext.ComponentQuery.query('usage-point-setup-action-menu');
         Ext.suspendLayouts();
-        Ext.each(actionMenuArray, function (menu) {
-            menu.add(me.action);
-        });
+        if(Imt.privileges.UsagePoint.canAdministrate()){
+            Ext.each(actionMenuArray, function (menu) {
+                menu.add(me.action);
+            });
+        }
         me.add(1, {
             xtype: actualForm
         });
@@ -116,6 +119,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
             me.down('#edit-form').hide();
             me.down('#bottom-buttons').hide();
             me.action.show();
+            me.down('#edit-form').getForm().clearInvalid();
         }
         Ext.resumeLayouts(true);
 
@@ -178,6 +182,8 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
         var values = form.getValues(),
             record = me.record.copy(me.record.get('mRID'));
         record.set(values);
-        me.fireEvent('saveClick', form, record);
+        me.fireEvent('saveClick', form.getForm(), record);
+        //debugger;
+        //this.down('#edit-form').getForm().markInvalid()
     }
 });

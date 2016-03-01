@@ -73,7 +73,11 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                     me.getApplication().fireEvent('changecontentevent', widget);
                     me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load({
                         callback: function () {
-                            me.initAttributes(record);
+                            me.getStore('Imt.usagepointmanagement.store.BypassStatuses').load({
+                                callback: function () {
+                                    me.initAttributes(record);
+                                }
+                            });
                         }
                     });
                     me.getOverviewLink().setText(record.get('mRID'));

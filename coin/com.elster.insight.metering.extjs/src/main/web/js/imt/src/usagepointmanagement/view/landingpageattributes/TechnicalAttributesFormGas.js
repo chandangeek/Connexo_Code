@@ -59,6 +59,9 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                             beforerender: function (fld){
                                 fld.setVisible(me.down('#fld-up-limiter').getValue())
                             }
+                        },
+                        renderer: function (value) {
+                            return value ? value : '-';
                         }
                     },
                     {
@@ -74,6 +77,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         }
                     },
                     {
+                        xtype: 'threevaluesdisplayfield',
                         name: 'bypass',
                         itemId: 'fld-up-bypass',
                         fieldLabel: Uni.I18n.translate('general.label.bypass', 'IMT', 'Bypass')
@@ -86,6 +90,11 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                             beforerender: function (fld){
                                 fld.setVisible(me.down('#fld-up-bypass').getValue() == 'YES')
                             }
+                        },
+                        renderer: function (data) {
+                            var value;
+                            value = Ext.getStore('Imt.usagepointmanagement.store.BypassStatuses').getById(data);
+                            return value.get('displayValue');
                         }
                     },
                     {

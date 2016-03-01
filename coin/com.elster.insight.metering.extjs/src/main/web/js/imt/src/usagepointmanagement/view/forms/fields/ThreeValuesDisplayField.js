@@ -3,10 +3,10 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.ThreeValuesDisplayField',
     alias: 'widget.threevaluesdisplayfield',
     renderer: function (value) {
         switch (value) {
-            case true:
+            case "YES":
                 return Uni.I18n.translate('general.label.yes', 'IMT', 'Yes');
                 break;
-            case false:
+            case "NO":
                 return Uni.I18n.translate('general.label.no', 'IMT', 'No');
                 break;
             default:

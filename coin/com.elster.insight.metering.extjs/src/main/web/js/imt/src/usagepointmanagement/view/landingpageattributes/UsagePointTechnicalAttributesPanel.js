@@ -17,24 +17,24 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
 
     technicalAttributesConfig: {
         "ELECTRICITY": {
-            form : 'technical-attributes-form-electricity',
+            form: 'technical-attributes-form-electricity',
             model: 'Imt.usagepointmanagement.model.technicalinfo.Electricity'
         },
         "GAS": {
-            form : 'technical-attributes-form-gas',
+            form: 'technical-attributes-form-gas',
             model: 'Imt.usagepointmanagement.model.technicalinfo.Gas'
         },
         "WATER": {
-            form : 'technical-attributes-form-water',
+            form: 'technical-attributes-form-water',
             model: 'Imt.usagepointmanagement.model.technicalinfo.Water'
         },
-        "THERMAL": {
-            form : 'technical-attributes-form-thermal',
+        "HEAT": {
+            form: 'technical-attributes-form-thermal',
             model: 'Imt.usagepointmanagement.model.technicalinfo.Thermal'
         }
     },
 
-    getTechnicalAttributesConfig: function(category){
+    getTechnicalAttributesConfig: function (category) {
         return this.technicalAttributesConfig[category]
     },
 
@@ -51,11 +51,10 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
 
         me.techInfo = techInfoModel;
 
-        me.action = Ext.create('Ext.menu.Item',{
+        me.action = Ext.create('Ext.menu.Item', {
             itemId: 'action-menu-' + config.form,
             editAvailable: true,
             menuItemClass: 'inlineEditableAttributeSet',
-//                    privileges: Imt.privileges.Device.administrateDeviceData,
             text: Uni.I18n.translate('general.editTechnicalInformation', 'IMT', "Edit 'Technical information'"),
             handler: function () {
                 if (this.editAvailable) {
@@ -67,12 +66,12 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
         });
 
         me.items = [
-                {
+            {
                 xtype: 'title-with-edit-button',
                 pencilBtnItemId: '',
-                editAvailable: true,
+                editAvailable: true, hiddenBtn: !Imt.privileges.UsagePoint.canAdministrate(),
                 title: Uni.I18n.translate('general.technicalInformation', 'IMT', 'Technical information'),
-                editHandler: function(){
+                editHandler: function () {
                     if (this.editAvailable) {
                         me.toEditMode(true);
                     } else {
@@ -119,18 +118,20 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
         me.addAttributes(config.form, techInfoModel);
     },
 
-    addAttributes: function(form, record){
+    addAttributes: function (form, record) {
         var me = this,
-            actionMenuArray=Ext.ComponentQuery.query('usage-point-setup-action-menu');
-        me.itemId =  me.category + '-attribute-set';
+            actionMenuArray = Ext.ComponentQuery.query('usage-point-setup-action-menu');
+        me.itemId = me.category + '-attribute-set';
 
         Ext.suspendLayouts();
 
-        Ext.each(actionMenuArray, function (menu) {
-            menu.add(me.action);
-        });
+        if(Imt.privileges.UsagePoint.canAdministrate()){
+            Ext.each(actionMenuArray, function (menu) {
+                menu.add(me.action);
+            });
+        }
 
-        me.add(1,{
+        me.add(1, {
             xtype: form
         });
 
@@ -140,8 +141,8 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
         me.down('#view-form').getForm().loadRecord(record);
     },
 
-    showConfirmationWindow: function(){
-        var me =this,
+    showConfirmationWindow: function () {
+        var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 confirmText: Uni.I18n.translate('general.editGeneralInformation.discard', 'IMT', 'Discard'),
                 confirmation: function () {
@@ -155,15 +156,15 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
         });
     },
 
-    confirmationClick: function(confirmationWindow){
+    confirmationClick: function (confirmationWindow) {
         var me = this,
             cancelBtnArray = Ext.ComponentQuery.query('inline-editable-set-property-form');
 
         Ext.each(cancelBtnArray, function (item) {
-            if(item.editMode){
-                item.model.load(item.record.get('id'),{
+            if (item.editMode) {
+                item.model.load(item.record.get('id'), {
                     url: Ext.String.format('/api/udr/usagepoints/{0}/customproperties/', encodeURIComponent(item.parent.mRID)),
-                    success: function(record){
+                    success: function (record) {
                         item.record = record;
                         item.down('property-form').makeNotEditable(item.record);
                         Ext.suspendLayouts();
@@ -181,20 +182,19 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
         });
 
         var generalAttributesPanel = Ext.ComponentQuery.query('usage-point-main-attributes-panel')[0];
-        if(generalAttributesPanel && generalAttributesPanel.editMode){
+        if (generalAttributesPanel && generalAttributesPanel.editMode) {
             generalAttributesPanel.toEditMode(false);
             confirmationWindow.destroy();
             me.toEditMode(true);
         }
     },
 
-    toEditMode: function(isEdit){
-        var me =this;
+    toEditMode: function (isEdit) {
+        var me = this;
 
         Ext.suspendLayouts();
-        if(isEdit){
+        if (isEdit) {
             Ext.getStore('Imt.usagepointmanagement.store.PhaseCodes').load();
-            Ext.getStore('Imt.usagepointmanagement.store.BypassStatuses').load();
             me.down('#pencil-btn').hide();
             me.down('#view-form').hide();
             me.down('#edit-form').show();
@@ -219,10 +219,9 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
         var me = this,
             record,
             form = me.down('#edit-form');
-        //var values = form.getValues(),
         form.updateRecord();
 
-            record = me.record.copy(me.record.get('mRID'));
+        record = me.record.copy(me.record.get('mRID'));
 
         record.set('techInfo', form.getRecord().data);
         me.fireEvent('saveClick', form, record);

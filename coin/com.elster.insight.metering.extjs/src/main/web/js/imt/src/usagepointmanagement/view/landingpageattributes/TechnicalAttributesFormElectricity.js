@@ -20,7 +20,6 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                 defaults: {
                     xtype: 'displayfield',
                     labelWidth: 250,
-                    //maxHeight: 24,
                     paddingBottom: 0,
                     width: 600
                 },
@@ -48,14 +47,6 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                             return value ? value : '-';
                         }
                     },
-                    //{
-                    //    xtype: 'measuredisplayfield',
-                    //    name: 'ratedCurrent',
-                    //    itemId: 'fld-up-rated-current',
-                    //    fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current'),
-                    //    unitType: 'amperage'
-                    //
-                    //},
                     {
                         xtype: 'measuredisplayfield',
                         name: 'ratedPower',

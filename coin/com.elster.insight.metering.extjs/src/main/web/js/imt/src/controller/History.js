@@ -17,6 +17,7 @@ Ext.define('Imt.controller.History', {
            		view: {
            			title: Uni.I18n.translate('general.label.usagepoint.view', 'IMT', 'View usage point'),
            			route: '{mRID}',
+                    privileges: Imt.privileges.UsagePoint.view,
            			controller: 'Imt.usagepointmanagement.controller.View',
            			action: 'showUsagePoint',
            			callback: function (route) {
