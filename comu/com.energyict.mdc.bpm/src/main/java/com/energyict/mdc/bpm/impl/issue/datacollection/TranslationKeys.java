@@ -7,8 +7,8 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum TranslationKeys implements TranslationKey {
     DATA_COLLECTION_ISSUE_ASSOCIATION_PROVIDER(IssueProcessAssociationProvider.ASSOCIATION_TYPE, "Data collection issue"),
-    DATA_COLLECTION_ISSUE_STATE_TITLE("issueStates", "Issue states"),
-    DATA_COLLECTION_ISSUE_STATE_COLUMN("issueState", "Issue state");
+    DATA_COLLECTION_ISSUE_REASON_TITLE("issueReasons", "Issue reasons"),
+    DATA_COLLECTION_ISSUE_REASON_COLUMN("issueReason", "Issue reason");
 
     private final String key;
     private final String defaultFormat;

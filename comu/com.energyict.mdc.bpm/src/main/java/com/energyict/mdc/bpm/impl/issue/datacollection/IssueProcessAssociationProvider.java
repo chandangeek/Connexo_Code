@@ -1,11 +1,10 @@
 package com.energyict.mdc.bpm.impl.issue.datacollection;
 
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -16,11 +15,7 @@ import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
-
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 
 import com.google.common.collect.ImmutableList;
@@ -32,8 +27,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -42,9 +38,11 @@ import static com.elster.jupiter.util.conditions.Where.where;
         service = {ProcessAssociationProvider.class, TranslationKeyProvider.class},
         property = "name=IssueProcessAssociationProvider", immediate = true)
 public class IssueProcessAssociationProvider implements ProcessAssociationProvider, TranslationKeyProvider {
+    public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "BPM";
     public static final String ASSOCIATION_TYPE = "datacollectionissue";
 
+    private volatile License license;
     private volatile Thesaurus thesaurus;
     private volatile IssueService issueService;
     private volatile PropertySpecService propertySpecService;
@@ -76,6 +74,11 @@ public class IssueProcessAssociationProvider implements ProcessAssociationProvid
         this.propertySpecService = propertySpecService;
     }
 
+    @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
+    public void setLicense(License license) {
+        this.license = license;
+    }
+
     @Override
     public String getName() {
         return this.thesaurus.getString(TranslationKeys.DATA_COLLECTION_ISSUE_ASSOCIATION_PROVIDER.getKey(), TranslationKeys.DATA_COLLECTION_ISSUE_ASSOCIATION_PROVIDER.getDefaultFormat());
@@ -95,7 +98,7 @@ public class IssueProcessAssociationProvider implements ProcessAssociationProvid
 
     @Override
     public Optional<PropertySpec> getPropertySpec(String name) {
-        return (TranslationKeys.DATA_COLLECTION_ISSUE_STATE_TITLE.getKey()
+        return (TranslationKeys.DATA_COLLECTION_ISSUE_REASON_TITLE.getKey()
                 .equals(name)) ? Optional.of(getIssueReasonPropertySpec()) : Optional.empty();
     }
 
@@ -107,7 +110,7 @@ public class IssueProcessAssociationProvider implements ProcessAssociationProvid
 
         return this.propertySpecService
                 .specForValuesOf(new IssueReasonInfoValueFactory())
-                .named(TranslationKeys.DATA_COLLECTION_ISSUE_STATE_TITLE.getKey(), TranslationKeys.DATA_COLLECTION_ISSUE_STATE_TITLE)
+                .named(TranslationKeys.DATA_COLLECTION_ISSUE_REASON_TITLE.getKey(), TranslationKeys.DATA_COLLECTION_ISSUE_REASON_TITLE)
                 .fromThesaurus(this.thesaurus)
                 .markRequired()
                 .markMultiValued(",")
