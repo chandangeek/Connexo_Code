@@ -27,18 +27,26 @@ public class ListPager<T> {
     }
 
     public ListPager<T> paged(Integer start, Integer pageSize) {
-        this.start=start;
-        this.pageSize=pageSize;
+        this.start = start;
+        this.pageSize = pageSize;
         return this;
     }
+
+    public ListPager<T> from(com.elster.jupiter.domain.util.QueryParameters queryParameters) {
+        if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
+            this.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
+        }
+        return this;
+    }
+
     public ListPager<T> from(QueryParameters queryParameters) {
-        this.paged(queryParameters.getStartInt(), queryParameters.getLimit()==-1?null:queryParameters.getLimit());
+        this.paged(queryParameters.getStartInt(), queryParameters.getLimit() == -1 ? null : queryParameters.getLimit());
         return this;
     }
 
     public List<T> find() {
-        if (start!=null && pageSize!=null) {
-            if (start>=elements.size()) {
+        if (start != null && pageSize != null) {
+            if (start >= elements.size()) {
                 return Collections.emptyList();
             }
             int toIndex = this.start + this.pageSize + 1;
