@@ -17,6 +17,7 @@ public class ProcessDefinitionInfo {
     public String version;
     public String active;
     public String type;
+    public String displayType;
     public String deploymentId;
     public List<ProcessesPrivilegesInfo> privileges;
     public List<PropertyInfo> properties = Collections.emptyList();
@@ -40,9 +41,9 @@ public class ProcessDefinitionInfo {
         this.version = bpmProcessDefinition.getVersion();
         this.name = bpmProcessDefinition.getProcessName();
         this.type = bpmProcessDefinition.getAssociationProvider()
-                .isPresent() ? bpmProcessDefinition.getAssociationProvider()
-                .get()
-                .getType() : "";
+                .isPresent() ? bpmProcessDefinition.getAssociationProvider().get().getType() : "";
+        this.displayType = bpmProcessDefinition.getAssociationProvider()
+                .isPresent() ? bpmProcessDefinition.getAssociationProvider().get().getName() : "";
         this.active = bpmProcessDefinition.getStatus();
     }
 
@@ -50,14 +51,13 @@ public class ProcessDefinitionInfo {
         this.version = bpmProcessDefinition.getVersion();
         this.name = bpmProcessDefinition.getProcessName();
         this.type = bpmProcessDefinition.getAssociationProvider()
-                .isPresent() ? bpmProcessDefinition.getAssociationProvider()
-                .get()
-                .getType() : "";
+                .isPresent() ? bpmProcessDefinition.getAssociationProvider().get().getType() : "";
+        this.displayType = bpmProcessDefinition.getAssociationProvider()
+                .isPresent() ? bpmProcessDefinition.getAssociationProvider().get().getName() : "";
         this.active = bpmProcessDefinition.getStatus();
         privileges = bpmProcessDefinition.getPrivileges().stream()
                 .map(s -> new ProcessesPrivilegesInfo(s.getPrivilegeName(), Privileges.getDescriptionForKey(s.getPrivilegeName()), s.getApplication(), groups))
                 .collect(Collectors.toList());
-        //properties = bpmProcessDefinition.getProperties();
     }
 
     public void setProperties(List<PropertyInfo> properties) {

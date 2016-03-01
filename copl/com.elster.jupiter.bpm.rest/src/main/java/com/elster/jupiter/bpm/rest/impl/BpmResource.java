@@ -7,6 +7,7 @@ import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -471,7 +472,7 @@ public class BpmResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_BPM)
     public ProcessDefinitionInfo deactivateProcess(@PathParam("id") String id, ProcessDefinitionInfo info) {
-        Optional<BpmProcessDefinition> bpmProcessDefinition = bpmService.getBpmProcessDefinition(info.name, info.version);
+        Optional<BpmProcessDefinition> bpmProcessDefinition = bpmService.getBpmProcessDefinition(info.id, info.version);
         if (bpmProcessDefinition.isPresent()) {
             bpmProcessDefinition.get().setStatus(info.active);
             bpmProcessDefinition.get().save();
@@ -491,7 +492,7 @@ public class BpmResource {
             String version = queryParameters.get("version").get(0);
             Optional<BpmProcessDefinition> bpmProcessDefinition = bpmService.getBpmProcessDefinition(id, version);
 
-            if (bpmProcessDefinition.isPresent()) {
+            if (queryParameters.get("association") == null && bpmProcessDefinition.isPresent()) {
                 List<Group> groups = this.userService.getGroups();
                 ProcessDefinitionInfo processDefinitionInfo = new ProcessDefinitionInfo(bpmProcessDefinition.get(), groups);
                 bpmProcessDefinition.get().getAssociationProvider()
@@ -518,7 +519,6 @@ public class BpmResource {
     }
 
 
-    // TODO: GENERIC
     @GET
     @Path("/activeprocesses")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -526,49 +526,37 @@ public class BpmResource {
     public PagedInfoList getActiveBpmProcessesDefinitions(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth) {
         MultivaluedMap<String, String> filterProperties = uriInfo.getQueryParameters();
         if(filterProperties.get("type") != null) {
-            if (filterProperties.get("type").get(0).toLowerCase().equals("device")) {
-                if (filterProperties.get("devicestateid") != null && filterProperties.get("privileges") != null) {
-                    List<String> privileges = getPropertyList(filterProperties.get("privileges").get(0), "privilege");
-                    ProcessDefinitionInfos bpmProcessDefinition = getBpmProcessDefinitions(auth);
-                    long deviceStateId = Long.valueOf(filterProperties.get("devicestateid").get(0));
-                    List<String> privilegeNames = privileges.stream().collect(Collectors.toList());
-                    List<BpmProcessDefinition> connexoProcesses = bpmService.getActiveBpmProcessDefinitions();
-                    List<BpmProcessDefinition> filtredConnexoProcesses = connexoProcesses.stream()
-                            //.filter(p -> p.getAssociationData().stream().anyMatch(s -> Long.parseLong(s.get("deviceStateId")) == deviceStateId))
-                            .filter(p -> p.getPrivileges().stream().anyMatch(s -> privilegeNames.stream().anyMatch(z -> z.equals(s.getPrivilegeName()))))
-                            .filter(p -> p.getAssociationProvider().isPresent() && p.getAssociationProvider()
-                                    .get()
-                                    .getType()
-                                    .toLowerCase()
-                                    .equals(filterProperties.get("type").get(0).toLowerCase()))
-                            .collect(Collectors.toList());
-
-                    List<ProcessDefinitionInfo> bpmProcesses = bpmProcessDefinition.processes.stream()
-                            .filter(s -> filtredConnexoProcesses.stream().anyMatch(x -> x.getProcessName().equals(s.name) && x.getVersion().equals(s.version)))
-                            .collect(Collectors.toList());
-                    bpmProcesses.stream()
-                            .forEach(s -> s.id = s.id + s.deploymentId);
-                    return PagedInfoList.fromCompleteList("processes", bpmProcesses, queryParameters);
-                }
-            }else if(filterProperties.get("type").get(0).toLowerCase().equals("usagepoint") || filterProperties.get("type").get(0).toLowerCase().equals("issue")){
+            if (filterProperties.get("privileges") != null) {
+                List<String> privileges = getPropertyList(filterProperties.get("privileges").get(0), "privilege");
                 ProcessDefinitionInfos bpmProcessDefinition = getBpmProcessDefinitions(auth);
                 List<BpmProcessDefinition> connexoProcesses = bpmService.getActiveBpmProcessDefinitions();
                 List<BpmProcessDefinition> filtredConnexoProcesses = connexoProcesses.stream()
-                        .filter(p -> p.getAssociationProvider().isPresent() && p.getAssociationProvider()
-                                .get()
-                                .getType()
+                        .filter(p -> p.getAssociation()
                                 .toLowerCase()
                                 .equals(filterProperties.get("type").get(0).toLowerCase()))
+                        .filter(p -> p.getPrivileges()
+                                .stream()
+                                .anyMatch(s -> privileges.stream().anyMatch(z -> z.equals(s.getPrivilegeName()))))
+                        .filter(p -> p.getProperties().keySet().stream()
+                                .filter(filterProperties::containsKey)
+                                .filter(f -> List.class.isInstance(p.getProperties().get(f)))
+                                .filter(f -> ((List<Object>) p.getProperties().get(f)).stream()
+                                        .filter(HasIdAndName.class::isInstance)
+                                        .anyMatch(v -> ((HasIdAndName) v).getId()
+                                                .toString()
+                                                .equals(filterProperties.get(f).get(0))))
+                                .findAny().isPresent())
                         .collect(Collectors.toList());
+
                 List<ProcessDefinitionInfo> bpmProcesses = bpmProcessDefinition.processes.stream()
-                        .filter(s -> filtredConnexoProcesses.stream().anyMatch(x -> x.getProcessName().equals(s.name) && x.getVersion().equals(s.version)))
+                        .filter(s -> filtredConnexoProcesses.stream()
+                                .anyMatch(x -> x.getProcessName().equals(s.id) && x.getVersion().equals(s.version)))
                         .collect(Collectors.toList());
-                bpmProcesses.stream()
-                        .forEach(s -> s.id = s.id + s.deploymentId);
                 return PagedInfoList.fromCompleteList("processes", bpmProcesses, queryParameters);
             }
         }
-        return null;
+
+        return PagedInfoList.fromCompleteList("processes", new ArrayList<>(), queryParameters);
     }
 
     private ProcessDefinitionInfos getBpmProcessDefinitions(String auth) {
@@ -589,37 +577,35 @@ public class BpmResource {
     }
 
     @GET
+    @Transactional
     @Path("/allprocesses")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.ADMINISTRATE_BPM})
     public PagedInfoList getBpmProcessesDefinitions(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth, @Context HttpHeaders headers) {
-        try (TransactionContext context = transactionService.getContext()) {
-            List<BpmProcessDefinition> connexoProcesses = bpmService.getBpmProcessDefinitions();
-            ProcessDefinitionInfos bpmProcessDefinition = getBpmProcessDefinitions(auth);
-            for (BpmProcessDefinition eachConnexo : connexoProcesses) {
-                boolean found = false;
-                for (ProcessDefinitionInfo eachBpm : bpmProcessDefinition.processes) {
-                    if (eachConnexo.getProcessName().equals(eachBpm.name) && eachConnexo.getVersion().equals(eachBpm.version)) {
-                        eachBpm.active = eachConnexo.getStatus();
-                        eachBpm.type = eachConnexo.getAssociationProvider()
-                                .isPresent() ? eachConnexo.getAssociationProvider()
-                                .get()
-                                .getType() : "";
-                        found = true;
-                    }
-                }
-                if (!found && !bpmProcessDefinition.processes.isEmpty()) {
-                    eachConnexo.setStatus("UNDEPLOYED");
-                    eachConnexo.save();
+        List<BpmProcessDefinition> connexoProcesses = bpmService.getBpmProcessDefinitions();
+        ProcessDefinitionInfos bpmProcessDefinition = getBpmProcessDefinitions(auth);
+        for (BpmProcessDefinition eachConnexo : connexoProcesses) {
+            boolean found = false;
+            for (ProcessDefinitionInfo eachBpm : bpmProcessDefinition.processes) {
+                if (eachConnexo.getProcessName().equals(eachBpm.id) && eachConnexo.getVersion()
+                        .equals(eachBpm.version)) {
+                    eachBpm.active = eachConnexo.getStatus();
+                    eachBpm.type = eachConnexo.getAssociationProvider()
+                            .isPresent() ? eachConnexo.getAssociationProvider().get().getType() : "";
+                    eachBpm.displayType = eachConnexo.getAssociationProvider()
+                            .isPresent() ? eachConnexo.getAssociationProvider().get().getName() : "";
+                    found = true;
                 }
             }
-            List<ProcessDefinitionInfo> list = bpmProcessDefinition.processes.stream()
-                    .sorted((s1, s2) -> s1.name.toLowerCase().compareTo(s2.name.toLowerCase()))
-                    .collect(Collectors.toList());
-            list.stream().forEach(s -> s.id = s.id + s.version);
-            context.commit();
-            return PagedInfoList.fromCompleteList("processes", list, queryParameters);
+            if (!found && !bpmProcessDefinition.processes.isEmpty()) {
+                eachConnexo.setStatus("UNDEPLOYED");
+                eachConnexo.save();
+            }
         }
+        List<ProcessDefinitionInfo> list = bpmProcessDefinition.processes.stream()
+                .sorted((s1, s2) -> s1.name.toLowerCase().compareTo(s2.name.toLowerCase()))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("processes", list, queryParameters);
     }
 
     @GET
