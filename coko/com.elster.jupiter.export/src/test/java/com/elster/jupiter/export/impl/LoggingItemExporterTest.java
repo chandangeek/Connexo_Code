@@ -98,6 +98,7 @@ public class LoggingItemExporterTest {
         when(decorated.exportItem(occurrence, meterReadingData)).thenReturn(Collections.emptyList());
         when(item.getReadingType()).thenReturn(readingType);
         when(readingType.getAliasName()).thenReturn("The Speed Of Pain");
+        when(readingType.getFullAliasName()).thenReturn("The Speed Of Pain");
         when(item.getReadingContainer()).thenReturn(meter);
         when(meter.getMeter(any())).thenReturn(Optional.of(meter));
         when(meter.getMRID()).thenReturn("MRID4711");
