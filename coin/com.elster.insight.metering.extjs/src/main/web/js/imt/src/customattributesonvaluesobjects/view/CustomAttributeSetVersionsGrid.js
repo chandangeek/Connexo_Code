@@ -39,6 +39,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionsG
                 displayMsg: Uni.I18n.translate('customattributesets.versions.pagingtoolbartop.displayMsg', 'IMT', '{0} - {1} of {2} versions'),
                 displayMoreMsg: Uni.I18n.translate('customattributesets.versions.pagingtoolbartop.displayMoreMsg', 'IMT', '{0} - {1} of more than {2} versions'),
                 emptyMsg: Uni.I18n.translate('customattributesets.versions.pagingtoolbartop.emptyMsg', 'IMT', 'There are no versions to display'),
+                usesExactCount: true,
                 items: [
                     {
                         text: Uni.I18n.translate('customattributesets.versions.add', 'IMT', 'Add version'),
