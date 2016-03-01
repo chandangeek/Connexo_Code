@@ -1,6 +1,5 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.mdm.common.services.ListPager;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
@@ -8,9 +7,11 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -20,7 +21,11 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class ChannelResourceHelper {

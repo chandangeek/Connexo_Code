@@ -1,6 +1,5 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.mdm.common.services.ListPager;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.security.Privileges;

@@ -1,7 +1,8 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
-import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigurationInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
@@ -40,7 +41,7 @@ public class UsagePointInfo {
     public long version;
     public long createTime;
     public long modTime;
-    public MetrologyConfigurationInfo metrologyConfiguration;
+    public IdWithNameInfo metrologyConfiguration;
 
     public UsagePointInfo() {
     }
