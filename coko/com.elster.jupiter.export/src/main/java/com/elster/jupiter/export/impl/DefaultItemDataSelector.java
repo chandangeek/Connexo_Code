@@ -109,7 +109,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
         DataExportStrategy strategy = item.getSelector().getStrategy();
 
         String mrid = item.getReadingContainer().getMeter(occurrence.getTriggerTime()).map(Meter::getMRID).orElse("");
-        String itemDescription = mrid + ":" + item.getReadingType().getAliasName();
+        String itemDescription = mrid + ":" + item.getReadingType().getFullAliasName();
 
         handleValidatedDataOption(item, strategy, readings, exportInterval, itemDescription);
 
