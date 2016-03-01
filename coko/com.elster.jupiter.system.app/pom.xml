@@ -123,12 +123,18 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+<<<<<<< HEAD
             <artifactId>appserver.rest</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>servicecall</artifactId>
         </dependency>
+=======
+            <artifactId>bpm</artifactId>
+        </dependency>
+
+>>>>>>> 3911b72603d09b3acaf394ef5de7e3c13b5485a9
     </dependencies>
 
     <profiles>
