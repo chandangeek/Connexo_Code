@@ -150,7 +150,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                         menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view').buildUrl({issueId: issueId}, {addComment: true});
                         break;
                     case 'startProcess':
-                        menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({issueId: issueId} , {details: menuItem.details});
+                        menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({issueId: issueId} , {details: menuItem.details, issueType: issueType});
                         break;
                 }
             });
@@ -162,7 +162,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
             me.add({
                 text: Uni.I18n.translate('issues.actionMenu.startProcess', 'ISU', 'Start process'),
                 action: 'startProcess',
-                href: me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({issueId: issueId} , {details: false}),
+                href: me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({issueId: issueId} , {details: false, issueType: issueType}),
                 details: false
             });
         }
