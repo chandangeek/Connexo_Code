@@ -429,36 +429,17 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
-        if (this.deviceProtocolPluggableClass == null && !isDataloggerSlave()) {
-            Optional<DeviceProtocolPluggableClass> optionalDeviceProtocolPluggableClass = this.findDeviceProtocolPluggableClass(this.deviceProtocolPluggableClassId);
-            optionalDeviceProtocolPluggableClass.ifPresent(consumer -> this.deviceProtocolPluggableClass = consumer);
-        }
-        return this.deviceProtocolPluggableClass;
-    }
-
-    private Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClass(long deviceProtocolPluggableClassId) {
-        return this.protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId);
+        return getProtocolBehavior().getDeviceProtocolPluggableClass().orElse(null);
     }
 
     @Override
     public void setDeviceProtocolPluggableClass(String deviceProtocolPluggableClassName) {
-        this.setDeviceProtocolPluggableClass(this.protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceProtocolPluggableClassName)
-                .orElse(null));
+        getProtocolBehavior().setDeviceProtocolPluggableClass(deviceProtocolPluggableClassName);
     }
 
     @Override
     public void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-        // Test for null because javax.validation only kicks @ save time
-        if (deviceProtocolPluggableClass != null) {
-            this.deviceProtocolPluggableClassChanged = (this.deviceProtocolPluggableClassId != deviceProtocolPluggableClass
-                    .getId());
-            this.deviceProtocolPluggableClassId = deviceProtocolPluggableClass.getId();
-            this.deviceProtocolPluggableClass = deviceProtocolPluggableClass;
-        } else {
-            this.deviceProtocolPluggableClassChanged = (this.deviceProtocolPluggableClassId != 0);
-            this.deviceProtocolPluggableClassId = 0;
-            this.deviceProtocolPluggableClass = null;
-        }
+        getProtocolBehavior().setDeviceProtocolPluggableClass(deviceProtocolPluggableClass);
     }
 
     boolean deviceProtocolPluggableClassChanged() {
@@ -723,17 +704,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     public boolean isLogicalSlave() {
-        List<DeviceProtocolCapabilities> deviceProtocolCapabilities = this.getLocalDeviceProtocol()
-                .getDeviceProtocolCapabilities();
-        return deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_SLAVE) && deviceProtocolCapabilities
-                .size() == 1;
-    }
-
-    private DeviceProtocol getLocalDeviceProtocol() {
-        if (localDeviceProtocol == null) {
-            localDeviceProtocol = this.getDeviceProtocolPluggableClass().getDeviceProtocol();
-        }
-        return localDeviceProtocol;
+        return getProtocolBehavior().isLogicalSlave();
     }
 
     @Override
@@ -860,6 +831,108 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         @Override
         public void add() {
             this.builder.add();
+        }
+    }
+
+    private ProtocolBehavior getProtocolBehavior() {
+        return isDataloggerSlave() ? new DataloggerSlaveProtocolBehavior() : new RegularProtocolBehavior();
+    }
+
+    interface ProtocolBehavior {
+        void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
+
+        void setDeviceProtocolPluggableClass(String deviceProtocolPluggableClassName);
+
+        Optional<DeviceProtocolPluggableClass> getDeviceProtocolPluggableClass();
+
+        Optional<DeviceProtocol> getDeviceProtocol();
+
+        boolean isLogicalSlave();
+    }
+
+    class RegularProtocolBehavior implements ProtocolBehavior {
+
+        @Override
+        public void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+            // Test for null because javax.validation only kicks @ save time
+            if (deviceProtocolPluggableClass != null) {
+                DeviceTypeImpl.this.deviceProtocolPluggableClassChanged = (DeviceTypeImpl.this.deviceProtocolPluggableClassId != deviceProtocolPluggableClass
+                        .getId());
+                DeviceTypeImpl.this.deviceProtocolPluggableClassId = deviceProtocolPluggableClass.getId();
+                DeviceTypeImpl.this.deviceProtocolPluggableClass = deviceProtocolPluggableClass;
+            } else {
+                DeviceTypeImpl.this.deviceProtocolPluggableClassChanged = (DeviceTypeImpl.this.deviceProtocolPluggableClassId != 0);
+                DeviceTypeImpl.this.deviceProtocolPluggableClassId = 0;
+                DeviceTypeImpl.this.deviceProtocolPluggableClass = null;
+            }
+        }
+
+        @Override
+        public void setDeviceProtocolPluggableClass(String deviceProtocolPluggableClassName) {
+            this.setDeviceProtocolPluggableClass(DeviceTypeImpl.this.protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceProtocolPluggableClassName)
+                    .orElse(null));
+        }
+
+        @Override
+        public Optional<DeviceProtocolPluggableClass> getDeviceProtocolPluggableClass() {
+            if (DeviceTypeImpl.this.deviceProtocolPluggableClass == null && !isDataloggerSlave()) {
+                Optional<DeviceProtocolPluggableClass> optionalDeviceProtocolPluggableClass = this.findDeviceProtocolPluggableClass(DeviceTypeImpl.this.deviceProtocolPluggableClassId);
+                optionalDeviceProtocolPluggableClass.ifPresent(consumer -> DeviceTypeImpl.this.deviceProtocolPluggableClass = consumer);
+            }
+            return Optional.ofNullable(DeviceTypeImpl.this.deviceProtocolPluggableClass);
+        }
+
+        @Override
+        public Optional<DeviceProtocol> getDeviceProtocol() {
+            Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = getDeviceProtocolPluggableClass();
+            if (DeviceTypeImpl.this.localDeviceProtocol == null && deviceProtocolPluggableClass.isPresent()) {
+                DeviceTypeImpl.this.localDeviceProtocol = deviceProtocolPluggableClass.get().getDeviceProtocol();
+            }
+            return Optional.ofNullable(DeviceTypeImpl.this.localDeviceProtocol);
+        }
+
+        @Override
+        public boolean isLogicalSlave() {
+            if (getDeviceProtocol().isPresent()) {
+                List<DeviceProtocolCapabilities> deviceProtocolCapabilities = this.getDeviceProtocol().get()
+                        .getDeviceProtocolCapabilities();
+                return deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_SLAVE) && deviceProtocolCapabilities
+                        .size() == 1;
+            } else {
+                return false;
+            }
+        }
+
+        private Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClass(long deviceProtocolPluggableClassId) {
+            return DeviceTypeImpl.this.protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId);
+        }
+    }
+
+    class DataloggerSlaveProtocolBehavior implements ProtocolBehavior {
+
+        @Override
+        public void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+            throw DataloggerSlaveException.deviceProtocolPluggableClassIsNoSupported(getThesaurus(), DeviceTypeImpl.this);
+        }
+
+        @Override
+        public void setDeviceProtocolPluggableClass(String deviceProtocolPluggableClassName) {
+            throw DataloggerSlaveException.deviceProtocolPluggableClassIsNoSupported(getThesaurus(), DeviceTypeImpl.this);
+        }
+
+        @Override
+        public Optional<DeviceProtocolPluggableClass> getDeviceProtocolPluggableClass() {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<DeviceProtocol> getDeviceProtocol() {
+            return Optional.empty();
+        }
+
+        @Override
+        public boolean isLogicalSlave() {
+            return false;
         }
     }
 
@@ -1079,6 +1152,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                 canActAsGateway(true);
             }
             underConstruction.setGatewayType(gatewayType);
+            return this;
+        }
+
+        @Override
+        public DeviceConfigurationBuilder dataloggerEnabled(boolean dataloggerEnabled) {
+            underConstruction.setDataloggerEnabled(dataloggerEnabled);
             return this;
         }
 

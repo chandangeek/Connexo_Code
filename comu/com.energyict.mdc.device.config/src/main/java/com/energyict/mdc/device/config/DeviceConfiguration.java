@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.config;
 
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.HasId;
@@ -13,6 +12,8 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.Collection;
 import java.util.List;
@@ -97,9 +98,11 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
     boolean hasCommunicationFunction(DeviceCommunicationFunction function);
 
     public boolean canActAsGateway();
+
     public void setCanActAsGateway(boolean actAsGateway);
 
     public boolean isDirectlyAddressable();
+
     public void setDirectlyAddressable(boolean directlyAddressable);
 
     DeviceConfValidationRuleSetUsage addValidationRuleSet(ValidationRuleSet validationRuleSet);
@@ -135,5 +138,13 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
     public DeviceProtocolConfigurationProperties getDeviceProtocolProperties();
 
     public long getVersion();
+
+    /**
+     * Indicate whether or not this DeviceConfiguration allows itself to be
+     * used as a Datalogger
+     *
+     * @return true if this DeviceConfiguration can be a Datalogger, false otherwise
+     */
+    boolean isDataloggerEnabled();
 
 }

@@ -56,6 +56,7 @@ public enum MessageSeeds implements MessageSeed {
     CANNOT_CHANGE_DEVICE_TYPE_PURPOSE_WHEN_CONFIGS(7011, Keys.CANNOT_CHANGE_DEVICE_TYPE_PURPOSE_WHEN_CONFIGS, "You can not change the type of the device type when you already have device configurations defined"),
     DATALOGGER_SLAVE_NO_LOGBOOKTYPE_SUPPORT(7012, Keys.DATALOGGER_SLAVE_NO_LOGBOOKTYPE_SUPPORT, "A datalogger slave device type does not support logbook types"),
     CANNOT_CHANGE_DEVICE_TYPE_PURPOSE_TO_DATALOGGER_SLAVE_WHEN_LOGBOOK_SPECS_EXIST(7013, Keys.CANNOT_CHANGE_DEVICE_TYPE_PURPOSE_TO_DATALOGGER_SLAVE_WHEN_LOGBOOK_SPECS_EXIST, "You can not change the type of the device type when you already have device configurations with a logbook configuration"),
+    DATALOGGER_SLAVE_NO_PROTOCOL_PLUGGABLE_CLASS(7014, Keys.DATALOGGER_SLAVE_NO_PROTOCOL_PLUGGABLE_CLASS, "A datalogger slave device type does not support a device protocol pluggable class"),
     LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_NOT_ON_DEVICE_TYPE(8002, "loadProfileSpec.cannotAddLoadProfileSpecOfTypeXBecauseDeviceTypeYDoesNotContainIt", "The load profile configuration contains a load profile type {0} which is not configured on the device type"),
     LOAD_PROFILE_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION(8003, "loadProfileSpec.active.configuration", "You can not add a load profile configuration to an active device configuration"),
     LOAD_PROFILE_SPEC_CANNOT_CHANGE_DEVICE_CONFIG(8004, "loadProfileSpec.change.configuration", "You can not change the device configuration of an existing load profile configuration"),
@@ -259,6 +260,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CANNOT_CHANGE_DEVICE_TYPE_PURPOSE_WHEN_CONFIGS = "cannot.change.device.type.purpose.when.configs";
         public static final String DATALOGGER_SLAVE_NO_LOGBOOKTYPE_SUPPORT = "datalogger.slave.device.type.not.support.logbook.types";
         public static final String CANNOT_CHANGE_DEVICE_TYPE_PURPOSE_TO_DATALOGGER_SLAVE_WHEN_LOGBOOK_SPECS_EXIST = "datalogger.slave.cannot.change.type.when.already.logbook.specs";
+        public static final String DATALOGGER_SLAVE_NO_PROTOCOL_PLUGGABLE_CLASS = "datalogger.slave.no.protocol.pluggable.class";
     }
 
 }

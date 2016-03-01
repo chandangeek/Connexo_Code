@@ -32,4 +32,10 @@ public class DataloggerSlaveException extends LocalizedException {
         dataloggerSlaveException.set("deviceType", deviceType);
         return dataloggerSlaveException;
     }
+
+    public static DataloggerSlaveException deviceProtocolPluggableClassIsNoSupported(Thesaurus thesaurus, DeviceType deviceType) {
+        DataloggerSlaveException dataloggerSlaveException = new DataloggerSlaveException(thesaurus, MessageSeeds.DATALOGGER_SLAVE_NO_PROTOCOL_PLUGGABLE_CLASS);
+        dataloggerSlaveException.set("deviceType", deviceType);
+        return dataloggerSlaveException;
+    }
 }

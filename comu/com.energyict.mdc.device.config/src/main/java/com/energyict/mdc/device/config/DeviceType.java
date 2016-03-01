@@ -285,6 +285,8 @@ public interface DeviceType extends HasId, HasName {
         DeviceConfigurationBuilder isDirectlyAddressable(boolean canBeDirectlyAddressed);
 
         DeviceConfigurationBuilder gatewayType(GatewayType gatewayType);
+
+        DeviceConfigurationBuilder dataloggerEnabled(boolean dataloggerEnabled);
     }
 
     /**
