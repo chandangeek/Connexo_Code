@@ -10,7 +10,7 @@ Ext.define('Idc.controller.history.Workspace', {
     routeConfig: {
         "workspace/issues/view/startProcess": {
             title: Uni.I18n.translate('general.startProcess','IDC','Start process'),
-            route: 'startProcess',
+            route: 'workspace/issues/{issueId}/startProcess',
             controller: 'Isu.controller.StartProcess',
             action: 'showStartProcess',
             privileges: Isu.privileges.Issue.viewAdminProcesses
