@@ -291,26 +291,24 @@ public class BpmResource {
             ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinitions(auth);
             processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
                     .filter(s -> activeProcesses.stream()
-                            .anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion()
-                                    .equals(s.version) && a.getAssociationProvider()
-                                    .isPresent() && a.getAssociationProvider()
-                                    .get()
-                                    .getType()
-                                    .toLowerCase()
-                                    .equals(filterProperties.get("type").get(0).toLowerCase())))
+                            .anyMatch(a -> a.getProcessName().equals(s.id) &&
+                                    a.getVersion().equals(s.version) &&
+                                    a.getAssociationProvider().isPresent() &&
+                                    a.getAssociation().equals(filterProperties.get("type").get(0).toLowerCase())))
                     .collect(Collectors.toList());
-            processDefinitionInfos.processes.stream()
-                    .forEach(s -> s.id = s.id + " (" + s.deploymentId + ") ");
+            //processDefinitionInfos.processes.stream()
+            //        .forEach(s -> s.id = s.id + " (" + s.deploymentId + ") ");
             processDefinitionInfos.total = processDefinitionInfos.processes.size();
             return processDefinitionInfos;
         }else{
             List<BpmProcessDefinition> activeProcesses = bpmService.getAllBpmProcessDefinitions();
             ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinitions(auth);
             processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
-                    .filter(s -> activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version)))
+                    .filter(s -> activeProcesses.stream()
+                            .anyMatch(a -> a.getProcessName().equals(s.id) && a.getVersion().equals(s.version)))
                     .collect(Collectors.toList());
-            processDefinitionInfos.processes.stream()
-                    .forEach(s -> s.id = s.id + " (" + s.deploymentId + ") ");
+            //processDefinitionInfos.processes.stream()
+            //        .forEach(s -> s.id = s.id + " (" + s.deploymentId + ") ");
             processDefinitionInfos.total = processDefinitionInfos.processes.size();
             return processDefinitionInfos;
         }
@@ -435,7 +433,7 @@ public class BpmResource {
                 .getPropertySpecs() : Collections.<PropertySpec>emptyList();
 
         BpmProcessDefinition process;
-        Optional<BpmProcessDefinition> foundProcess = bpmService.getBpmProcessDefinition(info.name, info.version);
+        Optional<BpmProcessDefinition> foundProcess = bpmService.getBpmProcessDefinition(info.id, info.version);
         if (!foundProcess.isPresent()) {
             List<BpmProcessPrivilege> targetPrivileges = info.privileges.stream()
                     .map(s -> bpmService.prepareBpmProcessPrivilege(s.id, s.applicationName))
@@ -531,11 +529,11 @@ public class BpmResource {
                 ProcessDefinitionInfos bpmProcessDefinition = getBpmProcessDefinitions(auth);
                 List<BpmProcessDefinition> connexoProcesses = bpmService.getActiveBpmProcessDefinitions();
                 List<BpmProcessDefinition> filtredConnexoProcesses = connexoProcesses.stream()
-                        .filter(p -> p.getAssociation()
-                                .toLowerCase()
-                                .equals(filterProperties.get("type").get(0).toLowerCase()))
-                        .filter(p -> p.getPrivileges()
-                                .stream()
+                        .filter(p -> p.getAssociationProvider().isPresent() &&
+                                p.getAssociation()
+                                        .toLowerCase()
+                                        .equals(filterProperties.get("type").get(0).toLowerCase()))
+                        .filter(p -> p.getPrivileges().stream()
                                 .anyMatch(s -> privileges.stream().anyMatch(z -> z.equals(s.getPrivilegeName()))))
                         .filter(p -> p.getProperties().keySet().stream()
                                 .filter(filterProperties::containsKey)
