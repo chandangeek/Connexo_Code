@@ -169,16 +169,10 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
         return !atLeastOneUsagePoint.isEmpty();
     }
 
-    @Override
-    public Formula newFormula(Formula.Mode mode, FormulaPart formulaPart) {
-        Formula formula = getDataModel().getInstance(FormulaImpl.class).init(mode, (ExpressionNode) formulaPart);
-        formula.save();
-        return formula;
-    }
 
     @Override
-    public FormulaBuilder newFormulaBuilder() {
-        return new FormulaBuilderImpl();
+    public FormulaBuilder newFormulaBuilder(Formula.Mode mode) {
+        return new FormulaBuilderImpl(mode, getDataModel());
     }
 
     @Override

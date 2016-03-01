@@ -39,7 +39,8 @@ import java.util.stream.Collectors;
         "osgi.command.function=endCurrentMeterActivation",
         "osgi.command.function=advanceStartDate",
         "osgi.command.function=explain",
-        "osgi.command.function=addEvents"
+        "osgi.command.function=addEvents",
+        "osgi.command.function=addFormula"
 }, immediate = true)
 public class ConsoleCommands {
 
@@ -217,6 +218,10 @@ public class ConsoleCommands {
         } finally {
             threadPrincipalService.clear();
         }
+    }
+
+    public void addFormula() {
+
     }
 
     @Reference

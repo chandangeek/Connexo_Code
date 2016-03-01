@@ -18,4 +18,6 @@ public interface FormulaBuilder {
     NodeBuilder minus(NodeBuilder term1, NodeBuilder term2);
     NodeBuilder divide(NodeBuilder dividend, NodeBuilder divisor);
     NodeBuilder multiply(NodeBuilder multiplier, NodeBuilder multiplicand);
+    FormulaBuilder init(NodeBuilder nodeBuilder);
+    Formula build();
 }

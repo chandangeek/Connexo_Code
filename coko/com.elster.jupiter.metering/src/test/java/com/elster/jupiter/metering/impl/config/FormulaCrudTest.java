@@ -45,16 +45,17 @@ public class FormulaCrudTest {
     }
 
 
-
-
     @Test
     // formula = 10 (constant)
     public void test1LevelNodeStructureCrud() {
         Formula.Mode myMode = Formula.Mode.EXPERT;
         try (TransactionContext context = getTransactionService().getContext()) {
             MetrologyConfigurationService service = getMetrologyConfigurationService();
-            ConstantNode node = new ConstantNode(BigDecimal.TEN);
-            Formula formula = service.newFormula(myMode, node);
+
+            FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+
+            NodeBuilder nodeBuilder = builder.constant(10);
+            Formula formula = builder.init(nodeBuilder).build();
             context.commit();
             long formulaId = formula.getId();
             Optional<Formula> loadedFormula = service.findFormula(formulaId);
@@ -63,6 +64,7 @@ public class FormulaCrudTest {
             assertThat(myFormula.getId() == formulaId);
             assertThat(myFormula.getMode().equals(myMode));
             ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
+            ConstantNode node = (ConstantNode) nodeBuilder.create();
             assertThat(myNode.equals(node));
             assertThat(myNode).isInstanceOf(ConstantNode.class);
             ConstantNode constantNode = (ConstantNode) myNode;
@@ -77,11 +79,14 @@ public class FormulaCrudTest {
         Function myFunction = Function.MAX;
         try (TransactionContext context = getTransactionService().getContext()) {
             MetrologyConfigurationService service = getMetrologyConfigurationService();
-            FunctionCallNode node =
-                    new FunctionCallNode(
-                            Arrays.asList(new ConstantNode(BigDecimal.TEN), new ConstantNode(BigDecimal.ZERO)),
-                            myFunction);
-            Formula formula = service.newFormula(myMode, node);
+
+            FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+
+            NodeBuilder nodeBuilder = builder.maximum(
+                    builder.constant(10),
+                    builder.constant(0));
+            Formula formula = builder.init(nodeBuilder).build();
+
             context.commit();
             long formulaId = formula.getId();
             Optional<Formula> loadedFormula = service.findFormula(formulaId);
@@ -90,6 +95,7 @@ public class FormulaCrudTest {
             assertThat(myFormula.getId() == formulaId);
             assertThat(myFormula.getMode().equals(myMode));
             ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
+            FunctionCallNode node = (FunctionCallNode) nodeBuilder.create();
             assertThat(myNode.equals(node));
             assertThat(myNode).isInstanceOf(FunctionCallNode.class);
             FunctionCallNode functionCallNode = (FunctionCallNode) myNode;
@@ -107,68 +113,26 @@ public class FormulaCrudTest {
         }
     }
 
+
     @Test
-    // formula = max(10, plus(10, 0)) function call + operator call + constants
+    // formula by using the builder = max(10, plus(10, 0)) function call + operator call + constants
     public void test3LevelNodeStructureCrud()  {
 
         Formula.Mode myMode = Formula.Mode.EXPERT;
         Function myFunction = Function.MAX;
         try (TransactionContext context = getTransactionService().getContext()) {
             MetrologyConfigurationService service = getMetrologyConfigurationService();
-            FunctionCallNode node =
-                    new FunctionCallNode(
-                            Arrays.asList(new ConstantNode(BigDecimal.TEN),
-                                    new OperationNode(
-                                            Operator.PLUS,
-                                            new ConstantNode(BigDecimal.TEN),
-                                            new ConstantNode(BigDecimal.ZERO))
-                                    ),
-                            myFunction);
-            Formula formula = service.newFormula(myMode, node);
-            context.commit();
-            long formulaId = formula.getId();
-            Optional<Formula> loadedFormula = service.findFormula(formulaId);
-            assertThat(loadedFormula).isPresent();
-            Formula myFormula = loadedFormula.get();
-            assertThat(myFormula.getId() == formulaId);
-            assertThat(myFormula.getMode().equals(myMode));
-            ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
-            assertThat(myNode.equals(node));
-            assertThat(myNode).isInstanceOf(FunctionCallNode.class);
-            FunctionCallNode functionCallNode = (FunctionCallNode) myNode;
-            assertThat(functionCallNode.getFunction().equals(myFunction));
-            List<ExpressionNode> children = functionCallNode.getChildren();
-            assertThat(children).hasSize(2);
-            ExpressionNode child1 = children.get(0);
-            ExpressionNode child2 = children.get(1);
-            assertThat(child1).isInstanceOf(ConstantNode.class);
-            assertThat(child2).isInstanceOf(OperationNode.class);
-            ConstantNode constant = (ConstantNode) child1;
-            assertThat(constant.getValue().equals(BigDecimal.TEN));
-            OperationNode operation = (OperationNode) child2;
-            assertThat(operation.getOperator().equals(Operator.PLUS));
-        }
-    }
 
-    @Test
-    // formula by using the builder = max(10, plus(10, 0)) function call + operator call + constants
-    public void test3LevelNodeStructureByBuilderCrud()  {
+            FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
-        Formula.Mode myMode = Formula.Mode.EXPERT;
-        Function myFunction = Function.MAX;
-        try (TransactionContext context = getTransactionService().getContext()) {
-            MetrologyConfigurationService service = getMetrologyConfigurationService();
-
-            FormulaBuilder builder = service.newFormulaBuilder();
-
-            FormulaPart formulaPart = builder.maximum(
+            NodeBuilder nodeBuilder = builder.maximum(
                     builder.constant(10),
                     builder.plus(
                             builder.constant(10),
-                            builder.constant(0))).create();
+                            builder.constant(0)));
+            Formula formula = builder.init(nodeBuilder).build();
 
 
-            Formula formula = service.newFormula(myMode, formulaPart);
             context.commit();
             long formulaId = formula.getId();
             Optional<Formula> loadedFormula = service.findFormula(formulaId);
@@ -178,7 +142,7 @@ public class FormulaCrudTest {
             assertThat(myFormula.getMode().equals(myMode));
             ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
 
-            FunctionCallNode node = (FunctionCallNode) formulaPart;
+            FunctionCallNode node = (FunctionCallNode) nodeBuilder.create();
 
             assertThat(myNode.equals(node));
             assertThat(myNode).isInstanceOf(FunctionCallNode.class);
