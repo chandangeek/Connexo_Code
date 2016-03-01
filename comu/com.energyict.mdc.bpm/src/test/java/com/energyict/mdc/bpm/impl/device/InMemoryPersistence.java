@@ -3,6 +3,7 @@ package com.energyict.mdc.bpm.impl.device;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -13,7 +14,9 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -39,10 +42,15 @@ import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
+import com.energyict.mdc.engine.impl.EngineModule;
+import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
@@ -135,7 +143,12 @@ public class InMemoryPersistence {
                 new MdcDynamicModule(),
                 new PluggableModule(),
                 new IssuesModule(),
-                new TasksModule()
+                new TasksModule(),
+                new TopologyModule(),
+                new KpiModule(),
+                new EngineModule(),
+                new EngineModelModule(),
+                new MdcIOModule()
         );
     }
 
@@ -154,6 +167,9 @@ public class InMemoryPersistence {
             this.injector.getInstance(FiniteStateMachineService.class);
             this.injector.getInstance(DeviceLifeCycleConfigurationService.class);
             this.injector.getInstance(IssueDataCollectionService.class);
+            this.injector.getInstance(CustomPropertySetService.class);
+            this.injector.getInstance(MeteringGroupsService.class);
+            this.injector.getInstance(MasterDataService.class);
             this.deviceProvider = this.injector.getInstance(DeviceProcessAssociationProvider.class);
             this.issueProvider = this.injector.getInstance(IssueProcessAssociationProvider.class);
             //this.dataModel = this.lifeCycleService.getDataModel();
