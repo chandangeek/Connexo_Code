@@ -43,6 +43,7 @@ public class ServiceCallApplication extends Application implements TranslationKe
         return ImmutableSet.of(
                 RestValidationExceptionMapper.class,
                 ServiceCallTypeResource.class,
+                ServiceCallLogResource.class,
                 ServiceCallFieldResource.class,
                 ServiceCallResource.class
         );
@@ -99,6 +100,7 @@ public class ServiceCallApplication extends Application implements TranslationKe
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ServiceCallInfoFactory.class).to(ServiceCallInfoFactory.class);
             bind(ServiceCallTypeInfoFactory.class).to(ServiceCallTypeInfoFactory.class);
+            bind(ServiceCallLogInfoFactory.class).to(ServiceCallLogInfoFactory.class);
             bind(serviceCallService).to(ServiceCallService.class);
             bind(transactionService).to(TransactionService.class);
             bind(thesaurus).to(Thesaurus.class);
