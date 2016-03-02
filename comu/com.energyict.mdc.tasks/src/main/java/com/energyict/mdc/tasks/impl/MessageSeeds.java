@@ -15,7 +15,6 @@ public enum MessageSeeds implements MessageSeed {
     SET_CLOCK(1, Keys.CLOCK_TASK_TYPE_SET_CLOCK, "Set the clock"),
     FORCE_CLOCK(2, Keys.CLOCK_TASK_TYPE_FORCE_CLOCK, "Force the clock"),
     SYNC_CLOCK(3, Keys.CLOCK_TASK_TYPE_SYNCHRONIZE_CLOCK, "Synchronize the clock"),
-    SHOULD_BE_AT_LEAST(4, Keys.VALUE_TOO_SMALL, "Minimal acceptable value is {min}, was {value}"),
     CAN_NOT_BE_EMPTY(5, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
     MIN_ABOVE_MAX(6, Keys.MIN_MUST_BE_BELOW_MAX, "Invalid range: minimum value exceeds maximum value"),
     MIN_EQUALS_MAX(7, Keys.MIN_EQUALS_MAX, "Invalid range: minimum value equals maximum value "),
@@ -26,8 +25,7 @@ public enum MessageSeeds implements MessageSeed {
     VETO_LOAD_PROFILE_TYPE_DELETION(15, Keys.VETO_LOAD_PROFILE_TYPE_DELETION, "Load profile type ''{0}'' is still in use by the following communication task(s): ''{1}''"),
     ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED(16, Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED, "Only one comtask with the firmware protocol task allowed"),
     ONLY_ONE_PROTOCOLTASK_WHEN_FIRMWARE_UPGRADE(17, Keys.ONLY_ONE_PROTOCOLTASK_WHEN_FIRMWARE_UPGRADE, "Only one protocol task is allowed when defining a firmware upgrade comtask"),
-    VETO_REGISTER_GROUP_DELETION(18, Keys.VETO_REGISTER_GROUP_DELETION, "Register group ''{0}'' is still in use by the following communication task(s): ''{1}''"),
-    VALUE_NOT_IN_RANGE(999, Keys.VALUE_NOT_IN_RANGE, "{value} not in range {min} to {max}");
+    VETO_REGISTER_GROUP_DELETION(18, Keys.VETO_REGISTER_GROUP_DELETION, "Register group ''{0}'' is still in use by the following communication task(s): ''{1}''");
 
     private final int number;
     private final String key;
