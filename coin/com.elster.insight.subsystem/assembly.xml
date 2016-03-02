@@ -15,7 +15,7 @@
         <dependencySet>
             <outputDirectory>bundles</outputDirectory>
             <includes>
-                <include>com.elster:*</include>
+                <include>com.elster.jupiter:mdm.*</include>
             </includes>
             <scope>provided</scope>
             <unpack>false</unpack>
