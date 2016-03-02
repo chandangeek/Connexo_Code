@@ -5,13 +5,17 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 
+import com.jayway.jsonpath.JsonModel;
+
 import javax.ws.rs.core.Response;
+import java.io.InputStream;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
 
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -29,7 +33,14 @@ public class ServcieCallLogsResourceTest extends ServiceCallApplicationTest {
         Finder<ServiceCallLog> serviceCallLogFinder = mockFinder(Arrays.asList(first, second, third));
         when(serviceCall.getLogs()).thenReturn(serviceCallLogFinder);
         Response response = target("/servicecalls/3/logs").request().get();
-
+        JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(3);
+        assertThat(jsonModel.<String>get("$.logs[0].message")).isEqualTo("First");
+        assertThat(jsonModel.<String>get("$.logs[0].logLevel")).isEqualTo("Severe");
+        assertThat(jsonModel.<String>get("$.logs[1].message")).isEqualTo("Second");
+        assertThat(jsonModel.<String>get("$.logs[1].logLevel")).isEqualTo("Info");
+        assertThat(jsonModel.<String>get("$.logs[2].message")).isEqualTo("Third");
+        assertThat(jsonModel.<String>get("$.logs[2].logLevel")).isEqualTo("Finest");
     }
 
     private ServiceCallLog mockLog(ServiceCall serviceCall, LogLevel level, String message) {
