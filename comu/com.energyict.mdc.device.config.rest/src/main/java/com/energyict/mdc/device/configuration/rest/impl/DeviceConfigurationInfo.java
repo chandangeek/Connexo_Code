@@ -7,6 +7,7 @@ import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -34,6 +35,7 @@ public class DeviceConfigurationInfo {
     @XmlJavaTypeAdapter(DeviceFunctionAdapter.class)
     public DeviceFunction deviceFunction;
     public VersionInfo<Long> parent;
+    public Boolean dataloggerEnabled;
 
     public DeviceConfigurationInfo() {
     }
@@ -51,6 +53,7 @@ public class DeviceConfigurationInfo {
         isDirectlyAddressable = deviceConfiguration.isDirectlyAddressable();
         version = deviceConfiguration.getVersion();
         parent = new VersionInfo<>(deviceConfiguration.getDeviceType().getId(), deviceConfiguration.getDeviceType().getVersion());
+        dataloggerEnabled = deviceConfiguration.isDataloggerEnabled();
 
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass();
         if (deviceProtocolPluggableClass!=null) {
@@ -80,5 +83,6 @@ public class DeviceConfigurationInfo {
         if (this.isDirectlyAddressable!=null) {
             deviceConfiguration.setDirectlyAddressable(this.isDirectlyAddressable);
         }
+        deviceConfiguration.setDataloggerEnabled(dataloggerEnabled);
     }
 }

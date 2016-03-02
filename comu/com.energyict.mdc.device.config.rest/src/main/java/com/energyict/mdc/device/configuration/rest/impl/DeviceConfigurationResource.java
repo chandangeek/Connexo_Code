@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
@@ -13,7 +14,6 @@ import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -257,6 +257,9 @@ public class DeviceConfigurationResource {
         }
         if (deviceConfigurationInfo.isDirectlyAddressable != null) {
             deviceConfigurationBuilder.isDirectlyAddressable(deviceConfigurationInfo.isDirectlyAddressable);
+        }
+        if (deviceConfigurationInfo.dataloggerEnabled != null) {
+            deviceConfigurationBuilder.dataloggerEnabled(deviceConfigurationInfo.dataloggerEnabled);
         }
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         return new DeviceConfigurationInfo(deviceConfiguration);
