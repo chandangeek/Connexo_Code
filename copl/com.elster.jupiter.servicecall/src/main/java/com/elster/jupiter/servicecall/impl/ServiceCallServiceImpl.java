@@ -278,7 +278,7 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     }
 
     @Override
-    public Map<String, Long> getChildrenStatusInfo(String number) {
+    public Map<String, Long> getChildrenStatus(String number) {
         HashMap<String, Long> childrenCountInfo = new HashMap<>();
         SqlBuilder sqlBuilder = new SqlBuilder();
 

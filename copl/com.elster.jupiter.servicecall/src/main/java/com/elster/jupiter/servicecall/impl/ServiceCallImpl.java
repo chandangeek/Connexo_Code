@@ -19,8 +19,8 @@ import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
 import java.text.DecimalFormat;
