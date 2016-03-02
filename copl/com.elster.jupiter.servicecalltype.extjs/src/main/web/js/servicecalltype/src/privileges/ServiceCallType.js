@@ -9,12 +9,10 @@ Ext.define('Sct.privileges.ServiceCallType', {
         'Uni.Auth'
     ],
     singleton: true,
-    view: ['privilege.administrate.serviceCallType',
-        'privilege.view.serviceCallType', 'privilege.view.ViewServiceCallTypeOverview'],
+    view: ['privilege.administrate.serviceCallTypes',
+        'privilege.view.serviceCallTypes'],
 
-    admin: ['privilege.administrate.serviceCallType'],
-
-    typeOverview: ['privilege.view.ViewServiceCallTypeOverview'],
+    admin: ['privilege.administrate.serviceCallTypes'],
 
     all: function () {
         return Ext.Array.merge(Sct.privileges.ServiceCallType.view);

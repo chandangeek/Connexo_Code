@@ -8,7 +8,7 @@ Ext.define('Sct.view.ActionMenu', {
         {
             itemId: 'change-log-level-sct',
             text: Uni.I18n.translate('general.changeLogLevel', 'SCT', 'Change log level'),
-            //privileges: Apr.privileges.AppServer.admin,
+            privileges: Sct.privileges.ServiceCallType.admin,
             action: 'changeLogLevel'
         }
     ]
