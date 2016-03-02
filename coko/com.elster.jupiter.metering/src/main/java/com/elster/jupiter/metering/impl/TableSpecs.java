@@ -20,12 +20,15 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsageImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
+import com.elster.jupiter.metering.impl.config.ServiceCategoryMeterRoleUsage;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationImpl;
 import com.elster.jupiter.orm.Column;
@@ -831,7 +834,47 @@ public enum TableSpecs {
                     .map(ServiceCategoryCustomPropertySetUsage.Fields.CUSTOMPROPERTYSET.fieldName())
                     .add();
         }
-    }
+    },
+
+    MTR_METERROLE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<MeterRole> table = dataModel.addTable(name(), MeterRole.class);
+            table.map(MeterRoleImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            Column nameColumn = table.column(MeterRoleImpl.Fields.NAME.name()).varChar(NAME_LENGTH).notNull().map(MeterRoleImpl.Fields.NAME.fieldName()).add();
+
+            table.primaryKey("MTR_PK_METERROLE").on(idColumn).add();
+            table.unique("MTR_UK_METERROLENAME").on(nameColumn).add();
+        }
+    },
+
+    MTR_SERVICECAT_METERROLE_USAGE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), ServiceCategoryMeterRoleUsage.class);
+            table.map(ServiceCategoryMeterRoleUsage.class);
+            Column serviceCategory = table.column(ServiceCategoryMeterRoleUsage.Fields.SERVICECATEGORY.name()).number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
+            Column meterRole = table.column(ServiceCategoryMeterRoleUsage.Fields.METERROLE.name()).number().notNull().add();
+
+            table.primaryKey("MTR_PK_SERVCATMETERROLE_USAGE").on(serviceCategory, meterRole).add();
+            table.foreignKey("MTR_FK_SERVCATMETERROLE2CAT")
+                    .references(MTR_SERVICECATEGORY.name())
+                    .on(serviceCategory)
+                    .onDelete(CASCADE)
+                    .map(ServiceCategoryMeterRoleUsage.Fields.SERVICECATEGORY.fieldName())
+                    .reverseMap(ServiceCategoryImpl.Fields.METERROLEUSAGE.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("MTR_FK_SERVCATMETERROLE2ROLE")
+                    .references(MeterRole.class)
+                    .on(meterRole)
+                    .onDelete(CASCADE)
+                    .map(ServiceCategoryMeterRoleUsage.Fields.METERROLE.fieldName())
+                    .add();
+        }
+    },
+
     ;
 
     abstract void addTo(DataModel dataModel);

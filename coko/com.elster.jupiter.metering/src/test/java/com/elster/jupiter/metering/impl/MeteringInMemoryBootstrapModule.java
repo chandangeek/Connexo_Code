@@ -10,8 +10,10 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -85,6 +87,7 @@ public class MeteringInMemoryBootstrapModule {
             injector.getInstance(ThreadPrincipalService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(PropertySpecService.class);
+            injector.getInstance(MeteringService.class);
             injector.getInstance(MetrologyConfigurationService.class);
             ctx.commit();
         }
@@ -120,6 +123,10 @@ public class MeteringInMemoryBootstrapModule {
 
     public ThreadPrincipalService getThreadPrincipalService() {
         return injector.getInstance(ThreadPrincipalService.class);
+    }
+
+    public OrmService getOrmService() {
+        return injector.getInstance(OrmService.class);
     }
 
     private class MockModule extends AbstractModule {

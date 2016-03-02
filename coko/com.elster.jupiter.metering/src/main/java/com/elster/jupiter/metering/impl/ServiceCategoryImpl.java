@@ -6,16 +6,16 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.impl.config.ServiceCategoryMeterRoleUsage;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,8 @@ import java.util.stream.Collectors;
 public class ServiceCategoryImpl implements ServiceCategory {
 
     enum Fields {
-        CUSTOMPROPERTYSETUSAGE("serviceCategoryCustomPropertySetUsages");
+        CUSTOMPROPERTYSETUSAGE("serviceCategoryCustomPropertySetUsages"),
+        METERROLEUSAGE("serviceCategoryMeterRoleUsages");
 
         private final String javaFieldName;
 
@@ -53,15 +54,14 @@ public class ServiceCategoryImpl implements ServiceCategory {
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
-    private final Provider<UsagePointImpl> usagePointFactory;
 
     private List<ServiceCategoryCustomPropertySetUsage> serviceCategoryCustomPropertySetUsages = new ArrayList<>();
+    private List<ServiceCategoryMeterRoleUsage> serviceCategoryMeterRoleUsages = new ArrayList<>();
 
     @Inject
-	ServiceCategoryImpl(DataModel dataModel,Provider<UsagePointImpl> usagePointFactory, Thesaurus thesaurus) {
+    ServiceCategoryImpl(DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
-        this.usagePointFactory = usagePointFactory;
     }
 	
 	ServiceCategoryImpl init(ServiceKind kind) {
@@ -173,10 +173,6 @@ public class ServiceCategoryImpl implements ServiceCategory {
         return active;
     }
 
-    private List<ServiceCategoryCustomPropertySetUsage> getServiceCategoryCustomPropertySetUsages(){
-        return dataModel.query(ServiceCategoryCustomPropertySetUsage.class).select(Where.where(ServiceCategoryCustomPropertySetUsage.Fields.SERVICECATEGORY.fieldName()).isEqualTo(this));
-    }
-
     @Override
     public long getVersion() {
         return version;
@@ -199,5 +195,26 @@ public class ServiceCategoryImpl implements ServiceCategory {
 
     History<? extends ServiceCategory> getHistory() {
         return new History<>(dataModel.mapper(ServiceCategory.class).getJournal(this.getKind()), this);
+    }
+
+    @Override
+    public List<MeterRole> getMeterRoles() {
+        return this.serviceCategoryMeterRoleUsages.stream().map(ServiceCategoryMeterRoleUsage::getMeterRole).collect(Collectors.toList());
+    }
+
+    @Override
+    public void addMeterRole(MeterRole meterRole) {
+        if (!this.serviceCategoryMeterRoleUsages.stream().filter(usage -> usage.getMeterRole().getId() == meterRole.getId()).findFirst().isPresent()) {
+            ServiceCategoryMeterRoleUsage usage = dataModel.getInstance(ServiceCategoryMeterRoleUsage.class).init(this, meterRole);
+            this.serviceCategoryMeterRoleUsages.add(usage);
+        }
+    }
+
+    @Override
+    public void removeMeterRole(MeterRole meterRole) {
+        this.serviceCategoryMeterRoleUsages.stream()
+                .filter(usage -> usage.getMeterRole().getId() == meterRole.getId())
+                .findFirst()
+                .ifPresent(this.serviceCategoryMeterRoleUsages::remove);
     }
 }

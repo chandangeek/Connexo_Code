@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.nls.TranslationKey;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -29,5 +30,9 @@ public interface MetrologyConfigurationService {
     List<MetrologyConfiguration> findAllMetrologyConfigurations();
 
     boolean isInUse(MetrologyConfiguration metrologyConfiguration);
+
+    MeterRole newMeterRole(TranslationKey name);
+
+    Optional<MeterRole> findMeterRole(String name);
 
 }

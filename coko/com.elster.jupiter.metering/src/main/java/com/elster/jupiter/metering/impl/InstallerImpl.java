@@ -262,5 +262,4 @@ public class InstallerImpl {
             LOGGER.log(Level.WARNING, e.getMessage(), e);
         }
     }
-
 }

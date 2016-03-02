@@ -2,9 +2,11 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -63,12 +65,11 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
         setMeteringService(meteringService);
         setEventService(eventService);
         setUserService(userService);
-        this.install();
     }
 
     @Override
     public void install() {
-        new Installer(this.eventService).install();
+        new Installer(this.meteringService, this).install();
     }
 
     @Override
@@ -107,7 +108,9 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(Privileges.values());
+        List<TranslationKey> translationKeys = new ArrayList<>();
+        translationKeys.addAll(Arrays.asList(Privileges.values()));
+        return translationKeys;
     }
 
     @Override
@@ -168,4 +171,15 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
         return !atLeastOneUsagePoint.isEmpty();
     }
 
+    @Override
+    public MeterRole newMeterRole(TranslationKey name) {
+        MeterRoleImpl meterRole = getDataModel().getInstance(MeterRoleImpl.class).init(name.getKey());
+        Save.CREATE.save(getDataModel(), meterRole);
+        return meterRole;
+    }
+
+    @Override
+    public Optional<MeterRole> findMeterRole(String name) {
+        return getDataModel().mapper(MeterRole.class).getUnique(MeterRoleImpl.Fields.NAME.fieldName(), name);
+    }
 }

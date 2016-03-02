@@ -35,6 +35,7 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
@@ -66,6 +67,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
+
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -646,6 +648,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         Arrays.stream(PropertyTranslationKeys.values()).forEach(translationKeys::add);
         Arrays.stream(UsagePointConnectedKind.values()).forEach(translationKeys::add);
         Arrays.stream(AmiBillingReadyKind.values()).forEach(translationKeys::add);
+        Arrays.stream(DefaultMeterRole.values()).forEach(translationKeys::add);
         translationKeys.addAll(ReadingTypeTranslationKeys.allKeys());
         return translationKeys;
     }
