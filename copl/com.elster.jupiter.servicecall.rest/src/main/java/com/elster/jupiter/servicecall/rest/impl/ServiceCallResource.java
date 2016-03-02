@@ -2,8 +2,6 @@ package com.elster.jupiter.servicecall.rest.impl;
 
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.impl.*;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -11,7 +9,6 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFinder;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.servicecall.impl.ServiceCallInstaller;
 
 import com.google.common.collect.Range;
 
@@ -32,14 +29,14 @@ import java.util.Optional;
 @Path("/servicecalls")
 public class ServiceCallResource {
     private final ServiceCallService serviceCallService;
-    private final Thesaurus thesaurus;
     private final ExceptionFactory exceptionFactory;
+    private final ServiceCallInfoFactory serviceCallInfoFactory;
 
     @Inject
-    public ServiceCallResource(ServiceCallService serviceCallService, Thesaurus thesaurus, ExceptionFactory exceptionFactory) {
+    public ServiceCallResource(ServiceCallService serviceCallService, ExceptionFactory exceptionFactory, ServiceCallInfoFactory serviceCallInfoFactory) {
         this.serviceCallService = serviceCallService;
-        this.thesaurus = thesaurus;
         this.exceptionFactory = exceptionFactory;
+        this.serviceCallInfoFactory = serviceCallInfoFactory;
     }
 
     @GET
@@ -55,7 +52,7 @@ public class ServiceCallResource {
         List<ServiceCall> serviceCalls = serviceCallFinder.find();
 
         serviceCalls.stream()
-                .forEach(serviceCall -> serviceCallInfos.add(new ServiceCallInfo(serviceCall, thesaurus)));
+                .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.from(serviceCall)));
 
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
@@ -91,7 +88,7 @@ public class ServiceCallResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public ServiceCallInfo getServiceCall(@PathParam("id") String number) {
         return serviceCallService.getServiceCall(number)
-                .map(serviceCall -> new ServiceCallInfo(serviceCall, thesaurus))
+                .map(serviceCallInfoFactory::from)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_SERVICE_CALL));
     }
 
@@ -106,7 +103,7 @@ public class ServiceCallResource {
             List<ServiceCall> serviceCalls = serviceCallFinder.from(queryParameters).find();
 
             serviceCalls.stream()
-                    .forEach(serviceCall -> serviceCallInfos.add(new ServiceCallInfo(serviceCall, thesaurus)));
+                    .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.from(serviceCall)));
 
             return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
         }
