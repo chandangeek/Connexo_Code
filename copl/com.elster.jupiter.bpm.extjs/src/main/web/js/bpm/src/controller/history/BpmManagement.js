@@ -22,7 +22,7 @@ Ext.define('Bpm.controller.history.BpmManagement', {
                     items: {
                         edit: {
                             title: Uni.I18n.translate('bpm.editprocess.title', 'BPM', 'Edit process'),
-                            route: '{id}/{version}/edit',
+                            route: '{name}/{version}/edit',
                             controller: 'Bpm.processes.controller.Processes',
                             privileges: Bpm.privileges.BpmManagement.administrateProcesses,
                             action: 'editProcess',
@@ -39,7 +39,7 @@ Ext.define('Bpm.controller.history.BpmManagement', {
                         },
                         activate: {
                             title: Uni.I18n.translate('bpm.editprocess.title', 'BPM', 'Edit process'),
-                            route: '{id}/{version}/activate',
+                            route: '{name}/{version}/activate',
                             controller: 'Bpm.processes.controller.Processes',
                             privileges: Bpm.privileges.BpmManagement.administrateProcesses,
                             action: 'editProcess',
