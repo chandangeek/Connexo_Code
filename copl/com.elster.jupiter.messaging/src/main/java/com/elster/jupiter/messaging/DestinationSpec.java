@@ -1,10 +1,11 @@
 package com.elster.jupiter.messaging;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.time.Duration;
 import java.util.List;
@@ -108,6 +109,8 @@ public interface DestinationSpec extends HasName {
     void updateRetryBehavior(int numberOfRetries, Duration retryDelay);
 
     void purgeErrors();
+
+    void purgeCorrelationId(String correlationId);
 
     long errorCount();
 
