@@ -8,6 +8,11 @@ Ext.define('Bpm.processes.model.EditProcess', {
     fields: [
         {
             name: 'id',
+            type: 'string',
+            persist: false
+        },
+        {
+            name: 'processId',
             type: 'string'
         },
         {
