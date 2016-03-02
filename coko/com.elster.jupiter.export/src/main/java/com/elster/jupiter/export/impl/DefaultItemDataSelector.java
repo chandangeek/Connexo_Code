@@ -109,7 +109,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
         DataExportStrategy strategy = item.getSelector().getStrategy();
 
         String mrid = item.getReadingContainer().getMeter(occurrence.getTriggerTime()).map(Meter::getMRID).orElse("");
-        String itemDescription = mrid + ":" + item.getReadingType().getAliasName();
+        String itemDescription = mrid + ":" + item.getReadingType().getFullAliasName();
 
         handleValidatedDataOption(item, strategy, readings, exportInterval, itemDescription);
 
@@ -285,7 +285,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
         List<? extends BaseReadingRecord> readings = new ArrayList<>(item.getReadingContainer().getReadingsUpdatedSince(updateInterval, item.getReadingType(), since));
 
         String mrid = item.getReadingContainer().getMeter(occurrence.getTriggerTime()).map(Meter::getMRID).orElse("");
-        String itemDescription = mrid + ":" + item.getReadingType().getAliasName();
+        String itemDescription = mrid + ":" + item.getReadingType().getFullAliasName();
 
         Optional<RelativePeriod> updateWindow = item.getSelector().getStrategy().getUpdateWindow();
         if (updateWindow.isPresent()) {
