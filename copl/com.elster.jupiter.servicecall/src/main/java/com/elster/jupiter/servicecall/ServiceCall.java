@@ -2,12 +2,12 @@ package com.elster.jupiter.servicecall;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.util.HasId;
 
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -41,18 +41,22 @@ public interface ServiceCall extends HasId {
 
     ServiceCallType getType();
 
+    long getVersion();
+
     ServiceCallBuilder newChildCall(ServiceCallType serviceCallType);
 
     /**
      * Returns a chronologically sorted list of log entries for this service call
      */
-    List<ServiceCallLog> getLogs();
+    Finder<ServiceCallLog> getLogs();
 
     void log(LogLevel logLevel, String message);
 
     void cancel();
 
     void save();
+
+    Finder<ServiceCall> getChildren();
 
     <T extends PersistentDomainExtension<ServiceCall>> Optional<T> getExtensionFor(CustomPropertySet<ServiceCall, T> customPropertySet, Object... additionalPrimaryKeyValues);
 

@@ -172,7 +172,7 @@ public class ServiceCallLogIT {
             ServiceCall serviceCall = serviceCallType.newServiceCall().origin("Tests").create();
             serviceCall.log(LogLevel.SEVERE, "Kapot");
 
-            assertThat(serviceCall.getLogs()).hasSize(1);
+            assertThat(serviceCall.getLogs().find()).hasSize(1);
         }
     }
 
@@ -189,7 +189,7 @@ public class ServiceCallLogIT {
             serviceCall.log(LogLevel.INFO, "Info 2");
             serviceCall.log(LogLevel.INFO, "Info 3");
 
-            List<ServiceCallLog> logs = serviceCall.getLogs();
+            List<ServiceCallLog> logs = serviceCall.getLogs().find();
             assertThat(logs).hasSize(3);
             assertThat(logs.get(0).getTime()).isGreaterThan(logs.get(1).getTime());
             assertThat(logs.get(1).getTime()).isGreaterThan(logs.get(2).getTime());
@@ -207,7 +207,7 @@ public class ServiceCallLogIT {
             ServiceCall serviceCall = serviceCallType.newServiceCall().origin("Tests").create();
             serviceCall.log(LogLevel.SEVERE, null);
 
-            assertThat(serviceCall.getLogs()).hasSize(1);
+            assertThat(serviceCall.getLogs().find()).hasSize(1);
         }
     }
 
@@ -222,7 +222,7 @@ public class ServiceCallLogIT {
             ServiceCall serviceCall = serviceCallType.newServiceCall().origin("Tests").create();
             serviceCall.log(LogLevel.SEVERE, "");
 
-            assertThat(serviceCall.getLogs()).hasSize(1);
+            assertThat(serviceCall.getLogs().find()).hasSize(1);
         }
     }
 
@@ -238,7 +238,7 @@ public class ServiceCallLogIT {
             serviceCall.log(LogLevel.FINEST, "Baa"); // too low
             serviceCall.log(LogLevel.SEVERE, "Bee");
 
-            assertThat(serviceCall.getLogs()).hasSize(2);
+            assertThat(serviceCall.getLogs().find()).hasSize(2);
         }
     }
 

@@ -4,6 +4,8 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.DataModel;
@@ -16,7 +18,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
-import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
@@ -25,7 +27,6 @@ import java.text.NumberFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -183,6 +184,11 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     @Override
+    public long getVersion() {
+        return version;
+    }
+
+    @Override
     public long getId() {
         return this.id;
     }
@@ -193,10 +199,10 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     @Override
-    public List<ServiceCallLog> getLogs() {
-        return dataModel.query(ServiceCallLog.class)
-                .select(Where.where(ServiceCallLogImpl.Fields.serviceCall.fieldName())
-                        .isEqualTo(this), Order.descending(ServiceCallLogImpl.Fields.timestamp.fieldName()));
+    public Finder<ServiceCallLog> getLogs() {
+        return DefaultFinder.of(ServiceCallLog.class,
+                Where.where(ServiceCallLogImpl.Fields.serviceCall.fieldName())
+                        .isEqualTo(this), dataModel).sorted(ServiceCallLogImpl.Fields.timestamp.fieldName(), false);
     }
 
     @Override
@@ -232,6 +238,12 @@ public class ServiceCallImpl implements ServiceCall {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public Finder<ServiceCall> getChildren() {
+        Condition condition = Where.where("parent").isEqualTo(this);
+        return DefaultFinder.of(ServiceCall.class, condition, dataModel).defaultSortColumn(ServiceCallImpl.Fields.type.fieldName());
     }
 
     @Override
