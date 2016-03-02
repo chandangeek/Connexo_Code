@@ -7,7 +7,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.MeasureDisplayField', {
         "amperage": 'Imt.usagepointmanagement.store.measurementunits.Amperage',
         "power": 'Imt.usagepointmanagement.store.measurementunits.Power',
         "pressure": 'Imt.usagepointmanagement.store.measurementunits.Pressure',
-        "pressureExtended": 'Imt.usagepointmanagement.store.measurementunits.PressureExtended',
+        "pressureExtended": 'Imt.usagepointmanagement.store.measurementunits.Pressure',
         "volume": 'Imt.usagepointmanagement.store.measurementunits.Volume',
         "capacity": 'Imt.usagepointmanagement.store.measurementunits.Capacity'
     },

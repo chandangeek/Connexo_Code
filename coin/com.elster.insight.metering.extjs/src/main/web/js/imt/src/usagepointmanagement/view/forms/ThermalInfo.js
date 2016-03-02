@@ -12,7 +12,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.ThermalInfo', {
             name: 'pressure',
             itemId: 'up-pressure-measurefield',
             fieldLabel: Uni.I18n.translate('general.label.pressure', 'IMT', 'Pressure'),
-            store: 'Imt.usagepointmanagement.store.measurementunits.PressureExtended',
+            store: 'Imt.usagepointmanagement.store.measurementunits.Pressure',
             value: {value: null, unit: 'Pa', multiplier: 0}
         },
         {
