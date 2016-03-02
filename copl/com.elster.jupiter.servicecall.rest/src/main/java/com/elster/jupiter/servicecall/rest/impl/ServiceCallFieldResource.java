@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 
 import javax.inject.Inject;
@@ -30,5 +31,15 @@ public class ServiceCallFieldResource {
                 .map(logLevel -> new IdWithDisplayValueInfo<>(logLevel.name(), logLevel.getDisplayName(this.thesaurus)))
                 .collect(toList());
         return PagedInfoList.fromCompleteList("logLevels", logLevels, queryParameters);
+    }
+
+    @GET
+    @Path("/states")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getStates(@BeanParam JsonQueryParameters queryParameters) {
+        List<IdWithDisplayValueInfo<String>> states = Arrays.stream(DefaultState.values())
+                .map(state -> new IdWithDisplayValueInfo<>(state.name(), state.getDisplayName(this.thesaurus)))
+                .collect(toList());
+        return PagedInfoList.fromCompleteList("states", states, queryParameters);
     }
 }

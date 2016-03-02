@@ -43,7 +43,7 @@ public class ServiceCallTypeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALL_TYPES, Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES})
+    //@RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALL_TYPES, Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES, })
     public PagedInfoList getAllServiceCallTypes(@BeanParam JsonQueryParameters queryParameters) {
         List<ServiceCallTypeInfo> serviceCallTypeInfos = new ArrayList<>();
         Finder<ServiceCallType> serviceCallTypeFinder = serviceCallService.getServiceCallTypes();

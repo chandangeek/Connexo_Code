@@ -2,7 +2,6 @@ package com.elster.jupiter.servicecall.rest.impl;
 
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.impl.*;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -11,7 +10,6 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFinder;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.servicecall.impl.ServiceCallInstaller;
 
 import com.google.common.collect.Range;
 
@@ -69,8 +67,8 @@ public class ServiceCallResource {
         if(filter.hasProperty("type")) {
             serviceCallFinder.setType(filter.getStringList("type"));
         }
-        if(filter.hasProperty("state")) {
-            //serviceCallFinder.setState(filter.getString("state"))
+        if(filter.hasProperty("status")) {
+            serviceCallFinder.setState(filter.getStringList("status"));
         }
         if(filter.hasProperty("receivedDateFrom")) {
             serviceCallFinder.withCreationTimeIn(Range.closed(filter.getInstant("receivedDateFrom"),
