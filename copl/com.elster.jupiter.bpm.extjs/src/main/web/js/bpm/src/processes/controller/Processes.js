@@ -132,7 +132,7 @@ Ext.define('Bpm.processes.controller.Processes', {
         });
     },
 
-    editProcess: function (id, version, activate) {
+    editProcess: function (name, version, activate) {
         var me = this,
             editProcessModel = me.getModel('Bpm.processes.model.EditProcess'),
             view = Ext.widget('bpm-edit-process');
@@ -147,18 +147,20 @@ Ext.define('Bpm.processes.controller.Processes', {
 
                         // load process
                         if (activate) {
-                            editProcessModel.getProxy().extraParams = {version: version, association: me.getAssociatedCombo().getStore().first().get('type')};
+                            editProcessModel.getProxy().extraParams = {
+                                version: version,
+                                association: me.getAssociatedCombo().getStore().first().get('type')
+                            };
                         }
-                        else{
+                        else {
                             editProcessModel.getProxy().extraParams = {version: version};
                         }
                         editProcessModel.getProxy().setUrl('/api/bpm/runtime/process');
-                        editProcessModel.load(id, {
+                        editProcessModel.load(name, {
                             success: function (process) {
-
-                                me.loadEditProcess(id, version, activate, process, view);
+                                me.loadEditProcess(name, version, activate, process, view);
                             },
-                            failure: function(record, operation) {
+                            failure: function (record, operation) {
                                 view.destroy();
                             }
                         });
@@ -169,15 +171,15 @@ Ext.define('Bpm.processes.controller.Processes', {
         return;
     },
 
-    loadEditProcess: function (id, version, activate, record, view) {
+    loadEditProcess: function (name, version, activate, record, view) {
         var me = this,
             editProcessForm = view.down('#frm-edit-process'),
             privilegesGrid = me.getPrivilegesGrid(),
             propertyForm = me.getPropertyForm();
 
         editProcessForm.editProcessRecord = record;
-        me.getApplication().fireEvent(activate ? 'activateProcesses' : 'editProcesses', id + ':' + version);
-        if (activate){
+        me.getApplication().fireEvent(activate ? 'activateProcesses' : 'editProcesses', name + ':' + version);
+        if (activate) {
             me.getAssociatedCombo().setValue(me.getAssociatedCombo().getStore().first().get(me.getAssociatedCombo().valueField));
         }
         else {
@@ -199,25 +201,25 @@ Ext.define('Bpm.processes.controller.Processes', {
             propertyForm.hide();
         }
         propertyForm.up('#frm-edit-process').doLayout();
-      //  me.getApplication().fireEvent('changecontentevent', view);
+        //  me.getApplication().fireEvent('changecontentevent', view);
         if (activate) {
-            record.set('id', id);
+            record.set('name', name);
             record.set('version', version);
             record.set('active', 'ACTIVE');
-            editProcessForm.setTitle(Uni.I18n.translate('editProcess.activate', 'BPM', "Activate '{0}'", id + ':' + version));
+            editProcessForm.setTitle(Uni.I18n.translate('editProcess.activate', 'BPM', "Activate '{0}'", name + ':' + version));
         }
         else {
-            editProcessForm.setTitle(Uni.I18n.translate('editProcess.edit', 'BPM', "Edit '{0}'", id + ':' + version));
+            editProcessForm.setTitle(Uni.I18n.translate('editProcess.edit', 'BPM', "Edit '{0}'", name + ':' + version));
         }
     },
 
-    updateAssociatedData: function(control, records) {
+    updateAssociatedData: function (control, records) {
         var me = this,
             record = records[0] ? records[0] : records,
             editProcessModel = me.getModel('Bpm.processes.model.EditProcess'),
             router = me.getController('Uni.controller.history.Router'),
             version = router.arguments.version,
-            id = router.arguments.id,
+            name = router.arguments.name,
             editProcessForm = me.getEditProcessPage().down('#frm-edit-process'),
             privilegesGrid = me.getPrivilegesGrid(),
             propertyForm = me.getPropertyForm();
@@ -225,9 +227,9 @@ Ext.define('Bpm.processes.controller.Processes', {
         // load process
         editProcessModel.getProxy().setUrl('/api/bpm/runtime/process');
         editProcessModel.getProxy().extraParams = {version: version, association: record.get('type')};
-        editProcessModel.load(id, {
+        editProcessModel.load(name, {
             success: function (process) {
-                process.set('id', editProcessForm.editProcessRecord.get('id'));
+                process.set('nanme', editProcessForm.editProcessRecord.get('name'));
                 process.set('version', editProcessForm.editProcessRecord.get('version'));
                 process.set('active', editProcessForm.editProcessRecord.get('active'));
                 editProcessForm.editProcessRecord = process;
@@ -242,7 +244,7 @@ Ext.define('Bpm.processes.controller.Processes', {
                 propertyForm.up('#frm-edit-process').doLayout();
             }
         });
-     },
+    },
 
     saveProcess: function (button) {
         var me = this,
@@ -253,53 +255,47 @@ Ext.define('Bpm.processes.controller.Processes', {
             formErrorsPanel = editProcessForm.down('#form-errors'),
             editProcessRecord = editProcessForm.editProcessRecord;
 
-    //    if (editProcessForm.isValid()) {
+
         editProcessForm.getForm().clearInvalid();
-            if (!formErrorsPanel.isHidden()) {
-                formErrorsPanel.hide();
-            }
+        if (!formErrorsPanel.isHidden()) {
+            formErrorsPanel.hide();
+        }
 
-            editProcessForm.updateRecord(editProcessRecord);
-            editProcessRecord.beginEdit();
-            if (propertyForm.getRecord()) {
-                propertyForm.updateRecord();
-                editProcessRecord.propertiesStore = propertyForm.getRecord().properties();
-            }
+        editProcessForm.updateRecord(editProcessRecord);
+        editProcessRecord.beginEdit();
+        if (propertyForm.getRecord()) {
+            propertyForm.updateRecord();
+            editProcessRecord.propertiesStore = propertyForm.getRecord().properties();
+        }
 
-            editProcessRecord.privileges().removeAll();
-            var selectedPrivileges = privilegesGrid.getSelectionModel().getSelection();
-            Ext.Array.each(selectedPrivileges, function (record) {
-                var privilege = Ext.create('Bpm.processes.model.Privilege');
+        editProcessRecord.privileges().removeAll();
+        var selectedPrivileges = privilegesGrid.getSelectionModel().getSelection();
+        Ext.Array.each(selectedPrivileges, function (record) {
+            var privilege = Ext.create('Bpm.processes.model.Privilege');
 
-                privilege.set('id', record.get('id'));
-                privilege.set('applicationName', record.get('applicationName'));
-                privilege.set('name', record.get('name'));
-                privilege.set('userRoles', record.get('userRoles'));
-                editProcessRecord.privileges().add(privilege);
-            });
+            privilege.set('id', record.get('id'));
+            privilege.set('applicationName', record.get('applicationName'));
+            privilege.set('name', record.get('name'));
+            privilege.set('userRoles', record.get('userRoles'));
+            editProcessRecord.privileges().add(privilege);
+        });
 
-            editProcessRecord.endEdit();
-            editProcessRecord.getProxy().setUrl('/api/bpm/runtime/process/activate');
-            editProcessRecord.save({
-                success: function () {
-                    me.getController('Uni.controller.history.Router').getRoute('administration/managementprocesses').forward();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editProcess.successMsg.saved', 'BPM', 'Process saved'));
-                },
-                failure: function (record, operation) {
-                    var json = Ext.decode(operation.response.responseText, true);
-                    if (json && json.errors) {
-                        editProcessForm.getForm().markInvalid(json.errors);
-                        //propertyForm.getForm().markInvalid(json.errors);
-                        //me.getCustomForm().getForm().markInvalid(json.errors);
-                        //me.getProcessForm().getForm().markInvalid(json.errors);
+        editProcessRecord.endEdit();
+        editProcessRecord.getProxy().setUrl('/api/bpm/runtime/process/activate');
+        editProcessRecord.save({
+            success: function () {
+                me.getController('Uni.controller.history.Router').getRoute('administration/managementprocesses').forward();
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editProcess.successMsg.saved', 'BPM', 'Process saved'));
+            },
+            failure: function (record, operation) {
+                var json = Ext.decode(operation.response.responseText, true);
+                if (json && json.errors) {
+                    editProcessForm.getForm().markInvalid(json.errors);
 
-                    }
-                    formErrorsPanel.show();
                 }
-            })
-   //     } else {
-   //         formErrorsPanel.show();
-   //     }
+                formErrorsPanel.show();
+            }
+        })
     },
 
     onMenuShow: function (menu) {
@@ -320,7 +316,7 @@ Ext.define('Bpm.processes.controller.Processes', {
             route, record;
 
         record = menu.record || me.getMainGrid().getSelectionModel().getLastSelected();
-        router.arguments.id = record.get('id');
+        router.arguments.name = record.get('name');
         router.arguments.version = record.get('version');
 
         switch (item.action) {

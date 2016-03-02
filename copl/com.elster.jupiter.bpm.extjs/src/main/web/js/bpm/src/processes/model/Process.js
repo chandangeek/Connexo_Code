@@ -3,7 +3,7 @@ Ext.define('Bpm.processes.model.Process', {
 
     fields: [
         {
-            name: 'id',
+            name: 'processId',
             type: 'string'
         },
         {
