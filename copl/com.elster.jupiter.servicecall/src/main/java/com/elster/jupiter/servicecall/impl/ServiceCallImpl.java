@@ -13,11 +13,14 @@ import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.conditions.Order;
 
 import javax.inject.Inject;
 import java.text.DecimalFormat;
@@ -25,6 +28,7 @@ import java.text.NumberFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -194,6 +198,22 @@ public class ServiceCallImpl implements ServiceCall {
     @Override
     public ServiceCallBuilder newChildCall(ServiceCallType serviceCallType) {
         return ServiceCallBuilderImpl.from(dataModel, this, (IServiceCallType) serviceCallType);
+    }
+
+    @Override
+    public List<ServiceCallLog> getLogs() {
+        return dataModel.query(ServiceCallLog.class)
+                .select(Where.where(ServiceCallLogImpl.Fields.serviceCall.fieldName())
+                        .isEqualTo(this), Order.descending(ServiceCallLogImpl.Fields.timestamp.fieldName()));
+    }
+
+    @Override
+    public void log(LogLevel logLevel, String message) {
+        if (type.get().getLogLevel().compareTo(logLevel) > -1) {
+            ServiceCallLogImpl instance = dataModel.getInstance(ServiceCallLogImpl.class);
+            instance.init(clock.instant(), logLevel, this, message);
+            instance.save();
+        }
     }
 
     @Override

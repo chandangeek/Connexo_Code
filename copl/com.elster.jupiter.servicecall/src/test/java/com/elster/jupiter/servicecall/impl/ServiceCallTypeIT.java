@@ -1,4 +1,4 @@
-package com.elster.jupiter.servicecall;
+package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -22,12 +22,13 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.servicecall.impl.FakeTypeOneCustomPropertySet;
-import com.elster.jupiter.servicecall.impl.IServiceCallService;
-import com.elster.jupiter.servicecall.impl.MessageSeeds;
-import com.elster.jupiter.servicecall.impl.ServiceCallModule;
-import com.elster.jupiter.servicecall.impl.ServiceCallServiceImpl;
-import com.elster.jupiter.servicecall.impl.TranslationKeys;
+import com.elster.jupiter.servicecall.HandlerDisappearedException;
+import com.elster.jupiter.servicecall.InvalidPropertySetDomainTypeException;
+import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
+import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.Status;
 import com.elster.jupiter.servicecall.impl.example.DisconnectHandler;
 import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeDomainExtension;
 import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeOneCustomPropertySet;
