@@ -576,8 +576,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         String securityPropertyName = "";
         if (keyId == 0) {
             securityPropertyName = SecurityPropertySpecName.ENCRYPTION_KEY.toString();
+            getProtocol().getDlmsSessionProperties().getSecurityProvider().changeEncryptionKey(agreedKey);
         } else if (keyId == 2) {
             securityPropertyName = SecurityPropertySpecName.AUTHENTICATION_KEY.toString();
+            getProtocol().getDlmsSessionProperties().getSecurityProvider().changeAuthenticationKey(agreedKey);
         }
 
         //Special kind of collected message: it includes the update of the relevant security property with the new, agreed key.
