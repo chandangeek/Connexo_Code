@@ -2,6 +2,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
     extend: 'Ext.form.Panel',
     alias: 'widget.inline-editable-set-property-form',
 
+    canAdministrate: true,
     parent: null,
     router: null,
     record: null,
@@ -33,9 +34,8 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                 record: me.record,
                 title: me.record.get('name'),
                 editAvailable: true,
-                hiddenBtn: !me.record.get('isEditable') || (me.record.get('isVersioned') && !me.record.get('isActive')),
+                hiddenBtn: !me.canAdministrate || (!me.record.get('isEditable') || (me.record.get('isVersioned') && !me.record.get('isActive'))),
                 editHandler: function () {
-
                     if(this.editAvailable){
                         me.toEditMode(true);
                     } else {
@@ -121,16 +121,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                                 }
                             });
                         }
-                    },
-                    //handler: function () {
-                    //    me.model.load(me.record.get('id'),{
-                    //        url: Ext.String.format('/api/udr/usagepoints/{0}/customproperties/', encodeURIComponent(me.parent.mRID)),
-                    //        success: function(record){
-                    //            me.record = record;
-                    //            me.toEditMode(false,action);
-                    //        }
-                    //    });
-                    //}
+                    }
                 }
             ]
         };
@@ -146,7 +137,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
         } else {
             me.down('#property-info-container').loadRecord(me.record);
         }
-        if (me.actionMenuXtype && me.record.get('isEditable')) {
+        if (me.canAdministrate && (me.actionMenuXtype && me.record.get('isEditable'))) {
 
             me.action = Ext.create('Ext.menu.Item', {
                 itemId: 'action-menu-custom-attribute' + me.record.get('id'),

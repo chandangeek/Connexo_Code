@@ -16,8 +16,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                 itemId: 'view-form',
                 defaults: {
                     xtype: 'displayfield',
-                    labelWidth: 250,
-                    maxHeight: 27
+                    labelWidth: 250
                 },
                 items: [
                     {
@@ -99,8 +98,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                 hidden: true,
                 defaults: {
                     labelWidth: 250,
-                    width: 520,
-                    maxHeight: 27
+                    width: 520
                 },
                 items: [
                     {

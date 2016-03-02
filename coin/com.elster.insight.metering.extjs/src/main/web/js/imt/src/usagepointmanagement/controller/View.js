@@ -119,13 +119,13 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         Ext.resumeLayouts(true);
 
         customAttributesStoreUsagePoint.load(function () {
-            me.getOverview().down('#custom-attribute-sets-placeholder-form-id').loadStore(this);
+            me.getOverview().down('#custom-attribute-sets-placeholder-form-id').loadStore(this, Imt.privileges.UsagePoint.canAdministrate());
             me.getUsagePointAttributes().setLoading(false);
         });
 
         me.getAssociatedMetrologyConfiguration().setLoading(true);
         customAttributesStoreMetrology.load(function () {
-            me.getOverview().down('#metrology-custom-attribute-sets-placeholder-form-id').loadStore(this);
+            me.getOverview().down('#metrology-custom-attribute-sets-placeholder-form-id').loadStore(this, Imt.privileges.UsagePoint.canAdministrate());
             me.getAssociatedMetrologyConfiguration().setLoading(false);
         });
     },
@@ -135,11 +135,13 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
             router = me.getController('Uni.controller.history.Router');
 
         record.save({
+            isNotEdit: true,
             success: function (record, response, success) {
                 router.getRoute().forward();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePoint.acknowledge.updateSuccess', 'IMT', 'Usage point saved'));
             },
             failure: function (record, response, success) {
+                form.clearInvalid();
                 var responseText = Ext.decode(response.response.responseText, true);
                 if (responseText && Ext.isArray(responseText.errors)) {
                     form.markInvalid(responseText.errors);

@@ -183,7 +183,5 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointMainAt
             record = me.record.copy(me.record.get('mRID'));
         record.set(values);
         me.fireEvent('saveClick', form.getForm(), record);
-        //debugger;
-        //this.down('#edit-form').getForm().markInvalid()
     }
 });
