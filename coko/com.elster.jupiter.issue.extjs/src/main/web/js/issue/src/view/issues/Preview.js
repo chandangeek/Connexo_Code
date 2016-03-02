@@ -4,7 +4,7 @@ Ext.define('Isu.view.issues.Preview', {
         'Uni.form.field.FilterDisplay',
         'Isu.view.issues.ActionMenu',
         'Isu.privileges.Issue',
-        'Mdc.privileges.Device'
+        'Isu.privileges.Device'
     ],
     alias: 'widget.issues-preview',
     layout: 'column',
@@ -24,7 +24,7 @@ Ext.define('Isu.view.issues.Preview', {
                 xtype: 'button',
                 itemId: 'issues-preview-actions-button',
                 text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
-                privileges: Ext.Array.merge(Isu.privileges.Issue.adminDevice, Mdc.privileges.Device.viewDeviceCommunication),
+                privileges: Ext.Array.merge(Isu.privileges.Issue.adminDevice, Isu.privileges.Device.viewDeviceCommunication),
                 iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'issues-action-menu',
@@ -82,7 +82,7 @@ Ext.define('Isu.view.issues.Preview', {
                                 result = '';
 
                             if (value) {
-                                if (value.serialNumber && Mdc.privileges.Device.canViewDeviceCommunication()) {
+                                if (value.serialNumber && Isu.privileges.Device.canViewDeviceCommunication()) {
                                     url = me.router.getRoute('devices/device').buildUrl({mRID: value.serialNumber});
                                     result = '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + ' ' + Ext.String.htmlEncode(value.serialNumber) + '</a>';
                                 } else {
