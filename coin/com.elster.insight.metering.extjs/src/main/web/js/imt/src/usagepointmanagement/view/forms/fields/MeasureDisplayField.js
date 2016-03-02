@@ -18,7 +18,11 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.MeasureDisplayField', {
         if (data) {
             store = Ext.getStore(me.unitStoresMap[me.unitType]);
             record = store.findUnit(data);
-            return data.value + "&nbsp" + record.get('displayValue');
+            if(record){
+                return data.value + "&nbsp" + record.get('displayValue');
+            } else {
+                return '-';
+            }
         } else {
             return '-';
         }
