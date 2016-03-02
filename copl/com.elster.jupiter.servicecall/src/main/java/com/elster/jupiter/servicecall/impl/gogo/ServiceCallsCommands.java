@@ -8,8 +8,6 @@ import com.elster.jupiter.servicecall.*;
 import com.elster.jupiter.servicecall.impl.IServiceCallType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-
-import com.google.common.util.concurrent.Service;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -28,6 +26,9 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=serviceCallTypes",
                 "osgi.command.function=createServiceCallType",
                 "osgi.command.function=customPropertySets",
+                "osgi.command.function=createServiceCallLifeCycle",
+                "osgi.command.function=serviceCall",
+                "osgi.command.function=createServiceCall"
                 "osgi.command.function=createServiceCallLifeCycle",
                 "osgi.command.function=createServiceCall",
                 "osgi.command.function=createChildServiceCall"
@@ -113,6 +114,52 @@ public class ServiceCallsCommands {
         }
     }
 
+    public void serviceCall(long id) {
+        serviceCallService.getServiceCall(id)
+                .map(sc -> sc.getNumber() + " "
+                        + sc.getState().getKey() + " " + sc.getType().getName() + " "
+                        + sc.getParent().map(p -> p.getNumber()).orElse("-P-") + " "
+                        + sc.getOrigin().orElse("-O-") + " "
+                        + sc.getExternalReference().orElse("-E-"))
+                .ifPresent(System.out::println);
+    }
+
+    public void createServiceCall(String typeName, String typeVersion, String origin, String externalReference) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCallService.getServiceCallTypes().find().stream()
+                    .filter(sct -> sct.getName().equals(typeName) && sct.getVersionName().equals(typeVersion))
+                    .findFirst()
+                    .map(sct -> sct.newServiceCall()
+                            .origin(origin)
+                            .externalReference(externalReference)
+                            .create())
+                    .map(sc -> sc.getId())
+                    .ifPresent(System.out::println);
+
+            context.commit();
+        }
+    }
+
+    public void createServiceCall(long parentId, String typeName, String typeVersion, String origin, String externalReference) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            Optional<ServiceCall> parent = serviceCallService.getServiceCall(parentId);
+            Optional<ServiceCallType> type = serviceCallService.getServiceCallTypes().find().stream()
+                    .filter(sct -> sct.getName().equals(typeName) && sct.getVersionName().equals(typeVersion))
+                    .findFirst();
+
+            parent.orElseThrow(() -> new NoSuchElementException("No service call with id: " + parentId))
+                    .newChildCall(type.orElseThrow(() -> new NoSuchElementException("No service call type with name: " + typeName + " and version: " + typeVersion)))
+                    .origin(origin)
+                    .externalReference(externalReference)
+                    .create();
+            context.commit();
+        }
+    }
+
     public void customPropertySets() {
         customPropertySetService.findActiveCustomPropertySets().stream()
                 .map(cps -> cps.getId() + " " + cps.getCustomPropertySet().getDomainClass() + " " + cps.getCustomPropertySet().getName())
@@ -133,7 +180,7 @@ public class ServiceCallsCommands {
                 if (operation.contains("removeState:")) {
                     serviceCallLifeCycle.remove(DefaultState.valueOf(operation.split(":")[1]));
                 } else if (operation.contains("removeTransition:")) {
-                    serviceCallLifeCycle.removeTransition(DefaultState.valueOf(operation.split(":")[1]),DefaultState.valueOf(operation.split(":")[2]));
+                    serviceCallLifeCycle.removeTransition(DefaultState.valueOf(operation.split(":")[1]), DefaultState.valueOf(operation.split(":")[2]));
                 }
             }
             serviceCallLifeCycle.create();
