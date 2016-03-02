@@ -18,9 +18,10 @@ import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -28,28 +29,28 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "c.e.j.mtr.cps.impl.UsagePointLicenceCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+//@Component(name = "c.e.j.mtr.cps.impl.UsagePointLicenceCPS", service = CustomPropertySet.class, immediate = true)
 public class UsagePointLicenseCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointLicenseDomainExtension> {
 
-    private volatile PropertySpecService propertySpecService;
-    private volatile MeteringService meteringService;
-    private volatile Thesaurus thesaurus;
+    public volatile PropertySpecService propertySpecService;
+    public volatile MeteringService meteringService;
+    public volatile NlsService nlsService;
+
+    public static final String TABLE_NAME = "RVK_CPS_USAGEPOINT_LIC";
+    public static final String FK_CPS_DEVICE_LICENSE = "FK_CPS_USAGEPOINT_LIC";
+    public static final String COMPONENT_NAME = "LICENSE";
+
 
     public UsagePointLicenseCustomPropertySet() {
-    }
-
-    public UsagePointLicenseCustomPropertySet(PropertySpecService propertySpecService) {
         super();
-        this.propertySpecService = propertySpecService;
-        activate();
     }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
+        this.nlsService = nlsService;
     }
 
-    @Reference
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
@@ -59,18 +60,21 @@ public class UsagePointLicenseCustomPropertySet implements CustomPropertySet<Usa
         this.propertySpecService = propertySpecService;
     }
 
-    @Activate
-    public void activate() {
+    @Inject
+    public UsagePointLicenseCustomPropertySet(PropertySpecService propertySpecService, MeteringService meteringService) {
+        this();
+        this.setPropertySpecService(propertySpecService);
+        this.setMeteringService(meteringService);
     }
 
-    @Override
-    public String getId() {
-        return UsagePointLicenseCustomPropertySet.class.getName();
+    @Activate
+    public void activate() {
+        System.out.println(TABLE_NAME);
     }
 
     @Override
     public String getName() {
-        return thesaurus.getFormat(TranslationKeys.CPS_LICENSE_SIMPLE_NAME).format();
+        return getThesaurus().getFormat(TranslationKeys.CPS_LICENSE_SIMPLE_NAME).format();
     }
 
     @Override
@@ -80,7 +84,7 @@ public class UsagePointLicenseCustomPropertySet implements CustomPropertySet<Usa
 
     @Override
     public PersistenceSupport<UsagePoint, UsagePointLicenseDomainExtension> getPersistenceSupport() {
-        return new UsagePointLicensePersistenceSupport(thesaurus);
+        return new UsagePointLicensePersistenceSupport(getThesaurus());
     }
 
     @Override
@@ -90,7 +94,7 @@ public class UsagePointLicenseCustomPropertySet implements CustomPropertySet<Usa
 
     @Override
     public boolean isVersioned() {
-        return true;
+        return false;
     }
 
     @Override
@@ -108,36 +112,37 @@ public class UsagePointLicenseCustomPropertySet implements CustomPropertySet<Usa
         PropertySpec numberSpec = propertySpecService
                 .stringSpec()
                 .named(UsagePointLicenseDomainExtension.Fields.NUMBER.javaName(), TranslationKeys.CPS_LICENSE_PROPERTIES_NUMBER)
-                .fromThesaurus(thesaurus)
+                .fromThesaurus(this.getThesaurus())
                 .finish();
         PropertySpec expirationDateSpec = propertySpecService
                 .specForValuesOf(new InstantFactory())
                 .named(UsagePointLicenseDomainExtension.Fields.EXPIRATION_DATE.javaName(), TranslationKeys.CPS_LICENSE_PROPERTIES_EXPIRATION_DATE)
-                .fromThesaurus(thesaurus)
+                .fromThesaurus(this.getThesaurus())
                 .finish();
         PropertySpec certificationDocSpec = propertySpecService
                 .stringSpec()
                 .named(UsagePointLicenseDomainExtension.Fields.CERTIFICATION_DOC.javaName(), TranslationKeys.CPS_LICENSE_PROPERTIES_CERTIFICATION_DOC)
-                .fromThesaurus(thesaurus)
+                .fromThesaurus(this.getThesaurus())
                 .finish();
         PropertySpec meteringSchemeSpec = propertySpecService
                 .stringSpec()
                 .named(UsagePointLicenseDomainExtension.Fields.METERING_SCHEME.javaName(), TranslationKeys.CPS_LICENSE_PROPERTIES_METERING_SCHEME)
-                .fromThesaurus(thesaurus)
+                .fromThesaurus(this.getThesaurus())
                 .finish();
 
-        return Arrays.asList(numberSpec, expirationDateSpec, certificationDocSpec, meteringSchemeSpec);
+        return Arrays.asList(numberSpec,
+                expirationDateSpec,
+                certificationDocSpec,
+                meteringSchemeSpec);
+    }
+
+    private Thesaurus getThesaurus() {
+        return nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     private class UsagePointLicensePersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointLicenseDomainExtension> {
 
-        public static final String TABLE_NAME = "RVK_CPS_USAGEPOINT_LICENSE";
-        public static final String FK_CPS_DEVICE_LICENSE = "FK_CPS_USAGEPOINT_LICENSE";
-        public static final String COMPONENT_NAME = "LPS";
         private Thesaurus thesaurus;
-
-        public UsagePointLicensePersistenceSupport() {
-        }
 
         public UsagePointLicensePersistenceSupport(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;

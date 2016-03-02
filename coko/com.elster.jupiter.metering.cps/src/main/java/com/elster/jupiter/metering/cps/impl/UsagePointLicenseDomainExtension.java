@@ -8,8 +8,6 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
-import java.time.Instant;
-
 public class UsagePointLicenseDomainExtension implements PersistentDomainExtension<UsagePoint> {
 
     public enum Fields {
@@ -57,7 +55,7 @@ public class UsagePointLicenseDomainExtension implements PersistentDomainExtensi
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     private String number;
-    private Instant expirationDate;
+    private String expirationDate;
     private String certificationDoc;
     private String meteringScheme;
 
@@ -65,29 +63,49 @@ public class UsagePointLicenseDomainExtension implements PersistentDomainExtensi
         super();
     }
 
+    public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
+        return registeredCustomPropertySet.get();
+    }
+
     public String getNumber() {
         return number;
     }
 
-    public Instant getExpirationDate() {
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public String getExpirationDate() {
         return expirationDate;
+    }
+
+    public void setExpirationDate(String expirationDate) {
+        this.expirationDate = expirationDate;
     }
 
     public String getCertificationDoc() {
         return certificationDoc;
     }
 
+    public void setCertificationDoc(String certificationDoc) {
+        this.certificationDoc = certificationDoc;
+    }
+
     public String getMeteringScheme() {
         return meteringScheme;
+    }
+
+    public void setMeteringScheme(String meteringScheme) {
+        this.meteringScheme = meteringScheme;
     }
 
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(domainInstance);
-        this.number = (String) propertyValues.getProperty(Fields.NUMBER.javaName());
-        this.expirationDate = (Instant) propertyValues.getProperty(Fields.EXPIRATION_DATE.javaName());
-        this.certificationDoc = (String) propertyValues.getProperty(Fields.CERTIFICATION_DOC.javaName());
-        this.meteringScheme = (String) propertyValues.getProperty(Fields.METERING_SCHEME.javaName());
+        this.setNumber((String) propertyValues.getProperty(Fields.NUMBER.javaName()));
+        this.setExpirationDate((String) propertyValues.getProperty(Fields.EXPIRATION_DATE.javaName()));
+        this.setCertificationDoc((String) propertyValues.getProperty(Fields.CERTIFICATION_DOC.javaName()));
+        this.setMeteringScheme((String) propertyValues.getProperty(Fields.METERING_SCHEME.javaName()));
     }
 
     @Override
