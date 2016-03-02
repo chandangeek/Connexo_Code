@@ -13,13 +13,13 @@ Ext.define('Imt.customattributesonvaluesobjects.service.VersionsManager', {
 
         if (record.get('isActive')) {
             if (record.get('startTime')) {
-                htmlString += Ext.String.format("{0} {1}", Uni.I18n.translate('general.from', 'IMT', 'From'), Uni.DateTime.formatDateTimeLong(record.get('startTime')));
+                htmlString += Ext.String.format("{0} {1}", Uni.I18n.translate('general.from', 'IMT', 'From'), Uni.DateTime.formatDateTimeLong(new Date(record.get('startTime'))));
             }
             if (record.get('startTime') && record.get('endTime')) {
                 htmlString += ' - ';
             }
             if (record.get('endTime')) {
-                htmlString += Ext.String.format("{0} {1}", Uni.I18n.translate('general.until', 'IMT', 'Until'), Uni.DateTime.formatDateTimeLong(record.get('endTime')));
+                htmlString += Ext.String.format("{0} {1}", Uni.I18n.translate('general.until', 'IMT', 'Until'), Uni.DateTime.formatDateTimeLong(new Date(record.get('endTime'))));
             }
             if (!record.get('endTime') && !record.get('startTime')) {
                 htmlString += Uni.I18n.translate('general.infinite', 'IMT', 'Infinite');
@@ -36,17 +36,7 @@ Ext.define('Imt.customattributesonvaluesobjects.service.VersionsManager', {
 
             });
 
-        if (inline) {
-            container.add({
-                xtype: 'button',
-                margin: '0 0 0 7',
-                ui: 'plain',
-                iconCls: 'icon-pencil2',
-                tooltip: Uni.I18n.translate('general.tooltip.editVersion', 'IMT', 'Edit version'),
-                disabled: true, // timeslised are not ready yet
-                hidden: !(record.get('isEditable') && record.get('isActive'))
-            });
-        } else {
+        if (!inline) {
             container.add({
                 xtype: 'button',
                 ui: 'link',

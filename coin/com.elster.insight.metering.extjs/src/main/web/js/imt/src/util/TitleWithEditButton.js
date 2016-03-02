@@ -5,6 +5,7 @@ Ext.define('Imt.util.TitleWithEditButton', {
     editHandler:null,
     record: null,
     hiddenBtn: false,
+    editAvailable: true,
     margin: '0 0 15 0',
     layout: 'hbox',
 
@@ -24,7 +25,8 @@ Ext.define('Imt.util.TitleWithEditButton', {
                 iconCls: 'icon-pencil2',
                 tooltip: Uni.I18n.translate('general.tooltip.edit', 'IMT', 'Edit'),
                 hidden: me.hiddenBtn,
-                handler: me.editHandler
+                handler: me.editHandler,
+                editAvailable: me.editAvailable
             }
         ];
         me.callParent(arguments);

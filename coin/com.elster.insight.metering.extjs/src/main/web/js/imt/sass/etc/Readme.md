@@ -1,4 +1,4 @@
-# com.elster.insight.metering.extjs/sass/etc
+# com.elster.jupiter.mdm.metering.extjs/sass/etc
 
-This folder contains miscellaneous SASS files. Unlike `"com.elster.insight.metering.extjs/sass/etc"`, these files
+This folder contains miscellaneous SASS files. Unlike `"com.elster.jupiter.mdm.metering.extjs"`, these files
 need to be used explicitly.

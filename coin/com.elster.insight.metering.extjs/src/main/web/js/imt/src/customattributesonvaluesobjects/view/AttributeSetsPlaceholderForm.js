@@ -28,6 +28,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.AttributeSetsPlaceholderFor
         store.each(function (record) {
             me.add({
                 xtype: form,
+                model: store.model,
                 record: record,
                 parent: me.parent,
                 router: me.router,
