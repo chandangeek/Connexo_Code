@@ -7,13 +7,17 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.servicecall.LogLevel;
-import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 
-
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -59,7 +63,7 @@ public class ServiceCallTypeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response changeLogLevel(@PathParam("id") long id, ServiceCallTypeInfo info) {
-        ServiceCallType type = fetchAndLockAppServer(info);
+        ServiceCallType type = fetchAndLockServiceCallType(info);
         type.setLogLevel(LogLevel.valueOf(info.logLevel.id));
         type.save();
         return Response.status(Response.Status.OK).build();
@@ -75,7 +79,7 @@ public class ServiceCallTypeResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    private ServiceCallType fetchAndLockAppServer(ServiceCallTypeInfo info) {
+    private ServiceCallType fetchAndLockServiceCallType(ServiceCallTypeInfo info) {
         return serviceCallService.findAndLockServiceCallType(info.id, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
                         .withActualVersion(() -> serviceCallService.findServiceCallType(info.name, info.versionName).map(ServiceCallType::getVersion).orElse(null))
