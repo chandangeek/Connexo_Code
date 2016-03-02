@@ -4,6 +4,8 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.DataModel;
@@ -14,6 +16,8 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
 import java.text.DecimalFormat;
@@ -113,7 +117,7 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public Optional<Instant> getLastCompletedTime() {
-        return  Optional.ofNullable(this.lastCompletedTime);
+        return Optional.ofNullable(this.lastCompletedTime);
     }
 
     @Override
@@ -137,7 +141,7 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public Optional<String> getOrigin() {
-        return  Optional.ofNullable(this.origin);
+        return Optional.ofNullable(this.origin);
     }
 
     void setOrigin(String origin) {
@@ -146,7 +150,7 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public Optional<String> getExternalReference() {
-        return  Optional.ofNullable(this.externalReference);
+        return Optional.ofNullable(this.externalReference);
     }
 
     void setExternalReference(String externalReference) {
@@ -175,6 +179,11 @@ public class ServiceCallImpl implements ServiceCall {
     @Override
     public IServiceCallType getType() {
         return this.type.orNull();
+    }
+
+    @Override
+    public long getVersion() {
+        return version;
     }
 
     @Override
@@ -214,6 +223,12 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     @Override
+    public Finder<ServiceCall> getChildren() {
+        Condition condition = Where.where("parent").isEqualTo(this);
+        return DefaultFinder.of(ServiceCall.class, condition, dataModel).defaultSortColumn(ServiceCallImpl.Fields.type.fieldName());
+    }
+
+    @Override
     public <T extends PersistentDomainExtension<ServiceCall>> Optional<T> getExtensionFor(CustomPropertySet<ServiceCall, T> customPropertySet, Object... additionalPrimaryKeyValues) {
         return customPropertySetService.getUniqueValuesEntityFor(customPropertySet, this, additionalPrimaryKeyValues);
     }
@@ -228,7 +243,7 @@ public class ServiceCallImpl implements ServiceCall {
                         .equals(extensionClass))
                 .map(customPropertySet -> (CustomPropertySet<ServiceCall, T>) customPropertySet)
                 .findAny()
-                .flatMap(customPropertySet ->  getExtensionFor(customPropertySet, additionalPrimaryKeyValues));
+                .flatMap(customPropertySet -> getExtensionFor(customPropertySet, additionalPrimaryKeyValues));
     }
 
 

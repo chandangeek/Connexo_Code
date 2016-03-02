@@ -14,6 +14,8 @@ public interface ServiceCallType extends HasId, HasName {
 
     String getVersionName();
 
+    ServiceCallHandler getServiceCallHandler();
+
     Status getStatus();
 
     void deprecate();
@@ -37,4 +39,6 @@ public interface ServiceCallType extends HasId, HasName {
     ServiceCallBuilder newServiceCall();
 
     void save();
+
+    void delete();
 }

@@ -47,6 +47,12 @@ class ServiceCallTypeBuilderImpl implements ServiceCallTypeBuilder {
     }
 
     @Override
+    public ServiceCallTypeBuilder handler(String serviceCallHandler) {
+        this.instance.setHandlerName(serviceCallHandler);
+        return this;
+    }
+
+    @Override
     public ServiceCallType create() {
         instance.save();
         for (RegisteredCustomPropertySet customPropertySet : toBeRegisteredCustomPropertySets) {

@@ -4,7 +4,14 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.servicecall.*;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
+import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import org.osgi.service.component.annotations.Component;
@@ -24,7 +31,13 @@ import static java.util.stream.Collectors.toList;
         property = {"osgi.command.scope=scs",
                 "osgi.command.function=serviceCallTypes",
                 "osgi.command.function=createServiceCallType",
+                "osgi.command.function=deprecateServiceCallType",
+                "osgi.command.function=removeServiceCallType",
                 "osgi.command.function=customPropertySets",
+                "osgi.command.function=handlers",
+                "osgi.command.function=serviceCallLifeCycles",
+                "osgi.command.function=createServiceCall",
+                "osgi.command.function=createChildServiceCall",
                 "osgi.command.function=createServiceCallLifeCycle",
                 "osgi.command.function=serviceCall",
                 "osgi.command.function=createServiceCall"
@@ -57,34 +70,48 @@ public class ServiceCallsCommands {
     }
 
     public void serviceCallTypes() {
-        serviceCallService.getServiceCallTypes().stream()
-                .forEach(sct -> System.out.println(sct.getName() + " " + sct.getVersionName() + " custom property sets: " + String
-                        .join(" + ", sct.getCustomPropertySets()
+        for (ServiceCallType serviceCallType : serviceCallService.getServiceCallTypes().find()) {
+            try {
+                System.out.print(serviceCallType.getName() + " " + serviceCallType.getVersionName() + " ");
+                System.out.println(" cps: [" + String
+                        .join(" + ", serviceCallType.getCustomPropertySets()
                                 .stream()
                                 .map(RegisteredCustomPropertySet::getCustomPropertySet)
                                 .map(CustomPropertySet::getName)
-                                .collect(toList()))));
+                                .collect(toList())) + "] handled by " + serviceCallType.getServiceCallHandler()
+                        .getClass()
+                        .getSimpleName());
+            } catch (Exception e) {
+                System.err.println(e);
+            }
+        }
     }
 
     public void createServiceCallType() {
-        System.out.println("Usage: createServiceCallType <name> <version name> <optional:log level> <optional: life cycle name> <optional:cps ids>");
+        System.out.println("Usage: createServiceCallType <name> <version name> [ <log level> <handler> [life cycle name] <cps ids> ]");
     }
 
     public void createServiceCallType(String name, String versionName) {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            serviceCallService.createServiceCallType(name, versionName).customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class).get(0)).create();
+            serviceCallService.createServiceCallType(name, versionName)
+                    .customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class)
+                            .get(0))
+                    .handler("DisconnectHandler1")
+                    .create();
             context.commit();
         }
     }
 
-    public void createServiceCallType(String name, String versionName, String logLevel, Long... cpsIds) {
+    public void createServiceCallType(String name, String versionName, String logLevel, String handler, Long... cpsIds) {
         List<Long> ids = Arrays.asList(cpsIds);
         threadPrincipalService.set(() -> "Console");
-
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName).logLevel(LogLevel.valueOf(logLevel));
+            ServiceCallTypeBuilder builder = serviceCallService
+                    .createServiceCallType(name, versionName)
+                    .handler(handler)
+                    .logLevel(LogLevel.valueOf(logLevel));
 
             customPropertySetService.findActiveCustomPropertySets().stream()
                     .filter(cps -> ids.contains(cps.getId()))
@@ -94,13 +121,16 @@ public class ServiceCallsCommands {
         }
     }
 
-    public void createServiceCallType(String name, String versionName, String logLevel, String lifeCycleName, Long... cpsIds) {
+    public void createServiceCallType(String name, String versionName, String logLevel, String handler, String lifeCycleName, Long... cpsIds) {
         List<Long> ids = Arrays.asList(cpsIds);
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallLifeCycle serviceCallLifeCycle = serviceCallService.getServiceCallLifeCycle(lifeCycleName).orElseThrow(() -> new NoSuchElementException("No service call life cycle with name: " + lifeCycleName));
-            ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName, serviceCallLifeCycle).logLevel(LogLevel.valueOf(logLevel));
+            ServiceCallLifeCycle serviceCallLifeCycle = serviceCallService.getServiceCallLifeCycle(lifeCycleName)
+                    .orElseThrow(() -> new NoSuchElementException("No service call life cycle with name: " + lifeCycleName));
+            ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName, serviceCallLifeCycle)
+                    .logLevel(LogLevel.valueOf(logLevel))
+                    .handler(handler);
 
             customPropertySetService.findActiveCustomPropertySets().stream()
                     .filter(cps -> ids.contains(cps.getId()))
@@ -156,15 +186,47 @@ public class ServiceCallsCommands {
         }
     }
 
+    public void removeServiceCallType(String name, String versionName) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCallService.findServiceCallType(name, versionName).get().delete();
+            context.commit();
+        }
+    }
+
+    public void deprecateServiceCallType(String name, String versionName) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallType serviceCallType = serviceCallService.findServiceCallType(name, versionName)
+                    .orElseThrow(NoSuchElementException::new);
+            serviceCallType.deprecate();
+            serviceCallType.save();
+            context.commit();
+        }
+    }
+
     public void customPropertySets() {
         customPropertySetService.findActiveCustomPropertySets().stream()
-                .map(cps -> cps.getId() + " " + cps.getCustomPropertySet().getDomainClass() + " " + cps.getCustomPropertySet().getName())
+                .map(cps -> cps.getId() + " " + cps.getCustomPropertySet()
+                        .getDomainClass() + " " + cps.getCustomPropertySet().getName())
                 .forEach(System.out::println);
+    }
+
+    public void handlers() {
+        serviceCallService.findAllHandlers().stream().forEach(System.out::println);
     }
 
     public void createServiceCallLifeCycle() {
         System.out.println("Usage: createServiceCallLifeCycle <name> <optional:operations>");
         System.out.println("Operations: removeState:<state> removeTransition:<fromState>:<toState>");
+    }
+
+    public void serviceCallLifeCycles() {
+        serviceCallService.getServiceCallLifeCycles()
+                .stream()
+                .forEach(lc -> System.out.println(String.format("%d %s", lc.getId(), lc.getName())));
     }
 
     public void createServiceCallLifeCycle(String name, String... operations) {
@@ -181,6 +243,54 @@ public class ServiceCallsCommands {
             }
             serviceCallLifeCycle.create();
             context.commit();
+        }
+    }
+
+    public void createServiceCall() {
+        System.out.println("Usage: createServiceCall <type> <typeVersion> <externalReference>");
+    }
+
+    public void createServiceCall(String type, String typeVersion, String externalReference) {
+        Optional<ServiceCallType> serviceCallType = serviceCallService.findServiceCallType(type, typeVersion);
+        if(!serviceCallType.isPresent()) {
+            System.out.println("There is no service call type with name: '" + type + "' and version: '" + typeVersion + "'");
+        } else {
+            try (TransactionContext context = transactionService.getContext()) {
+                ServiceCall serviceCall = serviceCallType.get()
+                        .newServiceCall()
+                        .externalReference(externalReference)
+                        .create();
+                context.commit();
+
+                System.out.println("Service call with reference '" + serviceCall.getNumber() + "' has been created");
+            }
+        }
+    }
+
+    public void createChildServiceCall() {
+        System.out.println("Usage: createChildServiceCall <type> <typeVersion> <externalReference> <parentReference>");
+    }
+
+    public void createChildServiceCall(String type, String typeVersion, String externalReference, String parent) {
+        Optional<ServiceCallType> serviceCallType = serviceCallService.findServiceCallType(type, typeVersion);
+        Optional<ServiceCall> serviceCall = serviceCallService.getServiceCall(parent);
+        if(!serviceCall.isPresent()) {
+            System.out.println("There is no parent service call with the reference '" + parent + "'.");
+            return;
+        } else if(!serviceCallType.isPresent()) {
+            System.out.println("There is no service call type with name: '" + type + "' and version: '" + typeVersion + "'");
+            return;
+        } else {
+            ServiceCallType scType = serviceCallType.get();
+            ServiceCall call = serviceCall.get();
+
+            try (TransactionContext context = transactionService.getContext()) {
+                ServiceCall child = call.newChildCall(scType)
+                    .externalReference(externalReference)
+                    .create();
+                context.commit();
+                System.out.println("Child service call of '" + parent +"' with reference '" + child.getNumber() + "' has been created");
+            }
         }
     }
 }

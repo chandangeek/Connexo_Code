@@ -37,7 +37,7 @@ public class ServiceCallInstaller {
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
-        initPrivileges();
+       // initPrivileges();
         installDefaultLifeCycle();
     }
 
