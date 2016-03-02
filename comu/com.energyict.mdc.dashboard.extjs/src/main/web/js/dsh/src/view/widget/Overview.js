@@ -1,6 +1,6 @@
 Ext.define('Dsh.view.widget.Overview', {
     extend: 'Ext.panel.Panel',
-    requires: [ 'Dsh.view.widget.common.Bar' ],
+    requires: [ 'Uni.view.widget.Bar' ],
     alias: 'widget.overview',
     itemId: 'overview',
     ui: 'medium',

@@ -3,6 +3,7 @@ Ext.define('Dsh.model.TopMyIssue', {
     fields: [
         { name: 'id', type: 'int' },
         { name: 'title', type: 'string' },
-        { name: 'dueDate', type: 'auto' }
+        { name: 'dueDate', type: 'auto' },
+        { name: 'issueType', type: 'auto' }
     ]
 });

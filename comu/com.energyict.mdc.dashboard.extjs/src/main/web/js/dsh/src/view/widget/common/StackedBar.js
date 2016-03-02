@@ -1,6 +1,6 @@
 Ext.define('Dsh.view.widget.common.StackedBar', {
     alias: 'widget.stacked-bar',
-    extend: 'Dsh.view.widget.common.Bar',
+    extend: 'Uni.view.widget.Bar',
 
     tooltipTpl: '<table><tpl foreach="."><tr><td>{[Uni.I18n.translate("overview.widget.breakdown." + xkey, "DSH", xkey)]}</td><td>{.}</td></tr></tpl></table>',
     trackTpl: [
