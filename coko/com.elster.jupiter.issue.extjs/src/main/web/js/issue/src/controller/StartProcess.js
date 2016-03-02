@@ -30,7 +30,8 @@ Ext.define('Isu.controller.StartProcess', {
                 widget = Ext.widget('isu-start-process-view', {
                     properties: {
                         activeProcessesParams: {
-                            type: 'issue',
+                            type: 'datacollectionissue',
+                            issueReasons: issue.data.reason,
                             privileges: Ext.encode(me.getPrivileges())
                         },
                         startProcessParams: [
