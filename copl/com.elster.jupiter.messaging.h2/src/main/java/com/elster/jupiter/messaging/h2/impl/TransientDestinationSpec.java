@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.elster.jupiter.util.streams.Currying.perform;
+
 class TransientDestinationSpec implements DestinationSpec {
 
     private final QueueTableSpec queueTableSpec;
@@ -169,6 +171,13 @@ class TransientDestinationSpec implements DestinationSpec {
 
     @Override
     public void purgeErrors() {
+    }
+
+    @Override
+    public void purgeCorrelationId(String correlationId) {
+       subscribers
+               .stream()
+               .forEach(perform(TransientSubscriberSpec::removeMessagesWithCorrelationId).with(correlationId));
     }
 
     @Override

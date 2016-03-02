@@ -4,6 +4,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.SubscriberSpec;
 
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -11,7 +12,7 @@ class TransientSubscriberSpec implements SubscriberSpec {
 
     private final TransientDestinationSpec destinationSpec;
     private final String name;
-    private final BlockingQueue<Message> messages = new LinkedBlockingQueue<>();
+    private final BlockingQueue<TransientMessage> messages = new LinkedBlockingQueue<>();
     private Thread toCancel;
     private final Object lock = new Object();
 
@@ -69,5 +70,9 @@ class TransientSubscriberSpec implements SubscriberSpec {
 
     public long messageCount() {
         return messages.size();
+    }
+
+    void removeMessagesWithCorrelationId(String correlationId) {
+        messages.removeIf(message -> Objects.equals(message.getCorrelationId(), correlationId));
     }
 }
