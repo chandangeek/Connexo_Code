@@ -1,6 +1,5 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
@@ -13,6 +12,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -25,8 +25,6 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.users.User;
-import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -40,7 +38,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -50,7 +47,6 @@ import java.time.Clock;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -220,15 +216,9 @@ public class UsagePointResource {
         info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
 
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
-            CustomPropertySet set = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class).stream()
-                    .filter(rcps -> customPropertySetInfo.id == rcps.getId()).findFirst().orElseThrow(IllegalArgumentException::new).getCustomPropertySet();
-            if (!set.isVersioned()) {
-                customPropertySetService.setValuesFor(set, usagePoint, customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo, set
-                        .getPropertySpecs()));
-            } else {
-                customPropertySetService.setValuesVersionFor(set, usagePoint, customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo, set
-                        .getPropertySpecs()), Range.atLeast(usagePoint.getInstallationTime()));
-            }
+            UsagePointPropertySet propertySet = usagePoint.forCustomProperties().getPropertySet(customPropertySetInfo.id);
+            propertySet.setValues(customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo,
+                    propertySet.getCustomPropertySet().getPropertySpecs()));
         }
         return Response.status(Response.Status.CREATED).entity(usagePointInfoFactory.from(usagePoint)).build();
     }
