@@ -59,7 +59,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         name: 'estimatedLoad',
                         itemId: 'fld-up-estimated-load',
                         fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load'),
-                        unitType: 'amperage'
+                        unitType: 'estimationLoad'
                     },
 
                     {
