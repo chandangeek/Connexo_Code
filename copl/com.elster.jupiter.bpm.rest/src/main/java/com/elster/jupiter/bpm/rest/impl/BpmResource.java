@@ -295,8 +295,6 @@ public class BpmResource {
                                     a.getAssociationProvider().isPresent() &&
                                     a.getAssociation().equals(filterProperties.get("type").get(0).toLowerCase())))
                     .collect(Collectors.toList());
-            //processDefinitionInfos.processes.stream()
-            //        .forEach(s -> s.processId = s.processId + " (" + s.deploymentId + ") ");
             processDefinitionInfos.total = processDefinitionInfos.processes.size();
             return processDefinitionInfos;
         }else{
@@ -306,8 +304,6 @@ public class BpmResource {
                     .filter(s -> activeProcesses.stream()
                             .anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version)))
                     .collect(Collectors.toList());
-            //processDefinitionInfos.processes.stream()
-            //        .forEach(s -> s.processId = s.processId + " (" + s.deploymentId + ") ");
             processDefinitionInfos.total = processDefinitionInfos.processes.size();
             return processDefinitionInfos;
         }
@@ -826,16 +822,10 @@ public class BpmResource {
                                               @PathParam("deploymentId") String deploymentId,
                                               @HeaderParam("Authorization") String auth) {
         String jsonContent;
-        String processId = null;
-        try {
-            processId = id.replace(URLDecoder.decode(deploymentId, "UTF-8"),"");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
         JSONObject obj = null;
         TaskContentInfos taskContentInfos = null;
         try {
-            String rest = "/rest/tasks/process/" + deploymentId + "/content/"+ processId;
+            String rest = "/rest/tasks/process/" + deploymentId + "/content/" + id;
             jsonContent = bpmService.getBpmServer().doGet(rest, auth);
             if (!"".equals(jsonContent)) {
                 obj = new JSONObject(jsonContent);
