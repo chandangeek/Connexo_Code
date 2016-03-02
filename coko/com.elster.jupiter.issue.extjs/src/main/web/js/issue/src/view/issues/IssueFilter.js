@@ -41,7 +41,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 queryMode: 'remote',
                 queryParam: 'like',
                 queryCaching: false,
-                minChars: 0,
+                minChars: 1,
                 loadStore: false,
                 setFilterValue: me.comboSetFilterValue,
                 getParamValue: me.comboGetParamValue,
@@ -206,6 +206,8 @@ Ext.define('Isu.view.issues.IssueFilter', {
     },
 
     onAssigneeBlur: function (field) {
-        field.setValue(field.lastSelection);
+        if (field.getRawValue()) {
+            field.setValue(field.lastSelection);
+        }
     }
 });
