@@ -5,6 +5,7 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jbpm.kie.services.api.RuntimeDataService;
 import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
+import org.jbpm.kie.services.impl.model.ProcessInstanceDesc;
 import org.jbpm.services.task.impl.model.TaskImpl;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
 import org.kie.api.task.model.*;
@@ -31,17 +32,13 @@ import java.util.stream.Collectors;
 public class JbpmTaskResource {
 
     private static final String PROPERTY = "property";
-
+    @Inject
+    InternalTaskService internalTaskService;
+    @Inject
+    RuntimeDataService runtimeDataService;
     @Inject
     @PersistenceUnit(unitName = "org.jbpm.domain")
     private EntityManagerFactory emf;
-
-    @Inject
-    InternalTaskService internalTaskService;
-
-    @Inject
-    RuntimeDataService runtimeDataService;
-
 
     @GET
     @Produces("application/json")
@@ -149,9 +146,14 @@ public class JbpmTaskResource {
                         }
                         if (theKey.equals("process")) {
                             for (int i = 0; i < filterProperties.get("process").size(); i++) {
-                                if (filterProperties.get("process").get(i).toString().replace("\"", "").split(" \\(").length > 0) {
-                                    String processId = filterProperties.get("process").get(i).toString().replace("\"", "").split(" \\(")[0];
-                                    String deploymentId = filterProperties.get("process").get(i).toString().replace("\"", "").split(" \\(")[1].replace(") ", "");
+                                String[] processItems = filterProperties.get("process")
+                                        .get(i)
+                                        .toString()
+                                        .replace("\"", "")
+                                        .split(" \\(");
+                                if (processItems.length == 3) {
+                                    String processId = processItems[0];
+                                    String deploymentId = processItems[2].replace(")", "");
                                     predicatesProcess.add(criteriaBuilder.equal(taskRoot.get("taskData").get("processId"), processId));
                                     predicatesDeploymentId.add(criteriaBuilder.equal(taskRoot.get("taskData").get("deploymentId"), deploymentId));
                                 }
@@ -396,25 +398,30 @@ public class JbpmTaskResource {
     @Produces("application/json")
     public ProcessInstanceNodeInfos getProcessInstanceNode(@Context UriInfo uriInfo,@PathParam("processInstanceId") long processInstanceId){
         String processInstanceState = "";
-        if(runtimeDataService.getProcessInstanceById(processInstanceId).getState() == 1){
-            processInstanceState = "Active";
-        }else if(runtimeDataService.getProcessInstanceById(processInstanceId).getState() == 2){
-            processInstanceState = "Completed";
-        }else{
-            processInstanceState = "Aborted";
+        ProcessInstanceDesc processDesc = runtimeDataService.getProcessInstanceById(processInstanceId);
+        if (processDesc != null) {
+            if (processDesc.getState() == 1) {
+                processInstanceState = "Active";
+            } else if (runtimeDataService.getProcessInstanceById(processInstanceId).getState() == 2) {
+                processInstanceState = "Completed";
+            } else {
+                processInstanceState = "Aborted";
+            }
+            EntityManager em = emf.createEntityManager();
+            String queryString = "select * from(select n.NODENAME, n.NODETYPE, n.log_date,n.NODEINSTANCEID, n.NODEID, n.ID from NODEINSTANCELOG n " +
+                    "where n.PROCESSINSTANCEID = :processInstanceId and type= (select min(type) from NODEINSTANCELOG where processinstanceid = :processInstanceId and nodeid = n.nodeid))t1 " +
+                    "join(select p.NODEID as NODEIDNOTUSED, max(p.TYPE) from NODEINSTANCELOG p where processinstanceid = :processInstanceId group by p.NODEID)t2 on t1.nodeid = t2.NODEIDNOTUSED order by t1.ID desc";
+            Query query = em.createNativeQuery(queryString);
+            query.setParameter("processInstanceId", processInstanceId);
+            List<Object[]> nodes = query.getResultList();
+            queryString = "select * from variableinstancelog v WHERE v.PROCESSINSTANCEID = :processInstanceId ORDER BY v.VARIABLEID ASC";
+            query = em.createNativeQuery(queryString);
+            query.setParameter("processInstanceId", processInstanceId);
+            List<Object[]> processVariables = query.getResultList();
+            return new ProcessInstanceNodeInfos(nodes, processInstanceState, processVariables);
         }
-        EntityManager em = emf.createEntityManager();
-        String queryString = "select * from(select n.NODENAME, n.NODETYPE, n.log_date,n.NODEINSTANCEID, n.NODEID, n.ID from NODEINSTANCELOG n " +
-                "where n.PROCESSINSTANCEID = :processInstanceId and type= (select min(type) from NODEINSTANCELOG where processinstanceid = :processInstanceId and nodeid = n.nodeid))t1 " +
-                "join(select p.NODEID as NODEIDNOTUSED, max(p.TYPE) from NODEINSTANCELOG p where processinstanceid = :processInstanceId group by p.NODEID)t2 on t1.nodeid = t2.NODEIDNOTUSED order by t1.ID desc";
-        Query query = em.createNativeQuery(queryString);
-        query.setParameter("processInstanceId", processInstanceId);
-        List<Object[]> nodes = query.getResultList();
-        queryString = "select * from variableinstancelog v WHERE v.PROCESSINSTANCEID = :processInstanceId ORDER BY v.VARIABLEID ASC";
-        query = em.createNativeQuery(queryString);
-        query.setParameter("processInstanceId", processInstanceId);
-        List<Object[]> processVariables = query.getResultList();
-        return new ProcessInstanceNodeInfos(nodes, processInstanceState, processVariables);
+
+        return null;
     }
 
     @GET
@@ -913,9 +920,13 @@ public class JbpmTaskResource {
             if (theKey.equals("process")) {
                 for(int i=0;i<filterProperties.get("process").size();i++) {
                     if(process.equals("")) {
-                        process += "p.PROCESSID = " + filterProperties.get("process").get(i).toString().replace("\"","'");
+                        process += "p.PROCESSID = " + filterProperties.get("process").get(i).toString().split(" \\(")[0]
+                                .replace("\"", "'") + "'";
                     }else{
-                        process += " OR p.PROCESSID = " + filterProperties.get("process").get(i).toString().replace("\"", "'");;
+                        process += " OR p.PROCESSID = " + filterProperties.get("process")
+                                .get(i)
+                                .toString()
+                                .split(" \\(")[0].replace("\"", "'") + "'";
                     }
                 }
             }
