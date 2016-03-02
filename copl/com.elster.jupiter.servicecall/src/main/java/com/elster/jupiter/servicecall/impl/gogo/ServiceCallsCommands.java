@@ -32,6 +32,7 @@ import static java.util.stream.Collectors.toList;
         property = {"osgi.command.scope=scs",
                 "osgi.command.function=serviceCallTypes",
                 "osgi.command.function=createServiceCallType",
+                "osgi.command.function=removeServiceCallType",
                 "osgi.command.function=customPropertySets",
                 "osgi.command.function=createServiceCallLifeCycle",
                 "osgi.command.function=createServiceCall",
@@ -114,6 +115,15 @@ public class ServiceCallsCommands {
                     .filter(cps -> ids.contains(cps.getId()))
                     .forEach(builder::customPropertySet);
             builder.create();
+            context.commit();
+        }
+    }
+
+    public void removeServiceCallType(String name, String versionName) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCallService.findServiceCallType(name, versionName).get().delete();
             context.commit();
         }
     }
