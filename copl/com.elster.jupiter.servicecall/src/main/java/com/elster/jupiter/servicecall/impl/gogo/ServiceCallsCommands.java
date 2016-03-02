@@ -28,8 +28,6 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=customPropertySets",
                 "osgi.command.function=createServiceCallLifeCycle",
                 "osgi.command.function=serviceCall",
-                "osgi.command.function=createServiceCall"
-                "osgi.command.function=createServiceCallLifeCycle",
                 "osgi.command.function=createServiceCall",
                 "osgi.command.function=createChildServiceCall"
         }, immediate = true)
