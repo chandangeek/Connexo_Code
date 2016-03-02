@@ -232,6 +232,11 @@ public enum TableSpecs {
                     .map(DeviceConfigurationImpl.Fields.GATEWAY_TYPE.fieldName())
                     .notNull()
                     .add();
+            table.column("DATALOGGERENABLED")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2BOOLEAN)
+                    .map(DeviceConfigurationImpl.Fields.DATALOGGER_ENABLED.fieldName())
+                    .add();
             table.primaryKey("PK_DTC_DEVICECONFIG").on(id).add();
             table.foreignKey("FK_DTC_DEVCONFIG_DEVTYPE").
                     on(deviceType).

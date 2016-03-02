@@ -1310,7 +1310,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         return version;
     }
 
-    void setDataloggerEnabled(boolean dataloggerEnabled) {
+    public void setDataloggerEnabled(boolean dataloggerEnabled) {
         this.dataloggerEnabled = dataloggerEnabled;
     }
 
@@ -1522,6 +1522,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 .description(getDescription())
                 .gatewayType(getGatewayType())
                 .isDirectlyAddressable(isDirectlyAddressable())
+                .dataloggerEnabled(isDataloggerEnabled())
                 .add();
         this.getDeviceProtocolProperties().getPropertySpecs().stream().forEach(cloneDeviceProtocolProperties(clone));
         this.getProtocolDialectConfigurationPropertiesList()

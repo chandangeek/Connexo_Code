@@ -139,6 +139,8 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
 
     public long getVersion();
 
+    public void setDataloggerEnabled(boolean enabled);
+
     /**
      * Indicate whether or not this DeviceConfiguration allows itself to be
      * used as a Datalogger
