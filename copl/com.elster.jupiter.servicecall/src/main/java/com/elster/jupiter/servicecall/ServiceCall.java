@@ -8,7 +8,6 @@ import com.elster.jupiter.util.HasId;
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -49,7 +48,7 @@ public interface ServiceCall extends HasId {
     /**
      * Returns a chronologically sorted list of log entries for this service call
      */
-    List<ServiceCallLog> getLogs();
+    Finder<ServiceCallLog> getLogs();
 
     void log(LogLevel logLevel, String message);
 
