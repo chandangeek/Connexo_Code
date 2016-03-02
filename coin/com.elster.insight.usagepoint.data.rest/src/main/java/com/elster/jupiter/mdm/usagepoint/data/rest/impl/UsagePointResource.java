@@ -151,7 +151,7 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     public UsagePointInfo getUsagePoint(@PathParam("mrid") String mRid, @Context SecurityContext securityContext) {
-        UsagePoint usagePoint = fetchUsagePoint(mRid, securityContext);
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
         UsagePointInfo result = usagePointInfoFactory.from(usagePoint);
         return result;
     }
@@ -244,7 +244,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     public MeterActivationInfos getMeterActivations(@PathParam("mrid") String mRid, @Context SecurityContext securityContext) {
-        UsagePoint usagePoint = fetchUsagePoint(mRid, securityContext);
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
         return new MeterActivationInfos(usagePoint.getMeterActivations());
     }
 
@@ -253,7 +253,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     public ReadingTypeInfos getReadingTypes(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
+        UsagePoint usagePoint = resourceHelper.findUsagePointByIdOrThrowException(id);
         return new ReadingTypeInfos(collectReadingTypes(usagePoint));
     }
 
@@ -284,27 +284,5 @@ public class UsagePointResource {
             readingTypes.addAll(meterActivation.getReadingTypes());
         }
         return readingTypes;
-    }
-
-    private UsagePoint fetchUsagePoint(long id, SecurityContext securityContext) {
-        Optional<UsagePoint> found = meteringService.findUsagePoint(id);
-        UsagePoint usagePoint = found.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal())
-                && !((User) securityContext.getUserPrincipal()).hasPrivilege("INS", Privileges.Constants.VIEW_ANY_USAGEPOINT)
-                && !((User) securityContext.getUserPrincipal()).hasPrivilege("INS", Privileges.Constants.ADMINISTER_ANY_USAGEPOINT)) {
-            throw new WebApplicationException(Response.Status.FORBIDDEN);
-        }
-        return usagePoint;
-    }
-
-    private UsagePoint fetchUsagePoint(String mRid, SecurityContext securityContext) {
-        Optional<UsagePoint> found = meteringService.findUsagePoint(mRid);
-        UsagePoint usagePoint = found.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal())
-                && !((User) securityContext.getUserPrincipal()).hasPrivilege("INS", Privileges.Constants.VIEW_ANY_USAGEPOINT)
-                && !((User) securityContext.getUserPrincipal()).hasPrivilege("INS", Privileges.Constants.ADMINISTER_ANY_USAGEPOINT)) {
-            throw new WebApplicationException(Response.Status.FORBIDDEN);
-        }
-        return usagePoint;
     }
 }

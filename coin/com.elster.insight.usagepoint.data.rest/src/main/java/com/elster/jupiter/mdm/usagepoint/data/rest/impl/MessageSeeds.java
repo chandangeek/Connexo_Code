@@ -22,6 +22,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     END_DATE_MUST_BE_AFTER_START_DATE(13, Keys.END_DATE_MUST_BE_AFTER_START_DATE, "End date must be after start date"),
     NO_SUCH_SERVICE_CATEGORY(14, Keys.NO_SUCH_SERVICE_CATEGORY, "Service category not found"),
     NO_SUCH_TECHNICAL_INFO(15, Keys.NO_SUCH_TECHNICAL_INFO, "Technical information for {0} should be provided"),
+    NO_USAGE_POINT_FOR_ID(16, Keys.NO_USAGE_POINT_FOR_ID, "No usage point with ID {0}"),
     ;
     private final int number;
     private final String key;
@@ -63,6 +64,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE = "DeactivateValidationRuleSetNotPossible";
         public static final String NO_DEVICE_FOR_MRID = "NoDeviceForMRID";
         public static final String NO_USAGE_POINT_FOR_MRID = "NoUsagePointForMRID";
+        public static final String NO_USAGE_POINT_FOR_ID = "NoUsagePointForID";
         public static final String NO_READING_TYPE_FOR_MRID = "NoReadingTypeForMRID";
         public static final String NO_CURRENT_ACTIVATION_FOR_USAGE_POINT_FOR_MRID="NoCurrentActivationForUsagePointForMRID";
         public static final String NO_REGISTER_FOR_USAGE_POINT_FOR_MRID = "NoRegisterForUsagePointForMRID";
