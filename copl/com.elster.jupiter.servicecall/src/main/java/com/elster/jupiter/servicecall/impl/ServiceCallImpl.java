@@ -13,8 +13,10 @@ import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
@@ -197,6 +199,22 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     @Override
+    public Finder<ServiceCallLog> getLogs() {
+        return DefaultFinder.of(ServiceCallLog.class,
+                Where.where(ServiceCallLogImpl.Fields.serviceCall.fieldName())
+                        .isEqualTo(this), dataModel).sorted(ServiceCallLogImpl.Fields.timestamp.fieldName(), false);
+    }
+
+    @Override
+    public void log(LogLevel logLevel, String message) {
+        if (type.get().getLogLevel().compareTo(logLevel) > -1) {
+            ServiceCallLogImpl instance = dataModel.getInstance(ServiceCallLogImpl.class);
+            instance.init(clock.instant(), logLevel, this, message);
+            instance.save();
+        }
+    }
+
+    @Override
     public void save() {
         if (this.getId() > 0) {
             Save.UPDATE.save(this.dataModel, this, Save.Update.class);
@@ -225,7 +243,8 @@ public class ServiceCallImpl implements ServiceCall {
     @Override
     public Finder<ServiceCall> getChildren() {
         Condition condition = Where.where("parent").isEqualTo(this);
-        return DefaultFinder.of(ServiceCall.class, condition, dataModel).defaultSortColumn(ServiceCallImpl.Fields.type.fieldName());
+        return DefaultFinder.of(ServiceCall.class, condition, dataModel)
+                .defaultSortColumn(ServiceCallImpl.Fields.type.fieldName());
     }
 
     @Override

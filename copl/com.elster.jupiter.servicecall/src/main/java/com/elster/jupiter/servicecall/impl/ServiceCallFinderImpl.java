@@ -48,7 +48,8 @@ public class ServiceCallFinderImpl implements ServiceCallFinder {
 
     @Override
     public ServiceCallFinder setReference(String reference) {
-        this.condition = this.condition.and(where(ServiceCallImpl.Fields.externalReference.fieldName()).like(reference).or(where("id").like(Long.parseLong(reference.substring(3)) + "")));
+        this.condition = this.condition.and(where(ServiceCallImpl.Fields.externalReference.fieldName()).like(reference)
+                .or(where("id").like(Long.parseLong(reference.substring(3)) + "")));
         return this;
     }
 
@@ -100,7 +101,7 @@ public class ServiceCallFinderImpl implements ServiceCallFinder {
         if (start != null) {
             queryStream.skip(start);
         }
-        if(limit != null) {
+        if (limit != null) {
             queryStream.limit(limit);
         }
         return queryStream;

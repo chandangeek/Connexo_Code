@@ -45,6 +45,13 @@ public interface ServiceCall extends HasId {
 
     ServiceCallBuilder newChildCall(ServiceCallType serviceCallType);
 
+    /**
+     * Returns a chronologically sorted list of log entries for this service call
+     */
+    Finder<ServiceCallLog> getLogs();
+
+    void log(LogLevel logLevel, String message);
+
     void cancel();
 
     void save();

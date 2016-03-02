@@ -278,7 +278,7 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     }
 
     @Override
-    public Map<String, Long> getChildrenStatusInfo(String number) {
+    public Map<String, Long> getChildrenStatus(String number) {
         HashMap<String, Long> childrenCountInfo = new HashMap<>();
         SqlBuilder sqlBuilder = new SqlBuilder();
 
@@ -292,7 +292,8 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
         try (PreparedStatement statement = sqlBuilder.prepare(dataModel.getConnection(false))) {
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
-                    childrenCountInfo.put(DefaultState.valueOf(resultSet.getString(0)).name(), Long.parseLong(resultSet.getString(1)));
+                    childrenCountInfo.put(DefaultState.valueOf(resultSet.getString(0))
+                            .name(), Long.parseLong(resultSet.getString(1)));
                 }
             }
         } catch (Exception e) {
