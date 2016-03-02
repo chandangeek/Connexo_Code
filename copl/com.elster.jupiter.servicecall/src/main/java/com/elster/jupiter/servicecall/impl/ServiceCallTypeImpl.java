@@ -15,6 +15,7 @@ import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.Status;
+import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -201,6 +202,7 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     @Override
     public void delete() {
         dataModel.stream(ServiceCall.class)
+                .filter(Where.where(ServiceCallImpl.Fields.type.fieldName()).isEqualTo(this))
                 .limit(1)
                 .findAny()
                 .ifPresent(oneOfThisType -> {
