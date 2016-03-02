@@ -63,8 +63,8 @@ Ext.define('Imt.usagepointmanagement.view.forms.ElectricityInfo', {
             name: 'estimatedLoad',
             itemId: 'up-estimatedLoad-measurefield',
             fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load'),
-            store: 'Imt.usagepointmanagement.store.measurementunits.Power',
-            value: {value: null, unit: 'W', multiplier: 0}
+            store: 'Imt.usagepointmanagement.store.measurementunits.Amperage',
+            value: {value: null, unit: 'A', multiplier: 0}
         },
         {
             xtype: 'techinfo-limitercheckbox',
