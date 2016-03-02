@@ -23,7 +23,13 @@ Ext.define('Isu.model.Issue', {
             name: 'title',
             persist: false,
             mapping: function (data) {
-                return data.reason.name + (data.device ? data.device.name + ' ' + data.device.serialNumber : '');
+                if (data.device) {
+                    return data.reason.name + data.device.name + ' ' + data.device.serialNumber;
+                } else if (data.deviceMRID) {
+                    return data.reason.name + ' ' + data.deviceMRID;
+                } else {
+                    return data.reason.name;
+                }
             }
         },
         {name: 'issueType_name', persist: false, mapping: 'issueType.name'},

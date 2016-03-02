@@ -56,7 +56,11 @@ Ext.define('Isu.controller.IssueDetail', {
                     me.getApplication().fireEvent('issueLoad', record);
                     Ext.suspendLayouts();
                     widget.down('#issue-detail-top-title').setTitle(record.get('title'));
-                    widget.down('#issue-detail-form').loadRecord(record);
+                    if (issueType == 'datacollection') {
+                        me.loadDataCollectionIssueDetails(widget, record);
+                    } else {
+                        widget.down('#issue-detail-form').loadRecord(record);
+                    }
                     Ext.resumeLayouts(true);
                     widget.down('issues-action-menu').record = record;
                     me.loadComments(record);
@@ -67,46 +71,111 @@ Ext.define('Isu.controller.IssueDetail', {
             }
         });
         if (issueType == 'datavalidation') {
-            me.getApplication().on('issueLoad', function (rec) {
-                var panel = widget.down('#no-estimated-data-panel');
-                if (rec.raw.notEstimatedData && panel) {
-                    var data = [],
-                        store, validationBlocksWidget;
-
-                    rec.raw.notEstimatedData.map(function (item) {
-                        item.notEstimatedBlocks.map(function (block) {
-                            data.push(Ext.apply({}, {
-                                mRID: item.readingType.mRID,
-                                channelId: item.channelId,
-                                registerId: item.registerId,
-                                readingType: item.readingType
-                            }, block))
-                        });
-                    });
-
-                    if (data.length) {
-                        store = Ext.create('Idv.store.NonEstimatedDataStore', {data: data});
-                        validationBlocksWidget = Ext.widget('no-estimated-data-grid', {
-                            store: store,
-                            router: router,
-                            issue: rec
-                        });
-                    } else {
-                        validationBlocksWidget = Ext.widget('no-items-found-panel', {
-                            title: Uni.I18n.translate('issues.validationBlocks.empty.title', 'IDV', 'No validation blocks are available'),
-                            reasons: [
-                                Uni.I18n.translate('issues.validationBlocks.empty.reason1', 'IDV', 'No open validation issues.')
-                            ]
-                        });
-                    }
-
-                    panel.removeAll();
-                    panel.add(validationBlocksWidget);
-                }
-            }, me, {
-                single: true
-            });
+            me.addValidationBlocksWidget(widget);
         }
+    },
+
+    loadDataCollectionIssueDetails: function (widget, issue) {
+        var me = this,
+            container = widget.down('#data-collection-issue-detail-container'),
+            router = me.getController('Uni.controller.history.Router'),
+            store = null,
+            journals,
+            form;
+
+        switch (issue.get('reason').id) {
+            case 'reason.connection.failed':
+                journals = issue.get('connectionTask_journals');
+                if (journals && !_.isEmpty(journals)) {
+                    store = Ext.create('Idc.store.ConnectionLogs', {data: journals});
+                }
+                form = Ext.widget('connection-issue-details-form', {
+                    itemId: 'connection-issue-details-form',
+                    store: store,
+                    router: router
+                });
+                break;
+            case 'reason.connection.setup.failed':
+                journals = issue.get('connectionTask_journals');
+                if (journals && !_.isEmpty(journals)) {
+                    store = Ext.create('Idc.store.ConnectionLogs', {data: issue.get('connectionTask_journals')});
+                }
+                form = Ext.widget('connection-issue-details-form', {
+                    itemId: 'connection-setup-issue-details-form',
+                    store: store,
+                    router: router
+                });
+                break;
+            case 'reason.failed.to.communicate':
+                journals = issue.get('communicationTask_journals');
+                if (journals && !_.isEmpty(journals)) {
+                    store = Ext.create('Idc.store.CommunicationLogs', {data: issue.get('communicationTask_journals')});
+                }
+                form = Ext.widget('communication-issue-details-form', {
+                    itemId: 'communication-issue-details-form',
+                    store: store,
+                    router: router
+                });
+                break;
+            case 'reason.unknown.inbound.device':
+                form = Ext.widget('inbound-issue-details-form', {
+                    itemId: 'inbound-issue-details-form'
+                });
+                break;
+            case 'reason.unknown.outbound.device':
+                form = Ext.widget('outbound-issue-details-form', {
+                    itemId: 'outbound-issue-details-form',
+                    router: router
+                });
+                break;
+        }
+        form.loadRecord(issue);
+        container.add(form);
+    },
+
+    addValidationBlocksWidget: function (widget) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        me.getApplication().on('issueLoad', function (rec) {
+            var panel = widget.down('#no-estimated-data-panel');
+            if (rec.raw.notEstimatedData && panel) {
+                var data = [],
+                    store, validationBlocksWidget;
+
+                rec.raw.notEstimatedData.map(function (item) {
+                    item.notEstimatedBlocks.map(function (block) {
+                        data.push(Ext.apply({}, {
+                            mRID: item.readingType.mRID,
+                            channelId: item.channelId,
+                            registerId: item.registerId,
+                            readingType: item.readingType
+                        }, block))
+                    });
+                });
+
+                if (data.length) {
+                    store = Ext.create('Idv.store.NonEstimatedDataStore', {data: data});
+                    validationBlocksWidget = Ext.widget('no-estimated-data-grid', {
+                        store: store,
+                        router: router,
+                        issue: rec
+                    });
+                } else {
+                    validationBlocksWidget = Ext.widget('no-items-found-panel', {
+                        title: Uni.I18n.translate('issues.validationBlocks.empty.title', 'IDV', 'No validation blocks are available'),
+                        reasons: [
+                            Uni.I18n.translate('issues.validationBlocks.empty.reason1', 'IDV', 'No open validation issues.')
+                        ]
+                    });
+                }
+
+                panel.removeAll();
+                panel.add(validationBlocksWidget);
+            }
+        }, me, {
+            single: true
+        });
     },
 
     makeLinkToList: function (router) {
