@@ -6,6 +6,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -13,13 +14,13 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -33,7 +34,9 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=customPropertySets",
                 "osgi.command.function=handlers",
                 "osgi.command.function=serviceCallLifeCycles",
-                "osgi.command.function=createServiceCallLifeCycle"
+                "osgi.command.function=createServiceCallLifeCycle",
+                "osgi.command.function=serviceCall",
+                "osgi.command.function=createServiceCall"
         }, immediate = true)
 public class ServiceCallsCommands {
 
@@ -134,6 +137,52 @@ public class ServiceCallsCommands {
         }
     }
 
+    public void serviceCall(long id) {
+        serviceCallService.getServiceCall(id)
+                .map(sc -> sc.getNumber() + " "
+                        + sc.getState().getKey() + " " + sc.getType().getName() + " "
+                        + sc.getParent().map(p -> p.getNumber()).orElse("-P-") + " "
+                        + sc.getOrigin().orElse("-O-") + " "
+                        + sc.getExternalReference().orElse("-E-"))
+                .ifPresent(System.out::println);
+    }
+
+    public void createServiceCall(String typeName, String typeVersion, String origin, String externalReference) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCallService.getServiceCallTypes().find().stream()
+                    .filter(sct -> sct.getName().equals(typeName) && sct.getVersionName().equals(typeVersion))
+                    .findFirst()
+                    .map(sct -> sct.newServiceCall()
+                            .origin(origin)
+                            .externalReference(externalReference)
+                            .create())
+                    .map(sc -> sc.getId())
+                    .ifPresent(System.out::println);
+
+            context.commit();
+        }
+    }
+
+    public void createServiceCall(long parentId, String typeName, String typeVersion, String origin, String externalReference) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            Optional<ServiceCall> parent = serviceCallService.getServiceCall(parentId);
+            Optional<ServiceCallType> type = serviceCallService.getServiceCallTypes().find().stream()
+                    .filter(sct -> sct.getName().equals(typeName) && sct.getVersionName().equals(typeVersion))
+                    .findFirst();
+
+            parent.orElseThrow(() -> new NoSuchElementException("No service call with id: " + parentId))
+                    .newChildCall(type.orElseThrow(() -> new NoSuchElementException("No service call type with name: " + typeName + " and version: " + typeVersion)))
+                    .origin(origin)
+                    .externalReference(externalReference)
+                    .create();
+            context.commit();
+        }
+    }
+
     public void customPropertySets() {
         customPropertySetService.findActiveCustomPropertySets().stream()
                 .map(cps -> cps.getId() + " " + cps.getCustomPropertySet()
@@ -165,8 +214,7 @@ public class ServiceCallsCommands {
                 if (operation.contains("removeState:")) {
                     serviceCallLifeCycle.remove(DefaultState.valueOf(operation.split(":")[1]));
                 } else if (operation.contains("removeTransition:")) {
-                    serviceCallLifeCycle.removeTransition(DefaultState.valueOf(operation.split(":")[1]), DefaultState.valueOf(operation
-                            .split(":")[2]));
+                    serviceCallLifeCycle.removeTransition(DefaultState.valueOf(operation.split(":")[1]), DefaultState.valueOf(operation.split(":")[2]));
                 }
             }
             serviceCallLifeCycle.create();
