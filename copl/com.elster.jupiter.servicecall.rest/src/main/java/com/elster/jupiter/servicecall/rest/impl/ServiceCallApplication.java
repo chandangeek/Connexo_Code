@@ -12,6 +12,7 @@ import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -96,6 +97,8 @@ public class ServiceCallApplication extends Application implements TranslationKe
         protected void configure() {
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(ServiceCallInfoFactory.class).to(ServiceCallInfoFactory.class);
+            bind(ServiceCallTypeInfoFactory.class).to(ServiceCallTypeInfoFactory.class);
             bind(serviceCallService).to(ServiceCallService.class);
             bind(transactionService).to(TransactionService.class);
             bind(thesaurus).to(Thesaurus.class);
