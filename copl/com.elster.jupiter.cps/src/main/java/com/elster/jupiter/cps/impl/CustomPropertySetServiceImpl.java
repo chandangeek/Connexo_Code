@@ -38,20 +38,12 @@ import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
@@ -511,6 +503,12 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         if (!activeCustomPropertySet.getCustomPropertySet().isVersioned()) {
             throw new UnsupportedOperationException("Custom property set " + customPropertySet.getId() + " is NOT versioned, you need to call CustomPropertySetService#getUniqueValuesFor(CustomPropertySet, Class<Domain>)");
         }
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> void validateCustomPropertySetValues(CustomPropertySet<D, T> customPropertySet, CustomPropertySetValues values) {
+        ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+        activeCustomPropertySet.validateValuesEntity(values);
     }
 
     @Override
