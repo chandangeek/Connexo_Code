@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class ProcessDefinitionInfo {
     public String name;
-    public String id;
+    public String processId;
     public String version;
     public String active;
     public String type;
@@ -29,7 +29,7 @@ public class ProcessDefinitionInfo {
     public ProcessDefinitionInfo(JSONObject jsonObject) {
         try {
             this.name = jsonObject.getString("name");
-            this.id = jsonObject.getString("id");
+            this.processId = jsonObject.getString("id");
             this.version = jsonObject.getString("version");
             this.deploymentId = jsonObject.getString("deploymentId");
         } catch (JSONException e) {
