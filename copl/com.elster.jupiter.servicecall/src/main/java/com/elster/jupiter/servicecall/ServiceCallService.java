@@ -4,8 +4,8 @@ import com.elster.jupiter.domain.util.Finder;
 
 import aQute.bnd.annotation.ProviderType;
 
-import java.util.Map;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 
 @ProviderType

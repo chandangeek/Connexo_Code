@@ -12,7 +12,6 @@ import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
-import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
@@ -43,10 +42,7 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=createChildServiceCall",
                 "osgi.command.function=createServiceCallLifeCycle",
                 "osgi.command.function=serviceCall",
-                "osgi.command.function=createServiceCall"
                 "osgi.command.function=serviceCalls",
-                "osgi.command.function=createServiceCall",
-                "osgi.command.function=createChildServiceCall",
                 "osgi.command.function=log"
         }, immediate = true)
 public class ServiceCallsCommands {
@@ -227,18 +223,6 @@ public class ServiceCallsCommands {
 
         try (TransactionContext context = transactionService.getContext()) {
             serviceCallService.findServiceCallType(name, versionName).get().delete();
-            context.commit();
-        }
-    }
-
-    public void deprecateServiceCallType(String name, String versionName) {
-        threadPrincipalService.set(() -> "Console");
-
-        try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallType serviceCallType = serviceCallService.findServiceCallType(name, versionName)
-                    .orElseThrow(NoSuchElementException::new);
-            serviceCallType.deprecate();
-            serviceCallType.save();
             context.commit();
         }
     }
