@@ -139,6 +139,7 @@ public class ServiceCallImpl implements ServiceCall {
         TransitionRequest transitionRequest = new TransitionRequest(this, defaultState);
 
         serviceCallQueue.message(jsonService.serialize(transitionRequest))
+                .withCorrelationId(getNumber())
                 .send();
     }
 
