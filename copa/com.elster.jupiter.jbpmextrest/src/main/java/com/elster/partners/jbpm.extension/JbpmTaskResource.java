@@ -266,7 +266,7 @@ public class JbpmTaskResource {
                 query.setFirstResult(startIndex);
                 query.setMaxResults(endIndex);
 
-                TaskSummaryList taskSummaryList = new TaskSummaryList(query.getResultList());
+                TaskSummaryList taskSummaryList = new TaskSummaryList(runtimeDataService, query.getResultList());
                 if (taskSummaryList.getTotal() == endIndex) {
                     int total = startIndex + endIndex;
                     taskSummaryList.removeLast(total);
@@ -277,7 +277,7 @@ public class JbpmTaskResource {
                 return taskSummaryList;
             }
         }
-        // TODO throw new WebApplicationException(null, Response.serverError().entity("Cannot inject entity manager factory!").build());
+
         return null;
     }
 
@@ -876,7 +876,7 @@ public class JbpmTaskResource {
             predicateList.add(predicateProcessId);
             criteriaQuery.where((criteriaBuilder.and(predicateList.toArray(new Predicate[predicateList.size()]))));
             final TypedQuery query = em.createQuery(criteriaQuery);
-            TaskSummaryList taskSummaryList = new TaskSummaryList(query.getResultList());
+            TaskSummaryList taskSummaryList = new TaskSummaryList(runtimeDataService, query.getResultList());
             return taskSummaryList.getTasks();
         }
         return null;
