@@ -2,8 +2,6 @@ package com.elster.jupiter.servicecall.rest.impl;
 
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.impl.*;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -11,7 +9,6 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFinder;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.servicecall.impl.ServiceCallInstaller;
 
 import com.google.common.collect.Range;
 
@@ -32,14 +29,14 @@ import java.util.Optional;
 @Path("/servicecalls")
 public class ServiceCallResource {
     private final ServiceCallService serviceCallService;
-    private final Thesaurus thesaurus;
     private final ExceptionFactory exceptionFactory;
+    private final ServiceCallInfoFactory serviceCallInfoFactory;
 
     @Inject
-    public ServiceCallResource(ServiceCallService serviceCallService, Thesaurus thesaurus, ExceptionFactory exceptionFactory) {
+    public ServiceCallResource(ServiceCallService serviceCallService, ExceptionFactory exceptionFactory, ServiceCallInfoFactory serviceCallInfoFactory) {
         this.serviceCallService = serviceCallService;
-        this.thesaurus = thesaurus;
         this.exceptionFactory = exceptionFactory;
+        this.serviceCallInfoFactory = serviceCallInfoFactory;
     }
 
     @GET
@@ -55,7 +52,7 @@ public class ServiceCallResource {
         List<ServiceCall> serviceCalls = serviceCallFinder.find();
 
         serviceCalls.stream()
-                .forEach(serviceCall -> serviceCallInfos.add(new ServiceCallInfo(serviceCall, thesaurus)));
+                .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.from(serviceCall)));
 
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
@@ -63,22 +60,22 @@ public class ServiceCallResource {
     private void applyFilterToFinder(JsonQueryFilter filter, ServiceCallFinder serviceCallFinder) {
         //TODO: CHECK TYPE AND STATE REF ISSUE
 
-        if(filter.hasProperty("number")) {
+        if (filter.hasProperty("number")) {
             serviceCallFinder.setReference(filter.getString("number"));
         }
-        if(filter.hasProperty("type")) {
+        if (filter.hasProperty("type")) {
             serviceCallFinder.setType(filter.getStringList("type"));
         }
-        if(filter.hasProperty("state")) {
+        if (filter.hasProperty("state")) {
             //serviceCallFinder.setState(filter.getString("state"))
         }
-        if(filter.hasProperty("receivedDateFrom")) {
+        if (filter.hasProperty("receivedDateFrom")) {
             serviceCallFinder.withCreationTimeIn(Range.closed(filter.getInstant("receivedDateFrom"),
                     filter.hasProperty("receivedDateTo") ? filter.getInstant("receivedDateTo") : Instant.now()));
         } else if (filter.hasProperty("receivedDateTo")) {
             serviceCallFinder.withCreationTimeIn(Range.closed(Instant.EPOCH, filter.getInstant("receivedDateTo")));
         }
-        if(filter.hasProperty("modificationDateFrom")) {
+        if (filter.hasProperty("modificationDateFrom")) {
             serviceCallFinder.withModTimeIn(Range.closed(filter.getInstant("modificationDateFrom"),
                     filter.hasProperty("modificationDateTo") ? filter.getInstant("modificationDateTo") : Instant.now()));
         } else if (filter.hasProperty("modificationDateTo")) {
@@ -88,25 +85,25 @@ public class ServiceCallResource {
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public ServiceCallInfo getServiceCall(@PathParam("id") String number) {
         return serviceCallService.getServiceCall(number)
-                .map(serviceCall -> new ServiceCallInfo(serviceCall, thesaurus))
+                .map(serviceCallInfoFactory::from)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_SERVICE_CALL));
     }
 
     @GET
     @Path("/{id}/children")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getChildren(@PathParam("id") String number, @BeanParam JsonQueryParameters queryParameters) {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
         Optional<ServiceCall> serviceCallOptional = serviceCallService.getServiceCall(number);
-        if(serviceCallOptional.isPresent()) {
+        if (serviceCallOptional.isPresent()) {
             Finder<ServiceCall> serviceCallFinder = serviceCallOptional.get().getChildren();
             List<ServiceCall> serviceCalls = serviceCallFinder.from(queryParameters).find();
 
             serviceCalls.stream()
-                    .forEach(serviceCall -> serviceCallInfos.add(new ServiceCallInfo(serviceCall, thesaurus)));
+                    .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.from(serviceCall)));
 
             return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
         }

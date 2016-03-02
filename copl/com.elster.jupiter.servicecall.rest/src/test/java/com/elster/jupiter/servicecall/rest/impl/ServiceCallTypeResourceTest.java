@@ -1,7 +1,6 @@
 package com.elster.jupiter.servicecall.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
@@ -41,9 +40,11 @@ public class ServiceCallTypeResourceTest extends ServiceCallApplicationTest {
 
     @Test
     public void testChangeLogLevel() throws Exception {
-        ServiceCallType serviceCallType = mockServiceCallType(1L);
+        mockServiceCallType(1L);
 
-        ServiceCallTypeInfo info = new ServiceCallTypeInfo(serviceCallType, mock(Thesaurus.class));
+        ServiceCallTypeInfo info = new ServiceCallTypeInfo();
+        info.id = 666L; // fake id
+        info.version = 1L;
         info.logLevel = new IdWithDisplayValueInfo<>();
         info.logLevel.id = LogLevel.SEVERE.name();
 
