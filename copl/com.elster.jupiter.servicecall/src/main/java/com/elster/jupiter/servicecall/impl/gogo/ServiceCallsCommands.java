@@ -12,9 +12,9 @@ import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
-import com.elster.jupiter.servicecall.impl.IServiceCallType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
