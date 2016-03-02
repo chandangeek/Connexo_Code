@@ -23,6 +23,7 @@ import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
+import com.elster.jupiter.servicecall.security.Privileges;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -47,10 +48,11 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -70,16 +72,18 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     private volatile Thesaurus thesaurus;
     private final Map<String, ServiceCallHandler> handlerMap = new ConcurrentHashMap<>();
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile UserService userService;
 
     // OSGi
     public ServiceCallServiceImpl() {
     }
 
     @Inject
-    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, CustomPropertySetService customPropertySetService) {
+    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, UserService userService, CustomPropertySetService customPropertySetService) {
         this.setFiniteStateMachineService(finiteStateMachineService);
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
+        this.setUserService(userService);
         setCustomPropertySetService(customPropertySetService);
         activate();
         this.install();
@@ -106,6 +110,11 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(ServiceCallService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -151,7 +160,11 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
 
     @Override
     public List<ResourceDefinition> getModuleResources() {
-        return Collections.emptyList();
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
+                Privileges.RESOURCE_SERVICE_CALL_TYPES.getKey(), Privileges.RESOURCE_SERVICE_CALL_TYPES_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES, Privileges.Constants.VIEW_SERVICE_CALL_TYPES)));
+        return resources;
     }
 
     @Override

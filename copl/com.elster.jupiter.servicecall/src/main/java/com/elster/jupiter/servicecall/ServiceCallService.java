@@ -80,19 +80,6 @@ public interface ServiceCallService {
     Optional<ServiceCall> getServiceCall(long id);
 
     /**
-     * Returns a list of names of all known service call handlers in the system
-     */
-    Collection<String> findAllHandlers();
-
-    /**
-     * Returns the service call handler identified by the name. Empty if none is found
-     *
-     * @param handler Service call handler name
-     */
-    Optional<ServiceCallHandler> findHandler(String handler);
-
-
-    /**
      * Finds and returns a service call with the given internal number
      * @param number The number of the service call (starts with SC_)
      * @return The optional service call
@@ -117,4 +104,17 @@ public interface ServiceCallService {
      * @return Map of the names of the states, with their respective percentage
      */
     Map<String, Long> getChildrenStatusInfo(String number);
+
+    /**
+     * Returns a list of names of all known service call handlers in the system
+     */
+    Collection<String> findAllHandlers();
+
+    /**
+     * Returns the service call handler identified by the name. Empty if none is found
+     *
+     * @param handler Service call handler name
+     */
+    Optional<ServiceCallHandler> findHandler(String handler);
+
 }

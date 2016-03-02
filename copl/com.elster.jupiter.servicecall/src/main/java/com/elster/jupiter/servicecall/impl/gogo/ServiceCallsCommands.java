@@ -4,15 +4,15 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.servicecall.*;
-import com.elster.jupiter.servicecall.impl.IServiceCallType;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
+import com.elster.jupiter.servicecall.impl.IServiceCallType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import org.osgi.service.component.annotations.Component;
@@ -32,6 +32,7 @@ import static java.util.stream.Collectors.toList;
         property = {"osgi.command.scope=scs",
                 "osgi.command.function=serviceCallTypes",
                 "osgi.command.function=createServiceCallType",
+                "osgi.command.function=deprecateServiceCallType",
                 "osgi.command.function=customPropertySets",
                 "osgi.command.function=createServiceCallLifeCycle",
                 "osgi.command.function=serviceCall",
@@ -106,7 +107,6 @@ public class ServiceCallsCommands {
     public void createServiceCallType(String name, String versionName, String logLevel, String handler, Long... cpsIds) {
         List<Long> ids = Arrays.asList(cpsIds);
         threadPrincipalService.set(() -> "Console");
-
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCallTypeBuilder builder = serviceCallService
                     .createServiceCallType(name, versionName)
@@ -136,6 +136,18 @@ public class ServiceCallsCommands {
                     .filter(cps -> ids.contains(cps.getId()))
                     .forEach(builder::customPropertySet);
             builder.create();
+            context.commit();
+        }
+    }
+
+    public void deprecateServiceCallType(String name, String versionName) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallType serviceCallType = serviceCallService.findServiceCallType(name, versionName)
+                    .orElseThrow(NoSuchElementException::new);
+            serviceCallType.deprecate();
+            serviceCallType.save();
             context.commit();
         }
     }
