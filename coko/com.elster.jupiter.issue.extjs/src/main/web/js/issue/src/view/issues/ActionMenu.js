@@ -29,7 +29,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                 me.removeAll();
                 if (me.record) {
                     me.setLoading(true);
-                    me.store.getProxy().url = me.record.getProxy().url + '/' + me.record.getId() + '/actions';
+                    me.store.getProxy().url = '/api/isu/issues/' + me.record.getId() + '/actions';
                     me.store.load(function () {
                         me.onLoad();
                         me.setLoading(false);
@@ -85,6 +85,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
     onLoad: function () {
         var me = this,
             issueId = me.record.getId(),
+            issueType = me.record.get('issueType').uid,
             deviceMRID,
             comTaskId,
             comTaskSessionId,
@@ -133,7 +134,8 @@ Ext.define('Isu.view.issues.ActionMenu', {
                         actionId: record.getId()
                     },
                     {
-                        fromOverview: me.router.currentRoute.match('view') != null
+                        fromOverview: me.router.currentRoute.match('view') != null,
+                        issueType: issueType
                     }
                 );
             }
@@ -148,7 +150,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                         menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view').buildUrl({issueId: issueId}, {addComment: true});
                         break;
                     case 'startProcess':
-                        menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({issueId: issueId} , {details: menuItem.details});
+                        menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({issueId: issueId} , {details: menuItem.details, issueType: issueType});
                         break;
                 }
             });
@@ -160,7 +162,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
             me.add({
                 text: Uni.I18n.translate('issues.actionMenu.startProcess', 'ISU', 'Start process'),
                 action: 'startProcess',
-                href: me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({issueId: issueId} , {details: false}),
+                href: me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({issueId: issueId} , {details: false, issueType: issueType}),
                 details: false
             });
         }

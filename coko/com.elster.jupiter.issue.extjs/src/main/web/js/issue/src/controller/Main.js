@@ -21,7 +21,8 @@ Ext.define('Isu.controller.Main', {
         'Isu.controller.IssuesOverview',
         'Isu.controller.IssueDetail',
         'Isu.controller.ApplyIssueAction',
-        'Isu.controller.StartProcess'
+        'Isu.controller.StartProcess',
+        'Isu.controller.Overview'
     ],
 
     init: function () {
@@ -32,6 +33,7 @@ Ext.define('Isu.controller.Main', {
         var me = this,
             issuemanagement = null,
             issuemanagementItems = [],
+            issuesPortalItem,
             router = me.getController('Uni.controller.history.Router'),
             historian = me.getController('Isu.controller.history.Administration'); // Forces route registration.
 
@@ -69,8 +71,40 @@ Ext.define('Isu.controller.Main', {
             });
         }
 
+        if (Isu.privileges.Issue.canViewAdminDevice()) {
+            issuesPortalItem = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('workspace.issues.title', 'ISU', 'Issues'),
+                portal: 'workspace',
+                route: 'issues',
+                items: [
+                    {
+                        text: Uni.I18n.translate('workspace.issues.title','ISU','Issues'),
+                        itemId: 'issues-item',
+                        href: router.getRoute('workspace/issues').buildUrl()
+                    },
+                    {
+                        text: Uni.I18n.translate('workspace.issues.issuesOverview', 'ISU', 'Issues overview'),
+                        itemId: 'issues-overview-item',
+                        href: router.getRoute('workspace/issuesoverview').buildUrl()
+                    }
+                ]
+            });
+        }
+
+        if (issuesPortalItem !== null) {
+            Uni.store.PortalItems.add(issuesPortalItem);
+        }
+
         if (issuemanagement !== null) {
             Uni.store.PortalItems.add(issuemanagement);
         }
+
+        me.getApplication().on('initIssueType', function (type) {
+            if (type == 'datacollection') {
+                me.getController('Isu.controller.BulkChangeIssues').dataCollectionActivated = true;
+            } else if (type == 'datavalidation') {
+                me.getController('Isu.controller.BulkChangeIssues').dataValidationActivated = true;
+            }
+        });
     }
 });
