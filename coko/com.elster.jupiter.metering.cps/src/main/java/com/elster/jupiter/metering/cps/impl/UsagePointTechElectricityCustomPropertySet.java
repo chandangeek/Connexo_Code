@@ -29,8 +29,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "c.e.j.mtr.cps.impl.UsagePointTechnicalWGTCustomPropertySet", service = CustomPropertySet.class, immediate = true)
-public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointTechnicalWGTDomainExtension> {
+@Component(name = "c.e.j.metering.cps.impl.UsagePointTechElectricityCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+public class UsagePointTechElectricityCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointTechElectricityDomainExtension> {
+
+    public static final String TABLE_NAME = "RVK_CPS_TECH_EL";
+    public static final String FK_CPS_DEVICE_ONE = "FK_CPS_TECH_EL";
 
     public volatile PropertySpecService propertySpecService;
     public volatile MeteringService meteringService;
@@ -51,12 +54,12 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
         this.propertySpecService = propertySpecService;
     }
 
-    public UsagePointTechnicalWGTCustomPropertySet() {
+    public UsagePointTechElectricityCustomPropertySet() {
         super();
     }
 
     @Inject
-    public UsagePointTechnicalWGTCustomPropertySet(PropertySpecService propertySpecService, MeteringService meteringService) {
+    public UsagePointTechElectricityCustomPropertySet(PropertySpecService propertySpecService, MeteringService meteringService) {
         this();
         this.setPropertySpecService(propertySpecService);
         this.setMeteringService(meteringService);
@@ -64,12 +67,13 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
 
     @Activate
     public void activate() {
-        System.out.println(UsagePointTechnicalSeeds.TABLE_NAME.get());
+        System.out.println(TABLE_NAME);
     }
 
     @Override
     public String getName() {
-        return this.getThesaurus().getFormat(TranslationKeys.CPS_TECHNICAL_GWT_SIMPLE_NAME).format();
+        return this.getThesaurus().
+                getFormat(TranslationKeys.CPS_TECHNICAL_ELECTRICITY_SIMPLE_NAME).format();
     }
 
     @Override
@@ -78,8 +82,8 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
     }
 
     @Override
-    public PersistenceSupport<UsagePoint, UsagePointTechnicalWGTDomainExtension> getPersistenceSupport() {
-        return new UsagePointTechnicalWGTPersistenceSupport(this.getThesaurus());
+    public PersistenceSupport<UsagePoint, UsagePointTechElectricityDomainExtension> getPersistenceSupport() {
+        return new UsagePointTechnicalElectricityPersistenceSupport(this.getThesaurus());
     }
 
     @Override
@@ -104,65 +108,61 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        PropertySpec pipeSizeSpec = propertySpecService
+        PropertySpec crossSectionalAreaSpec = propertySpecService
                 .stringSpec()
-                .named(UsagePointTechnicalWGTDomainExtension.Fields.PIPE_SIZE.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_PIPE_SIZE)
-                .describedAs(TranslationKeys.CPS_TECHNICAL_PROPERTIES_PIPE_SIZE_DESCRIPTION)
+                .named(UsagePointTechElectricityDomainExtension.FieldNames.CROSS_SECTIONAL_AREA.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_CROSS_SECTIONAL_AREA)
+                .describedAs(TranslationKeys.CPS_TECHNICAL_PROPERTIES_CROSS_SECTIONAL_AREA_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
-                .addValues("EU", "UK", "NA")
+                .addValues("EU", "NA")
                 .finish();
-        PropertySpec pipeTypeSpec = propertySpecService
+
+        PropertySpec volatageLevelSpec = propertySpecService
                 .stringSpec()
-                .named(UsagePointTechnicalWGTDomainExtension.Fields.PIPE_TYPE.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_PIPE_TYPE)
-                .describedAs(TranslationKeys.CPS_TECHNICAL_PROPERTIES_PIPE_TYPE_DESCRIPTION)
-                .fromThesaurus(this.getThesaurus())
-                .addValues("Asbestos", "Lead", "Iron", "Steel", "Bronze", "Copper", "Non metallic")
-                .finish();
-        PropertySpec pressureLevelSpec = propertySpecService
-                .stringSpec()
-                .named(UsagePointTechnicalWGTDomainExtension.Fields.PRESSURE_LEVEL.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_PRESSURE_LEVEL)
+                .named(UsagePointTechElectricityDomainExtension.FieldNames.VOLTAGE_LEVEL.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_VOLTAGE_LEVEL)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("low", "medium", "high")
                 .finish();
-        return Arrays.asList(pipeSizeSpec,
-                pipeTypeSpec,
-                pressureLevelSpec);
+
+        return Arrays.asList(
+                crossSectionalAreaSpec,
+                volatageLevelSpec);
     }
 
     private Thesaurus getThesaurus() {
         return nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
     }
 
-    private class UsagePointTechnicalWGTPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointTechnicalWGTDomainExtension> {
+    private static class UsagePointTechnicalElectricityPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointTechElectricityDomainExtension> {
         private Thesaurus thesaurus;
 
-        public UsagePointTechnicalWGTPersistenceSupport(Thesaurus thesaurus) {
+        public UsagePointTechnicalElectricityPersistenceSupport(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
+
         @Override
         public String componentName() {
-            return UsagePointTechnicalSeeds.COMPONENT_NAME.get();
+            return "TE1";
         }
 
         @Override
         public String tableName() {
-            return UsagePointTechnicalSeeds.TABLE_NAME.get();
+            return TABLE_NAME;
         }
 
         @Override
         public String domainFieldName() {
-            return UsagePointTechnicalWGTDomainExtension.Fields.DOMAIN.javaName();
+            return UsagePointTechElectricityDomainExtension.FieldNames.DOMAIN.javaName();
         }
 
         @Override
         public String domainForeignKeyName() {
-            return UsagePointTechnicalSeeds.FK_CPS_DEVICE_TECHNICAL.get();
+            return FK_CPS_DEVICE_ONE;
         }
 
         @Override
-        public Class<UsagePointTechnicalWGTDomainExtension> persistenceClass() {
-            return UsagePointTechnicalWGTDomainExtension.class;
+        public Class<UsagePointTechElectricityDomainExtension> persistenceClass() {
+            return UsagePointTechElectricityDomainExtension.class;
         }
 
         @Override
@@ -177,17 +177,13 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(UsagePointTechnicalWGTDomainExtension.Fields.PIPE_SIZE.databaseName())
+            table.column(UsagePointTechElectricityDomainExtension.FieldNames.CROSS_SECTIONAL_AREA.databaseName())
                     .varChar(255)
-                    .map(UsagePointTechnicalWGTDomainExtension.Fields.PIPE_SIZE.javaName())
+                    .map(UsagePointTechElectricityDomainExtension.FieldNames.CROSS_SECTIONAL_AREA.javaName())
                     .add();
-            table.column(UsagePointTechnicalWGTDomainExtension.Fields.PIPE_TYPE.databaseName())
+            table.column(UsagePointTechElectricityDomainExtension.FieldNames.VOLTAGE_LEVEL.databaseName())
                     .varChar(255)
-                    .map(UsagePointTechnicalWGTDomainExtension.Fields.PIPE_TYPE.javaName())
-                    .add();
-            table.column(UsagePointTechnicalWGTDomainExtension.Fields.PRESSURE_LEVEL.databaseName())
-                    .varChar(255)
-                    .map(UsagePointTechnicalWGTDomainExtension.Fields.PRESSURE_LEVEL.javaName())
+                    .map(UsagePointTechElectricityDomainExtension.FieldNames.VOLTAGE_LEVEL.javaName())
                     .add();
         }
     }

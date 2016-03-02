@@ -8,7 +8,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
-public class UsagePointMeterTechInformationGTWDomainExtension implements PersistentDomainExtension<UsagePoint> {
+public class UsagePointMeterTechInfGTWDomExt implements PersistentDomainExtension<UsagePoint> {
 
     public enum Fields {
         DOMAIN {
@@ -80,8 +80,12 @@ public class UsagePointMeterTechInformationGTWDomainExtension implements Persist
     private String capacityMaximal;
     private String pressureMaximal;
 
-    public UsagePointMeterTechInformationGTWDomainExtension() {
+    public UsagePointMeterTechInfGTWDomExt() {
         super();
+    }
+
+    public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
+        return registeredCustomPropertySet.get();
     }
 
     public String getRecessedLength() {
@@ -112,16 +116,44 @@ public class UsagePointMeterTechInformationGTWDomainExtension implements Persist
         return pressureMaximal;
     }
 
+    public void setRecessedLength(String recessedLength) {
+        this.recessedLength = recessedLength;
+    }
+
+    public void setConnectionType(String connectionType) {
+        this.connectionType = connectionType;
+    }
+
+    public void setConversionMetrology(String conversionMetrology) {
+        this.conversionMetrology = conversionMetrology;
+    }
+
+    public void setCapacityMinimal(String capacityMinimal) {
+        this.capacityMinimal = capacityMinimal;
+    }
+
+    public void setCapacityNominal(String capacityNominal) {
+        this.capacityNominal = capacityNominal;
+    }
+
+    public void setCapacityMaximal(String capacityMaximal) {
+        this.capacityMaximal = capacityMaximal;
+    }
+
+    public void setPressureMaximal(String pressureMaximal) {
+        this.pressureMaximal = pressureMaximal;
+    }
+
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(domainInstance);
-        this.recessedLength = (String) propertyValues.getProperty(Fields.RECESSED_LENGTH.javaName());
-        this.connectionType = (String) propertyValues.getProperty(Fields.CONNECTION_TYPE.javaName());
-        this.conversionMetrology = (String) propertyValues.getProperty(Fields.CONVERSION_METROLOGY.javaName());
-        this.capacityMinimal = (String) propertyValues.getProperty(Fields.CAPACITY_MINIMAL.javaName());
-        this.capacityNominal = (String) propertyValues.getProperty(Fields.CAPACITY_NOMINAL.javaName());
-        this.capacityMaximal = (String) propertyValues.getProperty(Fields.CAPACITY_MAXIMAL.javaName());
-        this.pressureMaximal = (String) propertyValues.getProperty(Fields.PRESSURE_MAXIMAL.javaName());
+        this.setRecessedLength((String) propertyValues.getProperty(Fields.RECESSED_LENGTH.javaName()));
+        this.setConnectionType((String) propertyValues.getProperty(Fields.CONNECTION_TYPE.javaName()));
+        this.setConversionMetrology((String) propertyValues.getProperty(Fields.CONVERSION_METROLOGY.javaName()));
+        this.setCapacityMinimal((String) propertyValues.getProperty(Fields.CAPACITY_MINIMAL.javaName()));
+        this.setCapacityNominal((String) propertyValues.getProperty(Fields.CAPACITY_NOMINAL.javaName()));
+        this.setCapacityMaximal((String) propertyValues.getProperty(Fields.CAPACITY_MAXIMAL.javaName()));
+        this.setPressureMaximal((String) propertyValues.getProperty(Fields.PRESSURE_MAXIMAL.javaName()));
     }
 
     @Override

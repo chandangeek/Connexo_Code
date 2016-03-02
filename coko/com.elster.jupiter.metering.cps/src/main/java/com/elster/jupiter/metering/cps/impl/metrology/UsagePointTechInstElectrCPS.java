@@ -19,7 +19,9 @@ import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -27,31 +29,28 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "c.e.j.mtr.cps.impl.mtr.UsagePointTechnicalInstallationElectricityCustomPropertySet", service = CustomPropertySet.class, immediate = true)
-public class UsagePointTechnicalInstallationElectricityCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointTechnicalInstallationElectricityDomainExtension> {
+@Component(name = "c.e.j.mtr.cps.impl.mtr.UsagePointTechInstElectrCPS", service = CustomPropertySet.class, immediate = true)
+public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint, UsagePointTechInstElectrDE> {
 
 
-    private volatile PropertySpecService propertySpecService;
-    private volatile MeteringService meteringService;
-    private volatile Thesaurus thesaurus;
-    private static final String ID = "c.e.j.m.cps.impl.mtr.UsagePointTechnicalInstallationElectricityCAS";
+    public volatile PropertySpecService propertySpecService;
+    public volatile MeteringService meteringService;
+    public volatile NlsService nlsService;
 
-    public UsagePointTechnicalInstallationElectricityCustomPropertySet() {
+    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_TECH";
+    public static final String FK_CPS_DEVICE_LICENSE = "FK_CPS_MTR_USAGEPOINT_TECH";
+    public static final String COMPONENT_NAME = "MTR_INST";
 
-    }
-
-    public UsagePointTechnicalInstallationElectricityCustomPropertySet(PropertySpecService propertySpecService) {
+    public UsagePointTechInstElectrCPS() {
         super();
-        this.propertySpecService = propertySpecService;
-        activate();
     }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
+        this.nlsService = nlsService;
     }
 
-    @Reference
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
@@ -61,18 +60,22 @@ public class UsagePointTechnicalInstallationElectricityCustomPropertySet impleme
         this.propertySpecService = propertySpecService;
     }
 
+    @Inject
+    public UsagePointTechInstElectrCPS(PropertySpecService propertySpecService, MeteringService meteringService) {
+        this();
+        this.setPropertySpecService(propertySpecService);
+        this.setMeteringService(meteringService);
+    }
+
     @Activate
     public void activate() {
     }
 
     @Override
-    public String getId() {
-        return ID;
-    }
-
-    @Override
     public String getName() {
-        return thesaurus.getFormat(TranslationKeys.CPS_TECHNICAL_INSTALLATION_ELECTRICITY_SIMPLE_NAME).format();
+        return this.getThesaurus()
+                .getFormat(TranslationKeys.CPS_TECHNICAL_INSTALLATION_ELECTRICITY_SIMPLE_NAME)
+                .format();
     }
 
     @Override
@@ -81,8 +84,8 @@ public class UsagePointTechnicalInstallationElectricityCustomPropertySet impleme
     }
 
     @Override
-    public PersistenceSupport<UsagePoint, UsagePointTechnicalInstallationElectricityDomainExtension> getPersistenceSupport() {
-        return new UsagePointTechnicalInstallationElectricityPersistenceSupport(thesaurus);
+    public PersistenceSupport<UsagePoint, UsagePointTechInstElectrDE> getPersistenceSupport() {
+        return new UsagePointTechInstElectyPerSupp(this.getThesaurus());
     }
 
     @Override
@@ -112,20 +115,20 @@ public class UsagePointTechnicalInstallationElectricityCustomPropertySet impleme
 //                .stringSpec()
 //                .named(UsagePointTechnicalInstallationDomainExtension.Fields.DISTANCE_FROM_THE_SUBSTATION.javaName(), TranslationKeys.CPS_TECHNICAL_INSTALLATION_DISTANCE_FROM_THE_SUBSTATION)
 //                .describedAs(TranslationKeys.CPS_TECHNICAL_INSTALLATION_DISTANCE_FROM_THE_SUBSTATION_DESCRIPTION)
-//                .fromThesaurus(thesaurus)
+//                .fromThesaurus(this.getThesaurus())
 //                .markRequired()
 //                .finish();
         PropertySpec feederSpec = propertySpecService
                 .stringSpec()
-                .named(UsagePointTechnicalInstallationElectricityDomainExtension.Fields.FEEDER.javaName(), TranslationKeys.CPS_TECHNICAL_INSTALLATION_FEEDER)
-                .fromThesaurus(thesaurus)
+                .named(UsagePointTechInstElectrDE.Fields.FEEDER.javaName(), TranslationKeys.CPS_TECHNICAL_INSTALLATION_FEEDER)
+                .fromThesaurus(this.getThesaurus())
                 .finish();
         //unused until QuantityFactory is created
 //        PropertySpec utilizationCategorySpec = propertySpecService
 //                .stringSpec()
 //                .named(UsagePointTechnicalInstallationDomainExtension.Fields.UTILIZATION_CATEGORY.javaName(), TranslationKeys.CPS_TECHNICAL_INSTALLATION_UTILIZATION_CATEGORY)
 //                .describedAs(TranslationKeys.CPS_TECHNICAL_INSTALLATION_UTILIZATION_CATEGORY_DESCRIPTION)
-//                .fromThesaurus(thesaurus)
+//                .fromThesaurus(this.getThesaurus())
 //                .finish();
 
         return Arrays.asList(
@@ -134,14 +137,15 @@ public class UsagePointTechnicalInstallationElectricityCustomPropertySet impleme
         // utilizationCategorySpec);
     }
 
-    private static class UsagePointTechnicalInstallationElectricityPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointTechnicalInstallationElectricityDomainExtension> {
+    private Thesaurus getThesaurus() {
+        return this.nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
+    }
 
-        public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_TECH";
-        public static final String FK_CPS_DEVICE_LICENSE = "FK_CPS_MTR_USAGEPOINT_TECH";
-        public static final String COMPONENT_NAME = "MTR_INST";
+    private static class UsagePointTechInstElectyPerSupp implements PersistenceSupport<UsagePoint, UsagePointTechInstElectrDE> {
+
         private Thesaurus thesaurus;
 
-        public UsagePointTechnicalInstallationElectricityPersistenceSupport(Thesaurus thesaurus) {
+        public UsagePointTechInstElectyPerSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -157,7 +161,7 @@ public class UsagePointTechnicalInstallationElectricityCustomPropertySet impleme
 
         @Override
         public String domainFieldName() {
-            return UsagePointTechnicalInstallationElectricityDomainExtension.Fields.DOMAIN.javaName();
+            return UsagePointTechInstElectrDE.Fields.DOMAIN.javaName();
         }
 
         @Override
@@ -166,8 +170,8 @@ public class UsagePointTechnicalInstallationElectricityCustomPropertySet impleme
         }
 
         @Override
-        public Class<UsagePointTechnicalInstallationElectricityDomainExtension> persistenceClass() {
-            return UsagePointTechnicalInstallationElectricityDomainExtension.class;
+        public Class<UsagePointTechInstElectrDE> persistenceClass() {
+            return UsagePointTechInstElectrDE.class;
         }
 
         @Override
@@ -188,9 +192,9 @@ public class UsagePointTechnicalInstallationElectricityCustomPropertySet impleme
 //                    .map(UsagePointTechnicalInstallationDomainExtension.Fields.DISTANCE_FROM_THE_SUBSTATION.javaName())
 //                    .notNull()
 //                    .add();
-            table.column(UsagePointTechnicalInstallationElectricityDomainExtension.Fields.FEEDER.databaseName())
+            table.column(UsagePointTechInstElectrDE.Fields.FEEDER.databaseName())
                     .varChar(255)
-                    .map(UsagePointTechnicalInstallationElectricityDomainExtension.Fields.FEEDER.javaName())
+                    .map(UsagePointTechInstElectrDE.Fields.FEEDER.javaName())
                     .add();
             //unused until QuantityFactory is created
 //            table.column(UsagePointTechnicalInstallationDomainExtension.Fields.UTILIZATION_CATEGORY.databaseName())

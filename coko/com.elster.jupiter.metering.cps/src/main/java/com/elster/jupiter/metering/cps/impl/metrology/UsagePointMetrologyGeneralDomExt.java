@@ -8,7 +8,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
-public class UsagePointTechnicalInstallationElectricityDomainExtension implements PersistentDomainExtension<UsagePoint> {
+public class UsagePointMetrologyGeneralDomExt implements PersistentDomainExtension<UsagePoint> {
 
     public enum Fields {
         DOMAIN {
@@ -17,22 +17,16 @@ public class UsagePointTechnicalInstallationElectricityDomainExtension implement
                 return "usagePoint";
             }
         },
-        DISTANCE_FROM_THE_SUBSTATION {
+        READ_CYCLE {
             @Override
             public String javaName() {
-                return "distanceFromTheSubstation";
+                return "readCycle";
             }
         },
-        FEEDER {
+        INFORMATION_FREQUENCY {
             @Override
             public String javaName() {
-                return "feeder";
-            }
-        },
-        UTILIZATION_CATEGORY {
-            @Override
-            public String javaName() {
-                return "utilizationCategory";
+                return "informationFrequency";
             }
         };
 
@@ -48,35 +42,44 @@ public class UsagePointTechnicalInstallationElectricityDomainExtension implement
     @IsPresent
     Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
-    private String distanceFromTheSubstation;
-    private String feeder;
-    private String utilizationCategory;
+    private String readCycle;
+    private String informationFrequency;
 
-    public String getDistanceFromTheSubstation() {
-        return distanceFromTheSubstation;
+    public UsagePointMetrologyGeneralDomExt() {
+        super();
     }
 
-    public String getFeeder() {
-        return feeder;
+    public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
+        return registeredCustomPropertySet.get();
     }
 
-    public String getUtilizationCategory() {
-        return utilizationCategory;
+    public String getReadCycle() {
+        return readCycle;
+    }
+
+    public void setReadCycle(String readCycle) {
+        this.readCycle = readCycle;
+    }
+
+    public String getInformationFrequency() {
+        return informationFrequency;
+    }
+
+    public void setInformationFrequency(String informationFrequency) {
+        this.informationFrequency = informationFrequency;
     }
 
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
-        usagePoint.set(domainInstance);
-        this.distanceFromTheSubstation = (String) propertyValues.getProperty(Fields.DISTANCE_FROM_THE_SUBSTATION.javaName());
-        this.feeder = (String) propertyValues.getProperty(Fields.FEEDER.javaName());
-        this.utilizationCategory = (String) propertyValues.getProperty(Fields.UTILIZATION_CATEGORY.javaName());
+        this.usagePoint.set(domainInstance);
+        this.setReadCycle((String) propertyValues.getProperty(Fields.READ_CYCLE.javaName()));
+        this.setInformationFrequency((String) propertyValues.getProperty(Fields.INFORMATION_FREQUENCY.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(Fields.DISTANCE_FROM_THE_SUBSTATION.javaName(), this.getDistanceFromTheSubstation());
-        propertySetValues.setProperty(Fields.FEEDER.javaName(), this.getFeeder());
-        propertySetValues.setProperty(Fields.UTILIZATION_CATEGORY.javaName(), this.getUtilizationCategory());
+        propertySetValues.setProperty(Fields.READ_CYCLE.javaName(), this.getReadCycle());
+        propertySetValues.setProperty(Fields.INFORMATION_FREQUENCY.javaName(), this.getInformationFrequency());
     }
 
     @Override

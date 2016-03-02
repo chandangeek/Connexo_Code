@@ -7,9 +7,8 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Interval;
 
-public class UsagePointConvertorDomainExtension implements PersistentDomainExtension<UsagePoint> {
+public class UsagePointConvDomainExtension implements PersistentDomainExtension<UsagePoint> {
 
     public enum Fields {
         DOMAIN {
@@ -53,31 +52,45 @@ public class UsagePointConvertorDomainExtension implements PersistentDomainExten
     private String serialNumber;
     private String noOfCorrectedDials;
     private String noOfUncorrectedDials;
-    private Interval interval;
 
-    public UsagePointConvertorDomainExtension() {
+    public UsagePointConvDomainExtension() {
         super();
+    }
+
+    public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
+        return registeredCustomPropertySet.get();
     }
 
     public String getSerialNumber() {
         return serialNumber;
     }
 
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
     public String getNoOfCorrectedDials() {
         return noOfCorrectedDials;
+    }
+
+    public void setNoOfCorrectedDials(String noOfCorrectedDials) {
+        this.noOfCorrectedDials = noOfCorrectedDials;
     }
 
     public String getNoOfUncorrectedDials() {
         return noOfUncorrectedDials;
     }
 
+    public void setNoOfUncorrectedDials(String noOfUncorrectedDials) {
+        this.noOfUncorrectedDials = noOfUncorrectedDials;
+    }
 
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(domainInstance);
-        this.serialNumber = (String) propertyValues.getProperty(Fields.SERIAL_NUMBER.javaName());
-        this.noOfCorrectedDials = (String) propertyValues.getProperty(Fields.NO_OF_CORRECTED_DIALS.javaName());
-        this.noOfUncorrectedDials = (String) propertyValues.getProperty(Fields.NO_OF_UNCORRECTED_DIALS.javaName());
+        this.setSerialNumber((String) propertyValues.getProperty(Fields.SERIAL_NUMBER.javaName()));
+        this.setNoOfCorrectedDials((String) propertyValues.getProperty(Fields.NO_OF_CORRECTED_DIALS.javaName()));
+        this.setNoOfUncorrectedDials((String) propertyValues.getProperty(Fields.NO_OF_UNCORRECTED_DIALS.javaName()));
     }
 
     @Override

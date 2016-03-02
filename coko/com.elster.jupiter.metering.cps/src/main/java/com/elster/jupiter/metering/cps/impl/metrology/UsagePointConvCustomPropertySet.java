@@ -19,7 +19,9 @@ import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -27,30 +29,27 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "c.e.j.m.cps.impl.metrology.UsagePointConvertorCustomPropertySet", service = CustomPropertySet.class, immediate = true)
-public class UsagePointConvertorCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointConvertorDomainExtension> {
+@Component(name = "c.e.j.m.cps.impl.mtr.UsagePointConvCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+public class UsagePointConvCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointConvDomainExtension> {
 
-    private volatile PropertySpecService propertySpecService;
-    private volatile MeteringService meteringService;
-    private volatile Thesaurus thesaurus;
-    private final String ID = "c.e.j.m.cps.impl.mtr.UsagePointConvertorCustomPropertySet";
+    public volatile PropertySpecService propertySpecService;
+    public volatile MeteringService meteringService;
+    public volatile NlsService nlsService;
 
-    public UsagePointConvertorCustomPropertySet() {
+    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_CONV";
+    public static final String FK_CPS_DEVICE_CONVERTOR = "FK_CPS_MTR_USAGEPOINT_CONV";
+    public static final String COMPONENT_NAME = "CONV";
 
-    }
-
-    public UsagePointConvertorCustomPropertySet(PropertySpecService propertySpecService) {
+    public UsagePointConvCustomPropertySet() {
         super();
-        this.propertySpecService = propertySpecService;
-        activate();
     }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
+        this.nlsService = nlsService;
     }
 
-    @Reference
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
@@ -60,19 +59,21 @@ public class UsagePointConvertorCustomPropertySet implements CustomPropertySet<U
         this.propertySpecService = propertySpecService;
     }
 
-    @Activate
-    public void activate() {
+    @Inject
+    public UsagePointConvCustomPropertySet(PropertySpecService propertySpecService, MeteringService meteringService) {
+        this();
+        this.setPropertySpecService(propertySpecService);
+        this.setMeteringService(meteringService);
     }
 
-
-    @Override
-    public String getId() {
-        return ID;
+    @Activate
+    public void activate() {
+        System.out.println(TABLE_NAME);
     }
 
     @Override
     public String getName() {
-        return thesaurus.getFormat(TranslationKeys.CPS_CONVERTOR_SIMPLE_NAME).format();
+        return this.getThesaurus().getFormat(TranslationKeys.CPS_CONVERTOR_SIMPLE_NAME).format();
     }
 
     @Override
@@ -81,8 +82,8 @@ public class UsagePointConvertorCustomPropertySet implements CustomPropertySet<U
     }
 
     @Override
-    public PersistenceSupport<UsagePoint, UsagePointConvertorDomainExtension> getPersistenceSupport() {
-        return new UsagePointConvertorPersistenceSupport(thesaurus);
+    public PersistenceSupport<UsagePoint, UsagePointConvDomainExtension> getPersistenceSupport() {
+        return new UsagePointConvPersistenceSupport(this.getThesaurus());
     }
 
     @Override
@@ -92,7 +93,7 @@ public class UsagePointConvertorCustomPropertySet implements CustomPropertySet<U
 
     @Override
     public boolean isVersioned() {
-        return true;
+        return false;
     }
 
     @Override
@@ -109,22 +110,22 @@ public class UsagePointConvertorCustomPropertySet implements CustomPropertySet<U
     public List<PropertySpec> getPropertySpecs() {
         PropertySpec serialNumberSpec = propertySpecService
                 .stringSpec()
-                .named(UsagePointConvertorDomainExtension.Fields.SERIAL_NUMBER.javaName(), TranslationKeys.CPS_CONVERTOR_SERIAL_NUMBER)
+                .named(UsagePointConvDomainExtension.Fields.SERIAL_NUMBER.javaName(), TranslationKeys.CPS_CONVERTOR_SERIAL_NUMBER)
                 .describedAs(TranslationKeys.CPS_CONVERTOR_SERIAL_NUMBER_DESCRIPTION)
-                .fromThesaurus(thesaurus)
+                .fromThesaurus(this.getThesaurus())
                 .finish();
         //unused until QuantityFactory is created
 //        PropertySpec noOfCorrectedDialsSpec = propertySpecService
 //                .stringSpec()
-//                .named(UsagePointConvertorDomainExtension.Fields.NO_OF_CORRECTED_DIALS.javaName(), TranslationKeys.CPS_CONVERTOR_NO_OF_CORRECTED_DIALS)
+//                .named(UsagePointConvDomainExtension.Fields.NO_OF_CORRECTED_DIALS.javaName(), TranslationKeys.CPS_CONVERTOR_NO_OF_CORRECTED_DIALS)
 //                .describedAs(TranslationKeys.CPS_CONVERTOR_NO_OF_CORRECTED_DIALS_DESCRIPTION)
-//                .fromThesaurus(thesaurus)
+//                .fromThesaurus(this.getThesaurus())
 //                .finish();
 //        PropertySpec noOfUncorrectedDialsSpec = propertySpecService
 //                .stringSpec()
-//                .named(UsagePointConvertorDomainExtension.Fields.NO_OF_UNCORRECTED_DIALS.javaName(), TranslationKeys.CPS_CONVERTOR_NO_OF_UNCORRECTED_DIALS)
+//                .named(UsagePointConvDomainExtension.Fields.NO_OF_UNCORRECTED_DIALS.javaName(), TranslationKeys.CPS_CONVERTOR_NO_OF_UNCORRECTED_DIALS)
 //                .describedAs(TranslationKeys.CPS_CONVERTOR_NO_OF_UNCORRECTED_DIALS_DESCRIPTION)
-//                .fromThesaurus(thesaurus)
+//                .fromThesaurus(this.getThesaurus())
 //                .finish();
 
         return Arrays.asList(serialNumberSpec);
@@ -132,15 +133,15 @@ public class UsagePointConvertorCustomPropertySet implements CustomPropertySet<U
         // noOfUncorrectedDialsSpec);
     }
 
-    private static class UsagePointConvertorPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointConvertorDomainExtension> {
+    private Thesaurus getThesaurus() {
+        return nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
+    }
 
-        public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_CONV";
-        public static final String FK_CPS_DEVICE_CONVERTOR = "FK_CPS_MTR_USAGEPOINT_CONV";
-        public static final String COMPONENT_NAME = "CONV";
+    private static class UsagePointConvPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointConvDomainExtension> {
+
         private Thesaurus thesaurus;
 
-
-        public UsagePointConvertorPersistenceSupport(Thesaurus thesaurus) {
+        public UsagePointConvPersistenceSupport(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -156,7 +157,7 @@ public class UsagePointConvertorCustomPropertySet implements CustomPropertySet<U
 
         @Override
         public String domainFieldName() {
-            return UsagePointConvertorDomainExtension.Fields.DOMAIN.javaName();
+            return UsagePointConvDomainExtension.Fields.DOMAIN.javaName();
         }
 
         @Override
@@ -165,8 +166,8 @@ public class UsagePointConvertorCustomPropertySet implements CustomPropertySet<U
         }
 
         @Override
-        public Class<UsagePointConvertorDomainExtension> persistenceClass() {
-            return UsagePointConvertorDomainExtension.class;
+        public Class<UsagePointConvDomainExtension> persistenceClass() {
+            return UsagePointConvDomainExtension.class;
         }
 
         @Override
@@ -181,18 +182,18 @@ public class UsagePointConvertorCustomPropertySet implements CustomPropertySet<U
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(UsagePointConvertorDomainExtension.Fields.SERIAL_NUMBER.databaseName())
+            table.column(UsagePointConvDomainExtension.Fields.SERIAL_NUMBER.databaseName())
                     .varChar(255)
-                    .map(UsagePointConvertorDomainExtension.Fields.SERIAL_NUMBER.javaName())
+                    .map(UsagePointConvDomainExtension.Fields.SERIAL_NUMBER.javaName())
                     .add();
             //unused until QuantityFactory is created
-//            table.column(UsagePointConvertorDomainExtension.Fields.NO_OF_CORRECTED_DIALS.databaseName())
+//            table.column(UsagePointConvDomainExtension.Fields.NO_OF_CORRECTED_DIALS.databaseName())
 //                    .varChar(255)
-//                    .map(UsagePointConvertorDomainExtension.Fields.NO_OF_CORRECTED_DIALS.javaName())
+//                    .map(UsagePointConvDomainExtension.Fields.NO_OF_CORRECTED_DIALS.javaName())
 //                    .add();
-//            table.column(UsagePointConvertorDomainExtension.Fields.NO_OF_UNCORRECTED_DIALS.databaseName())
+//            table.column(UsagePointConvDomainExtension.Fields.NO_OF_UNCORRECTED_DIALS.databaseName())
 //                    .varChar(255)
-//                    .map(UsagePointConvertorDomainExtension.Fields.NO_OF_UNCORRECTED_DIALS.javaName())
+//                    .map(UsagePointConvDomainExtension.Fields.NO_OF_UNCORRECTED_DIALS.javaName())
 //                    .add();
         }
     }

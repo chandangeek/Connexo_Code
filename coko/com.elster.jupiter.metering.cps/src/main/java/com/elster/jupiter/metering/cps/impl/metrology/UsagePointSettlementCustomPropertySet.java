@@ -19,7 +19,9 @@ import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -28,28 +30,26 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component(name = "c.e.j.m.cps.impl.mtr.UsagePointSettlementCustomPropertySet", service = CustomPropertySet.class, immediate = true)
-public class UsagePointSettlementCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointSettlementDomainExtension> {
+public class UsagePointSettlementCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointSettlementDomExt> {
 
-    private volatile PropertySpecService propertySpecService;
-    private volatile MeteringService meteringService;
-    private volatile Thesaurus thesaurus;
-    private final String ID = "com.e.j.m.cps.impl.mtr.UsagePointSettlementCustomPropertySet";
+    public volatile PropertySpecService propertySpecService;
+    public volatile MeteringService meteringService;
+    public volatile NlsService nlsService;
+
+    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_SETTL";
+    public static final String FK_CPS_DEVICE_SETTLEMENT = "RVK_CPS_MTR_USAGEPOINT_SETTL";
+    public static final String COMPONENT_NAME = "STL";
 
     public UsagePointSettlementCustomPropertySet() {
-    }
-
-    public UsagePointSettlementCustomPropertySet(PropertySpecService propertySpecService) {
         super();
-        this.propertySpecService = propertySpecService;
-        activate();
     }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
+        this.nlsService = nlsService;
     }
 
-    @Reference
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
@@ -59,18 +59,20 @@ public class UsagePointSettlementCustomPropertySet implements CustomPropertySet<
         this.propertySpecService = propertySpecService;
     }
 
+    @Inject
+    public UsagePointSettlementCustomPropertySet(PropertySpecService propertySpecService, MeteringService meteringService) {
+        this();
+        this.setPropertySpecService(propertySpecService);
+        this.setMeteringService(meteringService);
+    }
+
     @Activate
     public void activate() {
     }
 
     @Override
-    public String getId() {
-        return ID;
-    }
-
-    @Override
     public String getName() {
-        return thesaurus.getFormat(TranslationKeys.CPS_SETTLEMENT_SIMPLE_NAME).format();
+        return this.getThesaurus().getFormat(TranslationKeys.CPS_SETTLEMENT_SIMPLE_NAME).format();
     }
 
     @Override
@@ -79,8 +81,8 @@ public class UsagePointSettlementCustomPropertySet implements CustomPropertySet<
     }
 
     @Override
-    public PersistenceSupport<UsagePoint, UsagePointSettlementDomainExtension> getPersistenceSupport() {
-        return new UsagePointSettlementPersistenceSupport(thesaurus);
+    public PersistenceSupport<UsagePoint, UsagePointSettlementDomExt> getPersistenceSupport() {
+        return new UsagePointSettlPersistSupp(this.getThesaurus());
     }
 
     @Override
@@ -107,29 +109,29 @@ public class UsagePointSettlementCustomPropertySet implements CustomPropertySet<
     public List<PropertySpec> getPropertySpecs() {
         PropertySpec settlementAreaSpec = propertySpecService
                 .stringSpec()
-                .named(UsagePointSettlementDomainExtension.Fields.SETTLEMENT_AREA.javaName(), TranslationKeys.CPS_SETTLEMENT_AREA)
-                .fromThesaurus(thesaurus)
+                .named(UsagePointSettlementDomExt.Fields.SETTLEMENT_AREA.javaName(), TranslationKeys.CPS_SETTLEMENT_AREA)
+                .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .finish();
         PropertySpec settlementMethodSpec = propertySpecService
                 .stringSpec()
-                .named(UsagePointSettlementDomainExtension.Fields.SETTLEMENT_METHOD.javaName(), TranslationKeys.CPS_SETTLEMENT_METHOD)
+                .named(UsagePointSettlementDomExt.Fields.SETTLEMENT_METHOD.javaName(), TranslationKeys.CPS_SETTLEMENT_METHOD)
                 .describedAs(TranslationKeys.CPS_SETTLEMENT_METHOD_DESCRIPTION)
-                .fromThesaurus(thesaurus)
+                .fromThesaurus(this.getThesaurus())
                 .addValues("NL", "BE", "UK", "NA")
                 .markRequired()
                 .finish();
         PropertySpec gridfeeTimeframeSpec = propertySpecService
                 .stringSpec()
-                .named(UsagePointSettlementDomainExtension.Fields.GRIDFEE_TIMEFRAME.javaName(), TranslationKeys.CPS_SETTLEMENT_GRIDFEE_TIMEFRAME)
-                .fromThesaurus(thesaurus)
+                .named(UsagePointSettlementDomExt.Fields.GRIDFEE_TIMEFRAME.javaName(), TranslationKeys.CPS_SETTLEMENT_GRIDFEE_TIMEFRAME)
+                .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .finish();
         PropertySpec gridfeeTariffcodeSpec = propertySpecService
                 .stringSpec()
-                .named(UsagePointSettlementDomainExtension.Fields.GRIDFEE_TARIFFCODE.javaName(), TranslationKeys.CPS_SETTLEMENT_GRIDFEE_TARIFFCODE)
+                .named(UsagePointSettlementDomExt.Fields.GRIDFEE_TARIFFCODE.javaName(), TranslationKeys.CPS_SETTLEMENT_GRIDFEE_TARIFFCODE)
                 .describedAs(TranslationKeys.CPS_SETTLEMENT_GRIDFEE_TARIFFCODE_DESCRIPTION)
-                .fromThesaurus(thesaurus)
+                .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .finish();
 
@@ -139,13 +141,14 @@ public class UsagePointSettlementCustomPropertySet implements CustomPropertySet<
                 gridfeeTariffcodeSpec);
     }
 
-    private static class UsagePointSettlementPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointSettlementDomainExtension> {
-        public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_SETTL";
-        public static final String FK_CPS_DEVICE_SETTLEMENT = "RVK_CPS_MTR_USAGEPOINT_SETTL";
-        public static final String COMPONENT_NAME = "STL";
+    private Thesaurus getThesaurus() {
+        return nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    private static class UsagePointSettlPersistSupp implements PersistenceSupport<UsagePoint, UsagePointSettlementDomExt> {
         private Thesaurus thesaurus;
 
-        public UsagePointSettlementPersistenceSupport(Thesaurus thesaurus) {
+        public UsagePointSettlPersistSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -161,7 +164,7 @@ public class UsagePointSettlementCustomPropertySet implements CustomPropertySet<
 
         @Override
         public String domainFieldName() {
-            return UsagePointSettlementDomainExtension.Fields.DOMAIN.javaName();
+            return UsagePointSettlementDomExt.Fields.DOMAIN.javaName();
         }
 
         @Override
@@ -170,8 +173,8 @@ public class UsagePointSettlementCustomPropertySet implements CustomPropertySet<
         }
 
         @Override
-        public Class<UsagePointSettlementDomainExtension> persistenceClass() {
-            return UsagePointSettlementDomainExtension.class;
+        public Class<UsagePointSettlementDomExt> persistenceClass() {
+            return UsagePointSettlementDomExt.class;
         }
 
         @Override
@@ -186,24 +189,24 @@ public class UsagePointSettlementCustomPropertySet implements CustomPropertySet<
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(UsagePointSettlementDomainExtension.Fields.SETTLEMENT_AREA.databaseName())
+            table.column(UsagePointSettlementDomExt.Fields.SETTLEMENT_AREA.databaseName())
                     .varChar(255)
-                    .map(UsagePointSettlementDomainExtension.Fields.SETTLEMENT_AREA.javaName())
+                    .map(UsagePointSettlementDomExt.Fields.SETTLEMENT_AREA.javaName())
                     .notNull()
                     .add();
-            table.column(UsagePointSettlementDomainExtension.Fields.SETTLEMENT_METHOD.databaseName())
+            table.column(UsagePointSettlementDomExt.Fields.SETTLEMENT_METHOD.databaseName())
                     .varChar(255)
-                    .map(UsagePointSettlementDomainExtension.Fields.SETTLEMENT_METHOD.javaName())
+                    .map(UsagePointSettlementDomExt.Fields.SETTLEMENT_METHOD.javaName())
                     .notNull()
                     .add();
-            table.column(UsagePointSettlementDomainExtension.Fields.GRIDFEE_TIMEFRAME.databaseName())
+            table.column(UsagePointSettlementDomExt.Fields.GRIDFEE_TIMEFRAME.databaseName())
                     .varChar(255)
-                    .map(UsagePointSettlementDomainExtension.Fields.GRIDFEE_TIMEFRAME.javaName())
+                    .map(UsagePointSettlementDomExt.Fields.GRIDFEE_TIMEFRAME.javaName())
                     .notNull()
                     .add();
-            table.column(UsagePointSettlementDomainExtension.Fields.GRIDFEE_TARIFFCODE.databaseName())
+            table.column(UsagePointSettlementDomExt.Fields.GRIDFEE_TARIFFCODE.databaseName())
                     .varChar(255)
-                    .map(UsagePointSettlementDomainExtension.Fields.GRIDFEE_TARIFFCODE.javaName())
+                    .map(UsagePointSettlementDomExt.Fields.GRIDFEE_TARIFFCODE.javaName())
                     .notNull()
                     .add();
         }

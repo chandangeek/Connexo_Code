@@ -8,7 +8,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
-public class UsagePointContractualDomainExtension implements PersistentDomainExtension<UsagePoint> {
+public class UsagePointContDomainExtension implements PersistentDomainExtension<UsagePoint> {
 
     public enum Fields {
         DOMAIN {
@@ -38,15 +38,27 @@ public class UsagePointContractualDomainExtension implements PersistentDomainExt
 
     private String billingCycle;
 
+    public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
+        return registeredCustomPropertySet.get();
+    }
+
+    public String getBillingCycle() {
+        return billingCycle;
+    }
+
+    public void setBillingCycle(String billingCycle) {
+        this.billingCycle = billingCycle;
+    }
+
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(domainInstance);
-        this.billingCycle = (String) propertyValues.getProperty(Fields.BILLING_CYCLE.javaName());
+        this.setBillingCycle((String) propertyValues.getProperty(Fields.BILLING_CYCLE.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(Fields.BILLING_CYCLE.javaName(), this.billingCycle);
+        propertySetValues.setProperty(Fields.BILLING_CYCLE.javaName(), this.getBillingCycle());
     }
 
     @Override

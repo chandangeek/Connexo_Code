@@ -51,19 +51,47 @@ public class UsagePointTechnicalWGTDomainExtension implements PersistentDomainEx
     private String pipeType;
     private String pressureLevel;
 
+    public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
+        return registeredCustomPropertySet.get();
+    }
+
+    public String getPipeSize() {
+        return pipeSize;
+    }
+
+    public void setPipeSize(String pipeSize) {
+        this.pipeSize = pipeSize;
+    }
+
+    public String getPipeType() {
+        return pipeType;
+    }
+
+    public void setPipeType(String pipeType) {
+        this.pipeType = pipeType;
+    }
+
+    public String getPressureLevel() {
+        return pressureLevel;
+    }
+
+    public void setPressureLevel(String pressureLevel) {
+        this.pressureLevel = pressureLevel;
+    }
+
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         usagePoint.set(domainInstance);
-        this.pipeSize = (String) propertyValues.getProperty(Fields.PIPE_SIZE.javaName());
-        this.pipeType = (String) propertyValues.getProperty(Fields.PIPE_TYPE.javaName());
-        this.pressureLevel = (String) propertyValues.getProperty(Fields.PRESSURE_LEVEL.javaName());
+        this.setPipeSize((String) propertyValues.getProperty(Fields.PIPE_SIZE.javaName()));
+        this.setPipeType((String) propertyValues.getProperty(Fields.PIPE_TYPE.javaName()));
+        this.setPressureLevel((String) propertyValues.getProperty(Fields.PRESSURE_LEVEL.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(Fields.PIPE_SIZE.javaName(), this.pipeSize);
-        propertySetValues.setProperty(Fields.PIPE_TYPE.javaName(), this.pipeType);
-        propertySetValues.setProperty(Fields.PRESSURE_LEVEL.javaName(), this.pressureLevel);
+        propertySetValues.setProperty(Fields.PIPE_SIZE.javaName(), this.getPipeSize());
+        propertySetValues.setProperty(Fields.PIPE_TYPE.javaName(), this.getPipeType());
+        propertySetValues.setProperty(Fields.PRESSURE_LEVEL.javaName(), this.getPressureLevel());
     }
 
     @Override

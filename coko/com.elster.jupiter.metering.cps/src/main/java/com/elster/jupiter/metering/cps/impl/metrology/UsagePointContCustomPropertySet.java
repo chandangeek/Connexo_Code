@@ -19,7 +19,9 @@ import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -27,30 +29,27 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "c.e.j.m.cps.impl.mtr.UsagePointContractualCustomPropertySet", service = CustomPropertySet.class, immediate = true)
-public class UsagePointContractualCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointContractualDomainExtension> {
+@Component(name = "c.e.j.m.cps.impl.mtr.UsagePointContCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+public class UsagePointContCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointContDomainExtension> {
 
-    private volatile PropertySpecService propertySpecService;
-    private volatile MeteringService meteringService;
-    private volatile Thesaurus thesaurus;
-    private final String ID = "c.e.j.m.cps.impl.mtr.UsagePointContractualCustomPropertySet";
+    public volatile PropertySpecService propertySpecService;
+    public volatile MeteringService meteringService;
+    public volatile NlsService nlsService;
 
-    public UsagePointContractualCustomPropertySet() {
+    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_CON";
+    public static final String FK_CPS_DEVICE_CONTRACTUAL = "FK_CPS_MTR_USAGEPOINT_CON";
+    public static final String COMPONENT_NAME = "CON";
 
-    }
-
-    public UsagePointContractualCustomPropertySet(PropertySpecService propertySpecService) {
+    public UsagePointContCustomPropertySet() {
         super();
-        this.propertySpecService = propertySpecService;
-        activate();
     }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
+        this.nlsService = nlsService;
     }
 
-    @Reference
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
@@ -60,18 +59,20 @@ public class UsagePointContractualCustomPropertySet implements CustomPropertySet
         this.propertySpecService = propertySpecService;
     }
 
+    @Inject
+    public UsagePointContCustomPropertySet(PropertySpecService propertySpecService, MeteringService meteringService) {
+        this();
+        this.setPropertySpecService(propertySpecService);
+        this.setMeteringService(meteringService);
+    }
+
     @Activate
     public void activate() {
     }
 
     @Override
-    public String getId() {
-        return ID;
-    }
-
-    @Override
     public String getName() {
-        return thesaurus.getFormat(TranslationKeys.CPS_CONTRACTUAL_SIMPLE_NAME).format();
+        return this.getThesaurus().getFormat(TranslationKeys.CPS_CONTRACTUAL_SIMPLE_NAME).format();
     }
 
     @Override
@@ -80,8 +81,8 @@ public class UsagePointContractualCustomPropertySet implements CustomPropertySet
     }
 
     @Override
-    public PersistenceSupport<UsagePoint, UsagePointContractualDomainExtension> getPersistenceSupport() {
-        return new UsagePointContractualPersistenceSupport(thesaurus);
+    public PersistenceSupport<UsagePoint, UsagePointContDomainExtension> getPersistenceSupport() {
+        return new UsagePointConPersistenceSupport(this.getThesaurus());
     }
 
     @Override
@@ -108,8 +109,8 @@ public class UsagePointContractualCustomPropertySet implements CustomPropertySet
     public List<PropertySpec> getPropertySpecs() {
         PropertySpec billingCycleSpec = propertySpecService
                 .stringSpec()
-                .named(UsagePointContractualDomainExtension.Fields.BILLING_CYCLE.javaName(), TranslationKeys.CPS_CONTRACTUAL_BILLING_CYCLE)
-                .fromThesaurus(thesaurus)
+                .named(UsagePointContDomainExtension.Fields.BILLING_CYCLE.javaName(), TranslationKeys.CPS_CONTRACTUAL_BILLING_CYCLE)
+                .fromThesaurus(this.getThesaurus())
                 .addValues("Monthly", "Yearly", "Billing month")
                 .markRequired()
                 .finish();
@@ -117,14 +118,15 @@ public class UsagePointContractualCustomPropertySet implements CustomPropertySet
         return Arrays.asList(billingCycleSpec);
     }
 
-    private static class UsagePointContractualPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointContractualDomainExtension> {
+    private Thesaurus getThesaurus() {
+        return this.nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
+    }
 
-        public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_CON";
-        public static final String FK_CPS_DEVICE_CONTRACTUAL = "FK_CPS_MTR_USAGEPOINT_CON";
-        public static final String COMPONENT_NAME = "CON";
+    private static class UsagePointConPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointContDomainExtension> {
+
         private Thesaurus thesaurus;
 
-        public UsagePointContractualPersistenceSupport(Thesaurus thesaurus) {
+        public UsagePointConPersistenceSupport(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -140,7 +142,7 @@ public class UsagePointContractualCustomPropertySet implements CustomPropertySet
 
         @Override
         public String domainFieldName() {
-            return UsagePointContractualDomainExtension.Fields.DOMAIN.javaName();
+            return UsagePointContDomainExtension.Fields.DOMAIN.javaName();
         }
 
         @Override
@@ -149,8 +151,8 @@ public class UsagePointContractualCustomPropertySet implements CustomPropertySet
         }
 
         @Override
-        public Class<UsagePointContractualDomainExtension> persistenceClass() {
-            return UsagePointContractualDomainExtension.class;
+        public Class<UsagePointContDomainExtension> persistenceClass() {
+            return UsagePointContDomainExtension.class;
         }
 
         @Override
@@ -165,9 +167,9 @@ public class UsagePointContractualCustomPropertySet implements CustomPropertySet
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(UsagePointContractualDomainExtension.Fields.BILLING_CYCLE.databaseName())
+            table.column(UsagePointContDomainExtension.Fields.BILLING_CYCLE.databaseName())
                     .varChar(255)
-                    .map(UsagePointContractualDomainExtension.Fields.BILLING_CYCLE.javaName())
+                    .map(UsagePointContDomainExtension.Fields.BILLING_CYCLE.javaName())
                     .notNull()
                     .add();
         }

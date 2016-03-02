@@ -20,7 +20,9 @@ import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -28,29 +30,27 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "c.e.j.m.cps.impl.metrology.UsagePointDecentralizedProductionCustomPropertySet", service = CustomPropertySet.class, immediate = true)
-public class UsagePointDecentralizedProductionCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointDecentralizedProductionDomainExtension> {
+@Component(name = "c.e.j.m.cps.impl.mtr.UsagePointDecentProdCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointDecentProdDomExt> {
 
-    private volatile PropertySpecService propertySpecService;
-    private volatile MeteringService meteringService;
-    private volatile Thesaurus thesaurus;
-    private final String ID = "c.e.j.m.cps.impl.mtr.UsagePointDecentralizedProductionCustomPropertySet";
+    public volatile PropertySpecService propertySpecService;
+    public volatile MeteringService meteringService;
+    public volatile NlsService nlsService;
 
-    public UsagePointDecentralizedProductionCustomPropertySet() {
-    }
+    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_DEC";
+    public static final String FK_CPS_DEVICE_DECENTRALIZED_PRODUCTION = "FK_CPS_MTR_USAGEPOINT_DEC";
+    public static final String COMPONENT_NAME = "DEC_PROD";
 
-    public UsagePointDecentralizedProductionCustomPropertySet(PropertySpecService propertySpecService) {
+    public UsagePointDecentProdCustomPropertySet() {
         super();
-        this.propertySpecService = propertySpecService;
-        activate();
     }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
+        this.nlsService = nlsService;
     }
 
-    @Reference
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
@@ -60,18 +60,19 @@ public class UsagePointDecentralizedProductionCustomPropertySet implements Custo
         this.propertySpecService = propertySpecService;
     }
 
+    @Inject
+    public UsagePointDecentProdCustomPropertySet(PropertySpecService propertySpecService, MeteringService meteringService) {
+        this();
+        this.setPropertySpecService(propertySpecService);
+        this.setMeteringService(meteringService);
+    }
     @Activate
     public void activate() {
     }
 
     @Override
-    public String getId() {
-        return ID;
-    }
-
-    @Override
     public String getName() {
-        return thesaurus.getFormat(TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_SIMPLE_NAME).format();
+        return this.getTheasarus().getFormat(TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_SIMPLE_NAME).format();
     }
 
     @Override
@@ -80,8 +81,8 @@ public class UsagePointDecentralizedProductionCustomPropertySet implements Custo
     }
 
     @Override
-    public PersistenceSupport<UsagePoint, UsagePointDecentralizedProductionDomainExtension> getPersistenceSupport() {
-        return new UsagePointDecentralizedProductionPersistenceSupport(thesaurus);
+    public PersistenceSupport<UsagePoint, UsagePointDecentProdDomExt> getPersistenceSupport() {
+        return new UsagePointDecentrProdPS(this.getTheasarus());
     }
 
     @Override
@@ -109,30 +110,30 @@ public class UsagePointDecentralizedProductionCustomPropertySet implements Custo
         //unused until QuantityFactory is created
 //        PropertySpec installedPowerSpec = propertySpecService
 //                .stringSpec()
-//                .named(UsagePointDecentralizedProductionDomainExtension.Fields.INSTALLED_POWER.javaName(), TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_INSTALLED_POWER)
-//                .fromThesaurus(thesaurus)
+//                .named(UsagePointDecentProdDomExt.Fields.INSTALLED_POWER.javaName(), TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_INSTALLED_POWER)
+//                .fromThesaurus(this.getTheasarus())
 //                .markEditable()
 //                .markRequired()
 //                .finish();
 //        PropertySpec convertorPowerSpec = propertySpecService
 //                .stringSpec()
-//                .named(UsagePointDecentralizedProductionDomainExtension.Fields.CONVERTOR_POWER.javaName(), TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_CONVERTER_POWER)
-//                .fromThesaurus(thesaurus)
+//                .named(UsagePointDecentProdDomExt.Fields.CONVERTOR_POWER.javaName(), TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_CONVERTER_POWER)
+//                .fromThesaurus(this.getTheasarus())
 //                .markEditable()
 //                .markRequired()
 //                .finish();
         PropertySpec typeOfDecentralizedProductionSpec = propertySpecService
                 .stringSpec()
-                .named(UsagePointDecentralizedProductionDomainExtension.Fields.TYPE_OF_DECENTRALIZED_PROD.javaName(), TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_TYPE_OF_DECENTRALIZED_PRODUCTION)
-                .fromThesaurus(thesaurus)
+                .named(UsagePointDecentProdDomExt.Fields.TYPE_OF_DECENTRALIZED_PROD.javaName(), TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_TYPE_OF_DECENTRALIZED_PRODUCTION)
+                .fromThesaurus(this.getTheasarus())
                 .addValues("solar", "wind", "other")
                 .markRequired()
                 .finish();
 
         PropertySpec commissioningDateSpec = propertySpecService
                 .specForValuesOf(new InstantFactory())
-                .named(UsagePointDecentralizedProductionDomainExtension.Fields.COMMISSIONING_DATE.javaName(), TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_COMMISSIONING_DATE)
-                .fromThesaurus(thesaurus)
+                .named(UsagePointDecentProdDomExt.Fields.COMMISSIONING_DATE.javaName(), TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_COMMISSIONING_DATE)
+                .fromThesaurus(this.getTheasarus())
                 .markRequired()
                 .finish();
 
@@ -143,14 +144,14 @@ public class UsagePointDecentralizedProductionCustomPropertySet implements Custo
                 commissioningDateSpec);
     }
 
-    private static class UsagePointDecentralizedProductionPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointDecentralizedProductionDomainExtension> {
+    private Thesaurus getTheasarus() {
+        return nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
+    }
 
-        public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_DEC";
-        public static final String FK_CPS_DEVICE_DECENTRALIZED_PRODUCTION = "FK_CPS_MTR_USAGEPOINT_DEC";
-        public static final String COMPONENT_NAME = "DEC_PROD";
+    private static class UsagePointDecentrProdPS implements PersistenceSupport<UsagePoint, UsagePointDecentProdDomExt> {
         private Thesaurus thesaurus;
 
-        public UsagePointDecentralizedProductionPersistenceSupport(Thesaurus thesaurus) {
+        public UsagePointDecentrProdPS(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -166,7 +167,7 @@ public class UsagePointDecentralizedProductionCustomPropertySet implements Custo
 
         @Override
         public String domainFieldName() {
-            return UsagePointDecentralizedProductionDomainExtension.Fields.DOMAIN.javaName();
+            return UsagePointDecentProdDomExt.Fields.DOMAIN.javaName();
         }
 
         @Override
@@ -175,8 +176,8 @@ public class UsagePointDecentralizedProductionCustomPropertySet implements Custo
         }
 
         @Override
-        public Class<UsagePointDecentralizedProductionDomainExtension> persistenceClass() {
-            return UsagePointDecentralizedProductionDomainExtension.class;
+        public Class<UsagePointDecentProdDomExt> persistenceClass() {
+            return UsagePointDecentProdDomExt.class;
         }
 
         @Override
@@ -192,24 +193,24 @@ public class UsagePointDecentralizedProductionCustomPropertySet implements Custo
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             //unused until QuantityFactory is created
-//            table.column(UsagePointDecentralizedProductionDomainExtension.Fields.INSTALLED_POWER.databaseName())
+//            table.column(UsagePointDecentProdDomExt.Fields.INSTALLED_POWER.databaseName())
 //                    .varChar(255)
-//                    .map(UsagePointDecentralizedProductionDomainExtension.Fields.INSTALLED_POWER.javaName())
+//                    .map(UsagePointDecentProdDomExt.Fields.INSTALLED_POWER.javaName())
 //                    .notNull()
 //                    .add();
-//            table.column(UsagePointDecentralizedProductionDomainExtension.Fields.CONVERTOR_POWER.databaseName())
+//            table.column(UsagePointDecentProdDomExt.Fields.CONVERTOR_POWER.databaseName())
 //                    .varChar(255)
-//                    .map(UsagePointDecentralizedProductionDomainExtension.Fields.CONVERTOR_POWER.javaName())
+//                    .map(UsagePointDecentProdDomExt.Fields.CONVERTOR_POWER.javaName())
 //                    .notNull()
 //                    .add();
-            table.column(UsagePointDecentralizedProductionDomainExtension.Fields.TYPE_OF_DECENTRALIZED_PROD.databaseName())
+            table.column(UsagePointDecentProdDomExt.Fields.TYPE_OF_DECENTRALIZED_PROD.databaseName())
                     .varChar(255)
-                    .map(UsagePointDecentralizedProductionDomainExtension.Fields.TYPE_OF_DECENTRALIZED_PROD.javaName())
+                    .map(UsagePointDecentProdDomExt.Fields.TYPE_OF_DECENTRALIZED_PROD.javaName())
                     .notNull()
                     .add();
-            table.column(UsagePointDecentralizedProductionDomainExtension.Fields.COMMISSIONING_DATE.databaseName())
+            table.column(UsagePointDecentProdDomExt.Fields.COMMISSIONING_DATE.databaseName())
                     .varChar(255)
-                    .map(UsagePointDecentralizedProductionDomainExtension.Fields.COMMISSIONING_DATE.javaName())
+                    .map(UsagePointDecentProdDomExt.Fields.COMMISSIONING_DATE.javaName())
                     .notNull()
                     .add();
         }

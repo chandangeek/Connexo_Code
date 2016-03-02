@@ -19,7 +19,9 @@ import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -27,30 +29,27 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "c.e.j.m.cps.impl.metrology.UsagePointMeterTechInformationAllCustomPropertySet", service = CustomPropertySet.class, immediate = true)
-public class UsagePointMeterTechInformationAllCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointMeterTechInformationAllDomainExtension> {
+@Component(name = "c.e.j.m.cps.impl.metrology.UsagePointMeterTechInfAllCPS", service = CustomPropertySet.class, immediate = true)
+public class UsagePointMeterTechInfAllCPS implements CustomPropertySet<UsagePoint, UsagePointMeterTechInfAllDomExt> {
 
-    private volatile PropertySpecService propertySpecService;
-    private volatile MeteringService meteringService;
-    private volatile Thesaurus thesaurus;
-    private final String ID = "c.e.j.m.cps.impl.mtr.UsagePointMeterTechInformationAllCustomPropertySet";
+    public volatile PropertySpecService propertySpecService;
+    public volatile MeteringService meteringService;
+    public volatile NlsService nlsService;
 
-    public UsagePointMeterTechInformationAllCustomPropertySet() {
+    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_T_IN";
+    public static final String FK_CPS_DEVICE_METER_TECH_INFORM = "FK_CPS_MTR_USAGEPOINT_T_IN";
+    public static final String COMPONENT_NAME = "TECH_INF";
 
-    }
-
-    public UsagePointMeterTechInformationAllCustomPropertySet(PropertySpecService propertySpecService) {
+    public UsagePointMeterTechInfAllCPS() {
         super();
-        this.propertySpecService = propertySpecService;
-        activate();
     }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
+        this.nlsService = nlsService;
     }
 
-    @Reference
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
@@ -60,19 +59,20 @@ public class UsagePointMeterTechInformationAllCustomPropertySet implements Custo
         this.propertySpecService = propertySpecService;
     }
 
+    @Inject
+    public UsagePointMeterTechInfAllCPS(PropertySpecService propertySpecService, MeteringService meteringService) {
+        this();
+        this.setPropertySpecService(propertySpecService);
+        this.setMeteringService(meteringService);
+    }
+
     @Activate
     public void activate() {
     }
 
-
-    @Override
-    public String getId() {
-        return ID;
-    }
-
     @Override
     public String getName() {
-        return thesaurus.getFormat(TranslationKeys.CPS_METER_TECH_INFORMATION_ALL_SIMPLE_NAME).format();
+        return this.getThesaurus().getFormat(TranslationKeys.CPS_METER_TECH_INFORMATION_ALL_SIMPLE_NAME).format();
     }
 
     @Override
@@ -81,8 +81,8 @@ public class UsagePointMeterTechInformationAllCustomPropertySet implements Custo
     }
 
     @Override
-    public PersistenceSupport<UsagePoint, UsagePointMeterTechInformationAllDomainExtension> getPersistenceSupport() {
-        return new UsagePointMeterTechInformationAllPersistenceSupport(thesaurus);
+    public PersistenceSupport<UsagePoint, UsagePointMeterTechInfAllDomExt> getPersistenceSupport() {
+        return new UsagePointMeterTechInfAllPersSupp(this.getThesaurus());
     }
 
     @Override
@@ -109,16 +109,16 @@ public class UsagePointMeterTechInformationAllCustomPropertySet implements Custo
     public List<PropertySpec> getPropertySpecs() {
         PropertySpec meterMechanismSpec = propertySpecService
                 .stringSpec()
-                .named(UsagePointMeterTechInformationAllDomainExtension.Fields.METER_MECHANISM.javaName(), TranslationKeys.CPS_METER_TECH_MECHANISM)
+                .named(UsagePointMeterTechInfAllDomExt.Fields.METER_MECHANISM.javaName(), TranslationKeys.CPS_METER_TECH_MECHANISM)
                 .describedAs(TranslationKeys.CPS_METER_TECH_MECHANISM_DESCRIPTION)
-                .fromThesaurus(this.thesaurus)
+                .fromThesaurus(this.getThesaurus())
                 .addValues("CR -Credit", "MT -Mechanical Token", "ET -Electronic Token", "CM -Coin", "PP -Prepayment", "TH -Thrift", "U -Unknown", "NS - SMETS non-compliant", "S1 - SMETS Version 1", "S2 - SMETS Version 2")
                 .finish();
         PropertySpec meterTypeSpec = propertySpecService
                 .stringSpec()
-                .named(UsagePointMeterTechInformationAllDomainExtension.Fields.METER_TYPE.javaName(), TranslationKeys.CPS_METER_TECH_TYPE)
+                .named(UsagePointMeterTechInfAllDomExt.Fields.METER_TYPE.javaName(), TranslationKeys.CPS_METER_TECH_TYPE)
                 .describedAs(TranslationKeys.CPS_METER_TECH_TYPE_DESCRIPTION)
-                .fromThesaurus(this.thesaurus)
+                .fromThesaurus(this.getThesaurus())
                 .addValues("R = Rotary", "T = Turbine", "D = Diaphragm of unknown material", "L = Leather Diaphragm", "S = Synthetic Diaphragm", "U = Ultrasonic", "Z = Unknown")
                 .finish();
 
@@ -126,14 +126,15 @@ public class UsagePointMeterTechInformationAllCustomPropertySet implements Custo
                 meterTypeSpec);
     }
 
-    private static class UsagePointMeterTechInformationAllPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointMeterTechInformationAllDomainExtension> {
+    private Thesaurus getThesaurus() {
+        return nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
+    }
 
-        public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_T_IN";
-        public static final String FK_CPS_DEVICE_METER_TECH_INFORM = "FK_CPS_MTR_USAGEPOINT_T_IN";
-        public static final String COMPONENT_NAME = "TECH_INF";
+    private static class UsagePointMeterTechInfAllPersSupp implements PersistenceSupport<UsagePoint, UsagePointMeterTechInfAllDomExt> {
+
         private Thesaurus thesaurus;
 
-        public UsagePointMeterTechInformationAllPersistenceSupport(Thesaurus thesaurus) {
+        public UsagePointMeterTechInfAllPersSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -149,7 +150,7 @@ public class UsagePointMeterTechInformationAllCustomPropertySet implements Custo
 
         @Override
         public String domainFieldName() {
-            return UsagePointMeterTechInformationAllDomainExtension.Fields.DOMAIN.javaName();
+            return UsagePointMeterTechInfAllDomExt.Fields.DOMAIN.javaName();
         }
 
         @Override
@@ -158,8 +159,8 @@ public class UsagePointMeterTechInformationAllCustomPropertySet implements Custo
         }
 
         @Override
-        public Class<UsagePointMeterTechInformationAllDomainExtension> persistenceClass() {
-            return UsagePointMeterTechInformationAllDomainExtension.class;
+        public Class<UsagePointMeterTechInfAllDomExt> persistenceClass() {
+            return UsagePointMeterTechInfAllDomExt.class;
         }
 
         @Override
@@ -174,13 +175,13 @@ public class UsagePointMeterTechInformationAllCustomPropertySet implements Custo
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(UsagePointMeterTechInformationAllDomainExtension.Fields.METER_MECHANISM.databaseName())
+            table.column(UsagePointMeterTechInfAllDomExt.Fields.METER_MECHANISM.databaseName())
                     .varChar(255)
-                    .map(UsagePointMeterTechInformationAllDomainExtension.Fields.METER_MECHANISM.javaName())
+                    .map(UsagePointMeterTechInfAllDomExt.Fields.METER_MECHANISM.javaName())
                     .add();
-            table.column(UsagePointMeterTechInformationAllDomainExtension.Fields.METER_TYPE.databaseName())
+            table.column(UsagePointMeterTechInfAllDomExt.Fields.METER_TYPE.databaseName())
                     .varChar(255)
-                    .map(UsagePointMeterTechInformationAllDomainExtension.Fields.METER_TYPE.javaName())
+                    .map(UsagePointMeterTechInfAllDomExt.Fields.METER_TYPE.javaName())
                     .add();
         }
     }

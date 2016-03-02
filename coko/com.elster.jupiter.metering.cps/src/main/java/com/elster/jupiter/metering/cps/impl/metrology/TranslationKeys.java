@@ -10,7 +10,7 @@ public enum TranslationKeys implements TranslationKey {
     CPS_GENERAL_PROPERTIES_PREPAY("usage.point.cps.general.properties.general.prepay", "Prepay"),
     CPS_GENERAL_PROPERTIES_PREPAY_DESCRIPTION("usage.point.cps.general.properties.prepay.descr", "Actively delivered on prepayment or deactivated, only relevant for SDP"),
     CPS_GENERAL_PROPERTIES_MARKET_CODE_SECTOR("usage.point.cps.general.properties.market.code.sector", "Market code sector"),
-    CPS_GENERAL_PROPERTIES_MARKED_CODE_SECTOR_DESCRIPTION("usage.point.cps.general.properties.market.code.sector.descr", "A classification of a usage point"),
+    CPS_GENERAL_PROPERTIES_MARKED_CODE_SECTOR_DESCRIPTION("usage.point.cps.general.properties.market.code.sector.descr", "UsagePointTechElectricityCustomPropertySet classification of a usage point"),
     CPS_GENERAL_PROPERTIES_METERING_POINT_TYPE("usage.point.cps.general.properties.metering.point.type", "Metering point type"),
     CPS_GENERAL_PROPERTIES_METERING_POINT_TYPE_DESCRIPTION("usage.point.cps.general.properties.metering.point.type.descr", "Geeft de richting van de aansluiting aan: levering, teruglevering of beide"),
 
@@ -103,9 +103,7 @@ public enum TranslationKeys implements TranslationKey {
     CPS_METER_TECH_CONNECTION_TYPE("usage.point.cps.meter.tech.information.connection.type", "Aansluittype"),
     CPS_METER_TECH_CONNECTION_TYPE_DESCRIPTION("usage.point.cps.meter.tech.information.connection.type.descr", "Het soort en maat van de fysieke koppeling."),
     CPS_METER_TECH_CONVERSION_METROLOGY("usage.point.cps.meter.tech.information.conversion.mtr", "Herleidingsmethodiek"),
-    CPS_METER_TECH_CONVERSION_METROLOGY_DESCRIPTION("usage.point.cps.meter.tech.information.conversion.mtr.descr", "Geeft aan op welke manier de te versturen meetdata van deze meter achteraf gecorrigeerd moet worden voor druk en temperatuur. Is niet van toepassing als:\n" +
-            "·          dit veld leeg is (betekenis ‘Niet herleid’)\n" +
-            "·          alle telwerken van deze meter al een herleid volume meten (Phenomenon = ‘Gas Volume Normalized (Nm3)’)"),
+    CPS_METER_TECH_CONVERSION_METROLOGY_DESCRIPTION("usage.point.cps.meter.tech.information.conversion.mtr.descr", "Geeft aan op welke manier de te versturen meetdata van deze meter achteraf gecorrigeerd moet worden voor druk en temperatuur."),
     CPS_METER_TECH_CAPACITY_MINIMAL("usage.point.cps.meter.tech.information.capacity.minimal", "Capacity minimal"),
     CPS_METER_TECH_CAPACITY_MINIMAL_DESCRIPTION("usage.point.cps.meter.tech.information.capacity.minimal.descr", "Qmin\n" +
             "De minimaal benodigde doorstroom om een meting van voldoende kwaliteit te krijgen."),
@@ -136,7 +134,11 @@ public enum TranslationKeys implements TranslationKey {
     CPS_PROPERTIES_ENHANCED_SUPPORT("usage.point.cps.properties.enhanced.support", "Enhanced support"),
     CPS_PROPERTIES_ENHANCED_SUPPORT_DESCRIPTION("usage.point.cps.properties.enhanced.support.descr", "Cool enhanced support"),
     CPS_PROPERTIES_COMBOBOX("usage.point.cps.properties.combobox", "Combobox"),
-    CPS_PROPERTIES_COMBOBOX_DESCRIPTION("usage.point.cps.properties.combobox.descr", "Combobox for CAS"),;
+    CPS_PROPERTIES_COMBOBOX_DESCRIPTION("usage.point.cps.properties.combobox.descr", "Combobox for CAS"),
+
+
+    QUANTITY_NAME("quantity.name", "Quantity"),
+    QUANTITY_FIELD("quantity.field", "QuantityField");
 
     private String key;
     private String defaultFormat;

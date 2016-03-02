@@ -19,7 +19,9 @@ import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -30,25 +32,24 @@ import java.util.Set;
 @Component(name = "c.e.j.mtr.cps.impl.UsagePointGeneralCustomPropertySet", service = CustomPropertySet.class, immediate = true)
 public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointGeneralDomainExtension> {
 
-    private volatile PropertySpecService propertySpecService;
-    private volatile MeteringService meteringService;
-    private volatile Thesaurus thesaurus;
+    public volatile PropertySpecService propertySpecService;
+    public volatile MeteringService meteringService;
+    public volatile NlsService nlsService;
+
+    public static final String TABLE_NAME = "RVK_CPS_USAGEPOINT_GENER";
+    public static final String FK_CPS_DEVICE_GENERAL = "FK_CPS_USAGEPOINT_GENER";
+    public static final String COMPONENT_NAME = "GENER";
 
     public UsagePointGeneralCustomPropertySet() {
-    }
-
-    public UsagePointGeneralCustomPropertySet(PropertySpecService propertySpecService) {
         super();
-        this.propertySpecService = propertySpecService;
-        activate();
     }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
+        this.nlsService = nlsService;
     }
 
-    @Reference
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
@@ -58,18 +59,21 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
         this.propertySpecService = propertySpecService;
     }
 
-    @Activate
-    public void activate() {
+    @Inject
+    public UsagePointGeneralCustomPropertySet(PropertySpecService propertySpecService, MeteringService meteringService) {
+        this();
+        this.setPropertySpecService(propertySpecService);
+        this.setMeteringService(meteringService);
     }
 
-    @Override
-    public String getId() {
-        return UsagePointGeneralCustomPropertySet.class.getName();
+    @Activate
+    public void activate() {
+        System.out.println(TABLE_NAME);
     }
 
     @Override
     public String getName() {
-        return thesaurus.getFormat(TranslationKeys.CPS_GENERAL_SIMPLE_NAME).format();
+        return getThesaurus().getFormat(TranslationKeys.CPS_GENERAL_SIMPLE_NAME).format();
     }
 
     @Override
@@ -79,7 +83,7 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
 
     @Override
     public PersistenceSupport<UsagePoint, UsagePointGeneralDomainExtension> getPersistenceSupport() {
-        return new UsagePointGeneralPersistenceSupport(thesaurus);
+        return new UsagePointGeneralPersistenceSupport(getThesaurus());
     }
 
     @Override
@@ -89,7 +93,7 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
 
     @Override
     public boolean isVersioned() {
-        return true;
+        return false;
     }
 
     @Override
@@ -108,14 +112,14 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
                 .booleanSpec()
                 .named(UsagePointGeneralDomainExtension.Fields.PREPAY.javaName(), TranslationKeys.CPS_GENERAL_PROPERTIES_PREPAY)
                 .describedAs(TranslationKeys.CPS_GENERAL_PROPERTIES_PREPAY_DESCRIPTION)
-                .fromThesaurus(this.thesaurus)
+                .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .finish();
         PropertySpec marketCodeSectorSpec = propertySpecService
                 .stringSpec()
                 .named(UsagePointGeneralDomainExtension.Fields.MARKET_CODE_SECTOR.javaName(), TranslationKeys.CPS_GENERAL_PROPERTIES_MARKET_CODE_SECTOR)
                 .describedAs(TranslationKeys.CPS_GENERAL_PROPERTIES_MARKED_CODE_SECTOR_DESCRIPTION)
-                .fromThesaurus(this.thesaurus)
+                .fromThesaurus(this.getThesaurus())
                 .addValues("BE", "NL", "UK")
                 .markRequired()
                 .finish();
@@ -123,19 +127,21 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
                 .stringSpec()
                 .named(UsagePointGeneralDomainExtension.Fields.METERING_POINT_TYPE.javaName(), TranslationKeys.CPS_GENERAL_PROPERTIES_METERING_POINT_TYPE)
                 .describedAs(TranslationKeys.CPS_GENERAL_PROPERTIES_METERING_POINT_TYPE_DESCRIPTION)
-                .fromThesaurus(this.thesaurus)
+                .fromThesaurus(this.getThesaurus())
                 .addValues("BE", "NL", "UK")
                 .markRequired()
                 .finish();
 
-        return Arrays.asList(prepaySpec, marketCodeSectorSpec, meteringPointTypeSpec);
+        return Arrays.asList(prepaySpec,
+                marketCodeSectorSpec,
+                meteringPointTypeSpec);
+    }
+
+    private Thesaurus getThesaurus() {
+        return nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     private class UsagePointGeneralPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointGeneralDomainExtension> {
-
-        public static final String TABLE_NAME = "RVK_CPS_USAGEPOINT_GENERAL";
-        public static final String FK_CPS_DEVICE_GENERAL = "FK_CPS_USAGEPOINT_GENERAL";
-        public static final String COMPONENT_NAME = "GNR";
         private Thesaurus thesaurus;
 
         public UsagePointGeneralPersistenceSupport(Thesaurus thesaurus) {
@@ -196,5 +202,4 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
                     .add();
         }
     }
-
 }

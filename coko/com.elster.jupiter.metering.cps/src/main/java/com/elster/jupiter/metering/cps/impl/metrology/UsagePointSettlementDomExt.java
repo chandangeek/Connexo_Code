@@ -8,7 +8,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
-public class UsagePointSettlementDomainExtension implements PersistentDomainExtension<UsagePoint> {
+public class UsagePointSettlementDomExt implements PersistentDomainExtension<UsagePoint> {
 
     public enum Fields {
         DOMAIN {
@@ -59,8 +59,12 @@ public class UsagePointSettlementDomainExtension implements PersistentDomainExte
     private String gridfeeTimeframe;
     private String gridfeeTariffcode;
 
-    public UsagePointSettlementDomainExtension() {
+    public UsagePointSettlementDomExt() {
         super();
+    }
+
+    public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
+        return registeredCustomPropertySet.get();
     }
 
     public String getSettlementArea() {
@@ -79,13 +83,29 @@ public class UsagePointSettlementDomainExtension implements PersistentDomainExte
         return gridfeeTariffcode;
     }
 
+    public void setSettlementArea(String settlementArea) {
+        this.settlementArea = settlementArea;
+    }
+
+    public void setSettlementMethod(String settlementMethod) {
+        this.settlementMethod = settlementMethod;
+    }
+
+    public void setGridfeeTimeframe(String gridfeeTimeframe) {
+        this.gridfeeTimeframe = gridfeeTimeframe;
+    }
+
+    public void setGridfeeTariffcode(String gridfeeTariffcode) {
+        this.gridfeeTariffcode = gridfeeTariffcode;
+    }
+
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(domainInstance);
-        this.settlementArea = (String) propertyValues.getProperty(Fields.SETTLEMENT_AREA.javaName());
-        this.settlementMethod = (String) propertyValues.getProperty(Fields.SETTLEMENT_METHOD.javaName());
-        this.gridfeeTimeframe = (String) propertyValues.getProperty(Fields.GRIDFEE_TIMEFRAME.javaName());
-        this.gridfeeTariffcode = (String) propertyValues.getProperty(Fields.GRIDFEE_TARIFFCODE.javaName());
+        this.setSettlementArea((String) propertyValues.getProperty(Fields.SETTLEMENT_AREA.javaName()));
+        this.setSettlementMethod((String) propertyValues.getProperty(Fields.SETTLEMENT_METHOD.javaName()));
+        this.setGridfeeTimeframe((String) propertyValues.getProperty(Fields.GRIDFEE_TIMEFRAME.javaName()));
+        this.setGridfeeTariffcode((String) propertyValues.getProperty(Fields.GRIDFEE_TARIFFCODE.javaName()));
     }
 
     @Override

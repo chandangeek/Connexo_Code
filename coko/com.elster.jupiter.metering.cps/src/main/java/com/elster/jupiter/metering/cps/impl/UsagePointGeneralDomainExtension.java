@@ -54,31 +54,51 @@ public class UsagePointGeneralDomainExtension implements PersistentDomainExtensi
     private String marketCodeSector;
     private String meteringPointType;
 
+    public UsagePointGeneralDomainExtension() {
+        super();
+    }
+
+    public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
+        return registeredCustomPropertySet.get();
+    }
+
     public Boolean getPrepay() {
-        return this.prepay;
+        return prepay;
+    }
+
+    public void setPrepay(Boolean prepay) {
+        this.prepay = prepay;
     }
 
     public String getMarketCodeSector() {
-        return this.marketCodeSector;
+        return marketCodeSector;
+    }
+
+    public void setMarketCodeSector(String marketCodeSector) {
+        this.marketCodeSector = marketCodeSector;
     }
 
     public String getMeteringPointType() {
-        return this.meteringPointType;
+        return meteringPointType;
+    }
+
+    public void setMeteringPointType(String meteringPointType) {
+        this.meteringPointType = meteringPointType;
     }
 
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(domainInstance);
-        this.prepay = (Boolean) propertyValues.getProperty(Fields.PREPAY.javaName());
-        this.marketCodeSector = (String) propertyValues.getProperty(Fields.MARKET_CODE_SECTOR.javaName());
-        this.meteringPointType = (String) propertyValues.getProperty(Fields.METERING_POINT_TYPE.javaName());
+        this.setPrepay((Boolean) propertyValues.getProperty(Fields.PREPAY.javaName()));
+        this.setMarketCodeSector((String) propertyValues.getProperty(Fields.MARKET_CODE_SECTOR.javaName()));
+        this.setMeteringPointType((String) propertyValues.getProperty(Fields.METERING_POINT_TYPE.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(Fields.PREPAY.javaName(), getPrepay());
-        propertySetValues.setProperty(Fields.MARKET_CODE_SECTOR.javaName(), getMarketCodeSector());
-        propertySetValues.setProperty(Fields.METERING_POINT_TYPE.javaName(), getMeteringPointType());
+        propertySetValues.setProperty(Fields.PREPAY.javaName(), this.getPrepay());
+        propertySetValues.setProperty(Fields.MARKET_CODE_SECTOR.javaName(), this.getMarketCodeSector());
+        propertySetValues.setProperty(Fields.METERING_POINT_TYPE.javaName(), this.getMeteringPointType());
     }
 
     @Override

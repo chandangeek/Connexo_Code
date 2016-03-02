@@ -8,7 +8,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
-public class UsagePointMeterGeneralDomainExtension implements PersistentDomainExtension<UsagePoint> {
+public class UsagePointMeterGnrDomainExtension implements PersistentDomainExtension<UsagePoint> {
 
     public enum Fields {
         DOMAIN {
@@ -43,7 +43,7 @@ public class UsagePointMeterGeneralDomainExtension implements PersistentDomainEx
         }
     }
 
-    public UsagePointMeterGeneralDomainExtension() {
+    public UsagePointMeterGnrDomainExtension() {
         super();
     }
 
@@ -51,12 +51,24 @@ public class UsagePointMeterGeneralDomainExtension implements PersistentDomainEx
         return manufacturer;
     }
 
+    public void setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
+    }
+
     public String getModel() {
         return model;
     }
 
+    public void setModel(String model) {
+        this.model = model;
+    }
+
     public String get_class() {
         return _class;
+    }
+
+    public void set_class(String _class) {
+        this._class = _class;
     }
 
     @IsPresent
@@ -68,13 +80,16 @@ public class UsagePointMeterGeneralDomainExtension implements PersistentDomainEx
     private String model;
     private String _class;
 
+    public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
+        return registeredCustomPropertySet.get();
+    }
 
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(domainInstance);
-        this.model = (String) propertyValues.getProperty(Fields.MANUFACTURER.javaName());
-        this.manufacturer = (String) propertyValues.getProperty(Fields.MODEL.javaName());
-        this._class = (String) propertyValues.getProperty(Fields.CLASS.javaName());
+        this.setModel((String) propertyValues.getProperty(Fields.MANUFACTURER.javaName()));
+        this.setManufacturer((String) propertyValues.getProperty(Fields.MODEL.javaName()));
+        this.set_class((String) propertyValues.getProperty(Fields.CLASS.javaName()));
     }
 
     @Override

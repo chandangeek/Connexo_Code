@@ -10,7 +10,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 
 import java.time.Instant;
 
-public class UsagePointDecentralizedProductionDomainExtension implements PersistentDomainExtension<UsagePoint> {
+public class UsagePointDecentProdDomExt implements PersistentDomainExtension<UsagePoint> {
 
     public enum Fields {
         DOMAIN {
@@ -61,8 +61,28 @@ public class UsagePointDecentralizedProductionDomainExtension implements Persist
     private String typeOfDecentralizedProduction;
     private Instant commissioningDate;
 
-    public UsagePointDecentralizedProductionDomainExtension() {
+    public UsagePointDecentProdDomExt() {
         super();
+    }
+
+    public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
+        return registeredCustomPropertySet.get();
+    }
+
+    public void setTypeOfDecentralizedProduction(String typeOfDecentralizedProduction) {
+        this.typeOfDecentralizedProduction = typeOfDecentralizedProduction;
+    }
+
+    public void setInstalledPower(String installedPower) {
+        this.installedPower = installedPower;
+    }
+
+    public void setConvertorPower(String convertorPower) {
+        this.convertorPower = convertorPower;
+    }
+
+    public void setCommissioningDate(Instant commissioningDate) {
+        this.commissioningDate = commissioningDate;
     }
 
     public String getInstalledPower() {
@@ -84,11 +104,11 @@ public class UsagePointDecentralizedProductionDomainExtension implements Persist
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(domainInstance);
-        this.installedPower = (String) propertyValues.getProperty(Fields.INSTALLED_POWER.javaName());
-        this.convertorPower = (String) propertyValues.getProperty(Fields.CONVERTOR_POWER.javaName());
-        this.typeOfDecentralizedProduction = (String) propertyValues.getProperty(Fields.TYPE_OF_DECENTRALIZED_PROD
-                .javaName());
-        this.commissioningDate = (Instant) propertyValues.getProperty(Fields.COMMISSIONING_DATE.javaName());
+        this.setInstalledPower((String) propertyValues.getProperty(Fields.INSTALLED_POWER.javaName()));
+        this.setConvertorPower((String) propertyValues.getProperty(Fields.CONVERTOR_POWER.javaName()));
+        this.setTypeOfDecentralizedProduction((String) propertyValues.getProperty(Fields.TYPE_OF_DECENTRALIZED_PROD
+                .javaName()));
+        this.setCommissioningDate((Instant) propertyValues.getProperty(Fields.COMMISSIONING_DATE.javaName()));
 
     }
 

@@ -8,7 +8,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
-public class UsagePointMeterTechInformationAllDomainExtension implements PersistentDomainExtension<UsagePoint> {
+public class UsagePointMeterTechInfAllDomExt implements PersistentDomainExtension<UsagePoint> {
 
     public enum Fields {
         DOMAIN {
@@ -45,6 +45,10 @@ public class UsagePointMeterTechInformationAllDomainExtension implements Persist
     private String meterMechanism;
     private String meterType;
 
+    public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
+        return registeredCustomPropertySet.get();
+    }
+
     public String getMeterType() {
         return meterType;
     }
@@ -53,11 +57,19 @@ public class UsagePointMeterTechInformationAllDomainExtension implements Persist
         return meterMechanism;
     }
 
+    public void setMeterMechanism(String meterMechanism) {
+        this.meterMechanism = meterMechanism;
+    }
+
+    public void setMeterType(String meterType) {
+        this.meterType = meterType;
+    }
+
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(domainInstance);
-        this.meterMechanism = (String) propertyValues.getProperty(Fields.METER_MECHANISM.javaName());
-        this.meterType = (String) propertyValues.getProperty(Fields.METER_TYPE.javaName());
+        this.setMeterMechanism((String) propertyValues.getProperty(Fields.METER_MECHANISM.javaName()));
+        this.setMeterType((String) propertyValues.getProperty(Fields.METER_TYPE.javaName()));
     }
 
     @Override
