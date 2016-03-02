@@ -3,7 +3,8 @@ Ext.define('Idc.view.Detail', {
     alias: 'widget.data-collection-issue-detail',
     requires: [
         'Isu.view.issues.DetailTop',
-        'Idc.view.DetailForm',
+        'Idc.view.DetailsContainer',
+        'Idc.view.LogGrid',
         'Isu.view.issues.CommentsList',
         'Uni.view.toolbar.PreviousNextNavigation'
     ],
@@ -39,8 +40,8 @@ Ext.define('Idc.view.Detail', {
                 router: me.router
             },
             {
-                xtype: 'data-collection-issue-detail-form',
-                itemId: 'issue-detail-form',
+                xtype: 'container',
+                itemId: 'data-collection-issue-detail-container',
                 router: me.router
             },
             {
