@@ -21,6 +21,4 @@ public interface HeatDetail extends UsagePointDetail {
     BypassStatus getBypassStatus();
 
     YesNoAnswer isValveInstalled();
-
-    boolean isInterruptible();
 }

@@ -18,7 +18,6 @@ public class HeatDetailBuilderImpl implements HeatDetailBuilder {
     private YesNoAnswer bypass = YesNoAnswer.UNKNOWN;
     private BypassStatus bypassStatus;
     private YesNoAnswer valve = YesNoAnswer.UNKNOWN;
-    private boolean interruptible;
 
     private UsagePoint usagePoint;
     private Interval interval;
@@ -67,12 +66,6 @@ public class HeatDetailBuilderImpl implements HeatDetailBuilder {
     }
 
     @Override
-    public HeatDetailBuilder withInterruptible(boolean interruptible) {
-        this.interruptible = interruptible;
-        return this;
-    }
-
-    @Override
     public HeatDetail create() {
         HeatDetail detail = buildDetail();
         usagePoint.addDetail(detail);
@@ -92,7 +85,6 @@ public class HeatDetailBuilderImpl implements HeatDetailBuilder {
         detail.setBypass(bypass);
         detail.setBypassStatus(bypassStatus);
         detail.setValve(valve);
-        detail.setInterruptible(interruptible);
         return detail;
     }
 }

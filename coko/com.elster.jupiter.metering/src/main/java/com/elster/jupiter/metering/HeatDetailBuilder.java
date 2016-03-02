@@ -17,7 +17,5 @@ public interface HeatDetailBuilder  extends UsagePointDetailBuilder{
 
     HeatDetailBuilder withValve(YesNoAnswer valve);
 
-    HeatDetailBuilder withInterruptible(boolean interruptible);
-
     HeatDetail create();
 }
