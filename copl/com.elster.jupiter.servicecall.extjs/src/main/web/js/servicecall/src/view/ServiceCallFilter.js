@@ -26,10 +26,9 @@ Ext.define('Scs.view.ServiceCallFilter', {
                 dataIndex: 'status',
                 emptyText: Uni.I18n.translate('general.status', 'SCS', 'Status'),
                 multiSelect: true,
-                displayField: 'state',
-                valueField: 'state',
-                store: 'Scs.store.ServiceCalls'
-                //   hidden: !me.includeServiceCombo
+                displayField: 'displayValue',
+                valueField: 'id',
+                store: 'Scs.store.States'
             },
             {
                 type: 'interval',
