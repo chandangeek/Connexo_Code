@@ -76,7 +76,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.readRoute = usagePoint.getReadRoute();
         info.servicePriority = usagePoint.getServicePriority();
         info.serviceDeliveryRemark = usagePoint.getServiceDeliveryRemark();
-        info.installationTime = usagePoint.getInstallationTime().getEpochSecond();
+        info.installationTime = usagePoint.getInstallationTime().toEpochMilli();
         info.version = usagePoint.getVersion();
         info.createTime = usagePoint.getCreateDate().toEpochMilli();
         info.modTime = usagePoint.getModificationDate().toEpochMilli();
