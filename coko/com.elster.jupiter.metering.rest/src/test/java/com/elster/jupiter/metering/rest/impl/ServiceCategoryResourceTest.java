@@ -7,17 +7,21 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+
 import com.google.common.collect.Sets;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -32,6 +36,8 @@ public class ServiceCategoryResourceTest extends MeteringApplicationJerseyTest {
         when(category.getKind()).thenReturn(ServiceKind.ELECTRICITY);
         when(category.getName()).thenReturn(ServiceKind.ELECTRICITY.getDefaultFormat());
         when(category.isActive()).thenReturn(true);
+        List<MeterRole> meterRoles = Arrays.asList(mockMeterRole(DefaultMeterRole.MAIN), mockMeterRole(DefaultMeterRole.CHECK));
+        when(category.getMeterRoles()).thenReturn(meterRoles);
         when(meteringService.getServiceCategory(any(ServiceKind.class))).thenReturn(Optional.empty());
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(category));
 
@@ -41,6 +47,7 @@ public class ServiceCategoryResourceTest extends MeteringApplicationJerseyTest {
         assertThat(model.<List>get("$.categories")).hasSize(1);
         assertThat(model.<String>get("$.categories[0].name")).isEqualTo(ServiceKind.ELECTRICITY.name());
         assertThat(model.<String>get("$.categories[0].displayName")).isEqualTo(ServiceKind.ELECTRICITY.getDefaultFormat());
+        assertThat(model.<List<String>>get("$.categories[0].meterRoles")).containsExactly(DefaultMeterRole.CHECK.getDefaultFormat(), DefaultMeterRole.MAIN.getDefaultFormat());
     }
 
     @Test
@@ -107,6 +114,12 @@ public class ServiceCategoryResourceTest extends MeteringApplicationJerseyTest {
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
         when(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         return registeredCustomPropertySet;
+    }
+
+    private MeterRole mockMeterRole(DefaultMeterRole meterRole) {
+        MeterRole mock = mock(MeterRole.class);
+        when(mock.getName()).thenReturn(meterRole.getDefaultFormat());
+        return mock;
     }
 }
 
