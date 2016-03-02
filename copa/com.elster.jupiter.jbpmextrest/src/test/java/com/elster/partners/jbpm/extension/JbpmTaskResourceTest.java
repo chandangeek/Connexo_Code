@@ -461,8 +461,8 @@ public class JbpmTaskResourceTest {
         records.add(obj);
         when(query.getResultList()).thenReturn(records);
         ClientRequest request = new ClientRequest(baseUri + "/allprocesses");
-        request.queryParameter("variableid", "mrid");
-        request.queryParameter("variablevalue", "device01");
+        request.queryParameter("variableid", "issueid");
+        request.queryParameter("variablevalue", "issue01");
 
         ClientResponse<RunningProcessInfos> response = request.get(RunningProcessInfos.class);
 
