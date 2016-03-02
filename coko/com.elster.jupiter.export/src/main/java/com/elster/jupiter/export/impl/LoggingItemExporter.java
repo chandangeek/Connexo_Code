@@ -49,7 +49,7 @@ class LoggingItemExporter implements ItemExporter {
     public List<FormattedExportData> exportItem(DataExportOccurrence occurrence, MeterReadingData meterReadingData) {
         ReadingTypeDataExportItem item = meterReadingData.getItem();
         String mrid = item.getReadingContainer().getMeter(occurrence.getTriggerTime()).map(Meter::getMRID).orElse("");
-        String readingType = item.getReadingType().getAliasName();
+        String readingType = item.getReadingType().getFullAliasName();
         try {
             Range<Instant> range = ((IStandardDataSelector) occurrence.getTask().getReadingTypeDataSelector().get()).adjustedExportPeriod(occurrence, item);
             String fromDate = range.hasLowerBound() ? timeFormatter.format(range.lowerEndpoint()) : "";
