@@ -32,8 +32,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static java.util.Arrays.fill;
+
 public class ServiceCallImpl implements ServiceCall {
-    public static final NumberFormat NUMBER_PREFIX = new DecimalFormat("SC_00000000");
+    static final int ZEROFILL_SIZE = 8;
+    private static final NumberFormat NUMBER_PREFIX = createFormat();
+
+    private static NumberFormat createFormat() {
+        char[] zeroFillChars = new char[ZEROFILL_SIZE];
+        fill(zeroFillChars, '0');
+        return new DecimalFormat("SC_" + new String(zeroFillChars));
+    }
+
     private long id;
     private Instant lastCompletedTime;
     private String origin;

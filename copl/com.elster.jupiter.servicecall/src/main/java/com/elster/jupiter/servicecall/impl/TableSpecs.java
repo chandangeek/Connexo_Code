@@ -136,6 +136,11 @@ public enum TableSpecs {
                     .varChar(NAME_LENGTH)
                     .map(ServiceCallImpl.Fields.externalReference.fieldName())
                     .add();
+            table.column("REFERENCE")
+                    .varChar(NAME_LENGTH)
+                    .as("'SC_' || lpad(ID," + ServiceCallImpl.ZEROFILL_SIZE + ",'0')")
+                    .alias("internalReference")
+                    .add();
             table.addRefAnyColumns("TARGET", false, ServiceCallImpl.Fields.targetObject.fieldName());
             Column serviceCallType = table.column("SERVICECALLTYPE").number().notNull().add();
             table.addAuditColumns();

@@ -17,7 +17,7 @@ public interface ServiceCallFinder {
 
     ServiceCallFinder setType(List<String> types);
 
-    ServiceCallFinder setState(int state);
+    ServiceCallFinder setState(List<String> states);
 
     ServiceCallFinder withCreationTimeIn(Range<Instant> interval);
 
