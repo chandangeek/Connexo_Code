@@ -223,6 +223,7 @@ Ext.define('Bpm.processes.controller.Processes', {
             propertyForm = me.getPropertyForm();
 
         // load process
+        editProcessModel.getProxy().setUrl('/api/bpm/runtime/process');
         editProcessModel.getProxy().extraParams = {version: version, association: record.get('type')};
         editProcessModel.load(id, {
             success: function (process) {

@@ -8,7 +8,7 @@ Ext.define('Bpm.controller.Main', {
         'Bpm.controller.Task',
         'Bpm.controller.TaskBulk',
         'Bpm.processes.controller.Processes',
-        'Bpm.controller.history.BpmManagement',
+        //     'Bpm.controller.history.BpmManagement',
         'Bpm.privileges.BpmManagement'
     ],
 
@@ -29,23 +29,25 @@ Ext.define('Bpm.controller.Main', {
         }
     ],
 
-    init: function () {
-        var me = this,
-            historian = me.getController('Bpm.controller.history.BpmManagement'); // Forces route registration.
-    },
-
-
     addProcessManagement: function () {
-        var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: Uni.I18n.translate('general.administration', 'BPM', 'Administration'),
-            portal: 'administration',
-            glyph: 'settings',
-            index: 10
-        });
+        var me = this,
+            menuItem = Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.administration', 'BPM', 'Administration'),
+                portal: 'administration',
+                glyph: 'settings',
+                index: 10
+            });
 
         Uni.store.MenuItems.add(menuItem);
 
         if (Bpm.privileges.BpmManagement.canViewProcesses()) {
+
+            Ext.require(['Bpm.controller.history.BpmManagement'],
+                function(){
+                    me.getController('Bpm.controller.history.BpmManagement'); // Forces route registration.
+                }
+            );
+
             var processManagement = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.processManagement', 'BPM', 'Process management'),
                 portal: 'administration',
