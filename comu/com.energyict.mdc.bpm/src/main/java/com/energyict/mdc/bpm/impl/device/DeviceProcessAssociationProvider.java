@@ -112,8 +112,7 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
     private PropertySpec getDeviceStatePropertySpec() {
         DeviceStateInfo[] possibleValues =
                 this.deviceLifeCycleConfigurationService
-                        .findAllDeviceLifeCycles()
-                        .stream().sorted((lc1, lc2) -> lc1.getName().compareToIgnoreCase(lc2.getName()))
+                        .findAllDeviceLifeCycles().stream()
                         .flatMap(lifeCycle -> lifeCycle.getFiniteStateMachine().getStates().stream())
                         .map(state -> new DeviceStateInfo(thesaurus, deviceLifeCycleConfigurationService, state))
                         .sorted((info1, info2) -> (info1.getLifeCycleId() != info2.getLifeCycleId()) ?
