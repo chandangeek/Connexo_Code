@@ -16,9 +16,33 @@ $ui-body-color: $panel-tile-body-color
 //todo: Checkit if it matches guidlines
 .#{$prefix}panel-tile {
     margin: {
-        top: 16px;
-        right: 48px;
+       // top: 16px;
+        right: 20px;
+        bottom: 20px;
     }
+    .#{$prefix}panel-header {
+        padding: {
+            top: 5px;
+            right: 5px;
+            bottom: 5px;
+            left: 5px;
+        }
+        .#{$prefix}toolbar{
+            padding: 0 0 0 0;
+        }
+    }
+}
+
+.#{$prefix}panel-tile .#{$prefix}form-field{
+    border-radius: $form-field-border-radius;
+    height: 20px;
+    background-color: #ffffff;
+
+}
+
+.#{$prefix}panel-tile .#{$prefix}form-display-field{
+    height: auto;
+    min-height: 20px;
 }
 
 

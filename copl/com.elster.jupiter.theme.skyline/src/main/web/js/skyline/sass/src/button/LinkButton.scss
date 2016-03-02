@@ -5,6 +5,10 @@ a, a.#{$prefix}btn {
     }
 }
 
+.a-underline{
+   text-decoration: underline;
+}
+
 @mixin uni-button-link($postfix: null) {
     .#{$prefix}btn-link-#{$postfix} {
         .#{$prefix}btn-inner {
