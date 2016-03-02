@@ -7,9 +7,13 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.servicecall.LogLevel;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 

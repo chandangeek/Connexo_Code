@@ -1,7 +1,6 @@
 package com.elster.jupiter.servicecall.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
@@ -41,9 +40,11 @@ public class ServiceCallTypeResourceTest extends ServiceCallApplicationTest {
 
     @Test
     public void testChangeLogLevel() throws Exception {
-        ServiceCallType serviceCallType = mockServiceCallType(1L);
+        mockServiceCallType(1L);
 
-        ServiceCallTypeInfo info = new ServiceCallTypeInfo(serviceCallType, mock(Thesaurus.class));
+        ServiceCallTypeInfo info = new ServiceCallTypeInfo();
+        info.id = 666L; // fake id
+        info.version = 1L;
         info.logLevel = new IdWithDisplayValueInfo<>();
         info.logLevel.id = LogLevel.SEVERE.name();
 
@@ -54,11 +55,13 @@ public class ServiceCallTypeResourceTest extends ServiceCallApplicationTest {
 
     private ServiceCallType mockServiceCallType(long id) {
         ServiceCallType serviceCallType = mock(ServiceCallType.class);
+        ServiceCallLifeCycle serviceCallLifeCycle = mock(ServiceCallLifeCycle.class);
+        when(serviceCallLifeCycle.getId()).thenReturn(1L);
+        when(serviceCallLifeCycle.getName()).thenReturn("default");
         when(serviceCallType.getName()).thenReturn("Mbus 1");
         Finder<ServiceCallType> serviceCallTypeFinder = mockFinder(Collections.singletonList(serviceCallType));
         when(serviceCallService.getServiceCallTypes()).thenReturn(serviceCallTypeFinder);
         when(serviceCallService.findAndLockServiceCallType(id, 1L)).thenReturn(Optional.of(serviceCallType));
-        ServiceCallLifeCycle serviceCallLifeCycle = mock(ServiceCallLifeCycle.class);
         when(serviceCallType.getServiceCallLifeCycle()).thenReturn(serviceCallLifeCycle);
         when(serviceCallType.getLogLevel()).thenReturn(LogLevel.WARNING);
         when(serviceCallType.getStatus()).thenReturn(Status.ACTIVE);
