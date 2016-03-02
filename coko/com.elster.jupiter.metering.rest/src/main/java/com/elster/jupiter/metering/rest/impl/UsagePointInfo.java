@@ -138,7 +138,6 @@ public class UsagePointInfo {
                 bypass = hDetail.isBypassInstalled();
                 bypassStatus =hDetail.getBypassStatus();
                 valve = hDetail.isValveInstalled();
-                interruptible = hDetail.isInterruptible();
             }
         }
     }
