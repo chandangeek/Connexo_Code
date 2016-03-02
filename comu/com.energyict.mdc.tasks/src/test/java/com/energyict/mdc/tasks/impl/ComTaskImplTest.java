@@ -194,26 +194,6 @@ public class ComTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.COMTASK_WITHOUT_PROTOCOLTASK+"}", property = "protocolTasks")
-    public void createWithNoProtocolTasksTest() {
-        ComTask comTask = getTaskService().newComTask(COM_TASK_NAME);
-        comTask.setStoreData(STORE_DATA_TRUE);
-        comTask.setMaxNrOfTries(1);
-        comTask.save();
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.COMTASK_WITHOUT_PROTOCOLTASK+"}", property = "protocolTasks")
-    public void testRemoveLastProtocolTask() throws Exception {
-        ComTask simpleComTask = createSimpleComTaskWithStatusInformation();
-        StatusInformationTask statusInformationTask = getTaskByType(simpleComTask.getProtocolTasks(), StatusInformationTask.class);
-        simpleComTask.removeTask(statusInformationTask);// can't remove the last task
-        simpleComTask.save();
-    }
-
-    @Test
-    @Transactional
     public void testNameIsTrimmed() throws Exception {
         ComTask comTask = getTaskService().newComTask(" "+COM_TASK_NAME+" ");
         comTask.setStoreData(STORE_DATA_TRUE);

@@ -78,7 +78,6 @@ public abstract class ComTaskImpl implements ComTask {
     /**
      * Holds a list of all {@link com.energyict.mdc.tasks.ProtocolTask ProtocolTasks} which must be performed during the execution of this kind of ComTask
      */
-    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COMTASK_WITHOUT_PROTOCOLTASK + "}")
     @Valid
     private final List<ProtocolTaskImpl> protocolTasks = new ArrayList<>();
     private long id;
