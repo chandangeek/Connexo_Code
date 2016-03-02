@@ -11,6 +11,7 @@ Ext.define('Sct.controller.history.ServiceCallType', {
             items: {
                 servicecalltypes: {
                     title: Uni.I18n.translate('general.serviceCallTypes', 'SCT', 'Service call types'),
+                    privileges: Sct.privileges.ServiceCallType.view,
                     route: 'servicecalltypes',
                     controller: 'Sct.controller.ServiceCallTypes',
                     action: 'showServiceCallTypes'
