@@ -43,12 +43,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.ThermalInfo', {
             name: 'collar',
             itemId: 'up-collar-combo',
             fieldLabel: Uni.I18n.translate('general.label.collar', 'IMT', 'Collar')
-        },
-        {
-            xtype: 'checkbox',
-            name: 'interruptible',
-            itemId: 'up-interruptible-checkbox',
-            fieldLabel: Uni.I18n.translate('general.label.interruptible', 'IMT', 'Interruptible')
         }
     ]
 });

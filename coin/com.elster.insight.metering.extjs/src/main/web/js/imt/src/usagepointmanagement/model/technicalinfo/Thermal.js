@@ -6,7 +6,6 @@ Ext.define('Imt.usagepointmanagement.model.technicalinfo.Thermal', {
         {name: 'bypass', type: 'string', useNull: true, defaultValue: 'UNKNOWN'},
         {name: 'bypassStatus', type: 'auto', defaultValue: null},
         {name: 'valve', type: 'string', useNull: true, defaultValue: 'UNKNOWN'},
-        {name: 'collar', type: 'string', useNull: true, defaultValue: 'UNKNOWN'},
-        {name: 'interruptible', type: 'boolean'}
+        {name: 'collar', type: 'string', useNull: true, defaultValue: 'UNKNOWN'}
     ]
 });
