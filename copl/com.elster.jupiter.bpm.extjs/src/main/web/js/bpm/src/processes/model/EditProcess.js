@@ -4,7 +4,6 @@ Ext.define('Bpm.processes.model.EditProcess', {
         'Bpm.processes.model.Privilege',
 
     ],
-
     fields: [
         {
             name: 'id',
