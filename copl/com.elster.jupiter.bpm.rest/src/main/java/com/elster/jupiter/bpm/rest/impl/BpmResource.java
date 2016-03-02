@@ -290,13 +290,13 @@ public class BpmResource {
             ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinitions(auth);
             processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
                     .filter(s -> activeProcesses.stream()
-                            .anyMatch(a -> a.getProcessName().equals(s.processId) &&
+                            .anyMatch(a -> a.getProcessName().equals(s.name) &&
                                     a.getVersion().equals(s.version) &&
                                     a.getAssociationProvider().isPresent() &&
                                     a.getAssociation().equals(filterProperties.get("type").get(0).toLowerCase())))
                     .collect(Collectors.toList());
-            processDefinitionInfos.processes.stream()
-                    .forEach(s -> s.processId = s.processId + " (" + s.deploymentId + ") ");
+            //processDefinitionInfos.processes.stream()
+            //        .forEach(s -> s.processId = s.processId + " (" + s.deploymentId + ") ");
             processDefinitionInfos.total = processDefinitionInfos.processes.size();
             return processDefinitionInfos;
         }else{
@@ -304,10 +304,10 @@ public class BpmResource {
             ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinitions(auth);
             processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
                     .filter(s -> activeProcesses.stream()
-                            .anyMatch(a -> a.getProcessName().equals(s.processId) && a.getVersion().equals(s.version)))
+                            .anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version)))
                     .collect(Collectors.toList());
-            processDefinitionInfos.processes.stream()
-                    .forEach(s -> s.processId = s.processId + " (" + s.deploymentId + ") ");
+            //processDefinitionInfos.processes.stream()
+            //        .forEach(s -> s.processId = s.processId + " (" + s.deploymentId + ") ");
             processDefinitionInfos.total = processDefinitionInfos.processes.size();
             return processDefinitionInfos;
         }
@@ -465,18 +465,18 @@ public class BpmResource {
 
     @PUT
     @Transactional
-    @Path("/process/deactivate/{id}")
+    @Path("/process/deactivate")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_BPM)
-    public ProcessDefinitionInfo deactivateProcess(@PathParam("id") String id, ProcessDefinitionInfo info) {
-        Optional<BpmProcessDefinition> bpmProcessDefinition = bpmService.getBpmProcessDefinition(info.processId, info.version);
+    public ProcessDefinitionInfo deactivateProcess(ProcessDefinitionInfo info) {
+        Optional<BpmProcessDefinition> bpmProcessDefinition = bpmService.getBpmProcessDefinition(info.name, info.version);
         if (bpmProcessDefinition.isPresent()) {
             bpmProcessDefinition.get().setStatus(info.active);
             bpmProcessDefinition.get().save();
             return new ProcessDefinitionInfo(bpmProcessDefinition.get());
         }
 
-        throw new BpmProcessNotAvailable(thesaurus, id + ":" + info.version);
+        throw new BpmProcessNotAvailable(thesaurus, info.name + ":" + info.version);
     }
 
     @GET
@@ -499,7 +499,7 @@ public class BpmResource {
                 return processDefinitionInfo;
             }else{
                 ProcessDefinitionInfo processDefinitionInfo = getBpmProcessDefinitions(auth).processes.stream()
-                        .filter(s -> s.processId.equals(id) && s.version.equals(version)).findFirst()
+                        .filter(s -> s.name.equals(id) && s.version.equals(version)).findFirst()
                         .orElseThrow(() -> new BpmProcessNotAvailable(thesaurus, id + ":" + version));
 
                 if (queryParameters.get("association") != null) {
@@ -547,7 +547,7 @@ public class BpmResource {
 
                 List<ProcessDefinitionInfo> bpmProcesses = bpmProcessDefinition.processes.stream()
                         .filter(s -> filtredConnexoProcesses.stream()
-                                .anyMatch(x -> x.getProcessName().equals(s.processId) && x.getVersion()
+                                .anyMatch(x -> x.getProcessName().equals(s.name) && x.getVersion()
                                         .equals(s.version)))
                         .collect(Collectors.toList());
                 return PagedInfoList.fromCompleteList("processes", bpmProcesses, queryParameters);
