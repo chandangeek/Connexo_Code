@@ -1,13 +1,11 @@
 package com.elster.jupiter.servicecall.impl;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFinder;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Or;
 import com.elster.jupiter.util.conditions.Order;
 
 import com.google.common.collect.Range;
@@ -50,7 +48,8 @@ public class ServiceCallFinderImpl implements ServiceCallFinder {
 
     @Override
     public ServiceCallFinder setReference(String reference) {
-        this.condition = this.condition.and(where(ServiceCallImpl.Fields.externalReference.fieldName()).like(reference).or(where("id").like(Long.parseLong(reference.substring(3)) + "")));
+        this.condition = this.condition.and(where(ServiceCallImpl.Fields.externalReference.fieldName()).like(reference)
+                .or(where("id").like(Long.parseLong(reference.substring(3)) + "")));
         return this;
     }
 
@@ -102,7 +101,7 @@ public class ServiceCallFinderImpl implements ServiceCallFinder {
         if (start != null) {
             queryStream.skip(start);
         }
-        if(limit != null) {
+        if (limit != null) {
             queryStream.limit(limit);
         }
         return queryStream;

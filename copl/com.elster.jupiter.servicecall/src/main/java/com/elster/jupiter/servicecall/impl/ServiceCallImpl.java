@@ -243,7 +243,8 @@ public class ServiceCallImpl implements ServiceCall {
     @Override
     public Finder<ServiceCall> getChildren() {
         Condition condition = Where.where("parent").isEqualTo(this);
-        return DefaultFinder.of(ServiceCall.class, condition, dataModel).defaultSortColumn(ServiceCallImpl.Fields.type.fieldName());
+        return DefaultFinder.of(ServiceCall.class, condition, dataModel)
+                .defaultSortColumn(ServiceCallImpl.Fields.type.fieldName());
     }
 
     @Override
