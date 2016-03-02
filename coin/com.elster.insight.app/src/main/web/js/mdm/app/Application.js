@@ -1,7 +1,8 @@
-Ext.define('InsightApp.Application', {
+Ext.define('MdmApp.Application', {
     extend: 'Ext.app.Application',
 
     requires:[
+        'Imt.privileges.UsagePoint',
         'Imt.privileges.ServiceCategory',
         'Imt.privileges.MetrologyConfig',
         'Bpm.privileges.BpmManagement',
@@ -9,7 +10,7 @@ Ext.define('InsightApp.Application', {
     ],
 
     controllers: [
-        'InsightApp.controller.Main'
+        'MdmApp.controller.Main'
     ],
     launch: function () {
         // Removes the loading indicator.

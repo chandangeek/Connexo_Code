@@ -49,8 +49,8 @@ Ext.onReady(function () {
         // </debug>
 
         Ext.application({
-            name: 'InsightApp',
-            extend: 'InsightApp.Application',
+            name: 'MdmApp',
+            extend: 'MdmApp.Application',
             autoCreateViewport: true
         });
     });
