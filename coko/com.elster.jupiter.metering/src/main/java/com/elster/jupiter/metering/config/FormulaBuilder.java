@@ -19,5 +19,6 @@ public interface FormulaBuilder {
     NodeBuilder divide(NodeBuilder dividend, NodeBuilder divisor);
     NodeBuilder multiply(NodeBuilder multiplier, NodeBuilder multiplicand);
     FormulaBuilder init(NodeBuilder nodeBuilder);
+    FormulaBuilder init(FormulaPart formulaPart);
     Formula build();
 }

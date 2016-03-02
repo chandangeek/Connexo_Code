@@ -26,8 +26,10 @@ public class ExpressionNodeParser {
                 builder = new StringBuilder();
             } else if (value == ',') {
 
+            } else if (value == ' ') {
+
             }
-             else {
+            else {
                 builder.append(value);
             }
         }
@@ -39,9 +41,9 @@ public class ExpressionNodeParser {
         if (last.equals("constant")) {
             handleConstantNode(value);
         } else if ((last.equals("sum")) || (last.equals("avg")) || (last.equals("max")) || (last.equals("min"))) {
-            handleOperationNode(last);
-        } else if ((last.equals("plus")) || (last.equals("minus")) || (last.equals("multiply")) || (last.equals("divide"))) {
             handleFunctionNode(last);
+        } else if ((last.equals("plus")) || (last.equals("minus")) || (last.equals("multiply")) || (last.equals("divide"))) {
+            handleOperationNode(last);
         }
 
     }

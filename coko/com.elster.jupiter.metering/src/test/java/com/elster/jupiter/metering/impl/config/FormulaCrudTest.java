@@ -161,5 +161,17 @@ public class FormulaCrudTest {
         }
     }
 
+    @Test
+    public void testParser()  {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            MetrologyConfigurationService service = getMetrologyConfigurationService();
+            String formulaString = "multiply(sum(max(constant(10), constant(0)), constant(5), constant(3)), constant(2))";
+            ExpressionNode node = new ExpressionNodeParser().parse(formulaString);
+            Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
+            context.commit();
+
+        }
+    }
+
 
 }
