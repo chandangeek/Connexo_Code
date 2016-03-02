@@ -6,13 +6,18 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.HandlerDisappearedException;
 import com.elster.jupiter.servicecall.InvalidPropertySetDomainTypeException;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.Status;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +35,10 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     private String versionName;
     private Status status;
     private LogLevel logLevel;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Constants.REQUIRED_FIELD+"}")
+    @Size(min=1, groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Constants.REQUIRED_FIELD+"}")
+    @IsRegisteredHandler(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.UNKNOWN_HANDLER + "}")
+    private String serviceCallHandler;
     private Reference<IServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
     private DefaultState currentLifeCycleState;
     private List<ServiceCallTypeCustomPropertySetUsage> customPropertySets = new ArrayList<>();
@@ -44,11 +53,13 @@ public class ServiceCallTypeImpl implements IServiceCallType {
 
 
     private final DataModel dataModel;
+    private final ServiceCallService serviceCallService;
     private final Thesaurus thesaurus;
 
     @Inject
-    public ServiceCallTypeImpl(DataModel dataModel, Thesaurus thesaurus) {
+    public ServiceCallTypeImpl(DataModel dataModel, ServiceCallService serviceCallService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
+        this.serviceCallService = serviceCallService;
         this.thesaurus = thesaurus;
         this.status = Status.ACTIVE;
     }
@@ -61,7 +72,8 @@ public class ServiceCallTypeImpl implements IServiceCallType {
         versionName("versionName"),
         version("version"),
         currentLifeCycleState("currentLifeCycleState"),
-        customPropertySets("customPropertySets");
+        customPropertySets("customPropertySets"),
+        handler("serviceCallHandler");
 
         private final String javaFieldName;
 
@@ -95,6 +107,20 @@ public class ServiceCallTypeImpl implements IServiceCallType {
 
     void setVersionName(String versionName) {
         this.versionName = versionName;
+    }
+
+    @Override
+    public ServiceCallHandler getServiceCallHandler() {
+        return serviceCallService.findHandler(serviceCallHandler)
+                .orElseThrow(() -> new HandlerDisappearedException(thesaurus, MessageSeeds.HANDLER_DISAPPEARED, serviceCallHandler));
+    }
+
+    public String getHandlerName() {
+        return serviceCallHandler;
+    }
+
+    public void setHandlerName(String serviceCallHandler) {
+        this.serviceCallHandler = serviceCallHandler;
     }
 
     @Override

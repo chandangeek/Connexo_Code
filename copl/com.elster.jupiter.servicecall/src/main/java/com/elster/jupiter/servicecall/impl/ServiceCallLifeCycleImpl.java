@@ -6,7 +6,6 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.DefaultState;
-import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 
 import javax.inject.Inject;
 import java.util.Optional;

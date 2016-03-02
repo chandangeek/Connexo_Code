@@ -32,6 +32,7 @@ class ServiceCallBuilderImpl implements ServiceCallBuilder {
     static ServiceCallBuilderImpl from(DataModel dataModel, ServiceCallImpl parent, IServiceCallType type) {
         return dataModel.getInstance(ServiceCallBuilderImpl.class).init(parent, type);
     }
+
     private ServiceCallBuilderImpl init(ServiceCallImpl parent, IServiceCallType type) {
         instance = ServiceCallImpl.from(dataModel, parent, type);
         return this;
