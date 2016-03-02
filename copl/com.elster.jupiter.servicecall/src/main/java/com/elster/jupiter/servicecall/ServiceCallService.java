@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.Finder;
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.Map;
+import java.util.Collection;
 import java.util.Optional;
 
 @ProviderType
@@ -30,6 +31,7 @@ public interface ServiceCallService {
      * @return Will return empty if no init has been done yet
      */
     public Optional<ServiceCallLifeCycle> getDefaultServiceCallLifeCycle();
+
     public ServiceCallLifeCycleBuilder createServiceCallLifeCycle(String name);
 
     /**
@@ -76,6 +78,19 @@ public interface ServiceCallService {
      * @return The optional service call
      */
     Optional<ServiceCall> getServiceCall(long id);
+
+    /**
+     * Returns a list of names of all known service call handlers in the system
+     */
+    Collection<String> findAllHandlers();
+
+    /**
+     * Returns the service call handler identified by the name. Empty if none is found
+     *
+     * @param handler Service call handler name
+     */
+    Optional<ServiceCallHandler> findHandler(String handler);
+
 
     /**
      * Finds and returns a service call with the given internal number

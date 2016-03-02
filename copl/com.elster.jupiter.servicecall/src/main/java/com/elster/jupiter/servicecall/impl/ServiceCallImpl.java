@@ -117,7 +117,7 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public Optional<Instant> getLastCompletedTime() {
-        return  Optional.ofNullable(this.lastCompletedTime);
+        return Optional.ofNullable(this.lastCompletedTime);
     }
 
     @Override
@@ -141,7 +141,7 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public Optional<String> getOrigin() {
-        return  Optional.ofNullable(this.origin);
+        return Optional.ofNullable(this.origin);
     }
 
     void setOrigin(String origin) {
@@ -150,7 +150,7 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public Optional<String> getExternalReference() {
-        return  Optional.ofNullable(this.externalReference);
+        return Optional.ofNullable(this.externalReference);
     }
 
     void setExternalReference(String externalReference) {
@@ -243,7 +243,7 @@ public class ServiceCallImpl implements ServiceCall {
                         .equals(extensionClass))
                 .map(customPropertySet -> (CustomPropertySet<ServiceCall, T>) customPropertySet)
                 .findAny()
-                .flatMap(customPropertySet ->  getExtensionFor(customPropertySet, additionalPrimaryKeyValues));
+                .flatMap(customPropertySet -> getExtensionFor(customPropertySet, additionalPrimaryKeyValues));
     }
 
 
