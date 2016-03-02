@@ -47,7 +47,7 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
         processStartContent.setLoading();
 
         me.processRecord = processRecord.lastSelection[0].data;
-        processContent.getProxy().setUrl(me.processRecord.id);
+        processContent.getProxy().setUrl(me.processRecord.processId);
         processContent.load(me.processRecord.deploymentId,{
             success: function (startProcessRecord) {
 
@@ -116,7 +116,7 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
 
             startProcessRecord.set('businessObject', businessObject);
             startProcessRecord.set('deploymentId', me.processRecord.deploymentId);
-            startProcessRecord.set('id', me.processRecord.deploymentId);
+            startProcessRecord.set('id', me.processRecord.processId);
             startProcessRecord.save({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.startprocess.started', 'BPM', 'Process started.'));

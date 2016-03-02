@@ -12,8 +12,8 @@ Ext.define('Bpm.monitorprocesses.view.HistoryTopFilter', {
                 emptyText: Uni.I18n.translate('bpm.process.filter.process', 'BPM', 'Process'),
                 itemId: 'bpm-view-history-processes-topfilter-process',
                 multiSelect: true,
-                displayField: 'process',
-                valueField: 'process',
+                displayField: 'displayName',
+                valueField: 'fullName',
                 width: 240,
                 store: 'Bpm.monitorprocesses.store.HistoryProcessesFilterProcesses'
             },
