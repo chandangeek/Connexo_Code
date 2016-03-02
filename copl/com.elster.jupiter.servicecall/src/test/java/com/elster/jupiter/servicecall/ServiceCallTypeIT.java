@@ -386,7 +386,9 @@ public class ServiceCallTypeIT {
     @Test
     public void testDeleteWorksWhenThereAreNoServiceCallsForTheType() {
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").create();
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
+                    .handler("DisconnectHandler1")
+                    .create();
             context.commit();
         }
 
@@ -403,7 +405,9 @@ public class ServiceCallTypeIT {
     @Test(expected = CannotDeleteServiceCallType.class)
     public void testDeleteDoesNotWorkWhenThereAreServiceCallsForTheType() {
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1").create();
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
+                    .handler("DisconnectHandler1")
+                    .create();
             context.commit();
         }
         ServiceCallType serviceCallType = serviceCallService.getServiceCallTypes().find().get(0);
