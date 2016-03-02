@@ -24,7 +24,7 @@ public class RunningProcessInfo {
     public RunningProcessInfo(JSONObject jsonObject) {
         try {
 
-            this.name = jsonObject.isNull("processName") ? "" : jsonObject.getString("processName") ;
+            this.name = jsonObject.isNull("processId") ? "" : jsonObject.getString("processId");
             this.startDate = jsonObject.isNull("startDate") ? "" : jsonObject.getString("startDate") ;
             this.version = jsonObject.isNull("processVersion") ? "" : jsonObject.getString("processVersion") ;
             this.startedBy = jsonObject.isNull("userIdentity") ? "" : jsonObject.getString("userIdentity") ;
