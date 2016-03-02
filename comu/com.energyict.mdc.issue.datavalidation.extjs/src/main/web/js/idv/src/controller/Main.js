@@ -21,15 +21,12 @@ Ext.define('Idv.controller.Main', {
     controllers: [
         'Idv.controller.history.Workspace',
         'Idv.controller.MainOverview',
-        'Idv.controller.Overview',
         'Idv.controller.Detail',
-        'Idv.controller.ApplyAction',
-        'Idv.controller.BulkChangeIssues',
         'Isu.controller.MessageWindow'
     ],
 
     stores: [
-        'Idv.store.Issues'
+        'Isu.store.Issues'
     ],
 
     refs: [
@@ -45,6 +42,7 @@ Ext.define('Idv.controller.Main', {
 
     init: function () {
         this.initMenu();
+        this.getApplication().fireEvent('initIssueType', 'datavalidation');
     },
 
     initMenu: function () {
@@ -68,12 +66,12 @@ Ext.define('Idv.controller.Main', {
             if (Isu.privileges.Issue.canViewAdminDevice()) {
                 items.push({
                     text: Uni.I18n.translate('general.issues','IDV','Issues'),
-                    href: router.getRoute('workspace/datavalidationissues').buildUrl()
+                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['datavalidation']})
                 });
                 items.push({
                     text: Uni.I18n.translate('datavalidation.myOpenIssues','IDV','My open issues'),
                     itemId: 'my-open-issues',
-                    href: router.getRoute('workspace/datavalidationissues').buildUrl({}, {myopenissues: true})
+                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['datavalidation'], myopenissues: true})
                 });
             }
 
