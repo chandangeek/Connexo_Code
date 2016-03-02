@@ -66,6 +66,7 @@ public class ServiceCallTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES})
     public Response changeLogLevel(@PathParam("id") long id, ServiceCallTypeInfo info) {
+        info.id = id; // oh well
         ServiceCallType type = fetchAndLockServiceCallType(info);
         if (info.logLevel != null) {
             type.setLogLevel(LogLevel.valueOf(info.logLevel.id));
