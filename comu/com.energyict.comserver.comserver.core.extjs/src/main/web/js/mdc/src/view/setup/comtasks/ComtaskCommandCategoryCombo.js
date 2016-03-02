@@ -2,8 +2,8 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCommandCategoryCombo', {
     extend: 'Ext.form.field.ComboBox',
     alias: 'widget.comtaskCommandCategoryCombo',
     name: 'category',
-    fieldLabel: Uni.I18n.translate('communicationtasks.commands.Category', 'MDC', 'Category'),
-    labelWidth: 200,
+    fieldLabel: Uni.I18n.translate('communicationtasks.commands.category', 'MDC', 'Category'),
+    labelWidth: 250,
     required: true,
     width: 400,
     store: 'Mdc.store.CommunicationTasksCategories',
@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCommandCategoryCombo', {
     allowBlank: false,
     editable: false,
     msgTarget:'under',
-    emptyText: Uni.I18n.translate('communicationtasks.commands.Category.EmptyMessage', 'MDC', 'Choose a category'),
+    emptyText: Uni.I18n.translate('communicationtasks.commands.category.emptyMessage', 'MDC', 'Choose a category'),
     validateOnBlur: false,
     validateOnChange: false
 });
