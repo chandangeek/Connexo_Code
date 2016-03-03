@@ -29,7 +29,8 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
             me.setTitle(title);
             store.each(function (item) {
                 var dueDate = item.get('dueDate');
-                item.set('href', me.router.getRoute('workspace/datacollectionissues/view').buildUrl({issueId: item.get('id')}));
+
+                item.set('href', me.router.getRoute('workspace/issues/view').buildUrl({issueId: item.get('id')}, {issueType: item.get('issueType')}));
 
                 if (dueDate) {
                     if (moment().isAfter(moment(dueDate))) {
@@ -89,14 +90,14 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
                     itemId: 'lnk-assigned-issues-link',
                     text: Ext.String.format(Uni.I18n.translate('overview.widget.openDataCollectionIssues.assignedToMe', 'DSH', 'Assigned to me ({0})'), assigned.get('total')),
                     ui: 'link',
-                    href: me.router.getRoute('workspace/datacollectionissues').buildUrl(null, assignedFilter)
+                    href: me.router.getRoute('workspace/issues').buildUrl(null, assignedFilter)
                 },
                 {
                     xtype: 'button',
                     itemId: 'lnk-unassigned-issues-link',
                     text: Ext.String.format(Uni.I18n.translate('general.unassignedCounter', 'DSH', 'Unassigned ({0})'), unassigned.get('total')),
                     ui: 'link',
-                    href: me.router.getRoute('workspace/datacollectionissues').buildUrl(null, unassignedFilter)
+                    href: me.router.getRoute('workspace/issues').buildUrl(null, unassignedFilter)
                 }
             ]);
             Ext.resumeLayouts(true);
