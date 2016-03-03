@@ -193,6 +193,7 @@ class TransientDestinationSpec implements DestinationSpec {
     private class TransientMessageBuilder implements MessageBuilder {
 
         private final byte[] data;
+        private String correlationId;
 
         public TransientMessageBuilder(String text) {
             data = text.getBytes();
@@ -206,7 +207,9 @@ class TransientDestinationSpec implements DestinationSpec {
         @Override
         public void send() {
             for (TransientSubscriberSpec subscriber : subscribers) {
-                subscriber.addMessage(new TransientMessage(data));
+                TransientMessage message = new TransientMessage(data);
+                message.setCorrelationId(correlationId);
+                subscriber.addMessage(message);
             }
 
         }
@@ -218,6 +221,7 @@ class TransientDestinationSpec implements DestinationSpec {
 
         @Override
         public MessageBuilder withCorrelationId(String correlationId) {
+            this.correlationId = correlationId;
             return this;
         }
     }
