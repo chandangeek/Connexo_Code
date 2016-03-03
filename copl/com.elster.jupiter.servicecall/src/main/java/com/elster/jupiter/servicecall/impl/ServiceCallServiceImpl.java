@@ -282,11 +282,11 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
         HashMap<String, Long> childrenCountInfo = new HashMap<>();
         SqlBuilder sqlBuilder = new SqlBuilder();
 
-        sqlBuilder.append("SELECT fsm.NAME, scs.TOTAL FROM FSM_STATE as fsm, ");
-        sqlBuilder.append("(SELECT STATE, COUNT(*) as TOTAL FROM SCS_SERVICE_CALL ");
-        sqlBuilder.append("WHERE id IN (SELECT childID FROM SCS_SERVICE_CALL_PARENT where parentID=");
-        sqlBuilder.append(numberToId(number) + " ");
-        sqlBuilder.append("GROUP BY STATE) as scs");
+        sqlBuilder.append("SELECT fsm.NAME, scs.TOTAL FROM FSM_STATE fsm, ");
+        sqlBuilder.append("(SELECT STATE, COUNT(*) TOTAL FROM SCS_SERVICE_CALL ");
+        sqlBuilder.append("WHERE id IN (SELECT id FROM SCS_SERVICE_CALL_PARENT where parent=");
+        sqlBuilder.append(numberToId(number) + ") ");
+        sqlBuilder.append("GROUP BY STATE) scs ");
         sqlBuilder.append("WHERE fsm.ID = scs.STATE");
 
         try (PreparedStatement statement = sqlBuilder.prepare(dataModel.getConnection(false))) {
