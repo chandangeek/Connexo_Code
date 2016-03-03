@@ -15,20 +15,25 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.MissingHandlerNameException;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFinder;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
+import com.elster.jupiter.servicecall.security.Privileges;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -40,9 +45,12 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -55,7 +63,7 @@ import java.util.concurrent.ConcurrentHashMap;
         service = {ServiceCallService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
         property = "name=" + ServiceCallService.COMPONENT_NAME,
         immediate = true)
-public class ServiceCallServiceImpl implements MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService, IServiceCallService {
+public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
 
     static final String SERIVCE_CALLS_DESTINATION_NAME = "SerivceCalls";
     static final String SERIVCE_CALLS_SUBSCRIBER_NAME = "SerivceCalls";
@@ -66,16 +74,18 @@ public class ServiceCallServiceImpl implements MessageSeedProvider, TranslationK
     private volatile MessageService messageService;
     private volatile JsonService jsonService;
     private final Map<String, ServiceCallHandler> handlerMap = new ConcurrentHashMap<>();
+    private volatile UserService userService;
 
     // OSGi
     public ServiceCallServiceImpl() {
     }
 
     @Inject
-    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, CustomPropertySetService customPropertySetService, MessageService messageService, JsonService jsonService) {
+    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, UserService userService, CustomPropertySetService customPropertySetService, MessageService messageService, JsonService jsonService) {
         setFiniteStateMachineService(finiteStateMachineService);
         setOrmService(ormService);
         setNlsService(nlsService);
+        setUserService(userService);
         setMessageService(messageService);
         setJsonService(jsonService);
         setCustomPropertySetService(customPropertySetService);
@@ -107,6 +117,11 @@ public class ServiceCallServiceImpl implements MessageSeedProvider, TranslationK
     }
 
     @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Reference
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
     }
@@ -117,6 +132,7 @@ public class ServiceCallServiceImpl implements MessageSeedProvider, TranslationK
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @Override
     public void addServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties) {
         String name = (String) properties.get("name");
         if (Checks.is(name).emptyOrOnlyWhiteSpace()) {
@@ -125,6 +141,7 @@ public class ServiceCallServiceImpl implements MessageSeedProvider, TranslationK
         handlerMap.put(name, serviceCallHandler);
     }
 
+    @Override
     public void removeServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties) {
         String name = (String) properties.get("name");
         handlerMap.remove(name);
@@ -157,7 +174,11 @@ public class ServiceCallServiceImpl implements MessageSeedProvider, TranslationK
 
     @Override
     public List<ResourceDefinition> getModuleResources() {
-        return Collections.emptyList();
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
+                Privileges.RESOURCE_SERVICE_CALL_TYPES.getKey(), Privileges.RESOURCE_SERVICE_CALL_TYPES_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES, Privileges.Constants.VIEW_SERVICE_CALL_TYPES)));
+        return resources;
     }
 
     @Override
@@ -190,6 +211,7 @@ public class ServiceCallServiceImpl implements MessageSeedProvider, TranslationK
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
+                bind(ServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
                 bind(IServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
                 bind(JsonService.class).toInstance(jsonService);
                 bind(MessageService.class).toInstance(messageService);
@@ -260,6 +282,54 @@ public class ServiceCallServiceImpl implements MessageSeedProvider, TranslationK
     @Override
     public Optional<ServiceCall> getServiceCall(long id) {
         return dataModel.mapper(ServiceCall.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<ServiceCall> getServiceCall(String number) {
+        return getServiceCall(numberToId(number));
+    }
+
+    @Override
+    public Finder<ServiceCall> getServiceCalls() {
+        return DefaultFinder.of(ServiceCall.class, dataModel)
+                .sorted("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ", 0))", true)
+                .sorted(ServiceCallImpl.Fields.modTime.fieldName(), false);
+    }
+
+    @Override
+    public ServiceCallFinder getServiceCallFinder() {
+        Order parentOrder = Order.ascending("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ", 0))");
+        Order modeTimeOrder = Order.descending(ServiceCallImpl.Fields.modTime.fieldName());
+        return new ServiceCallFinderImpl(dataModel, parentOrder, modeTimeOrder);
+    }
+
+    @Override
+    public Map<String, Long> getChildrenStatus(String number) {
+        HashMap<String, Long> childrenCountInfo = new HashMap<>();
+        SqlBuilder sqlBuilder = new SqlBuilder();
+
+        sqlBuilder.append("SELECT fsm.NAME, scs.TOTAL FROM FSM_STATE as fsm, ");
+        sqlBuilder.append("(SELECT STATE, COUNT(*) as TOTAL FROM SCS_SERVICE_CALL ");
+        sqlBuilder.append("WHERE id IN (SELECT childID FROM SCS_SERVICE_CALL_PARENT where parentID=");
+        sqlBuilder.append(numberToId(number) + " ");
+        sqlBuilder.append("GROUP BY STATE) as scs");
+        sqlBuilder.append("WHERE fsm.ID = scs.STATE");
+
+        try (PreparedStatement statement = sqlBuilder.prepare(dataModel.getConnection(false))) {
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    childrenCountInfo.put(DefaultState.valueOf(resultSet.getString(0))
+                            .name(), Long.parseLong(resultSet.getString(1)));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return childrenCountInfo;
+    }
+
+    private long numberToId(String number) {
+        return Long.parseLong(number.substring(3));
     }
 
     @Override

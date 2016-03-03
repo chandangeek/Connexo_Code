@@ -16,8 +16,8 @@ import java.util.Objects;
 class ServiceCallTypeBuilderImpl implements ServiceCallTypeBuilder {
     private final ServiceCallTypeImpl instance;
     private final DataModel dataModel;
-    private final Thesaurus thesaurus;
     private final List<RegisteredCustomPropertySet> toBeRegisteredCustomPropertySets = new ArrayList<>();
+    private final Thesaurus thesaurus;
 
     public ServiceCallTypeBuilderImpl(IServiceCallService serviceCallService, String name, String versionName, IServiceCallLifeCycle serviceCallLifeCycle, DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
@@ -47,6 +47,12 @@ class ServiceCallTypeBuilderImpl implements ServiceCallTypeBuilder {
     }
 
     @Override
+    public ServiceCallTypeBuilder handler(String serviceCallHandler) {
+        this.instance.setHandlerName(serviceCallHandler);
+        return this;
+    }
+
+    @Override
     public ServiceCallType create() {
         instance.save();
         for (RegisteredCustomPropertySet customPropertySet : toBeRegisteredCustomPropertySets) {
@@ -55,12 +61,5 @@ class ServiceCallTypeBuilderImpl implements ServiceCallTypeBuilder {
 
         return instance;
     }
-
-    @Override
-    public ServiceCallTypeBuilder handler(String serviceCallHandler) {
-        this.instance.setHandlerName(serviceCallHandler);
-        return this;
-    }
-
 
 }

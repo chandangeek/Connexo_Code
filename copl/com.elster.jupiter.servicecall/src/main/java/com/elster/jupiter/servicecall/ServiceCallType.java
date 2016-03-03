@@ -39,4 +39,6 @@ public interface ServiceCallType extends HasId, HasName {
     ServiceCallBuilder newServiceCall();
 
     void save();
+
+    void delete();
 }

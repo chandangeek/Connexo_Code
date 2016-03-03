@@ -37,8 +37,8 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.impl.example.DisconnectHandler;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -90,7 +90,7 @@ public class ServiceCallImplIT {
     private NlsService nlsService;
     private TransactionService transactionService;
     private MessageService messageService;
-    private ServiceCallService serviceCallService;
+    private IServiceCallService serviceCallService;
     private PropertySpecService propertySpecService;
 
     @Rule
@@ -164,9 +164,10 @@ public class ServiceCallImplIT {
                 nlsService = injector.getInstance(NlsService.class);
                 customPropertySetService = injector.getInstance(CustomPropertySetService.class);
                 messageService = injector.getInstance(MessageService.class);
-                serviceCallService = injector.getInstance(ServiceCallService.class);
+                serviceCallService = injector.getInstance(IServiceCallService.class);
                 propertySpecService = injector.getInstance(PropertySpecService.class);
                 partyService = injector.getInstance(PartyService.class);
+                new DisconnectHandler(serviceCallService);
 
 
                 customPropertySet = new MyCustomPropertySet(propertySpecService);
@@ -180,6 +181,7 @@ public class ServiceCallImplIT {
                 serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
                         .handler("someHandler")
                         .customPropertySet(registeredCustomPropertySet)
+                        .handler("DisconnectHandler1")
                         .create();
 
                 person = partyService.newPerson("Test", "test")

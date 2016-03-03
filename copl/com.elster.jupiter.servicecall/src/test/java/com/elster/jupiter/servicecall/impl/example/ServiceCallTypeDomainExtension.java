@@ -7,9 +7,6 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallType;
-
-import com.google.common.util.concurrent.Service;
 
 import javax.validation.constraints.Size;
 

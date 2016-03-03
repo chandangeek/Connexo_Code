@@ -2,13 +2,20 @@ package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.servicecall.CannotDeleteServiceCallType;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.HandlerDisappearedException;
+import com.elster.jupiter.servicecall.InvalidPropertySetDomainTypeException;
 import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.Status;
+import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -31,11 +38,11 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     private String versionName;
     private Status status;
     private LogLevel logLevel;
-    private Reference<IServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Constants.REQUIRED_FIELD+"}")
-    @Size(min=1, groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Constants.REQUIRED_FIELD+"}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED_FIELD + "}")
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED_FIELD + "}")
     @IsRegisteredHandler(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.UNKNOWN_HANDLER + "}")
     private String serviceCallHandler;
+    private Reference<IServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
     private DefaultState currentLifeCycleState;
     private List<ServiceCallTypeCustomPropertySetUsage> customPropertySets = new ArrayList<>();
     @SuppressWarnings("unused")
@@ -49,12 +56,14 @@ public class ServiceCallTypeImpl implements IServiceCallType {
 
 
     private final DataModel dataModel;
+    private final Thesaurus thesaurus;
     private final IServiceCallService serviceCallService;
 
     @Inject
-    public ServiceCallTypeImpl(DataModel dataModel, IServiceCallService serviceCallService) {
+    public ServiceCallTypeImpl(DataModel dataModel, IServiceCallService serviceCallService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.serviceCallService = serviceCallService;
+        this.thesaurus = thesaurus;
         this.status = Status.ACTIVE;
     }
 
@@ -105,7 +114,8 @@ public class ServiceCallTypeImpl implements IServiceCallType {
 
     @Override
     public ServiceCallHandler getServiceCallHandler() {
-        return serviceCallService.findHandler(serviceCallHandler).get();
+        return serviceCallService.findHandler(serviceCallHandler)
+                .orElseThrow(() -> new HandlerDisappearedException(thesaurus, MessageSeeds.HANDLER_DISAPPEARED, serviceCallHandler));
     }
 
     public String getHandlerName() {
@@ -158,6 +168,9 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     @Override
     public void addCustomPropertySet(RegisteredCustomPropertySet customPropertySet) {
         Objects.requireNonNull(customPropertySet);
+        if (!customPropertySet.getCustomPropertySet().getDomainClass().isAssignableFrom(ServiceCall.class)) {
+            throw new InvalidPropertySetDomainTypeException(thesaurus, MessageSeeds.INVALID_CPS_TYPE, customPropertySet);
+        }
         ServiceCallTypeCustomPropertySetUsageImpl usage = dataModel.getInstance(ServiceCallTypeCustomPropertySetUsageImpl.class);
         usage.initialize(this, customPropertySet);
         this.customPropertySets.add(usage);
@@ -186,4 +199,18 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     public ServiceCallBuilder newServiceCall() {
         return ServiceCallBuilderImpl.from(dataModel, this);
     }
+
+    @Override
+    public void delete() {
+        dataModel.stream(ServiceCall.class)
+                .filter(Where.where(ServiceCallImpl.Fields.type.fieldName()).isEqualTo(this))
+                .limit(1)
+                .findAny()
+                .ifPresent(oneOfThisType -> {
+                    throw new CannotDeleteServiceCallType(thesaurus, MessageSeeds.CANNOT_DELETE_SERVICECALLTYPE, this, oneOfThisType);
+                });
+
+        dataModel.mapper(IServiceCallType.class).remove(this);
+    }
+
 }
