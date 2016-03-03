@@ -9,6 +9,7 @@ import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
@@ -83,6 +84,7 @@ public enum TableSpecs {
                     .map(StateImpl.Fields.FINITE_STATE_MACHINE.fieldName())
                     .reverseMap(FiniteStateMachineImpl.Fields.STATES.fieldName())
                     .composition()
+                    .onDelete(DeleteRule.CASCADE)
                     .add();
             table.primaryKey("PK_FSM_STATE").on(id).add();
         }
