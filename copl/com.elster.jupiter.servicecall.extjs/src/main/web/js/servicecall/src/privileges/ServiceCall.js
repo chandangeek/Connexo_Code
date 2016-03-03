@@ -9,16 +9,14 @@ Ext.define('Scs.privileges.ServiceCall', {
         'Uni.Auth'
     ],
     singleton: true,
-    view: ['privilege.administrate.serviceCall',
-        'privilege.view.serviceCall', 'privilege.view.ViewServiceCallOverview'],
+    view: ['privilege.view.serviceCalls', 'privilege.administrate.serviceCall'],
 
     admin: ['privilege.administrate.serviceCall'],
-
-    typeOverview: ['privilege.view.ViewServiceCallOverview'],
 
     all: function () {
         return Ext.Array.merge(Scs.privileges.ServiceCall.view);
     },
+
     canView: function () {
         return Uni.Auth.checkPrivileges(Scs.privileges.ServiceCall.view);
     },

@@ -29,7 +29,7 @@ Ext.define('Scs.controller.Main', {
     },
 
     initMenu: function () {
-        //if (Scs.privileges.ServiceCall.canView() ){
+        if (Scs.privileges.ServiceCall.canView() ){
 
             var menuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.workspace', 'SCS', 'Workspace'),
@@ -46,7 +46,7 @@ Ext.define('Scs.controller.Main', {
                     {
                         text: Uni.I18n.translate('general.serviceCalls', 'SCS', 'Service calls'),
                         href: '#/workspace/servicecalls',
-                        //hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.appServer') &&  Uni.Auth.hasNoPrivilege('privilege.view.appServer'),
+                        hidden: !(Uni.Auth.hasPrivilege('privilege.view.serviceCalls') || Uni.Auth.hasPrivilege('privilege.administrate.serviceCall')),
                         route: 'servicecalls'
                     }
                 ]
@@ -56,5 +56,5 @@ Ext.define('Scs.controller.Main', {
                 serviceCallItem
             );
         }
-    //}
+    }
 });

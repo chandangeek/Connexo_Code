@@ -21,7 +21,8 @@ Ext.define('Scs.view.Grid', {
                         url += parent.id + '/'
                     });
                     url += record.get('id');
-                    return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                    //return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                    return '<a>' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 flex: 1
             },
