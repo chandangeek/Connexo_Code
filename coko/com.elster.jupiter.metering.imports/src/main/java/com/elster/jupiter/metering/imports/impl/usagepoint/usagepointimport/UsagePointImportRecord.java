@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.metering.BypassStatus;
+import com.elster.jupiter.metering.imports.impl.usagepoint.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.usagepoint.FileImportRecord;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
@@ -77,7 +78,7 @@ public class UsagePointImportRecord extends FileImportRecord {
 
     private Boolean allowUpdate;
 
-    private Map<CustomPropertySet, CustomPropertySetValues> customPropertySetValues;
+    private Map<CustomPropertySet, CustomPropertySetRecord> customPropertySets;
 
 
     public Optional<String> getmRID() {
@@ -353,16 +354,16 @@ public class UsagePointImportRecord extends FileImportRecord {
         this.nominalVoltageUnit = nominalVoltageUnit;
     }
 
-    public Map<CustomPropertySet, CustomPropertySetValues> getCustomPropertySetValues() {
-        return customPropertySetValues;
+    public Map<CustomPropertySet, CustomPropertySetRecord> getCustomPropertySets() {
+        return customPropertySets;
     }
 
-    public void setCustomPropertySetValues(Map<CustomPropertySet, CustomPropertySetValues> customPropertySetValues) {
-        this.customPropertySetValues = customPropertySetValues;
+    public void setCustomPropertySets(Map<CustomPropertySet, CustomPropertySetRecord> customPropertySets) {
+        this.customPropertySets = customPropertySets;
     }
 
     public Optional<Instant> getInstallationTime() {
-        return Optional.ofNullable(installationTime.toInstant());
+        return Optional.ofNullable(installationTime != null ? installationTime.toInstant() : null);
     }
 
     public void setInstallationTime(ZonedDateTime installationTime) {

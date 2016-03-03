@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.imports.impl.MessageSeeds;
+import com.elster.jupiter.metering.imports.impl.usagepoint.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.usagepoint.FileImportLogger;
 import com.elster.jupiter.metering.imports.impl.usagepoint.FileImportProcessor;
 import com.elster.jupiter.metering.imports.impl.usagepoint.MeteringDataImporterContext;
@@ -182,7 +183,6 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         detailBuilder.withBypass(data.isBypassInstalled().orElse(oldDetail.isBypassInstalled()));
         detailBuilder.withBypassStatus(data.getBypassStatus().orElse(oldDetail.getBypassStatus()));
         detailBuilder.withValve(data.isValveInstalled().orElse(oldDetail.isValveInstalled()));
-        detailBuilder.withInterruptible(data.isInterruptible().orElse(oldDetail.isInterruptible()));
         return detailBuilder.create();
     }
 
@@ -198,20 +198,24 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
 
     public void addCustomPropertySetValues(UsagePointImportRecord data, FileImportLogger logger, UsagePoint usagePoint){
 
-        Map<CustomPropertySet, CustomPropertySetValues> customPropertySetValues = data.getCustomPropertySetValues();
+        Map<CustomPropertySet, CustomPropertySetRecord> customPropertySetValues = data.getCustomPropertySets();
 
         for (RegisteredCustomPropertySet propertySet : usagePoint.getServiceCategory().getCustomPropertySets()) {
             if (customPropertySetValues.containsKey(propertySet.getCustomPropertySet())){
-                if(propertySet.getCustomPropertySet().isVersioned()) {
+                if(!propertySet.getCustomPropertySet().isVersioned()) {
                     context.getCustomPropertySetService()
                             .setValuesFor(propertySet.getCustomPropertySet(), usagePoint, customPropertySetValues.get(propertySet
-                                    .getCustomPropertySet()));
+                                    .getCustomPropertySet()).getCustomPropertySetValues());
                 } else {
                     context.getCustomPropertySetService()
                             .setValuesFor(propertySet.getCustomPropertySet(), usagePoint, customPropertySetValues.get(propertySet
-                                    .getCustomPropertySet()), data.getInstallationTime().orElse(context.getClock().instant()));
+                                    .getCustomPropertySet()).getCustomPropertySetValues(), data.getInstallationTime().orElse(context.getClock().instant()));
                 }
             }
         }
+    }
+
+    private void updateCustomPropertySet(){
+
     }
 }

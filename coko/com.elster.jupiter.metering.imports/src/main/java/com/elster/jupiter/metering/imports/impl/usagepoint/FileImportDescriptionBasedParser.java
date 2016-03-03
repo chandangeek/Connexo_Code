@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.imports.impl.usagepoint.exceptions.FileImport
 import com.elster.jupiter.metering.imports.impl.usagepoint.exceptions.ValueParserException;
 import com.elster.jupiter.metering.imports.impl.usagepoint.fields.FieldSetter;
 import com.elster.jupiter.metering.imports.impl.usagepoint.fields.FileImportField;
+import com.elster.jupiter.metering.imports.impl.usagepoint.parsers.DateParser;
 import com.elster.jupiter.metering.imports.impl.usagepoint.parsers.FieldParser;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
@@ -44,7 +45,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
                     getNumberOfMandatoryColumns(fields), rawValues.size());
         }
 
-        for (Map.Entry<String, FileImportField<?>> field : fields.entrySet().stream().filter(f -> !f.getKey().equals("customPropertySetValue")).collect(Collectors.toList())) {
+        for (Map.Entry<String, FileImportField<?>> field : fields.entrySet().stream().filter(f -> !f.getKey().equals("customPropertySetValue") && csvRecord.isMapped(f.getKey())).collect(Collectors.toList())) {
             try {
                 FieldSetter fieldSetter = field.getValue().getSetter();
                 FieldParser parser = field.getValue().getParser();
@@ -55,18 +56,35 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         }
 
         FieldSetter fieldSetter = fields.get("customPropertySetValue").getSetter();
-        Map<CustomPropertySet, CustomPropertySetValues> customPropertySetValues = new HashMap<>();
+        FieldParser dateParser = fields.get("customPropertySetTime").getParser();
+        Map<CustomPropertySet, CustomPropertySetRecord> customPropertySetValues = new HashMap<>();
         for (RegisteredCustomPropertySet rset : context.getCustomPropertySetService().findActiveCustomPropertySets(UsagePoint.class)) {
             CustomPropertySet set = rset.getCustomPropertySet();
+            CustomPropertySetRecord customPropertySetRecord = new CustomPropertySetRecord();
             CustomPropertySetValues values = CustomPropertySetValues.empty();
+
+            if(dateParser instanceof DateParser){
+                if(csvRecord.isMapped(set.getId()+".versionId")){
+                    customPropertySetRecord.setStartTime(((DateParser)dateParser).parse(csvRecord.get(set.getId()+".versionId")).toInstant());
+                }
+                if(csvRecord.isMapped(set.getId()+".startTime")){
+                    customPropertySetRecord.setStartTime(((DateParser)dateParser).parse(csvRecord.get(set.getId()+".startTime")).toInstant());
+                }
+                if(csvRecord.isMapped(set.getId()+".endTime")){
+                    customPropertySetRecord.setStartTime(((DateParser)dateParser).parse(csvRecord.get(set.getId()+".endTime")).toInstant());
+                }
+            }
+
             for (Object spec : set.getPropertySpecs()) {
                 if(spec instanceof PropertySpec && csvRecord.isMapped(set.getId()+"."+((PropertySpec) spec).getName())){
                     //values.setProperty(((PropertySpec) spec).getName(),csvRecord.get(set.getId()+"."+((PropertySpec) spec).getName()));
                     values.setProperty(((PropertySpec) spec).getName(),((PropertySpec) spec).getValueFactory().fromStringValue(csvRecord.get(set.getId()+"."+((PropertySpec) spec).getName())));
                 }
             }
-            if (!values.isEmpty()){
-                customPropertySetValues.put(set,values);
+            customPropertySetRecord.setCustomPropertySetValues(values);
+
+            if (!customPropertySetRecord.isEmpty()){
+                customPropertySetValues.put(set,customPropertySetRecord);
             }
         }
         fieldSetter.setFieldWithHeader("customPropertySetValue", customPropertySetValues);
