@@ -2,9 +2,10 @@ Ext.define('Idc.controller.Detail', {
     extend: 'Isu.controller.IssueDetail',
 
     stores: [
-        'Isu.store.Issues',
         'Isu.store.IssueActions',
-        'Isu.store.Clipboard'
+        'Isu.store.Clipboard',
+        'Idc.store.CommunicationLogs',
+        'Idc.store.ConnectionLogs'
     ],
 
     models: [
@@ -12,17 +13,17 @@ Ext.define('Idc.controller.Detail', {
     ],
 
     views: [
-        'Idc.view.Detail'
+        'Idc.view.Detail',
+        'Idc.view.CommunicationIssueDetailsForm',
+        'Idc.view.InboundIssueDetailsForm',
+        'Idc.view.OutboundIssueDetailsForm',
+        'Idc.view.ConnectionIssueDetailsForm'
     ],
 
     refs: [
         {
             ref: 'page',
             selector: 'data-collection-issue-detail'
-        },
-        {
-            ref: 'detailForm',
-            selector: 'data-collection-issue-detail #data-collection-issue-detail-form'
         },
         {
             ref: 'commentsPanel',
