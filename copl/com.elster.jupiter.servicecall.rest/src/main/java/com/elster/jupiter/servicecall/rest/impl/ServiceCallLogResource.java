@@ -37,7 +37,7 @@ public class ServiceCallLogResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-//    @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALL_TYPES)
+    @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALLS)
     public PagedInfoList getAllLogs(@PathParam("serviceCallId") long serviceCallId, @BeanParam JsonQueryParameters queryParameters) {
         ServiceCall serviceCall = serviceCallService.getServiceCall(serviceCallId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL));
