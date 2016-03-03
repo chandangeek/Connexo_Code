@@ -16,8 +16,10 @@ public interface BpmService {
     String BPM_QUEUE_SUBSC = "BpmQueueSubsc";
     String BPM_QUEUE_DISPLAYNAME = "Handle Connexo Flow";
 
+    @Deprecated
     List<String> getProcesses();
 
+    @Deprecated
     Map<String, Object> getProcessParameters(String processId);
 
     boolean startProcess(String deploymentId, String processId, Map<String, Object> parameters);
@@ -27,7 +29,7 @@ public interface BpmService {
     BpmServer getBpmServer();
 
     @Deprecated
-    BpmProcessDeviceState createBpmProcessDeviceState(BpmProcessDefinition process, long lifecycleId, long stateId, String lifecycleName, String stateName);
+    BpmProcessDeviceState createBpmProcessDeviceState(BpmProcessDefinition bpmProcessDefinition, long deviceStateId, long deviceLifeCycleId, String name, String deviceName);
 
     @Deprecated
     BpmProcessDefinition findOrCreateBpmProcessDefinition(String processName, String association, String version, String status);

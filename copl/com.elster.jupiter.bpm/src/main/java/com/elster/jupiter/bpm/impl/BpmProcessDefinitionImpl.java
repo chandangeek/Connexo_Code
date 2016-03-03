@@ -29,11 +29,14 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     private final BpmService bpmService;
     private final DataModel dataModel;
     private long id;
-    private String type;
     private String processName;
     private String association;
     private String version;
     private String status;
+
+    // Deprecated, for 10.1 compatibility only
+    private List<BpmProcessDeviceState> processDeviceStates = new ArrayList<>();
+
     @Valid
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_CAN_NOT_BE_EMPTY + "}")
     private List<BpmProcessPrivilege> processPrivileges = new ArrayList<>();
@@ -66,12 +69,12 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
 
     @Override
     public void revokeProcessDeviceStates(List<BpmProcessDeviceState> processDeviceStates) {
-
+        processDeviceStates.stream().forEach(BpmProcessDeviceState::delete);
     }
 
     @Override
     public void grantProcessDeviceStates(List<BpmProcessDeviceState> processDeviceStates) {
-
+        processDeviceStates.stream().forEach(BpmProcessDeviceState::persist);
     }
 
     @Override
@@ -146,7 +149,7 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
 
     @Override
     public List<BpmProcessDeviceState> getProcessDeviceStates() {
-        return null;
+        return processDeviceStates;
     }
 
     @Override

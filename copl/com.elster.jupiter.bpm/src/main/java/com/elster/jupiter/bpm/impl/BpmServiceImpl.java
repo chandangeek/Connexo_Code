@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 
 @Component(
@@ -157,13 +158,21 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
 
     @Override
     public List<String> getProcesses() {
-        //TODO: access directly rest services
-        return null;
+        return this.getBpmProcessDefinitions()
+                .stream()
+                .map(BpmProcessDefinition::getProcessName)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Map<String, Object> getProcessParameters(String processId) {
-        //TODO: access directly rest services
+        Optional<BpmProcessDefinition> foundProcess = this.getBpmProcessDefinitions()
+                .stream()
+                .filter(p -> processId.equals(p.getProcessName()))
+                .findFirst();
+        if (foundProcess.isPresent()) {
+            return foundProcess.get().getProperties();
+        }
         return null;
     }
 
@@ -197,8 +206,8 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     }
 
     @Override
-    public BpmProcessDeviceState createBpmProcessDeviceState(BpmProcessDefinition process, long lifecycleId, long stateId, String lifecycleName, String stateName) {
-        return null;
+    public BpmProcessDeviceState createBpmProcessDeviceState(BpmProcessDefinition bpmProcessDefinition, long deviceStateId, long deviceLifeCycleId, String name, String deviceName) {
+        return BpmProcessDeviceStateImpl.from(dataModel, bpmProcessDefinition, deviceStateId, deviceLifeCycleId, name, deviceName);
     }
 
     @Override
