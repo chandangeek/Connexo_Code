@@ -9,7 +9,7 @@ Ext.define('Scs.view.ServiceCallFilter', {
         me.filters = [
             {
                 type: 'text',
-                dataIndex: 'number',
+                dataIndex: 'name',
                 emptyText: Uni.I18n.translate('general.ID', 'SCS', 'ID')
             },
             {

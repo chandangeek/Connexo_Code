@@ -65,8 +65,8 @@ Ext.define('Scs.controller.ServiceCalls', {
             view,
             servicecallIds = Array.prototype.slice.call(arguments),
             servicecallId = arguments[arguments.length - 1],
-            compareParentsArray;
-
+            parentsIdArray = [],
+            parentsNameArray = [];
         if (servicecallId) {
             store.setProxy({
                 type: 'rest',
@@ -79,21 +79,28 @@ Ext.define('Scs.controller.ServiceCalls', {
             });
             me.getModel('Scs.model.ServiceCall').load(servicecallId, {
                 success: function (record) {
-                    compareParentsArray = record.get('parents').slice();
-                    compareParentsArray.push(servicecallId);
-                    if(!me.isEqual(servicecallIds, compareParentsArray)) {
+                    Ext.each(record.get('parents'),function(item){
+                        parentsIdArray.push(item.id+'');
+                        parentsNameArray.push(item.name);
+                    });
+
+
+                 //   compareParentsArray = record.get('parents').slice();
+                    parentsNameArray.push(record.get('name'));
+                    parentsIdArray.push(servicecallId);
+                    if(!me.isEqual(servicecallIds, parentsIdArray)) {
                         view = Ext.widget('errorNotFound');
                         me.getBreadcrumbs().hide();
                     } else if (record.get('hasChildren')) {
-                        me.getApplication().fireEvent('servicecallload', servicecallIds);
+                        me.getApplication().fireEvent('servicecallload', parentsNameArray);
                         view = Ext.widget('servicecalls-setup-overview', {
                             router: me.getController('Uni.controller.history.Router'),
-                            serviceCallId: servicecallId,
+                            serviceCallId: record.get('name'),
                             store: store
                         });
                     } else {
-                        me.getApplication().fireEvent('servicecallload', servicecallIds);
-                        view = Ext.widget('scs-landing-page', {serviceCallId: servicecallId});
+                        me.getApplication().fireEvent('servicecallload', parentsNameArray);
+                        view = Ext.widget('scs-landing-page', {serviceCallId: record.get('name')});
                         view.down('scs-landing-page-form').updateLandingPage(record);
                     }
                     me.getApplication().fireEvent('changecontentevent', view);
@@ -111,7 +118,7 @@ Ext.define('Scs.controller.ServiceCalls', {
         var me = this,
             page = me.getPage(),
             preview = page.down('servicecalls-preview'),
-            serviceCallName = record.get('number'),
+            serviceCallName = record.get('name'),
             previewForm = page.down('servicecalls-preview-form');
 
         preview.setTitle(serviceCallName);
@@ -123,7 +130,6 @@ Ext.define('Scs.controller.ServiceCalls', {
 
         switch (item.action) {
             case 'cancel':
-                debugger;
                 break;
             case 'pause':
                 break;

@@ -14,13 +14,13 @@ Ext.define('Scs.view.Grid', {
         me.columns = [
             {
                 header: Uni.I18n.translate('general.serviceCall', 'SCS', 'Service call'),
-                dataIndex: 'number',
+                dataIndex: 'name',
                 renderer: function (value, metaData, record) {
                     var url = '#/workspace/servicecalls/';
                     record.get('parents').forEach(function(parent) {
-                        url += parent + '/'
+                        url += parent.id + '/'
                     });
-                    url += value;
+                    url += record.get('id');
                     return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 flex: 1
