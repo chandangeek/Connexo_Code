@@ -1216,16 +1216,22 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             Save.CREATE.validate(getDataModel(), this.underConstruction);
             addConfiguration(this.underConstruction);
             this.mode = BuildingMode.COMPLETE;
-            this.underConstruction.getDeviceType().getDeviceProtocolPluggableClass()
-                    .getDeviceProtocol().getSupportedMessages().stream().forEach(
-                    deviceMessageId -> {
-                        DeviceMessageEnablementBuilder deviceMessageEnablement = underConstruction.createDeviceMessageEnablement(deviceMessageId);
-                        deviceMessageEnablement.addUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1);
-                        deviceMessageEnablement.addUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2);
-                        deviceMessageEnablement.addUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3);
-                        deviceMessageEnablement.build();
-                    });
+            createDefaultMessageEnablements();
             return this.underConstruction;
+        }
+
+        private void createDefaultMessageEnablements() {
+            ((DeviceTypeImpl) this.underConstruction.getDeviceType()).getProtocolBehavior()
+                    .getDeviceProtocolPluggableClass()
+                    .ifPresent(deviceProtocolPluggableClass -> deviceProtocolPluggableClass
+                            .getDeviceProtocol().getSupportedMessages().stream().forEach(
+                                    deviceMessageId -> {
+                                        DeviceMessageEnablementBuilder deviceMessageEnablement = underConstruction.createDeviceMessageEnablement(deviceMessageId);
+                                        deviceMessageEnablement.addUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1);
+                                        deviceMessageEnablement.addUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2);
+                                        deviceMessageEnablement.addUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3);
+                                        deviceMessageEnablement.build();
+                                    }));
         }
 
         private void doNestedBuilders() {

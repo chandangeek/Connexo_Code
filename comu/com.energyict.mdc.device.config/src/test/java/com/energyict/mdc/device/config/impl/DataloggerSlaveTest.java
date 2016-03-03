@@ -12,7 +12,6 @@ import com.energyict.mdc.masterdata.LogBookType;
 
 import java.util.Collections;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -100,10 +99,9 @@ public class DataloggerSlaveTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(reloadedDeviceType.isDataloggerSlave()).isTrue();
     }
 
-    @Ignore
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CANNOT_CHANGE_DEVICE_TYPE_PURPOSE_WHEN_CONFIGS + "}", property = "deviceTypePurpose")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CANNOT_CHANGE_DEVICE_TYPE_PURPOSE_WHEN_CONFIGS + "}", property = "deviceTypePurpose", strict = false)
     public void cannotChangeFromDataloggerSlaveToRegularWhenConfigsTest() {
         String deviceTypeName = "cannotChangeFromDataloggerSlaveToRegularWhenConfigsTest";
         DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
@@ -113,6 +111,7 @@ public class DataloggerSlaveTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.newConfiguration("Default").add();
 
         deviceType.setDeviceTypePurpose(DeviceTypePurpose.REGULAR);
+        deviceType.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass);
         deviceType.update();
     }
 
