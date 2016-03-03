@@ -26,8 +26,10 @@ public class ExpressionNodeParser {
                 builder = new StringBuilder();
             } else if (value == ',') {
 
+            } else if (value == ' ') {
+
             }
-             else {
+            else {
                 builder.append(value);
             }
         }
@@ -39,9 +41,9 @@ public class ExpressionNodeParser {
         if (last.equals("constant")) {
             handleConstantNode(value);
         } else if ((last.equals("sum")) || (last.equals("avg")) || (last.equals("max")) || (last.equals("min"))) {
-            handleOperationNode(last);
-        } else if ((last.equals("plus")) || (last.equals("minus")) || (last.equals("multiply")) || (last.equals("divide"))) {
             handleFunctionNode(last);
+        } else if ((last.equals("plus")) || (last.equals("minus")) || (last.equals("multiply")) || (last.equals("divide"))) {
+            handleOperationNode(last);
         }
 
     }
@@ -54,8 +56,9 @@ public class ExpressionNodeParser {
         if (nodes.size() < 2) {
             throw new IllegalArgumentException("Operator '" + operator + "' requires at least 2 arguments");
         }
-        OperationNode operationNode = new OperationNode(getOperator(operator), nodes.get(0), nodes.get(1));
-        nodes = new ArrayList<>();
+        OperationNode operationNode = new OperationNode(getOperator(operator), nodes.get(nodes.size() - 2), nodes.get(nodes.size() - 1));
+        nodes.remove(nodes.size() - 2);
+        nodes.remove(nodes.size() - 1);
         nodes.add(operationNode);
     }
 

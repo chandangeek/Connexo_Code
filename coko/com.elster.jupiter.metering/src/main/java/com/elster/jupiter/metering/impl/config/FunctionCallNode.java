@@ -32,4 +32,19 @@ public class FunctionCallNode extends AbstractNode {
         return visitor.visitFunctionCall(this);
     }
 
+    public String toString() {
+        StringBuilder result = new StringBuilder(function.toString() + "(");
+        List<ExpressionNode> children = this.getChildren();
+        int size = children.size();
+        for (int i = 0; i < size; i++) {
+            result.append(children.get(i).toString());
+            if (i != (size - 1)) {
+                result.append(", ");
+            }
+        }
+        result.append(")");
+        return result.toString();
+    }
+
+
 }

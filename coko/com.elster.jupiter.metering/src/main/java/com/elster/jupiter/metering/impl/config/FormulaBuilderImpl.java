@@ -17,7 +17,8 @@ public class FormulaBuilderImpl implements FormulaBuilder {
 
     private Formula.Mode mode;
     private DataModel dataModel;
-    private NodeBuilder nodebuilder;
+    private NodeBuilder nodebuilder; // use with api (default)
+    private ExpressionNode node; // use with parser (first create a node from a String representation using ExpressionNodeParser)
 
     public FormulaBuilderImpl(Formula.Mode mode, DataModel dataModel) {
         this.mode = mode;
@@ -29,8 +30,16 @@ public class FormulaBuilderImpl implements FormulaBuilder {
         return this;
     }
 
+    public FormulaBuilder init(FormulaPart formulaPart) {
+        this.node = (ExpressionNode) formulaPart;
+        return this;
+    }
+
     public Formula build() {
-        Formula formula = dataModel.getInstance(FormulaImpl.class).init(mode, (ExpressionNode) nodebuilder.create());
+        if (node == null) {
+            node = (ExpressionNode) nodebuilder.create();
+        }
+        Formula formula = dataModel.getInstance(FormulaImpl.class).init(mode, node);
         formula.save();
         return formula;
     }

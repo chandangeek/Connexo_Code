@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.config;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by igh on 4/02/2016.
@@ -33,6 +34,14 @@ public class OperationNode extends AbstractNode {
     @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visitOperation(this);
+    }
+
+    public String toString() {
+        StringBuilder result = new StringBuilder(operator.toString() + "(");
+        result.append(getLeftOperand().toString()).append(", ");
+        result.append(getRightOperand().toString());
+        result.append(")");
+        return result.toString();
     }
 
 }

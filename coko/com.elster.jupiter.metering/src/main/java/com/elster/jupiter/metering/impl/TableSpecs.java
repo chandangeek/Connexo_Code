@@ -820,7 +820,7 @@ public enum TableSpecs {
                     .add();
         }
     },
-    UPC_FORMULA_NODE {
+    MTR_FORMULA_NODE {
         @Override
         void addTo(DataModel dataModel) {
             Table<ExpressionNode> table = dataModel.addTable(name(),ExpressionNode.class);
@@ -850,22 +850,22 @@ public enum TableSpecs {
             //todo add foreign key
             Column readingTypeRequirementIdColumn = table.column("READINGTYPE_REQUIREMENT").number().conversion(NUMBER2LONG).map("readingTypeRequirement").add();
 
-            table.primaryKey("UPC_PK_FORMULA_NODE").on(idColumn).add();
+            table.primaryKey("MTR_PK_FORMULA_NODE").on(idColumn).add();
 
-            table.foreignKey("UPC_VALIDCHILD").references(UPC_FORMULA_NODE.name()).on(parentColumn).onDelete(CASCADE)
+            table.foreignKey("MTR_VALIDCHILD").references(MTR_FORMULA_NODE.name()).on(parentColumn).onDelete(CASCADE)
                     .map("parent").reverseMap("children").reverseMapOrder("argumentIndex").add();
         }
     },
-    UPC_FORMULA {
+    MTR_FORMULA {
         @Override
         void addTo(DataModel dataModel) {
             Table<Formula> table = dataModel.addTable(name(), Formula.class);
             table.map(FormulaImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("MODE").number().conversion(ColumnConversion.NUMBER2ENUM).map("mode").add();
+            table.column("FORMULA_MODE").number().conversion(ColumnConversion.NUMBER2ENUM).map("mode").add();
             Column expressionNodeColumn = table.column("EXPRESSION_NODE_ID").number().conversion(NUMBER2LONG).add();
-            table.primaryKey("UPC_PK_FORMULA").on(idColumn).add();
-            table.foreignKey("UPC_VALIDNODE").references(UPC_FORMULA_NODE.name()).on(expressionNodeColumn).onDelete(CASCADE)
+            table.primaryKey("MTR_PK_FORMULA").on(idColumn).add();
+            table.foreignKey("MTR_VALIDNODE").references(MTR_FORMULA_NODE.name()).on(expressionNodeColumn).onDelete(CASCADE)
                     .map("expressionNode").add();
         }
     }

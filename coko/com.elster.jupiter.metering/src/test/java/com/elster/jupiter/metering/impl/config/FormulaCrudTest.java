@@ -161,5 +161,125 @@ public class FormulaCrudTest {
         }
     }
 
+    @Test
+    // formula = 10 (constant)
+    public void test1LevelNodeStructureCrudUsingParser() {
+        Formula.Mode myMode = Formula.Mode.EXPERT;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            MetrologyConfigurationService service = getMetrologyConfigurationService();
+
+            ExpressionNode node = new ExpressionNodeParser().parse("constant(10)");
+
+            Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
+            context.commit();
+            long formulaId = formula.getId();
+            Optional<Formula> loadedFormula = service.findFormula(formulaId);
+            assertThat(loadedFormula).isPresent();
+            Formula myFormula = loadedFormula.get();
+            assertThat(myFormula.getId() == formulaId);
+            assertThat(myFormula.getMode().equals(myMode));
+            ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
+            assertThat(myNode.equals(node));
+            assertThat(myNode).isInstanceOf(ConstantNode.class);
+            ConstantNode constantNode = (ConstantNode) myNode;
+            assertThat(constantNode.getValue().equals(BigDecimal.TEN));
+        }
+    }
+
+    @Test
+    // formula = max(10, 0) function call + constants
+    public void test2LevelNodeStructureCrudUsingParser() {
+        Formula.Mode myMode = Formula.Mode.EXPERT;
+        Function myFunction = Function.MAX;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            MetrologyConfigurationService service = getMetrologyConfigurationService();
+
+            ExpressionNode node = new ExpressionNodeParser().parse("max(constant(10), constant(0))");
+
+            Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
+
+            context.commit();
+            long formulaId = formula.getId();
+            Optional<Formula> loadedFormula = service.findFormula(formulaId);
+            assertThat(loadedFormula).isPresent();
+            Formula myFormula = loadedFormula.get();
+            assertThat(myFormula.getId() == formulaId);
+            assertThat(myFormula.getMode().equals(myMode));
+            ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
+            assertThat(myNode.equals(node));
+            assertThat(myNode).isInstanceOf(FunctionCallNode.class);
+            FunctionCallNode functionCallNode = (FunctionCallNode) myNode;
+            assertThat(functionCallNode.getFunction().equals(myFunction));
+            List<ExpressionNode> children = functionCallNode.getChildren();
+            assertThat(children).hasSize(2);
+            ExpressionNode child1 = children.get(0);
+            ExpressionNode child2 = children.get(1);
+            assertThat(child1).isInstanceOf(ConstantNode.class);
+            assertThat(child2).isInstanceOf(ConstantNode.class);
+            ConstantNode constant1 = (ConstantNode) child1;
+            assertThat(constant1.getValue().equals(BigDecimal.TEN));
+            ConstantNode constant2 = (ConstantNode) child2;
+            assertThat(constant2.getValue().equals(BigDecimal.ZERO));
+        }
+    }
+
+    @Test
+    // formula by using the builder = max(10, plus(10, 0)) function call + operator call + constants
+    public void test3LevelNodeStructureCrudUsingParser()  {
+
+        Formula.Mode myMode = Formula.Mode.EXPERT;
+        Function myFunction = Function.MAX;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            MetrologyConfigurationService service = getMetrologyConfigurationService();
+
+            ExpressionNode node = new ExpressionNodeParser().parse("max(constant(1), plus(constant(2), constant(3)))");
+
+            Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
+
+            context.commit();
+            long formulaId = formula.getId();
+            Optional<Formula> loadedFormula = service.findFormula(formulaId);
+            assertThat(loadedFormula).isPresent();
+            Formula myFormula = loadedFormula.get();
+            assertThat(myFormula.getId() == formulaId);
+            assertThat(myFormula.getMode().equals(myMode));
+            ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
+
+
+            assertThat(myNode.equals(node));
+            assertThat(myNode).isInstanceOf(FunctionCallNode.class);
+            FunctionCallNode functionCallNode = (FunctionCallNode) myNode;
+            assertThat(functionCallNode.getFunction().equals(myFunction));
+            List<ExpressionNode> children = functionCallNode.getChildren();
+            assertThat(children).hasSize(2);
+            ExpressionNode child1 = children.get(0);
+            ExpressionNode child2 = children.get(1);
+            assertThat(child1).isInstanceOf(ConstantNode.class);
+            assertThat(child2).isInstanceOf(OperationNode.class);
+            ConstantNode constant = (ConstantNode) child1;
+            assertThat(constant.getValue().equals(BigDecimal.TEN));
+            OperationNode operation = (OperationNode) child2;
+            assertThat(operation.getOperator().equals(Operator.PLUS));
+        }
+    }
+
+
+    @Test
+    public void testParser()  {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            MetrologyConfigurationService service = getMetrologyConfigurationService();
+            String formulaString = "multiply(sum(max(constant(10), constant(0)), constant(5), constant(3)), constant(2))";
+            ExpressionNode node = new ExpressionNodeParser().parse(formulaString);
+            Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
+            context.commit();
+            List<Formula> formulas = service.findFormulas();
+            for (Formula f : formulas) {
+                System.out.println(f.toString());
+            }
+
+
+        }
+    }
+
 
 }
