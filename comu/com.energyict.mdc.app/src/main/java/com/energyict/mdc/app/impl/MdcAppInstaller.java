@@ -157,6 +157,9 @@ public class MdcAppInstaller implements InstallService {
 
                 //Shared communication schedule
                 com.energyict.mdc.scheduling.security.Privileges.Constants.VIEW_SHARED_COMMUNICATION_SCHEDULE,
+
+                //Service calls
+                com.elster.jupiter.servicecall.security.Privileges.Constants.CHANGE_SERVICE_CALL_STATE
         };
     }
 }
