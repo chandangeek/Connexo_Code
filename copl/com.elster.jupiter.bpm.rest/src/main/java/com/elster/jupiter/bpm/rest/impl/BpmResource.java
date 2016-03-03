@@ -296,7 +296,8 @@ public class BpmResource {
             processDefinitionInfos.total = processDefinitionInfos.processes.size();
             return processDefinitionInfos;
         }else{
-            List<BpmProcessDefinition> activeProcesses = bpmService.getAllBpmProcessDefinitions();
+            List<BpmProcessDefinition> activeProcesses = bpmService.getAllBpmProcessDefinitions().stream()
+                    .filter(p -> p.getStatus().equalsIgnoreCase("ACTIVE")).collect(Collectors.toList());
             ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinitions(auth);
             processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
                     .filter(s -> activeProcesses.stream()
