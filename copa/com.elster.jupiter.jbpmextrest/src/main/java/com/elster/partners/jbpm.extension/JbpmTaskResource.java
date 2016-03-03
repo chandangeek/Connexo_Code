@@ -278,7 +278,7 @@ public class JbpmTaskResource {
             }
         }
 
-        return null;
+        return new TaskSummaryList(runtimeDataService, new ArrayList<>());
     }
 
     @GET
