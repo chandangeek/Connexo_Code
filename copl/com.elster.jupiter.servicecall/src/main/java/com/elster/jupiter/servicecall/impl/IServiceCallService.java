@@ -1,5 +1,6 @@
 package com.elster.jupiter.servicecall.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -16,4 +17,6 @@ public interface IServiceCallService extends ServiceCallService {
     void removeServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties);
 
     DestinationSpec getServiceCallQueue();
+
+    Thesaurus getThesaurus();
 }

@@ -300,7 +300,7 @@ public class ServiceCallTransitionIT {
         SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME).get();
 
         try (TransactionContext context = transactionService.getContext()) {
-            Message message = await().atMost(200, TimeUnit.MILLISECONDS)
+            Message message = await().atMost(500, TimeUnit.MILLISECONDS)
                     .until(messageQueue::receive, Matchers.any(Message.class));
 
             ServiceCallMessageHandler serviceCallMessageHandler = new ServiceCallMessageHandler(jsonService, serviceCallService);

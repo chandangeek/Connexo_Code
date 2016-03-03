@@ -23,6 +23,8 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
 
 import javax.inject.Inject;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.Clock;
@@ -218,10 +220,26 @@ public class ServiceCallImpl implements ServiceCall {
     @Override
     public void log(LogLevel logLevel, String message) {
         if (type.get().getLogLevel().compareTo(logLevel) > -1) {
-            ServiceCallLogImpl instance = dataModel.getInstance(ServiceCallLogImpl.class);
-            instance.init(clock.instant(), logLevel, this, message);
+            ServiceCallLogImpl instance = ServiceCallLogImpl.from(dataModel, this, message, logLevel, clock.instant(), null);
             instance.save();
         }
+    }
+
+    @Override
+    public void log(String message, Exception exception) {
+        LogLevel level = LogLevel.SEVERE;
+        if (type.get().getLogLevel().compareTo(level) > -1) {
+            ServiceCallLogImpl instance = ServiceCallLogImpl.from(dataModel, this, message, level, clock.instant(), stackTrace2String(exception));
+            instance.save();
+        }
+    }
+
+    private String stackTrace2String(Exception e) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try (PrintWriter printWriter = new PrintWriter(byteArrayOutputStream)) {
+            e.printStackTrace(printWriter);
+        }
+        return byteArrayOutputStream.toString();
     }
 
     @Override

@@ -13,6 +13,7 @@ import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
 
+import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
@@ -182,6 +183,11 @@ public enum TableSpecs {
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .notNull()
                     .map(ServiceCallLogImpl.Fields.timestamp.fieldName())
+                    .add();
+            table.column("STACKTRACE")
+                    .type("CLOB")
+                    .conversion(CLOB2STRING)
+                    .map(ServiceCallLogImpl.Fields.stackTrace.fieldName())
                     .add();
             table.column("MESSAGE")
                     .number()

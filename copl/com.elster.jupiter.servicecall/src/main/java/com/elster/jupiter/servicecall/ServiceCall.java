@@ -56,6 +56,8 @@ public interface ServiceCall extends HasId {
 
     void cancel();
 
+    void log(String message, Exception exception);
+
     void save();
 
     Finder<ServiceCall> getChildren();

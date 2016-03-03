@@ -270,6 +270,11 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     }
 
     @Override
+    public Thesaurus getThesaurus() {
+        return thesaurus;
+    }
+
+    @Override
     public ServiceCallLifeCycleBuilder createServiceCallLifeCycle(String name) {
         return dataModel.getInstance(ServiceCallLifeCycleBuilderImpl.class).setName(name);
     }

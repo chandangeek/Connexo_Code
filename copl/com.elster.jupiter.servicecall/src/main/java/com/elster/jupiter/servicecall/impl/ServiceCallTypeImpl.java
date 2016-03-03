@@ -13,7 +13,6 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.Status;
 import com.elster.jupiter.util.conditions.Where;
 
@@ -114,6 +113,10 @@ public class ServiceCallTypeImpl implements IServiceCallType {
 
     @Override
     public ServiceCallHandler getServiceCallHandler() {
+        return new LoggingServiceCallHandler(doGetServiceCallHandler(), thesaurus);
+    }
+
+    private ServiceCallHandler doGetServiceCallHandler() {
         return serviceCallService.findHandler(serviceCallHandler)
                 .orElseThrow(() -> new HandlerDisappearedException(thesaurus, MessageSeeds.HANDLER_DISAPPEARED, serviceCallHandler));
     }
