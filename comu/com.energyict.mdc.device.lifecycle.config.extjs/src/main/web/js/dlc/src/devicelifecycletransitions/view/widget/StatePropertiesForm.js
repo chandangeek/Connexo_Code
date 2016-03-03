@@ -325,13 +325,56 @@ Ext.define('Dlc.devicelifecycletransitions.view.widget.StatePropertiesForm', {
             ];
 
             Ext.iterate(groupedProperties, function (key, items) {
-                var groupItems = [
-                    {
-                        xtype: 'container',
-                        html: '<h3>' + groupedIds[key] + '</h3>',
-                        margin: '6 0 5 0'
+                var groupItems = [];
+
+                if (key === 'COMMUNICATION' || key === 'TOPOLOGY') {
+                    var extraCategoryTooltip;
+                    if (key === 'COMMUNICATION') {
+                        extraCategoryTooltip = me.itemId === 'checks-property-form'
+                            ? Uni.I18n.translate('deviceLifeCycleTransitions.communicationCategory.tooltip.pretransitions', 'DLC',
+                                "These pretransition checks are not applicable on devices of the type 'Datalogger slave device type'")
+                            : Uni.I18n.translate('deviceLifeCycleTransitions.communicationCategory.tooltip.autoActions', 'DLC',
+                                "These auto actions are not applicable on devices of the type 'Datalogger slave device type'");
+                    } else if (key === 'TOPOLOGY') {
+                        extraCategoryTooltip = me.itemId === 'checks-property-form'
+                            ? Uni.I18n.translate('deviceLifeCycleTransitions.topologyCategory.tooltip.pretransitions', 'DLC',
+                                "These pretransition checks are not applicable on devices of the type 'Datalogger slave device type'")
+                            : Uni.I18n.translate('deviceLifeCycleTransitions.topologyCategory.tooltip.autoActions', 'DLC',
+                                "These auto actions are not applicable on devices of the type 'Datalogger slave device type'");
                     }
-                ];
+                    groupItems.push(
+                        {
+                            xtype: 'container',
+                            layout: 'hbox',
+                            items: [
+                                {
+                                    xtype: 'container',
+                                    html: '<h3>' + groupedIds[key] + '</h3>',
+                                    margin: '6 0 5 0'
+                                },
+                                {
+                                    xtype: 'button',
+                                    tooltip: extraCategoryTooltip,
+                                    margin: '5 0 0 0',
+                                    iconCls: 'uni-icon-info-small',
+                                    cls: 'uni-btn-transparent',
+                                    style: {
+                                        display: 'inline-block',
+                                        "text-decoration": 'none !important'
+                                    }
+                                }
+                            ]
+                        }
+                    );
+                } else {
+                    groupItems.push(
+                        {
+                            xtype: 'container',
+                            html: '<h3>' + groupedIds[key] + '</h3>',
+                            margin: '6 0 5 0'
+                        }
+                    );
+                }
 
                 Ext.each(_.sortBy(items, function(item){return item.name}), function (item) {
                     if (item.isRequired) {
