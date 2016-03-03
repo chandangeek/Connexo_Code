@@ -246,7 +246,8 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     @Override
     public Finder<ServiceCallType> getServiceCallTypes() {
         return DefaultFinder.of(ServiceCallType.class, dataModel)
-                .defaultSortColumn(ServiceCallTypeImpl.Fields.name.fieldName());
+                .sorted(ServiceCallTypeImpl.Fields.name.fieldName(), true)
+                .sorted(ServiceCallTypeImpl.Fields.version.fieldName(), true);
     }
 
     @Override
