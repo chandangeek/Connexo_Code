@@ -11,12 +11,12 @@ Ext.define('Scs.view.log.Grid', {
         me.columns = [
             {
                 header: Uni.I18n.translate('general.timestamp', 'SCS', 'Timestamp'),
-                dataIndex: 'timestamp',
+                dataIndex: 'timestampDisplay',
                 flex: 2
             },
             {
                 header: Uni.I18n.translate('general.logLevel', 'SCS', 'Log level'),
-                dataIndex: 'loglevel',
+                dataIndex: 'logLevel',
                 flex: 1
             },
             {
