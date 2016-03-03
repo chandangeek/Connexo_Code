@@ -52,6 +52,7 @@ import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotDisableComTaskThatWasNotEnabledException;
+import com.energyict.mdc.device.config.exceptions.DataloggerSlaveException;
 import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
 import com.energyict.mdc.device.config.exceptions.DeviceTypeIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeException;
@@ -111,8 +112,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         SECURITY_PROPERTY_SETS("securityPropertySets"),
         DEVICE_MESSAGE_ENABLEMENTS("deviceMessageEnablements"),
         DEVICECONF_ESTIMATIONRULESET_USAGES("deviceConfigurationEstimationRuleSetUsages"),
-        DATALOGGER_ENABLED("dataloggerEnabled"),
-        ;
+        DATALOGGER_ENABLED("dataloggerEnabled"),;
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -280,7 +280,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             removeCommunicationFunction(DeviceCommunicationFunction.PROTOCOL_SESSION);
         }
     }
-
 
     @Override
     public void addCommunicationFunction(DeviceCommunicationFunction function) {
@@ -700,14 +699,104 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
+    LogBookBehavior getLogBookBehavior() {
+        return getDeviceType().isDataloggerSlave() ? new DataloggerSlaveLogBookBehavior() : new RegularLogBookBehavior();
+    }
+
+    /**
+     * Models different behavior for logbooks on the different 'types' of a DeviceType
+     */
+    interface LogBookBehavior {
+        LogBookSpec.LogBookSpecBuilder createLogBookSpec(LogBookType logBookType);
+
+        LogBookSpec.LogBookSpecUpdater getLogBookSpecUpdaterFor(LogBookSpec logBookSpec);
+
+        List<LogBookSpec> getLogBookSpecs();
+
+        void removeLogBookSpec(LogBookSpec logBookSpec);
+
+        boolean hasLogBookSpecForConfig(int logBookTypeId, int updateId);
+    }
+
+    class RegularLogBookBehavior implements LogBookBehavior {
+
+        @Override
+        public LogBookSpec.LogBookSpecBuilder createLogBookSpec(LogBookType logBookType) {
+            return new LogBookSpecBuilderForConfig(logBookSpecProvider, DeviceConfigurationImpl.this, logBookType);
+        }
+
+        @Override
+        public LogBookSpec.LogBookSpecUpdater getLogBookSpecUpdaterFor(LogBookSpec logBookSpec) {
+            return new LogBookSpecUpdaterForConfig((LogBookSpecImpl) logBookSpec);
+        }
+
+        @Override
+        public List<LogBookSpec> getLogBookSpecs() {
+            return Collections.unmodifiableList(DeviceConfigurationImpl.this.logBookSpecs);
+        }
+
+        @Override
+        public void removeLogBookSpec(LogBookSpec logBookSpec) {
+            if (isActive()) {
+                throw CannotDeleteFromActiveDeviceConfigurationException.forLogbookSpec(DeviceConfigurationImpl.this.getThesaurus(), logBookSpec, DeviceConfigurationImpl.this, MessageSeeds.LOGBOOK_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG);
+            }
+            logBookSpec.validateDelete();
+            removeFromHasIdList(DeviceConfigurationImpl.this.logBookSpecs, logBookSpec);
+            getEventService().postEvent(EventType.DEVICETYPE_DELETED.topic(), logBookSpec);
+            if (getId() > 0) {
+                getDataModel().touch(DeviceConfigurationImpl.this);
+            }
+        }
+
+        @Override
+        public boolean hasLogBookSpecForConfig(int logBookTypeId, int updateId) {
+            if (getLogBookSpecs() != null && !getLogBookSpecs().isEmpty()) {
+                for (LogBookSpec logBookSpec : getLogBookSpecs()) {
+                    if (logBookSpec.getLogBookType().getId() == logBookTypeId && logBookSpec.getId() != updateId) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+    }
+
+    class DataloggerSlaveLogBookBehavior implements LogBookBehavior {
+
+        @Override
+        public LogBookSpec.LogBookSpecBuilder createLogBookSpec(LogBookType logBookType) {
+            throw DataloggerSlaveException.logbookSpecsAreNotSupported(getThesaurus(), DeviceConfigurationImpl.this);
+        }
+
+        @Override
+        public LogBookSpec.LogBookSpecUpdater getLogBookSpecUpdaterFor(LogBookSpec logBookSpec) {
+            throw DataloggerSlaveException.logbookSpecsAreNotSupported(getThesaurus(), DeviceConfigurationImpl.this);
+        }
+
+        @Override
+        public List<LogBookSpec> getLogBookSpecs() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public void removeLogBookSpec(LogBookSpec logBookSpec) {
+            // don't do anything
+        }
+
+        @Override
+        public boolean hasLogBookSpecForConfig(int logBookTypeId, int updateId) {
+            return false;
+        }
+    }
+
     @Override
     public List<LogBookSpec> getLogBookSpecs() {
-        return Collections.unmodifiableList(this.logBookSpecs);
+        return getLogBookBehavior().getLogBookSpecs();
     }
 
     @Override
     public LogBookSpec.LogBookSpecBuilder createLogBookSpec(LogBookType logBookType) {
-        return new LogBookSpecBuilderForConfig(logBookSpecProvider, this, logBookType);
+        return getLogBookBehavior().createLogBookSpec(logBookType);
     }
 
     private class LogBookSpecBuilderForConfig extends LogBookSpecImpl.LogBookSpecBuilder {
@@ -738,7 +827,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     public LogBookSpec.LogBookSpecUpdater getLogBookSpecUpdaterFor(LogBookSpec logBookSpec) {
-        return new LogBookSpecUpdaterForConfig((LogBookSpecImpl) logBookSpec);
+        return getLogBookBehavior().getLogBookSpecUpdaterFor(logBookSpec);
     }
 
     private class LogBookSpecUpdaterForConfig extends LogBookSpecImpl.LogBookSpecUpdater {
@@ -772,15 +861,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     public void removeLogBookSpec(LogBookSpec logBookSpec) {
-        if (isActive()) {
-            throw CannotDeleteFromActiveDeviceConfigurationException.forLogbookSpec(this.getThesaurus(), logBookSpec, this, MessageSeeds.LOGBOOK_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG);
-        }
-        logBookSpec.validateDelete();
-        removeFromHasIdList(this.logBookSpecs, logBookSpec);
-        this.getEventService().postEvent(EventType.DEVICETYPE_DELETED.topic(), logBookSpec);
-        if (getId() > 0) {
-            getDataModel().touch(this);
-        }
+        getLogBookBehavior().removeLogBookSpec(logBookSpec);
     }
 
     @Override
@@ -867,14 +948,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     public boolean hasLogBookSpecForConfig(int logBookTypeId, int updateId) {
-        if (getLogBookSpecs() != null && !getLogBookSpecs().isEmpty()) {
-            for (LogBookSpec logBookSpec : getLogBookSpecs()) {
-                if (logBookSpec.getLogBookType().getId() == logBookTypeId && logBookSpec.getId() != updateId) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return getLogBookBehavior().hasLogBookSpecForConfig(logBookTypeId, updateId);
     }
 
     @Override
@@ -1311,6 +1385,9 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     public void setDataloggerEnabled(boolean dataloggerEnabled) {
+        if (isActive() && dataloggerEnabled != this.dataloggerEnabled) {
+            throw DataloggerSlaveException.cannotChangeDataloggerFunctionalityEnabledOnceTheConfigIsActive(getThesaurus(), this);
+        }
         this.dataloggerEnabled = dataloggerEnabled;
     }
 
