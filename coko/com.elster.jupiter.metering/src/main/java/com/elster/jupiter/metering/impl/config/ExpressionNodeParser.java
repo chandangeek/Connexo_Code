@@ -56,8 +56,9 @@ public class ExpressionNodeParser {
         if (nodes.size() < 2) {
             throw new IllegalArgumentException("Operator '" + operator + "' requires at least 2 arguments");
         }
-        OperationNode operationNode = new OperationNode(getOperator(operator), nodes.get(0), nodes.get(1));
-        nodes = new ArrayList<>();
+        OperationNode operationNode = new OperationNode(getOperator(operator), nodes.get(nodes.size() - 2), nodes.get(nodes.size() - 1));
+        nodes.remove(nodes.size() - 2);
+        nodes.remove(nodes.size() - 1);
         nodes.add(operationNode);
     }
 
