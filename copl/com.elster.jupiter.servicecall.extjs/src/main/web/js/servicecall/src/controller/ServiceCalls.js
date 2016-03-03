@@ -62,6 +62,7 @@ Ext.define('Scs.controller.ServiceCalls', {
     showServiceCallOverview: function() {
         var me = this,
             store = Ext.getStore('Scs.store.ServiceCalls'),
+            logStore = Ext.getStore('Scs.store.Logs'),
             view,
             servicecallIds = Array.prototype.slice.call(arguments),
             servicecallId = arguments[arguments.length - 1],
@@ -79,6 +80,10 @@ Ext.define('Scs.controller.ServiceCalls', {
             });
             me.getModel('Scs.model.ServiceCall').load(servicecallId, {
                 success: function (record) {
+                    logStore.getProxy().setUrl(servicecallId);
+                    //logStore.load({
+                    //
+                    //})
                     Ext.each(record.get('parents'),function(item){
                         parentsIdArray.push(item.id+'');
                         parentsNameArray.push(item.name);
