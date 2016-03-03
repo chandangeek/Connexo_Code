@@ -47,7 +47,8 @@ public class ServiceCategoryResourceTest extends MeteringApplicationJerseyTest {
         assertThat(model.<List>get("$.categories")).hasSize(1);
         assertThat(model.<String>get("$.categories[0].name")).isEqualTo(ServiceKind.ELECTRICITY.name());
         assertThat(model.<String>get("$.categories[0].displayName")).isEqualTo(ServiceKind.ELECTRICITY.getDefaultFormat());
-        assertThat(model.<List<String>>get("$.categories[0].meterRoles")).containsExactly(DefaultMeterRole.CHECK.getDefaultFormat(), DefaultMeterRole.MAIN.getDefaultFormat());
+        assertThat(model.<List<String>>get("$.categories[0].meterRoles[*].id")).containsExactly(DefaultMeterRole.CHECK.getKey(), DefaultMeterRole.MAIN.getKey());
+        assertThat(model.<List<String>>get("$.categories[0].meterRoles[*].name")).containsExactly(DefaultMeterRole.CHECK.getDefaultFormat(), DefaultMeterRole.MAIN.getDefaultFormat());
     }
 
     @Test
@@ -118,7 +119,8 @@ public class ServiceCategoryResourceTest extends MeteringApplicationJerseyTest {
 
     private MeterRole mockMeterRole(DefaultMeterRole meterRole) {
         MeterRole mock = mock(MeterRole.class);
-        when(mock.getName()).thenReturn(meterRole.getDefaultFormat());
+        when(mock.getKey()).thenReturn(meterRole.getKey());
+        when(mock.getDisplayName()).thenReturn(meterRole.getDefaultFormat());
         return mock;
     }
 }
