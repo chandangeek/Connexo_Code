@@ -159,6 +159,9 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
                 Privileges.RESOURCE_SERVICE_CALL_TYPES.getKey(), Privileges.RESOURCE_SERVICE_CALL_TYPES_DESCRIPTION.getKey(),
                 Arrays.asList(Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES, Privileges.Constants.VIEW_SERVICE_CALL_TYPES)));
+        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
+                Privileges.RESOURCE_SERVICE_CALL.getKey(), Privileges.RESOURCE_SERVICE_CALL_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.VIEW_SERVICE_CALL_OVERVIEW, Privileges.Constants.CHANGE_SERVICE_CALL_STATE)));
         return resources;
     }
 
@@ -278,14 +281,14 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     }
 
     @Override
-    public Map<String, Long> getChildrenStatus(String number) {
+    public Map<String, Long> getChildrenStatus(long id) {
         HashMap<String, Long> childrenCountInfo = new HashMap<>();
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         sqlBuilder.append("SELECT fsm.NAME, scs.TOTAL FROM FSM_STATE fsm, ");
         sqlBuilder.append("(SELECT STATE, COUNT(*) TOTAL FROM SCS_SERVICE_CALL ");
         sqlBuilder.append("WHERE id IN (SELECT id FROM SCS_SERVICE_CALL_PARENT where parent=");
-        sqlBuilder.append(numberToId(number) + ") ");
+        sqlBuilder.append(id + ") ");
         sqlBuilder.append("GROUP BY STATE) scs ");
         sqlBuilder.append("WHERE fsm.ID = scs.STATE");
 

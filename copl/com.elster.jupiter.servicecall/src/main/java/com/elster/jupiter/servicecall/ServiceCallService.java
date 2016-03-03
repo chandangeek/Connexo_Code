@@ -104,10 +104,10 @@ public interface ServiceCallService {
     /**
      * Returns information about the status of the children in a given service call
      *
-     * @param number The unique number that identifies the service call
+     * @param id The unique id that identifies the service call
      * @return Map of the names of the states, with their respective percentage
      */
-    Map<String, Long> getChildrenStatus(String number);
+    Map<String, Long> getChildrenStatus(long id);
 
     /**
      * Returns a list of names of all known service call handlers in the system
