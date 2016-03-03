@@ -24,5 +24,9 @@ Ext.define('Uni.property.view.property.Text', {
         var cmp;
         cmp = this.isCombo() ? this.getComboField() : this.getField();
         cmp.markInvalid(error);
+    },
+
+    clearInvalid: function () {
+        this.getField().clearInvalid();
     }
 });

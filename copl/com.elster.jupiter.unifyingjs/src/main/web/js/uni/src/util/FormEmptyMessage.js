@@ -42,7 +42,7 @@ Ext.define('Uni.util.FormEmptyMessage', {
                 width: 26,
                 style: {
                     fontSize: '22px',
-                    color: '#71adc7',
+                    color: '#71adc7'
                 },
                 cls: 'icon-info'
             },

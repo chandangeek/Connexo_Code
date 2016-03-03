@@ -19,7 +19,8 @@ Ext.define('Uni.grid.FilterPanelTop', {
         'Uni.grid.filtertop.DateTimeSelect',
         'Uni.grid.filtertop.Duration',
         'Uni.grid.filtertop.NoUi',
-        'Uni.grid.filtertop.ClosableCombobox'
+        'Uni.grid.filtertop.ClosableCombobox',
+        'Uni.grid.filtertop.DueDate'
     ],
 
     /**
@@ -566,6 +567,8 @@ Ext.define('Uni.grid.FilterPanelTop', {
                 return 'Uni.grid.filtertop.Duration';
             case 'noui':
                 return 'Uni.grid.filtertop.NoUi';
+            case 'dueDate':
+                return 'Uni.grid.filtertop.DueDate';
             default:
                 return undefined;
         }
