@@ -40,4 +40,13 @@ class LoggingServiceCallHandler implements ServiceCallHandler {
             logException(serviceCall, e);
         }
     }
+
+    @Override
+    public void onChildStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
+        try {
+            delegate.onChildStateChange(serviceCall, oldState, newState);
+        } catch (RuntimeException e) {
+            logException(serviceCall.getParent().get(), e);
+        }
+    }
 }

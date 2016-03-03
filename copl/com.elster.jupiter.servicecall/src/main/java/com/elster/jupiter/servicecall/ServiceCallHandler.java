@@ -15,5 +15,12 @@ public interface ServiceCallHandler {
         return true;
     }
 
+    /**
+     * @param serviceCall the child serviceCall
+     */
+    default void onChildStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
+        // do nothing by default
+    }
+
     void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState);
 }

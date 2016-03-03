@@ -22,6 +22,12 @@ public class ServiceCallMessageHandler implements MessageHandler {
                 .orElseThrow(IllegalStateException::new);
         serviceCall.getType().getServiceCallHandler()
                 .onStateChange(serviceCall, transitionNotification.getOldState(), transitionNotification.getNewState());
+
+        serviceCall.getParent()
+                .ifPresent(parent -> {
+                    parent.getType().getServiceCallHandler()
+                            .onChildStateChange(serviceCall, transitionNotification.getOldState(), transitionNotification.getNewState());
+                });
     }
 
 }
