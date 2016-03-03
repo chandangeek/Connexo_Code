@@ -87,7 +87,7 @@ public class ServiceCallResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public ServiceCallInfo getServiceCall(@PathParam("id") String number) {
+    public ServiceCallInfo getServiceCall(@PathParam("id") long number) {
         return serviceCallService.getServiceCall(number)
                 .map(serviceCallInfoFactory::from)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_SERVICE_CALL));
@@ -96,7 +96,7 @@ public class ServiceCallResource {
     @GET
     @Path("/{id}/children")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getChildren(@PathParam("id") String number, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getChildren(@PathParam("id") long number, @BeanParam JsonQueryParameters queryParameters) {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
         Optional<ServiceCall> serviceCallOptional = serviceCallService.getServiceCall(number);
         if (serviceCallOptional.isPresent()) {
