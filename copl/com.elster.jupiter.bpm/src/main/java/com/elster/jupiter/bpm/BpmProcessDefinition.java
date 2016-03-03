@@ -44,6 +44,8 @@ public interface BpmProcessDefinition extends HasDynamicPropertiesWithValues {
 
     List<BpmProcessPrivilege> getPrivileges();
 
+    void setPrivileges(List<BpmProcessPrivilege> targetPrivileges);
+
     @Deprecated
     List<BpmProcessDeviceState> getProcessDeviceStates();
 

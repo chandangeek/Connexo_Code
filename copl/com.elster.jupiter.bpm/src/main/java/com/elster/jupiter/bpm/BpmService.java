@@ -38,8 +38,9 @@ public interface BpmService {
 
     List<BpmProcessDefinition> getActiveBpmProcessDefinitions();
 
-    BpmProcessPrivilege prepareBpmProcessPrivilege(String privilegeName, String application);
+    BpmProcessPrivilege createBpmProcessPrivilege(String privilegeName, String application);
 
+    @Deprecated
     BpmProcessPrivilege createBpmProcessPrivilege(BpmProcessDefinition bpmProcessDefinition, String privilegeName, String application);
 
     Optional<BpmProcessDefinition> getBpmProcessDefinition(String processName, String version);

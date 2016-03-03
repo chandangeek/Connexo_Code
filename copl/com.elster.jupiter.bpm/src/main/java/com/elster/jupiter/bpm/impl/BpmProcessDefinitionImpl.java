@@ -140,12 +140,13 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     }
 
     @Override
-    public List<BpmProcessDeviceState> getProcessDeviceStates() {
-        return null;
+    public void setPrivileges(List<BpmProcessPrivilege> privileges) {
+        this.processPrivileges = privileges;
     }
 
-    void setPrivileges(List<BpmProcessPrivilege> privileges) {
-        this.processPrivileges = privileges;
+    @Override
+    public List<BpmProcessDeviceState> getProcessDeviceStates() {
+        return null;
     }
 
     @Override
