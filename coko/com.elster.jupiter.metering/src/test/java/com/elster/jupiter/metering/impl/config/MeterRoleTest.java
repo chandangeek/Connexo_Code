@@ -67,23 +67,23 @@ public class MeterRoleTest {
         //Asserts
         Optional<MeterRole> defaultMeterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey());
         assertThat(defaultMeterRole).isPresent();
-        assertThat(defaultMeterRole.get().getName()).isEqualTo(DefaultMeterRole.DEFAULT.getDefaultFormat());
+        assertThat(defaultMeterRole.get().getDisplayName()).isEqualTo(DefaultMeterRole.DEFAULT.getDefaultFormat());
 
         Optional<MeterRole> consumptionMeterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.CONSUMPTION.getKey());
         assertThat(consumptionMeterRole).isPresent();
-        assertThat(consumptionMeterRole.get().getName()).isEqualTo(DefaultMeterRole.CONSUMPTION.getDefaultFormat());
+        assertThat(consumptionMeterRole.get().getDisplayName()).isEqualTo(DefaultMeterRole.CONSUMPTION.getDefaultFormat());
 
         Optional<MeterRole> productionMeterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.PRODUCTION.getKey());
         assertThat(productionMeterRole).isPresent();
-        assertThat(productionMeterRole.get().getName()).isEqualTo(DefaultMeterRole.PRODUCTION.getDefaultFormat());
+        assertThat(productionMeterRole.get().getDisplayName()).isEqualTo(DefaultMeterRole.PRODUCTION.getDefaultFormat());
 
         Optional<MeterRole> mainMeterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.MAIN.getKey());
         assertThat(mainMeterRole).isPresent();
-        assertThat(mainMeterRole.get().getName()).isEqualTo(DefaultMeterRole.MAIN.getDefaultFormat());
+        assertThat(mainMeterRole.get().getDisplayName()).isEqualTo(DefaultMeterRole.MAIN.getDefaultFormat());
 
         Optional<MeterRole> checkMeterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.CHECK.getKey());
         assertThat(checkMeterRole).isPresent();
-        assertThat(checkMeterRole.get().getName()).isEqualTo(DefaultMeterRole.CHECK.getDefaultFormat());
+        assertThat(checkMeterRole.get().getDisplayName()).isEqualTo(DefaultMeterRole.CHECK.getDefaultFormat());
     }
 
     @Test
@@ -105,7 +105,7 @@ public class MeterRoleTest {
         //Asserts
         Optional<MeterRole> meterRole = getMetrologyConfigurationService().findMeterRole("meter.role.new");
         assertThat(meterRole).isPresent();
-        assertThat(meterRole.get().getName()).isEqualTo("meter.role.new");
+        assertThat(meterRole.get().getDisplayName()).isEqualTo("meter.role.new");
     }
 
     @Test
@@ -118,20 +118,20 @@ public class MeterRoleTest {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         List<MeterRole> meterRoles;
         meterRoles = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get().getMeterRoles();
-        assertThat(meterRoles.stream().map(MeterRole::getName).collect(Collectors.toList()))
+        assertThat(meterRoles.stream().map(MeterRole::getDisplayName).collect(Collectors.toList()))
                 .containsOnly(DefaultMeterRole.CONSUMPTION.getDefaultFormat(), DefaultMeterRole.MAIN.getDefaultFormat(), DefaultMeterRole.CHECK.getDefaultFormat(), DefaultMeterRole.PRODUCTION
                         .getDefaultFormat());
 
         meterRoles = meteringService.getServiceCategory(ServiceKind.GAS).get().getMeterRoles();
-        assertThat(meterRoles.stream().map(MeterRole::getName).collect(Collectors.toList()))
+        assertThat(meterRoles.stream().map(MeterRole::getDisplayName).collect(Collectors.toList()))
                 .containsOnly(DefaultMeterRole.CONSUMPTION.getDefaultFormat(), DefaultMeterRole.MAIN.getDefaultFormat(), DefaultMeterRole.CHECK.getDefaultFormat());
 
         meterRoles = meteringService.getServiceCategory(ServiceKind.WATER).get().getMeterRoles();
-        assertThat(meterRoles.stream().map(MeterRole::getName).collect(Collectors.toList()))
+        assertThat(meterRoles.stream().map(MeterRole::getDisplayName).collect(Collectors.toList()))
                 .containsOnly(DefaultMeterRole.CONSUMPTION.getDefaultFormat(), DefaultMeterRole.MAIN.getDefaultFormat(), DefaultMeterRole.CHECK.getDefaultFormat());
 
         meterRoles = meteringService.getServiceCategory(ServiceKind.HEAT).get().getMeterRoles();
-        assertThat(meterRoles.stream().map(MeterRole::getName).collect(Collectors.toList()))
+        assertThat(meterRoles.stream().map(MeterRole::getDisplayName).collect(Collectors.toList()))
                 .containsOnly(DefaultMeterRole.CONSUMPTION.getDefaultFormat(), DefaultMeterRole.MAIN.getDefaultFormat(), DefaultMeterRole.CHECK.getDefaultFormat());
 
         meterRoles = meteringService.getServiceCategory(ServiceKind.INTERNET).get().getMeterRoles();
@@ -147,10 +147,11 @@ public class MeterRoleTest {
 
         //Business method
         serviceCategory.addMeterRole(meterRole);
+        serviceCategory.addMeterRole(meterRole);
 
         //Asserts
         serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        assertThat(serviceCategory.getMeterRoles()).contains(meterRole);
+        assertThat(serviceCategory.getMeterRoles()).containsExactly(meterRole);
     }
 
     @Test

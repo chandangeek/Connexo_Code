@@ -841,11 +841,9 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<MeterRole> table = dataModel.addTable(name(), MeterRole.class);
             table.map(MeterRoleImpl.class);
-            Column idColumn = table.addAutoIdColumn();
-            Column nameColumn = table.column(MeterRoleImpl.Fields.NAME.name()).varChar(NAME_LENGTH).notNull().map(MeterRoleImpl.Fields.NAME.fieldName()).add();
+            Column nameColumn = table.column(MeterRoleImpl.Fields.KEY.name()).varChar(NAME_LENGTH).notNull().map(MeterRoleImpl.Fields.KEY.fieldName()).add();
 
-            table.primaryKey("MTR_PK_METERROLE").on(idColumn).add();
-            table.unique("MTR_UK_METERROLENAME").on(nameColumn).add();
+            table.primaryKey("MTR_PK_METERROLE").on(nameColumn).add();
         }
     },
 
@@ -855,7 +853,7 @@ public enum TableSpecs {
             Table table = dataModel.addTable(name(), ServiceCategoryMeterRoleUsage.class);
             table.map(ServiceCategoryMeterRoleUsage.class);
             Column serviceCategory = table.column(ServiceCategoryMeterRoleUsage.Fields.SERVICECATEGORY.name()).number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
-            Column meterRole = table.column(ServiceCategoryMeterRoleUsage.Fields.METERROLE.name()).number().notNull().add();
+            Column meterRole = table.column(ServiceCategoryMeterRoleUsage.Fields.METERROLE.name()).varChar(NAME_LENGTH).notNull().add();
 
             table.primaryKey("MTR_PK_SERVCATMETERROLE_USAGE").on(serviceCategory, meterRole).add();
             table.foreignKey("MTR_FK_SERVCATMETERROLE2CAT")

@@ -31,8 +31,8 @@ public interface MetrologyConfigurationService {
 
     boolean isInUse(MetrologyConfiguration metrologyConfiguration);
 
-    MeterRole newMeterRole(TranslationKey name);
+    MeterRole newMeterRole(TranslationKey key);
 
-    Optional<MeterRole> findMeterRole(String name);
+    Optional<MeterRole> findMeterRole(String key);
 
 }

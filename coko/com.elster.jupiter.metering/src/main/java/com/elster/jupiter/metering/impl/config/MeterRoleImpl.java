@@ -16,7 +16,7 @@ import java.util.Optional;
 public final class MeterRoleImpl implements MeterRole {
 
     public enum Fields {
-        NAME("name");
+        KEY("key");
         ;
         private final String javaFieldName;
 
@@ -29,11 +29,9 @@ public final class MeterRoleImpl implements MeterRole {
         }
     }
 
-    @SuppressWarnings("unused")
-    private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
-    private String name;
+    private String key;
 
     private final Thesaurus thesaurus;
 
@@ -42,23 +40,23 @@ public final class MeterRoleImpl implements MeterRole {
         this.thesaurus = thesaurus;
     }
 
-    public MeterRoleImpl init(String name) {
-        this.name = name;
+    public MeterRoleImpl init(String key) {
+        this.key = key;
         return this;
     }
 
     @Override
-    public long getId() {
-        return id;
+    public String getKey() {
+        return this.key;
     }
 
     @Override
-    public String getName() {
-        Optional<DefaultMeterRole> defaultMeterRole = DefaultMeterRole.from(this.name);
+    public String getDisplayName() {
+        Optional<DefaultMeterRole> defaultMeterRole = DefaultMeterRole.from(this.key);
         if (defaultMeterRole.isPresent()) {
             return thesaurus.getFormat(defaultMeterRole.get()).format();
         } else {
-            return thesaurus.getStringBeyondComponent(this.name, this.name);
+            return thesaurus.getStringBeyondComponent(this.key, this.key);
         }
     }
 
@@ -73,11 +71,11 @@ public final class MeterRoleImpl implements MeterRole {
 
         MeterRoleImpl that = (MeterRoleImpl) o;
 
-        return this.id == that.id;
+        return this.key.equals(that.key);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.id);
+        return Objects.hashCode(this.key);
     }
 }

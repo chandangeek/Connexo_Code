@@ -204,7 +204,7 @@ public class ServiceCategoryImpl implements ServiceCategory {
 
     @Override
     public void addMeterRole(MeterRole meterRole) {
-        if (!this.serviceCategoryMeterRoleUsages.stream().filter(usage -> usage.getMeterRole().getId() == meterRole.getId()).findFirst().isPresent()) {
+        if (!this.serviceCategoryMeterRoleUsages.stream().filter(usage -> usage.getMeterRole().equals(meterRole)).findFirst().isPresent()) {
             ServiceCategoryMeterRoleUsage usage = dataModel.getInstance(ServiceCategoryMeterRoleUsage.class).init(this, meterRole);
             this.serviceCategoryMeterRoleUsages.add(usage);
         }
@@ -213,7 +213,7 @@ public class ServiceCategoryImpl implements ServiceCategory {
     @Override
     public void removeMeterRole(MeterRole meterRole) {
         this.serviceCategoryMeterRoleUsages.stream()
-                .filter(usage -> usage.getMeterRole().getId() == meterRole.getId())
+                .filter(usage -> usage.getMeterRole().equals(meterRole))
                 .findFirst()
                 .ifPresent(this.serviceCategoryMeterRoleUsages::remove);
     }

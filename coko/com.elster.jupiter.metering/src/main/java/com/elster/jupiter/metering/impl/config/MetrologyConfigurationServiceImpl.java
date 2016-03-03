@@ -172,14 +172,14 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     }
 
     @Override
-    public MeterRole newMeterRole(TranslationKey name) {
-        MeterRoleImpl meterRole = getDataModel().getInstance(MeterRoleImpl.class).init(name.getKey());
+    public MeterRole newMeterRole(TranslationKey key) {
+        MeterRoleImpl meterRole = getDataModel().getInstance(MeterRoleImpl.class).init(key.getKey());
         Save.CREATE.save(getDataModel(), meterRole);
         return meterRole;
     }
 
     @Override
-    public Optional<MeterRole> findMeterRole(String name) {
-        return getDataModel().mapper(MeterRole.class).getUnique(MeterRoleImpl.Fields.NAME.fieldName(), name);
+    public Optional<MeterRole> findMeterRole(String key) {
+        return getDataModel().mapper(MeterRole.class).getUnique(MeterRoleImpl.Fields.KEY.fieldName(), key);
     }
 }
