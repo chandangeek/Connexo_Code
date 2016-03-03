@@ -161,7 +161,7 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
                 Arrays.asList(Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES, Privileges.Constants.VIEW_SERVICE_CALL_TYPES)));
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
                 Privileges.RESOURCE_SERVICE_CALL.getKey(), Privileges.RESOURCE_SERVICE_CALL_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.VIEW_SERVICE_CALL_OVERVIEW, Privileges.Constants.CHANGE_SERVICE_CALL_STATE)));
+                Arrays.asList(Privileges.Constants.VIEW_SERVICE_CALLS, Privileges.Constants.CHANGE_SERVICE_CALL_STATE)));
         return resources;
     }
 
