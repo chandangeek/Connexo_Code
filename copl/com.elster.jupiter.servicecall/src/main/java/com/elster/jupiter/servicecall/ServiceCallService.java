@@ -1,13 +1,13 @@
 package com.elster.jupiter.servicecall;
 
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Finder;
 
+import aQute.bnd.annotation.ProviderType;
+
+import java.util.Collection;
 import java.util.Optional;
 
-/**
- * Created by bvn on 2/4/16.
- */
+@ProviderType
 public interface ServiceCallService {
 
     String COMPONENT_NAME = "SCS";
@@ -30,6 +30,7 @@ public interface ServiceCallService {
      * @return Will return empty if no init has been done yet
      */
     public Optional<ServiceCallLifeCycle> getDefaultServiceCallLifeCycle();
+
     public ServiceCallLifeCycleBuilder createServiceCallLifeCycle(String name);
 
     /**
@@ -43,14 +44,14 @@ public interface ServiceCallService {
      * @param name
      * @return
      */
-    public ServiceCallService.ServiceCallTypeBuilder createServiceCallType(String name,String versionName, ServiceCallLifeCycle serviceCallLifeCycle);
+    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle);
 
     /**
      * Creates a new service call type, using provided name and version. The default life cycle is used. This method start a builder.
      * @param name
      * @return
      */
-    default public ServiceCallService.ServiceCallTypeBuilder createServiceCallType(String name,String versionName) {
+    default public ServiceCallTypeBuilder createServiceCallType(String name, String versionName) {
         return createServiceCallType(name, versionName, getDefaultServiceCallLifeCycle().get());
     }
 
@@ -70,10 +71,18 @@ public interface ServiceCallService {
      */
     Optional<ServiceCallType> findAndLockServiceCallType(long id, long version);
 
-    interface ServiceCallTypeBuilder {
-        public ServiceCallTypeBuilder logLevel(LogLevel logLevel);
-        public ServiceCallTypeBuilder customPropertySet(RegisteredCustomPropertySet customPropertySet);
-        public ServiceCallType add();
-    }
+    Optional<ServiceCall> getServiceCall(long id);
+
+    /**
+     * Returns a list of names of all known service call handlers in the system
+     */
+    Collection<String> findAllHandlers();
+
+    /**
+     * Returns the service call handler identified by the name. Empty if none is found
+     *
+     * @param handler Service call handler name
+     */
+    Optional<ServiceCallHandler> findHandler(String handler);
 
 }

@@ -2,20 +2,26 @@ package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.HandlerDisappearedException;
+import com.elster.jupiter.servicecall.InvalidPropertySetDomainTypeException;
 import com.elster.jupiter.servicecall.LogLevel;
-import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
-import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.Status;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -23,13 +29,17 @@ import static java.util.stream.Collectors.toList;
  * Class models the type of a service call. The type defines the life cycle its service calls will abide by and links to
  * the custom properties that are available for use.
  */
-public class ServiceCallTypeImpl implements ServiceCallType {
+public class ServiceCallTypeImpl implements IServiceCallType {
     private long id;
     private String name;
     private String versionName;
     private Status status;
     private LogLevel logLevel;
-    private Reference<ServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Constants.REQUIRED_FIELD+"}")
+    @Size(min=1, groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Constants.REQUIRED_FIELD+"}")
+    @IsRegisteredHandler(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.UNKNOWN_HANDLER + "}")
+    private String serviceCallHandler;
+    private Reference<IServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
     private DefaultState currentLifeCycleState;
     private List<ServiceCallTypeCustomPropertySetUsage> customPropertySets = new ArrayList<>();
     @SuppressWarnings("unused")
@@ -43,10 +53,14 @@ public class ServiceCallTypeImpl implements ServiceCallType {
 
 
     private final DataModel dataModel;
+    private final ServiceCallService serviceCallService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public ServiceCallTypeImpl(DataModel dataModel) {
+    public ServiceCallTypeImpl(DataModel dataModel, ServiceCallService serviceCallService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
+        this.serviceCallService = serviceCallService;
+        this.thesaurus = thesaurus;
         this.status = Status.ACTIVE;
     }
 
@@ -58,7 +72,8 @@ public class ServiceCallTypeImpl implements ServiceCallType {
         versionName("versionName"),
         version("version"),
         currentLifeCycleState("currentLifeCycleState"),
-        customPropertySets("customPropertySets");
+        customPropertySets("customPropertySets"),
+        handler("serviceCallHandler");
 
         private final String javaFieldName;
 
@@ -95,6 +110,20 @@ public class ServiceCallTypeImpl implements ServiceCallType {
     }
 
     @Override
+    public ServiceCallHandler getServiceCallHandler() {
+        return serviceCallService.findHandler(serviceCallHandler)
+                .orElseThrow(() -> new HandlerDisappearedException(thesaurus, MessageSeeds.HANDLER_DISAPPEARED, serviceCallHandler));
+    }
+
+    public String getHandlerName() {
+        return serviceCallHandler;
+    }
+
+    public void setHandlerName(String serviceCallHandler) {
+        this.serviceCallHandler = serviceCallHandler;
+    }
+
+    @Override
     public Status getStatus() {
         return status;
     }
@@ -120,19 +149,8 @@ public class ServiceCallTypeImpl implements ServiceCallType {
     }
 
     @Override
-    public Optional<ServiceCallLifeCycle> getServiceCallLifeCycle() {
-        return serviceCallLifeCycle.getOptional();
-    }
-
-    @Override
-    public Optional<DefaultState> getCurrentLifeCycleState() {
-        return Optional.ofNullable(currentLifeCycleState);
-    }
-
-    @Override
-    public void setCurrentLifeCycleState(DefaultState currentLifeCycleState) {
-        // todo transition life cycle
-        this.currentLifeCycleState = currentLifeCycleState;
+    public IServiceCallLifeCycle getServiceCallLifeCycle() {
+        return serviceCallLifeCycle.get();
     }
 
     @Override
@@ -140,13 +158,16 @@ public class ServiceCallTypeImpl implements ServiceCallType {
         return customPropertySets.stream().map(ServiceCallTypeCustomPropertySetUsage::getCustomPropertySet).collect(toList());
     }
 
-    void setServiceCallLifeCycle(ServiceCallLifeCycle serviceCallLifeCycle) {
+    void setServiceCallLifeCycle(IServiceCallLifeCycle serviceCallLifeCycle) {
         this.serviceCallLifeCycle.set(serviceCallLifeCycle);
     }
 
     @Override
     public void addCustomPropertySet(RegisteredCustomPropertySet customPropertySet) {
         Objects.requireNonNull(customPropertySet);
+        if (!customPropertySet.getCustomPropertySet().getDomainClass().isAssignableFrom(ServiceCall.class)) {
+            throw new InvalidPropertySetDomainTypeException(thesaurus, MessageSeeds.INVALID_CPS_TYPE, customPropertySet);
+        }
         ServiceCallTypeCustomPropertySetUsageImpl usage = dataModel.getInstance(ServiceCallTypeCustomPropertySetUsageImpl.class);
         usage.initialize(this, customPropertySet);
         this.customPropertySets.add(usage);
@@ -169,5 +190,10 @@ public class ServiceCallTypeImpl implements ServiceCallType {
             Save.CREATE.save(this.dataModel, this, Save.Create.class);
         }
 
+    }
+
+    @Override
+    public ServiceCallBuilder newServiceCall() {
+        return ServiceCallBuilderImpl.from(dataModel, this);
     }
 }

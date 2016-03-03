@@ -1,7 +1,6 @@
 package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -14,14 +13,19 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.MissingHandlerNameException;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
+import com.elster.jupiter.servicecall.security.Privileges;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.inject.AbstractModule;
@@ -29,15 +33,18 @@ import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by bvn on 2/4/16.
@@ -46,22 +53,26 @@ import java.util.Optional;
         service = {ServiceCallService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
         property = "name=" + ServiceCallService.COMPONENT_NAME,
         immediate = true)
-public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
+public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
 
     private volatile FiniteStateMachineService finiteStateMachineService;
-    private volatile CustomPropertySetService customPropertySetService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
+    private final Map<String, ServiceCallHandler> handlerMap = new ConcurrentHashMap<>();
+    private volatile CustomPropertySetService customPropertySetService;
+    private volatile UserService userService;
 
     // OSGi
     public ServiceCallServiceImpl() {
     }
 
     @Inject
-    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService) {
+    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, UserService userService, CustomPropertySetService customPropertySetService) {
         this.setFiniteStateMachineService(finiteStateMachineService);
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
+        this.setUserService(userService);
+        setCustomPropertySetService(customPropertySetService);
         activate();
         this.install();
     }
@@ -87,6 +98,27 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(ServiceCallService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @Override
+    public void addServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties) {
+        String name = (String) properties.get("name");
+        if (Checks.is(name).emptyOrOnlyWhiteSpace()) {
+            throw new MissingHandlerNameException(thesaurus, MessageSeeds.NO_NAME_FOR_HANDLER, serviceCallHandler);
+        }
+        handlerMap.put(name, serviceCallHandler);
+    }
+
+    @Override
+    public void removeServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties) {
+        String name = (String) properties.get("name");
+        handlerMap.remove(name);
     }
 
     @Override
@@ -116,12 +148,24 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
 
     @Override
     public List<ResourceDefinition> getModuleResources() {
-        return Collections.emptyList();
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
+                Privileges.RESOURCE_SERVICE_CALL_TYPES.getKey(), Privileges.RESOURCE_SERVICE_CALL_TYPES_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES, Privileges.Constants.VIEW_SERVICE_CALL_TYPES)));
+        return resources;
     }
 
     @Override
     public void install() {
         dataModel.getInstance(ServiceCallInstaller.class).install();
+    }
+
+    @Override
+    public Optional<ServiceCallHandler> findHandler(String handler) {
+        if (Checks.is(handler).emptyOrOnlyWhiteSpace()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(handlerMap.get(handler));
     }
 
     @Override
@@ -140,7 +184,9 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
+                bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(ServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
+                bind(IServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
             }
         };
     }
@@ -172,18 +218,22 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
 
     @Override
     public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle) {
-        return new ServiceCallTypeBuilderImpl(name, versionName, serviceCallLifeCycle);
+        return new ServiceCallTypeBuilderImpl(this, name, versionName, (IServiceCallLifeCycle) serviceCallLifeCycle, dataModel, thesaurus);
     }
 
     @Override
     public Optional<ServiceCallType> findServiceCallType(String name, String versionName) {
-        return dataModel.mapper(ServiceCallType.class).getUnique(ServiceCallTypeImpl.Fields.name.fieldName(), name, ServiceCallTypeImpl.Fields.versionName.fieldName(), versionName);
+        return dataModel.mapper(IServiceCallType.class)
+                .getUnique(ServiceCallTypeImpl.Fields.name.fieldName(), name, ServiceCallTypeImpl.Fields.versionName.fieldName(), versionName)
+                .map(ServiceCallType.class::cast);
     }
 
 
     @Override
     public Optional<ServiceCallType> findAndLockServiceCallType(long id, long version) {
-        return dataModel.mapper(ServiceCallType.class).lockObjectIfVersion(version, id);
+        return dataModel.mapper(IServiceCallType.class)
+                .lockObjectIfVersion(version, id)
+                .map(ServiceCallType.class::cast);
     }
 
     @Override
@@ -191,39 +241,13 @@ public class ServiceCallServiceImpl implements ServiceCallService, MessageSeedPr
         return dataModel.getInstance(ServiceCallLifeCycleBuilderImpl.class).setName(name);
     }
 
-    class ServiceCallTypeBuilderImpl implements ServiceCallTypeBuilder {
-        private final ServiceCallTypeImpl instance;
-        private List<RegisteredCustomPropertySet> toBeRegisteredCustomPropertySets = new ArrayList<>();
+    @Override
+    public Collection<String> findAllHandlers() {
+        return handlerMap.keySet();
+    }
 
-        public ServiceCallTypeBuilderImpl(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle) {
-            instance = dataModel.getInstance(ServiceCallTypeImpl.class);
-            instance.setName(name);
-            instance.setVersionName(versionName);
-            instance.setServiceCallLifeCycle(serviceCallLifeCycle);
-            instance.setLogLevel(LogLevel.WARNING);
-        }
-
-        @Override
-        public ServiceCallTypeBuilder logLevel(LogLevel logLevel) {
-            Objects.requireNonNull(logLevel, "LogLevel must not be null");
-            instance.setLogLevel(logLevel);
-            return this;
-        }
-
-        @Override
-        public ServiceCallTypeBuilder customPropertySet(RegisteredCustomPropertySet customPropertySet) {
-            this.toBeRegisteredCustomPropertySets.add(customPropertySet);
-            return this;
-        }
-
-        @Override
-        public ServiceCallType add() {
-            instance.save();
-            for (RegisteredCustomPropertySet customPropertySet : toBeRegisteredCustomPropertySets) {
-                instance.addCustomPropertySet(customPropertySet);
-            }
-
-            return instance;
-        }
+    @Override
+    public Optional<ServiceCall> getServiceCall(long id) {
+        return dataModel.mapper(ServiceCall.class).getOptional(id);
     }
 }
