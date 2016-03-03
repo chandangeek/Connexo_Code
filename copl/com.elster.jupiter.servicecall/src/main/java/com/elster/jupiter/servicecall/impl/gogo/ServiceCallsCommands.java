@@ -33,14 +33,16 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=serviceCallTypes",
                 "osgi.command.function=createServiceCallType",
                 "osgi.command.function=deprecateServiceCallType",
+                "osgi.command.function=removeServiceCallType",
                 "osgi.command.function=customPropertySets",
                 "osgi.command.function=createServiceCallLifeCycle",
                 "osgi.command.function=handlers",
                 "osgi.command.function=serviceCallLifeCycles",
-                "osgi.command.function=serviceCall",
-                "osgi.command.function=serviceCalls",
                 "osgi.command.function=createServiceCall",
                 "osgi.command.function=createChildServiceCall",
+                "osgi.command.function=createServiceCallLifeCycle",
+                "osgi.command.function=serviceCall",
+                "osgi.command.function=serviceCalls",
                 "osgi.command.function=log"
         }, immediate = true)
 public class ServiceCallsCommands {
@@ -212,6 +214,15 @@ public class ServiceCallsCommands {
                     .origin(origin)
                     .externalReference(externalReference)
                     .create();
+            context.commit();
+        }
+    }
+
+    public void removeServiceCallType(String name, String versionName) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCallService.findServiceCallType(name, versionName).get().delete();
             context.commit();
         }
     }

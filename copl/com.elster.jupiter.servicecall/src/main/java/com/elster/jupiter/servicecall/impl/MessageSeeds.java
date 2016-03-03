@@ -16,7 +16,8 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_CPS_TYPE(5, Constants.INVALID_TYPE, "Custom property set {0} does not have the required domain class 'service call'"),
     REQUIRED_FIELD(6, Constants.REQUIRED_FIELD, "This field is required"),
     UNKNOWN_HANDLER(7, Constants.UNKNOWN_HANDLER, "Handler has not been registered yet"),
-    HANDLER_DISAPPEARED(8, Constants.HANDLER_DISAPPEARED, "The service call type was created with a handler ''{0}'' that can no longer be found in the system");
+    HANDLER_DISAPPEARED(8, Constants.HANDLER_DISAPPEARED, "The service call type was created with a handler ''{0}'' that can no longer be found in the system"),
+    CANNOT_DELETE_SERVICECALLTYPE(9, "canNotRemoveType", "Service call type {0} can not be removed, since there are still service calls of that type (e.g. {1}).")
     ;
 
     private final int number;
