@@ -14,9 +14,13 @@ Ext.define('Idc.view.OutboundIssueDetailsForm', {
                 xtype: 'data-collection-details-container'
             },
             {
-                itemId: 'outbound-issue-details-panel',
+                itemId: 'outbound-issue-details-panel-title',
                 title: Uni.I18n.translate('general.connectionDetails', 'IDC', 'Connection details'),
-                ui: 'medium',
+                ui: 'medium'
+            },
+            {
+                xtype: 'container',
+                itemId: 'outbound-issue-other-details-container',
                 layout: 'column',
                 items: [
                     {
