@@ -70,7 +70,7 @@ Ext.define('Isu.view.overview.Overview', {
                                         margin: '20 10 0 0'
                                     },
                                     {
-                                        title: Uni.I18n.translate('workspace.perType', 'ISU', 'Per reason'),
+                                        title: Uni.I18n.translate('workspace.perReason', 'ISU', 'Per reason'),
                                         itemId: 'reason',
                                         margin: '20 0 0 10'
                                     }
