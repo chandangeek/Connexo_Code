@@ -51,7 +51,7 @@ Ext.define('Mdc.usagepointmanagement.view.InstallationTimeField', {
                         layout: 'hbox',
                         valueInMilliseconds: true,
                         dateConfig: {
-                            width: 133
+                            width: 148
                         },
                         dateTimeSeparatorConfig: {
                             html: Uni.I18n.translate('general.at', 'IMT', 'At').toLowerCase(),

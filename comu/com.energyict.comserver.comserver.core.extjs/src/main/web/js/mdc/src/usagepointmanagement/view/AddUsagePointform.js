@@ -5,13 +5,14 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePointForm', {
         'Uni.form.field.Duration',
         'Mdc.usagepointmanagement.view.InstallationTimeField'
     ],
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
-    width: 650,
+    //layout: {
+    //    type: 'vbox',
+    //    align: 'stretch'
+    //},
+
     defaults: {
-        labelWidth: 250
+        labelWidth: 250,
+        //width: 600,
     },
 
     items: [
@@ -20,12 +21,14 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePointForm', {
             name: 'mRID',
             itemId: 'fld-up-mRID',
             required: true,
+            width: 600,
             fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.mrid', 'MDC', 'mRID')
         },
         {
             xtype: 'textfield',
             name: 'name',
             itemId: 'fld-up-name',
+            width: 600,
             fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
             renderer: function (value) {
                 return value ? value : '-';
@@ -34,6 +37,7 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePointForm', {
         {
             xtype: 'combobox',
             name: 'serviceCategory',
+            width: 600,
             itemId: 'fld-up-serviceCategory',
             required: true,
             fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.serviceCategory', 'MDC', 'Service category'),
