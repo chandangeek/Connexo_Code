@@ -160,7 +160,7 @@ class MdcAppPrivileges {
                 com.elster.jupiter.cps.Privileges.Constants.EDIT_CUSTOM_PROPERTIES_4,
 
                 //com.elster.jupiter.servicecall
-                com.elster.jupiter.servicecall.security.Privileges.Constants.VIEW_SERVICE_CALL_OVERVIEW,
+                com.elster.jupiter.servicecall.security.Privileges.Constants.VIEW_SERVICE_CALLS,
                 com.elster.jupiter.servicecall.security.Privileges.Constants.CHANGE_SERVICE_CALL_STATE);
     }
 }
