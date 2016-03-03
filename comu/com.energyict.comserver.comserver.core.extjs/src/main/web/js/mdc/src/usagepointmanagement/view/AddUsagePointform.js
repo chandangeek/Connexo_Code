@@ -5,14 +5,9 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePointForm', {
         'Uni.form.field.Duration',
         'Mdc.usagepointmanagement.view.InstallationTimeField'
     ],
-    //layout: {
-    //    type: 'vbox',
-    //    align: 'stretch'
-    //},
 
     defaults: {
         labelWidth: 250,
-        //width: 600,
     },
 
     items: [
@@ -29,17 +24,19 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePointForm', {
             name: 'name',
             itemId: 'fld-up-name',
             width: 600,
-            fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
-            renderer: function (value) {
-                return value ? value : '-';
-            }
+            fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name')
         },
         {
             xtype: 'combobox',
             name: 'serviceCategory',
-            width: 600,
+            displayField: 'displayName',
+            valueField: 'name',
+            store: 'Mdc.usagepointmanagement.store.ServiceCategories',
             itemId: 'fld-up-serviceCategory',
             required: true,
+            editable: false,
+            queryMode: 'remote',
+            width: 600,
             fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.serviceCategory', 'MDC', 'Service category'),
         },
         {
@@ -47,14 +44,8 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePointForm', {
             dateFieldName: 'installationTime',
             itemId: 'up-createTime-installationtimefield',
             fieldLabel: Uni.I18n.translate('general.label.created', 'MDC', 'Created'),
-            required: true,
-            //width: 600
+            required: true
         },
-        //{
-        //    name: 'created',
-        //    itemId: 'fld-up-created',
-        //    fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.created', 'MDC', 'Created')
-        //},
         {
             xtype: 'fieldcontainer',
             ui: 'actions',
@@ -69,7 +60,7 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePointForm', {
                     xtype: 'button',
                     ui: 'action',
                     action: 'save',
-                    itemId: 'deviceAddSaveButton'
+                    itemId: 'usagePointAddSaveButton'
                 },
                 {
                     text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),

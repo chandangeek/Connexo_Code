@@ -5,7 +5,8 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
         'Ext.container.Container'
     ],
     stores: [
-        'Mdc.usagepointmanagement.store.MeterActivations'
+        'Mdc.usagepointmanagement.store.MeterActivations',
+        'Mdc.usagepointmanagement.store.ServiceCategories'
     ],
     views: [
         'Mdc.usagepointmanagement.view.Setup',
@@ -17,10 +18,16 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
         {ref: 'attributesPanel', selector: '#usage-point-attributes-panel'},
         {ref: 'usagePointTechnicalAttributesDeviceLink', selector: '#usagePointTechnicalAttributesDeviceLink'},
         {ref: 'usagePointTechnicalAttributesDeviceDates', selector: '#usagePointTechnicalAttributesDeviceDates'},
-        {ref: 'usagepointActionsMenu', selector: 'usage-point-management-setup #usagePointActionMenu'}
+        {ref: 'usagepointActionsMenu', selector: 'usage-point-management-setup #usagePointActionMenu'},
+        {ref: 'addUsagePointPanel', selector: 'add-usage-point-setup'}
     ],
 
     init: function () {
+        this.control({
+            'add-usage-point-form #usagePointAddSaveButton': {
+                click: this.saveUsagePoint
+            }
+        });
     },
 
     showUsagePoint: function (id) {
@@ -49,6 +56,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
 
     loadMeterActivations: function(id){
         var me =this,
+            router = me.getController('Uni.controller.history.Router'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             store = me.getStore('Mdc.usagepointmanagement.store.MeterActivations'),
             metrologyConfiguration = me.getMetrologyConfiguration();
@@ -65,7 +73,8 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
                                 autoEl: {
                                     tag: 'a',
                                     //href: '#/devices/' + item.get('meter').mRID,
-                                    href: '/apps/insight/index.html',
+                                    href: router.getRoute('devices/device').buildUrl({mRID: item.get('meter').mRID}),
+                                    //href: '/apps/insight/index.html',
                                     html: item.get('meter').mRID,
                                     itemId: 'up-device-link'
                                 }
@@ -87,7 +96,8 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
                                 autoEl: {
                                     tag: 'a',
                                     //href: '#/devices/' + item.get('meter').mRID,
-                                    href: '/apps/insight/index.html',
+                                    href: router.getRoute('devices/device').buildUrl({mRID: item.get('meter').mRID}),
+                                    //href: '/apps/insight/index.html',
                                     html: item.get('meter').mRID
                                 }
                             },
@@ -111,16 +121,44 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
 
-
         pageMainContent.setLoading(true);
-
         var widget = Ext.widget('add-usage-point-setup', {router: router});
-        console.log(widget);
-
         me.getApplication().fireEvent('changecontentevent', widget);
-
-
         pageMainContent.setLoading(false);
+    },
+
+    saveUsagePoint: function () {
+        var me =this,
+            router = me.getController('Uni.controller.history.Router'),
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            usagePointModel = Ext.create('Mdc.usagepointmanagement.model.UsagePoint');
+        me.getAddUsagePointPanel().down('add-usage-point-form').updateRecord(usagePointModel);
+
+        viewport.setLoading(true);
+        me.getAddUsagePointPanel().down('add-usage-point-form').getForm().clearInvalid();
+        usagePointModel.save({
+            success: function (record) {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.added', 'MDC', "Usage point '{0}' added.", record.get('mRID')));
+                router.getRoute('usagepoints/usagepoint').forward({usagePointId: record.get('id')});
+            },
+            failure: function (record, operation) {
+                if (operation.response.status == 400) {
+                    var errorText = Uni.I18n.translate('general.error.unknown', 'MDC', 'Unknown error occurred');
+                    if (!Ext.isEmpty(operation.response.responseText)) {
+                        var json = Ext.decode(operation.response.responseText, true);
+                        if (json && json.errors) {
+                            me.getAddUsagePointPanel().down('uni-form-error-message').show();
+                            me.getAddUsagePointPanel().down('add-usage-point-form').getForm().markInvalid(json.errors);
+                        }
+                    }
+                }
+            },
+            callback: function () {
+                viewport.setLoading(false);
+            }
+        })
+
+
     }
 });
 

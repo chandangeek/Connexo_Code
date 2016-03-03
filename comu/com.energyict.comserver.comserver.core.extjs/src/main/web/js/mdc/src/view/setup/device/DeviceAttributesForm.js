@@ -137,20 +137,8 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                         if (Ext.isEmpty(value.displayValue)) {
                             return '-'
                         } else {
-                            //console.log(this.usagePointLink);
-                            //if(this.usagePointLink) {
-                            //    return Ext.String.format('<a href="{0}">{1}</a>', this.usagePointLink, Ext.String.htmlEncode(value.displayValue));
-                            //}
-                            //return value.displayValue;
-
-                            //var url = me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: value.attributeId});
-                            //var url = '/apps/insight/index.html';
-                            //var view = 'privilege.view.anyUsagePoint';
-                            //console.log(Uni.Auth.hasPrivilegeInApp(view, "INS"));
-                            //
-                            //var url = Ext.String.format('/apps/insight/index.html#/usagepoints/{0}', Ext.String.htmlEncode(value.displayValue));
-                            //return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value.displayValue))
-                            return me.checkUsagePointPrivileges(value);
+                            var url = me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: value.attributeId});
+                            return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value.displayValue));
                         }
                     } else {
                         this.hide();
@@ -228,34 +216,5 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
         ];
 
         me.callParent(arguments);
-    },
-
-    checkUsagePointPrivileges: function (value) {
-        var me = this,
-            url,
-            viewPrivilege = 'privilege.view.anyUsagePoint';
-
-        console.log(me.router);
-        console.log(me.router.getRoute('usagepoints/view').buildUrl({mRID: value.displayValue}));
-
-        if(!!Uni.store.Apps.getAppUrl("Insight")){
-            if(Uni.Auth.hasPrivilegeInApp(viewPrivilege, "INS")){
-                var appUrl = Uni.store.Apps.getAppUrl("Insight");
-
-                url =  appUrl + me.router.getRoute('usagepoints/view').buildUrl({mRID: value.displayValue});
-                url =  appUrl + me.router.getRoute('usagepoints/view');
-                //url = Ext.String.format('/apps/insight/index.html#/usagepoints/{0}', Ext.String.htmlEncode(value.displayValue));
-                return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value.displayValue));
-            } else {
-                return value.displayValue;
-            }
-        } else {
-            if(Uni.Auth.hasPrivilegeInApp(viewPrivilege, "MDC")){
-                url = me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: value.attributeId});
-                return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value.displayValue));
-            } else {
-                return value.displayValue;
-            }
-        }
     }
 });

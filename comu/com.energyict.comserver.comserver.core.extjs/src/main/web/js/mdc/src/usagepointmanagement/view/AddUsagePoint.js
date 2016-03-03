@@ -3,6 +3,7 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePoint', {
     alias: 'widget.add-usage-point-setup',
     itemId: 'add-usage-point-setup',
     requires: [
+        'Uni.util.FormErrorMessage',
         'Mdc.usagepointmanagement.view.AddUsagePointForm'
     ],
     router: null,
@@ -16,11 +17,14 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePoint', {
                 ui: 'large',
                 itemId: 'add-usage-point-panel',
                 title: Uni.I18n.translate('general.addUsagePoint', 'MDC', 'Add usage point'),
-                //layout: {
-                //    type: 'fit',
-                //    align: 'stretch'
-                //},
                 items: [
+                    {
+                        xtype: 'uni-form-error-message',
+                        name: 'errors',
+                        hidden: true,
+                        width: 600,
+                        margin: '0 0 10 0'
+                    },
                     {
                         xtype : 'add-usage-point-form'
                     }

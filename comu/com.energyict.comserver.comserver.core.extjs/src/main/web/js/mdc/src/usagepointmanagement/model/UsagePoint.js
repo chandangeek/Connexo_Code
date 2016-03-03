@@ -5,16 +5,9 @@ Ext.define('Mdc.usagepointmanagement.model.UsagePoint', {
         {name: 'id', type: 'number', useNull: true},
         {name: 'mRID', type: 'string'},
         {name: 'name', type: 'string'},
-        {name: 'description', type: 'string'},
         {name: 'serviceCategory', type: 'string'},
         {name: 'version', type: 'number', useNull: true},
-        {
-            name: 'created',
-            persist: false,
-            mapping: function (data) {
-                return Uni.DateTime.formatDateTimeLong(new Date(data.createTime));
-            }
-        }
+        {name: 'installationTime', type: 'int', defaultValue: null, useNull: true}
     ],
     proxy: {
         type: 'rest',
