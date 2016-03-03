@@ -1,22 +1,22 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.PhaseCode;
-import com.elster.jupiter.metering.AmiBillingReadyKind;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 
+import javax.validation.constraints.Size;
+
 public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
 
-    private AmiBillingReadyKind amiBillingReady;
-    private boolean checkBilling;
-    private UsagePointConnectedKind connectionState;
-    private boolean minimalUsageExpected;
-    private String serviceDeliveryRemark;
+    private YesNoAnswer collar = YesNoAnswer.UNKNOWN;
 
     private boolean grounded;
     private Quantity nominalServiceVoltage;
@@ -24,6 +24,11 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
     private Quantity ratedCurrent;
     private Quantity ratedPower;
     private Quantity estimatedLoad;
+    private boolean limiter;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    private String loadLimiterType;
+    private Quantity loadLimit;
+    private boolean interruptible;
 
     private UsagePoint usagePoint;
     private Interval interval;
@@ -36,37 +41,13 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
     }
 
     @Override
-    public ElectricityDetailBuilder withAmiBillingReady(AmiBillingReadyKind amiBillingReady) {
-        this.amiBillingReady = amiBillingReady;
+    public ElectricityDetailBuilder withCollar(YesNoAnswer collar) {
+        this.collar = collar;
         return this;
     }
 
     @Override
-    public ElectricityDetailBuilder withCheckBilling(Boolean checkBilling) {
-        this.checkBilling = checkBilling;
-        return this;
-    }
-
-    @Override
-    public ElectricityDetailBuilder withConnectionState(UsagePointConnectedKind connectionState) {
-        this.connectionState = connectionState;
-        return this;
-    }
-
-    @Override
-    public ElectricityDetailBuilder withMinimalUsageExpected(Boolean minimalUsageExpected) {
-        this.minimalUsageExpected = minimalUsageExpected;
-        return this;
-    }
-
-    @Override
-    public ElectricityDetailBuilder withServiceDeliveryRemark(String serviceDeliveryRemark) {
-        this.serviceDeliveryRemark = serviceDeliveryRemark;
-        return this;
-    }
-
-    @Override
-    public ElectricityDetailBuilder withGrounded(Boolean grounded) {
+    public ElectricityDetailBuilder withGrounded(boolean grounded) {
         this.grounded = grounded;
         return this;
     }
@@ -102,65 +83,54 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
     }
 
     @Override
-    public AmiBillingReadyKind getAmiBillingReady() {
-        return amiBillingReady;
+    public ElectricityDetailBuilder withLimiter(boolean limiter) {
+        this.limiter = limiter;
+        return this;
     }
 
     @Override
-    public boolean isCheckBilling() {
-        return checkBilling;
+    public ElectricityDetailBuilder withLoadLimit(Quantity loadLimit) {
+        this.loadLimit = loadLimit;
+        return this;
     }
 
     @Override
-    public UsagePointConnectedKind getConnectionState() {
-        return connectionState;
+    public ElectricityDetailBuilder withLoadLimiterType(String loadLimiterType) {
+        this.loadLimiterType = loadLimiterType;
+        return this;
     }
 
     @Override
-    public boolean isMinimalUsageExpected() {
-        return minimalUsageExpected;
+    public ElectricityDetailBuilder withInterruptible(boolean interruptible) {
+        this.interruptible = interruptible;
+        return this;
     }
 
     @Override
-    public String getServiceDeliveryRemark() {
-        return serviceDeliveryRemark;
+    public ElectricityDetail create() {
+        ElectricityDetail detail = buildDetail();
+        usagePoint.addDetail(detail);
+        return detail;
     }
 
     @Override
-    public boolean isGrounded() {
-        return grounded;
+    public void validate() {
+        Save.CREATE.validate(dataModel,buildDetail());
     }
 
-    @Override
-    public Quantity getNominalServiceVoltage() {
-        return nominalServiceVoltage;
-    }
-
-    @Override
-    public PhaseCode getPhaseCode() {
-        return phaseCode;
-    }
-
-    @Override
-    public Quantity getRatedCurrent() {
-        return ratedCurrent;
-    }
-
-    @Override
-    public Quantity getRatedPower() {
-        return ratedPower;
-    }
-
-    @Override
-    public Quantity getEstimatedLoad() {
-        return estimatedLoad;
-    }
-
-    @Override
-    public ElectricityDetail build() {
-        ElectricityDetail ed = dataModel.getInstance(ElectricityDetailImpl.class).init(usagePoint, this, interval);
-        usagePoint.addDetail(ed);
+    private ElectricityDetail buildDetail(){
+        ElectricityDetailImpl ed = dataModel.getInstance(ElectricityDetailImpl.class).init(usagePoint, interval);
+        ed.setCollar(collar);
+        ed.setGrounded(grounded);
+        ed.setNominalServiceVoltage(nominalServiceVoltage);
+        ed.setPhaseCode(phaseCode);
+        ed.setRatedCurrent(ratedCurrent);
+        ed.setRatedPower(ratedPower);
+        ed.setEstimatedLoad(estimatedLoad);
+        ed.setLimiter(limiter);
+        ed.setLoadLimiterType(loadLimiterType);
+        ed.setLoadLimit(loadLimit);
+        ed.setInterruptible(interruptible);
         return ed;
     }
-
 }

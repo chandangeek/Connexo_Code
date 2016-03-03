@@ -1,27 +1,36 @@
 package com.elster.jupiter.metering;
 
-public interface GasDetailBuilder {
+import com.elster.jupiter.util.YesNoAnswer;
+import com.elster.jupiter.util.units.Quantity;
 
-    GasDetailBuilder withAmiBillingReady(AmiBillingReadyKind amiBillingReady);
+public interface GasDetailBuilder  extends UsagePointDetailBuilder{
 
-    GasDetailBuilder withCheckBilling(Boolean checkBilling);
+    GasDetailBuilder withCollar(YesNoAnswer collar);
 
-    GasDetailBuilder withConnectionState(UsagePointConnectedKind connectionState);
+    GasDetailBuilder withGrounded(boolean grounded);
 
-    GasDetailBuilder withMinimalUsageExpected(Boolean minimalUsageExpected);
+    GasDetailBuilder withPressure(Quantity pressure);
 
-    GasDetailBuilder withServiceDeliveryRemark(String serviceDeliveryRemark);
+    GasDetailBuilder withPhysicalCapacity(Quantity physicalCapacity);
 
-    AmiBillingReadyKind getAmiBillingReady();
+    GasDetailBuilder withLimiter(boolean limiter);
 
-    boolean isCheckBilling();
+    GasDetailBuilder withLoadLimit(Quantity loadLimit);
 
-    UsagePointConnectedKind getConnectionState();
+    GasDetailBuilder withLoadLimiterType(String loadLimiterType);
 
-    boolean isMinimalUsageExpected();
+    GasDetailBuilder withBypass(YesNoAnswer bypass);
 
-    String getServiceDeliveryRemark();
+    GasDetailBuilder withBypassStatus(BypassStatus bypassStatus);
 
-    GasDetail build();
+    GasDetailBuilder withValve(YesNoAnswer valve);
+
+    GasDetailBuilder withCap(YesNoAnswer capped);
+
+    GasDetailBuilder withClamp(YesNoAnswer clamped);
+
+    GasDetailBuilder withInterruptible(boolean interruptible);
+
+    GasDetail create();
 
 }

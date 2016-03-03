@@ -2,6 +2,7 @@ package com.elster.jupiter.metering;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.nls.HasTranslatableName;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.util.HasId;
 
@@ -24,6 +25,8 @@ public interface ServiceCategory extends HasTranslatableName, HasAuditInfo, HasI
 	void addCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet);
 
 	void removeCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet);
+
+	String getDisplayName();
 
 	void setActive(boolean active);
 	boolean isActive();

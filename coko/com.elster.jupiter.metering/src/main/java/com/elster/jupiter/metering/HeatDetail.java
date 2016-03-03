@@ -10,14 +10,7 @@ import com.elster.jupiter.util.units.Quantity;
  * Time: 9:13
  * To change this template use File | Settings | File Templates.
  */
-public interface GasDetail extends UsagePointDetail {
-    boolean isGrounded();
-
-    boolean isLimiter();
-
-    String getLoadLimiterType();
-
-    Quantity getLoadLimit();
+public interface HeatDetail extends UsagePointDetail {
 
     Quantity getPhysicalCapacity();
 
@@ -28,10 +21,4 @@ public interface GasDetail extends UsagePointDetail {
     BypassStatus getBypassStatus();
 
     YesNoAnswer isValveInstalled();
-
-    YesNoAnswer isCapped();
-
-    YesNoAnswer isClamped();
-
-    boolean isInterruptible();
 }

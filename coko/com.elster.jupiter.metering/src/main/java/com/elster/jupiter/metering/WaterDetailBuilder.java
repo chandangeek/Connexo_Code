@@ -1,27 +1,33 @@
 package com.elster.jupiter.metering;
 
-public interface WaterDetailBuilder {
+import com.elster.jupiter.util.YesNoAnswer;
+import com.elster.jupiter.util.units.Quantity;
 
-    WaterDetailBuilder withAmiBillingReady(AmiBillingReadyKind amiBillingReady);
+public interface WaterDetailBuilder  extends UsagePointDetailBuilder{
 
-    WaterDetailBuilder withCheckBilling(Boolean checkBilling);
+    WaterDetailBuilder withCollar(YesNoAnswer collar);
 
-    WaterDetailBuilder withConnectionState(UsagePointConnectedKind connectionState);
+    WaterDetailBuilder withGrounded(boolean grounded);
 
-    WaterDetailBuilder withMinimalUsageExpected(Boolean minimalUsageExpected);
+    WaterDetailBuilder withPressure(Quantity pressure);
 
-    WaterDetailBuilder withServiceDeliveryRemark(String serviceDeliveryRemark);
+    WaterDetailBuilder withPhysicalCapacity(Quantity physicalCapacity);
 
-    AmiBillingReadyKind getAmiBillingReady();
+    WaterDetailBuilder withLimiter(boolean limiter);
 
-    boolean isCheckBilling();
+    WaterDetailBuilder withLoadLimit(Quantity loadLimit);
 
-    UsagePointConnectedKind getConnectionState();
+    WaterDetailBuilder withLoadLimiterType(String loadLimiterType);
 
-    boolean isMinimalUsageExpected();
+    WaterDetailBuilder withBypass(YesNoAnswer bypass);
 
-    String getServiceDeliveryRemark();
+    WaterDetailBuilder withBypassStatus(BypassStatus bypassStatus);
 
-    WaterDetail build();
+    WaterDetailBuilder withValve(YesNoAnswer valve);
 
+    WaterDetailBuilder withCap(YesNoAnswer capped);
+
+    WaterDetailBuilder withClamp(YesNoAnswer clamped);
+
+    WaterDetail create();
 }

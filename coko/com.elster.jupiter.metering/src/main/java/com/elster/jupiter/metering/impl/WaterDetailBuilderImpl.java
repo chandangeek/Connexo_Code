@@ -1,20 +1,29 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.AmiBillingReadyKind;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.units.Quantity;
 
 public class WaterDetailBuilderImpl implements WaterDetailBuilder{
 
-	private AmiBillingReadyKind amiBillingReady;
-	private boolean checkBilling;
-	private UsagePointConnectedKind connectionState;
-	private boolean minimalUsageExpected;
-	private String serviceDeliveryRemark;
+	private YesNoAnswer collar = YesNoAnswer.UNKNOWN;
+	private boolean grounded;
+	private Quantity pressure;
+	private Quantity physicalCapacity;
+	private boolean limiter;
+	private String loadLimiterType;
+	private Quantity loadLimit;
+	private YesNoAnswer bypass = YesNoAnswer.UNKNOWN;
+	private BypassStatus bypassStatus;
+	private YesNoAnswer valve = YesNoAnswer.UNKNOWN;
+	private YesNoAnswer capped = YesNoAnswer.UNKNOWN;
+	private YesNoAnswer clamped = YesNoAnswer.UNKNOWN;
 
 	private UsagePoint usagePoint;
 	private Interval interval;
@@ -27,67 +36,105 @@ public class WaterDetailBuilderImpl implements WaterDetailBuilder{
 		this.interval = interval;
 	}
 
-
 	@Override
-	public WaterDetailBuilder withAmiBillingReady(AmiBillingReadyKind amiBillingReady) {
-		this.amiBillingReady = amiBillingReady;
+	public WaterDetailBuilder withCollar(YesNoAnswer collar) {
+		this.collar = collar;
 		return this;
 	}
 
 	@Override
-	public WaterDetailBuilder withCheckBilling(Boolean checkBilling) {
-		this.checkBilling = checkBilling;
+	public WaterDetailBuilder withGrounded(boolean grounded) {
+		this.grounded = grounded;
 		return this;
 	}
 
 	@Override
-	public WaterDetailBuilder withConnectionState(UsagePointConnectedKind connectionState) {
-		this.connectionState = connectionState;
+	public WaterDetailBuilder withPressure(Quantity pressure) {
+		this.pressure = pressure;
 		return this;
 	}
 
 	@Override
-	public WaterDetailBuilder withMinimalUsageExpected(Boolean minimalUsageExpected) {
-		this.minimalUsageExpected = minimalUsageExpected;
-		return this;
-	}
-	
-	@Override
-	public WaterDetailBuilder withServiceDeliveryRemark(String serviceDeliveryRemark) {
-		this.serviceDeliveryRemark=serviceDeliveryRemark;
+	public WaterDetailBuilder withPhysicalCapacity(Quantity physicalCapacity) {
+		this.physicalCapacity = physicalCapacity;
 		return this;
 	}
 
 	@Override
-	public AmiBillingReadyKind getAmiBillingReady() {
-		return amiBillingReady;
+	public WaterDetailBuilder withLimiter(boolean limiter) {
+		this.limiter = limiter;
+		return this;
 	}
 
 	@Override
-	public boolean isCheckBilling() {
-		return checkBilling;
+	public WaterDetailBuilder withLoadLimit(Quantity loadLimit) {
+		this.loadLimit = loadLimit;
+		return this;
 	}
 
 	@Override
-	public UsagePointConnectedKind getConnectionState() {
-		return connectionState;
+	public WaterDetailBuilder withLoadLimiterType(String loadLimiterType) {
+		this.loadLimiterType = loadLimiterType;
+		return this;
 	}
 
 	@Override
-	public boolean isMinimalUsageExpected() {
-		return minimalUsageExpected;
+	public WaterDetailBuilder withBypass(YesNoAnswer bypass) {
+		this.bypass = bypass;
+		return this;
 	}
 
 	@Override
-	public String getServiceDeliveryRemark() {
-		return serviceDeliveryRemark;
+	public WaterDetailBuilder withBypassStatus(BypassStatus bypassStatus) {
+		this.bypassStatus = bypassStatus;
+		return this;
 	}
 
 	@Override
-	public WaterDetail build() {
-		WaterDetail wd =  dataModel.getInstance(WaterDetailImpl.class).init(usagePoint, this, interval);
-		usagePoint.addDetail(wd);
-        return wd;
+	public WaterDetailBuilder withValve(YesNoAnswer valve) {
+		this.valve = valve;
+		return this;
+	}
+
+	@Override
+	public WaterDetailBuilder withCap(YesNoAnswer capped) {
+		this.capped = capped;
+		return this;
+	}
+
+	@Override
+	public WaterDetailBuilder withClamp(YesNoAnswer clamped) {
+		this.clamped = clamped;
+		return this;
+	}
+
+
+	@Override
+	public WaterDetail create() {
+		WaterDetail detail= buildDetail();
+		usagePoint.addDetail(detail);
+        return detail;
     }
 
+	@Override
+	public void validate() {
+		Save.CREATE.validate(dataModel,buildDetail());
+	}
+
+	private WaterDetail buildDetail(){
+		WaterDetailImpl wd = dataModel.getInstance(WaterDetailImpl.class).init(usagePoint, interval);
+		wd.setCollar(collar);
+		wd.setGrounded(grounded);
+		wd.setPressure(pressure);
+		wd.setPhysicalCapacity(physicalCapacity);
+		wd.setLimiter(limiter);
+		wd.setLoadLimiterType(loadLimiterType);
+		wd.setLoadLimit(loadLimit);
+		wd.setBypass(bypass);
+		wd.setBypassStatus(bypassStatus);
+		wd.setValve(valve);
+		wd.setCap(capped);
+		wd.setClamp(clamped);
+		return wd;
+	}
 }

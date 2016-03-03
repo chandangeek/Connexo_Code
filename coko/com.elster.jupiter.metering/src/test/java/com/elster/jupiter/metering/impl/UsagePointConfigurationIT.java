@@ -215,6 +215,7 @@ public class UsagePointConfigurationIT {
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCategory electricity = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
             usagePoint = electricity.newUsagePoint("mrId")
+                    .withInstallationTime(Instant.EPOCH)
                     .create();
             meterActivation = usagePoint.activate(ACTIVE_DATE.toInstant());
             context.commit();

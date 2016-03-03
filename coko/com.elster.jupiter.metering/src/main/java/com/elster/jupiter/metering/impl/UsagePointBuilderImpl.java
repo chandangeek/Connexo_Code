@@ -1,10 +1,13 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.orm.DataModel;
+
+import java.time.Instant;
 
 public class UsagePointBuilderImpl implements UsagePointBuilder {
 
@@ -17,9 +20,11 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     private boolean isSdp;
     private boolean isVirtual;
     private String outageRegion;
-    private String readCycle;
     private String readRoute;
     private String servicePriority;
+    private String serviceDeliveryRemark;
+    private String serviceLocationString;
+    private Instant installationTime;
 
     private ServiceCategory serviceCategory;
     private ServiceLocation serviceLocation;
@@ -55,13 +60,13 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
-    public UsagePointBuilder withIsSdp(Boolean isSdp) {
+    public UsagePointBuilder withIsSdp(boolean isSdp) {
         this.isSdp = isSdp;
         return this;
     }
 
     @Override
-    public UsagePointBuilder withIsVirtual(Boolean isVirtual) {
+    public UsagePointBuilder withIsVirtual(boolean isVirtual) {
         this.isVirtual = isVirtual;
         return this;
     }
@@ -69,12 +74,6 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     @Override
     public UsagePointBuilder withOutageRegion(String outageRegion) {
         this.outageRegion = outageRegion;
-        return this;
-    }
-
-    @Override
-    public UsagePointBuilder withReadCycle(String readCycle) {
-        this.readCycle = readCycle;
         return this;
     }
 
@@ -91,28 +90,55 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
-    public UsagePointBuilder setServiceLocation(ServiceLocation location) {
+    public UsagePointBuilder withServiceDeliveryRemark(String serviceDeliveryRemark) {
+        this.serviceDeliveryRemark = serviceDeliveryRemark;
+        return this;
+    }
+
+    @Override
+    public UsagePointBuilder withServiceLocation(ServiceLocation location) {
         this.serviceLocation = location;
         return this;
     }
 
     @Override
-    public UsagePoint create() {
-        UsagePointImpl usagePoint = dataModel.getInstance(UsagePointImpl.class).init(mRID, serviceCategory);
+    public UsagePointBuilder withServiceLocationString(String serviceLocationString) {
+        this.serviceLocationString = serviceLocationString;
+        return this;
+    }
 
-        usagePoint.setAliasName(aliasName);
-        usagePoint.setDescription(description);
-        usagePoint.setName(name);
-        usagePoint.setSdp(isSdp);
-        usagePoint.setVirtual(isVirtual);
-        usagePoint.setOutageRegion(outageRegion);
-        usagePoint.setReadCycle(readCycle);
-        usagePoint.setReadRoute(readRoute);
-        usagePoint.setServicePriority(servicePriority);
-        usagePoint.setServiceLocation(serviceLocation);
+    @Override
+    public UsagePointBuilder withInstallationTime(Instant installationTime) {
+        this.installationTime = installationTime;
+        return this;
+    }
+
+    @Override
+    public UsagePoint create() {
+        UsagePointImpl usagePoint = this.build();
         usagePoint.doSave();
         return usagePoint;
     }
 
+    @Override
+    public UsagePoint validate() {
+        UsagePointImpl usagePoint = this.build();
+        Save.CREATE.validate(dataModel,usagePoint);
+        return usagePoint;
+    }
 
+    private UsagePointImpl build(){
+        UsagePointImpl usagePoint = dataModel.getInstance(UsagePointImpl.class).init(mRID, serviceCategory);
+        usagePoint.setName(name);
+        usagePoint.setSdp(isSdp);
+        usagePoint.setVirtual(isVirtual);
+        usagePoint.setOutageRegion(outageRegion);
+        usagePoint.setReadRoute(readRoute);
+        usagePoint.setServicePriority(servicePriority);
+        usagePoint.setServiceLocation(serviceLocation);
+        usagePoint.setInstallationTime(installationTime);
+        usagePoint.setServiceDeliveryRemark(serviceDeliveryRemark);
+        usagePoint.setServiceLocationString(serviceLocationString);
+        return usagePoint;
+    }
 }

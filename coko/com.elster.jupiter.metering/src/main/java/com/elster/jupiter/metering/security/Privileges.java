@@ -12,6 +12,7 @@ public enum Privileges implements TranslationKey {
     ADMINISTER_ANY_USAGEPOINT(Constants.ADMINISTER_ANY_USAGEPOINT, "Administer any usage point"),
     VIEW_OWN_USAGEPOINT(Constants.VIEW_OWN_USAGEPOINT, "View own usage point"),
     ADMINISTER_OWN_USAGEPOINT(Constants.ADMINISTER_OWN_USAGEPOINT, "Administer own usage point"),
+	ADMINISTER_USAGEPOINT_TIME_SLICED_CPS(Constants.ADMINISTER_USAGEPOINT_TIME_SLICED_CPS, "Administer usage point time-sliced CAS"),
 
 	VIEW_READINGTYPE(Constants.VIEW_READINGTYPE, "View reading types"),
     ADMINISTER_READINGTYPE(Constants.ADMINISTER_READINGTYPE, "Administer reading types"),
@@ -60,5 +61,6 @@ public enum Privileges implements TranslationKey {
         String VIEW_SERVICECATEGORY = "privilege.view.serviceCategory";
         String VIEW_METROLOGY_CONFIGURATION = "privilege.view.metrologyConfiguration";
         String ADMINISTER_METROLOGY_CONFIGURATION = "privilege.administer.metrologyConfiguration";
-    }
+		String ADMINISTER_USAGEPOINT_TIME_SLICED_CPS = "privilege.administer.usage.point.time.sliced.cps";
+	}
 }

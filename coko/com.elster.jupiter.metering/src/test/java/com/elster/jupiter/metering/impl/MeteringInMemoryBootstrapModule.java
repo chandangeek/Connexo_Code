@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.impl.config;
+package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -11,8 +11,6 @@ import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -47,23 +45,18 @@ import java.time.Clock;
 
 import static org.mockito.Mockito.mock;
 
-public class MetrologyInMemoryBootstrapModule {
+public class MeteringInMemoryBootstrapModule {
     private final Clock clock;
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
-    private boolean printSql;
 
-    public MetrologyInMemoryBootstrapModule() {
+    public MeteringInMemoryBootstrapModule() {
         this(Clock.systemUTC());
     }
 
-    public MetrologyInMemoryBootstrapModule(Clock clock) {
+    public MeteringInMemoryBootstrapModule(Clock clock) {
         super();
         this.clock = clock;
-    }
-
-    public void setPrintSql(boolean printSql) {
-        this.printSql = printSql;
     }
 
     public void activate() {
@@ -82,7 +75,7 @@ public class MetrologyInMemoryBootstrapModule {
                 new ThreadSecurityModule(),
                 new DataVaultModule(),
                 new PubSubModule(),
-                new TransactionModule(printSql),
+                new TransactionModule(),
                 new NlsModule(),
                 new BasicPropertiesModule(),
                 new TimeModule(),
@@ -92,7 +85,6 @@ public class MetrologyInMemoryBootstrapModule {
             injector.getInstance(ThreadPrincipalService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(PropertySpecService.class);
-            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(MetrologyConfigurationService.class);
             ctx.commit();
         }
@@ -124,6 +116,10 @@ public class MetrologyInMemoryBootstrapModule {
 
     public Clock getClock() {
         return injector.getInstance(Clock.class);
+    }
+
+    public ThreadPrincipalService getThreadPrincipalService() {
+        return injector.getInstance(ThreadPrincipalService.class);
     }
 
     private class MockModule extends AbstractModule {

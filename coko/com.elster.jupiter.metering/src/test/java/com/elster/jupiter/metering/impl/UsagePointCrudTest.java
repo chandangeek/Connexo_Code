@@ -40,6 +40,7 @@ import org.osgi.service.log.LogService;
 
 import java.security.Principal;
 import java.sql.SQLException;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -127,7 +128,7 @@ public class UsagePointCrudTest {
     private void doTest(ServerMeteringService meteringService) {
         DataModel dataModel = meteringService.getDataModel();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID").create();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID").withInstallationTime(Instant.EPOCH).create();
         long id = usagePoint.getId();
         assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
         usagePoint.update();
