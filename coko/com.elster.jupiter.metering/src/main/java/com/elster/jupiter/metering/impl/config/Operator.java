@@ -47,4 +47,16 @@ public enum Operator {
 
     public abstract void appendTo(SqlBuilder sqlBuilder);
 
+    public String toString() {
+        if (this.equals(PLUS)) {
+            return "plus";
+        } else if (this.equals(MINUS)) {
+            return "minus";
+        } else if (this.equals(MULTIPLY)) {
+            return "multiply";
+        } else {
+            return "divide";
+        }
+    }
+
 }

@@ -44,7 +44,8 @@ import java.util.stream.Collectors;
         "osgi.command.function=advanceStartDate",
         "osgi.command.function=explain",
         "osgi.command.function=addEvents",
-        "osgi.command.function=addFormula"
+        "osgi.command.function=addFormula",
+        "osgi.command.function=formulas"
 }, immediate = true)
 public class ConsoleCommands {
 
@@ -231,6 +232,12 @@ public class ConsoleCommands {
             Formula formula = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
             context.commit();
         }
+    }
+
+    public void formulas() {
+        metrologyConfigurationService.findFormulas().stream()
+                .map(Formula::toString)
+                .forEach(System.out::println);
     }
 
     @Reference

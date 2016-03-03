@@ -29,4 +29,8 @@ public class ConstantNode extends AbstractNode {
         return visitor.visitConstant(this);
     }
 
+    public String toString() {
+        return "constant(" + constantValue.toString() + ")";
+    }
+
 }

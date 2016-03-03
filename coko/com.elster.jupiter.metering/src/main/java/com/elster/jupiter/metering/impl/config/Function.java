@@ -23,4 +23,16 @@ public enum Function {
         return id;
     }
 
+    public String toString() {
+        if (this.equals(SUM)) {
+            return "sum";
+        } else if (this.equals(MAX)) {
+            return "max";
+        } else if (this.equals(MIN)) {
+            return "min";
+        } else {
+            return "avg";
+        }
+    }
+
 }

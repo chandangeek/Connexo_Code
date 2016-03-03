@@ -32,4 +32,6 @@ public interface MetrologyConfigurationService {
      */
     Optional<Formula> findFormula(long id);
 
+    List<Formula> findFormulas();
+
 }

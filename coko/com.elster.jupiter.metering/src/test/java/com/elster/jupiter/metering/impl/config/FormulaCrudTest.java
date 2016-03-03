@@ -234,6 +234,11 @@ public class FormulaCrudTest {
             ExpressionNode node = new ExpressionNodeParser().parse(formulaString);
             Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
             context.commit();
+            List<Formula> formulas = service.findFormulas();
+            for (Formula f : formulas) {
+                System.out.println(((FormulaImpl) f).toString());
+            }
+
 
         }
     }

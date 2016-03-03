@@ -180,4 +180,10 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
         return getDataModel().mapper(Formula.class).getOptional(id);
     }
 
+    @Override
+    public List<Formula> findFormulas() {
+        return getDataModel().mapper(Formula.class).find();
+    }
+
+
 }

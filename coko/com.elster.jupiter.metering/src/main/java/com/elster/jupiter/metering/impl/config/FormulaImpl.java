@@ -79,9 +79,15 @@ public class FormulaImpl implements ServerFormula {
 
     void doSave() {
         this.expressionNode.get().save(dataModel);
-        //Save.action(this.id).save(dataModel, this);
+        Save.action(this.id).save(dataModel, this);
+    }
 
-        Save.CREATE.save(dataModel, this);
+    public String toString() {
+        String result = "id: " + this.id + ", mode: " + this.mode;
+        if (expressionNode.isPresent()) {
+            result = result + ", formula: " + expressionNode.get().toString();
+        }
+        return result;
     }
 
 }
