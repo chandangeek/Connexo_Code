@@ -8,9 +8,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Created by bvn on 3/2/16.
- */
 public class ServiceCallInfoFactory {
 
     public ServiceCallInfo from(ServiceCall serviceCall) {
