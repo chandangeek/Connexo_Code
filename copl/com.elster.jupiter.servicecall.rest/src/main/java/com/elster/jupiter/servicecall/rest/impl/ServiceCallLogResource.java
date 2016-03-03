@@ -5,7 +5,9 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.security.Privileges;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -35,6 +37,7 @@ public class ServiceCallLogResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALL_TYPES)
     public PagedInfoList getAllLogs(@PathParam("serviceCallId") long serviceCallId, @BeanParam JsonQueryParameters queryParameters) {
         ServiceCall serviceCall = serviceCallService.getServiceCall(serviceCallId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL));

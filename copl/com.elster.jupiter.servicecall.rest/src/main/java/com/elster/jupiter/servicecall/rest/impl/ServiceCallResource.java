@@ -1,7 +1,6 @@
 package com.elster.jupiter.servicecall.rest.impl;
 
 
-import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -9,9 +8,11 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFinder;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.security.Privileges;
 
 import com.google.common.collect.Range;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -24,7 +25,8 @@ import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
+import static java.util.stream.Collectors.toList;
 
 @Path("/servicecalls")
 public class ServiceCallResource {
@@ -41,6 +43,7 @@ public class ServiceCallResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALL_TYPES)
     public PagedInfoList getAllServiceCalls(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
         //Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCalls();
@@ -86,6 +89,7 @@ public class ServiceCallResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALL_TYPES)
     public ServiceCallInfo getServiceCall(@PathParam("id") String number) {
         return serviceCallService.getServiceCall(number)
                 .map(serviceCallInfoFactory::from)
@@ -95,24 +99,21 @@ public class ServiceCallResource {
     @GET
     @Path("/{id}/children")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALL_TYPES)
     public PagedInfoList getChildren(@PathParam("id") String number, @BeanParam JsonQueryParameters queryParameters) {
-        List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
-        Optional<ServiceCall> serviceCallOptional = serviceCallService.getServiceCall(number);
-        if (serviceCallOptional.isPresent()) {
-            Finder<ServiceCall> serviceCallFinder = serviceCallOptional.get().getChildren();
-            List<ServiceCall> serviceCalls = serviceCallFinder.from(queryParameters).find();
+        List<ServiceCallInfo> serviceCallInfos = serviceCallService.getServiceCall(number)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL))
+                .getChildren().from(queryParameters).stream()
+                .map(serviceCallInfoFactory::from)
+                .collect(toList());
 
-            serviceCalls.stream()
-                    .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.from(serviceCall)));
-
-            return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
-        }
-        return null;
+        return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
 
     @PUT
     @Path("/{id}/cancel")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES)
     public Response cancelServiceCall(@PathParam("id") String number) {
         serviceCallService.getServiceCall(number).ifPresent(ServiceCall::cancel);
         return Response.status(Response.Status.OK).build();

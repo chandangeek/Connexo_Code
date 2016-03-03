@@ -5,7 +5,9 @@ import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.security.Privileges;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -29,6 +31,7 @@ public class ServiceCallFieldResource {
     @GET
     @Path("/loglevels")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALL_TYPES)
     public PagedInfoList getLogLevels(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithDisplayValueInfo<String>> logLevels = Arrays.stream(LogLevel.values())
                 .map(logLevel -> new IdWithDisplayValueInfo<>(logLevel.name(), logLevel.getDisplayName(this.thesaurus)))

@@ -1,7 +1,5 @@
 package com.elster.jupiter.servicecall.rest.impl;
 
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -22,23 +20,23 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 @Path("/servicecalltypes")
 public class ServiceCallTypeResource {
 
     private final ServiceCallService serviceCallService;
     private final ServiceCallTypeInfoFactory serviceCallTypeInfoFactory;
-    private final Thesaurus thesaurus;
     private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public ServiceCallTypeResource(ServiceCallService serviceCallService, ServiceCallTypeInfoFactory serviceCallTypeInfoFactory, Thesaurus thesaurus, ConcurrentModificationExceptionFactory conflictFactory) {
+    public ServiceCallTypeResource(ServiceCallService serviceCallService,
+                                   ServiceCallTypeInfoFactory serviceCallTypeInfoFactory,
+                                   ConcurrentModificationExceptionFactory conflictFactory) {
         this.serviceCallService = serviceCallService;
         this.serviceCallTypeInfoFactory = serviceCallTypeInfoFactory;
-        this.thesaurus = thesaurus;
         this.conflictFactory = conflictFactory;
     }
 
@@ -46,15 +44,11 @@ public class ServiceCallTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALL_TYPES, Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES})
     public PagedInfoList getAllServiceCallTypes(@BeanParam JsonQueryParameters queryParameters) {
-        List<ServiceCallTypeInfo> serviceCallTypeInfos = new ArrayList<>();
-        Finder<ServiceCallType> serviceCallTypeFinder = serviceCallService.getServiceCallTypes();
-
-        List<ServiceCallType> allServiceCallTypes = serviceCallTypeFinder.from(queryParameters).find();
-        Comparator<ServiceCallType> comparator = Comparator.comparing(ServiceCallType::getName);
-        comparator = comparator.thenComparing(ServiceCallType::getVersionName);
-        allServiceCallTypes.stream()
-                .sorted(comparator)
-                .forEach(type -> serviceCallTypeInfos.add(serviceCallTypeInfoFactory.from(type)));
+        List<ServiceCallTypeInfo> serviceCallTypeInfos = serviceCallService.getServiceCallTypes()
+                .from(queryParameters)
+                .stream()
+                .map(serviceCallTypeInfoFactory::from)
+                .collect(toList());
 
         return PagedInfoList.fromPagedList("serviceCallTypes", serviceCallTypeInfos, queryParameters);
     }
@@ -74,16 +68,6 @@ public class ServiceCallTypeResource {
             type.setLogLevel(null);
         }
         type.save();
-        return Response.status(Response.Status.OK).build();
-    }
-
-    @PUT
-    @Path("/{serviceCallTypeName}/cancel")
-    @Transactional
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response cancelServiceCall(@PathParam("serviceCallTypeID") String serviceCallTypeName, ServiceCallTypeInfo info) {
-
         return Response.status(Response.Status.OK).build();
     }
 
