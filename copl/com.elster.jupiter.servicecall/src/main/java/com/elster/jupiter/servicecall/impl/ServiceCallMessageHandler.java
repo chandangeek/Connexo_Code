@@ -17,11 +17,11 @@ public class ServiceCallMessageHandler implements MessageHandler {
 
     @Override
     public void process(Message message) {
-        TransitionRequest transitionRequest = jsonService.deserialize(message.getPayload(), TransitionRequest.class);
-        ServiceCall serviceCall = serviceCallService.getServiceCall(transitionRequest.getServiceCallId())
+        TransitionNotification transitionNotification = jsonService.deserialize(message.getPayload(), TransitionNotification.class);
+        ServiceCall serviceCall = serviceCallService.getServiceCall(transitionNotification.getServiceCallId())
                 .orElseThrow(IllegalStateException::new);
-        serviceCall.getType().getServiceCallLifeCycle()
-                .triggerTransition(serviceCall, transitionRequest.getRequestedState());
+        serviceCall.getType().getServiceCallHandler()
+                .onStateChange(serviceCall, transitionNotification.getOldState(), transitionNotification.getNewState());
     }
 
 }

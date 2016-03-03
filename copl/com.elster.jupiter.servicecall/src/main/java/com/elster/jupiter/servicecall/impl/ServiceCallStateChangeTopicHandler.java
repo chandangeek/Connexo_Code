@@ -4,9 +4,12 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StateTransitionChangeEvent;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.util.json.JsonService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -15,6 +18,8 @@ import org.osgi.service.component.annotations.Reference;
 public class ServiceCallStateChangeTopicHandler implements TopicHandler {
 
     private volatile FiniteStateMachineService finiteStateMachineService;
+    private volatile IServiceCallService serviceCallService;
+    private volatile JsonService jsonService;
 
     @Override
     public void handle(LocalEvent localEvent) {
@@ -30,10 +35,25 @@ public class ServiceCallStateChangeTopicHandler implements TopicHandler {
         ServiceCallHandler serviceCallHandler = serviceCall.getType().getServiceCallHandler();
 
         if (serviceCallHandler.allowStateChange(serviceCall, oldState, newState)) {
-            serviceCallHandler.onStateChange(serviceCall, oldState, newState);
-            serviceCall.setState(newState);
-            serviceCall.save();
+            doStateChange(serviceCall, oldState, newState);
         }
+    }
+
+    private void doStateChange(ServiceCallImpl serviceCall, DefaultState currentState, DefaultState newState) {
+        serviceCall.setState(newState);
+        serviceCall.save();
+
+        TransitionNotification transitionNotification = new TransitionNotification(serviceCall, currentState, newState);
+
+        DestinationSpec serviceCallQueue = serviceCallService.getServiceCallQueue();
+
+        if (DefaultState.CANCELLED.equals(newState)) {
+            serviceCallQueue.purgeCorrelationId(serviceCall.getNumber());
+        }
+
+        serviceCallQueue.message(jsonService.serialize(transitionNotification))
+                .withCorrelationId(serviceCall.getNumber())
+                .send();
     }
 
     @Override
@@ -44,5 +64,15 @@ public class ServiceCallStateChangeTopicHandler implements TopicHandler {
     @Reference
     public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
         this.finiteStateMachineService = finiteStateMachineService;
+    }
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = (IServiceCallService) serviceCallService;
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
     }
 }

@@ -6,7 +6,6 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
@@ -134,13 +133,8 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public void requestTransition(DefaultState defaultState) {
-        DestinationSpec serviceCallQueue = serviceCallService.getServiceCallQueue();
-
-        TransitionRequest transitionRequest = new TransitionRequest(this, defaultState);
-
-        serviceCallQueue.message(jsonService.serialize(transitionRequest))
-                .withCorrelationId(getNumber())
-                .send();
+        getType().getServiceCallLifeCycle()
+                .triggerTransition(this, defaultState);
     }
 
     void setState(DefaultState defaultState) {

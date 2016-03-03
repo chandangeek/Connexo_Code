@@ -201,6 +201,8 @@ public class ServiceCallTransitionIT {
 
                 ServiceCallStateChangeTopicHandler serviceCallStateChangeTopicHandler = new ServiceCallStateChangeTopicHandler();
                 serviceCallStateChangeTopicHandler.setFiniteStateMachineService(injector.getInstance(FiniteStateMachineService.class));
+                serviceCallStateChangeTopicHandler.setJsonService(jsonService);
+                serviceCallStateChangeTopicHandler.setServiceCallService(serviceCallService);
                 EventServiceImpl eventService = (EventServiceImpl) this.eventService;
                 eventService.addTopicHandler(serviceCallStateChangeTopicHandler);
                 StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler();
@@ -239,7 +241,10 @@ public class ServiceCallTransitionIT {
 
         serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
 
-        serviceCall.requestTransition(DefaultState.PENDING);
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCall.requestTransition(DefaultState.PENDING);
+            context.commit();
+        }
 
         SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME).get();
 
@@ -259,6 +264,57 @@ public class ServiceCallTransitionIT {
         serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
 
         assertThat(serviceCall.getState()).isEqualTo(DefaultState.PENDING);
+
+    }
+
+    @Test
+    public void cancelServiceCall() {
+        when(serviceCallHandler.allowStateChange(any(), any(), any())).thenReturn(true);
+
+        MyExtension extension = new MyExtension();
+        extension.setValue(BigDecimal.valueOf(65456));
+
+        ServiceCall serviceCall = null;
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCall = serviceCallType.newServiceCall()
+                    .externalReference("external")
+                    .origin("CST")
+                    .targetObject(person)
+                    .extendedWith(extension)
+                    .create();
+            context.commit();
+        }
+
+        serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCall.requestTransition(DefaultState.PENDING);
+            context.commit();
+        }
+
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCall.requestTransition(DefaultState.CANCELLED);
+            context.commit();
+        }
+
+        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME).get();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            Message message = await().atMost(200, TimeUnit.MILLISECONDS)
+                    .until(messageQueue::receive, Matchers.any(Message.class));
+
+            ServiceCallMessageHandler serviceCallMessageHandler = new ServiceCallMessageHandler(jsonService, serviceCallService);
+
+            serviceCallMessageHandler.process(message);
+
+            context.commit();
+        }
+
+        verify(serviceCallHandler).onStateChange(serviceCall, DefaultState.PENDING, DefaultState.CANCELLED);
+
+        serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
+
+        assertThat(serviceCall.getState()).isEqualTo(DefaultState.CANCELLED);
 
     }
 
