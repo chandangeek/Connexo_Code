@@ -16,6 +16,7 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.system.SubsystemService;
 import com.elster.jupiter.system.app.SysAppService;
 import com.elster.jupiter.time.TimeService;
@@ -90,7 +91,8 @@ public class SysAppServiceImpl implements SysAppService, InstallService, Transla
                 FileImportService.COMPONENT_NAME,
                 CustomPropertySetService.COMPONENT_NAME,
                 MeteringService.COMPONENTNAME,
-                SubsystemService.COMPONENTNAME);
+                SubsystemService.COMPONENTNAME,
+                ServiceCallService.COMPONENT_NAME);
     }
 
     @Reference
