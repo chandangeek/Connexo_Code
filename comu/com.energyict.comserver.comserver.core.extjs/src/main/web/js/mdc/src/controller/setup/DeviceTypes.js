@@ -459,15 +459,9 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         switch(newValue) {
             case 'REGULAR':
                 this.getProtocolCombo().show();
-                this.getStore('Mdc.store.DeviceLifeCycles').clearFilter();
                 break;
             case 'DATALOGGER_SLAVE':
                 this.getProtocolCombo().hide();
-                this.getStore('Mdc.store.DeviceLifeCycles').filter([{
-                    filterFn: function(lifeCycle) {
-                        return !lifeCycle.get('containsCommunicationActions');
-                    }
-                }]);
                 break;
         }
     },

@@ -106,12 +106,15 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                             {
                                                 xtype: 'fieldcontainer',
                                                 fieldLabel: ' ',
-                                                padding: '-12 0 15 0',
+                                                padding: '-5 0 15 5',
                                                 itemId: 'addressableMessage',
                                                 items: [
                                                     {
                                                         xtype: 'container',
-                                                        html: '<span style="color: grey;padding: 0 0 0 23px;">' + Uni.I18n.translate('deviceconfiguration.directlyAddressable.description', 'MDC', 'If a device is directly addressable, a connection can be made to this device') + '</span>'
+                                                        html: '<span style="color: grey;">' + Uni.I18n.translate('deviceconfiguration.directlyAddressable.description', 'MDC', 'If a device is directly addressable, a connection can be made to this device') + '</span>',
+                                                        setText: function(text) {
+                                                            this.update('<span style="color: grey;">' + text + '</span>');
+                                                        }
                                                     }
                                                 ]
                                             },
@@ -153,12 +156,15 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                             {
                                                 xtype: 'fieldcontainer',
                                                 fieldLabel: ' ',
-                                                padding: '-12 0 0 0',
+                                                padding: '-5 0 15 5',
                                                 itemId: 'gatewayMessage',
                                                 items: [
                                                     {
                                                         xtype: 'container',
-                                                        html: '<span style="color: grey;padding: 0 0 0 23px;">' + Uni.I18n.translate('deviceconfiguration.deviceIsGateway.description', 'MDC', 'Gateways can be used as a connection to slave devices') + '</span>'
+                                                        html: '<span style="color: grey;">' + Uni.I18n.translate('deviceconfiguration.deviceIsGateway.description', 'MDC', 'Gateways can be used as a connection to slave devices') + '</span>',
+                                                        setText: function(text) {
+                                                            this.update('<span style="color: grey;">' + text + '</span>');
+                                                        }
                                                     }
                                                 ]
                                             },
@@ -167,7 +173,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                 columnWidth: 0.5,
                                                 fieldLabel: Uni.I18n.translate('deviceconfiguration.typeOfGateway', 'MDC', 'Type of gateway'),
                                                 itemId: 'typeOfGatewayComboContainer',
-                                                padding: '15 0 0 0',
+                                                padding: '0 0 0 0',
                                                 required: true,
                                                 layout: {
                                                     type: 'hbox'
@@ -194,10 +200,60 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                                 itemId: 'rbtn-device-config-gateway-lan',
                                                                 boxLabel: '<b>' + Uni.I18n.translate('deviceconfiguration.LAN', 'MDC', 'LAN (Local Area Network)') + '</b>',
                                                                 afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('deviceconfiguration.LAN.description', 'MDC', 'Connects a large number of slave devices in a local environment') + '</span>',
+                                                                padding: '0 0 15 0',
                                                                 inputValue: 'LAN',
                                                                 checked: false
                                                             }
                                                         ]
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                xtype: 'fieldcontainer',
+                                                itemId: 'mdc-device-config-dataLogger-container',
+                                                columnWidth: 0.5,
+                                                fieldLabel: Uni.I18n.translate('deviceconfiguration.dataLoggerFunctionality', 'MDC', 'Data logger functionality'),
+                                                required: true,
+                                                layout: {
+                                                    type: 'hbox'
+                                                },
+                                                items: [
+                                                    {
+                                                        xtype: 'radiogroup',
+                                                        itemId: 'dataLoggerRadioGroup',
+                                                        columns: 1,
+                                                        vertical: true,
+                                                        items: [
+                                                            {
+                                                                name: 'dataloggerEnabled',
+                                                                itemId: 'rbtn-device-config-datalogger-yes',
+                                                                boxLabel: '<b>' + Uni.I18n.translate('general.yes', 'MDC', 'Yes') + '</b>',
+                                                                inputValue: true,
+                                                                checked: true
+                                                            },
+                                                            {
+                                                                name: 'dataloggerEnabled',
+                                                                itemId: 'rbtn-device-config-datalogger-no',
+                                                                boxLabel: '<b>' + Uni.I18n.translate('general.no', 'MDC', 'No') + '</b>',
+                                                                inputValue: false,
+                                                                checked: false
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                xtype: 'fieldcontainer',
+                                                fieldLabel: ' ',
+                                                padding: '-5 0 15 5',
+                                                itemId: 'dataLoggerMessage',
+                                                items: [
+                                                    {
+                                                        xtype: 'container',
+                                                        html: '<span style="color: grey;">' + Uni.I18n.translate('deviceconfiguration.dataLogger.description', 'MDC', 'Can be used as a data logger and share its own channels and registers with its slave devices') + '</span>',
+                                                        setText: function(text) {
+                                                            this.update('<span style="color: grey;">' + text + '</span>');
+                                                        }
                                                     }
                                                 ]
                                             },
