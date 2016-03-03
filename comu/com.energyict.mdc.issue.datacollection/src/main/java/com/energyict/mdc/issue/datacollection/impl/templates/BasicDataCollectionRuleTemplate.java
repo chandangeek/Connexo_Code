@@ -112,8 +112,8 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     public void updateIssue(OpenIssue openIssue, IssueEvent event) {
         if (IssueStatus.IN_PROGRESS.equals(openIssue.getStatus().getKey())) {
             openIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).get());
-            updateConnectionAttempts(openIssue, event).update();
         }
+        updateConnectionAttempts(openIssue, event).update();
     }
 
     @Override
