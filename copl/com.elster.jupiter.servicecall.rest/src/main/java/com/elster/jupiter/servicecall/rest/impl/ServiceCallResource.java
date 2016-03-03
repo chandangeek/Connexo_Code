@@ -49,7 +49,6 @@ public class ServiceCallResource {
         applyFilterToFinder(filter, serviceCallFinder);
         queryParameters.getLimit().ifPresent(limit -> serviceCallFinder.setLimit(limit + 1));
         queryParameters.getStart().ifPresent(start -> serviceCallFinder.setStart(start));
-        serviceCallService.getChildrenStatus("SC_00000002");
         List<ServiceCall> serviceCalls = serviceCallFinder.find();
 
         serviceCalls.stream()
