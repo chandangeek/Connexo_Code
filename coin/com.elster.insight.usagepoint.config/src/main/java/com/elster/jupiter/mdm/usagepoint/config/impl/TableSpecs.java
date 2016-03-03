@@ -1,4 +1,4 @@
-package com.elster.insight.usagepoint.config.impl;
+package com.elster.jupiter.mdm.usagepoint.config.impl;
 
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.orm.Column;

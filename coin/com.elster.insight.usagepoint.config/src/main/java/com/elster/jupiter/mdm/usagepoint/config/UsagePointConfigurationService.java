@@ -1,10 +1,9 @@
-package com.elster.insight.usagepoint.config;
+package com.elster.jupiter.mdm.usagepoint.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.validation.ValidationRuleSet;
-
-import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
