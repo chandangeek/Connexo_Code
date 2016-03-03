@@ -229,14 +229,14 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                                 itemId: 'rbtn-device-config-datalogger-yes',
                                                                 boxLabel: '<b>' + Uni.I18n.translate('general.yes', 'MDC', 'Yes') + '</b>',
                                                                 inputValue: true,
-                                                                checked: true
+                                                                checked: false
                                                             },
                                                             {
                                                                 name: 'dataloggerEnabled',
                                                                 itemId: 'rbtn-device-config-datalogger-no',
                                                                 boxLabel: '<b>' + Uni.I18n.translate('general.no', 'MDC', 'No') + '</b>',
                                                                 inputValue: false,
-                                                                checked: false
+                                                                checked: true
                                                             }
                                                         ]
                                                     }
