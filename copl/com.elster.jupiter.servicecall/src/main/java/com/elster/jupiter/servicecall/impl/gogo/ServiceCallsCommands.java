@@ -35,12 +35,13 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=deprecateServiceCallType",
                 "osgi.command.function=customPropertySets",
                 "osgi.command.function=createServiceCallLifeCycle",
-                "osgi.command.function=serviceCall",
-                "osgi.command.function=createServiceCall",
-                "osgi.command.function=createChildServiceCall",
                 "osgi.command.function=handlers",
                 "osgi.command.function=serviceCallLifeCycles",
-                "osgi.command.function=createServiceCallLifeCycle"
+                "osgi.command.function=serviceCall",
+                "osgi.command.function=serviceCalls",
+                "osgi.command.function=createServiceCall",
+                "osgi.command.function=createChildServiceCall",
+                "osgi.command.function=log"
         }, immediate = true)
 public class ServiceCallsCommands {
 
@@ -72,7 +73,8 @@ public class ServiceCallsCommands {
     public void serviceCallTypes() {
         for (ServiceCallType serviceCallType : serviceCallService.getServiceCallTypes().find()) {
             try {
-                System.out.print(serviceCallType.getName() + " " + serviceCallType.getVersionName() + " ");
+                System.out.print("[" + serviceCallType.getId() + "] " + serviceCallType.getName() + " " + serviceCallType
+                        .getVersionName() + " ");
                 System.out.println(" cps: [" + String
                         .join(" + ", serviceCallType.getCustomPropertySets()
                                 .stream()
@@ -152,14 +154,30 @@ public class ServiceCallsCommands {
         }
     }
 
+    public void serviceCall() {
+        System.out.println("Usage: servicecall <id>");
+    }
+
     public void serviceCall(long id) {
-        serviceCallService.getServiceCall(id)
-                .map(sc -> sc.getNumber() + " "
+        ServiceCall sc = serviceCallService.getServiceCall(id)
+                .orElseThrow(() -> new IllegalArgumentException("No such service call"));
+        System.out.println(sc.getNumber() + " "
                         + sc.getState().getKey() + " " + sc.getType().getName() + " "
                         + sc.getParent().map(p -> p.getNumber()).orElse("-P-") + " "
                         + sc.getOrigin().orElse("-O-") + " "
-                        + sc.getExternalReference().orElse("-E-"))
-                .ifPresent(System.out::println);
+                + sc.getExternalReference().orElse("-E-"));
+        sc.getLogs()
+                .stream()
+                .forEach(log -> System.out.println("   " + log.getTime() + " " + log.getLogLevel() + " " + log.getMessage()));
+    }
+
+    public void serviceCalls() {
+        serviceCallService.getServiceCalls().stream().map(sc -> sc.getNumber() + " "
+                + sc.getState().getKey() + " " + sc.getType().getName() + " "
+                + sc.getParent().map(p -> p.getNumber()).orElse("-P-") + " "
+                + sc.getOrigin().orElse("-O-") + " "
+                + sc.getExternalReference().orElse("-E-"))
+                .forEach(System.out::println);
     }
 
     public void createServiceCall(String typeName, String typeVersion, String origin, String externalReference) {
@@ -229,8 +247,7 @@ public class ServiceCallsCommands {
                 if (operation.contains("removeState:")) {
                     serviceCallLifeCycle.remove(DefaultState.valueOf(operation.split(":")[1]));
                 } else if (operation.contains("removeTransition:")) {
-                    serviceCallLifeCycle.removeTransition(DefaultState.valueOf(operation.split(":")[1]), DefaultState.valueOf(operation
-                            .split(":")[2]));
+                    serviceCallLifeCycle.removeTransition(DefaultState.valueOf(operation.split(":")[1]), DefaultState.valueOf(operation.split(":")[2]));
                 }
             }
             serviceCallLifeCycle.create();
@@ -243,8 +260,9 @@ public class ServiceCallsCommands {
     }
 
     public void createServiceCall(String type, String typeVersion, String externalReference) {
+        threadPrincipalService.set(() -> "Console");
         Optional<ServiceCallType> serviceCallType = serviceCallService.findServiceCallType(type, typeVersion);
-        if(!serviceCallType.isPresent()) {
+        if (!serviceCallType.isPresent()) {
             System.out.println("There is no service call type with name: '" + type + "' and version: '" + typeVersion + "'");
         } else {
             try (TransactionContext context = transactionService.getContext()) {
@@ -266,10 +284,10 @@ public class ServiceCallsCommands {
     public void createChildServiceCall(String type, String typeVersion, String externalReference, String parent) {
         Optional<ServiceCallType> serviceCallType = serviceCallService.findServiceCallType(type, typeVersion);
         Optional<ServiceCall> serviceCall = serviceCallService.getServiceCall(parent);
-        if(!serviceCall.isPresent()) {
+        if (!serviceCall.isPresent()) {
             System.out.println("There is no parent service call with the reference '" + parent + "'.");
             return;
-        } else if(!serviceCallType.isPresent()) {
+        } else if (!serviceCallType.isPresent()) {
             System.out.println("There is no service call type with name: '" + type + "' and version: '" + typeVersion + "'");
             return;
         } else {
@@ -278,11 +296,25 @@ public class ServiceCallsCommands {
 
             try (TransactionContext context = transactionService.getContext()) {
                 ServiceCall child = call.newChildCall(scType)
-                    .externalReference(externalReference)
-                    .create();
+                        .externalReference(externalReference)
+                        .create();
                 context.commit();
-                System.out.println("Child service call of '" + parent +"' with reference '" + child.getNumber() + "' has been created");
+                System.out.println("Child service call of '" + parent + "' with reference '" + child.getNumber() + "' has been created");
             }
+        }
+    }
+
+    public void log() {
+        System.out.println("usage: log <service call id> <log level> <message>");
+        System.out.println("e.g.   log 7231 FINE That looks good to me");
+    }
+
+    public void log(long id, String level, String... messageParts) {
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCall serviceCall = serviceCallService.getServiceCall(id)
+                    .orElseThrow(() -> new IllegalArgumentException("No such service call"));
+            serviceCall.log(LogLevel.valueOf(level), String.join(" ", messageParts));
+            context.commit();
         }
     }
 }
