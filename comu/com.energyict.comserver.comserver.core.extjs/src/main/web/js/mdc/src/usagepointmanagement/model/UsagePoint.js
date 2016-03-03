@@ -7,28 +7,12 @@ Ext.define('Mdc.usagepointmanagement.model.UsagePoint', {
         {name: 'name', type: 'string'},
         {name: 'description', type: 'string'},
         {name: 'serviceCategory', type: 'string'},
-        {name: 'serviceDeliveryRemark', type: 'string'},
-        {name: 'amiBillingReady', type: 'string'},
-        {name: 'connectionState', type: 'string'},
-        {name: 'readCycle', type: 'string'},
-        {name: 'serviceLocationID', type: 'number', useNull: true},
-        {name: 'checkBilling', type: 'boolean'},
-        {name: 'isSdp', type: 'boolean'},
-        {name: 'isVirtual', type: 'boolean'},
-        {name: 'minimalUsageExpected', type: 'boolean'},
         {name: 'version', type: 'number', useNull: true},
         {
             name: 'created',
             persist: false,
             mapping: function (data) {
                 return Uni.DateTime.formatDateTimeLong(new Date(data.createTime));
-            }
-        },
-        {
-            name: 'updated',
-            persist: false,
-            mapping: function (data) {
-                return Uni.DateTime.formatDateTimeLong(new Date(data.modTime));
             }
         }
     ],
