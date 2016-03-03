@@ -920,13 +920,23 @@ public class JbpmTaskResource {
             if (theKey.equals("process")) {
                 for(int i=0;i<filterProperties.get("process").size();i++) {
                     if(process.equals("")) {
-                        process += "p.PROCESSID = " + filterProperties.get("process").get(i).toString().split(" \\(")[0]
-                                .replace("\"", "'") + "'";
-                    }else{
-                        process += " OR p.PROCESSID = " + filterProperties.get("process")
+                        process += "(p.PROCESSID = " + filterProperties.get("process")
                                 .get(i)
                                 .toString()
                                 .split(" \\(")[0].replace("\"", "'") + "'";
+                        process += "AND p.PROCESSVERSION = '" + filterProperties.get("process")
+                                .get(i)
+                                .toString()
+                                .split(" \\(")[1].replace(")", "") + "')";
+                    }else{
+                        process += " OR (p.PROCESSID = " + filterProperties.get("process")
+                                .get(i)
+                                .toString()
+                                .split(" \\(")[0].replace("\"", "'") + "'";
+                        process += "AND p.PROCESSVERSION = '" + filterProperties.get("process")
+                                .get(i)
+                                .toString()
+                                .split(" \\(")[1].replace(")", "") + "')";
                     }
                 }
             }
