@@ -29,8 +29,6 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -427,13 +425,13 @@ public class BpmResource {
         List<PropertySpec> propertySpecs = foundProvider.isPresent() ? foundProvider.get()
                 .getPropertySpecs() : Collections.<PropertySpec>emptyList();
 
+        List<BpmProcessPrivilege> targetPrivileges = info.privileges.stream()
+                .map(s -> bpmService.createBpmProcessPrivilege(s.id, s.applicationName))
+                .collect(Collectors.toList());
+
         BpmProcessDefinition process;
         Optional<BpmProcessDefinition> foundProcess = bpmService.getBpmProcessDefinition(info.name, info.version);
         if (!foundProcess.isPresent()) {
-            List<BpmProcessPrivilege> targetPrivileges = info.privileges.stream()
-                    .map(s -> bpmService.prepareBpmProcessPrivilege(s.id, s.applicationName))
-                    .collect(Collectors.toList());
-
             BpmProcessDefinitionBuilder processBuilder = bpmService.newProcessBuilder()
                     .setId(info.processId).setProcessName(info.name)
                     .setAssociation(info.type.toLowerCase())
@@ -448,11 +446,15 @@ public class BpmResource {
             });
         } else {
             process = foundProcess.get();
+            List<BpmProcessPrivilege> oldPrivileges = process.getPrivileges();
+
             process.setAssociation(info.type.toLowerCase());
             process.setStatus(info.active);
             process.setProperties(propertyUtils.convertPropertyInfosToProperties(propertySpecs, info.properties));
-            doUpdatePrivileges(process, info);
+            process.setPrivileges(targetPrivileges);
             process.save();
+
+            doUpdatePrivileges(process, targetPrivileges, oldPrivileges);
         }
 
         return Response.ok().build();
@@ -1047,15 +1049,23 @@ public class BpmResource {
         return privilegesList;
     }
 
-    private void doUpdatePrivileges(BpmProcessDefinition bpmProcessDefinition, ProcessDefinitionInfo info) {
-        List<BpmProcessPrivilege> currentPrivileges = bpmProcessDefinition.getPrivileges();
-        List<BpmProcessPrivilege> targetPrivileges = info.privileges.stream()
-                .map(s -> bpmService.createBpmProcessPrivilege(bpmProcessDefinition, s.id, s.applicationName)).collect(Collectors.toList());
-
-        if (!targetPrivileges.equals(currentPrivileges)) {
-            bpmProcessDefinition.revokePrivileges(currentPrivileges);
-            bpmProcessDefinition.grantPrivileges(targetPrivileges);
-        }
+    private void doUpdatePrivileges(BpmProcessDefinition process, List<BpmProcessPrivilege> newPrivileges, List<BpmProcessPrivilege> oldPrivileges) {
+        List<BpmProcessPrivilege> toRevoke = oldPrivileges.stream()
+                .filter(oldPrivilege -> !newPrivileges.stream()
+                        .anyMatch(newPrivilege -> oldPrivilege.getPrivilegeName()
+                                .equals(newPrivilege.getPrivilegeName())))
+                .collect(Collectors.toList());
+        List<BpmProcessPrivilege> toGrant = newPrivileges.stream()
+                .filter(oldPrivilege -> !oldPrivileges.stream()
+                        .anyMatch(newPrivilege -> oldPrivilege.getPrivilegeName()
+                                .equals(newPrivilege.getPrivilegeName())))
+                .map(privilege -> {
+                    privilege.setProcessId(process.getId());
+                    return privilege;
+                })
+                .collect(Collectors.toList());
+        process.revokePrivileges(toRevoke);
+        process.grantPrivileges(toGrant);
     }
 
 
