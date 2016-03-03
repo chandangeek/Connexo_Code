@@ -74,7 +74,7 @@ class MatchingChannelSelector {
                 .stream()
                 .map(Channel::getMainReadingType)
                 .map(VirtualReadingType::from)
-                .anyMatch(readingTypeInterval -> this.areCompatible(readingTypeInterval, readingType));
+                .anyMatch(each -> this.areCompatible(each, readingType));
     }
 
     private boolean areCompatible(VirtualReadingType first, VirtualReadingType second) {

@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.config.ExpressionNode;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -57,9 +58,9 @@ class VirtualRequirementNode implements ServerExpressionNode {
     VirtualReadingType getPreferredReadingType() {
         /* Preferred interval is the smallest matching reading type
          * that is compatible with the target interval. */
-        Optional<VirtualReadingType> preferredInterval = new MatchingChannelSelector(this.requirement, this.meterActivation).getPreferredReadingType(this.getTargetReadingType());
-        if (preferredInterval.isPresent()) {
-            return preferredInterval.get();
+        Optional<VirtualReadingType> preferredReadingType = new MatchingChannelSelector(this.requirement, this.meterActivation).getPreferredReadingType(this.getTargetReadingType());
+        if (preferredReadingType.isPresent()) {
+            return preferredReadingType.get();
         }
         else {
             return VirtualReadingType.notSupported();
@@ -74,7 +75,7 @@ class VirtualRequirementNode implements ServerExpressionNode {
      * @param readingType The readingType
      * @return A flag that indicates if the readingType is backed by one of the channels
      */
-    boolean supportsInterval(VirtualReadingType readingType) {
+    boolean supports(VirtualReadingType readingType) {
         return new MatchingChannelSelector(this.requirement, this.meterActivation).isReadingTypeSupported(readingType);
     }
 
@@ -82,8 +83,17 @@ class VirtualRequirementNode implements ServerExpressionNode {
         return this.targetReadingType;
     }
 
+    ChannelContract getPreferredChannel() {
+        this.ensureVirtualized();
+        return this.virtualRequirement.getPreferredChannel();
+    }
+
     void setTargetReadingType(VirtualReadingType targetReadingType) {
         this.targetReadingType = targetReadingType;
+    }
+
+    void setTargetInterval(IntervalLength intervalLength) {
+        this.targetReadingType = this.targetReadingType.withIntervalLength(intervalLength);
     }
 
     void finish() {

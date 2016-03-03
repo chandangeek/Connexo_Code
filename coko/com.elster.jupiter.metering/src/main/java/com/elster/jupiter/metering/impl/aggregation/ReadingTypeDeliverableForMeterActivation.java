@@ -27,16 +27,18 @@ class ReadingTypeDeliverableForMeterActivation {
     private final Range<Instant> requestedPeriod;
     private final int meterActivationSequenceNumber;
     private final ServerExpressionNode expressionNode;
+    private final VirtualReadingType expressionReadingType;
     private final VirtualReadingType targetReadingType;
 
-    ReadingTypeDeliverableForMeterActivation(ReadingTypeDeliverable deliverable, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber, ServerExpressionNode expressionNode, VirtualReadingType targetReadingType) {
+    ReadingTypeDeliverableForMeterActivation(ReadingTypeDeliverable deliverable, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber, ServerExpressionNode expressionNode, VirtualReadingType expressionReadingType) {
         super();
         this.deliverable = deliverable;
         this.meterActivation = meterActivation;
         this.requestedPeriod = requestedPeriod;
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
         this.expressionNode = expressionNode;
-        this.targetReadingType = targetReadingType;
+        this.expressionReadingType = expressionReadingType;
+        this.targetReadingType = VirtualReadingType.from(deliverable.getReadingType());
     }
 
     private long getId() {
@@ -87,10 +89,14 @@ class ReadingTypeDeliverableForMeterActivation {
 
     void appendDefinitionTo(ClauseAwareSqlBuilder sqlBuilder) {
         SqlBuilder withClauseBuilder = sqlBuilder.with(this.sqlName(), Optional.of(sqlComment()), SqlConstants.TimeSeriesColumnNames.names());
+        this.appendWithClause(withClauseBuilder);
+        this.appendSelectClause(sqlBuilder.select());
+    }
+
+    private void appendWithClause(SqlBuilder withClauseBuilder) {
         this.appendWithSelectClause(withClauseBuilder);
         this.appendWithFromClause(withClauseBuilder);
         this.appendWithJoinClauses(withClauseBuilder);
-        this.appendSelectClause(sqlBuilder.select());
     }
 
     private void appendWithSelectClause(SqlBuilder withClauseBuilder) {
@@ -118,7 +124,7 @@ class ReadingTypeDeliverableForMeterActivation {
 
     private void appendSelectClause(SqlBuilder sqlBuilder) {
         sqlBuilder.append("'");
-        sqlBuilder.append(this.deliverable.getReadingType().getMRID());
+        sqlBuilder.append(this.getReadingType().getMRID());
         sqlBuilder.append("', ");
         this.appendValueToSelectClause(sqlBuilder);
         sqlBuilder.append(", ");
@@ -134,14 +140,14 @@ class ReadingTypeDeliverableForMeterActivation {
         if (!this.resultValueNeedsTimeBasedAggregation()) {
             this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder);
         } else {
-            sqlBuilder.append(this.defaultValueAggregationFunctionFor(this.deliverable.getReadingType()).sqlName());
+            sqlBuilder.append(this.defaultValueAggregationFunctionFor(this.targetReadingType).sqlName());
             sqlBuilder.append("(");
             this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder);
             sqlBuilder.append(")");
         }
     }
 
-    private AggregationFunction defaultValueAggregationFunctionFor(ReadingType readingType) {
+    private AggregationFunction defaultValueAggregationFunctionFor(VirtualReadingType readingType) {
         return AggregationFunction.from(readingType);
     }
 
@@ -157,7 +163,7 @@ class ReadingTypeDeliverableForMeterActivation {
         sqlBuilder.append("TRUNC(");
         this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.LOCALDATE, sqlBuilder);
         sqlBuilder.append(", '");
-        sqlBuilder.append(IntervalLength.from(this.deliverable.getReadingType()).toOracleTruncFormatModel());
+        sqlBuilder.append(this.targetReadingType.getIntervalLength().toOracleTruncFormatModel());
         sqlBuilder.append("')");
     }
 
@@ -189,12 +195,12 @@ class ReadingTypeDeliverableForMeterActivation {
     }
 
     private void appendGroupByClause(SqlBuilder sqlBuilder) {
-        sqlBuilder.append("GROUP BY ");
+        sqlBuilder.append(" GROUP BY ");
         this.appendTrucatedTimeline(sqlBuilder);
     }
 
     private boolean resultValueNeedsTimeBasedAggregation() {
-        return this.targetReadingType.getIntervalLength() != IntervalLength.from(this.deliverable.getReadingType());
+        return this.expressionReadingType.getIntervalLength() != this.targetReadingType.getIntervalLength();
     }
 
     private class FinishRequirementAndDeliverableNodes implements ServerExpressionNode.Visitor<Void> {

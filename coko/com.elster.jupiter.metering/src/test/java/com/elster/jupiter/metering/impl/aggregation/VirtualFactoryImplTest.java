@@ -47,6 +47,8 @@ public class VirtualFactoryImplTest {
         Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
         when(this.meterActivation.getRange()).thenReturn(Range.atLeast(jan1st2016));
         this.aggregationPeriod = Range.atLeast(jan1st2016);
+        ReadingType daily_kWh = this.mockDailyReadingType();
+        when(this.deliverable.getReadingType()).thenReturn(daily_kWh);
     }
 
     @Test(expected = IllegalStateException.class)

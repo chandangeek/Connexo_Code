@@ -132,7 +132,7 @@ public class DataAggregationServiceImplCalculateTest {
         // Setup configuration deliverables
         ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
         when(netConsumption.getName()).thenReturn("consumption");
-        ReadingType netConsumptionReadingType = this.mock15minReadingType("0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0");
+        ReadingType netConsumptionReadingType = this.mock15minReadingType("0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
@@ -163,10 +163,10 @@ public class DataAggregationServiceImplCalculateTest {
         when(meterActivation.getRange()).thenReturn(year2015.toClosedOpenRange());
         when(meterActivation.overlaps(aggregationPeriod)).thenReturn(true);
         doReturn(Collections.singletonList(meterActivation)).when(this.usagePoint).getMeterActivations();
-        ReadingType consumptionReadingType15min = this.mock15minReadingType("0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.0.72.0");
+        ReadingType consumptionReadingType15min = this.mock15minReadingType("0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0");
         Channel chn1 = mock(Channel.class);
         when(chn1.getMainReadingType()).thenReturn(consumptionReadingType15min);
-        ReadingType productionReadingType15min = this.mock15minReadingType("0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.0.72.0");
+        ReadingType productionReadingType15min = this.mock15minReadingType("0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0");
         Channel chn2 = mock(Channel.class);
         when(chn2.getMainReadingType()).thenReturn(productionReadingType15min);
         when(consumption.getMatchesFor(meterActivation)).thenReturn(Collections.singletonList(productionReadingType15min));
@@ -234,7 +234,7 @@ public class DataAggregationServiceImplCalculateTest {
         // Setup configuration deliverables
         ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
         when(netConsumption.getName()).thenReturn("consumption");
-        ReadingType netConsumptionReadingType = this.mock15minReadingType("13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0");
+        ReadingType netConsumptionReadingType = this.mock15minReadingType("13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
@@ -265,10 +265,10 @@ public class DataAggregationServiceImplCalculateTest {
         when(meterActivation.getRange()).thenReturn(year2015.toClosedOpenRange());
         when(meterActivation.overlaps(aggregationPeriod)).thenReturn(true);
         doReturn(Collections.singletonList(meterActivation)).when(this.usagePoint).getMeterActivations();
-        ReadingType consumptionReadingType15min = this.mock15minReadingType("0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.0.72.0");
+        ReadingType consumptionReadingType15min = this.mock15minReadingType("0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0");
         Channel chn1 = mock(Channel.class);
         when(chn1.getMainReadingType()).thenReturn(consumptionReadingType15min);
-        ReadingType productionReadingType15min = this.mock15minReadingType("0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.0.72.0");
+        ReadingType productionReadingType15min = this.mock15minReadingType("0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0");
         Channel chn2 = mock(Channel.class);
         when(chn2.getMainReadingType()).thenReturn(productionReadingType15min);
         when(consumption.getMatchesFor(meterActivation)).thenReturn(Collections.singletonList(productionReadingType15min));
@@ -319,16 +319,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
-        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
-        return readingType;
-    }
-
-    private ReadingType mockHourlyReadingType() {
-        ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
-        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE60);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
-        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         return readingType;
     }
 

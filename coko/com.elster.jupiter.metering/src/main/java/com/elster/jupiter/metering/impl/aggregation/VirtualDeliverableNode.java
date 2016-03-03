@@ -38,6 +38,10 @@ class VirtualDeliverableNode implements ServerExpressionNode {
         this.targetReadingType = targetReadingType;
     }
 
+    void setTargetIntervalLength(IntervalLength intervalLength) {
+        this.targetReadingType = this.targetReadingType.withIntervalLength(intervalLength);
+    }
+
     void finish() {
         this.ensureVirtualized();
     }

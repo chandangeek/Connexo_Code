@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.impl.RecordSpecs;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -52,12 +51,12 @@ final class SqlConstants {
             }
 
             @Override
-            AggregationFunction aggregationFunctionFor(ReadingType readingType) {
+            AggregationFunction aggregationFunctionFor(VirtualReadingType readingType) {
                 return AggregationFunction.MIN;
             }
 
             @Override
-            String aggregatedValue(ReadingType readingType) {
+            String aggregatedValue(VirtualReadingType sourceReadingType, VirtualReadingType readingType) {
                 return this.fieldSpecName();
             }
         },
@@ -73,12 +72,12 @@ final class SqlConstants {
             }
 
             @Override
-            AggregationFunction aggregationFunctionFor(ReadingType readingType) {
+            AggregationFunction aggregationFunctionFor(VirtualReadingType readingType) {
                 return AggregationFunction.MAX;
             }
 
             @Override
-            String aggregatedValue(ReadingType readingType) {
+            String aggregatedValue(VirtualReadingType sourceReadingType, VirtualReadingType readingType) {
                 return this.fieldSpecName();
             }
         },
@@ -94,12 +93,12 @@ final class SqlConstants {
             }
 
             @Override
-            AggregationFunction aggregationFunctionFor(ReadingType readingType) {
+            AggregationFunction aggregationFunctionFor(VirtualReadingType readingType) {
                 return AggregationFunction.MIN;
             }
 
             @Override
-            String aggregatedValue(ReadingType readingType) {
+            String aggregatedValue(VirtualReadingType sourceReadingType, VirtualReadingType readingType) {
                 return this.fieldSpecName();
             }
         },
@@ -115,12 +114,12 @@ final class SqlConstants {
             }
 
             @Override
-            AggregationFunction aggregationFunctionFor(ReadingType readingType) {
+            AggregationFunction aggregationFunctionFor(VirtualReadingType readingType) {
                 return AggregationFunction.MAX;
             }
 
             @Override
-            String aggregatedValue(ReadingType readingType) {
+            String aggregatedValue(VirtualReadingType sourceReadingType, VirtualReadingType readingType) {
                 return this.fieldSpecName();
             }
         },
@@ -139,7 +138,7 @@ final class SqlConstants {
             }
 
             @Override
-            AggregationFunction aggregationFunctionFor(ReadingType readingType) {
+            AggregationFunction aggregationFunctionFor(VirtualReadingType readingType) {
                 return AggregationFunction.BIT_OR;
             }
         },
@@ -155,9 +154,10 @@ final class SqlConstants {
             }
 
             @Override
-            AggregationFunction aggregationFunctionFor(ReadingType readingType) {
+            AggregationFunction aggregationFunctionFor(VirtualReadingType readingType) {
                 return AggregationFunction.from(readingType);
             }
+
         },
 
         /**
@@ -170,13 +170,13 @@ final class SqlConstants {
             }
 
             @Override
-            AggregationFunction aggregationFunctionFor(ReadingType readingType) {
+            AggregationFunction aggregationFunctionFor(VirtualReadingType readingType) {
                 return AggregationFunction.TRUNC;
             }
 
             @Override
-            String aggregatedValue(ReadingType readingType) {
-                return this.sqlName() + ", '" + IntervalLength.from(readingType).toOracleTruncFormatModel() + "'";
+            String aggregatedValue(VirtualReadingType sourceReadingType, VirtualReadingType readingType) {
+                return this.sqlName() + ", '" + readingType.getIntervalLength().toOracleTruncFormatModel() + "'";
             }
         };
 
@@ -215,31 +215,33 @@ final class SqlConstants {
         abstract void appendAsDeliverableSelectValue(ServerExpressionNode expressionNode, SqlBuilder sqlBuilder);
 
         /**
-         * Append the appropriate select value for the specified {@link ReadingType}
-         * for all TimeSeriesColumnNames to the specified SqlBuilder.
+         * Append the appropriate select value to (if necessary) convert values
+         * from the specified {@link VirtualReadingType source reading type} to the
+         * target reading type for all TimeSeriesColumnNames to the specified SqlBuilder.
          *
-         * @param readingType The ReadingType
+         * @param sourceReadingType The source ReadingType
+         * @param targetReadingType The target ReadingType
          * @param sqlBuilder The SqlBuilder
          */
-        static void appendAllAggregatedSelectValues(ReadingType readingType, SqlBuilder sqlBuilder) {
+        static void appendAllAggregatedSelectValues(VirtualReadingType sourceReadingType, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
             for (TimeSeriesColumnNames columnName : values()) {
-                columnName.appendAsAggregatedSelectValue(readingType, sqlBuilder);
+                columnName.appendAsAggregatedSelectValue(sourceReadingType, targetReadingType, sqlBuilder);
                 if (columnName != LOCALDATE) {
                     sqlBuilder.append(", ");
                 }
             }
         }
 
-        void appendAsAggregatedSelectValue(ReadingType readingType, SqlBuilder sqlBuilder) {
-            sqlBuilder.append(this.aggregationFunctionFor(readingType).sqlName());
+        void appendAsAggregatedSelectValue(VirtualReadingType sourceReadingType, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
+            sqlBuilder.append(this.aggregationFunctionFor(targetReadingType).sqlName());
             sqlBuilder.append("(");
-            sqlBuilder.append(this.aggregatedValue(readingType));
+            sqlBuilder.append(this.aggregatedValue(sourceReadingType, targetReadingType));
             sqlBuilder.append(")");
         }
 
-        abstract AggregationFunction aggregationFunctionFor(ReadingType readingType);
+        abstract AggregationFunction aggregationFunctionFor(VirtualReadingType readingType);
 
-        String aggregatedValue(ReadingType readingType) {
+        String aggregatedValue(VirtualReadingType sourceReadingType, VirtualReadingType readingType) {
             return this.sqlName();
         }
 

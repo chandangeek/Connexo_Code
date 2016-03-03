@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
 
+import java.math.BigDecimal;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -808,6 +809,106 @@ public class IntervalLengthTest {
         if (!doNotMultiplyToYear.isEmpty()) {
             fail(doNotMultiplyToYear.stream().map(IntervalLength::name).collect(Collectors.joining(", ")) + " do not multiply to one year");
         }
+    }
+
+    @Test
+    public void flowVolumeConversionFactorForHourOrLess() {
+        hourlyIntervals().forEach(this::doFlowVolumeConversionFactorForHourOrLess);
+        EnumSet.of(
+                IntervalLength.HOUR1,
+                IntervalLength.HOUR2,
+                IntervalLength.HOUR3,
+                IntervalLength.HOUR4,
+                IntervalLength.HOUR6,
+                IntervalLength.HOUR12)
+            .stream()
+            .forEach(this::doFlowVolumeConversionFactorForHourOrLess);
+    }
+
+    private void doFlowVolumeConversionFactorForHourOrLess(IntervalLength intervalLength) {
+        assertThat(intervalLength.getVolumeFlowConversionFactor())
+                .as("flow volume conversion factor or " + intervalLength.name() + " was not expected to be null")
+                .isNotNull();
+    }
+
+    @Test
+    public void volumeFlowConversionFactor_1min() {
+        assertThat(IntervalLength.MINUTE1.getVolumeFlowConversionFactor()).isEqualTo(BigDecimal.valueOf(60L));
+    }
+
+    @Test
+    public void volumeFlowConversionFactor_2min() {
+        assertThat(IntervalLength.MINUTE2.getVolumeFlowConversionFactor()).isEqualTo(BigDecimal.valueOf(30L));
+    }
+
+    @Test
+    public void volumeFlowConversionFactor_3min() {
+        assertThat(IntervalLength.MINUTE3.getVolumeFlowConversionFactor()).isEqualTo(BigDecimal.valueOf(20L));
+    }
+
+    @Test
+    public void volumeFlowConversionFactor_4min() {
+        assertThat(IntervalLength.MINUTE4.getVolumeFlowConversionFactor()).isEqualTo(BigDecimal.valueOf(15L));
+    }
+
+    @Test
+    public void volumeFlowConversionFactor_5min() {
+        assertThat(IntervalLength.MINUTE5.getVolumeFlowConversionFactor()).isEqualTo(BigDecimal.valueOf(12L));
+    }
+
+    @Test
+    public void volumeFlowConversionFactor_6min() {
+        assertThat(IntervalLength.MINUTE6.getVolumeFlowConversionFactor()).isEqualTo(BigDecimal.valueOf(10L));
+    }
+
+    @Test
+    public void volumeFlowConversionFactor_10min() {
+        assertThat(IntervalLength.MINUTE10.getVolumeFlowConversionFactor()).isEqualTo(BigDecimal.valueOf(6L));
+    }
+
+    @Test
+    public void volumeFlowConversionFactor_12min() {
+        assertThat(IntervalLength.MINUTE12.getVolumeFlowConversionFactor()).isEqualTo(BigDecimal.valueOf(5L));
+    }
+
+    @Test
+    public void volumeFlowConversionFactor_15min() {
+        assertThat(IntervalLength.MINUTE15.getVolumeFlowConversionFactor()).isEqualTo(BigDecimal.valueOf(4L));
+    }
+
+    @Test
+    public void volumeFlowConversionFactor_30min() {
+        assertThat(IntervalLength.MINUTE30.getVolumeFlowConversionFactor()).isEqualTo(BigDecimal.valueOf(2L));
+    }
+
+    @Test
+    public void volumeFlowConversionFactor_1hour() {
+        assertThat(IntervalLength.HOUR1.getVolumeFlowConversionFactor()).isEqualTo(BigDecimal.ONE);
+    }
+
+    @Test
+    public void volumeFlowConversionFactor_2hour() {
+        assertThat(IntervalLength.HOUR2.getVolumeFlowConversionFactor().toString()).isEqualTo("0.5");
+    }
+
+    @Test
+    public void volumeFlowConversionFactor_3hour() {
+        assertThat(IntervalLength.HOUR3.getVolumeFlowConversionFactor().toString()).matches("0\\.3*");
+    }
+
+    @Test
+    public void volumeFlowConversionFactor_4hour() {
+        assertThat(IntervalLength.HOUR4.getVolumeFlowConversionFactor().toString()).isEqualTo("0.25");
+    }
+
+    @Test
+    public void volumeFlowConversionFactor_6hour() {
+        assertThat(IntervalLength.HOUR6.getVolumeFlowConversionFactor().toString()).matches("0\\.16*");
+    }
+
+    @Test
+    public void volumeFlowConversionFactor_12hour() {
+        assertThat(IntervalLength.HOUR12.getVolumeFlowConversionFactor().toString()).matches("0\\.083*");
     }
 
     private Stream<IntervalLength> hourlyIntervals() {

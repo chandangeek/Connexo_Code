@@ -81,10 +81,8 @@ public class VirtualReadingTypeRequirement {
     @SuppressWarnings("unchecked")
     private void appendDefinitionWithAggregation(SqlBuilder sqlBuilder) {
         sqlBuilder.append("SELECT ");
-        SqlConstants.TimeSeriesColumnNames
-                .appendAllAggregatedSelectValues(
-                        this.deliverable.getReadingType(),
-                        sqlBuilder);
+        VirtualReadingType sourceReadingType = this.getSourceReadingType();
+        SqlConstants.TimeSeriesColumnNames.appendAllAggregatedSelectValues(sourceReadingType, this.targetReadingType, sqlBuilder);
         sqlBuilder.append("  FROM (");
         sqlBuilder.add(
                 this.getPreferredChannel()
@@ -97,7 +95,7 @@ public class VirtualReadingTypeRequirement {
         sqlBuilder.append(") rawdata GROUP BY TRUNC(");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
         sqlBuilder.append(", ");
-        IntervalLength.from(this.deliverable.getReadingType()).appendOracleFormatModelTo(sqlBuilder);
+        this.targetReadingType.getIntervalLength().appendOracleFormatModelTo(sqlBuilder);
         sqlBuilder.append(")");
     }
 
@@ -117,7 +115,7 @@ public class VirtualReadingTypeRequirement {
         return Pair.of(columnName.fieldSpecName(), columnName.sqlName());
     }
 
-    private ChannelContract getPreferredChannel() {
+    ChannelContract getPreferredChannel() {
         if (this.preferredChannel == null) {
             this.preferredChannel = this.findPreferredChannel();
         }
@@ -132,13 +130,19 @@ public class VirtualReadingTypeRequirement {
     }
 
     private boolean aggregationIsRequired() {
-        return IntervalLength.from(this.getPreferredChannel().getMainReadingType()) != IntervalLength.from(this.deliverable.getReadingType());
+        return IntervalLength.from(this.getPreferredChannel().getMainReadingType()) != this.targetReadingType.getIntervalLength();
     }
 
     void appendReferenceTo(SqlBuilder sqlBuilder) {
-        sqlBuilder.append(this.sqlName());
-        sqlBuilder.append(".");
-        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
+        VirtualReadingType sourceReadingType = this.getSourceReadingType();
+        sqlBuilder.append(
+            sourceReadingType.buildSqlUnitConversion(
+                this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
+                this.targetReadingType));
+    }
+
+    private VirtualReadingType getSourceReadingType() {
+        return VirtualReadingType.from(this.getPreferredChannel().getMainReadingType());
     }
 
 }

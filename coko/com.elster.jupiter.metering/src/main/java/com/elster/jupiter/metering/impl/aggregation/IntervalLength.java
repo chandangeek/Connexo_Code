@@ -4,6 +4,8 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
@@ -31,6 +33,11 @@ public enum IntervalLength {
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
         }
+
+        @Override
+        public BigDecimal getVolumeFlowConversionFactor() {
+            return BigDecimal.valueOf(60L);
+        }
     },
     MINUTE2(Duration.ofMinutes(2)) {
         @Override
@@ -42,6 +49,11 @@ public enum IntervalLength {
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
+        }
+
+        @Override
+        public BigDecimal getVolumeFlowConversionFactor() {
+            return BigDecimal.valueOf(30L);
         }
     },
     MINUTE3(Duration.ofMinutes(3)) {
@@ -55,6 +67,11 @@ public enum IntervalLength {
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
         }
+
+        @Override
+        public BigDecimal getVolumeFlowConversionFactor() {
+            return BigDecimal.valueOf(20L);
+        }
     },
     MINUTE4(Duration.ofMinutes(4)) {
         @Override
@@ -66,6 +83,11 @@ public enum IntervalLength {
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
+        }
+
+        @Override
+        public BigDecimal getVolumeFlowConversionFactor() {
+            return BigDecimal.valueOf(15L);
         }
     },
     MINUTE5(Duration.ofMinutes(5)) {
@@ -79,6 +101,11 @@ public enum IntervalLength {
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
         }
+
+        @Override
+        public BigDecimal getVolumeFlowConversionFactor() {
+            return BigDecimal.valueOf(12L);
+        }
     },
     MINUTE6(Duration.ofMinutes(6)) {
         @Override
@@ -90,6 +117,11 @@ public enum IntervalLength {
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
+        }
+
+        @Override
+        public BigDecimal getVolumeFlowConversionFactor() {
+            return BigDecimal.valueOf(10L);
         }
     },
     MINUTE10(Duration.ofMinutes(10)) {
@@ -103,6 +135,11 @@ public enum IntervalLength {
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
         }
+
+        @Override
+        public BigDecimal getVolumeFlowConversionFactor() {
+            return BigDecimal.valueOf(6L);
+        }
     },
     MINUTE12(Duration.ofMinutes(12)) {
         @Override
@@ -114,6 +151,11 @@ public enum IntervalLength {
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
+        }
+
+        @Override
+        public BigDecimal getVolumeFlowConversionFactor() {
+            return BigDecimal.valueOf(5L);
         }
     },
     MINUTE15(Duration.ofMinutes(15)) {
@@ -127,6 +169,11 @@ public enum IntervalLength {
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
         }
+
+        @Override
+        public BigDecimal getVolumeFlowConversionFactor() {
+            return BigDecimal.valueOf(4L);
+        }
     },
     MINUTE20(Duration.ofMinutes(20)) {
         @Override
@@ -139,6 +186,11 @@ public enum IntervalLength {
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
         }
+
+        @Override
+        public BigDecimal getVolumeFlowConversionFactor() {
+            return BigDecimal.valueOf(3L);
+        }
     },
     MINUTE30(Duration.ofMinutes(30)) {
         @Override
@@ -150,6 +202,11 @@ public enum IntervalLength {
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
+        }
+
+        @Override
+        public BigDecimal getVolumeFlowConversionFactor() {
+            return BigDecimal.valueOf(2L);
         }
     },
     HOUR1(Duration.ofHours(1)) {
@@ -167,6 +224,11 @@ public enum IntervalLength {
         String toOracleTruncFormatModel() {
             return TruncFormatModels.HOUR;
         }
+
+        @Override
+        public BigDecimal getVolumeFlowConversionFactor() {
+            return BigDecimal.ONE;
+        }
     },
     HOUR2(Duration.ofHours(2)) {
         @Override
@@ -177,6 +239,11 @@ public enum IntervalLength {
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
+        }
+
+        @Override
+        public BigDecimal getVolumeFlowConversionFactor() {
+            return BigDecimal.ONE.divide(BigDecimal.valueOf(2L), 1, RoundingMode.UNNECESSARY);
         }
     },
     HOUR3(Duration.ofHours(3)) {
@@ -189,6 +256,11 @@ public enum IntervalLength {
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
         }
+
+        @Override
+        public BigDecimal getVolumeFlowConversionFactor() {
+            return BigDecimal.ONE.divide(BigDecimal.valueOf(3L), 20, RoundingMode.DOWN);
+        }
     },
     HOUR4(Duration.ofHours(4)) {
         @Override
@@ -199,6 +271,11 @@ public enum IntervalLength {
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
+        }
+
+        @Override
+        public BigDecimal getVolumeFlowConversionFactor() {
+            return BigDecimal.ONE.divide(BigDecimal.valueOf(4L), 2, RoundingMode.UNNECESSARY);
         }
     },
     HOUR6(Duration.ofHours(6)) {
@@ -211,6 +288,11 @@ public enum IntervalLength {
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
         }
+
+        @Override
+        public BigDecimal getVolumeFlowConversionFactor() {
+            return BigDecimal.ONE.divide(BigDecimal.valueOf(6L), 20, RoundingMode.DOWN);
+        }
     },
     HOUR12(Duration.ofHours(12)) {
         @Override
@@ -221,6 +303,11 @@ public enum IntervalLength {
                     IntervalLength.WEEK1,
                     IntervalLength.MONTH1,
                     IntervalLength.YEAR1);
+        }
+
+        @Override
+        public BigDecimal getVolumeFlowConversionFactor() {
+            return BigDecimal.ONE.divide(BigDecimal.valueOf(12L), 20, RoundingMode.DOWN);
         }
     },
     DAY1(Period.ofDays(1)) {
@@ -357,6 +444,10 @@ public enum IntervalLength {
         sqlBuilder.append("'");
         sqlBuilder.append(this.toOracleTruncFormatModel());
         sqlBuilder.append("'");
+    }
+
+    public BigDecimal getVolumeFlowConversionFactor() {
+        throw new UnsupportedOperationException("Volume to flow conversion is not (yet) supported for " + this.name());
     }
 
     public static IntervalLength from(ReadingType readingType) {
