@@ -22,9 +22,14 @@ Ext.define('Scs.view.Grid', {
                     });
                     url += record.get('id');
                     //return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
-                    return '<a>' + Ext.String.htmlEncode(value) + '</a>';
+                    return '<a style="cursor:pointer">' + Ext.String.htmlEncode(value) + '</a>';
                 },
-                flex: 1
+                flex: 1,
+                listeners: {
+                    onClick: function() {
+                        debugger;
+                    }
+                }
             },
             {
                 header: Uni.I18n.translate('servicecalls.externalReference', 'SCS', 'External reference'),
