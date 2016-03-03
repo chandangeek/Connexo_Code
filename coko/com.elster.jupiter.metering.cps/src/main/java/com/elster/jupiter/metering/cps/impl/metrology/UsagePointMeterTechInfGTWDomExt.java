@@ -4,9 +4,12 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+
+import javax.validation.constraints.Size;
 
 public class UsagePointMeterTechInfGTWDomExt implements PersistentDomainExtension<UsagePoint> {
 
@@ -67,17 +70,23 @@ public class UsagePointMeterTechInfGTWDomExt implements PersistentDomainExtensio
         }
     }
 
-    @IsPresent
     Reference<UsagePoint> usagePoint = ValueReference.absent();
     @IsPresent
     Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String recessedLength;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String connectionType;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String conversionMetrology;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String capacityMinimal;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String capacityNominal;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String capacityMaximal;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String pressureMaximal;
 
     public UsagePointMeterTechInfGTWDomExt() {

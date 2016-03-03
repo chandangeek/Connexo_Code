@@ -4,9 +4,14 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Interval;
+
+import javax.validation.constraints.Size;
+import java.time.Instant;
 
 public class UsagePointLicenseDomainExtension implements PersistentDomainExtension<UsagePoint> {
 
@@ -49,15 +54,20 @@ public class UsagePointLicenseDomainExtension implements PersistentDomainExtensi
         }
     }
 
-    @IsPresent
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
     @IsPresent
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String number;
-    private String expirationDate;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
+    private Instant expirationDate;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String certificationDoc;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String meteringScheme;
+
+    private Interval interval;
 
     public UsagePointLicenseDomainExtension() {
         super();
@@ -75,11 +85,11 @@ public class UsagePointLicenseDomainExtension implements PersistentDomainExtensi
         this.number = number;
     }
 
-    public String getExpirationDate() {
+    public Instant getExpirationDate() {
         return expirationDate;
     }
 
-    public void setExpirationDate(String expirationDate) {
+    public void setExpirationDate(Instant expirationDate) {
         this.expirationDate = expirationDate;
     }
 
@@ -103,7 +113,7 @@ public class UsagePointLicenseDomainExtension implements PersistentDomainExtensi
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(domainInstance);
         this.setNumber((String) propertyValues.getProperty(Fields.NUMBER.javaName()));
-        this.setExpirationDate((String) propertyValues.getProperty(Fields.EXPIRATION_DATE.javaName()));
+        this.setExpirationDate((Instant) propertyValues.getProperty(Fields.EXPIRATION_DATE.javaName()));
         this.setCertificationDoc((String) propertyValues.getProperty(Fields.CERTIFICATION_DOC.javaName()));
         this.setMeteringScheme((String) propertyValues.getProperty(Fields.METERING_SCHEME.javaName()));
     }

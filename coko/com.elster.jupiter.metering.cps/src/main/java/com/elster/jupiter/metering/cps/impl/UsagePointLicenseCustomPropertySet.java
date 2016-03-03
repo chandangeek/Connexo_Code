@@ -84,7 +84,7 @@ public class UsagePointLicenseCustomPropertySet implements CustomPropertySet<Usa
 
     @Override
     public PersistenceSupport<UsagePoint, UsagePointLicenseDomainExtension> getPersistenceSupport() {
-        return new UsagePointLicensePersistenceSupport(getThesaurus());
+        return new UsagePointLicPerSupp(getThesaurus());
     }
 
     @Override
@@ -94,7 +94,7 @@ public class UsagePointLicenseCustomPropertySet implements CustomPropertySet<Usa
 
     @Override
     public boolean isVersioned() {
-        return false;
+        return true;
     }
 
     @Override
@@ -140,11 +140,11 @@ public class UsagePointLicenseCustomPropertySet implements CustomPropertySet<Usa
         return nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
     }
 
-    private class UsagePointLicensePersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointLicenseDomainExtension> {
+    private class UsagePointLicPerSupp implements PersistenceSupport<UsagePoint, UsagePointLicenseDomainExtension> {
 
         private Thesaurus thesaurus;
 
-        public UsagePointLicensePersistenceSupport(Thesaurus thesaurus) {
+        public UsagePointLicPerSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 

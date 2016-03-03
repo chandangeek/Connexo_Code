@@ -81,7 +81,7 @@ public enum TranslationKeys implements TranslationKey {
 
     CPS_CONVERTOR_SIMPLE_NAME("usage.point.cps.convertor.name", "Convertor"),
     CPS_CONVERTOR_SERIAL_NUMBER("usage.point.cps.convertor.serial.number", "Serial number"),
-    CPS_CONVERTOR_SERIAL_NUMBER_DESCRIPTION("usage.point.cps.convertor.serial.number.descr", "The manufacturer’s  convertor serial number. CONTEXT: The serial number of the corrector from which the  convertor read should be taken.\t"),
+    CPS_CONVERTOR_SERIAL_NUMBER_DESCRIPTION("usage.point.cps.convertor.serial.number.descr", "The manufacturer’s  convertor serial number. l number of the corrector from which the  convertor read should be taken.\t"),
     CPS_CONVERTOR_NO_OF_CORRECTED_DIALS("usage.point.cps.convertor.no.of.corrected.dials", "NO_OF_CORRECTED_DIALS"),
     CPS_CONVERTOR_NO_OF_CORRECTED_DIALS_DESCRIPTION("usage.point.cps.convertor.no.of.corrected.dials.descr", "The number of dials or digits present on the  convertor which must be taken into account when recording the convertor corrected read"),
     CPS_CONVERTOR_NO_OF_UNCORRECTED_DIALS("usage.point.cps.convertor.no.of.uncorrected.dials", "NO_OF_UNCORRECTED_DIALS"),

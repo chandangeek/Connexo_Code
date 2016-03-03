@@ -4,9 +4,12 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+
+import javax.validation.constraints.Size;
 
 public class UsagePointTechnicalWGTDomainExtension implements PersistentDomainExtension<UsagePoint> {
     public enum Fields {
@@ -42,13 +45,15 @@ public class UsagePointTechnicalWGTDomainExtension implements PersistentDomainEx
         }
     }
 
-    @IsPresent
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
     @IsPresent
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String pipeSize;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String pipeType;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String pressureLevel;
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {

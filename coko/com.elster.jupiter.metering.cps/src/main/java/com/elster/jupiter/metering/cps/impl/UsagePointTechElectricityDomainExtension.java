@@ -4,7 +4,11 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
+
+import javax.validation.constraints.Size;
 
 public class UsagePointTechElectricityDomainExtension implements PersistentDomainExtension<UsagePoint> {
     public enum FieldNames {
@@ -30,9 +34,12 @@ public class UsagePointTechElectricityDomainExtension implements PersistentDomai
     }
 
     private Reference<UsagePoint> usagePoint = Reference.empty();
+    @IsPresent
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String crossSectionalArea;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String voltageLevel;
 
     public UsagePointTechElectricityDomainExtension() {

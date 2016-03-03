@@ -93,7 +93,7 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
 
     @Override
     public boolean isVersioned() {
-        return false;
+        return true;
     }
 
     @Override

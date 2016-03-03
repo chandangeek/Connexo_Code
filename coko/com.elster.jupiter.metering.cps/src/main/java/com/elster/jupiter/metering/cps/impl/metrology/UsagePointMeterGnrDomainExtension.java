@@ -4,9 +4,12 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+
+import javax.validation.constraints.Size;
 
 public class UsagePointMeterGnrDomainExtension implements PersistentDomainExtension<UsagePoint> {
 
@@ -71,13 +74,15 @@ public class UsagePointMeterGnrDomainExtension implements PersistentDomainExtens
         this._class = _class;
     }
 
-    @IsPresent
     Reference<UsagePoint> usagePoint = ValueReference.absent();
     @IsPresent
     Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String manufacturer;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String model;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String _class;
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {

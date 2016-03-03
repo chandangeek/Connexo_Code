@@ -17,7 +17,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
@@ -29,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "c.e.j.m.cps.impl.mtr.UsagePointConvCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+//@Component(name = "c.e.j.m.cps.impl.mtr.UsagePointConvCPS", service = CustomPropertySet.class, immediate = true)
 public class UsagePointConvCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointConvDomainExtension> {
 
     public volatile PropertySpecService propertySpecService;
@@ -38,7 +37,7 @@ public class UsagePointConvCustomPropertySet implements CustomPropertySet<UsageP
 
     public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_CONV";
     public static final String FK_CPS_DEVICE_CONVERTOR = "FK_CPS_MTR_USAGEPOINT_CONV";
-    public static final String COMPONENT_NAME = "CONV";
+    public static final String COMPONENT_NAME = "CONVER";
 
     public UsagePointConvCustomPropertySet() {
         super();
@@ -83,7 +82,7 @@ public class UsagePointConvCustomPropertySet implements CustomPropertySet<UsageP
 
     @Override
     public PersistenceSupport<UsagePoint, UsagePointConvDomainExtension> getPersistenceSupport() {
-        return new UsagePointConvPersistenceSupport(this.getThesaurus());
+        return new UsagePointConvPersSupp(this.getThesaurus());
     }
 
     @Override
@@ -93,7 +92,7 @@ public class UsagePointConvCustomPropertySet implements CustomPropertySet<UsageP
 
     @Override
     public boolean isVersioned() {
-        return false;
+        return true;
     }
 
     @Override
@@ -137,11 +136,11 @@ public class UsagePointConvCustomPropertySet implements CustomPropertySet<UsageP
         return nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
     }
 
-    private static class UsagePointConvPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointConvDomainExtension> {
+    private static class UsagePointConvPersSupp implements PersistenceSupport<UsagePoint, UsagePointConvDomainExtension> {
 
         private Thesaurus thesaurus;
 
-        public UsagePointConvPersistenceSupport(Thesaurus thesaurus) {
+        public UsagePointConvPersSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
