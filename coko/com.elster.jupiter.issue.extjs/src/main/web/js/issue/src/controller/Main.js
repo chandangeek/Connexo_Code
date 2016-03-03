@@ -22,7 +22,8 @@ Ext.define('Isu.controller.Main', {
         'Isu.controller.IssueDetail',
         'Isu.controller.ApplyIssueAction',
         'Isu.controller.StartProcess',
-        'Isu.controller.Overview'
+        'Isu.controller.Overview',
+        'Isu.controller.BulkChangeIssues'
     ],
 
     init: function () {
