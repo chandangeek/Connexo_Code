@@ -45,7 +45,7 @@ public class ServiceCallResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALL_TYPES)
+//    @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALL_TYPES)
     public PagedInfoList getAllServiceCalls(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
         //Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCalls();
@@ -88,8 +88,8 @@ public class ServiceCallResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALL_TYPES)
-    public ServiceCallInfo getServiceCall(@PathParam("id") String number) {
+//    @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALL_TYPES)
+    public ServiceCallInfo getServiceCall(@PathParam("id") long number) {
         return serviceCallService.getServiceCall(number)
                 .map(serviceCallInfoFactory::from)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_SERVICE_CALL));
@@ -98,8 +98,8 @@ public class ServiceCallResource {
     @GET
     @Path("/{id}/children")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALL_TYPES)
-    public PagedInfoList getChildren(@PathParam("id") String number, @BeanParam JsonQueryParameters queryParameters) {
+//    @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALL_TYPES)
+    public PagedInfoList getChildren(@PathParam("id") long number, @BeanParam JsonQueryParameters queryParameters) {
         List<ServiceCallInfo> serviceCallInfos = serviceCallService.getServiceCall(number)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL))
                 .getChildren().from(queryParameters).stream()
@@ -112,8 +112,8 @@ public class ServiceCallResource {
     @PUT
     @Path("/{id}/cancel")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES)
-    public Response cancelServiceCall(@PathParam("id") String number) {
+//    @RolesAllowed(Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES)
+    public Response cancelServiceCall(@PathParam("id") long number) {
         serviceCallService.getServiceCall(number).ifPresent(ServiceCall::cancel);
         return Response.status(Response.Status.OK).build();
     }
