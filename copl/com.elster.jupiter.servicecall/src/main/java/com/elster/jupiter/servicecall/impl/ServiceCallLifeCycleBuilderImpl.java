@@ -47,7 +47,7 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
     private final Map<Pair<DefaultState, DefaultState>, TranslationKey> translations = transitionTranslations();
     private final FiniteStateMachineService finiteStateMachineService;
     private final IServiceCallService serviceCallService;
-    private final Set<DefaultState> criticalStates = EnumSet.of(CREATED, PENDING, ONGOING, SUCCESSFUL);
+    private final Set<DefaultState> criticalStates = EnumSet.of(CREATED, PENDING, ONGOING, SUCCESSFUL, FAILED);
     private final Provider<ServiceCallLifeCycleImpl> serviceCallLifeCycleFactory;
     private final Thesaurus thesaurus;
 

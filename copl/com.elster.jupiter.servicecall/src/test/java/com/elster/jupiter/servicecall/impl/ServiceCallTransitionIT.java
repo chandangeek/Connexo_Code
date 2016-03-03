@@ -274,7 +274,7 @@ public class ServiceCallTransitionIT {
         MyExtension extension = new MyExtension();
         extension.setValue(BigDecimal.valueOf(65456));
 
-        ServiceCall serviceCall = null;
+        ServiceCall serviceCall;
         try (TransactionContext context = transactionService.getContext()) {
             serviceCall = serviceCallType.newServiceCall()
                     .externalReference("external")
