@@ -15,10 +15,12 @@ Ext.define('Mdc.controller.history.Setup', {
                     title: Uni.I18n.translate('general.addUsagePoint', 'MDC', 'Add usage point'),
                     route: 'add',
                     controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
+                    //privileges: Mdc.privileges.UsagePoint.canAdminWithInsight(),
                     action: 'showAddUsagePoint'
                 },
                 usagepoint: {
                     title: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
+                    //privileges: Mdc.privileges.UsagePoint.canViewWithInsight(),
                     route: '{usagePointId}',
                     controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
                     action: 'showUsagePoint',
@@ -2027,4 +2029,5 @@ Ext.define('Mdc.controller.history.Setup', {
     tokenizeAddComPortPool: function () {
         return this.tokenize([this.rootToken, 'comportpools', 'add']);
     }
+
 });
