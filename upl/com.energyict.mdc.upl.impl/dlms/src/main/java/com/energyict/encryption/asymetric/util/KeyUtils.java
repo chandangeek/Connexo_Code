@@ -9,7 +9,6 @@ import java.math.BigInteger;
 import java.security.*;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.*;
-import java.util.Arrays;
 
 /**
  * Key utilities, conversion utilities and the likes.
@@ -46,8 +45,11 @@ public final class KeyUtils {
             final ECParameterSpec ecParameters = getEcParameterSpec(curve);
             final int keySize = getKeySize(ecParameters);
 
-            final byte[] x = Arrays.copyOfRange(rawData, 0, keySize / 2);
-            final byte[] y = Arrays.copyOfRange(rawData, keySize / 2, keySize);
+            final byte[] x = new byte[keySize / 2 + 1];
+            System.arraycopy(rawData, 0, x, 1, keySize / 2);
+
+            final byte[] y = new byte[keySize / 2 + 1];
+            System.arraycopy(rawData, keySize / 2, y, 1, keySize / 2);
 
             final ECPublicKeySpec spec = new ECPublicKeySpec(new ECPoint(new BigInteger(x), new BigInteger(y)), ecParameters);
 

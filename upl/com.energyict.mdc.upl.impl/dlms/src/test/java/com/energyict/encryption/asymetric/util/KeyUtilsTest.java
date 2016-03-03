@@ -18,21 +18,26 @@ public class KeyUtilsTest {
 
     @Test
     public void testSuite1PublicKeyEncoding() throws GeneralSecurityException {
-        ECCCurve suite1Curve = ECCCurve.P256_SHA256;
-        PublicKey publicKey = KeyUtils.generateECCKeyPair(suite1Curve).getPublic();
+        for (int i = 0; i < 100; i++) {
 
-        byte[] encodedPublicKey = KeyUtils.toRawData(suite1Curve, publicKey);
+            ECCCurve suite1Curve = ECCCurve.P256_SHA256;
+            PublicKey publicKey = KeyUtils.generateECCKeyPair(suite1Curve).getPublic();
 
-        assertEquals(KeyUtils.toECPublicKey(suite1Curve, encodedPublicKey), publicKey);
+            byte[] encodedPublicKey = KeyUtils.toRawData(suite1Curve, publicKey);
+
+            assertEquals(KeyUtils.toECPublicKey(suite1Curve, encodedPublicKey), publicKey);
+        }
     }
 
     @Test
     public void testSuite2PublicKeyEncoding() throws GeneralSecurityException {
-        ECCCurve suite2Curve = ECCCurve.P384_SHA384;
-        PublicKey publicKey = KeyUtils.generateECCKeyPair(suite2Curve).getPublic();
+        for (int i = 0; i < 100; i++) {
+            ECCCurve suite2Curve = ECCCurve.P384_SHA384;
+            PublicKey publicKey = KeyUtils.generateECCKeyPair(suite2Curve).getPublic();
 
-        byte[] encodedPublicKey = KeyUtils.toRawData(suite2Curve, publicKey);
+            byte[] encodedPublicKey = KeyUtils.toRawData(suite2Curve, publicKey);
 
-        assertEquals(KeyUtils.toECPublicKey(suite2Curve, encodedPublicKey), publicKey);
+            assertEquals(KeyUtils.toECPublicKey(suite2Curve, encodedPublicKey), publicKey);
+        }
     }
 }
