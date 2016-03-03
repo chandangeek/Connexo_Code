@@ -1,5 +1,6 @@
 package com.elster.jupiter.servicecall.rest.impl;
 
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.servicecall.ServiceCall;
 
 import java.time.Instant;
@@ -12,7 +13,8 @@ public class ServiceCallInfoFactory {
 
     public ServiceCallInfo from(ServiceCall serviceCall) {
         ServiceCallInfo serviceCallInfo = new ServiceCallInfo();
-        serviceCallInfo.number = serviceCall.getNumber();
+        serviceCallInfo.id  = serviceCall.getId();
+        serviceCallInfo.name = serviceCall.getNumber();
         serviceCallInfo.version = serviceCall.getVersion();
         serviceCallInfo.creationTime = serviceCall.getCreationTime().toEpochMilli();
         serviceCallInfo.lastModificationTime = serviceCall.getLastModificationTime().toEpochMilli();
@@ -37,7 +39,7 @@ public class ServiceCallInfoFactory {
 
         while (stillHasParent) {
             if (parent.isPresent()) {
-                serviceCallInfo.parents.add(parent.get().getNumber());
+                serviceCallInfo.parents.add(new IdWithNameInfo( parent.get().getId(),parent.get().getNumber()));
                 parent = parent.get().getParent();
             } else {
                 stillHasParent = false;
