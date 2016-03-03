@@ -43,17 +43,15 @@ public class BpmResource {
     private final UserService userService;
     private final Thesaurus thesaurus;
     private final BpmService bpmService;
-    private final TransactionService transactionService;
     private final PropertyUtils propertyUtils;
 
     private final String errorNotFoundMessage;
     private final String errorInvalidMessage;
 
     @Inject
-    public BpmResource(BpmService bpmService, UserService userService, TransactionService transactionService, Thesaurus thesaurus, PropertyUtils propertyUtils) {
+    public BpmResource(BpmService bpmService, UserService userService, Thesaurus thesaurus, PropertyUtils propertyUtils) {
         this.bpmService = bpmService;
         this.userService = userService;
-        this.transactionService = transactionService;
         this.thesaurus = thesaurus;
         this.propertyUtils = propertyUtils;
 
