@@ -12,12 +12,22 @@ Ext.define('Scs.view.Landing', {
         var me = this;
 
         me.content = {
-            xtype: 'container',
-            layout: 'hbox',
             items: [
                 {
                     ui: 'large',
                     title: me.title === 'none' ? '' : me.serviceCallId,
+                    tools: [
+                        {
+                            xtype: 'button',
+                            //privileges: Apr.privileges.AppServer.admin,
+                            text: Uni.I18n.translate('general.actions', 'SCS', 'Actions'),
+                            iconCls: 'x-uni-action-iconD',
+                            margin: '20 0 0 0',
+                            menu: {
+                                xtype: 'scs-action-menu'
+                            }
+                        }
+                    ],
                     flex: 1,
                     items: [
                         {
@@ -29,17 +39,8 @@ Ext.define('Scs.view.Landing', {
                             itemId: 'serviceCallLog'
                         }
                     ]
-                },
-                {
-                    xtype: 'button',
-                    //privileges: Apr.privileges.AppServer.admin,
-                    text: Uni.I18n.translate('general.actions', 'SCS', 'Actions'),
-                    iconCls: 'x-uni-action-iconD',
-                    margin: '20 0 0 0',
-                    menu: {
-                        xtype: 'scs-action-menu'
-                    }
                 }
+
             ]
         };
         this.callParent(arguments);
