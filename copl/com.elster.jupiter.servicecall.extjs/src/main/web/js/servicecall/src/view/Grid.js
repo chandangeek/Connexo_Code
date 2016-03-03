@@ -9,6 +9,14 @@ Ext.define('Scs.view.Grid', {
         'Uni.view.toolbar.PagingBottom'
     ],
 
+    listeners: {
+        cellclick: function(gridView, htmlElement, columnIndex, dataRecord) {
+            debugger;
+            if(columnIndex === 0) {
+                this.fireEvent('serviceCallLinkClicked', dataRecord);
+            }
+        }
+    },
     initComponent: function () {
         var me = this;
         me.columns = [
@@ -25,11 +33,6 @@ Ext.define('Scs.view.Grid', {
                     return '<a style="cursor:pointer">' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 flex: 1,
-                listeners: {
-                    onClick: function() {
-                        debugger;
-                    }
-                }
             },
             {
                 header: Uni.I18n.translate('servicecalls.externalReference', 'SCS', 'External reference'),

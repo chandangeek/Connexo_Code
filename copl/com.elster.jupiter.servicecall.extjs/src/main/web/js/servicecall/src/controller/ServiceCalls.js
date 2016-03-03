@@ -33,8 +33,15 @@ Ext.define('Scs.controller.ServiceCalls', {
             },
             'scs-action-menu': {
                 click: this.chooseAction
+            },
+            'servicecalls-grid': {
+                serviceCallLinkClicked: this.clickedColumn
             }
         });
+    },
+
+    clickedColumn: function (dataRecord) {
+        debugger;
     },
 
     showServiceCalls: function() {
