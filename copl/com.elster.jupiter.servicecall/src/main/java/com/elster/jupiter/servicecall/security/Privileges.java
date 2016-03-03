@@ -10,8 +10,8 @@ public enum Privileges implements TranslationKey {
     //Resources
     RESOURCE_SERVICE_CALL_TYPES("serviceCallTypes.serviceCallTypes", "Service call types"),
     RESOURCE_SERVICE_CALL_TYPES_DESCRIPTION("serviceCallTypes.serviceCallTypes.description", "Manage service call types"),
-    RESOURCE_SERVICE_CALL("serviceCalls.serviceCalls.overview", "Service calls"),
-    RESOURCE_SERVICE_CALL_DESCRIPTION("serviceCalls.serviceCalls.state", "Manage service calls"),
+    RESOURCE_SERVICE_CALL("serviceCalls.serviceCalls", "Service calls"),
+    RESOURCE_SERVICE_CALL_DESCRIPTION("serviceCalls.serviceCalls.description", "Manage service calls"),
 
 
 
