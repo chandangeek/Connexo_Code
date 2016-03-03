@@ -8,6 +8,7 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
 import com.energyict.mdc.issue.datacollection.impl.database.TableSpecs;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
@@ -209,6 +210,11 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
         OpenIssueDataCollectionImpl issue = dataModel.getInstance(OpenIssueDataCollectionImpl.class);
         issue.setIssue(baseIssue);
         issueEvent.apply(issue);
+        if (issueEvent instanceof DataCollectionEvent) {
+            issue.setFirstConnectionAttemptTimestamp(DataCollectionEvent.class.cast(issueEvent).getTimestamp());
+            issue.setLastConnectionAttemptTimestamp(DataCollectionEvent.class.cast(issueEvent).getTimestamp());
+            issue.setConnectionAttempt(1L);
+        }
         issue.save();
         return issue;
     }
@@ -234,7 +240,8 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
         } else {
             eagerClasses.addAll(Arrays.asList(eagers));
         }
-        return DefaultFinder.of((Class<IssueDataCollection>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
+        return DefaultFinder.of((Class<IssueDataCollection>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses
+                .size()]));
     }
 
     private List<Class<?>> determineMainApiClass(IssueDataCollectionFilter filter) {
