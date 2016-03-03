@@ -61,22 +61,22 @@ public class ServiceCallResource {
     private void applyFilterToFinder(JsonQueryFilter filter, ServiceCallFinder serviceCallFinder) {
         //TODO: CHECK TYPE AND STATE REF ISSUE
 
-        if(filter.hasProperty("number")) {
+        if (filter.hasProperty("number")) {
             serviceCallFinder.setReference(filter.getString("number"));
         }
-        if(filter.hasProperty("type")) {
+        if (filter.hasProperty("type")) {
             serviceCallFinder.setType(filter.getStringList("type"));
         }
         if(filter.hasProperty("status")) {
             serviceCallFinder.setState(filter.getStringList("status"));
         }
-        if(filter.hasProperty("receivedDateFrom")) {
+        if (filter.hasProperty("receivedDateFrom")) {
             serviceCallFinder.withCreationTimeIn(Range.closed(filter.getInstant("receivedDateFrom"),
                     filter.hasProperty("receivedDateTo") ? filter.getInstant("receivedDateTo") : Instant.now()));
         } else if (filter.hasProperty("receivedDateTo")) {
             serviceCallFinder.withCreationTimeIn(Range.closed(Instant.EPOCH, filter.getInstant("receivedDateTo")));
         }
-        if(filter.hasProperty("modificationDateFrom")) {
+        if (filter.hasProperty("modificationDateFrom")) {
             serviceCallFinder.withModTimeIn(Range.closed(filter.getInstant("modificationDateFrom"),
                     filter.hasProperty("modificationDateTo") ? filter.getInstant("modificationDateTo") : Instant.now()));
         } else if (filter.hasProperty("modificationDateTo")) {
@@ -86,7 +86,7 @@ public class ServiceCallResource {
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public ServiceCallInfo getServiceCall(@PathParam("id") String number) {
         return serviceCallService.getServiceCall(number)
                 .map(serviceCallInfoFactory::from)
@@ -95,11 +95,11 @@ public class ServiceCallResource {
 
     @GET
     @Path("/{id}/children")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getChildren(@PathParam("id") String number, @BeanParam JsonQueryParameters queryParameters) {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
         Optional<ServiceCall> serviceCallOptional = serviceCallService.getServiceCall(number);
-        if(serviceCallOptional.isPresent()) {
+        if (serviceCallOptional.isPresent()) {
             Finder<ServiceCall> serviceCallFinder = serviceCallOptional.get().getChildren();
             List<ServiceCall> serviceCalls = serviceCallFinder.from(queryParameters).find();
 

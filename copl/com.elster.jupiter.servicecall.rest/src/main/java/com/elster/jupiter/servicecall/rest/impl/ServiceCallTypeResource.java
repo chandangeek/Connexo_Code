@@ -77,6 +77,16 @@ public class ServiceCallTypeResource {
         return Response.status(Response.Status.OK).build();
     }
 
+    @PUT
+    @Path("/{serviceCallTypeName}/cancel")
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response cancelServiceCall(@PathParam("serviceCallTypeID") String serviceCallTypeName, ServiceCallTypeInfo info) {
+
+        return Response.status(Response.Status.OK).build();
+    }
+
     private ServiceCallType fetchAndLockServiceCallType(ServiceCallTypeInfo info) {
         return serviceCallService.findAndLockServiceCallType(info.id, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
