@@ -32,6 +32,7 @@ import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.Status;
 import com.elster.jupiter.servicecall.impl.example.DisconnectHandler;
+import com.elster.jupiter.servicecall.impl.example.FakeTypeOneCustomPropertySet;
 import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeDomainExtension;
 import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeOneCustomPropertySet;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -305,7 +306,7 @@ public class ServiceCallTypeIT {
     @Expected(value = InvalidPropertySetDomainTypeException.class)
     public void testCreateServiceCallTypeWithIllegalCustomPropertySet() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            RegisteredCustomPropertySet wrongType = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.servicecall.impl.ServiceCallLifeCycleDomainExtension")
+            RegisteredCustomPropertySet wrongType = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.servicecall.impl.example.ServiceCallLifeCycleDomainExtension")
                     .get();
             ServiceCallType serviceCallType = serviceCallService
                     .createServiceCallType("CustomTest", "CustomVersion")
@@ -329,7 +330,7 @@ public class ServiceCallTypeIT {
             } catch (InvalidPropertySetDomainTypeException e) {
                 fail("Should not have had an exception here");
             }
-            RegisteredCustomPropertySet wrongType = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.servicecall.impl.ServiceCallLifeCycleDomainExtension")
+            RegisteredCustomPropertySet wrongType = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.servicecall.impl.example.ServiceCallLifeCycleDomainExtension")
                     .get();
             serviceCallType.addCustomPropertySet(wrongType);
         }

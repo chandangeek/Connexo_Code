@@ -10,4 +10,5 @@ import aQute.bnd.annotation.ProviderType;
  */
 @ProviderType
 public interface ServiceCallLifeCycle extends HasId, HasName {
+    void delete();
 }

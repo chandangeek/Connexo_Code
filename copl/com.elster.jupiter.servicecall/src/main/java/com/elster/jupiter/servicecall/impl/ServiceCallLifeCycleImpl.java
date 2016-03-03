@@ -3,9 +3,13 @@ package com.elster.jupiter.servicecall.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LifeCycleIsStillInUseException;
+import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
 import java.util.Optional;
@@ -14,6 +18,8 @@ import java.util.Optional;
  * Created by bvn on 2/4/16.
  */
 public class ServiceCallLifeCycleImpl implements IServiceCallLifeCycle {
+
+    private final Thesaurus thesaurus;
 
     public enum Fields {
         name("name"),
@@ -37,8 +43,9 @@ public class ServiceCallLifeCycleImpl implements IServiceCallLifeCycle {
     private Reference<FiniteStateMachine> finiteStateMachine = Reference.empty();
 
     @Inject
-    public ServiceCallLifeCycleImpl(DataModel dataModel) {
+    public ServiceCallLifeCycleImpl(DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -75,4 +82,19 @@ public class ServiceCallLifeCycleImpl implements IServiceCallLifeCycle {
                 .getState(defaultState.getKey());
     }
 
+    @Override
+    public void delete() {
+        this.validateDelete();
+        dataModel.remove(this);
+        this.finiteStateMachine.get().delete();
+    }
+
+    private void validateDelete() {
+        // find all service call types linked to this life cycle
+        if (!dataModel.query(ServiceCallType.class)
+                .select(Where.where(ServiceCallTypeImpl.Fields.serviceCallLifeCycle.fieldName()).isEqualTo(this))
+                .isEmpty()) {
+            throw new LifeCycleIsStillInUseException(thesaurus, MessageSeeds.LIFE_CYCLE_STILL_IN_USE, this);
+        }
+    }
 }
