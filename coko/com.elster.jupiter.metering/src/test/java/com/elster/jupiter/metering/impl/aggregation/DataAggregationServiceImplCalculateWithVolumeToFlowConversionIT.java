@@ -561,7 +561,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
         when(readingType.getFlowDirection()).thenReturn(FlowDirection.NET);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATT);
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         when(readingType.getMRID()).thenReturn(FIFTEEN_MINS_NET_CONSUMPTION_MRID);
         return readingType;
@@ -572,7 +572,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
         when(readingType.getFlowDirection()).thenReturn(FlowDirection.NET);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATT);
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         when(readingType.getMRID()).thenReturn(MONTHLY_NET_CONSUMPTION_MRID);
         return readingType;
