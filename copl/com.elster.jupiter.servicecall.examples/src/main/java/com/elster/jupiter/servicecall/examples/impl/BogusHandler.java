@@ -10,7 +10,7 @@ import org.osgi.service.component.annotations.Component;
  * Example handler taking care of a disconnect
  * Created by bvn on 2/18/16.
  */
-@Component(name = "com.elster.jupiter.servicecall.example.disconnect.handler",
+@Component(name = "com.elster.jupiter.servicecall.example.bogus.handler",
         service = ServiceCallHandler.class,
         immediate = true,
         property = "name=BogusHandler")
