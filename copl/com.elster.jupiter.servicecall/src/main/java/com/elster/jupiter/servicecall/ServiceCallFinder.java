@@ -23,6 +23,8 @@ public interface ServiceCallFinder {
 
     ServiceCallFinder withModTimeIn(Range<Instant> interval);
 
+    ServiceCallFinder setParent(ServiceCall parent);
+
     List<ServiceCall> find();
 
     QueryStream<ServiceCall> stream();

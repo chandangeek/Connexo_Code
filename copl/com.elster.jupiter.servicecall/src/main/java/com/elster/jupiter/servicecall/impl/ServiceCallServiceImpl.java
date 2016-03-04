@@ -275,9 +275,7 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
 
     @Override
     public ServiceCallFinder getServiceCallFinder() {
-        Order parentOrder = Order.ascending("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ", 0))");
-        Order modeTimeOrder = Order.descending(ServiceCallImpl.Fields.modTime.fieldName());
-        return new ServiceCallFinderImpl(dataModel, parentOrder, modeTimeOrder);
+        return new ServiceCallFinderImpl(dataModel);
     }
 
     @Override
@@ -287,7 +285,7 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
 
         sqlBuilder.append("SELECT fsm.NAME, scs.TOTAL FROM FSM_STATE fsm, ");
         sqlBuilder.append("(SELECT STATE, COUNT(*) TOTAL FROM SCS_SERVICE_CALL ");
-        sqlBuilder.append("WHERE id IN (SELECT id FROM SCS_SERVICE_CALL_PARENT where parent=");
+        sqlBuilder.append("WHERE id IN (SELECT id FROM SCS_SERVICE_CALL where parent=");
         sqlBuilder.append(id + ") ");
         sqlBuilder.append("GROUP BY STATE) scs ");
         sqlBuilder.append("WHERE fsm.ID = scs.STATE");
@@ -295,8 +293,7 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
         try (PreparedStatement statement = sqlBuilder.prepare(dataModel.getConnection(false))) {
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
-                    childrenCountInfo.put(DefaultState.valueOf(resultSet.getString(0))
-                            .name(), Long.parseLong(resultSet.getString(1)));
+                    childrenCountInfo.put(resultSet.getString(1), Long.parseLong(resultSet.getString(2)));
                 }
             }
         } catch (Exception e) {

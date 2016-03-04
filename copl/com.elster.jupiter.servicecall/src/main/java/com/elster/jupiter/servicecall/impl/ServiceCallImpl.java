@@ -16,6 +16,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallFinder;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.conditions.Condition;
@@ -251,10 +252,10 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     @Override
-    public Finder<ServiceCall> getChildren() {
-        Condition condition = Where.where("parent").isEqualTo(this);
-        return DefaultFinder.of(ServiceCall.class, condition, dataModel)
-                .defaultSortColumn(ServiceCallImpl.Fields.type.fieldName());
+    public ServiceCallFinder getChildrenFinder() {
+        ServiceCallFinder finder = new ServiceCallFinderImpl(dataModel);
+        finder.setParent(this);
+        return finder;
     }
 
     @Override
