@@ -23,6 +23,10 @@ Ext.define('Scs.controller.ServiceCalls', {
         {
             ref: 'breadcrumbs',
             selector: 'breadcrumbTrail'
+        },
+        {
+            ref: 'breadcrumbs',
+            selector: 'breadcrumbTrail'
         }
     ],
 
@@ -40,11 +44,7 @@ Ext.define('Scs.controller.ServiceCalls', {
         });
     },
 
-    clickedColumn: function (dataRecord) {
-        debugger;
-    },
-
-    showServiceCalls: function() {
+    showServiceCalls: function () {
         var me = this,
             store = Ext.getStore('Scs.store.ServiceCalls'),
             view;
@@ -58,15 +58,15 @@ Ext.define('Scs.controller.ServiceCalls', {
                 root: 'serviceCalls'
             }
         });
-        view= Ext.widget('servicecalls-setup', {
-                router: me.getController('Uni.controller.history.Router'),
-                store: store
+        view = Ext.widget('servicecalls-setup', {
+            router: me.getController('Uni.controller.history.Router'),
+            store: store
         });
 
         me.getApplication().fireEvent('changecontentevent', view);
     },
 
-    showServiceCallOverview: function() {
+    showServiceCallOverview: function () {
         var me = this,
             store = Ext.getStore('Scs.store.ServiceCalls'),
             logStore = Ext.getStore('Scs.store.Logs'),
@@ -91,19 +91,20 @@ Ext.define('Scs.controller.ServiceCalls', {
                     //logStore.load({
                     //
                     //})
-                    Ext.each(record.get('parents'),function(item){
-                        parentsIdArray.push(item.id+'');
+                    Ext.each(record.get('parents'), function (item) {
+                        parentsIdArray.push(item.id + '');
                         parentsNameArray.push(item.name);
                     });
 
 
-                 //   compareParentsArray = record.get('parents').slice();
+                    //   compareParentsArray = record.get('parents').slice();
                     parentsNameArray.push(record.get('name'));
                     parentsIdArray.push(servicecallId);
-                    if(!me.isEqual(servicecallIds, parentsIdArray)) {
-                        view = Ext.widget('errorNotFound');
-                        me.getBreadcrumbs().hide();
-                    } else if (record.get('hasChildren')) {
+                    //if(!me.isEqual(servicecallIds, parentsIdArray)) {
+                    //    view = Ext.widget('errorNotFound');
+                    //    me.getBreadcrumbs().hide();
+                    //} else
+                    if (record.get('hasChildren')) {
                         me.getApplication().fireEvent('servicecallload', parentsNameArray);
                         view = Ext.widget('servicecalls-setup-overview', {
                             router: me.getController('Uni.controller.history.Router'),
@@ -115,7 +116,15 @@ Ext.define('Scs.controller.ServiceCalls', {
                         view = Ext.widget('scs-landing-page', {serviceCallId: record.get('name')});
                         view.down('scs-landing-page-form').updateLandingPage(record);
                     }
+                    if (record.get('parents').length !== 0) {
+                        var parents = record.get('parents');
+                        parents.push({id:record.get('id'),name:record.get('name')});
+                        me.setBreadcrumb(parents);
+
+                    }
+
                     me.getApplication().fireEvent('changecontentevent', view);
+
                 },
                 failure: function (record, operation) {
                     view = Ext.widget('errorNotFound');
@@ -123,7 +132,33 @@ Ext.define('Scs.controller.ServiceCalls', {
                     me.getApplication().fireEvent('changecontentevent', view);
                 }
             });
+
         }
+    },
+
+    setBreadcrumb: function (breadcrumbs) {
+        var me = this,
+            trail = this.getBreadcrumbs(),
+            root = Ext.create('Uni.model.BreadcrumbItem', {
+                text: 'Workspace',
+                href: me.getController('Scs.controller.history.ServiceCall').tokenizeShowOverview()
+            }),
+            parent = Ext.create('Uni.model.BreadcrumbItem', {
+                text: 'Service calls',
+                href: 'servicecalls'
+            });
+        root.setChild(parent);
+            Ext.each(breadcrumbs, function (item) {
+                var bc = Ext.create('Uni.model.BreadcrumbItem', {
+                    key: item.id,
+                    text: item.name,
+                    href: '/' + item.id,
+                    relative: false
+                });
+                parent.setChild(bc);
+                parent = bc;
+            });
+        trail.setBreadcrumbItem(root);
     },
 
     showPreview: function (selectionModel, record) {
@@ -154,12 +189,12 @@ Ext.define('Scs.controller.ServiceCalls', {
 
     isEqual: function (array1, array2) {
         var i;
-        if(array1.length !== array2.length) {
+        if (array1.length !== array2.length) {
             return false;
         }
 
-        for(i = 0; i < array1.length; i++) {
-            if(array1[i] !== array2[i]) {
+        for (i = 0; i < array1.length; i++) {
+            if (array1[i] !== array2[i]) {
                 return false;
             }
         }
