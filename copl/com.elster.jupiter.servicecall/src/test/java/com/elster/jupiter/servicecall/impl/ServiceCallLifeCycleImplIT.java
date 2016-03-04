@@ -4,12 +4,12 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
+import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -19,13 +19,10 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.servicecall.LogLevel;
-import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallLog;
+import com.elster.jupiter.servicecall.LifeCycleIsStillInUseException;
+import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.impl.example.DisconnectHandler;
-import com.elster.jupiter.servicecall.impl.example.FakeTypeOneCustomPropertySet;
-import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeOneCustomPropertySet;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -46,8 +43,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.function.Supplier;
 
 import org.junit.After;
 import org.junit.Before;
@@ -62,9 +57,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class ServiceCallLogIT {
+public class ServiceCallLifeCycleImplIT {
+    private static final String NAME = "theName";
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private final Instant now = ZonedDateTime.of(2016, 1, 8, 10, 0, 0, 0, ZoneId.of("UTC")).toInstant();
     private Injector injector;
 
     private NlsService nlsService;
@@ -74,8 +71,6 @@ public class ServiceCallLogIT {
 
     @Rule
     public TestRule expectedRule = new ExpectedExceptionRule();
-    @Rule
-    public TestRule expectedValidationRule = new ExpectedConstraintViolationRule();
 
     @Mock
     private UserService userService;
@@ -90,9 +85,7 @@ public class ServiceCallLogIT {
 
     private Clock clock;
     private CustomPropertySetService customPropertySetService;
-    private ServiceCallTypeOneCustomPropertySet serviceCallTypeOneCustomPropertySet;
-    private FakeTypeOneCustomPropertySet fake;
-    private DisconnectHandler disconnectHandler;
+    private FiniteStateMachineService finiteStateMachineService;
 
     private class MockModule extends AbstractModule {
 
@@ -102,22 +95,13 @@ public class ServiceCallLogIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(MessageInterpolator.class).toInstance(messageInterpolator);
-        }
-    }
-
-    class FastClock implements Supplier<Instant> {
-        private final Instant now = ZonedDateTime.of(2016, 1, 8, 10, 0, 0, 0, ZoneId.of("UTC")).toInstant();
-        private long i;
-
-        @Override
-        public Instant get() {
-            return now.plusSeconds(i++);
+//            bind(ServiceCallTypeOneCustomPropertySet.class).to(ServiceCallTypeOneCustomPropertySet.class);
         }
     }
 
     @Before
     public void setUp() {
-        clock = new ProgrammableClock(ZoneId.of("UTC"), new FastClock());
+        clock = new ProgrammableClock(ZoneId.of("UTC"), now);
         try {
             injector = Guice.createInjector(
                     new MockModule(),
@@ -150,8 +134,7 @@ public class ServiceCallLogIT {
                 customPropertySetService = injector.getInstance(CustomPropertySetService.class);
                 messageService = injector.getInstance(MessageService.class);
                 serviceCallService = injector.getInstance(IServiceCallService.class);
-                serviceCallTypeOneCustomPropertySet = injector.getInstance(ServiceCallTypeOneCustomPropertySet.class);
-                fake = injector.getInstance(FakeTypeOneCustomPropertySet.class);
+                finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
                 new DisconnectHandler(serviceCallService);
                 return null;
             }
@@ -164,84 +147,29 @@ public class ServiceCallLogIT {
     }
 
     @Test
-    public void testLogOnServiceCall() throws Exception {
+    public void testDeleteServiceCallLifeCycle() {
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
-                    .logLevel(LogLevel.FINEST)
-                    .handler("DisconnectHandler1")
-                    .create();
-            ServiceCall serviceCall = serviceCallType.newServiceCall().origin("Tests").create();
-            serviceCall.log(LogLevel.SEVERE, "Kapot");
+            ServiceCallLifeCycle serviceCallLifeCycle = serviceCallService.createServiceCallLifeCycle(NAME).create();
 
-            assertThat(serviceCall.getLogs().find()).hasSize(1);
+            assertThat(serviceCallService.getServiceCallLifeCycle(NAME)).isPresent();
+            assertThat(finiteStateMachineService.findFiniteStateMachineByName(NAME)).isPresent();
+            serviceCallLifeCycle.delete();
+            assertThat(serviceCallService.getServiceCallLifeCycle(NAME)).isEmpty();
+            assertThat(finiteStateMachineService.findFiniteStateMachineByName(NAME)).isEmpty();
         }
     }
 
     @Test
-    public void testLogsChronologicallySorted() throws Exception {
-
+    @Expected(LifeCycleIsStillInUseException.class)
+    public void testDeleteUsedServiceCallLifeCycle() {
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
-                    .logLevel(LogLevel.FINEST)
+            ServiceCallLifeCycle serviceCallLifeCycle = serviceCallService.createServiceCallLifeCycle(NAME).create();
+            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("test", "v1", serviceCallLifeCycle)
                     .handler("DisconnectHandler1")
                     .create();
-            ServiceCall serviceCall = serviceCallType.newServiceCall().origin("Tests").create();
-            serviceCall.log(LogLevel.INFO, "Info 1");
-            serviceCall.log(LogLevel.INFO, "Info 2");
-            serviceCall.log(LogLevel.INFO, "Info 3");
-
-            List<ServiceCallLog> logs = serviceCall.getLogs().find();
-            assertThat(logs).hasSize(3);
-            assertThat(logs.get(0).getTime()).isGreaterThan(logs.get(1).getTime());
-            assertThat(logs.get(1).getTime()).isGreaterThan(logs.get(2).getTime());
+            assertThat(serviceCallService.getServiceCallLifeCycle(NAME)).isPresent();
+            serviceCallLifeCycle.delete();
         }
     }
-
-    @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REQUIRED_FIELD + "}", property = "message")
-    public void testLogOnServiceCallRequiresMessage() throws Exception {
-        try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
-                    .logLevel(LogLevel.FINEST)
-                    .handler("DisconnectHandler1")
-                    .create();
-            ServiceCall serviceCall = serviceCallType.newServiceCall().origin("Tests").create();
-            serviceCall.log(LogLevel.SEVERE, null);
-
-            assertThat(serviceCall.getLogs().find()).hasSize(1);
-        }
-    }
-
-    @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REQUIRED_FIELD + "}", property = "message")
-    public void testLogOnServiceCallRequiresNonEmptyMessage() throws Exception {
-        try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
-                    .logLevel(LogLevel.FINEST)
-                    .handler("DisconnectHandler1")
-                    .create();
-            ServiceCall serviceCall = serviceCallType.newServiceCall().origin("Tests").create();
-            serviceCall.log(LogLevel.SEVERE, "");
-
-            assertThat(serviceCall.getLogs().find()).hasSize(1);
-        }
-    }
-
-    @Test
-    public void testLogOnServiceCallBelowLevel() throws Exception {
-        try (TransactionContext context = transactionService.getContext()) {
-            ServiceCallType serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
-                    .logLevel(LogLevel.FINE)
-                    .handler("DisconnectHandler1")
-                    .create();
-            ServiceCall serviceCall = serviceCallType.newServiceCall().origin("Tests").create();
-            serviceCall.log(LogLevel.FINE, "Boe");
-            serviceCall.log(LogLevel.FINEST, "Baa"); // too low
-            serviceCall.log(LogLevel.SEVERE, "Bee");
-
-            assertThat(serviceCall.getLogs().find()).hasSize(2);
-        }
-    }
-
 
 }

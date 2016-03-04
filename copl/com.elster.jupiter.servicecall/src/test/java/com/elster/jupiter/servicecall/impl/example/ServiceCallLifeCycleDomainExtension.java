@@ -1,4 +1,4 @@
-package com.elster.jupiter.servicecall.impl;
+package com.elster.jupiter.servicecall.impl.example;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
@@ -16,7 +16,7 @@ import javax.validation.constraints.Size;
 public class ServiceCallLifeCycleDomainExtension implements PersistentDomainExtension<ServiceCallLifeCycle> {
 
     public enum FieldNames {
-        DOMAIN("serviceCallType", "serviceCallType"),
+        DOMAIN("serviceCallType", "serviceCallType"), // Illegal type
         TEST_ATTRIBUTE_STRING("testString", "test_string"),
         TEST_ATTRIBUTE_BOOLEAN("testBoolean", "test_boolean");
 

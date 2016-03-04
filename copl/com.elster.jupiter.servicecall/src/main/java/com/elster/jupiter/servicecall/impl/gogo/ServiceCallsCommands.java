@@ -43,7 +43,8 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=createServiceCallLifeCycle",
                 "osgi.command.function=serviceCall",
                 "osgi.command.function=serviceCalls",
-                "osgi.command.function=log"
+                "osgi.command.function=log",
+                "osgi.command.function=deleteServiceCallLifeCycle"
         }, immediate = true)
 public class ServiceCallsCommands {
 
@@ -328,4 +329,20 @@ public class ServiceCallsCommands {
             context.commit();
         }
     }
+
+    public void deleteServiceCallLifeCycle() {
+        System.out.println("Usage: deleteServiceCallLifeCycle <name>");
+    }
+
+    public void deleteServiceCallLifeCycle(String name) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCallService.getServiceCallLifeCycle(name)
+                    .orElseThrow(() -> new IllegalStateException("Nu such service call life cycle"))
+                    .delete();
+            context.commit();
+        }
+    }
+
+
 }
