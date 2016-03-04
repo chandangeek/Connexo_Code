@@ -20,16 +20,6 @@ public interface ServiceCategory extends HasTranslatableName, HasAuditInfo, HasI
      * Creates a new UsagePoint for this ServiceCategory.
      *
      * @param mRID The master resource identifier for the new UsagePoint
-     * @return The builder that allows you to specify optional information
-     * @deprecated Use #newUsagePoint(String, Instant) instead
-     */
-    @Deprecated
-	UsagePointBuilder newUsagePoint(String mRID);
-
-    /**
-     * Creates a new UsagePoint for this ServiceCategory.
-     *
-     * @param mRID The master resource identifier for the new UsagePoint
      * @param installationTime The time of installation of the new UsagePoint
      * @return The builder that allows you to specify optional information
      */
