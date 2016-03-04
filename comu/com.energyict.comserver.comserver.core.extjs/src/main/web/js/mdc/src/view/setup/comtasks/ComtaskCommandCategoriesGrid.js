@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCommandCategoriesGrid', {
                         xtype: 'button',
                         itemId: 'add-command-category-action',
                         disabled: true,
-                        text: Uni.I18n.translate('general.addCommandCategory', 'MDC', 'Add command category'),
+                        text: Uni.I18n.translate('comtask.commandCategories.add', 'MDC', 'Add command categories'),
                         privileges: Mdc.privileges.Communication.admin,
                         action: 'createcommunicationtaskaction',
                         href: me.router.getRoute('administration/communicationtasks/view/commandcategories/add').buildUrl()

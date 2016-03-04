@@ -909,7 +909,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        window.location.href = me.goToTaskOverview
+        window.location.href = me.goToTaskOverview && me.comTaskBeingEdited
             ? router.getRoute('administration/communicationtasks/view').buildUrl({ id: me.comTaskBeingEdited.get('id') })
             : router.getRoute('administration/communicationtasks').buildUrl();
         me.comTaskBeingEdited = null;
@@ -1233,7 +1233,11 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                     backUrl: backUrl,
                     success: function () {
                         window.location.href = backUrl;
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comtask.saved', 'MDC', 'Communication task saved'));
+                        me.getApplication().fireEvent('acknowledge',
+                            busyAdding
+                            ? Uni.I18n.translate('comtask.action.added', 'MDC', 'Action added')
+                            : Uni.I18n.translate('comtask.action.saved', 'MDC', 'Action saved')
+                        );
                         view.setLoading(false);
                     },
                     failure: function (record, requestObject) {
