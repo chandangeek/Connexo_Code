@@ -107,7 +107,7 @@ public interface ServiceCallService {
      * @param id The unique id that identifies the service call
      * @return Map of the names of the states, with their respective percentage
      */
-    Map<String, Long> getChildrenStatus(long id);
+    Map<DefaultState, Long> getChildrenStatus(long id);
 
     /**
      * Returns a list of names of all known service call handlers in the system

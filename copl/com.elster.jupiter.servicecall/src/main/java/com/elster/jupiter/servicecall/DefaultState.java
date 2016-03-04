@@ -58,6 +58,13 @@ public enum DefaultState implements TranslationKey {
         }
     }
 
+    public static Optional<DefaultState> from(String key) {
+        return Stream
+                .of(DefaultState.values())
+                .filter(d -> d.getKey().equals(key))
+                .findFirst();
+    }
+
     @Override
     public String getDefaultFormat() {
         return defaultFormat;
