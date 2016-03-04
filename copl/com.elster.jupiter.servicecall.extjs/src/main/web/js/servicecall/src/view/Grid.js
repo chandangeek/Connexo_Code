@@ -9,30 +9,18 @@ Ext.define('Scs.view.Grid', {
         'Uni.view.toolbar.PagingBottom'
     ],
 
-    listeners: {
-        cellclick: function(gridView, htmlElement, columnIndex, dataRecord) {
-            debugger;
-            if(columnIndex === 0) {
-                this.fireEvent('serviceCallLinkClicked', dataRecord);
-            }
-        }
-    },
     initComponent: function () {
         var me = this;
         me.columns = [
             {
                 header: Uni.I18n.translate('general.serviceCall', 'SCS', 'Service call'),
-                dataIndex: 'name',
-                renderer: function (value, metaData, record) {
-                    var url = '#/workspace/servicecalls/';
-                    record.get('parents').forEach(function(parent) {
-                        url += parent.id + '/'
-                    });
-                    url += record.get('id');
-                    //return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
-                    return '<a style="cursor:pointer">' + Ext.String.htmlEncode(value) + '</a>';
-                },
-                flex: 1,
+                 dataIndex: 'name',
+                 renderer: function (value, metaData, record) {
+                 var url = '#/workspace/servicecalls/';
+                 url += record.get('id');
+                 return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                 },
+                 flex: 0.6
             },
             {
                 header: Uni.I18n.translate('servicecalls.externalReference', 'SCS', 'External reference'),

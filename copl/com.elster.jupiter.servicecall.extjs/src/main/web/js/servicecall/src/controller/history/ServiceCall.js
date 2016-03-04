@@ -16,7 +16,7 @@ Ext.define('Scs.controller.history.ServiceCall', {
                     action: 'showServiceCalls',
                     items: {
                         overview: {
-                            route: '{serviceCallIdDepth1}',
+                            route: '{serviceCallId}',
                             privileges: Scs.privileges.ServiceCall.view,
                             title: Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'),
                             controller: 'Scs.controller.ServiceCalls',
@@ -27,70 +27,6 @@ Ext.define('Scs.controller.history.ServiceCall', {
                                     return true;
                                 }, {single: true});
                                 return this;
-                            },
-                            items: {
-                                overview: {
-                                    route: '{serviceCallIdDepth2}',
-                                    privileges: Scs.privileges.ServiceCall.view,
-                                    title: Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'),
-                                    controller: 'Scs.controller.ServiceCalls',
-                                    action: 'showServiceCallOverview',
-                                    callback: function (route) {
-                                        this.getApplication().on('servicecallload', function (arguments) {
-                                            route.setTitle(arguments[1] ? arguments[1] : Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'));
-                                            return true;
-                                        }, {single: true});
-                                        return this;
-                                    },
-                                    items: {
-                                        overview: {
-                                            route: '{serviceCallIdDepth3}',
-                                            privileges: Scs.privileges.ServiceCall.view,
-                                            title: Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'),
-                                            controller: 'Scs.controller.ServiceCalls',
-                                            action: 'showServiceCallOverview',
-                                            callback: function (route) {
-                                                this.getApplication().on('servicecallload', function (arguments) {
-                                                    route.setTitle(arguments[2] ? arguments[2] : Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'));
-                                                    return true;
-                                                }, {single: true});
-                                                return this;
-                                            },
-                                            items: {
-                                                overview: {
-                                                    route: '{serviceCallIdDepth4}',
-                                                    privileges: Scs.privileges.ServiceCall.view,
-                                                    title: Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'),
-                                                    controller: 'Scs.controller.ServiceCalls',
-                                                    action: 'showServiceCallOverview',
-                                                    callback: function (route) {
-                                                        this.getApplication().on('servicecallload', function (arguments) {
-                                                            route.setTitle(arguments[3] ? arguments[3] : Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'));
-                                                            return true;
-                                                        }, {single: true});
-                                                        return this;
-                                                    },
-                                                    items: {
-                                                        overview: {
-                                                            route: '{serviceCallIdDepth5}',
-                                                            privileges: Scs.privileges.ServiceCall.view,
-                                                            title: Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'),
-                                                            controller: 'Scs.controller.ServiceCalls',
-                                                            action: 'showServiceCallOverview',
-                                                            callback: function (route) {
-                                                                this.getApplication().on('servicecallload', function (arguments) {
-                                                                    route.setTitle(arguments[4] ? arguments[4] : Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'));
-                                                                    return true;
-                                                                }, {single: true});
-                                                                return this;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
                             }
                         }
                     }
