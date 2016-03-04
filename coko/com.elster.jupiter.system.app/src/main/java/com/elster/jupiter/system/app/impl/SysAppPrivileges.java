@@ -34,7 +34,7 @@ class SysAppPrivileges {
                 com.elster.jupiter.system.security.Privileges.Constants.VIEW_DEPLOYMENT_INFORMATION,
                 //metering
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
-                com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTRATE_READINGTYPE,
+                com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_READINGTYPE,
                 //com.elster.jupiter.bpm.security
                 com.elster.jupiter.bpm.security.Privileges.Constants.VIEW_BPM,
                 com.elster.jupiter.bpm.security.Privileges.Constants.ADMINISTRATE_BPM,
