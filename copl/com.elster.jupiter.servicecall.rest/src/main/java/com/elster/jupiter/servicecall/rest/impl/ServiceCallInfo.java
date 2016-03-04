@@ -18,8 +18,8 @@ public class ServiceCallInfo {
     public String externalReference;
     public Object targetObject;
     public List<IdWithNameInfo> parents;
-    public String type;
     public List<ServiceCallChildrenInfo> childrenInfo;
+    public String type;
 
     public ServiceCallInfo() {
 

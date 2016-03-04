@@ -2,9 +2,9 @@ package com.elster.jupiter.servicecall.rest.impl;
 
 
 public class ServiceCallChildrenInfo {
-    private String state;
-    private String stateDisplayName;
-    private Object percentage;
+    public String state;
+    public String stateDisplayName;
+    public Object percentage;
 
     public ServiceCallChildrenInfo() {
     }
