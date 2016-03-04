@@ -1,6 +1,7 @@
 package com.elster.jupiter.servicecall.examples.impl;
 
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 
 import org.osgi.service.component.annotations.Activate;
@@ -16,13 +17,13 @@ public class TestHandlerPleaseIgnore implements ServiceCallHandler {
 
     private static final Logger LOGGER = Logger.getLogger(TestHandlerPleaseIgnore.class.getName());
 
-    @Override
-    public void onEntry(DefaultState state) {
-        LOGGER.info("Entering state " + state.name());
-    }
-
     @Activate
     public void activate() {
         LOGGER.info("Activating TestHandlerPleaseIgnore");
+    }
+
+    @Override
+    public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
+        LOGGER.info("Entering state " + newState.name());
     }
 }
