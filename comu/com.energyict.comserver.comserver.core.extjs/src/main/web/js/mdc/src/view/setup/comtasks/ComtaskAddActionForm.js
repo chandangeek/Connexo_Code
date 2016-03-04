@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskAddActionForm', {
             },
             {
                 xtype: 'comtaskCommandCategoryCombo',
-                width: 500,
+                width: 570, // = width of combobox = 256
                 itemId: 'mdc-comtask-addAction-command-category-combo'
             },
             {

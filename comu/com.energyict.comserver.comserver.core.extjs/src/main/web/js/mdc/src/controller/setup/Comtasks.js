@@ -995,7 +995,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         actionComboBox = form.insert(2, {
             xtype: 'comtaskCommandCategoryActionCombo',
             itemId: 'mdc-comtask-addAction-action-combo',
-            width: 500
+            width: 570
         });
 
         actionsStore.getProxy().setExtraParam('category', newValue);
@@ -1111,7 +1111,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 break;
         }
         if (xtype) {
-            return Ext.widget(xtype, {labelWidth: 300, width: 700});
+            return Ext.widget(xtype, {labelWidth: 300, width: 570});
         }
         return null;
     },
@@ -1235,8 +1235,8 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         window.location.href = backUrl;
                         me.getApplication().fireEvent('acknowledge',
                             busyAdding
-                            ? Uni.I18n.translate('comtask.action.added', 'MDC', 'Action added')
-                            : Uni.I18n.translate('comtask.action.saved', 'MDC', 'Action saved')
+                                ? Uni.I18n.translate('comtask.action.added', 'MDC', 'Action added')
+                                : Uni.I18n.translate('comtask.action.saved', 'MDC', 'Action saved')
                         );
                         view.setLoading(false);
                     },

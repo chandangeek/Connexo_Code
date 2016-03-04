@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
             xtype: 'combo-with-toolbar',
             fieldLabel: Uni.I18n.translate('comtask.load.profile.type','MDC','Load profile type'),
             labelWidth: 300,
-            width: 500,
+            width: 570,
             itemId: 'checkProfileTypes',
             store: 'Mdc.store.LoadProfileTypes'
         },
