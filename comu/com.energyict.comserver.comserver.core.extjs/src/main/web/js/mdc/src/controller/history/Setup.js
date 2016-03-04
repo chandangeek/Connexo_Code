@@ -18,13 +18,6 @@ Ext.define('Mdc.controller.history.Setup', {
                     //privileges: Mdc.privileges.UsagePoint.canAdminWithInsight(),
                     action: 'showAddUsagePoint'
                 },
-                edit: {
-                    title: Uni.I18n.translate('general.addUsagePoint', 'MDC', 'Add usage point'),
-                    route: 'add',
-                    controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
-                    //privileges: Mdc.privileges.UsagePoint.canAdminWithInsight(),
-                    action: 'showAddUsagePoint'
-                },
                 usagepoint: {
                     title: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
                     //privileges: Mdc.privileges.UsagePoint.canViewWithInsight(),

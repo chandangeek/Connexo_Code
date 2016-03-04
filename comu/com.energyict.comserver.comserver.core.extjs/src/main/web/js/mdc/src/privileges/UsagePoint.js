@@ -6,27 +6,38 @@ Ext.define('Mdc.privileges.UsagePoint', {
 
     view: ['privilege.view.anyUsagePoint', 'privilege.view.ownUsagePoint', 'privilege.administer.ownUsagePoint', 'privilege.administer.anyUsagePoint'],
     admin: ['privilege.administer.ownUsagePoint', 'privilege.administer.anyUsagePoint'],
+    insightView: ['privilege.administer.anyUsagePoint', 'privilege.view.anyUsagePoint', 'privilege.administer.ownUsagePoint', 'privilege.view.ownUsagePoint'],
+    insightAdmin: ['privilege.administer.ownUsagePoint', 'privilege.administer.anyUsagePoint'],
     all: function () {
-        return Ext.Array.merge(Mdc.privileges.DataCollectionKpi.view, Mdc.privileges.DataCollectionKpi.admin);
+        return Ext.Array.merge(Mdc.privileges.UsagePoint.view, Mdc.privileges.UsagePoint.admin);
     },
     canView: function () {
-        return Uni.Auth.checkPrivileges(Mdc.privileges.DataCollectionKpi.view);
+        return Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.view);
     },
 
     canViewWithInsight: function () {
-        return !(this.checkApp('INS') && Uni.Auth.checkPrivileges(Mdc.privileges.DataCollectionKpi.view));
+        return !(this.checkApp('INS') && Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.view));
     },
     canAdmin: function () {
-        return Uni.Auth.checkPrivileges(Mdc.privileges.DataCollectionKpi.admin);
+        return Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.admin);
     },
     canAdminWithInsight: function () {
-        return !(this.checkApp('INS') && Uni.Auth.checkPrivileges(Mdc.privileges.DataCollectionKpi.admin));
+        return !(this.checkApp('INS') && Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.admin));
+    },
+    canViewInInsight: function () {
+        var result = false;
+        Mdc.privileges.UsagePoint.insightView.forEach(function (item) {
+            if (Uni.Auth.hasPrivilegeInApp(item, 'INS')) {
+                result = true;
+            }
+        });
+        return result;
     },
 
-    checkApp: function(app){
+    checkApp: function (app) {
         var status = false;
         Ext.Ajax.request({
-            url: '/api/apps/apps/status/'+ app,
+            url: '/api/apps/apps/status/' + app,
             method: 'GET',
             async: false,
             success: function (response) {
