@@ -13,12 +13,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+
 import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.inject.Provider;
 import javax.validation.ValidatorFactory;
@@ -26,6 +22,12 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -60,7 +62,7 @@ public class ServiceCategoryImplTest {
     @Before
     public void setUp() {
         Provider<UsagePointImpl> usagePointFactory = () -> new UsagePointImpl(clock, dataModel, eventService, thesaurus, meterActivationFactory, accountabilityFactory, customPropertySetService);
-        serviceCategory = new ServiceCategoryImpl(dataModel,usagePointFactory,thesaurus).init(ServiceKind.ELECTRICITY);
+        serviceCategory = new ServiceCategoryImpl(dataModel, clock, usagePointFactory, thesaurus).init(ServiceKind.ELECTRICITY);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), anyVararg())).thenReturn(Collections.emptySet());
@@ -102,7 +104,7 @@ public class ServiceCategoryImplTest {
     public void testNewUsagePoint() {
         when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, () -> null, () -> null, customPropertySetService));
 
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId").withInstallationTime(Instant.EPOCH).create();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId", Instant.EPOCH).create();
         assertThat(usagePoint).isInstanceOf(UsagePointImpl.class);
     }
 

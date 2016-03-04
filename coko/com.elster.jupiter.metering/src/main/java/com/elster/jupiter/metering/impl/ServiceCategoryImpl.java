@@ -16,6 +16,7 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,27 +53,29 @@ public class ServiceCategoryImpl implements ServiceCategory {
 	private String userName;
 
     private final DataModel dataModel;
+    private final Clock clock;
     private final Thesaurus thesaurus;
     private final Provider<UsagePointImpl> usagePointFactory;
 
     private List<ServiceCategoryCustomPropertySetUsage> serviceCategoryCustomPropertySetUsages = new ArrayList<>();
 
     @Inject
-	ServiceCategoryImpl(DataModel dataModel,Provider<UsagePointImpl> usagePointFactory, Thesaurus thesaurus) {
+	ServiceCategoryImpl(DataModel dataModel, Clock clock, Provider<UsagePointImpl> usagePointFactory, Thesaurus thesaurus) {
         this.dataModel = dataModel;
+        this.clock = clock;
         this.thesaurus = thesaurus;
         this.usagePointFactory = usagePointFactory;
     }
-	
+
 	ServiceCategoryImpl init(ServiceKind kind) {
 		this.kind = kind;
         return this;
 	}
 
-	public ServiceKind getKind() {	
+	public ServiceKind getKind() {
 		return kind;
 	}
-	
+
 	public long getId() {
 		return kind.ordinal() + 1;
 	}
@@ -81,7 +84,7 @@ public class ServiceCategoryImpl implements ServiceCategory {
 	public String getName() {
 		return kind.getDisplayName(thesaurus);
 	}
-	
+
 	@Override
 	public String getAliasName() {
 		return aliasName;
@@ -108,10 +111,15 @@ public class ServiceCategoryImpl implements ServiceCategory {
         dataModel.update(this);
     }
 
-    public UsagePointBuilder newUsagePoint(String mRid) {
-		return new UsagePointBuilderImpl(dataModel, mRid, this);
+    public UsagePointBuilder newUsagePoint(String mRID) {
+		return this.newUsagePoint(mRID, this.clock.instant());
 	}
-    
+
+    @Override
+    public UsagePointBuilder newUsagePoint(String mRID, Instant installationTime) {
+        return new UsagePointBuilderImpl(dataModel, mRID, installationTime, this);
+    }
+
     @Override
     public String getTranslationKey() {
         return ServiceKind.getTranslationKey(this.kind);
