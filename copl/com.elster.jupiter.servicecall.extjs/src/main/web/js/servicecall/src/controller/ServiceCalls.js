@@ -101,13 +101,9 @@ Ext.define('Scs.controller.ServiceCalls', {
                         view = Ext.widget('scs-landing-page', {serviceCallId: record.get('name')});
                         view.down('scs-landing-page-form').updateLandingPage(record);
                     }
-                    if (record.get('parents').length !== 0) {
-                        var parents = record.get('parents');
-                        parents.push({id:record.get('id'),name:record.get('name')});
-                        me.setBreadcrumb(parents);
-
-                    }
-
+                    var parents = record.get('parents');
+                    parents.push({id:record.get('id'),name:record.get('name')});
+                    me.setBreadcrumb(parents);
                     me.getApplication().fireEvent('changecontentevent', view);
 
                 },
