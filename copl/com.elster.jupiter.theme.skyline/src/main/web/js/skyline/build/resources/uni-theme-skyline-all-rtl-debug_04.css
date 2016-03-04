@@ -5925,6 +5925,19 @@
   border-radius: 5px;
 }
 
+/* line 1, ../../sass/src/window/Window.scss */
+.x-window-header-text {
+  color: #70BB51;
+  font-weight: bold;
+  line-height: 15px;
+  font-family: "Lato", helvetica, arial, verdana, sans-serif;
+  font-size: 16px;
+  margin-left: 24px;
+  margin-top: 14px;
+  text-transform: none;
+  display: inline-block;
+}
+
 /* line 1, ../../sass/src/form/field/RadioButton.scss */
 .x-form-radio {
   height: 15px !important;
@@ -13808,11 +13821,24 @@ a.x-datepicker-date:hover {
 
 /* line 1, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu {
-  /*  .#{$prefix}menu-item-disabled {
-      opacity: 1 !important;
-    }*/
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  -ms-border-radius: 8px;
+  -o-border-radius: 8px;
+  border-radius: 8px;
+  background: #ebebeb;
+  margin-bottom: 16px;
+  padding: 10px 12px !important;
 }
 /* line 7, ../../sass/src/menu/NavigationMenu.scss */
+.x-navigation-menu .x-panel-header {
+  font-family: 'Open Sans Condensed', helvetica, arial, verdana, sans-serif;
+  padding-left: 4px;
+  font-size: 24px;
+  color: #1e7d9e;
+  background: none;
+}
+/* line 15, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-body:before {
   border-left: 2px dotted #A0A0A0;
   bottom: 28px;
@@ -13821,45 +13847,42 @@ a.x-datepicker-date:hover {
   position: absolute;
   top: 28px;
 }
-/* line 16, ../../sass/src/menu/NavigationMenu.scss */
+/* line 24, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-body {
-  border-radius: 10px !important;
-  background: #ebebeb !important;
-  padding-top: 4px;
-  padding-bottom: 4px;
+  background: none;
 }
-/* line 23, ../../sass/src/menu/NavigationMenu.scss */
+/* line 28, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item {
   padding: 0 8px;
   height: 48px;
   background-color: transparent;
 }
-/* line 28, ../../sass/src/menu/NavigationMenu.scss */
+/* line 33, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item.not-a-clickable {
   cursor: default;
 }
-/* line 32, ../../sass/src/menu/NavigationMenu.scss */
+/* line 37, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item.not-a-clickable a,
 .x-navigation-menu .x-menu-item.not-a-clickable .x-menu-item-text {
   cursor: default;
 }
-/* line 38, ../../sass/src/menu/NavigationMenu.scss */
+/* line 43, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item:first-child {
   padding-top: 0 !important;
 }
-/* line 40, ../../sass/src/menu/NavigationMenu.scss */
+/* line 45, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item:first-child .x-menu-item-text {
   border-top: none !important;
 }
-/* line 45, ../../sass/src/menu/NavigationMenu.scss */
+/* line 50, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item:last-child {
   padding-bottom: 0 !important;
 }
-/* line 49, ../../sass/src/menu/NavigationMenu.scss */
+/* line 54, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item + .x-menu-item .x-menu-item-link {
   border-top: none !important;
 }
-/* line 53, ../../sass/src/menu/NavigationMenu.scss */
+/* line 58, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item .x-menu-item-text {
   border-top: 1px solid #a6a6a6;
   display: block;
@@ -13867,11 +13890,11 @@ a.x-datepicker-date:hover {
   line-height: 48px;
   overflow: hidden;
 }
-/* line 61, ../../sass/src/menu/NavigationMenu.scss */
+/* line 66, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .x-menu-item .x-menu-item-link {
   padding: 0 !important;
 }
-/* line 65, ../../sass/src/menu/NavigationMenu.scss */
+/* line 70, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .navigation-item-number {
   border: 1px solid transparent;
   border-radius: 50%;
@@ -13884,50 +13907,50 @@ a.x-datepicker-date:hover {
   width: 32px;
   letter-spacing: 1px;
 }
-/* line 78, ../../sass/src/menu/NavigationMenu.scss */
+/* line 83, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-completed .navigation-item-number {
   border-color: #a0a0a0;
   background-color: #ebebeb;
   color: #a0a0a0;
   font-weight: bold;
 }
-/* line 85, ../../sass/src/menu/NavigationMenu.scss */
+/* line 90, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-completed .x-menu-item-text {
   color: #a0a0a0 !important;
   font-weight: bold;
 }
-/* line 90, ../../sass/src/menu/NavigationMenu.scss */
+/* line 95, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-active .navigation-item-number {
   background-color: #70bb51;
   border-color: #70bb51;
   color: white;
   font-weight: bold;
 }
-/* line 97, ../../sass/src/menu/NavigationMenu.scss */
+/* line 102, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-active .x-menu-item-text {
   color: #70bb51 !important;
   font-weight: bold;
 }
-/* line 102, ../../sass/src/menu/NavigationMenu.scss */
+/* line 107, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-non-completed .navigation-item-number {
   background-color: #686868;
   border-color: #686868;
   color: white;
   font-weight: bold;
 }
-/* line 109, ../../sass/src/menu/NavigationMenu.scss */
+/* line 114, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-non-completed .x-menu-item-text {
   color: #686868 !important;
   font-weight: bold;
 }
-/* line 115, ../../sass/src/menu/NavigationMenu.scss */
+/* line 120, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-error .navigation-item-number {
   background-color: #eb5642;
   border-color: #eb5642;
   color: white;
   font-weight: bold;
 }
-/* line 122, ../../sass/src/menu/NavigationMenu.scss */
+/* line 127, ../../sass/src/menu/NavigationMenu.scss */
 .x-navigation-menu .step-error .x-menu-item-text {
   color: #eb5642 !important;
   font-weight: bold;
@@ -18173,15 +18196,4 @@ a.x-datepicker-date:hover {
 /* line 454, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-rtl.x-tab-bar-small .x-box-scroller-plain .x-tabbar-scroll-left {
   background-image: url(images/tab-bar/small-plain-scroll-right.png);
-}
-/* line 458, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
-.x-rtl.x-tab-bar-small .x-box-scroller-plain .x-tabbar-scroll-right {
-  background-image: url(images/tab-bar/small-plain-scroll-left.png);
-}
-
-/* line 559, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
-.x-tab-bar-small .x-box-scroller-disabled {
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=25);
-  opacity: 0.25;
-  cursor: default;
 }

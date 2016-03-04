@@ -7144,6 +7144,11 @@
   content: "\e368";
 }
 
+/* line 5096, ../../sass/src/fonts/Icomoon.scss */
+.icon-inprogress:before {
+  content: "\e4aa";
+}
+
 /* line 2, ../../sass/src/fonts/Icons.scss */
 .communication-tasks-status [class^="icon-"], .communication-tasks-status [class*=" icon-"] {
   margin: 10px 5px 10px 10px;
@@ -16873,20 +16878,4 @@ a:hover, a.x-btn:hover {
 .x-btn-action-toolbar-small-over .x-frame-mc {
   background-color: #5aa43b;
   background-image: url(images/btn/btn-action-toolbar-small-over-fbg.gif);
-}
-
-/* line 633, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-action-toolbar-small-menu-active .x-frame-tl,
-.x-btn-action-toolbar-small-menu-active .x-frame-bl,
-.x-btn-action-toolbar-small-menu-active .x-frame-tr,
-.x-btn-action-toolbar-small-menu-active .x-frame-br,
-.x-btn-action-toolbar-small-menu-active .x-frame-tc,
-.x-btn-action-toolbar-small-menu-active .x-frame-bc,
-.x-btn-action-toolbar-small-pressed .x-frame-tl,
-.x-btn-action-toolbar-small-pressed .x-frame-bl,
-.x-btn-action-toolbar-small-pressed .x-frame-tr,
-.x-btn-action-toolbar-small-pressed .x-frame-br,
-.x-btn-action-toolbar-small-pressed .x-frame-tc,
-.x-btn-action-toolbar-small-pressed .x-frame-bc {
-  background-image: url(images/btn/btn-action-toolbar-small-pressed-corners.gif);
 }

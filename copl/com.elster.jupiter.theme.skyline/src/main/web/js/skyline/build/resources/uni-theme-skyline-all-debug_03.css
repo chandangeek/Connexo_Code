@@ -1,3 +1,9 @@
+/* line 722, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-btn-tag-medium .x-btn-split-right {
+  background-image: url(images/button/tag-medium-s-arrow.png);
+  padding-right: 32px;
+}
+/* line 735, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-tag-medium .x-btn-split-bottom {
   background-image: url(images/button/tag-medium-s-arrow-b.png);
   padding-bottom: 28px;
@@ -15839,12 +15845,4 @@
 .x-panel-header-tile-bottom-mr {
   zoom: 1;
   background-image: url(images/panel-header/panel-header-tile-bottom-corners.gif);
-}
-
-/* line 418, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-panel-header-tile-bottom-ml,
-.x-panel-header-tile-bottom-mr {
-  zoom: 1;
-  background-image: url(images/panel-header/panel-header-tile-bottom-sides.gif);
-  background-repeat: repeat-y;
 }
