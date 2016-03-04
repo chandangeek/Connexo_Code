@@ -575,7 +575,7 @@ public class DataAggregationServiceImplCalculateIT {
 
     private void setupUsagePoint(String mRID) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        this.usagePoint = electricity.newUsagePoint(mRID).create();
+        this.usagePoint = electricity.newUsagePoint(mRID).withInstallationTime(jan1st2015).create();
     }
 
     private void activateMeterWithAll15MinChannels() {

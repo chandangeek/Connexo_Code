@@ -89,21 +89,21 @@ import static org.mockito.Mockito.when;
 
 /**
  * Integration tests for the {@link DataAggregationServiceImpl#calculate(UsagePoint, MetrologyContract, Range)} method
- * when flow to volume conversion (Watt -> WattHour) is required.
+ * when volume to flow conversion (WattHour -> Watt) is required.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2016-03-01 (16:05)
+ * @since 2016-03-03 (16:57)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
+public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
 
-    public static final String FIFTEEN_MINS_NET_CONSUMPTION_MRID = "0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0";
-    public static final String MONTHLY_NET_CONSUMPTION_MRID = "13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0";
+    public static final String FIFTEEN_MINS_NET_CONSUMPTION_MRID = "0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.3.38.0";
+    public static final String MONTHLY_NET_CONSUMPTION_MRID = "13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.3.38.0";
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private static Injector injector;
-    private static ReadingType fifteenMinuteskWForward;
-    private static ReadingType fifteenMinuteskWhReverse;
-    private static ReadingType hourlykWhReverse;
+    private static ReadingType fifteenMinuteskWhForward;
+    private static ReadingType fifteenMinuteskWReverse;
+    private static ReadingType hourlykWReverse;
     private static Instant jan1st2015 = Instant.ofEpochMilli(1420070400000L);
     private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
@@ -156,11 +156,11 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new MeteringModule(
-                            "0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.3.38.0",    // no macro period, measuring period =  15 min, primary metered, forward (kW)
-                            "0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0",   // no macro period, measuring period =  15 min, primary metered, reverse (kWh)
-                            "0.0.7.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0",   // no macro period, measuring period =  60 min, primary metered, reverse (kWh)
-                            "0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0",    // no macro period, measuring period =  15 min, primary metered, net     (kWh)
-                            "13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0"    // macro period: monthly, measuring period: none, primary metered, net   (kWh)
+                            "0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0",    // no macro period, measuring period =  15 min, primary metered, forward (kWh)
+                            "0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.3.38.0",   // no macro period, measuring period =  15 min, primary metered, reverse (kW)
+                            "0.0.7.1.19.2.12.0.0.0.0.0.0.0.0.3.38.0",   // no macro period, measuring period =  60 min, primary metered, reverse (kW)
+                            "0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.3.38.0",    // no macro period, measuring period =  15 min, primary metered, net     (kW)
+                            "13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.3.38.0"    // macro period: monthly, measuring period: none, primary metered, net   (kW)
                     ),
                     new UserModule(),
                     new PartyModule(),
@@ -199,9 +199,9 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
 
     private static void setupReadingTypes() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            fifteenMinuteskWForward = getMeteringService().getReadingType("0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.3.38.0").get();
-            fifteenMinuteskWhReverse = getMeteringService().getReadingType("0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            hourlykWhReverse = getMeteringService().getReadingType("0.0.7.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0").get();
+            fifteenMinuteskWhForward = getMeteringService().getReadingType("0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0").get();
+            fifteenMinuteskWReverse = getMeteringService().getReadingType("0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.3.38.0").get();
+            hourlykWReverse = getMeteringService().getReadingType("0.0.7.1.19.2.12.0.0.0.0.0.0.0.0.3.38.0").get();
             ctx.commit();
         }
     }
@@ -229,22 +229,22 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
     }
 
     /**
-     * Tests the simplest case of flow to volume unit conversion:
+     * Tests the simplest case of volume to flow unit conversion:
      * Metrology configuration
      *    requirements:
-     *       A- ::= any W  with flow = forward (aka consumption)
-     *       A+ ::= any Wh with flow = reverse (aka production)
+     *       A- ::= any Wh with flow = forward (aka consumption)
+     *       A+ ::= any W  with flow = reverse (aka production)
      *    deliverables:
-     *       netConsumption (15m kWh) ::= A- + A+
+     *       netConsumption (15m kW) ::= A- + A+
      * Device:
      *    meter activations:
      *       Jan 1st 2015 -> forever
-     *           A- -> 15 min kW
-     *           A+ -> 15 min kWh
+     *           A- -> 15 min kWh
+     *           A+ -> 15 min kW
      * In other words, the 2 requirements are provided by exactly
      * one matching channel from a single meter activation
-     * but the kW channel (A-) needs to be converted to kWh
-     * before summing it with the kWh channel (A+).
+     * but the kWh channel (A-) needs to be converted to kW
+     * before summing it with the kW channel (A+).
      */
     @Test
     @Transactional
@@ -280,9 +280,9 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));
         // Setup meter activations
-        when(consumption.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinuteskWForward));
+        when(consumption.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinuteskWhForward));
         when(consumption.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(this.consumption15MinChannel));
-        when(production.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinuteskWhReverse));
+        when(production.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinuteskWReverse));
         when(production.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(this.production15MinChannel));
 
         // Business method
@@ -313,7 +313,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
                     .matches("SELECT -1, rid97_99_1\\.timestamp,.*");
             // Assert that one of both requirements' values are added up in the select clause
             assertThat(this.netConsumptionWithClauseBuilder.getText())
-                    .matches("SELECT.*\\(rid97_99_1\\.value \\+ \\(rid98_99_1\\.value / 4\\)\\).*");
+                    .matches("SELECT.*\\(rid97_99_1\\.value \\+ \\(rid98_99_1\\.value \\* 4\\)\\).*");
             // Assert that the with clauses for both requirements are joined on the utc timestamp
             assertThat(this.netConsumptionWithClauseBuilder.getText())
                     .matches("SELECT.*JOIN rid98_99_1 ON rid98_99_1\\.timestamp = rid97_99_1\\.timestamp.*");
@@ -331,19 +331,19 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
      * is configured to produce monthly values:
      * Metrology configuration
      *    requirements:
-     *       A- ::= any W  with flow = forward (aka consumption)
-     *       A+ ::= any Wh with flow = reverse (aka production)
+     *       A- ::= any Wh with flow = forward (aka consumption)
+     *       A+ ::= any W  with flow = reverse (aka production)
      *    deliverables:
-     *       netConsumption (monthly kWh) ::= A- + A+
+     *       netConsumption (monthly kW) ::= A- + A+
      * Device:
      *    meter activations:
      *       Jan 1st 2015 -> forever
-     *           A- -> 15 min kW
-     *           A+ -> 15 min kWh
+     *           A- -> 15 min kWh
+     *           A+ -> 15 min kW
      * In other words, the 2 requirements are provided by exactly
      * one matching channel from a single meter activation
-     * but the kW channel (A-) needs to be converted to kWh
-     * before summing it with the kWh channel (A+)
+     * but the kWh channel (A-) needs to be converted to kW
+     * before summing it with the kW channel (A+)
      * Both are aggregated to monthly level at the definition level
      * so no aggregation is needed on deliverable level.
      * @see #simplestNetConsumptionOfProsumer()
@@ -382,9 +382,9 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));
         // Setup meter activations
-        when(consumption.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinuteskWForward));
+        when(consumption.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinuteskWhForward));
         when(consumption.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(this.consumption15MinChannel));
-        when(production.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinuteskWhReverse));
+        when(production.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinuteskWReverse));
         when(production.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(this.production15MinChannel));
 
         // Business method
@@ -421,7 +421,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
                     .matches("SELECT -1, rid97_99_1\\.timestamp,.*");
             // Assert that one of both requirements' values are added up in the select clause
             assertThat(this.netConsumptionWithClauseBuilder.getText())
-                    .matches("SELECT.*\\(rid97_99_1\\.value \\+ \\(rid98_99_1\\.value / 4\\)\\).*");
+                    .matches("SELECT.*\\(rid97_99_1\\.value \\+ \\(rid98_99_1\\.value \\* 4\\)\\).*");
             // Assert that the with clauses for both requirements are joined on the utc timestamp
             assertThat(this.netConsumptionWithClauseBuilder.getText())
                     .matches("SELECT.*JOIN rid98_99_1 ON rid98_99_1\\.timestamp = rid97_99_1\\.timestamp.*");
@@ -445,18 +445,18 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
      * again on the deliverable level:
      * Metrology configuration
      *    requirements:
-     *       A- ::= any W  with flow = forward (aka consumption)
-     *       A+ ::= any Wh with flow = reverse (aka production)
+     *       A- ::= any Wh with flow = forward (aka consumption)
+     *       A+ ::= any W  with flow = reverse (aka production)
      *    deliverables:
-     *       netConsumption (monthly kWh) ::= A- + (A+ * 2)
+     *       netConsumption (monthly kW) ::= A- + (A+ * 2)
      * Device:
      *    meter activations:
      *       Jan 1st 2015 -> forever
-     *           A- -> 15 min kW
-     *           A+ -> 60 min kWh
+     *           A- -> 15 min kWh
+     *           A+ -> 60 min kW
      * In other words, A+ and A- need aggregation to monthly values
      * before summing up but that achieves the requested monthly level.
-     * A- must be converted to kWh while aggregating it to monthly level.
+     * A- must be converted to kW while aggregating it to monthly level.
      * @see #monthlyNetConsumptionBasedOn15MinValuesOfProsumer()
      */
     @Test
@@ -496,9 +496,9 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));
         // Setup meter activations
-        when(consumption.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinuteskWForward));
+        when(consumption.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinuteskWhForward));
         when(consumption.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(this.consumption15MinChannel));
-        when(production.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(hourlykWhReverse));
+        when(production.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(hourlykWReverse));
         when(production.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(this.production60MinChannel));
 
         // Business method
@@ -535,7 +535,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
                     .matches("SELECT -1, rid98_99_1\\.timestamp,.*");
             // Assert that one of both requirements' values are added up in the select clause
             assertThat(this.netConsumptionWithClauseBuilder.getText())
-                    .matches("SELECT.*\\(\\(rid98_99_1\\.value\\s/\\s4\\)\\s\\+\\s*\\(rid97_99_1\\.value\\s*\\*\\s*\\?\\s*\\)\\).*");
+                    .matches("SELECT.*\\(\\(rid98_99_1\\.value\\s\\*\\s4\\)\\s\\+\\s*\\(rid97_99_1\\.value\\s*\\*\\s*\\?\\s*\\)\\).*");
             // Assert that the with clauses for both requirements are joined on the utc timestamp
             assertThat(this.netConsumptionWithClauseBuilder.getText())
                     .matches("SELECT.*JOIN rid97_99_1 ON rid97_99_1\\.timestamp = rid98_99_1\\.timestamp.*");
@@ -594,14 +594,14 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
 
     private void activateMeterWithAll15MinChannels() {
         this.meterActivation = this.usagePoint.activate(this.meter, jan1st2015);
-        this.production15MinChannel = this.meterActivation.createChannel(fifteenMinuteskWhReverse);
-        this.consumption15MinChannel = this.meterActivation.createChannel(fifteenMinuteskWForward);
+        this.production15MinChannel = this.meterActivation.createChannel(fifteenMinuteskWReverse);
+        this.consumption15MinChannel = this.meterActivation.createChannel(fifteenMinuteskWhForward);
     }
 
     private void activateMeterWith15And60MinChannels() {
         this.meterActivation = this.usagePoint.activate(this.meter, jan1st2015);
-        this.production60MinChannel = this.meterActivation.createChannel(hourlykWhReverse);
-        this.consumption15MinChannel = this.meterActivation.createChannel(fifteenMinuteskWForward);
+        this.production60MinChannel = this.meterActivation.createChannel(hourlykWReverse);
+        this.consumption15MinChannel = this.meterActivation.createChannel(fifteenMinuteskWhForward);
     }
 
     private String mRID2GrepPattern(String mRID) {
