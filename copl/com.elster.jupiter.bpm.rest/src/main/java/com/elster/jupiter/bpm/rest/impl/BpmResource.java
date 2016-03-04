@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Resource;
@@ -423,6 +424,27 @@ public class BpmResource {
         Optional<ProcessAssociationProvider> foundProvider = bpmService.getProcessAssociationProvider(info.type);
         List<PropertySpec> propertySpecs = foundProvider.isPresent() ? foundProvider.get()
                 .getPropertySpecs() : Collections.<PropertySpec>emptyList();
+
+        // This section is only required for 10.1 backward compatibility, as backend validators would break this
+        // When enabling backend validators, this section can be removed
+        List<Errors> err = new ArrayList<>();
+        if (info.properties.isEmpty()) {
+            for (PropertySpec propertySpec : propertySpecs) {
+                err.add(new Errors("properties." + propertySpec.getName(), MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
+            }
+        } else {
+            for (PropertyInfo property : info.properties) {
+                if (!property.getPropertyValueInfo().propertyHasValue) {
+                    err.add(new Errors("properties." + property.key, MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
+                }
+            }
+        }
+        if (info.privileges.isEmpty()) {
+            err.add(new Errors("privileges", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
+        }
+        if (!err.isEmpty()) {
+            return Response.status(400).entity(new LocalizedFieldException(err)).build();
+        }
 
         List<BpmProcessPrivilege> targetPrivileges = info.privileges.stream()
                 .map(s -> bpmService.createBpmProcessPrivilege(s.id, s.applicationName))
