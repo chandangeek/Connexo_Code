@@ -60,13 +60,15 @@ Ext.define('Idc.controller.history.Workspace', {
                                     privileges: Isu.privileges.Issue.viewAdminProcesses
                                 },
                                 viewProcesses: {
-                                    title: Uni.I18n.translate('general.viewProcesses','IDC','View processes'),
+                                    title: Uni.I18n.translate('general.processes','IDC','Processes'),
                                     route: 'processes',
                                     controller: 'Bpm.monitorissueprocesses.controller.MonitorIssueProcesses',
                                     action: 'showProcesses',
                                     privileges: Isu.privileges.Issue.viewProcesses,
                                     params: {
+                                        issueId: '',
                                         process: '',
+
                                     },
                                 }
                             }

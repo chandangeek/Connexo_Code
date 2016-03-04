@@ -38,6 +38,8 @@ Ext.define('Idc.controller.Detail', {
 
     ],
 
+    issueId: null,
+
     init: function () {
         this.control({
             'data-collection-issue-detail #data-collection-issue-comments #issue-comments-add-comment-button': {
@@ -74,8 +76,8 @@ Ext.define('Idc.controller.Detail', {
             router = me.getController('Uni.controller.history.Router'),
             route;
 
-
         route = router.getRoute(router.currentRoute + '/viewProcesses');
+        route.params.issueId = me.issueId;
         route.params.process = processId;
         route.forward();
 
@@ -84,6 +86,7 @@ Ext.define('Idc.controller.Detail', {
         var me = this,
             processStore = me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses');
 
+        me.issueId = id;
         processStore.getProxy().setUrl(id);
         processStore.load(function (records) {
                 });
