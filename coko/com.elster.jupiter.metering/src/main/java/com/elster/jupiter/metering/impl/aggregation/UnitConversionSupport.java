@@ -4,6 +4,8 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.util.units.Dimension;
 import com.elster.jupiter.util.units.Unit;
 
+import java.util.Arrays;
+
 /**
  * Provides support for unit conversion as part of data aggregation.
  *
@@ -147,7 +149,40 @@ class UnitConversionSupport {
     }
 
     static boolean sameDimension(ReadingTypeUnit first, ReadingTypeUnit second) {
-        return toDimension(first) == toDimension(second);
+        return toDimension(first).hasSameDimensions(toDimension(second));
+    }
+
+    static boolean isAllowedMultiplication(ReadingTypeUnit first, ReadingTypeUnit second) {
+        return isAllowedMultiplicationOrDivision(first, second, true);
+    }
+
+    static boolean isAllowedDivision(ReadingTypeUnit first, ReadingTypeUnit second) {
+        return isAllowedMultiplicationOrDivision(first, second, false);
+    }
+
+    private static boolean isAllowedMultiplicationOrDivision(ReadingTypeUnit first, ReadingTypeUnit second, boolean multiplication) {
+        Dimension firstDim = toDimension(first);
+        Dimension secondDim = toDimension(second);
+
+        int factor = (multiplication) ? 1 : -1;
+
+        int length = firstDim.getLengthDimension() + (secondDim.getLengthDimension() * factor);
+        int mass = firstDim.getMassDimension() + (secondDim.getMassDimension() * factor);
+        int time = firstDim.getTimeDimension() + (secondDim.getTimeDimension() * factor);
+        int current = firstDim.getCurrentDimension() + (secondDim.getCurrentDimension() * factor);
+        int temp = firstDim.getTemperatureDimension() + (secondDim.getTemperatureDimension() * factor);
+        int amount = firstDim.getAmountDimension() + (secondDim.getAmountDimension() * factor);
+        int luminous = firstDim.getLuminousIntensityDimension() + (secondDim.getLuminousIntensityDimension() * factor);
+
+        Dimension[] values = Dimension.values();
+        return Arrays.asList(values).stream().filter(dim ->
+                                (dim.getLengthDimension() == length) &&
+                                (dim.getMassDimension() == mass) &&
+                                (dim.getTimeDimension() == time) &&
+                                (dim.getCurrentDimension() == current) &&
+                                (dim.getTemperatureDimension() == temp) &&
+                                (dim.getAmountDimension() == amount) &&
+                                (dim.getLuminousIntensityDimension() == luminous)).findAny().isPresent();
     }
 
     private static Dimension toDimension(ReadingTypeUnit unit) {
