@@ -18,13 +18,6 @@ import com.elster.jupiter.metering.impl.cps.UsagePointTestCustomPropertySet;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.security.Principal;
 import java.time.Instant;
@@ -32,6 +25,14 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -86,8 +87,7 @@ public class UsagePointCustomPropertySetExtensionImplTestIT {
         return inMemoryBootstrapModule.getMeteringService()
                 .getServiceCategory(ServiceKind.ELECTRICITY)
                 .get()
-                .newUsagePoint(USAGE_POINT_MRID)
-                .withInstallationTime(Instant.EPOCH)
+                .newUsagePoint(USAGE_POINT_MRID, Instant.EPOCH)
                 .create();
     }
 
