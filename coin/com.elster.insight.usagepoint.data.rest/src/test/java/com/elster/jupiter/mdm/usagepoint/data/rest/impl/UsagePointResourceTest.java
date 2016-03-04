@@ -97,7 +97,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePointBuilder.withReadRoute(anyString())).thenReturn(usagePointBuilder);
         when(usagePointBuilder.withServiceDeliveryRemark(anyString())).thenReturn(usagePointBuilder);
         when(usagePointBuilder.withServicePriority(anyString())).thenReturn(usagePointBuilder);
-        when(usagePointBuilder.withInstallationTime(Instant.EPOCH)).thenReturn(usagePointBuilder);
         when(usagePointBuilder.withServiceLocationString(anyString())).thenReturn(usagePointBuilder);
         when(usagePointBuilder.create()).thenReturn(usagePoint);
         when(usagePointBuilder.validate()).thenReturn(usagePoint);
