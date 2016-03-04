@@ -19,13 +19,9 @@ import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
+
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -37,6 +33,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -88,7 +90,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
 
-        when(serviceCategory.newUsagePoint(anyString())).thenReturn(usagePointBuilder);
+        when(serviceCategory.newUsagePoint(anyString(), any(Instant.class))).thenReturn(usagePointBuilder);
         when(usagePointBuilder.withIsSdp(anyBoolean())).thenReturn(usagePointBuilder);
         when(usagePointBuilder.withIsVirtual(anyBoolean())).thenReturn(usagePointBuilder);
         when(usagePointBuilder.withName(anyString())).thenReturn(usagePointBuilder);
@@ -115,7 +117,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         when(clock.instant()).thenReturn(NOW);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
-        
+
         when(usagePoint.getMeter(any())).thenReturn(Optional.of(meter));
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
         when(usagePoint.getCreateDate()).thenReturn(Instant.now().minusSeconds(60*60*24));
@@ -131,21 +133,21 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         UsagePointCustomPropertySetExtension extension = mock(UsagePointCustomPropertySetExtension.class);
         when(extension.getAllPropertySets()).thenReturn(Collections.emptyList());
         when(usagePoint.forCustomProperties()).thenReturn(extension);
-      
+
         doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();
-        
+
         Range<Instant> intervalToNow = Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.now());
         when(meterActivation.getRange()).thenReturn(intervalToNow);
         when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel, register));
-        
+
         when(register.isRegular()).thenReturn(false);
         when(channel.isRegular()).thenReturn(true);
         when(register.getMeterActivation()).thenReturn(meterActivation);
         when(channel.getMeterActivation()).thenReturn(meterActivation);
         when(channel.getReadings(any())).thenReturn(Arrays.asList(irr1, irr2, irr3, irr4));
-        
+
         when(usagePointConfigurationService.findMetrologyConfigurationForUsagePoint(any())).thenReturn(Optional.empty());
-        
+
         when(validationService.getEvaluator()).thenReturn(evaluator);
         when(validationService.getEvaluator(eq(meter), any(Range.class))).thenReturn(evaluator);
         when(validationService.getLastChecked(any(MeterActivation.class))).thenReturn(Optional.of(NOW));
@@ -153,7 +155,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(notSuspect.getTypeCode()).thenReturn("0.0.0");
         when(suspect.getType()).thenReturn(new ReadingQualityType("3.5.258"));
         when(notSuspect.getType()).thenReturn(new ReadingQualityType("0.0.0"));
-        
+
         ReadingQualityType readingQualitySuspect = new ReadingQualityType("3.5.258");
         DataValidationStatus statusForSuspect = mockDataValidationStatus(readingQualitySuspect, false);
         when(evaluator.getValidationStatus(eq(channel), any(), any())).thenReturn(Arrays.asList(statusForSuspect, statusForSuspect, statusForSuspect, statusForSuspect));
@@ -162,7 +164,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testGetUsagePointInfo() {
-        
+
         when(securityContext.getUserPrincipal()).thenReturn(principal);
         when(principal.hasPrivilege(any(String.class), any(String.class))).thenReturn(true);
         UsagePointInfo response = target("usagepoints/MRID").request().get(UsagePointInfo.class);
