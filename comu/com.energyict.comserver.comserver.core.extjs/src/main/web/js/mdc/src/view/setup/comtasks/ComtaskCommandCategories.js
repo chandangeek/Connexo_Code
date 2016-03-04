@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCommandCategories', {
                         stepItems: [
                             {
                                 itemId: 'comtaskCreateCommandCategoryButton',
-                                text: Uni.I18n.translate('comtask.commandCategory.create', 'MDC', 'Add command category'),
+                                text: Uni.I18n.translate('comtask.commandCategories.add', 'MDC', 'Add command categories'),
                                 privileges: Mdc.privileges.Communication.admin,
                                 href: me.router.getRoute('administration/communicationtasks/view/commandcategories/add').buildUrl()
                             }
