@@ -3,34 +3,32 @@ package com.elster.jupiter.metering.imports.impl.usagepoint;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 
 import java.time.Instant;
+import java.util.Optional;
 
-/**
- * Created by antfom on 02.03.2016.
- */
-public class CustomPropertySetRecord {
+public class CustomPropertySetRecord extends FileImportRecord {
     private Instant versionId;
     private Instant startTime;
     private Instant endTime;
     private CustomPropertySetValues customPropertySetValues;
 
-    public Instant getVersionId() {
-        return versionId;
+    public Optional<Instant> getVersionId() {
+        return Optional.ofNullable(versionId);
     }
 
     public void setVersionId(Instant versionId) {
         this.versionId = versionId;
     }
 
-    public Instant getStartTime() {
-        return startTime;
+    public Optional<Instant> getStartTime() {
+        return Optional.ofNullable(startTime);
     }
 
     public void setStartTime(Instant startTime) {
         this.startTime = startTime;
     }
 
-    public Instant getEndTime() {
-        return endTime;
+    public Optional<Instant> getEndTime() {
+        return Optional.ofNullable(endTime);
     }
 
     public void setEndTime(Instant endTime) {

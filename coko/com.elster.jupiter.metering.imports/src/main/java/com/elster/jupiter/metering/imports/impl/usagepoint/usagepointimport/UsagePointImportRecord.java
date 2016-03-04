@@ -6,6 +6,7 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.imports.impl.usagepoint.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.usagepoint.FileImportRecord;
+import com.elster.jupiter.metering.imports.impl.usagepoint.FileImportRecordWithCustomProperties;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -16,7 +17,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
-public class UsagePointImportRecord extends FileImportRecord {
+public class UsagePointImportRecord extends FileImportRecordWithCustomProperties {
 
     //General
     private String mRID;
@@ -24,7 +25,7 @@ public class UsagePointImportRecord extends FileImportRecord {
     private Long serviceLocationID;
     private String serviceLocationString;
     private String name;
-    private ZonedDateTime installationTime;
+    private Instant installationTime;
     private String outageRegion;
     private String readRoute;
     private String servicePriority;
@@ -77,8 +78,6 @@ public class UsagePointImportRecord extends FileImportRecord {
 
 
     private Boolean allowUpdate;
-
-    private Map<CustomPropertySet, CustomPropertySetRecord> customPropertySets;
 
 
     public Optional<String> getmRID() {
@@ -349,24 +348,15 @@ public class UsagePointImportRecord extends FileImportRecord {
         this.nominalVoltageMultiplier = nominalVoltageMultiplier;
     }
 
-
     public void setNominalVoltageUnit(String nominalVoltageUnit) {
         this.nominalVoltageUnit = nominalVoltageUnit;
     }
 
-    public Map<CustomPropertySet, CustomPropertySetRecord> getCustomPropertySets() {
-        return customPropertySets;
-    }
-
-    public void setCustomPropertySets(Map<CustomPropertySet, CustomPropertySetRecord> customPropertySets) {
-        this.customPropertySets = customPropertySets;
-    }
-
     public Optional<Instant> getInstallationTime() {
-        return Optional.ofNullable(installationTime != null ? installationTime.toInstant() : null);
+        return Optional.ofNullable(installationTime);
     }
 
-    public void setInstallationTime(ZonedDateTime installationTime) {
+    public void setInstallationTime(Instant installationTime) {
         this.installationTime = installationTime;
     }
 

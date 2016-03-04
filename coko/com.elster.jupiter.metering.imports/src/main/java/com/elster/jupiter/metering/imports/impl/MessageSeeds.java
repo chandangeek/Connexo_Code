@@ -25,7 +25,9 @@ public enum MessageSeeds implements MessageSeed {
     IMPORT_USAGEPOINT_SERVICEKIND_INVALID(1014, Constants.IMPORT_USAGEPOINT_INVALID_SERVICEKIND, " Invalid service kind in line ''{0}''", Level.WARNING),
     IMPORT_USAGEPOINT_SERVICELOCATION_INVALID(1015, Constants.IMPORT_USAGEPOINT_INVALID_SERVICELOCATION, " Invalid service location in line ''{0}''. Attribute skipped.", Level.WARNING),
     IMPORT_USAGEPOINT_MRID_INVALID(1016, Constants.IMPORT_USAGEPOINT_INVALID_MRID, " Invalid mrid in line ''{0}''", Level.WARNING),
-    IMPORT_USAGEPOINT_PARSER_INVALID(1017, Constants.IMPORT_PARSER_INVALID, " Parser not found for ''{0}''", Level.WARNING);
+    IMPORT_USAGEPOINT_PARSER_INVALID(1017, Constants.IMPORT_PARSER_INVALID, " Parser not found for ''{0}''", Level.WARNING),
+
+    IMPORT_VERSIONED_VALUES_NOT_FOUND(2001, Constants.IMPORT_VERSIONED_VALUES_NOT_FOUND, " Versioned values found for start time ''{0}''", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -87,5 +89,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String IMPORT_USAGEPOINT_INVALID_SERVICEKIND = "up.invalid.service.kind";
         public static final String IMPORT_USAGEPOINT_INVALID_SERVICELOCATION = "up.invalid.service.location";
         public static final String IMPORT_PARSER_INVALID = "up.invalid.parser";
+        public static final String IMPORT_VERSIONED_VALUES_NOT_FOUND = "up.versioned.values.not.found";
     }
 }

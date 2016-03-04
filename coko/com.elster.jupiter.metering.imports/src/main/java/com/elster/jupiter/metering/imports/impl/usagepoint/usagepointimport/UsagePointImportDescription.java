@@ -4,6 +4,7 @@ package com.elster.jupiter.metering.imports.impl.usagepoint.usagepointimport;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.imports.impl.usagepoint.CustomPropertySetDescription;
 import com.elster.jupiter.metering.imports.impl.usagepoint.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.usagepoint.FileImportDescription;
 import com.elster.jupiter.metering.imports.impl.usagepoint.MeteringDataImporterContext;
@@ -21,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UsagePointImportDescription implements FileImportDescription<UsagePointImportRecord> {
+public class UsagePointImportDescription extends CustomPropertySetDescription implements FileImportDescription<UsagePointImportRecord> {
 
     private final DateParser dateParser;
     private final BigDecimalParser bigDecimalParser;
@@ -224,14 +225,9 @@ public class UsagePointImportDescription implements FileImportDescription<UsageP
                 .withSetter(record::setInterruptible)
                 .withName("interruptible")
                 .build());
+
         //Custom property Sets
-        fields.put("customPropertySetTime",CommonField
-                .withParser(dateParser)
-                .build());
-        fields.put("customPropertySetValue",CommonField
-                .withParser((FieldParser<Map<CustomPropertySet, CustomPropertySetRecord>>) value -> {throw new UnsupportedOperationException();})
-                .withSetter(record::setCustomPropertySets)
-                .build());
+        fields.putAll(super.getCustomPropertySetFields(dateParser,record));
 
         return fields;
     }

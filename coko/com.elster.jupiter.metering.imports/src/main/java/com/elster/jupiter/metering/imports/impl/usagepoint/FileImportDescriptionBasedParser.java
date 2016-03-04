@@ -65,13 +65,13 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
 
             if(dateParser instanceof DateParser){
                 if(csvRecord.isMapped(set.getId()+".versionId")){
-                    customPropertySetRecord.setStartTime(((DateParser)dateParser).parse(csvRecord.get(set.getId()+".versionId")).toInstant());
+                    customPropertySetRecord.setStartTime(((DateParser)dateParser).parse(csvRecord.get(set.getId()+".versionId")));
                 }
                 if(csvRecord.isMapped(set.getId()+".startTime")){
-                    customPropertySetRecord.setStartTime(((DateParser)dateParser).parse(csvRecord.get(set.getId()+".startTime")).toInstant());
+                    customPropertySetRecord.setStartTime(((DateParser)dateParser).parse(csvRecord.get(set.getId()+".startTime")));
                 }
                 if(csvRecord.isMapped(set.getId()+".endTime")){
-                    customPropertySetRecord.setStartTime(((DateParser)dateParser).parse(csvRecord.get(set.getId()+".endTime")).toInstant());
+                    customPropertySetRecord.setStartTime(((DateParser)dateParser).parse(csvRecord.get(set.getId()+".endTime")));
                 }
             }
 
@@ -82,6 +82,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
                 }
             }
             customPropertySetRecord.setCustomPropertySetValues(values);
+            customPropertySetRecord.setLineNumber(record.getLineNumber());
 
             if (!customPropertySetRecord.isEmpty()){
                 customPropertySetValues.put(set,customPropertySetRecord);
