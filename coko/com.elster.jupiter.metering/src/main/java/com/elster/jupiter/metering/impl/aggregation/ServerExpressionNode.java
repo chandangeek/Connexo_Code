@@ -14,6 +14,7 @@ public interface ServerExpressionNode {
     interface Visitor<T> {
         T visitConstant(NumericalConstantNode constant);
         T visitConstant(StringConstantNode constant);
+        T visitVariable(VariableReferenceNode variable);
         T visitVirtualRequirement(VirtualRequirementNode requirement);
         T visitVirtualDeliverable(VirtualDeliverableNode deliverable);
         T visitOperation(OperationNode operationNode);

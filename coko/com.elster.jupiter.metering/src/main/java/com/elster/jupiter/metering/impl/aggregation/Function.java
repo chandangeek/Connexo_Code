@@ -48,4 +48,15 @@ public enum Function {
         sqlBuilder.append(")");
     }
 
+    public void appendTo(StringBuilder sqlBuilder, List<String> arguments) {
+        // All currently known functions support only 1 argument
+        if (arguments.size() != 1) {
+            throw new IllegalArgumentException(this.name() + " takes exactly 1 argument but got " + arguments.size());
+        }
+        sqlBuilder.append(this.name());
+        sqlBuilder.append("(");
+        sqlBuilder.append(arguments.get(0));
+        sqlBuilder.append(")");
+    }
+
 }

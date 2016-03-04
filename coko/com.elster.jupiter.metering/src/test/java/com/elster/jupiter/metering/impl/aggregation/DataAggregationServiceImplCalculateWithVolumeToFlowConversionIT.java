@@ -432,7 +432,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
             /* Assert that the overall select statement sums up the values
              * from the with clause for the deliverable, using a group by
              * construct that truncs the localdate to month. */
-            assertThat(overallSelectWithoutNewlines).matches(".*[sum|SUM]\\(rod99_1\\.value\\).*");
+            assertThat(overallSelectWithoutNewlines).matches(".*[avg|AVG]\\(rod99_1\\.value\\).*");
             assertThat(overallSelectWithoutNewlines).matches(".*[trunc|TRUNC]\\(rod99_1\\.localdate, 'MONTH'\\).*");
             assertThat(overallSelectWithoutNewlines).matches(".*[group by trunc|GROUP BY TRUNC]\\(rod99_1\\.localdate, 'MONTH'\\).*");
         }
@@ -546,7 +546,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
             /* Assert that the overall select statement sums up the values
              * from the with clause for the deliverable, using a group by
              * construct that truncs the localdate to month. */
-            assertThat(overallSelectWithoutNewlines).matches(".*[sum|SUM]\\(rod99_1\\.value\\).*");
+            assertThat(overallSelectWithoutNewlines).matches(".*[avg|AVG]\\(rod99_1\\.value\\).*");
             assertThat(overallSelectWithoutNewlines).matches(".*[trunc|TRUNC]\\(rod99_1\\.localdate, 'MONTH'\\).*");
             assertThat(overallSelectWithoutNewlines).matches(".*[group by trunc|GROUP BY TRUNC]\\(rod99_1\\.localdate, 'MONTH'\\).*");
         }

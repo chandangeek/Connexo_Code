@@ -36,6 +36,11 @@ public class TimeStampFromExpressionNode implements ServerExpressionNode.Visitor
     }
 
     @Override
+    public String visitVariable(VariableReferenceNode variable) {
+        return FIXED_TIMESTAMP_VALUE;
+    }
+
+    @Override
     public String visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
         return deliverable.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName();
     }

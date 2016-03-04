@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.util.units.Dimension;
+import com.elster.jupiter.util.units.Unit;
 
 /**
  * Provides support for unit conversion as part of data aggregation.
@@ -83,6 +84,65 @@ class UnitConversionSupport {
                 // All others are not flow related
                 return false;
             }
+        }
+    }
+
+    static boolean isTemperatureRelated(ReadingTypeUnit unit) {
+        return unit.getUnit().getDimension().equals(Dimension.TEMPERATURE);
+    }
+
+    static boolean isPressureRelated(ReadingTypeUnit unit) {
+        return unit.getUnit().getDimension().equals(Dimension.PRESSURE);
+    }
+
+    /**
+     * Returns an expression tree that converts a variable from
+     * the specified {@link Unit source unit} to the target Unit.
+     *
+     * @param variable The VariableReferenceNode
+     * @param source The source Unit
+     * @param target The target Unit
+     * @return The expression tree that converts from source to target unit
+     * @throws UnsupportedOperationException Thrown when source and target Unit are not of the same {@link Dimension}
+     */
+    static ServerExpressionNode unitConversion(VariableReferenceNode variable, ReadingTypeUnit source, ReadingTypeUnit target) {
+        if (source.equals(target)) {
+            return variable;
+        } else if (!sameDimension(source, target)) {
+            throw new UnsupportedOperationException("Unit conversion from " + source + " to " + target + " is not supported yet");
+        } else {
+            return unitConversion(variable, source.getUnit(), target.getUnit());
+        }
+    }
+
+    private static ServerExpressionNode unitConversion(ServerExpressionNode value, Unit source, Unit target) {
+        Unit siUnit = Unit.getSIUnit(source.getDimension());
+        if (source.equals(siUnit)) {
+            /* Converting from SI to other
+             * value = (siValue - siDelta) * siDivisor / siMultiplier. */
+            return Operator.DIVIDE.node(
+                        Operator.MULTIPLY.node(
+                                Operator.MINUS.node(
+                                        value,
+                                        target.getSiDelta()),
+                                target.getSiDivisor()),
+                        target.getSiMultiplier());
+        } else if (target.equals(siUnit)) {
+            /* Converting to SI
+             * siValue = (value * siMultiplier / siDivisor) + siDelta. */
+            return Operator.PLUS.node(
+                    Operator.DIVIDE.node(
+                            Operator.MULTIPLY.node(
+                                    value,
+                                    source.getSiMultiplier()),
+                            source.getSiDivisor()),
+                    source.getSiDelta());
+        } else {
+            /* Convert to source to si and si to target */
+            return unitConversion(
+                        unitConversion(value, source, siUnit),
+                        siUnit,
+                        target);
         }
     }
 

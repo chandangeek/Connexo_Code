@@ -237,6 +237,54 @@ public class UnitConversionSupportTest {
         }
     }
 
+    @Test
+    public void kelvinToCelcius() {
+        VariableReferenceNode variable = new VariableReferenceNode("var");
+
+        // Business method
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.KELVIN, ReadingTypeUnit.DEGREESCELSIUS);
+
+        // Asserts
+        String conversion = expression.accept(new ExpressionNodeToString());
+        assertThat(conversion).isEqualTo("(var - 273.15)");
+    }
+
+    @Test
+    public void celciusToKelvin() {
+        VariableReferenceNode variable = new VariableReferenceNode("var");
+
+        // Business method
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.DEGREESCELSIUS, ReadingTypeUnit.KELVIN);
+
+        // Asserts
+        String conversion = expression.accept(new ExpressionNodeToString());
+        assertThat(conversion).isEqualTo("(273.15 + var)");
+    }
+
+    @Test
+    public void kelvinToFahrenheit() {
+        VariableReferenceNode variable = new VariableReferenceNode("var");
+
+        // Business method
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.KELVIN, ReadingTypeUnit.DEGREESFAHRENHEIT);
+
+        // Asserts
+        String conversion = expression.accept(new ExpressionNodeToString());
+        assertThat(conversion).isEqualTo("((9 * (var - 255.372222222222)) / 5)");
+    }
+
+    @Test
+    public void fahrenheitToKelvin() {
+        VariableReferenceNode variable = new VariableReferenceNode("var");
+
+        // Business method
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.DEGREESFAHRENHEIT, ReadingTypeUnit.KELVIN);
+
+        // Asserts
+        String conversion = expression.accept(new ExpressionNodeToString());
+        assertThat(conversion).isEqualTo("(255.372222222222 + ((5 * var) / 9))");
+    }
+
     private Set<ReadingTypeUnit> imperialLengthUnits() {
         return EnumSet.of(
                 ReadingTypeUnit.NAUTICALMILE,

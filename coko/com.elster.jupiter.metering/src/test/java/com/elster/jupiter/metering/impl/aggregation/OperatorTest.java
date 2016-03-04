@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -11,6 +12,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 2016-02-19 (11:23)
  */
 public class OperatorTest {
+
+    @Mock
+    private ServerExpressionNode node;
 
     @Test
     public void plus() {

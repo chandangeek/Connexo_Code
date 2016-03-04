@@ -33,14 +33,6 @@ enum AggregationFunction {
      */
     BIT_OR;
 
-    static AggregationFunction from(VirtualReadingType readingType) {
-        /* Todo: consider the unit of the ReadingType
-         *       flow units will use AVG
-         *       volume units will use SUM
-         */
-        return SUM;
-    }
-
     String sqlName() {
         return this.name();
     }

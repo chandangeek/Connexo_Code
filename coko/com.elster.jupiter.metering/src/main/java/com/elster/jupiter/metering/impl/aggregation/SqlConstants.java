@@ -155,7 +155,7 @@ final class SqlConstants {
 
             @Override
             AggregationFunction aggregationFunctionFor(VirtualReadingType readingType) {
-                return AggregationFunction.from(readingType);
+                return readingType.aggregationFunction();
             }
 
         },
