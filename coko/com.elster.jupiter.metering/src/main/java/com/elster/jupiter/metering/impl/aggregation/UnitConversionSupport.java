@@ -4,7 +4,7 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.util.units.Dimension;
 import com.elster.jupiter.util.units.Unit;
 
-import java.util.Arrays;
+import java.util.stream.Stream;
 
 /**
  * Provides support for unit conversion as part of data aggregation.
@@ -175,14 +175,16 @@ class UnitConversionSupport {
         int luminous = firstDim.getLuminousIntensityDimension() + (secondDim.getLuminousIntensityDimension() * factor);
 
         Dimension[] values = Dimension.values();
-        return Arrays.asList(values).stream().filter(dim ->
-                                (dim.getLengthDimension() == length) &&
-                                (dim.getMassDimension() == mass) &&
-                                (dim.getTimeDimension() == time) &&
-                                (dim.getCurrentDimension() == current) &&
-                                (dim.getTemperatureDimension() == temp) &&
-                                (dim.getAmountDimension() == amount) &&
-                                (dim.getLuminousIntensityDimension() == luminous)).findAny().isPresent();
+        return Stream.of(values)
+                .filter(dim -> dim.getLengthDimension() == length)
+                .filter(dim -> dim.getMassDimension() == mass)
+                .filter(dim -> dim.getTimeDimension() == time)
+                .filter(dim -> dim.getCurrentDimension() == current)
+                .filter(dim -> dim.getTemperatureDimension() == temp)
+                .filter(dim -> dim.getAmountDimension() == amount)
+                .filter(dim -> dim.getLuminousIntensityDimension() == luminous)
+                .findAny()
+                .isPresent();
     }
 
     private static Dimension toDimension(ReadingTypeUnit unit) {
