@@ -53,4 +53,7 @@ public enum DefaultState {
         }
     }
 
+    public boolean matches(State state) {
+        return getKey().equals(state.getName());
+    }
 }

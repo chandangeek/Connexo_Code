@@ -1,6 +1,7 @@
 package com.elster.jupiter.servicecall.impl.example;
 
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.impl.IServiceCallService;
 
@@ -31,8 +32,8 @@ public class DisconnectHandler implements ServiceCallHandler {
     }
 
     @Override
-    public void onEntry(DefaultState state) {
-        System.out.println("Now entering state " + state.getKey());
+    public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
+        System.out.println("Now entering state " + newState.getKey());
     }
 
     @Activate

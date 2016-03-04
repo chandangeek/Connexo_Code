@@ -169,7 +169,8 @@ public class ServiceCallTypeIT {
     @Test
     public void testInitServiceCallCreatesDefaultFSM() {
         try (TransactionContext context = transactionService.getContext()) {
-            Optional<ServiceCallLifeCycle> serviceCallLifeCycle = serviceCallService.getServiceCallLifeCycle(TranslationKeys.DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME.getKey());
+            Optional<ServiceCallLifeCycle> serviceCallLifeCycle = serviceCallService.getServiceCallLifeCycle(TranslationKeys.DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME
+                    .getKey());
             assertThat(serviceCallLifeCycle).isPresent();
         }
     }
@@ -351,7 +352,9 @@ public class ServiceCallTypeIT {
     @Test
     public void testUpdateServiceCallTypeLogLevel() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            serviceCallService.createServiceCallType("primer", "v1").handler("DisconnectHandler1").create();
+            serviceCallService.createServiceCallType("primer", "v1")
+                    .handler("DisconnectHandler1")
+                    .create();
             Optional<ServiceCallType> serviceCallTypeReloaded = serviceCallService.findServiceCallType("primer", "v1");
             assertThat(serviceCallTypeReloaded.get().getLogLevel()).isEqualTo(LogLevel.WARNING);
             serviceCallTypeReloaded.get().setLogLevel(LogLevel.SEVERE);

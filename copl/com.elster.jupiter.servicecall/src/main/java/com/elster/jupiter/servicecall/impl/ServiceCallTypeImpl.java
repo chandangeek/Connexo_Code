@@ -13,7 +13,6 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.Status;
 import com.elster.jupiter.util.conditions.Where;
 
@@ -31,6 +30,7 @@ import static java.util.stream.Collectors.toList;
  * Class models the type of a service call. The type defines the life cycle its service calls will abide by and links to
  * the custom properties that are available for use.
  */
+
 public class ServiceCallTypeImpl implements IServiceCallType {
     private long id;
     private String name;
@@ -56,10 +56,10 @@ public class ServiceCallTypeImpl implements IServiceCallType {
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
-    private final ServiceCallService serviceCallService;
+    private final IServiceCallService serviceCallService;
 
     @Inject
-    public ServiceCallTypeImpl(DataModel dataModel, ServiceCallService serviceCallService, Thesaurus thesaurus) {
+    public ServiceCallTypeImpl(DataModel dataModel, IServiceCallService serviceCallService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.serviceCallService = serviceCallService;
         this.thesaurus = thesaurus;
@@ -113,6 +113,10 @@ public class ServiceCallTypeImpl implements IServiceCallType {
 
     @Override
     public ServiceCallHandler getServiceCallHandler() {
+        return new LoggingServiceCallHandler(doGetServiceCallHandler(), thesaurus);
+    }
+
+    private ServiceCallHandler doGetServiceCallHandler() {
         return serviceCallService.findHandler(serviceCallHandler)
                 .orElseThrow(() -> new HandlerDisappearedException(thesaurus, MessageSeeds.HANDLER_DISAPPEARED, serviceCallHandler));
     }

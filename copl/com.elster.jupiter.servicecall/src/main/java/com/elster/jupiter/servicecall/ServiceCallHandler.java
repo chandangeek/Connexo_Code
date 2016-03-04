@@ -7,6 +7,20 @@ import aQute.bnd.annotation.ConsumerType;
  */
 @ConsumerType
 public interface ServiceCallHandler {
-    public void onEntry(DefaultState state);
 
+    /**
+     * The default implementation returns true, so implementers who never disallow needn't implement this method.
+     */
+    default boolean allowStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
+        return true;
+    }
+
+    /**
+     * @param serviceCall the child serviceCall
+     */
+    default void onChildStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
+        // do nothing by default
+    }
+
+    void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState);
 }

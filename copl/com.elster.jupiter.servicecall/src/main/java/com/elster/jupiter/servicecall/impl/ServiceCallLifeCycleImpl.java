@@ -1,8 +1,10 @@
 package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -10,9 +12,15 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LifeCycleIsStillInUseException;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.servicecall.ServiceCall;
+
+import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.Optional;
+
+import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 /**
  * Created by bvn on 2/4/16.
@@ -39,12 +47,15 @@ public class ServiceCallLifeCycleImpl implements IServiceCallLifeCycle {
 
     private long id;
     private String name;
-    private final DataModel dataModel;
     private Reference<FiniteStateMachine> finiteStateMachine = Reference.empty();
 
+    private final DataModel dataModel;
+    private final Clock clock;
+
     @Inject
-    public ServiceCallLifeCycleImpl(DataModel dataModel, Thesaurus thesaurus) {
+    public ServiceCallLifeCycleImpl(DataModel dataModel, Thesaurus thesaurus, Clock clock) {
         this.dataModel = dataModel;
+        this.clock = clock;
         this.thesaurus = thesaurus;
     }
 
@@ -63,11 +74,10 @@ public class ServiceCallLifeCycleImpl implements IServiceCallLifeCycle {
         this.finiteStateMachine.set(finiteStateMachine);
     }
 
-    public void save () {
+    public void save() {
         if (this.getId() > 0) {
             Save.UPDATE.save(this.dataModel, this, Save.Update.class);
-        }
-        else {
+        } else {
             Save.CREATE.save(this.dataModel, this, Save.Create.class);
         }
     }
@@ -96,5 +106,29 @@ public class ServiceCallLifeCycleImpl implements IServiceCallLifeCycle {
                 .isEmpty()) {
             throw new LifeCycleIsStillInUseException(thesaurus, MessageSeeds.LIFE_CYCLE_STILL_IN_USE, this);
         }
+    }
+    @Override
+    public void triggerTransition(ServiceCall serviceCall, DefaultState to) {
+
+        DefaultState from = serviceCall.getState();
+//        finiteStateMachine.get().getTransitions().get(0).getEventType()
+
+        CustomStateTransitionEventType eventType = decorate(finiteStateMachine.get().getTransitions()
+                .stream())
+                .filter(stateTransition -> to.matches(stateTransition.getTo()))
+                .filter(stateTransition -> from.matches(stateTransition.getFrom()))
+                .map(StateTransition::getEventType)
+                .filterSubType(CustomStateTransitionEventType.class)
+                .findAny()
+                .orElseThrow(IllegalArgumentException::new);
+
+        eventType.newInstance(
+                finiteStateMachine.get(),
+                String.valueOf(serviceCall.getId()),
+                from.getKey(),
+                clock.instant(),
+                ImmutableMap.of(ServiceCall.class.getName(), serviceCall))
+                .publish();
+
     }
 }

@@ -14,9 +14,15 @@ import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.fsm.impl.StateTransitionTriggerEventTopicHandler;
+import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.TranslationKey;
@@ -37,8 +43,8 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
-import com.elster.jupiter.servicecall.impl.example.DisconnectHandler;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -46,12 +52,14 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.json.JsonService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import org.hamcrest.Matchers;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -67,6 +75,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -77,11 +86,15 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.jayway.awaitility.Awaitility.await;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ServiceCallImplIT {
+public class ServiceCallTransitionIT {
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private final Instant now = ZonedDateTime.of(2016, 1, 8, 10, 0, 0, 0, ZoneId.of("UTC")).toInstant();
@@ -115,6 +128,7 @@ public class ServiceCallImplIT {
     private MyCustomPropertySet customPropertySet;
     private Person person;
     private PartyService partyService;
+    private JsonService jsonService;
 
     private class MockModule extends AbstractModule {
 
@@ -159,16 +173,18 @@ public class ServiceCallImplIT {
         transactionService.execute(new Transaction<Void>() {
 
 
+            private EventService eventService;
+
             @Override
             public Void perform() {
                 nlsService = injector.getInstance(NlsService.class);
                 customPropertySetService = injector.getInstance(CustomPropertySetService.class);
                 messageService = injector.getInstance(MessageService.class);
-                serviceCallService = injector.getInstance(IServiceCallService.class);
+                serviceCallService = (IServiceCallService) injector.getInstance(ServiceCallService.class);
                 propertySpecService = injector.getInstance(PropertySpecService.class);
                 partyService = injector.getInstance(PartyService.class);
-                new DisconnectHandler(serviceCallService);
-
+                jsonService = injector.getInstance(JsonService.class);
+                eventService = injector.getInstance(EventService.class);
 
                 customPropertySet = new MyCustomPropertySet(propertySpecService);
                 customPropertySetService.addCustomPropertySet(customPropertySet);
@@ -181,8 +197,17 @@ public class ServiceCallImplIT {
                 serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
                         .handler("someHandler")
                         .customPropertySet(registeredCustomPropertySet)
-                        .handler("DisconnectHandler1")
                         .create();
+
+                ServiceCallStateChangeTopicHandler serviceCallStateChangeTopicHandler = new ServiceCallStateChangeTopicHandler();
+                serviceCallStateChangeTopicHandler.setFiniteStateMachineService(injector.getInstance(FiniteStateMachineService.class));
+                serviceCallStateChangeTopicHandler.setJsonService(jsonService);
+                serviceCallStateChangeTopicHandler.setServiceCallService(serviceCallService);
+                EventServiceImpl eventService = (EventServiceImpl) this.eventService;
+                eventService.addTopicHandler(serviceCallStateChangeTopicHandler);
+                StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler();
+                stateTransitionTriggerEventTopicHandler.setEventService(eventService);
+                eventService.addTopicHandler(stateTransitionTriggerEventTopicHandler);
 
                 person = partyService.newPerson("Test", "test")
                         .create();
@@ -197,8 +222,10 @@ public class ServiceCallImplIT {
     }
 
     @Test
-    public void createAServiceCall() {
-        MyPersistentExtension extension = new MyPersistentExtension();
+    public void transitionServiceCall() {
+        when(serviceCallHandler.allowStateChange(any(), any(), any())).thenReturn(true);
+
+        MyExtension extension = new MyExtension();
         extension.setValue(BigDecimal.valueOf(65456));
 
         ServiceCall serviceCall = null;
@@ -214,35 +241,44 @@ public class ServiceCallImplIT {
 
         serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
 
-        assertThat(serviceCall.getState()).isEqualTo(DefaultState.CREATED);
-        assertThat(serviceCall.getExternalReference()).contains("external");
-        assertThat(serviceCall.getOrigin()).contains("CST");
-        assertThat((Optional<Object>) serviceCall.getTargetObject()).contains(person);
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCall.requestTransition(DefaultState.PENDING);
+            context.commit();
+        }
 
-        extension = serviceCall.getExtensionFor(customPropertySet).get();
+        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME).get();
 
-        assertThat(extension.getServiceCall()).isEqualTo(serviceCall);
-        assertThat(extension.getValue()).isEqualTo(BigDecimal.valueOf(65456));
+        try (TransactionContext context = transactionService.getContext()) {
+            Message message = await().atMost(200, TimeUnit.MILLISECONDS)
+                    .until(messageQueue::receive, Matchers.any(Message.class));
+
+            ServiceCallMessageHandler serviceCallMessageHandler = new ServiceCallMessageHandler(jsonService, serviceCallService);
+
+            serviceCallMessageHandler.process(message);
+
+            context.commit();
+        }
+
+        verify(serviceCallHandler).onStateChange(serviceCall, DefaultState.CREATED, DefaultState.PENDING);
+
+        serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
+
+        assertThat(serviceCall.getState()).isEqualTo(DefaultState.PENDING);
+
     }
 
     @Test
-    public void createAServiceCallWithAChild() {
-        MyPersistentExtension parentExtension = new MyPersistentExtension();
-        parentExtension.setValue(BigDecimal.valueOf(65456));
-        MyPersistentExtension extension = new MyPersistentExtension();
+    public void cancelServiceCall() {
+        when(serviceCallHandler.allowStateChange(any(), any(), any())).thenReturn(true);
+
+        MyExtension extension = new MyExtension();
         extension.setValue(BigDecimal.valueOf(65456));
 
-        ServiceCall parentServiceCall = null;
-        ServiceCall serviceCall = null;
+        ServiceCall serviceCall;
         try (TransactionContext context = transactionService.getContext()) {
-            parentServiceCall = serviceCallType.newServiceCall()
+            serviceCall = serviceCallType.newServiceCall()
                     .externalReference("external")
                     .origin("CST")
-                    .extendedWith(parentExtension)
-                    .create();
-            serviceCall = parentServiceCall.newChildCall(serviceCallType)
-                    .externalReference("externalChild")
-                    .origin("CSTchild")
                     .targetObject(person)
                     .extendedWith(extension)
                     .create();
@@ -250,49 +286,39 @@ public class ServiceCallImplIT {
         }
 
         serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
-        parentServiceCall = serviceCallService.getServiceCall(parentServiceCall.getId()).get();
 
-        assertThat(serviceCall.getState()).isEqualTo(DefaultState.CREATED);
-        assertThat(serviceCall.getExternalReference()).contains("externalChild");
-        assertThat(serviceCall.getOrigin()).contains("CSTchild");
-        assertThat((Optional<Object>) serviceCall.getTargetObject()).contains(person);
-        assertThat(serviceCall.getParent()).contains(parentServiceCall);
-
-        extension = serviceCall.getExtensionFor(customPropertySet).get();
-
-        assertThat(extension.getServiceCall()).isEqualTo(serviceCall);
-        assertThat(extension.getValue()).isEqualTo(BigDecimal.valueOf(65456));
-    }
-
-    @Test
-    public void createAServiceCallWithoutTargetObject() {
-        MyPersistentExtension extension = new MyPersistentExtension();
-        extension.setValue(BigDecimal.valueOf(65456));
-
-        ServiceCall serviceCall = null;
         try (TransactionContext context = transactionService.getContext()) {
-            serviceCall = serviceCallType.newServiceCall()
-                    .externalReference("external")
-                    .origin("CST")
-                    .extendedWith(extension)
-                    .create();
+            serviceCall.requestTransition(DefaultState.PENDING);
             context.commit();
         }
 
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCall.requestTransition(DefaultState.CANCELLED);
+            context.commit();
+        }
+
+        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME).get();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            Message message = await().atMost(500, TimeUnit.MILLISECONDS)
+                    .until(messageQueue::receive, Matchers.any(Message.class));
+
+            ServiceCallMessageHandler serviceCallMessageHandler = new ServiceCallMessageHandler(jsonService, serviceCallService);
+
+            serviceCallMessageHandler.process(message);
+
+            context.commit();
+        }
+
+        verify(serviceCallHandler).onStateChange(serviceCall, DefaultState.PENDING, DefaultState.CANCELLED);
+
         serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
 
-        assertThat(serviceCall.getState()).isEqualTo(DefaultState.CREATED);
-        assertThat(serviceCall.getExternalReference()).contains("external");
-        assertThat(serviceCall.getOrigin()).contains("CST");
-        assertThat((Optional<Object>) serviceCall.getTargetObject()).isEmpty();
+        assertThat(serviceCall.getState()).isEqualTo(DefaultState.CANCELLED);
 
-        extension = serviceCall.getExtensionFor(customPropertySet).get();
-
-        assertThat(extension.getServiceCall()).isEqualTo(serviceCall);
-        assertThat(extension.getValue()).isEqualTo(BigDecimal.valueOf(65456));
     }
 
-    static class MyPersistentExtension implements PersistentDomainExtension<ServiceCall> {
+    static class MyExtension implements PersistentDomainExtension<ServiceCall> {
 
         private Reference<ServiceCall> serviceCall = ValueReference.absent();
         private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = ValueReference.absent();
@@ -326,7 +352,7 @@ public class ServiceCallImplIT {
         }
     }
 
-    private static class MyCustomPropertySet implements CustomPropertySet<ServiceCall, MyPersistentExtension> {
+    private static class MyCustomPropertySet implements CustomPropertySet<ServiceCall, MyExtension> {
 
         private final PropertySpecService propertySpecService;
 
@@ -346,8 +372,8 @@ public class ServiceCallImplIT {
         }
 
         @Override
-        public PersistenceSupport<ServiceCall, MyPersistentExtension> getPersistenceSupport() {
-            return new PersistenceSupport<ServiceCall, MyPersistentExtension>() {
+        public PersistenceSupport<ServiceCall, MyExtension> getPersistenceSupport() {
+            return new PersistenceSupport<ServiceCall, MyExtension>() {
                 @Override
                 public String componentName() {
                     return "CST";
@@ -369,8 +395,8 @@ public class ServiceCallImplIT {
                 }
 
                 @Override
-                public Class<MyPersistentExtension> persistenceClass() {
-                    return MyPersistentExtension.class;
+                public Class<MyExtension> persistenceClass() {
+                    return MyExtension.class;
                 }
 
                 @Override

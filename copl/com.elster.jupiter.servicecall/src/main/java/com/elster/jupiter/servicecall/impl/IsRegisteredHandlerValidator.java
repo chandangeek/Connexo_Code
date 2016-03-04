@@ -1,7 +1,5 @@
 package com.elster.jupiter.servicecall.impl;
 
-import com.elster.jupiter.servicecall.ServiceCallService;
-
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -11,10 +9,10 @@ import javax.validation.ConstraintValidatorContext;
  */
 public class IsRegisteredHandlerValidator implements ConstraintValidator<IsRegisteredHandler, String> {
 
-    private final ServiceCallService serviceCallService;
+    private final IServiceCallService serviceCallService;
 
     @Inject
-    public IsRegisteredHandlerValidator(ServiceCallService serviceCallService) {
+    public IsRegisteredHandlerValidator(IServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
     }
 
