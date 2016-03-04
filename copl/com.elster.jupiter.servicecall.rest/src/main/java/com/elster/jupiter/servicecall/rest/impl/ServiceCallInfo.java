@@ -4,6 +4,7 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.servicecall.DefaultState;
 
 import java.util.List;
+import java.util.Map;
 
 public class ServiceCallInfo {
     public long id;
@@ -18,7 +19,7 @@ public class ServiceCallInfo {
     public Object targetObject;
     public List<IdWithNameInfo> parents;
     public String type;
-    public boolean hasChildren;
+    public List<ServiceCallChildrenInfo> childrenInfo;
 
     public ServiceCallInfo() {
 

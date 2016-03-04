@@ -1,19 +1,28 @@
 package com.elster.jupiter.servicecall.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class ServiceCallInfoFactory {
 
-    public ServiceCallInfo detailed(ServiceCall serviceCall, Map<String, Long> childrenInformation) {
+    private final Thesaurus thesaurus;
+
+    @Inject
+    public ServiceCallInfoFactory(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+    }
+
+    public ServiceCallInfo detailed(ServiceCall serviceCall, Map<DefaultState, Long> childrenInformation) {
         ServiceCallInfo serviceCallInfo = new ServiceCallInfo();
         serviceCallInfo.id  = serviceCall.getId();
         serviceCallInfo.name = serviceCall.getNumber();
@@ -64,10 +73,11 @@ public class ServiceCallInfoFactory {
         Collections.reverse(serviceCallInfo.parents);
     }
 
-    private void addChildrenInfo(ServiceCallInfo serviceCallInfo, Map<String, Long> childrenInformation) {
-        if (childrenInformation.size() > 0) {
-            serviceCallInfo.hasChildren = true;
-        }
+    private void addChildrenInfo(ServiceCallInfo serviceCallInfo, Map<DefaultState, Long> childrenInformation) {
+        serviceCallInfo.childrenInfo = new ArrayList<>();
+
+        childrenInformation.keySet().stream()
+                .forEach(key -> serviceCallInfo.childrenInfo.add(new ServiceCallChildrenInfo(key.name(), key.getDisplayName(thesaurus), childrenInformation.get(key))));
     }
 
 }
