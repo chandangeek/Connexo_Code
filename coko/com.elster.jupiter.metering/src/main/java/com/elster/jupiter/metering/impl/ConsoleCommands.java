@@ -186,13 +186,13 @@ public class ConsoleCommands {
 
     public void createUsagePoint() {
         System.out.println("Usage: createUsagePoint <mRID>");
-
     }
+
     public void createUsagePoint(String mrId, String timestamp) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            UsagePointImpl usagePoint = (UsagePointImpl) meteringService.getServiceCategory(ServiceKind.WATER).get().newUsagePoint(mrId).withInstallationTime(Instant.parse(timestamp)).create();
             context.commit();
+            meteringService.getServiceCategory(ServiceKind.WATER).get().newUsagePoint(mrId, Instant.parse(timestamp)).create();
         } finally {
             threadPrincipalService.clear();
         }

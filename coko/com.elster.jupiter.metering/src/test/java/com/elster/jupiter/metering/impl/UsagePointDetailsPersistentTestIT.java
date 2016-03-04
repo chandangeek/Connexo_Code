@@ -41,7 +41,7 @@ public class UsagePointDetailsPersistentTestIT {
     public void testSaveEmpty(){
 
         UsagePoint up = inMemoryPersistentModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY)
-                .get().newUsagePoint("test").withInstallationTime(Instant.EPOCH).create();
+                .get().newUsagePoint("test", Instant.EPOCH).create();
 
         UsagePointFilter usagePointFilter = new UsagePointFilter();
             usagePointFilter.setMrid("*");
@@ -58,7 +58,7 @@ public class UsagePointDetailsPersistentTestIT {
     public void testSaveWithGasDetails(){
 
         UsagePoint up = inMemoryPersistentModule.getMeteringService().getServiceCategory(ServiceKind.GAS)
-                .get().newUsagePoint("test").withInstallationTime(inMemoryPersistentModule.getClock().instant().minusSeconds(1000)).create();
+                .get().newUsagePoint("test", inMemoryPersistentModule.getClock().instant().minusSeconds(1000)).create();
 
         up.newGasDetailBuilder(inMemoryPersistentModule.getClock().instant())
                 .withCollar(YesNoAnswer.YES)
@@ -105,7 +105,7 @@ public class UsagePointDetailsPersistentTestIT {
     public void testSaveWithWaterDetails(){
 
         UsagePoint up = inMemoryPersistentModule.getMeteringService().getServiceCategory(ServiceKind.WATER)
-                .get().newUsagePoint("test").withInstallationTime(inMemoryPersistentModule.getClock().instant().minusSeconds(1000)).create();
+                .get().newUsagePoint("test", inMemoryPersistentModule.getClock().instant().minusSeconds(1000)).create();
 
         up.newWaterDetailBuilder(inMemoryPersistentModule.getClock().instant())
                 .withCollar(YesNoAnswer.YES)
@@ -150,7 +150,7 @@ public class UsagePointDetailsPersistentTestIT {
     public void testSaveWithHeatDetails(){
 
         UsagePoint up = inMemoryPersistentModule.getMeteringService().getServiceCategory(ServiceKind.HEAT)
-                .get().newUsagePoint("test").withInstallationTime(inMemoryPersistentModule.getClock().instant().minusSeconds(1000)).create();
+                .get().newUsagePoint("test", inMemoryPersistentModule.getClock().instant().minusSeconds(1000)).create();
 
         up.newHeatDetailBuilder(inMemoryPersistentModule.getClock().instant())
                 .withCollar(YesNoAnswer.YES)

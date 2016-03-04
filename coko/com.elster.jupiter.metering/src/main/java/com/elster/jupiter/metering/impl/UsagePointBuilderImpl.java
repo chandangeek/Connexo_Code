@@ -29,9 +29,10 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     private ServiceCategory serviceCategory;
     private ServiceLocation serviceLocation;
 
-    public UsagePointBuilderImpl(DataModel dataModel, String mRID, ServiceCategory serviceCategory) {
+    public UsagePointBuilderImpl(DataModel dataModel, String mRID, Instant installationTime, ServiceCategory serviceCategory) {
         this.serviceCategory = serviceCategory;
         this.mRID = mRID;
+        this.installationTime = installationTime;
         this.dataModel = dataModel;
     }
 
