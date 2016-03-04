@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.FormulaPart;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.NodeBuilder;
+import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
@@ -24,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class FormulaCrudTest {
 
-    private static MetrologyInMemoryBootstrapModule inMemoryBootstrapModule = new MetrologyInMemoryBootstrapModule();
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
 
     @BeforeClass
     public static void setUp() {
@@ -262,6 +263,37 @@ public class FormulaCrudTest {
             assertThat(operation.getOperator().equals(Operator.PLUS));
         }
     }
+
+    @Test
+    // formula by using the builder = max(10, plus(10, 0)) function call + operator call + constants
+    public void test4LevelNodeStructureCrudUsingParser()  {
+
+        Formula.Mode myMode = Formula.Mode.EXPERT;
+        Function myFunction = Function.MAX;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            MetrologyConfigurationService service = getMetrologyConfigurationService();
+
+            String formulaString = "max(constant(1), min(constant(2), constant(3), constant(4)))";
+            ExpressionNode node = new ExpressionNodeParser().parse("max(constant(1), min(constant(2), constant(3), constant(4)))");
+
+            Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
+
+            context.commit();
+            long formulaId = formula.getId();
+            Optional<Formula> loadedFormula = service.findFormula(formulaId);
+            assertThat(loadedFormula).isPresent();
+            Formula myFormula = loadedFormula.get();
+            assertThat(myFormula.getId() == formulaId);
+            assertThat(myFormula.getMode().equals(myMode));
+            ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
+
+
+            assertThat(myNode.equals(node));
+
+            assertThat(myNode.toString().equals(formulaString));
+        }
+    }
+
 
 
     @Test
