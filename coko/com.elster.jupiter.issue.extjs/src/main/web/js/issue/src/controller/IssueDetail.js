@@ -132,6 +132,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 commentsView.show();
                 commentsView.previousSibling('#no-issue-comments').setVisible(!records.length && !router.queryParams.addComment);
                 commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && Isu.privileges.Issue.canComment());
+                me.loadTimeline(commentsStore);
                 Ext.resumeLayouts(true);
                 commentsView.setLoading(false);
             }
@@ -180,6 +181,7 @@ Ext.define('Isu.controller.IssueDetail', {
             commentsStore.load(function (records) {
                 this.add(records);
                 commentsView.setLoading(false);
+                me.loadTimeline(this);
             })
         }});
 
