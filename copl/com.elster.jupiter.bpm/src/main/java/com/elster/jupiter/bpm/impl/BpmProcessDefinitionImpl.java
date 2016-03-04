@@ -23,7 +23,9 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@HasValidProperties(groups = {Save.Create.class, Save.Update.class}, requiredPropertyMissingMessage = "{" + MessageSeeds.Constants.FIELD_CAN_NOT_BE_EMPTY + "}")
+// Cannot use validators as we need to be 10.1 backward compatible;
+// but they can be used latter when we will no longer need to maintain compatibility with 10.1
+//@HasValidProperties(groups = {Save.Create.class, Save.Update.class}, requiredPropertyMissingMessage = "{" + MessageSeeds.Constants.FIELD_CAN_NOT_BE_EMPTY + "}")
 public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
 
     private final BpmService bpmService;
@@ -37,11 +39,13 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     // Deprecated, for 10.1 compatibility only
     private List<BpmProcessDeviceState> processDeviceStates = new ArrayList<>();
 
-    @Valid
-    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_CAN_NOT_BE_EMPTY + "}")
+    // Cannot use validators as we need to be 10.1 backward compatible
+    //@Valid
+    //@Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_CAN_NOT_BE_EMPTY + "}")
     private List<BpmProcessPrivilege> processPrivileges = new ArrayList<>();
 
-    @Valid
+    // Cannot use validators as we need to be 10.1 backward compatible
+    //@Valid
     private List<BpmProcessProperty> properties = new ArrayList<>();
 
     @Inject
