@@ -22,7 +22,7 @@ public class BogusHandler implements ServiceCallHandler {
 
     @Activate
     public void activate() {
-        System.err.println("Activating disconnect handler");
+        System.err.println("Activating bogus handler");
     }
 
     @Override
