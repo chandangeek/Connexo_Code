@@ -35,16 +35,15 @@ Ext.define('Mdc.usagepointmanagement.view.Setup', {
                     {
                         xtype: 'button',
                         itemId: 'usage-point-landing-actions-btn',
-                        disabled: true,
                         text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                         style: {
                             'background-color': '#71adc7'
                         },
                         iconCls: 'x-uni-action-iconD',
                         menu: {
-                            //xtype: 'usage-point-action-menu',
-                            //itemId: 'usagePointActionMenu',
-                            //router: me.router
+                            xtype: 'usage-point-action-menu',
+                            itemId: 'usagePointActionMenu',
+                            router: me.router
                         }
                     }
                 ]
@@ -64,39 +63,50 @@ Ext.define('Mdc.usagepointmanagement.view.Setup', {
                 ]
             }
         ];
-        this.callParent(arguments);
 
-        me.down('#usagePointSetupPanel').add(
+        panel.items = [
             {
                 xtype: 'panel',
+                ui: 'large',
+                itemId: 'usagePointSetupPanel',
                 layout: {
-                    type: 'hbox'
-                },
-                defaults: {
-                    style: {
-                        marginRight: '20px',
-                        padding: '20px'
-                    },
-                    flex: 1
+                    type: 'fit',
+                    align: 'stretch'
                 },
                 items: [
                     {
-                        xtype: 'metrology-configuration',
-                        router: me.router
-                    },
-                    {
                         xtype: 'panel',
-                        ui: 'tile',
-                        itemId: 'usage-point-attributes-panel',
-                        router: me.router,
+                        layout: {
+                            type: 'hbox'
+                        },
+                        defaults: {
+                            style: {
+                                marginRight: '20px',
+                                padding: '20px'
+                            },
+                            flex: 1
+                        },
                         items: [
                             {
-                                xtype: 'usagePointAttributesFormMain'
+                                xtype: 'metrology-configuration',
+                                router: me.router
+                            },
+                            {
+                                xtype: 'panel',
+                                ui: 'tile',
+                                itemId: 'usage-point-attributes-panel',
+                                router: me.router,
+                                items: [
+                                    {
+                                        xtype: 'usagePointAttributesFormMain'
+                                    }
+                                ]
                             }
                         ]
                     }
                 ]
             }
-        );
+        ];
+        this.callParent(arguments);
     }
 });

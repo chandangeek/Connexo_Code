@@ -24,7 +24,10 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
 
     init: function () {
         this.control({
-            'add-usage-point-form #usagePointAddSaveButton': {
+            'add-usage-point-form #usagePointAddButton': {
+                click: this.saveUsagePoint
+            },
+            'edit-usage-point-form #usagePointSaveButton': {
                 click: this.saveUsagePoint
             }
         });
@@ -34,33 +37,34 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             usagePointModel = me.getModel('Mdc.usagepointmanagement.model.UsagePoint'),
-            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            attributesForm;
+            serviceCategories = me.getStore('Mdc.usagepointmanagement.store.ServiceCategories'),
+            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
         pageMainContent.setLoading(true);
 
         usagePointModel.load(id, {
             success: function (record) {
                 me.getApplication().fireEvent('usagePointLoaded', record);
-                var widget = Ext.widget('usage-point-management-setup', {router: router});
-                attributesForm = me.getAttributesPanel().down('usagePointAttributesFormMain');
-
-
-                me.getApplication().fireEvent('changecontentevent', widget);
-                attributesForm.loadRecord(record);
-
+                var widget = Ext.widget('usage-point-management-setup', {router: router, mRID: record.get('mRID')});
+                widget.down('usagePointAttributesFormMain').loadRecord(record);
                 me.loadMeterActivations(id);
+                serviceCategories.load({
+                    callback: function () {
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                    }
+                });
             }
         });
     },
 
-    loadMeterActivations: function(id){
-        var me =this,
+    loadMeterActivations: function (id) {
+        var me = this,
             router = me.getController('Uni.controller.history.Router'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             store = me.getStore('Mdc.usagepointmanagement.store.MeterActivations'),
             metrologyConfiguration = me.getMetrologyConfiguration();
         store.getProxy().setExtraParam('usagePointId', id);
+        Ext.suspendLayouts();
         store.load({
             callback: function () {
                 store.each(function (item) {
@@ -82,7 +86,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
                             {
                                 xtype: 'displayfield',
                                 value: Ext.String.format(Uni.I18n.translate('usagePointManagement.fromDate', 'MDC', "from '{0}'")
-                                    , Uni.DateTime.formatDateTimeShort(new Date(item.get('start'))) )
+                                    , Uni.DateTime.formatDateTimeShort(new Date(item.get('start'))))
                             }
                         );
                     } else {
@@ -105,7 +109,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
                                 xtype: 'displayfield',
                                 value: Ext.String.format(Uni.I18n.translate('usagePointManagement.fromToDate', 'MDC', "from {0} to {1}")
                                     , Uni.DateTime.formatDateTimeShort(new Date(item.get('start')))
-                                    , Uni.DateTime.formatDateTimeShort(new Date(item.get('end'))) )
+                                    , Uni.DateTime.formatDateTimeShort(new Date(item.get('end'))))
                             }
                         );
                     }
@@ -113,6 +117,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
                 pageMainContent.setLoading(false);
             }
         });
+        Ext.resumeLayouts(true);
     },
 
     showAddUsagePoint: function () {
@@ -120,35 +125,68 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
             router = me.getController('Uni.controller.history.Router'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
-
         pageMainContent.setLoading(true);
-        var widget = Ext.widget('add-usage-point-setup', {router: router});
+        var widget = Ext.widget('add-usage-point-setup', {router: router, edit: false});
         me.getApplication().fireEvent('changecontentevent', widget);
         pageMainContent.setLoading(false);
     },
 
-    saveUsagePoint: function () {
-        var me =this,
+    showEditUsagePoint: function (id) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            usagePointModel = me.getModel('Mdc.usagepointmanagement.model.UsagePoint'),
+            serviceCategories = me.getStore('Mdc.usagepointmanagement.store.ServiceCategories'),
+            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+
+        pageMainContent.setLoading(true);
+
+        usagePointModel.load(id, {
+            success: function (record) {
+                me.usagePoint = record;
+                me.getApplication().fireEvent('usagePointLoaded', record);
+                me.getApplication().fireEvent('editUsagePointLoaded', record);
+                var widget = Ext.widget('add-usage-point-setup', {
+                    router: router,
+                    edit: true,
+                    mRID: record.get('mRID')
+                });
+                widget.down('#add-edit-form').loadRecord(record);
+                serviceCategories.load({
+                    callback: function () {
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                        pageMainContent.setLoading(false);
+                    }
+                });
+            }
+        });
+    },
+
+    saveUsagePoint: function (btn) {
+        var me = this,
             router = me.getController('Uni.controller.history.Router'),
             viewport = Ext.ComponentQuery.query('viewport')[0],
-            usagePointModel = Ext.create('Mdc.usagepointmanagement.model.UsagePoint');
-        me.getAddUsagePointPanel().down('add-usage-point-form').updateRecord(usagePointModel);
+            usagePointModel = me.usagePoint || Ext.create('Mdc.usagepointmanagement.model.UsagePoint');
+        me.getAddUsagePointPanel().down('#add-edit-form').updateRecord(usagePointModel);
+
 
         viewport.setLoading(true);
-        me.getAddUsagePointPanel().down('add-usage-point-form').getForm().clearInvalid();
+        me.getAddUsagePointPanel().down('#add-edit-form').getForm().clearInvalid();
         usagePointModel.save({
             success: function (record) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.added', 'MDC', "Usage point '{0}' added.", record.get('mRID')));
+                if (btn.action == 'save') {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.added', 'MDC', "Usage point '{0}' saved.", record.get('mRID')));
+                } else {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.added', 'MDC', "Usage point '{0}' added.", record.get('mRID')));
+                }
                 router.getRoute('usagepoints/usagepoint').forward({usagePointId: record.get('id')});
             },
             failure: function (record, operation) {
                 if (operation.response.status == 400) {
-                    var errorText = Uni.I18n.translate('general.error.unknown', 'MDC', 'Unknown error occurred');
                     if (!Ext.isEmpty(operation.response.responseText)) {
                         var json = Ext.decode(operation.response.responseText, true);
                         if (json && json.errors) {
                             me.getAddUsagePointPanel().down('uni-form-error-message').show();
-                            me.getAddUsagePointPanel().down('add-usage-point-form').getForm().markInvalid(json.errors);
+                            me.getAddUsagePointPanel().down('#add-edit-form').getForm().markInvalid(json.errors);
                         }
                     }
                 }
@@ -157,8 +195,6 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
                 viewport.setLoading(false);
             }
         })
-
-
     }
 });
 

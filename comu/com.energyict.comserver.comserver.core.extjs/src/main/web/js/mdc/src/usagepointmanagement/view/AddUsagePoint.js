@@ -4,27 +4,39 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePoint', {
     itemId: 'add-usage-point-setup',
     requires: [
         'Uni.util.FormErrorMessage',
-        'Mdc.usagepointmanagement.view.AddUsagePointForm'
+        'Mdc.usagepointmanagement.view.AddUsagePointForm',
+        'Mdc.usagepointmanagement.view.EditUsagePointForm'
     ],
     router: null,
-    content: [
-        {
-            xtype: 'panel',
-            ui: 'large',
-            itemId: 'add-usage-point-panel',
-            title: Uni.I18n.translate('general.addUsagePoint', 'MDC', 'Add usage point'),
-            items: [
-                {
-                    xtype: 'uni-form-error-message',
-                    name: 'errors',
-                    hidden: true,
-                    width: 600,
-                    margin: '0 0 10 0'
-                },
-                {
-                    xtype : 'add-usage-point-form'
-                }
-            ]
-        }
-    ]
+    mRID: null,
+
+    initComponent: function () {
+        var me = this;
+
+        me.content =[
+            {
+                xtype: 'panel',
+                ui: 'large',
+                itemId: 'add-usage-point-panel',
+                title: me.edit ? Uni.I18n.translate('general.editUsagePoint', 'MDC', "Edit '{0}'", me.mRID) : Uni.I18n.translate('general.addUsagePoint', 'MDC', 'Add usage point'),
+                items: [
+                    {
+                        xtype: 'uni-form-error-message',
+                        name: 'errors',
+                        hidden: true,
+                        width: 600,
+                        margin: '0 0 10 0'
+                    },
+                    {
+                        xtype : me.edit ? 'edit-usage-point-form' : 'add-usage-point-form' ,
+                        itemId: 'add-edit-form',
+                        router: me.router,
+                        mRID: me.mRID
+                    }
+                ]
+            }
+        ];
+
+        this.callParent(arguments);
+    }
 });

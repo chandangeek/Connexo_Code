@@ -35,7 +35,6 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePointForm', {
             itemId: 'fld-up-serviceCategory',
             required: true,
             editable: false,
-            queryMode: 'remote',
             width: 600,
             fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.serviceCategory', 'MDC', 'Service category'),
         },
@@ -59,8 +58,8 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePointForm', {
                     text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                     xtype: 'button',
                     ui: 'action',
-                    action: 'save',
-                    itemId: 'usagePointAddSaveButton'
+                    action: 'add',
+                    itemId: 'usagePointAddButton'
                 },
                 {
                     text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),

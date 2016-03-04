@@ -18,6 +18,13 @@ Ext.define('Mdc.controller.history.Setup', {
                     //privileges: Mdc.privileges.UsagePoint.canAdminWithInsight(),
                     action: 'showAddUsagePoint'
                 },
+                edit: {
+                    title: Uni.I18n.translate('general.addUsagePoint', 'MDC', 'Add usage point'),
+                    route: 'add',
+                    controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
+                    //privileges: Mdc.privileges.UsagePoint.canAdminWithInsight(),
+                    action: 'showAddUsagePoint'
+                },
                 usagepoint: {
                     title: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
                     //privileges: Mdc.privileges.UsagePoint.canViewWithInsight(),
@@ -33,6 +40,21 @@ Ext.define('Mdc.controller.history.Setup', {
                         return this;
                     },
                     items: {
+                        edit: {
+                            title: Uni.I18n.translate('general.editUsagePoint', 'MDC', 'Edit usage point'),
+                            route: 'edit',
+                            controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
+                            //privileges: Mdc.privileges.UsagePoint.canAdminWithInsight(),
+                            action: 'showEditUsagePoint',
+                            callback: function (route) {
+                                this.getApplication().on('editUsagePointLoaded', function (record) {
+                                    route.setTitle(Uni.I18n.translate('general.editUsagePoint', 'MDC', "Edit '{0}'", record.get('mRID')));
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            },
+                        },
                         startprocess: {
                             title: Uni.I18n.translate('usagePoint.startProcess', 'MDC', 'Start process'),
                             route: 'processes/start',

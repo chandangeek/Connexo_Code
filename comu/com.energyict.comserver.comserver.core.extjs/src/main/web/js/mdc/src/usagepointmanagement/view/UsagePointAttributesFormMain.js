@@ -41,11 +41,19 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointAttributesFormMain', {
                         name: 'serviceCategory',
                         itemId: 'fld-up-serviceCategory',
                         fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.serviceCategory', 'MDC', 'Service category'),
+                        renderer: function (value) {
+                            var store = Ext.getStore('Mdc.usagepointmanagement.store.ServiceCategories'),
+                                record = store.findRecord('name', value);
+                            return record.get('displayName');
+                        }
                     },
                     {
-                        name: 'created',
+                        name: 'installationTime',
                         itemId: 'fld-up-created',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.created', 'MDC', 'Created')
+                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.created', 'MDC', 'Created'),
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
+                        }
                     }
                 ]
             }
