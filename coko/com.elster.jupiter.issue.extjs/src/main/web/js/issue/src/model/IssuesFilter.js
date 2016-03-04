@@ -4,10 +4,12 @@ Ext.define('Isu.model.IssuesFilter', {
         'Uni.data.proxy.QueryStringProxy'
     ],
     fields: [
+        'issueType',
         'status',
         'assignee',
         'reason',
         'meter',
+        'dueDate',
         'grouping',
         'sorting'
     ],

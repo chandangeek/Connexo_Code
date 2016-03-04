@@ -23,10 +23,15 @@ Ext.define('Isu.view.issues.Grid', {
                 dataIndex: 'title',
                 flex: 2,
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute(me.router.currentRoute + '/view').buildUrl({issueId: record.getId()});
-
+                    var url = me.router.getRoute(me.router.currentRoute + '/view').buildUrl({issueId: record.getId()}, {issueType: record.get('issueType').uid});
                     return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                 }
+            },
+            {
+                itemId: 'issues-grid-type',
+                header: Uni.I18n.translate('general.type', 'ISU', 'Type'),
+                dataIndex: 'issueType_name',
+                width: 140
             },
             {
                 itemId: 'issues-grid-due-date',

@@ -3,13 +3,65 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
     stores: [
         'Isu.store.IssueStatuses',
-        'Isu.store.UserList'
+        'Isu.store.UserList',
+        'Isu.store.IssuesBuffered',
+        'Isu.store.BulkChangeIssues'
     ],
 
     views: [
         'Isu.view.issues.bulk.Browse',
         'Isu.view.issues.MessagePanel'
     ],
+
+    refs: [
+        {
+            ref: 'page',
+            selector: 'bulk-browse'
+        },
+        {
+            ref: 'bulkNavigation',
+            selector: 'bulk-browse bulk-navigation'
+        }
+    ],
+
+    dataCollectionActivated: false,
+    dataValidationActivated: false,
+
+    listeners: {
+        retryRequest: function (wizard, failedItems) {
+            this.setFailedBulkRecordIssues(failedItems);
+            this.onWizardFinishedEvent(wizard);
+        }
+    },
+
+    init: function () {
+        this.control({
+            'bulk-browse bulk-wizard': {
+                wizardnext: this.onWizardNextEvent,
+                wizardprev: this.onWizardPrevEvent,
+                wizardstarted: this.onWizardStartedEvent,
+                wizardfinished: this.onWizardFinishedEvent,
+                wizardcancelled: this.onWizardCancelledEvent
+            },
+            'bulk-browse bulk-navigation': {
+                movetostep: this.setActivePage
+            },
+            'bulk-browse bulk-wizard bulk-step2 radiogroup': {
+                change: this.onStep2RadiogroupChangeEvent,
+                afterrender: this.getDefaultStep2Operation
+            },
+            'bulk-browse bulk-wizard bulk-step3 issues-close-form radiogroup': {
+                change: this.onStep3RadiogroupCloseChangeEvent,
+                afterrender: this.getDefaultCloseStatus
+            },
+            'bulk-browse bulk-step4': {
+                beforeactivate: this.beforeStep4
+            },
+            'bulk-browse bulk-wizard bulk-step3 issues-close-form': {
+                beforerender: this.issueClosingFormBeforeRenderEvent
+            }
+        });
+    },
 
     issueClosingFormBeforeRenderEvent: function (form) {
         var statusesContainer = form.down('[name=status]'),
@@ -40,15 +92,14 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         }
     },
 
-    showOverview: function (issueType, bundlePrefix) {
+    showOverview: function () {
         var me = this,
-            issuesStore = this.getStore(bundlePrefix + '.store.IssuesBuffered'),
+            issuesStore = this.getStore('Isu.store.IssuesBuffered'),
             issuesStoreProxy = issuesStore.getProxy(),
             queryStringValues = Uni.util.QueryString.getQueryStringValues(false),
             filter = [],
             widget, grid;
 
-        me.bundlePrefix = bundlePrefix;
         issuesStoreProxy.extraParams = {};
         if (queryStringValues.sort) {
             issuesStoreProxy.setExtraParam('sort', queryStringValues.sort);
@@ -69,9 +120,11 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             });
         });
 
-        widget = Ext.widget('bulk-browse', {
-            itemId: issueType + '-bulk-browse'
-        });
+        widget = Ext.widget('bulk-browse');
+        widget.down('#Close').setVisible(me.dataCollectionActivated);
+        widget.down('#retry-comtask-radio').setVisible(me.dataCollectionActivated);
+        widget.down('#retry-comtask-now-radio').setVisible(me.dataCollectionActivated);
+        widget.down('#retry-connection-radio').setVisible(me.dataCollectionActivated);
         grid = widget.down('bulk-step1').down('issues-selection-grid');
         grid.reconfigure(issuesStore);
         grid.filterParams = Ext.clone(filter);
@@ -121,10 +174,8 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         });
     },
 
-    onBulkActionEvent: function (issueType) {
-        var widget = Ext.widget('bulk-browse', {
-            itemId: issueType + '-bulk-browse'
-        });
+    onBulkActionEvent: function () {
+        var widget = Ext.widget('bulk-browse');
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
@@ -177,7 +228,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             requestData = me.getRequestData(record),
             operation = record.get('operation'),
             isRetry = (operation == 'retrycomm') || (operation == 'retrycommnow') || (operation == 'retryconn'),
-            requestUrl = '/api/' + me.bundlePrefix.toLowerCase() + '/issues/' + operation,
+            requestUrl = operation == 'assign' ? '/api/isu/issues/' + operation : '/api/idc/issues/' + operation,
             warnIssues = [],
             failedIssues = [],
             params = [],
@@ -459,8 +510,8 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         return requestData;
     },
 
-    onWizardCancelledEvent: function (issueType) {
-        this.getController('Uni.controller.history.Router').getRoute('workspace/' + issueType + 'issues').forward();
+    onWizardCancelledEvent: function () {
+        this.getController('Uni.controller.history.Router').getRoute('workspace/issues').forward();
     },
 
     setBulkActionListActiveItem: function (wizard) {
@@ -474,7 +525,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     },
 
     getBulkRecord: function () {
-        var bulkStore = Ext.getStore(this.bundlePrefix + '.store.BulkChangeIssues'),
+        var bulkStore = Ext.getStore('Isu.store.BulkChangeIssues'),
             bulkRecord = bulkStore.getAt(0);
 
         if (!bulkRecord) {

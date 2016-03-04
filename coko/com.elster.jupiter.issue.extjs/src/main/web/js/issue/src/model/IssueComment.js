@@ -36,7 +36,7 @@ Ext.define('Isu.model.IssueComment', {
     ],
     proxy: {
         type: 'rest',
-        url: '/api/idc/issues/{issue_id}/comments',
+        url: '/api/isu/issues/{issue_id}/comments',
         reader: {
             type: 'json',
             root: 'comments'

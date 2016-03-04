@@ -18,7 +18,9 @@ Ext.define('Isu.controller.StartProcess', {
     showStartProcess: function (issueId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            fromDetails = router.queryParams.details === 'true',
+            queryParamsForBackUrl = fromDetails ? router.queryParams : null;
 
         viewport.setLoading();
 
@@ -47,8 +49,8 @@ Ext.define('Isu.controller.StartProcess', {
                                 value: issueId
                             }
                         ],
-                        successLink: router.getRoute(router.currentRoute.replace('/startProcess', '')).buildUrl({issueId: issueId}),
-                        cancelLink: router.getRoute(router.currentRoute.replace(router.queryParams.details  === "true" ? '/startProcess': '/view/startProcess', '')).buildUrl({issueId: issueId})
+                        successLink: router.getRoute(router.currentRoute.replace('/startProcess', '')).buildUrl({issueId: issueId}, queryParamsForBackUrl),
+                        cancelLink: router.getRoute(router.currentRoute.replace(fromDetails ? '/startProcess': '/view/startProcess', '')).buildUrl({issueId: issueId}, queryParamsForBackUrl)
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
