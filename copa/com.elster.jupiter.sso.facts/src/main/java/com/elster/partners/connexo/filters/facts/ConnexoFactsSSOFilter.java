@@ -3,7 +3,10 @@ package com.elster.partners.connexo.filters.facts;
 import com.elster.partners.connexo.filters.generic.ConnexoAbstractSSOFilter;
 import com.elster.partners.connexo.filters.generic.ConnexoPrincipal;
 
-import javax.servlet.*;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -16,7 +19,9 @@ import java.util.Optional;
 public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws
+            IOException,
+            ServletException {
 
         final HttpServletRequest request = (HttpServletRequest) servletRequest;
         final HttpServletResponse response = (HttpServletResponse) servletResponse;
@@ -28,11 +33,10 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
 
         ConnexoPrincipal principal = (ConnexoPrincipal) request.getUserPrincipal();
 
-        if(principal == null || isForbidden(request, principal)){
+        if (principal == null || isForbidden(request, principal)) {
             // Not authenticated; redirect to login
             redirectToLogin(request, response);
-        }
-        else {
+        } else {
             if (isLogoutRequest(request)) {
                 clearSession(request);
                 redirectToLogout(request, response);
@@ -41,10 +45,9 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
                     authenticate(principal, request, response);
                 } else {
                     // When navigating to root, Yellowfin always assumes logon, so we need to get around that
-                    if(isRootRequest(request)){
+                    if (isRootRequest(request)) {
                         redirectToEntry(request, response);
-                    }
-                    else {
+                    } else {
                         filterChain.doFilter(request, response);
                     }
                 }
@@ -53,7 +56,8 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
     }
 
     private boolean isForbidden(HttpServletRequest request, ConnexoPrincipal principal) {
-        return !request.getRequestURI().startsWith("/facts/services/") && !request.getRequestURI().equals("/facts/JsAPI") && !principal.getRoles().contains("Report designer");
+        return !request.getRequestURI().startsWith("/facts/services/") && !request.getRequestURI()
+                .equals("/facts/JsAPI") && !principal.getRoles().contains("Report designer");
     }
 
     private void redirectToEntry(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -64,7 +68,7 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
         return request.getRequestURI().replace('/', ' ').trim().equals("facts");
     }
 
-    private void clearSession(HttpServletRequest request){
+    private void clearSession(HttpServletRequest request) {
         request.getSession().setAttribute("SessionData", null);
     }
 
@@ -73,7 +77,7 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
     }
 
     private boolean isLogoutRequest(HttpServletRequest request) {
-        if(request.getRequestURI().contains("/logoff.i4")) {
+        if (request.getRequestURI().contains("/logoff.i4")) {
             return true;
         }
 
@@ -81,16 +85,19 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
     }
 
     private boolean isLoginRequest(HttpServletRequest request) {
-        if( request.getRequestURI().startsWith(request.getContextPath() + "/logon.i4") && request.getParameter("LoginWebserviceId") != null) {
+        if (request.getRequestURI()
+                .startsWith(request.getContextPath() + "/logon.i4") && request.getParameter("LoginWebserviceId") != null) {
             return true;
         }
 
         return false;
     }
 
-    private void authenticate(ConnexoPrincipal principal, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private void authenticate(ConnexoPrincipal principal, HttpServletRequest request, HttpServletResponse response) throws
+            IOException {
 
-        ConnexoFactsWebServiceManager manager = new ConnexoFactsWebServiceManager(this.properties, request.getServerPort(), request.getContextPath(), request.getProtocol());
+        ConnexoFactsWebServiceManager manager = new ConnexoFactsWebServiceManager(this.properties, request.getLocalPort(), request
+                .getContextPath(), request.getProtocol());
 
         Optional<String> result = manager.getUser(principal.getName());
         if (!result.isPresent() || !result.get().equals("SUCCESS")) {
@@ -101,7 +108,10 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
             result = manager.login(principal.getName());
 
             if (result.isPresent()) {
-                response.sendRedirect(request.getRequestURL().substring(0, request.getRequestURL().indexOf(request.getRequestURI())) + request.getContextPath() + "/logon.i4?LoginWebserviceId=" +result.get());
+                response.sendRedirect(request.getRequestURL()
+                        .substring(0, request.getRequestURL()
+                                .indexOf(request.getRequestURI())) + request.getContextPath() + "/logon.i4?LoginWebserviceId=" + result
+                        .get());
             }
         }
     }
