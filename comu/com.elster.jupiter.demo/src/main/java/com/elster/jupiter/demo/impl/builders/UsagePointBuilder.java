@@ -40,13 +40,14 @@ public class UsagePointBuilder extends NamedBuilder<UsagePoint, UsagePointBuilde
 
     @Override
     public Optional<UsagePoint> find() {
-        if (this.mRID == null)
+        if (this.mRID == null) {
             throw new IllegalStateException("mRID cannot be null");
+        }
         return meteringService.findUsagePoint(this.mRID);
     }
 
     @Override
     public UsagePoint create() {
-        return meteringService.getServiceCategory(serviceKind).get().newUsagePoint(mRID).withName(getName()).withInstallationTime(installationTime).create();
+        return meteringService.getServiceCategory(serviceKind).get().newUsagePoint(mRID, installationTime).withName(getName()).create();
     }
 }
