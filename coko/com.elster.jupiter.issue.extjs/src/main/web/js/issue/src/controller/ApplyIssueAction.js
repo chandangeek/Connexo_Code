@@ -5,11 +5,35 @@ Ext.define('Isu.controller.ApplyIssueAction', {
         'Isu.view.issues.ActionView'
     ],
 
-    showOverview: function (issueModelClass, issueId, actionId, widgetItemId) {
+    stores: [
+        'Isu.store.Issues'
+    ],
+
+    refs: [
+        {
+            ref: 'page',
+            selector: 'issue-action-view'
+        },
+        {
+            ref: 'form',
+            selector: 'issue-action-view #issue-action-view-form'
+        }
+    ],
+
+    init: function () {
+        this.control({
+            'issue-action-view issue-action-form #issue-action-apply': {
+                click: this.applyAction
+            }
+        });
+    },
+
+    showOverview: function (issueId, actionId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            actionModel = Ext.create(issueModelClass).actions().model,
-            issueModel = me.getModel(issueModelClass),
+            issueType = router.queryParams.issueType,
+            actionModel = Ext.create('Isu.model.Issue').actions().model,
+            issueModel,
             fromOverview = router.queryParams.fromOverview === 'true',
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             dependenciesCounter = 2,
@@ -28,11 +52,12 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                         me.applyAction(null, null, actionRecord, clipboard.get('issue') || issueRecord);
                         clipboard.clear('issue');
                     } else {
-                        var widget = Ext.widget('issue-action-view', {router: router, itemId: widgetItemId}),
+                        var widget = Ext.widget('issue-action-view', {router: router}),
                             form = widget.down('#issue-action-view-form'),
-                            cancelLink = form.down('#issue-action-cancel');
+                            cancelLink = form.down('#issue-action-cancel'),
+                            queryParamsForCancel = fromOverview ? router.queryParams : null;
 
-                        cancelLink.href = router.getRoute(router.currentRoute.replace(fromOverview ? '/action' : '/view/action', '')).buildUrl();
+                        cancelLink.href = router.getRoute(router.currentRoute.replace(fromOverview ? '/action' : '/view/action', '')).buildUrl(null, queryParamsForCancel);
                         app.fireEvent('changecontentevent', widget);
                         form.loadRecord(actionRecord);
                         form.issue = issueRecord;
@@ -48,13 +73,19 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             issueRecord;
 
         mainView.setLoading();
-        actionModel.getProxy().url = issueModel.getProxy().url + '/' + issueId + '/actions';
+        actionModel.getProxy().url = '/api/isu/issues/' + issueId + '/actions';
         actionModel.load(actionId, {
             success: function (record) {
                 actionRecord = record;
                 onAllDependenciesLoad();
             }
         });
+
+        if (issueType == 'datacollection') {
+            issueModel = me.getModel('Idc.model.Issue');
+        } else if (issueType == 'datavalidation') {
+            issueModel = me.getModel('Idv.model.Issue');
+        }
         issueModel.load(issueId, {
             success: function (record) {
                 issueRecord = record;
@@ -68,7 +99,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             router = me.getController('Uni.controller.history.Router'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             fromOverview = router.queryParams.fromOverview === 'true',
-            backUrl = router.getRoute(router.currentRoute.replace(fromOverview ? '/action' : '/view/action', '')).buildUrl(),
+            queryParamsForBackUrl = fromOverview ? router.queryParams : null,
+            backUrl = router.getRoute(router.currentRoute.replace(fromOverview ? '/action' : '/view/action', '')).buildUrl(null, queryParamsForBackUrl),
             record,
             requestOptions;
 

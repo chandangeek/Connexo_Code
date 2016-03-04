@@ -1,13 +1,23 @@
 Ext.define('Isu.view.issues.IssueFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'isu-view-issues-issuefilter',
-
+    isOverviewFilter: false,
     store: undefined,
 
     initComponent: function () {
         var me = this;
 
         me.filters = [
+            {
+                type: 'combobox',
+                itemId: 'issue-type-filter',
+                dataIndex: 'issueType',
+                emptyText: Uni.I18n.translate('general.type', 'ISU', 'Type'),
+                multiSelect: true,
+                displayField: 'name',
+                valueField: 'uid',
+                store: 'Isu.store.IssueTypes'
+            },
             {
                 type: 'combobox',
                 itemId: 'issue-status-filter',
@@ -22,6 +32,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 type: 'combobox',
                 itemId: 'issue-assignee-filter',
                 dataIndex: 'assignee',
+                multiSelect: true,
                 emptyText: Uni.I18n.translate('general.assignee', 'ISU', 'Assignee'),
                 store: 'Isu.store.IssueAssignees',
                 displayField: 'name',
@@ -30,7 +41,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 queryMode: 'remote',
                 queryParam: 'like',
                 queryCaching: false,
-                minChars: 0,
+                minChars: 1,
                 loadStore: false,
                 setFilterValue: me.comboSetFilterValue,
                 getParamValue: me.comboGetParamValue,
@@ -38,6 +49,9 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 listeners: {
                     expand: {
                         fn: me.comboLimitNotification
+                    },
+                    blur: {
+                        fn: me.onAssigneeBlur
                     }
                 }
             },
@@ -51,9 +65,22 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 store: 'Isu.store.IssueReasons',
                 queryMode: 'remote',
                 queryParam: 'like',
+                loadStore: !me.isOverviewFilter,
                 queryCaching: false,
                 minChars: 0,
-                forceSelection: false
+                forceSelection: false,
+                hidden: me.isOverviewFilter
+            },
+            {
+                type: 'dueDate',
+                itemId: 'issue-dueDate-filter',
+                dataIndex: 'dueDate',
+                emptyText: Uni.I18n.translate('general.dueDate', 'ISU', 'Due date'),
+                multiSelect: true,
+                displayField: 'name',
+                loadStore: false,
+                valueField: 'id',
+                store: 'Isu.store.DueDate'
             },
             {
                 type: 'combobox',
@@ -71,6 +98,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 setFilterValue: me.comboSetFilterValue,
                 getParamValue: me.comboGetParamValue,
                 forceSelection: false,
+                hidden: me.isOverviewFilter,
                 listeners: {
                     expand: {
                         fn: me.comboLimitNotification
@@ -128,13 +156,28 @@ Ext.define('Isu.view.issues.IssueFilter', {
 
         combo.value = value;
         combo.setHiddenValue(value);
-        store.model.load(value, {
-            success: function (record) {
-                store.loadData([record], false);
-                store.lastOptions = {};
-                store.fireEvent('load', store, [record], true)
-            }
-        });
+
+        if (Ext.isArray(value)) {
+            var arr = [];
+            Ext.Array.each(value, function (v) {
+                store.model.load(v, {
+                    success: function (record) {
+                        arr.push(record);
+                        store.loadData(arr, false);
+                        store.lastOptions = {};
+                        store.fireEvent('load', store, arr, true)
+                    }
+                });
+            });
+        } else {
+            store.model.load(value, {
+                success: function (record) {
+                    store.loadData([record], false);
+                    store.lastOptions = {};
+                    store.fireEvent('load', store, [record], true)
+                }
+            });
+        }
     },
 
     comboGetParamValue: function () {
@@ -160,5 +203,11 @@ Ext.define('Isu.view.issues.IssueFilter', {
         picker.on('beforehide', function () {
             picker.un('refresh', fn);
         }, combo, {single: true});
+    },
+
+    onAssigneeBlur: function (field) {
+        if (field.getRawValue()) {
+            field.setValue(field.lastSelection);
+        }
     }
 });
