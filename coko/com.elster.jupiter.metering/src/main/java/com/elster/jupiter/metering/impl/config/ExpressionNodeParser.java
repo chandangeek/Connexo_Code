@@ -1,5 +1,8 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.util.Counter;
+import com.elster.jupiter.util.Counters;
+
 import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -14,12 +17,15 @@ public class ExpressionNodeParser {
 
     private List<ExpressionNode> nodes = new ArrayList<>();
 
+    private List<Counter> argumentCounters = new ArrayList<> ();
+
     public ExpressionNode parse(String input) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < input.length(); i++) {
             char value = input.charAt(i);
             if (value == '(') {
                 stack.push(builder.toString());
+                newArgumentCounter();
                 builder = new StringBuilder();
             } else if (value == ')') {
                 constructNode(builder.toString());
@@ -45,6 +51,8 @@ public class ExpressionNodeParser {
         } else if ((last.equals("plus")) || (last.equals("minus")) || (last.equals("multiply")) || (last.equals("divide"))) {
             handleOperationNode(last);
         }
+        removeArgumentCounter();
+        incrementArgumentCounter();
 
     }
 
@@ -66,8 +74,13 @@ public class ExpressionNodeParser {
         if (nodes.size() < 1) {
             throw new IllegalArgumentException("Operator '" + function + "' requires at least 1 argument");
         }
-        FunctionCallNode functionCallNode = new FunctionCallNode(nodes, getFunction(function));
-        nodes = new ArrayList<>();
+        int numberOfArguments = getNumberOfArguments();
+        FunctionCallNode functionCallNode = new FunctionCallNode(
+                nodes.subList(nodes.size() - numberOfArguments, nodes.size()),
+                getFunction(function));
+        for (int i = 0; i < numberOfArguments; i++) {
+            nodes.remove(nodes.size() - 1);
+        }
         nodes.add(functionCallNode);
     }
 
@@ -93,6 +106,25 @@ public class ExpressionNodeParser {
         } else {
             return Function.MIN;
         }
+    }
+
+    private void newArgumentCounter() {
+        argumentCounters.add(Counters.newStrictCounter());
+    }
+
+    private void removeArgumentCounter() {
+        argumentCounters.remove(argumentCounters.size() - 1);
+    }
+
+    private void incrementArgumentCounter() {
+        if (argumentCounters.size() > 0) {
+            argumentCounters.get(argumentCounters.size() - 1).increment();
+        }
+    }
+
+
+    private int getNumberOfArguments() {
+        return argumentCounters.get(argumentCounters.size() - 1).getValue();
     }
 
 
