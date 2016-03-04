@@ -95,5 +95,14 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
         ];
 
         me.callParent(arguments);
+
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
+            success: function (deviceType) {
+                if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
+                    me.down('#logbooksLink').hide();
+                }
+            }
+        });
+
     }
 });
