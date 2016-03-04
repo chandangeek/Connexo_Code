@@ -28,7 +28,7 @@ Ext.define('Idc.view.Detail', {
                         xtype: 'previous-next-navigation-toolbar',
                         margin: '10 0 0 0',
                         itemId: 'data-collection-issue-detail-previous-next-navigation-toolbar',
-                        store: 'Idc.store.Issues',
+                        store: 'Isu.store.Issues',
                         router: me.router,
                         routerIdArgument: 'issueId',
                         itemsName: me.issuesListLink
@@ -42,7 +42,7 @@ Ext.define('Idc.view.Detail', {
             },
             {
                 xtype: 'data-collection-issue-detail-form',
-                itemId: 'data-collection-issue-detail-form',
+                itemId: 'issue-detail-form',
                 router: me.router
             },
             {
