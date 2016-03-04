@@ -1,8 +1,6 @@
 package com.elster.jupiter.servicecall.rest.impl;
 
 
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -28,8 +26,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
-
 @Path("/servicecalls")
 public class ServiceCallResource {
     private final ServiceCallService serviceCallService;
@@ -48,7 +44,6 @@ public class ServiceCallResource {
     @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALLS)
     public PagedInfoList getAllServiceCalls(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
-        //Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCalls();
         ServiceCallFinder serviceCallFinder = serviceCallService.getServiceCallFinder();
         applyFilterToFinder(filter, serviceCallFinder);
         queryParameters.getLimit().ifPresent(limit -> serviceCallFinder.setLimit(limit + 1));
@@ -56,14 +51,14 @@ public class ServiceCallResource {
         List<ServiceCall> serviceCalls = serviceCallFinder.find();
 
         serviceCalls.stream()
-                .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.from(serviceCall)));
+                .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
 
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
 
     private void applyFilterToFinder(JsonQueryFilter filter, ServiceCallFinder serviceCallFinder) {
-        if (filter.hasProperty("number")) {
-            serviceCallFinder.setReference(filter.getString("number"));
+        if (filter.hasProperty("name")) {
+            serviceCallFinder.setReference(filter.getString("name"));
         }
         if (filter.hasProperty("type")) {
             serviceCallFinder.setType(filter.getStringList("type"));
@@ -89,9 +84,9 @@ public class ServiceCallResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALLS)
-    public ServiceCallInfo getServiceCall(@PathParam("id") long number) {
-        return serviceCallService.getServiceCall(number)
-                .map(serviceCallInfoFactory::from)
+    public ServiceCallInfo getServiceCall(@PathParam("id") long id) {
+        return serviceCallService.getServiceCall(id)
+                .map(serviceCall -> serviceCallInfoFactory.detailed(serviceCall, serviceCallService.getChildrenStatus(id)))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_SERVICE_CALL));
     }
 
@@ -99,12 +94,18 @@ public class ServiceCallResource {
     @Path("/{id}/children")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALLS)
-    public PagedInfoList getChildren(@PathParam("id") long number, @BeanParam JsonQueryParameters queryParameters) {
-        List<ServiceCallInfo> serviceCallInfos = serviceCallService.getServiceCall(number)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL))
-                .getChildren().from(queryParameters).stream()
-                .map(serviceCallInfoFactory::from)
-                .collect(toList());
+    public PagedInfoList getChildren(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        ServiceCall parent = serviceCallService.getServiceCall(id)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL));
+        List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
+        ServiceCallFinder serviceCallFinder = parent.getChildrenFinder();
+        applyFilterToFinder(filter, serviceCallFinder);
+        queryParameters.getLimit().ifPresent(limit -> serviceCallFinder.setLimit(limit + 1));
+        queryParameters.getStart().ifPresent(start -> serviceCallFinder.setStart(start));
+        List<ServiceCall> serviceCalls = serviceCallFinder.find();
+
+        serviceCalls.stream()
+                .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
 
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
