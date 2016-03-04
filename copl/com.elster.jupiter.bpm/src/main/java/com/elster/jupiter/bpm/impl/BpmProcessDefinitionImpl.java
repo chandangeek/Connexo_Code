@@ -95,7 +95,7 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     @Override
     public String getAssociation() {
         Optional<ProcessAssociationProvider> foundProvider = getAssociationProvider();
-        return foundProvider.isPresent() ? foundProvider.get().getType() : null;
+        return foundProvider.isPresent() ? foundProvider.get().getType() : this.association;
     }
 
     @Override
