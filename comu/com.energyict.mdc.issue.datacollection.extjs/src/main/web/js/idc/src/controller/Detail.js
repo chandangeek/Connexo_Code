@@ -57,23 +57,32 @@ Ext.define('Idc.controller.Detail', {
                 onClickLink: this.showProcesses
             },
             'data-collection-issue-detail #issue-process-view': {
-                onClickLink: this.showProcesses
+                onClickLink: this.showProcesses,
+                onClickTaskLink: this.showTask
             }
         });
     },
 
 
     showProcesses: function(processId){
-
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
             route;
-        //menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess')
-        // .buildUrl({issueId: issueId} , {details: menuItem.details, issueType: issueType});
+
         route = router.getRoute(router.currentRoute + '/viewProcesses');
         route.params.process = processId;
         route.forward();
 
     },
+    showTask: function(task){
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            router = me.getController('Uni.controller.history.Router'),
+            route;
+        router.arguments.taskId = task;
+        route = 'workspace/tasks/performTask';
+        route && (route = router.getRoute(route));
+        route && route.forward(router.arguments);
+    }
 });
