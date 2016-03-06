@@ -1,9 +1,13 @@
 Ext.define('Idc.controller.Detail', {
     extend: 'Isu.controller.IssueDetail',
-
+    controllers: [
+        'Bpm.monitorissueprocesses.controller.MonitorIssueProcesses'
+    ],
     stores: [
         'Isu.store.IssueActions',
-        'Isu.store.Clipboard'
+        'Isu.store.Clipboard',
+        'Idc.store.TimelineEntries',
+        'Bpm.monitorissueprocesses.store.IssueProcesses'
     ],
 
     models: [
@@ -48,7 +52,28 @@ Ext.define('Idc.controller.Detail', {
             },
             'data-collection-issue-detail #issue-detail-action-menu': {
                 click: this.chooseAction
+            },
+            'data-collection-issue-detail #issue-timeline-view': {
+                onClickLink: this.showProcesses
+            },
+            'data-collection-issue-detail #issue-process-view': {
+                onClickLink: this.showProcesses
             }
         });
-    }
+    },
+
+
+    showProcesses: function(processId){
+
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            router = me.getController('Uni.controller.history.Router'),
+            route;
+        //menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess')
+        // .buildUrl({issueId: issueId} , {details: menuItem.details, issueType: issueType});
+        route = router.getRoute(router.currentRoute + '/viewProcesses');
+        route.params.process = processId;
+        route.forward();
+
+    },
 });

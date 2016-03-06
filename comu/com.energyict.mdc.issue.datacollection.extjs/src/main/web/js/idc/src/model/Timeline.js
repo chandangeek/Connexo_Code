@@ -9,6 +9,7 @@ Ext.define('Idc.model.Timeline', {
         'processId',
         'contentText',
         'dateTime',
-        'status'
+        'status',
+        'processLink'
     ]
 });
