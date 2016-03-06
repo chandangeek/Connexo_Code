@@ -8,23 +8,24 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
         'Bpm.monitorissueprocesses.store.IssueProcesses'
     ],
     views: [
+        //'Bpm.monitorissueprocesses.view.IssueProcessesMain',
         'Bpm.monitorissueprocesses.view.IssueProcessesMainView'
     ],
     refs: [
         {ref: 'mainPage', selector: 'bpm-issue-processes-main-view'},
         {ref: 'issueProcessesGrid', selector: '#issue-processes-grid'},
         {ref: 'processNodesGrid', selector: '#issue-process-preview #process-nodes-grid'},
-        {ref: 'variablesPreviewPanel', selector: '#issue-process-preview #node-variables-preview-panel'},
+        {ref: 'variablesPreviewPanel', selector: '#issue-process-preview #node-variables-preview-panel'}
     ],
 
     init: function () {
         var me = this;
         me.control({
             'bpm-issue-processes-main-view': {
+                initStores: this.initStores,
                 initComponents: this.initComponents,
-                initStores: this.initStores
             },
-            'bpm-issue-processes #issue-processes-grid': {
+            '#issue-processes #issue-processes-grid': {
                 select: this.showProcessPreview
             },
             '#issue-process-preview #process-nodes-grid': {
@@ -34,44 +35,55 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
         });
     },
 
+    initStores: function (properties) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            issueProcessesStore = me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses');
+
+        if(issueProcessesStore.data.items.length < 1) {
+            issueProcessesStore.getProxy().setUrl(router.arguments['issueId']);
+            issueProcessesStore.load({});
+        }
+
+
+    },
     initComponents: function (component) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            record;
+            processRecord;
 
-        record = me.getIssueProcessesGrid().getStore().findRecord('processId', router.getRoute().params.process);
-        me.getIssueProcessesGrid().getSelectionModel().select(record);
+        //processRecord = me.getIssueProcessesGrid().getStore().findRecord('processId', router.getRoute().params.process);
+        //me.getIssueProcessesGrid().getSelectionModel().select(processRecord);
 
     },
 
-    initStores: function (issueId) {
-        var me = this;
-        me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses').getProxy().setUrl(issueId);
-    },
     showProcesses:function (selectionModel, record) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
-            processStore = me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
-            widget;
+            widget,
+            processRecord;
 
         viewport.setLoading();
 
         widget = Ext.widget('bpm-issue-processes-main-view', {
-            selectedProcess: router.getRoute().params.process,
             properties: {
+                issueId: router.getRoute().params.issueId,
                 route: router.getRoute()
             }
         });
         me.getApplication().fireEvent('changecontentevent', widget);
+
+        processRecord = me.getIssueProcessesGrid().getStore().findRecord('processId', record);
+        if(processRecord)
+            me.getIssueProcessesGrid().getSelectionModel().select(processRecord);
+
         viewport.setLoading(false);
 
     },
     showProcessPreview: function (selectionModel, record) {
         var me = this,
             mainPage = me.getMainPage(),
-            previewRunningDetails = mainPage.down('bpm-issue-process-preview'),
-            previewRunningDetailsForm = mainPage.down('#frm-preview-running-process'),
             router = me.getController('Uni.controller.history.Router'),
             openTasksValue = "";
 
@@ -102,18 +114,13 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
 
     },
     showNodesDetails: function (processRecord, grid) {
-        var me = this,
-            mainPage = me.getMainPage(),
-            previewStatusProcess = mainPage.down('#status-process-preview');
-
-        var processNodesModel = Ext.ModelManager.getModel('Bpm.monitorissueprocesses.model.ProcessNodes');
-
+        var me = this;
         Ext.Ajax.request({
             url: Ext.String.format('../../api/bpm/runtime/process/instance/{0}/nodes', processRecord.get('processId')),
             method: 'GET',
             success: function (option) {
                 var response = Ext.JSON.decode(option.responseText),
-                    reader = Bpm.monitorissueprocesses.model.ProcessNodes.getProxy().getReader(),
+                    reader = Bpm.monitorprocesses.model.ProcessNodes.getProxy().getReader(),
                     resultSet = reader.readRecords(response),
                     record = resultSet.records[0];
 
@@ -165,5 +172,6 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
         previewPanel.items = panelItems;
         previewPanel.doLayout();
     },
+
 
 });

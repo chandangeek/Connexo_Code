@@ -37,7 +37,7 @@ Ext.define('Bpm.monitorissueprocesses.view.ProcessList', {
                             '</td><td></td>',
                             '<td>',
                             '<tpl for="openTasks">',
-                                '<p><a href="javascript:void(0);" >{name}</a> '+'('+'{statusDisplay}, {actualOwner})</p>',
+                                '<p><a href="javascript:void(0);" class="taskclickable">{name}</a> '+'('+'{statusDisplay}, {actualOwner})</p>',
                             '</tpl>',
 
                             '</td>',
