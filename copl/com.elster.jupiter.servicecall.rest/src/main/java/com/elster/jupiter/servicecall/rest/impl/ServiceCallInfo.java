@@ -20,6 +20,7 @@ public class ServiceCallInfo {
     public List<IdWithNameInfo> parents;
     public List<ServiceCallChildrenInfo> childrenInfo;
     public String type;
+    public long numberOfChildren;
 
     public ServiceCallInfo() {
 

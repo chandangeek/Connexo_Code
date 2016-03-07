@@ -75,9 +75,13 @@ public class ServiceCallInfoFactory {
 
     private void addChildrenInfo(ServiceCallInfo serviceCallInfo, Map<DefaultState, Long> childrenInformation) {
         serviceCallInfo.childrenInfo = new ArrayList<>();
-
+        Long total = childrenInformation.values()
+                .stream()
+                .reduce(0L, (a,b) -> a + b);
+        serviceCallInfo.numberOfChildren = total;
         childrenInformation.keySet().stream()
-                .forEach(key -> serviceCallInfo.childrenInfo.add(new ServiceCallChildrenInfo(key.name(), key.getDisplayName(thesaurus), childrenInformation.get(key))));
+                .forEach(key -> serviceCallInfo.childrenInfo.add(new ServiceCallChildrenInfo(key.name(), key.getDisplayName(thesaurus),
+                        Math.round((childrenInformation.get(key).doubleValue() / total.doubleValue()) * 100 ))));
     }
 
 }
