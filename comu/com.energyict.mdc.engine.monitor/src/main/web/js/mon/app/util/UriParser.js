@@ -60,7 +60,7 @@ Ext.define('CSMonitor.util.UriParser', {
             url += this.search;
         }
         if (this.hash) {
-            if (!this.search.startsWith("#")){
+            if (!this.hash.startsWith("#")){
                 url += "#";
             }
             url += this.hash;
