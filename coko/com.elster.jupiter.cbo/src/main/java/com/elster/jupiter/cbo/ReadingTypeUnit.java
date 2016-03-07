@@ -2,6 +2,8 @@ package com.elster.jupiter.cbo;
 
 import com.elster.jupiter.util.units.Unit;
 
+import java.util.Optional;
+
 public enum ReadingTypeUnit {
 	NOTAPPLICABLE(0, "Not applicable", Unit.UNITLESS),
 	METER(2, "Meter", Unit.METER),
@@ -278,5 +280,14 @@ public enum ReadingTypeUnit {
 			}
 		}
 		throw new IllegalEnumValueException(ReadingTypeUnit.class, id);
+	}
+
+	public static Optional<ReadingTypeUnit> get(Unit unit) {
+		for (ReadingTypeUnit each : values()) {
+			if (each.unit.equals(unit)) {
+				return Optional.of(each);
+			}
+		}
+		return Optional.empty();
 	}
 }
