@@ -34,8 +34,11 @@ Ext.define('Usr.view.group.List', {
                 },
                 {
                     xtype: 'uni-actioncolumn',
-                    items: 'Usr.view.group.GroupActionMenu',
-                    privileges: Usr.privileges.Users.admin
+                    privileges: Usr.privileges.Users.admin,
+                    menu: {
+                        xtype: 'group-action-menu',
+                        itemId: 'group-action-action-menu'
+                    }
                 }
             ]
         };
