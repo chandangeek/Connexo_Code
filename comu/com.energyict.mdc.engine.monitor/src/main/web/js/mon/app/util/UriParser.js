@@ -48,12 +48,21 @@ Ext.define('CSMonitor.util.UriParser', {
     buildUrl: function(){
         var url = this.protocol + "//" + this.host;
         if (this.pathname){
+            if (!this.pathname.startsWith("/")){
+                url += "/";
+            }
             url += this.pathname;
         }
         if (this.search){
+            if (!this.search.startsWith("?")){
+                url += "?";
+            }
             url += this.search;
         }
         if (this.hash) {
+            if (!this.search.startsWith("#")){
+                url += "#";
+            }
             url += this.hash;
         }
         return url;
