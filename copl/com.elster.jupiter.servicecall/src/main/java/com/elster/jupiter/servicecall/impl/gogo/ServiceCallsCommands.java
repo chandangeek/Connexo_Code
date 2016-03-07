@@ -37,6 +37,7 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=removeServiceCallType",
                 "osgi.command.function=customPropertySets",
                 "osgi.command.function=createServiceCallLifeCycle",
+                "osgi.command.function=transitionServiceCall",
                 "osgi.command.function=handlers",
                 "osgi.command.function=serviceCallLifeCycles",
                 "osgi.command.function=createServiceCall",
@@ -217,6 +218,17 @@ public class ServiceCallsCommands {
                     .origin(origin)
                     .externalReference(externalReference)
                     .create();
+            context.commit();
+        }
+    }
+
+    public void transitionServiceCall(long id, String targetState) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCall sc = serviceCallService.getServiceCall(id)
+                    .orElseThrow(() -> new IllegalArgumentException("No such service call"));
+            sc.requestTransition(DefaultState.valueOf(targetState));
             context.commit();
         }
     }
