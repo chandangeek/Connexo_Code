@@ -22,7 +22,8 @@ public class ServiceCallLogImpl implements ServiceCallLog, HasId {
         timestamp("timestamp"),
         logLevel("logLevel"),
         serviceCall("serviceCall"),
-        message("message");
+        message("message"),
+        stackTrace("stackTrace");
 
         private final String javaFieldName;
 
@@ -51,12 +52,20 @@ public class ServiceCallLogImpl implements ServiceCallLog, HasId {
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED_FIELD + "}")
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED_FIELD + "}")
     private String message;
+    private String stackTrace;
 
-    public void init(Instant timestamp, LogLevel logLevel, ServiceCall serviceCall, String message) {
+    static ServiceCallLogImpl from(DataModel dataModel, ServiceCallImpl serviceCall, String message, LogLevel level, Instant timestamp, String stackTrace) {
+        return dataModel.getInstance(ServiceCallLogImpl.class)
+                .init(serviceCall, message, level, timestamp, stackTrace);
+    }
+
+    public ServiceCallLogImpl init(ServiceCall serviceCall, String message, LogLevel logLevel, Instant timestamp, String stackTrace) {
         this.timestamp = timestamp;
         this.logLevel = logLevel;
         this.serviceCall.set(serviceCall);
         this.message = message;
+        this.stackTrace = stackTrace;
+        return this;
     }
 
     @Override

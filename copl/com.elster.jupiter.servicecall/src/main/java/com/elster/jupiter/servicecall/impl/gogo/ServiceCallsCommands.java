@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.LongStream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -43,7 +44,9 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=createServiceCallLifeCycle",
                 "osgi.command.function=serviceCall",
                 "osgi.command.function=serviceCalls",
-                "osgi.command.function=log"
+                "osgi.command.function=log",
+                "osgi.command.function=deleteServiceCallLifeCycle",
+                "osgi.command.function=hierarchy"
         }, immediate = true)
 public class ServiceCallsCommands {
 
@@ -326,6 +329,86 @@ public class ServiceCallsCommands {
                     .orElseThrow(() -> new IllegalArgumentException("No such service call"));
             serviceCall.log(LogLevel.valueOf(level), String.join(" ", messageParts));
             context.commit();
+        }
+    }
+
+    public void deleteServiceCallLifeCycle() {
+        System.out.println("Usage: deleteServiceCallLifeCycle <name>");
+    }
+
+    public void deleteServiceCallLifeCycle(String name) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCallService.getServiceCallLifeCycle(name)
+                    .orElseThrow(() -> new IllegalStateException("Nu such service call life cycle"))
+                    .delete();
+            context.commit();
+        }
+    }
+
+    public void hierarchy() {
+        System.out.println("Usage: <service call type name> <service call type version> <# top level> [ < # level 2 > [ < # level 3 > [ < # level 4 > [ < # level 5 > ]]]]");
+        System.out.println("  Creates a hierarchy of service calls, with the requested number of service calls on each level");
+    }
+
+
+    public void hierarchy(String name, String version, long topLevel, long... levels) {
+        threadPrincipalService.set(() -> "Console");
+        new HierarchyCreator(name, version, topLevel, levels).create();
+    }
+
+    class HierarchyCreator {
+        private double total;
+        private double created;
+
+        private long[] levels;
+        private String name;
+        private String version;
+        private long topLevel;
+
+        public HierarchyCreator(String name, String version, long topLevel, long[] levels) {
+            this.levels = levels;
+            this.name = name;
+            this.version = version;
+            this.topLevel = topLevel;
+            total = LongStream.of(levels).reduce(topLevel, (a, b) -> a * b);
+        }
+
+        public void create() {
+            ServiceCallType serviceCallType = serviceCallService.findServiceCallType(name, version)
+                    .orElseThrow(() -> new IllegalStateException("Nu such service call type"));
+
+            System.out.println(String.format("Creating a total of %.0f service calls", total));
+
+            LongStream.range(0, topLevel).forEach(i -> {
+                try (TransactionContext context = transactionService.getContext()) {
+                    ServiceCall serviceCall = serviceCallType.newServiceCall().create();
+                    created++;
+                    if (levels.length >= 1) {
+                        createChildren(serviceCall, levels);
+                        context.commit();
+                    }
+                }
+                printUpdate();
+            });
+            System.out.println("\nDone");
+        }
+
+        private void createChildren(ServiceCall serviceCall, long[] levels) {
+            for (int index = 0; index < levels[0]; index++) {
+                ServiceCall child = serviceCall.newChildCall(serviceCall.getType()).create();
+                created++;
+                if (levels.length > 1) {
+                    long[] subLevels = new long[levels.length - 1];
+                    System.arraycopy(levels, 1, subLevels, 0, levels.length - 1);
+                    createChildren(child, subLevels);
+                }
+                printUpdate();
+            }
+        }
+
+        private void printUpdate() {
+            System.out.print(String.format("\r %2.1f %%      ", (100 * created) / total));
         }
     }
 }

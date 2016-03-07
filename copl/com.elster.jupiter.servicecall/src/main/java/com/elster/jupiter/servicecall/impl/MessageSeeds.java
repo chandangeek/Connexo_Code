@@ -17,7 +17,9 @@ public enum MessageSeeds implements MessageSeed {
     REQUIRED_FIELD(6, Constants.REQUIRED_FIELD, "This field is required"),
     UNKNOWN_HANDLER(7, Constants.UNKNOWN_HANDLER, "Handler has not been registered yet"),
     HANDLER_DISAPPEARED(8, Constants.HANDLER_DISAPPEARED, "The service call type was created with a handler ''{0}'' that can no longer be found in the system"),
-    CANNOT_DELETE_SERVICECALLTYPE(9, "canNotRemoveType", "Service call type {0} can not be removed, since there are still service calls of that type (e.g. {1}).")
+    CANNOT_DELETE_SERVICECALLTYPE(9, "canNotRemoveType", "Service call type {0} can not be removed, since there are still service calls of that type (e.g. {1})."),
+    LIFE_CYCLE_STILL_IN_USE(10, "LifeCycleIsStillInUse", "The service call life cycle is still referenced by service call types"),
+    SERVICE_CALL_HANDLER_FAILURE(11, "servicecallhandler.failed", "Service call handler failed.");
     ;
 
     private final int number;

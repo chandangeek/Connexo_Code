@@ -77,6 +77,14 @@
       <groupId>com.elster.jupiter</groupId>
       <artifactId>security.thread</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>messaging</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>events</artifactId>
+    </dependency>
 
     <!-- Testing -->
     <dependency>
@@ -115,16 +123,6 @@
     </dependency>
     <dependency>
       <groupId>com.elster.jupiter</groupId>
-      <artifactId>events</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.elster.jupiter</groupId>
-      <artifactId>messaging</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.elster.jupiter</groupId>
       <artifactId>time</artifactId>
       <scope>test</scope>
     </dependency>
@@ -151,14 +149,14 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.elster.jupiter</groupId>
-      <artifactId>events</artifactId>
-      <scope>test</scope>
+      <groupId>com.jayway.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <version>1.7.0</version>
     </dependency>
     <!--<dependency>-->
-      <!--<groupId>com.google.inject</groupId>-->
-      <!--<artifactId>guice</artifactId>-->
-      <!--<version>4.0-beta5</version>-->
+    <!--<groupId>com.google.inject</groupId>-->
+    <!--<artifactId>guice</artifactId>-->
+    <!--<version>4.0-beta5</version>-->
     <!--</dependency>-->
 
   </dependencies>

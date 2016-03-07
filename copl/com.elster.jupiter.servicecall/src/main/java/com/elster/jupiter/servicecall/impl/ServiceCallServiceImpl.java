@@ -4,6 +4,8 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -30,6 +32,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.inject.AbstractModule;
@@ -62,11 +65,15 @@ import java.util.concurrent.ConcurrentHashMap;
         immediate = true)
 public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
 
+    static final String SERIVCE_CALLS_DESTINATION_NAME = "SerivceCalls";
+    static final String SERIVCE_CALLS_SUBSCRIBER_NAME = "SerivceCalls";
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
-    private final Map<String, ServiceCallHandler> handlerMap = new ConcurrentHashMap<>();
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile MessageService messageService;
+    private volatile JsonService jsonService;
+    private final Map<String, ServiceCallHandler> handlerMap = new ConcurrentHashMap<>();
     private volatile UserService userService;
 
     // OSGi
@@ -74,14 +81,16 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     }
 
     @Inject
-    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, UserService userService, CustomPropertySetService customPropertySetService) {
-        this.setFiniteStateMachineService(finiteStateMachineService);
-        this.setOrmService(ormService);
-        this.setNlsService(nlsService);
-        this.setUserService(userService);
+    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, UserService userService, CustomPropertySetService customPropertySetService, MessageService messageService, JsonService jsonService) {
+        setFiniteStateMachineService(finiteStateMachineService);
+        setOrmService(ormService);
+        setNlsService(nlsService);
+        setUserService(userService);
+        setMessageService(messageService);
+        setJsonService(jsonService);
         setCustomPropertySetService(customPropertySetService);
         activate();
-        this.install();
+        install();
     }
 
     @Reference
@@ -110,6 +119,16 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -197,6 +216,8 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(ServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
                 bind(IServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
+                bind(JsonService.class).toInstance(jsonService);
+                bind(MessageService.class).toInstance(messageService);
             }
         };
     }
@@ -208,22 +229,28 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
 
     @Override
     public Finder<ServiceCallLifeCycle> getServiceCallLifeCycles() {
-        return DefaultFinder.of(ServiceCallLifeCycle.class, dataModel).defaultSortColumn(ServiceCallLifeCycleImpl.Fields.name.fieldName());
+        return DefaultFinder.of(ServiceCallLifeCycle.class, dataModel)
+                .defaultSortColumn(ServiceCallLifeCycleImpl.Fields.name.fieldName());
     }
 
     @Override
     public Optional<ServiceCallLifeCycle> getServiceCallLifeCycle(String name) {
-        return dataModel.mapper(ServiceCallLifeCycle.class).getUnique(ServiceCallLifeCycleImpl.Fields.name.fieldName(), name);
+        return dataModel.mapper(ServiceCallLifeCycle.class)
+                .getUnique(ServiceCallLifeCycleImpl.Fields.name.fieldName(), name);
     }
 
     @Override
     public Optional<ServiceCallLifeCycle> getDefaultServiceCallLifeCycle() {
-        return dataModel.mapper(ServiceCallLifeCycle.class).getUnique(ServiceCallLifeCycleImpl.Fields.name.fieldName(), TranslationKeys.DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME.getKey());
+        return dataModel.mapper(ServiceCallLifeCycle.class)
+                .getUnique(ServiceCallLifeCycleImpl.Fields.name.fieldName(), TranslationKeys.DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME
+                        .getKey());
     }
 
     @Override
     public Finder<ServiceCallType> getServiceCallTypes() {
-        return DefaultFinder.of(ServiceCallType.class, dataModel).defaultSortColumn(ServiceCallTypeImpl.Fields.name.fieldName());
+        return DefaultFinder.of(ServiceCallType.class, dataModel)
+                .sorted(ServiceCallTypeImpl.Fields.name.fieldName(), true)
+                .sorted(ServiceCallTypeImpl.Fields.version.fieldName(), true);
     }
 
     @Override
@@ -244,6 +271,11 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
         return dataModel.mapper(IServiceCallType.class)
                 .lockObjectIfVersion(version, id)
                 .map(ServiceCallType.class::cast);
+    }
+
+    @Override
+    public Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
     @Override
@@ -304,5 +336,13 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
 
     private long numberToId(String number) {
         return Long.parseLong(number.substring(3));
+    }
+
+    @Override
+    public DestinationSpec getServiceCallQueue() {
+        if (!dataModel.isInstalled()) {
+            throw new IllegalStateException();
+        }
+        return messageService.getDestinationSpec(SERIVCE_CALLS_DESTINATION_NAME).get();
     }
 }

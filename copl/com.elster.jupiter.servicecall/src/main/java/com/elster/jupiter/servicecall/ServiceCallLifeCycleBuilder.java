@@ -1,5 +1,8 @@
 package com.elster.jupiter.servicecall;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface ServiceCallLifeCycleBuilder {
 
     ServiceCallLifeCycleBuilder remove(DefaultState state);

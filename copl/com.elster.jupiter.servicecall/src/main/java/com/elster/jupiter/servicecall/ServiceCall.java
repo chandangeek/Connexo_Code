@@ -2,6 +2,7 @@ package com.elster.jupiter.servicecall;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.util.HasId;
 
@@ -29,7 +30,8 @@ public interface ServiceCall extends HasId {
 
     DefaultState getState();
 
-    void setState(DefaultState state);
+    @TransactionRequired
+    void requestTransition(DefaultState state);
 
     Optional<String> getOrigin();
 
@@ -53,6 +55,8 @@ public interface ServiceCall extends HasId {
     void log(LogLevel logLevel, String message);
 
     void cancel();
+
+    void log(String message, Exception exception);
 
     void save();
 

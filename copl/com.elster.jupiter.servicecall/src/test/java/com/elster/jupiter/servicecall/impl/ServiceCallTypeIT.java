@@ -32,6 +32,7 @@ import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.Status;
 import com.elster.jupiter.servicecall.impl.example.DisconnectHandler;
+import com.elster.jupiter.servicecall.impl.example.FakeTypeOneCustomPropertySet;
 import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeDomainExtension;
 import com.elster.jupiter.servicecall.impl.example.ServiceCallTypeOneCustomPropertySet;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -168,7 +169,8 @@ public class ServiceCallTypeIT {
     @Test
     public void testInitServiceCallCreatesDefaultFSM() {
         try (TransactionContext context = transactionService.getContext()) {
-            Optional<ServiceCallLifeCycle> serviceCallLifeCycle = serviceCallService.getServiceCallLifeCycle(TranslationKeys.DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME.getKey());
+            Optional<ServiceCallLifeCycle> serviceCallLifeCycle = serviceCallService.getServiceCallLifeCycle(TranslationKeys.DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME
+                    .getKey());
             assertThat(serviceCallLifeCycle).isPresent();
         }
     }
@@ -305,7 +307,7 @@ public class ServiceCallTypeIT {
     @Expected(value = InvalidPropertySetDomainTypeException.class)
     public void testCreateServiceCallTypeWithIllegalCustomPropertySet() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            RegisteredCustomPropertySet wrongType = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.servicecall.impl.ServiceCallLifeCycleDomainExtension")
+            RegisteredCustomPropertySet wrongType = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.servicecall.impl.example.ServiceCallLifeCycleDomainExtension")
                     .get();
             ServiceCallType serviceCallType = serviceCallService
                     .createServiceCallType("CustomTest", "CustomVersion")
@@ -329,7 +331,7 @@ public class ServiceCallTypeIT {
             } catch (InvalidPropertySetDomainTypeException e) {
                 fail("Should not have had an exception here");
             }
-            RegisteredCustomPropertySet wrongType = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.servicecall.impl.ServiceCallLifeCycleDomainExtension")
+            RegisteredCustomPropertySet wrongType = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.servicecall.impl.example.ServiceCallLifeCycleDomainExtension")
                     .get();
             serviceCallType.addCustomPropertySet(wrongType);
         }
@@ -350,7 +352,9 @@ public class ServiceCallTypeIT {
     @Test
     public void testUpdateServiceCallTypeLogLevel() throws Exception {
         try (TransactionContext context = transactionService.getContext()) {
-            serviceCallService.createServiceCallType("primer", "v1").handler("DisconnectHandler1").create();
+            serviceCallService.createServiceCallType("primer", "v1")
+                    .handler("DisconnectHandler1")
+                    .create();
             Optional<ServiceCallType> serviceCallTypeReloaded = serviceCallService.findServiceCallType("primer", "v1");
             assertThat(serviceCallTypeReloaded.get().getLogLevel()).isEqualTo(LogLevel.WARNING);
             serviceCallTypeReloaded.get().setLogLevel(LogLevel.SEVERE);

@@ -340,7 +340,6 @@ public class ServiceCallLifeCycleBuilderIT {
                 builder.remove(PAUSED);
                 builder.remove(WAITING);
                 builder.remove(PARTIAL_SUCCESS);
-                builder.remove(FAILED);
                 builder.remove(REJECTED);
                 builder.removeTransition(ONGOING, CANCELLED);
                 builder.removeTransition(PENDING, CANCELLED);

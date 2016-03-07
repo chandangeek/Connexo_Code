@@ -19,10 +19,12 @@ import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallFinder;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.json.JsonService;
 
 import javax.inject.Inject;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.Clock;
@@ -42,6 +44,8 @@ public class ServiceCallImpl implements ServiceCall {
         fill(zeroFillChars, '0');
         return new DecimalFormat("SC_" + new String(zeroFillChars));
     }
+    private final IServiceCallService serviceCallService;
+    private final JsonService jsonService;
 
     private long id;
     private Instant lastCompletedTime;
@@ -92,10 +96,12 @@ public class ServiceCallImpl implements ServiceCall {
 
 
     @Inject
-    ServiceCallImpl(DataModel dataModel, Clock clock, CustomPropertySetService customPropertySetService) {
+    ServiceCallImpl(DataModel dataModel, IServiceCallService serviceCallService, Clock clock, CustomPropertySetService customPropertySetService, JsonService jsonService) {
         this.dataModel = dataModel;
+        this.serviceCallService = serviceCallService;
         this.clock = clock;
         this.customPropertySetService = customPropertySetService;
+        this.jsonService = jsonService;
     }
 
     static ServiceCallImpl from(DataModel dataModel, IServiceCallType type) {
@@ -142,10 +148,13 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     @Override
-    public void setState(DefaultState defaultState) {
-        // TODO invoke FSM checks, for now a plain setter
-        this.state.set(asState(defaultState));
+    public void requestTransition(DefaultState defaultState) {
+        getType().getServiceCallLifeCycle()
+                .triggerTransition(this, defaultState);
+    }
 
+    void setState(DefaultState defaultState) {
+        this.state.set(asState(defaultState));
     }
 
     private State asState(DefaultState state) {
@@ -219,10 +228,26 @@ public class ServiceCallImpl implements ServiceCall {
     @Override
     public void log(LogLevel logLevel, String message) {
         if (type.get().getLogLevel().compareTo(logLevel) > -1) {
-            ServiceCallLogImpl instance = dataModel.getInstance(ServiceCallLogImpl.class);
-            instance.init(clock.instant(), logLevel, this, message);
+            ServiceCallLogImpl instance = ServiceCallLogImpl.from(dataModel, this, message, logLevel, clock.instant(), null);
             instance.save();
         }
+    }
+
+    @Override
+    public void log(String message, Exception exception) {
+        LogLevel level = LogLevel.SEVERE;
+        if (type.get().getLogLevel().compareTo(level) > -1) {
+            ServiceCallLogImpl instance = ServiceCallLogImpl.from(dataModel, this, message, level, clock.instant(), stackTrace2String(exception));
+            instance.save();
+        }
+    }
+
+    private String stackTrace2String(Exception e) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try (PrintWriter printWriter = new PrintWriter(byteArrayOutputStream)) {
+            e.printStackTrace(printWriter);
+        }
+        return byteArrayOutputStream.toString();
     }
 
     @Override
