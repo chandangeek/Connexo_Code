@@ -70,6 +70,7 @@ public class DeviceCertificationHandler implements ServiceCallHandler {
             if (yearOfCertification < 0) {
                 serviceCall.log(LogLevel.SEVERE, "The romans did not have smart meters. Well, neither do Belgians of course. Invalid year: " + yearOfCertification);
                 serviceCall.requestTransition(DefaultState.FAILED);
+                return;
             }
             device.get().setYearOfCertification(yearOfCertification);
             serviceCall.log(LogLevel.FINE, "Year updated");
