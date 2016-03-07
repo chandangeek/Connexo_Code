@@ -7,6 +7,7 @@ Ext.define('Bpm.processes.view.Processes', {
         'Bpm.processes.view.ProcessPreviewForm'
     ],
 
+    disableAction: false,
     router: null,
     initComponent: function () {
         var me = this;
@@ -22,6 +23,7 @@ Ext.define('Bpm.processes.view.Processes', {
                     grid: {
                         xtype: 'bpm-processes-grid',
                         itemId: 'bpm-processes-grid',
+                        disableAction: me.disableAction,
                         router: me.router
                     },
                     emptyComponent: {

@@ -10,6 +10,7 @@ Ext.define('Bpm.processes.view.ProcessesGrid', {
     viewConfig: {
         markDirty: false
     },
+    disableAction: false,
     initComponent: function () {
         var me = this;
         me.columns = [
@@ -53,6 +54,9 @@ Ext.define('Bpm.processes.view.ProcessesGrid', {
                 xtype: 'uni-actioncolumn',
                 privileges: Bpm.privileges.BpmManagement.administrateProcesses,
                 width: 100,
+                isDisabled: function (view, rowIndex, colIndex, item, record) {
+                    return me.disableAction;
+                },
                 menu: {
                     xtype: 'bpm-process-action-menu'
                 }

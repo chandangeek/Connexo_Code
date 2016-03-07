@@ -85,9 +85,16 @@ Ext.define('Bpm.processes.controller.Processes', {
         var me = this,
             view;
 
-        view = Ext.widget('bpm-processes', {});
-        me.getApplication().fireEvent('onBeforeLoad', view);
-        me.getApplication().fireEvent('changecontentevent', view);
+        Ext.create('Bpm.processes.store.Associations').load({
+
+            callback: function (records, operation, success) {
+                view = Ext.widget('bpm-processes', {disableAction: !(success && (records.length > 0))});
+                me.getApplication().fireEvent('onBeforeLoad', view);
+                me.getApplication().fireEvent('changecontentevent', view);
+            }
+        });
+
+
     },
 
     showPreview: function (selectionModel, record) {
