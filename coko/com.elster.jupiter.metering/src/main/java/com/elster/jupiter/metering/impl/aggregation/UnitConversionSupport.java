@@ -6,6 +6,7 @@ import com.elster.jupiter.util.units.Unit;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Provides support for unit conversion as part of data aggregation.
@@ -28,7 +29,7 @@ public class UnitConversionSupport {
                 || (sameDimension(first, second));
     }
 
-    public static boolean isVolumeRelated(ReadingTypeUnit unit) {
+    static boolean isVolumeRelated(ReadingTypeUnit unit) {
         switch (unit) {
             // Explicitly enumerate all the ones that we consider flow related
             case CUBICMETER: // Intentional fall-through
@@ -60,7 +61,7 @@ public class UnitConversionSupport {
         }
     }
 
-    public static boolean isFlowRelated(ReadingTypeUnit unit) {
+    static boolean isFlowRelated(ReadingTypeUnit unit) {
         switch (unit) {
             // Explicitly enumerate all the ones that we consider flow related
             case WATT: // Intentional fall-through
@@ -90,17 +91,69 @@ public class UnitConversionSupport {
         }
     }
 
-    public static boolean sameDimension(ReadingTypeUnit first, ReadingTypeUnit second) {
+    static boolean isTemperatureRelated(ReadingTypeUnit unit) {
+        return unit.getUnit().getDimension().equals(Dimension.TEMPERATURE);
+    }
+
+    static boolean isPressureRelated(ReadingTypeUnit unit) {
+        return unit.getUnit().getDimension().equals(Dimension.PRESSURE);
+    }
+
+    /**
+     * Returns an expression tree that converts a variable from
+     * the specified {@link Unit source unit} to the target Unit.
+     *
+     * @param variable The VariableReferenceNode
+     * @param source The source Unit
+     * @param target The target Unit
+     * @return The expression tree that converts from source to target unit
+     * @throws UnsupportedOperationException Thrown when source and target Unit are not of the same {@link Dimension}
+     */
+    static ServerExpressionNode unitConversion(VariableReferenceNode variable, ReadingTypeUnit source, ReadingTypeUnit target) {
+        if (source.equals(target)) {
+            return variable;
+        } else if (!sameDimension(source, target)) {
+            throw new UnsupportedOperationException("Unit conversion from " + source + " to " + target + " is not supported yet");
+        } else {
+            return unitConversion(variable, source.getUnit(), target.getUnit());
+        }
+    }
+
+    private static ServerExpressionNode unitConversion(ServerExpressionNode value, Unit source, Unit target) {
+        Unit siUnit = Unit.getSIUnit(source.getDimension());
+        if (source.equals(siUnit)) {
+            /* Converting from SI to other
+             * value = (siValue - siDelta) * siDivisor / siMultiplier. */
+            return Operator.DIVIDE.node(
+                    Operator.MULTIPLY.node(
+                            Operator.MINUS.node(
+                                    value,
+                                    target.getSiDelta()),
+                            target.getSiDivisor()),
+                    target.getSiMultiplier());
+        } else if (target.equals(siUnit)) {
+            /* Converting to SI
+             * siValue = (value * siMultiplier / siDivisor) + siDelta. */
+            return Operator.PLUS.node(
+                    Operator.DIVIDE.node(
+                            Operator.MULTIPLY.node(
+                                    value,
+                                    source.getSiMultiplier()),
+                            source.getSiDivisor()),
+                    source.getSiDelta());
+        } else {
+            /* Convert to source to si and si to target */
+            return unitConversion(
+                    unitConversion(value, source, siUnit),
+                    siUnit,
+                    target);
+        }
+    }
+
+    static boolean sameDimension(ReadingTypeUnit first, ReadingTypeUnit second) {
         return toDimension(first).hasSameDimensions(toDimension(second));
     }
 
-    public static boolean isAllowedMultiplication(ReadingTypeUnit first, ReadingTypeUnit second) {
-        return isAllowedMultiplicationOrDivision(first, second, true);
-    }
-
-    public static boolean isAllowedDivision(ReadingTypeUnit first, ReadingTypeUnit second) {
-        return isAllowedMultiplicationOrDivision(first, second, false);
-    }
 
     public static Optional<ReadingTypeUnit> getMultiplicationUnit(ReadingTypeUnit first, ReadingTypeUnit second) {
         return getMultiplicationOrDivisionUnit(first, second, true);
@@ -135,16 +188,26 @@ public class UnitConversionSupport {
         int luminous = firstDim.getLuminousIntensityDimension() + (secondDim.getLuminousIntensityDimension() * factor);
 
         Dimension[] values = Dimension.values();
-        return Arrays.asList(values).stream().filter(dim ->
-                (dim.getLengthDimension() == length) &&
-                        (dim.getMassDimension() == mass) &&
-                        (dim.getTimeDimension() == time) &&
-                        (dim.getCurrentDimension() == current) &&
-                        (dim.getTemperatureDimension() == temp) &&
-                        (dim.getAmountDimension() == amount) &&
-                        (dim.getLuminousIntensityDimension() == luminous)).findAny();
+        return Stream.of(values)
+                .filter(dim -> dim.getLengthDimension() == length)
+                .filter(dim -> dim.getMassDimension() == mass)
+                .filter(dim -> dim.getTimeDimension() == time)
+                .filter(dim -> dim.getCurrentDimension() == current)
+                .filter(dim -> dim.getTemperatureDimension() == temp)
+                .filter(dim -> dim.getAmountDimension() == amount)
+                .filter(dim -> dim.getLuminousIntensityDimension() == luminous)
+                .findAny();
     }
 
+
+
+    public static boolean isAllowedMultiplication(ReadingTypeUnit first, ReadingTypeUnit second) {
+        return isAllowedMultiplicationOrDivision(first, second, true);
+    }
+
+    public static boolean isAllowedDivision(ReadingTypeUnit first, ReadingTypeUnit second) {
+        return isAllowedMultiplicationOrDivision(first, second, false);
+    }
 
     private static boolean isAllowedMultiplicationOrDivision(ReadingTypeUnit first, ReadingTypeUnit second, boolean multiplication) {
         return getMultiplicationOrDivisionDimension(first, second, multiplication).isPresent();
