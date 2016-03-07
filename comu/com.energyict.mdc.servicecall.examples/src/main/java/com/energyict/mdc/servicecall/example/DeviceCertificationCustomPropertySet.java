@@ -6,6 +6,7 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -149,12 +150,14 @@ public class DeviceCertificationCustomPropertySet implements CustomPropertySet<S
             table
                     .column(DeviceCertificationDomainExtension.FieldNames.DEVICE_ID.databaseName())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .map(DeviceCertificationDomainExtension.FieldNames.DEVICE_ID.javaName())
                     .notNull()
                     .add();
             table
                     .column(DeviceCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.databaseName())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .map(DeviceCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.javaName())
                     .notNull()
                     .add();
