@@ -82,7 +82,7 @@ Ext.define('Usr.controller.Group', {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('role.remove.confirmation', 'USR', 'Role removed'));
                         },
                         failure: function (object, operation) {
-                            view.setLoading(false);
+                            groupGrid.setLoading(false);
                         }
                     });
                 }
@@ -101,7 +101,9 @@ Ext.define('Usr.controller.Group', {
             form = page.down('#groupDetailsForm');
 
         page.down('groupDetails').setTitle(Ext.String.htmlEncode(record.get('name')));
-        page.down('groupDetails').down('group-action-menu').record = record;
+        if (page.down('groupDetails').down('group-action-menu')) {
+            page.down('groupDetails').down('group-action-menu').record = record;
+        }
         form.loadRecord(record);
 
     }
