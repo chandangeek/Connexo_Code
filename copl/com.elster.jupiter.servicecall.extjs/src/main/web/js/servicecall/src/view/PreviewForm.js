@@ -46,13 +46,23 @@ Ext.define('Scs.view.PreviewForm', {
                 renderer: function(value) {
                     return value === "" ? "-" : value;
                 }
+            },
+            {
+                xtype: 'container',
+                id: 'serviceCallChildContainer',
+                layout: {
+                    type: 'vbox'
+                }
             }
         ];
         me.callParent(arguments);
     },
 
     updatePreview: function (record) {
-        var me = this;
+        var me = this,
+            childrenContainer = me.down('#serviceCallChildContainer'),
+            container,
+            field;
         if (!Ext.isDefined(record)) {
             return;
         }
@@ -61,6 +71,35 @@ Ext.define('Scs.view.PreviewForm', {
         }
 
         me.loadRecord(record);
+        childrenContainer.removeAll();
+        if(record.get('childrenInfo')) {
+            container = Ext.create('Ext.form.FieldContainer', {
+                layout: {
+                    type: 'vbox'
+                },
+                labelAlign: 'top',
+                fieldLabel: Uni.I18n.translate('general.summaryOfChildren', 'SCS', 'Summary of children')
+            });
+            Ext.each(record.get('childrenInfo'), function (info) {
+                var statusFilter = {
+                    status: info.state,
+                };
+                container.add({
+                        xtype: 'displayfield',
+                        value: info.percentage + '%',
+                        router: me.router,
+                        record: record,
+                        labelWidth: 250,
+                        fieldLabel: info.stateDisplayName,
+                        renderer: function(value) {
+                            return '<a href="' + this.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: this.record.get('id')}, statusFilter) + '">' + value + '</a>'
+                        }
+                    });
+            });
+
+            childrenContainer.add(container)
+        }
+
         if (me.rendered) {
             Ext.resumeLayouts(true);
         }
