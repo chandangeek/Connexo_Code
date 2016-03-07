@@ -55,7 +55,7 @@ public class ProcessDefinitionInfo {
         this.displayType = bpmProcessDefinition.getAssociationProvider()
                 .isPresent() ? bpmProcessDefinition.getAssociationProvider().get().getName() : "";
         this.active = bpmProcessDefinition.getStatus();
-        privileges = bpmProcessDefinition.getPrivileges().stream()
+        this.privileges = bpmProcessDefinition.getPrivileges().stream()
                 .map(s -> new ProcessesPrivilegesInfo(s.getPrivilegeName(), Privileges.getDescriptionForKey(s.getPrivilegeName()), s.getApplication(), groups))
                 .collect(Collectors.toList());
     }

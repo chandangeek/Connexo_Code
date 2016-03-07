@@ -498,34 +498,40 @@ public class BpmResource {
     @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.ADMINISTRATE_BPM})
     public ProcessDefinitionInfo getBpmProcessDefinition(@PathParam("id") String id, @Context UriInfo uriInfo, @HeaderParam("Authorization") String auth) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+        ProcessDefinitionInfo processDefinitionInfo = null;
         if (queryParameters.get("version") != null) {
             String version = queryParameters.get("version").get(0);
             Optional<BpmProcessDefinition> bpmProcessDefinition = bpmService.getBpmProcessDefinition(id, version);
 
-            if (queryParameters.get("association") == null && bpmProcessDefinition.isPresent()) {
-                List<Group> groups = this.userService.getGroups();
-                ProcessDefinitionInfo processDefinitionInfo = new ProcessDefinitionInfo(bpmProcessDefinition.get(), groups);
-                bpmProcessDefinition.get().getAssociationProvider()
-                        .ifPresent(provider -> processDefinitionInfo.setProperties(propertyUtils.convertPropertySpecsToPropertyInfos(provider
-                                .getPropertySpecs(), bpmProcessDefinition.get().getProperties())));
-
-                return processDefinitionInfo;
-            }else{
-                ProcessDefinitionInfo processDefinitionInfo = getBpmProcessDefinitions(auth).processes.stream()
+            List<Group> groups = this.userService.getGroups();
+            if (bpmProcessDefinition.isPresent()) {
+                processDefinitionInfo = new ProcessDefinitionInfo(bpmProcessDefinition.get(), groups);
+            } else {
+                processDefinitionInfo = getBpmProcessDefinitions(auth).processes.stream()
                         .filter(s -> s.name.equals(id) && s.version.equals(version)).findFirst()
                         .orElseThrow(() -> new BpmProcessNotAvailable(thesaurus, id + ":" + version));
+            }
 
-                if (queryParameters.get("association") != null) {
-                    String association = queryParameters.get("association").get(0);
-                    bpmService.getProcessAssociationProvider(association)
-                            .ifPresent(provider -> processDefinitionInfo.setProperties(propertyUtils.convertPropertySpecsToPropertyInfos(provider
-                                    .getPropertySpecs())));
+            if (queryParameters.get("association") == null && bpmProcessDefinition.isPresent()) {
+                Optional<ProcessAssociationProvider> foundProvider = bpmProcessDefinition.get()
+                        .getAssociationProvider();
+                if (foundProvider.isPresent()) {
+                    processDefinitionInfo.setProperties(propertyUtils.convertPropertySpecsToPropertyInfos(foundProvider.get()
+                                    .getPropertySpecs(),
+                            bpmProcessDefinition.get().getProperties()));
                 }
-
-                return processDefinitionInfo;
+            }else{
+                String association = queryParameters.get("association").get(0);
+                Optional<ProcessAssociationProvider> foundProvider = bpmService.getProcessAssociationProvider(association);
+                if (foundProvider.isPresent()) {
+                    processDefinitionInfo.setProperties(propertyUtils.convertPropertySpecsToPropertyInfos(foundProvider.get()
+                                    .getPropertySpecs(),
+                            bpmProcessDefinition.isPresent() ? bpmProcessDefinition.get()
+                                    .getProperties() : new HashMap<String, Object>()));
+                }
             }
         }
-        return null;
+        return processDefinitionInfo;
     }
 
 
