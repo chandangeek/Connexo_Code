@@ -74,12 +74,10 @@ public class UpdateUserTransaction implements Transaction<User> {
     private Set<Group> targetMemberships() {
         Set<Group> target = new LinkedHashSet<>();
         for (GroupInfo groupInfo : info.groups) {
-            Optional<Group> group = userService.getGroup(groupInfo.id);
-            if (group.isPresent()) {
-                target.add(group.get());
-            } else {
-                throw new WebApplicationException(Response.Status.NOT_FOUND);
-            }
+            Group group = userService.getGroup(groupInfo.id).orElseThrow(conflictFactory.contextDependentConflictOn(groupInfo.name)
+                    .withActualVersion(() -> userService.getGroup(groupInfo.id).map(Group::getVersion).orElse(0L))
+                    .supplier());
+            target.add(group);
         }
         return target;
     }
