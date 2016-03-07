@@ -10,9 +10,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LifeCycleIsStillInUseException;
+import com.elster.jupiter.servicecall.NoTransitionException;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.servicecall.ServiceCall;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -120,7 +121,7 @@ public class ServiceCallLifeCycleImpl implements IServiceCallLifeCycle {
                 .map(StateTransition::getEventType)
                 .filterSubType(CustomStateTransitionEventType.class)
                 .findAny()
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(() -> new NoTransitionException(thesaurus, MessageSeeds.NO_TRANSITION, from.getKey(), to.getKey()));
 
         eventType.newInstance(
                 finiteStateMachine.get(),

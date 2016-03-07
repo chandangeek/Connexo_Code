@@ -174,7 +174,7 @@ public class ServiceCallsCommands {
                 + sc.getOrigin().orElse("[no orig]") + " "
                 + sc.getExternalReference().orElse("[no ext ref]"));
         for (ServiceCallLog log : sc.getLogs().find()) {
-            System.out.println("   " + log.getTime() + " " + log.getLogLevel() + " " + log.getMessage());
+            System.out.println("   " + log.getTime() + " [" + log.getLogLevel() + "] " + log.getMessage());
             if (log.getStackTrace() != null) {
                 System.out.println("\t" + log.getStackTrace());
             }
@@ -392,7 +392,7 @@ public class ServiceCallsCommands {
 
         public void create() {
             ServiceCallType serviceCallType = serviceCallService.findServiceCallType(name, version)
-                    .orElseThrow(() -> new IllegalStateException("Nu such service call type"));
+                    .orElseThrow(() -> new IllegalStateException("No such service call type"));
 
             System.out.println(String.format("Creating a total of %.0f service calls", total));
 

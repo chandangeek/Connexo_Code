@@ -20,7 +20,8 @@ public enum MessageSeeds implements MessageSeed {
     CANNOT_DELETE_SERVICECALLTYPE(9, "canNotRemoveType", "Service call type {0} can not be removed, since there are still service calls of that type (e.g. {1})."),
     LIFE_CYCLE_STILL_IN_USE(10, "LifeCycleIsStillInUse", "The service call life cycle is still referenced by service call types"),
     SERVICE_CALL_HANDLER_FAILURE(11, "servicecallhandler.failed", "Service call handler failed."),
-    NO_SUCH_SERVICE_CALL(12, "NoSuchServiceCall", "Service call with id {0} does not exist");
+    NO_SUCH_SERVICE_CALL(12, "NoSuchServiceCall", "Service call with id {0} does not exist"),
+    NO_TRANSITION(13, "NoTransition", "A transition from the service call's current state ''{0}'' to ''{1}'' was requested, but the life cycle does not allow such a transition"),
     ;
 
     private final int number;
