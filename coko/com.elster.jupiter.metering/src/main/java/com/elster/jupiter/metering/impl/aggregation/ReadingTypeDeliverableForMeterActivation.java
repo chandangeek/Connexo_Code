@@ -137,18 +137,21 @@ class ReadingTypeDeliverableForMeterActivation {
     }
 
     private void appendValueToSelectClause(SqlBuilder sqlBuilder) {
-        if (!this.resultValueNeedsTimeBasedAggregation()) {
-            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder);
-        } else {
+        if (this.resultValueNeedsTimeBasedAggregation()) {
             sqlBuilder.append(this.defaultValueAggregationFunctionFor(this.targetReadingType).sqlName());
             sqlBuilder.append("(");
-            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder);
+            sqlBuilder.append(
+                    this.expressionReadingType.buildSqlUnitConversion(
+                            this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
+                            this.targetReadingType));
             sqlBuilder.append(")");
+        } else {
+            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder);
         }
     }
 
     private AggregationFunction defaultValueAggregationFunctionFor(VirtualReadingType readingType) {
-        return AggregationFunction.from(readingType);
+        return readingType.aggregationFunction();
     }
 
     private void appendTimelineToSelectClause(SqlBuilder sqlBuilder) {
@@ -224,6 +227,12 @@ class ReadingTypeDeliverableForMeterActivation {
 
         @Override
         public Void visitConstant(StringConstantNode constant) {
+            // Nothing to finish here
+            return null;
+        }
+
+        @Override
+        public Void visitVariable(VariableReferenceNode variable) {
             // Nothing to finish here
             return null;
         }

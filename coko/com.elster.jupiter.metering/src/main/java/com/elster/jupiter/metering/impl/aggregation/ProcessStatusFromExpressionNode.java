@@ -36,6 +36,11 @@ public class ProcessStatusFromExpressionNode implements ServerExpressionNode.Vis
     }
 
     @Override
+    public String visitVariable(VariableReferenceNode variable) {
+        return NO_PROCESS_STATUS_FLAGS;
+    }
+
+    @Override
     public String visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
         return deliverable.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.sqlName();
     }

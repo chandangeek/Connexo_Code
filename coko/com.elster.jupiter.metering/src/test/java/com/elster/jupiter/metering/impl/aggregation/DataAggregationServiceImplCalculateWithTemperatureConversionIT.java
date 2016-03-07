@@ -1,0 +1,348 @@
+package com.elster.jupiter.metering.impl.aggregation;
+
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
+import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.license.impl.LicenseServiceImpl;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.config.ConstantNode;
+import com.elster.jupiter.metering.impl.config.OperationNode;
+import com.elster.jupiter.metering.impl.config.Operator;
+import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNode;
+import com.elster.jupiter.metering.impl.config.ServerFormula;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.sql.SqlBuilder;
+
+import com.google.common.collect.Range;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Scopes;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Optional;
+
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Matchers.matches;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+/**
+ * Integration tests for the {@link DataAggregationServiceImpl#calculate(UsagePoint, MetrologyContract, Range)} method
+ * when temparature conversion (K, °C, °F) is required.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2016-03-04 (10:55)
+ */
+@RunWith(MockitoJUnitRunner.class)
+public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
+
+    public static final String DAILY_TEMPERATURE_MRID = "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0";
+    private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private static Injector injector;
+    private static ReadingType K_15min;
+    private static ReadingType C_15min;
+    private static ReadingType F_15min;
+    private static ReadingType K_daily;
+    private static ReadingType C_daily;
+    private static ReadingType F_daily;
+    private static Instant jan1st2015 = Instant.ofEpochMilli(1420070400000L);
+    private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
+    private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
+    private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
+    private static long TEMPERATURE_REQUIREMENT_ID = 97L;
+    private static long DELIVERABLE_ID = 99L;
+
+    @Rule
+    public TransactionalRule transactionalRule = new TransactionalRule(injector.getInstance(TransactionService.class));
+
+    @Mock
+    private MetrologyConfiguration configuration;
+    @Mock
+    private MetrologyContract contract;
+    private SqlBuilder temperatureWithClauseBuilder;
+    private SqlBuilder deliverableWithClauseBuilder;
+    private SqlBuilder selectClauseBuilder;
+    private SqlBuilder completeSqlBuilder;
+    private Meter meter;
+    private MeterActivation meterActivation;
+    private Channel temperatureChannel;
+    private UsagePoint usagePoint;
+
+    private static class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(LicenseService.class).to(LicenseServiceImpl.class).in(Scopes.SINGLETON);
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
+            bind(DataVaultService.class).toInstance(mock(DataVaultService.class));
+        }
+    }
+
+    @BeforeClass
+    public static void setUp() {
+        setupServices();
+        setupReadingTypes();
+    }
+
+    private static void setupServices() {
+        when(sqlBuilderFactory.newClauseAwareSqlBuilder()).thenReturn(clauseAwareSqlBuilder);
+        try {
+            injector = Guice.createInjector(
+                    new MockModule(),
+                    inMemoryBootstrapModule,
+                    new InMemoryMessagingModule(),
+                    new IdsModule(),
+                    new MeteringModule(
+                            "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.6.0",    // macro period: daily, averages, Kelvin
+                            "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0",   // macro period: daily, averages, degrees celcius
+                            "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.279.0",  // macro period: daily, averages, degrees Fahrenheit
+                            "0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.6.0",     // no macro period, 15 min, Kelvin
+                            "0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0",    // no macro period, 15 min, degrees Celcius
+                            "0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.279.0"    // no macro period, 15 min, degrees Fahrenheit
+                    ),
+                    new UserModule(),
+                    new PartyModule(),
+                    new EventsModule(),
+                    new DomainUtilModule(),
+                    new OrmModule(),
+                    new UtilModule(),
+                    new ThreadSecurityModule(),
+                    new PubSubModule(),
+                    new TransactionModule(),
+                    new BpmModule(),
+                    new FiniteStateMachineModule(),
+                    new NlsModule(),
+                    new CustomPropertySetsModule()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            getMeteringService();
+            getDataAggregationService();
+            ctx.commit();
+        }
+    }
+
+    private static MeteringService getMeteringService() {
+        return injector.getInstance(MeteringService.class);
+    }
+
+    private static DataAggregationService getDataAggregationService() {
+        return new DataAggregationServiceImpl(
+                injector.getInstance(ServerMeteringService.class),
+                VirtualFactoryImpl::new,
+                sqlBuilderFactory);
+    }
+
+    private static void setupReadingTypes() {
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            K_15min = getMeteringService().getReadingType("0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.6.0").get();
+            C_15min = getMeteringService().getReadingType("0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0").get();
+            F_15min = getMeteringService().getReadingType("0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.279.0").get();
+            K_daily = getMeteringService().getReadingType("11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.6.0").get();
+            C_daily = getMeteringService().getReadingType("11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0").get();
+            F_daily = getMeteringService().getReadingType("11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.279.0").get();
+            ctx.commit();
+        }
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        inMemoryBootstrapModule.deactivate();
+    }
+
+    @Before
+    public void resetSqlBuilder() {
+        reset(sqlBuilderFactory);
+        reset(clauseAwareSqlBuilder);
+        this.temperatureWithClauseBuilder = new SqlBuilder();
+        this.deliverableWithClauseBuilder = new SqlBuilder();
+        this.selectClauseBuilder = new SqlBuilder();
+        this.completeSqlBuilder = new SqlBuilder();
+        when(sqlBuilderFactory.newClauseAwareSqlBuilder()).thenReturn(clauseAwareSqlBuilder);
+        when(clauseAwareSqlBuilder.with(matches("rid" + TEMPERATURE_REQUIREMENT_ID + ".*"), any(Optional.class), anyVararg())).thenReturn(this.temperatureWithClauseBuilder);
+        when(clauseAwareSqlBuilder.with(matches("rod" + DELIVERABLE_ID + ".*"), any(Optional.class), anyVararg())).thenReturn(this.deliverableWithClauseBuilder);
+        when(clauseAwareSqlBuilder.select()).thenReturn(this.selectClauseBuilder);
+        when(clauseAwareSqlBuilder.finish()).thenReturn(this.completeSqlBuilder);
+    }
+
+    /**
+     * Tests the unit conversion K -> °C
+     * Metrology configuration
+     *    requirements:
+     *       T ::= any temperature (15m)
+     *    deliverables:
+     *       averageTemperature (daily °C) ::= T + 10
+     * Device:
+     *    meter activations:
+     *       Jan 1st 2015 -> forever
+     *           T -> 15 min K
+     * In other words, the requirement is provided by exactly
+     * one matching channel from a single meter activation
+     * but the temparature channel needs to be converted from
+     * Kelvin to degrees Celcius while aggregating.
+     */
+    @Test
+    @Transactional
+    public void kelvinToCelcius() {
+        DataAggregationService service = this.testInstance();
+        this.setupMeter("kelvinToCelcius");
+        this.setupUsagePoint("kelvinToCelcius");
+        this.activateMeterWithKelvin();
+
+        // Setup configuration requirements
+        ReadingTypeRequirement temperature = mock(ReadingTypeRequirement.class);
+        when(temperature.getName()).thenReturn("T");
+        when(temperature.getId()).thenReturn(TEMPERATURE_REQUIREMENT_ID);
+        when(this.configuration.getRequirements()).thenReturn(Collections.singletonList(temperature));
+        // Setup configuration deliverables
+        ReadingTypeDeliverable avgTemperature = mock(ReadingTypeDeliverable.class);
+        when(avgTemperature.getId()).thenReturn(DELIVERABLE_ID);
+        when(avgTemperature.getName()).thenReturn("averageT");
+        when(avgTemperature.getReadingType()).thenReturn(C_daily);
+        ServerFormula formula = mock(ServerFormula.class);
+        when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
+        doReturn(
+                new OperationNode(
+                        Operator.PLUS,
+                        new ReadingTypeRequirementNode(temperature),
+                        new ConstantNode(BigDecimal.TEN)))
+                .when(formula).expressionNode();
+        when(avgTemperature.getFormula()).thenReturn(formula);
+        // Setup contract deliverables
+        when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(avgTemperature));
+        // Setup meter activations
+        when(temperature.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(K_15min));
+        when(temperature.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(this.temperatureChannel));
+
+        // Business method
+        try {
+            service.calculate(this.usagePoint, this.contract, year2016());
+        } catch (UnderlyingSQLFailedException e) {
+            // Expected because the statement contains WITH clauses
+            // Asserts:
+            verify(clauseAwareSqlBuilder)
+                    .with(
+                        matches("rid" + TEMPERATURE_REQUIREMENT_ID + ".*" + DELIVERABLE_ID + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
+            assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
+            verify(clauseAwareSqlBuilder)
+                    .with(
+                        matches("rod" + DELIVERABLE_ID + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
+            // Assert that one of the requirements is used as source for the timeline
+            assertThat(this.deliverableWithClauseBuilder.getText())
+                    .matches("SELECT -1, rid97_99_1\\.timestamp,.*");
+            // Assert that the formula is applied to the requirements' value in the select clause
+            assertThat(this.deliverableWithClauseBuilder.getText())
+                    .matches("SELECT.*\\(rid97_99_1\\.value\\s*\\+\\s*\\?\\s*\\).*");
+            verify(clauseAwareSqlBuilder).select();
+            // Assert that the overall select statement selects the target reading type
+            String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
+            assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(DAILY_TEMPERATURE_MRID) + "'.*");
+            /* Assert that the overall select statement converts the Kelvin values to Celcius
+             * first and then takes the average to group by day. */
+            assertThat(overallSelectWithoutNewlines).matches(".*[avg|AVG]\\(\\(rod99_1\\.value\\s*-\\s*273\\.15\\)\\).*");
+            assertThat(overallSelectWithoutNewlines).matches(".*[trunc|TRUNC]\\(rod99_1\\.localdate, 'DDD'\\).*");
+            assertThat(overallSelectWithoutNewlines).matches(".*[group by trunc|GROUP BY TRUNC]\\(rod99_1\\.localdate, 'DDD'\\).*");
+        }
+    }
+
+    private Range<Instant> year2016() {
+        return Range.atLeast(jan1st2016);
+    }
+
+    private DataAggregationService testInstance() {
+        return getDataAggregationService();
+    }
+
+    private void setupMeter(String amrIdBase) {
+        AmrSystem mdc = getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        this.meter = mdc.newMeter(amrIdBase).create();
+    }
+
+    private void setupUsagePoint(String mRID) {
+        ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.GAS).get();
+        this.usagePoint = electricity.newUsagePoint(mRID, jan1st2015).create();
+    }
+
+    private void activateMeterWithKelvin() {
+        this.activateMeter(K_15min);
+    }
+
+    private void activateMeterWithCelcius() {
+        this.activateMeter(C_15min);
+    }
+
+    private void activateMeterWithFahrenheit() {
+        this.activateMeter(F_15min);
+    }
+
+    private void activateMeter(ReadingType readingType) {
+        this.meterActivation = this.usagePoint.activate(this.meter, jan1st2015);
+        this.temperatureChannel = this.meterActivation.createChannel(readingType);
+    }
+
+    private String mRID2GrepPattern(String mRID) {
+        return mRID.replace(".", "\\.");
+    }
+
+}

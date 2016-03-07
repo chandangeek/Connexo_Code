@@ -432,7 +432,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
             /* Assert that the overall select statement sums up the values
              * from the with clause for the deliverable, using a group by
              * construct that truncs the localdate to month. */
-            assertThat(overallSelectWithoutNewlines).matches(".*[sum|SUM]\\(rod99_1\\.value\\).*");
+            assertThat(overallSelectWithoutNewlines).matches(".*[avg|AVG]\\(rod99_1\\.value\\).*");
             assertThat(overallSelectWithoutNewlines).matches(".*[trunc|TRUNC]\\(rod99_1\\.localdate, 'MONTH'\\).*");
             assertThat(overallSelectWithoutNewlines).matches(".*[group by trunc|GROUP BY TRUNC]\\(rod99_1\\.localdate, 'MONTH'\\).*");
         }
@@ -546,7 +546,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
             /* Assert that the overall select statement sums up the values
              * from the with clause for the deliverable, using a group by
              * construct that truncs the localdate to month. */
-            assertThat(overallSelectWithoutNewlines).matches(".*[sum|SUM]\\(rod99_1\\.value\\).*");
+            assertThat(overallSelectWithoutNewlines).matches(".*[avg|AVG]\\(rod99_1\\.value\\).*");
             assertThat(overallSelectWithoutNewlines).matches(".*[trunc|TRUNC]\\(rod99_1\\.localdate, 'MONTH'\\).*");
             assertThat(overallSelectWithoutNewlines).matches(".*[group by trunc|GROUP BY TRUNC]\\(rod99_1\\.localdate, 'MONTH'\\).*");
         }
@@ -561,7 +561,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
         when(readingType.getFlowDirection()).thenReturn(FlowDirection.NET);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATT);
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         when(readingType.getMRID()).thenReturn(FIFTEEN_MINS_NET_CONSUMPTION_MRID);
         return readingType;
@@ -572,7 +572,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
         when(readingType.getFlowDirection()).thenReturn(FlowDirection.NET);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATT);
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         when(readingType.getMRID()).thenReturn(MONTHLY_NET_CONSUMPTION_MRID);
         return readingType;

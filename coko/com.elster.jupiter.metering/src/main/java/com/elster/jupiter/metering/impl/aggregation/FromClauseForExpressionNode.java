@@ -25,6 +25,11 @@ public class FromClauseForExpressionNode implements ServerExpressionNode.Visitor
     }
 
     @Override
+    public String visitVariable(VariableReferenceNode variable) {
+        return null;
+    }
+
+    @Override
     public String visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
         return deliverable.sqlName();
     }

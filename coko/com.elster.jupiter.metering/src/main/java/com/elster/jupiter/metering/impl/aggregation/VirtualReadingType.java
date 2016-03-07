@@ -75,12 +75,32 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
         return this.marker != null && this.marker.equals(Marker.DONTCARE);
     }
 
+    AggregationFunction aggregationFunction() {
+        if (this.isFlowRelated()) {
+            return AggregationFunction.AVG;
+        } else if (this.isVolumeRelated()) {
+            return AggregationFunction.SUM;
+        } else if (this.isTemperatureRelated() || this.isPressureRelated()) {
+            return AggregationFunction.AVG;
+        } else {
+            return AggregationFunction.SUM;
+        }
+    }
+
     boolean isFlowRelated() {
         return UnitConversionSupport.isFlowRelated(this.getUnit());
     }
 
     boolean isVolumeRelated() {
         return UnitConversionSupport.isVolumeRelated(this.getUnit());
+    }
+
+    boolean isTemperatureRelated() {
+        return UnitConversionSupport.isTemperatureRelated(this.getUnit());
+    }
+
+    boolean isPressureRelated() {
+        return UnitConversionSupport.isPressureRelated(this.getUnit());
     }
 
     IntervalLength getIntervalLength() {
@@ -148,7 +168,12 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
             this.applyVolumeFlowConversion(expression, " * ", targetReadingType, sqlBuilder);
         }
         else {
-            throw new UnsupportedOperationException("Unit conversion from " + this.getUnit() + " to " + targetReadingType.getUnit() + " is not supported yet");
+            ServerExpressionNode conversionExpression =
+                    UnitConversionSupport.unitConversion(
+                            new VariableReferenceNode(expression),
+                            this.getUnit(),
+                            targetReadingType.getUnit());
+            sqlBuilder.append(conversionExpression.accept(new ExpressionNodeToString()));
         }
     }
 
