@@ -53,7 +53,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Detail', {
                                                 name: 'obisCode'
                                             },
                                             {
-                                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.timestampLastValue', 'MDC', 'Timestamp last value'),
+                                                fieldLabel: Uni.I18n.translate('general.timestampLastValue', 'MDC', 'Timestamp last value'),
                                                 name: 'timeStamp',
                                                 renderer: function (value) {
                                                     if (!Ext.isEmpty(value)) {

@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                 flex: 3
             },
             {
-                header: Uni.I18n.translate('deviceregisterconfiguration.timestampLastValue', 'MDC', 'Timestamp last value'),
+                header: Uni.I18n.translate('general.timestampLastValue', 'MDC', 'Timestamp last value'),
                 dataIndex: 'timeStamp',
                 renderer: function(value){
                     if(!Ext.isEmpty(value)) {
@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'Last reading'),
+                header: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
                 dataIndex: 'reportedDateTime',
                 renderer: function(value){
                     if(!Ext.isEmpty(value)) {

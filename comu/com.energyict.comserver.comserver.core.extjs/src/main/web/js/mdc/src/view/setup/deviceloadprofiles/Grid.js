@@ -35,7 +35,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('deviceloadprofiles.lastReading', 'MDC', 'Last reading'),
+                header: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
                 dataIndex: 'lastReading',
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '';

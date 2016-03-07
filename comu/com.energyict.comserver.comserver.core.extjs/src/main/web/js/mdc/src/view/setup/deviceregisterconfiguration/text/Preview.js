@@ -47,13 +47,10 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Preview', {
                                 name: 'obisCode'
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'Last reading'),
+                                fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
                                 name: 'reportedDateTime',
                                 renderer: function (value) {
-                                    if (!Ext.isEmpty(value)) {
-                                        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))]);
-                                    }
-                                    return '-';
+                                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                                 }
                             },
                             {

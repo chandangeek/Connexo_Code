@@ -23,20 +23,23 @@ Ext.define('Mdc.view.setup.devicelogbooks.PreviewForm', {
         },
         {
             xtype: 'last-event-type-displayfield',
-            name: 'lastEventType'
-        },
-        {
-            fieldLabel: Uni.I18n.translate('devicelogbooks.timestampLastEvent', 'MDC', 'Timestamp last event'),
-            name: 'lastEventDate',
+            name: 'lastEventType',
             renderer: function (value) {
-                return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                return value ? value : '-';
             }
         },
         {
-            fieldLabel: Uni.I18n.translate('devicelogbooks.lastReading', 'MDC', 'Last reading'),
+            fieldLabel: Uni.I18n.translate('general.timestampLastEvent', 'MDC', 'Timestamp last event'),
+            name: 'lastEventDate',
+            renderer: function (value) {
+                return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
+            }
+        },
+        {
+            fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
             name: 'lastReading',
             renderer: function (value) {
-                return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
             }
         }
     ]
