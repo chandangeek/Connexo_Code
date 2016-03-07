@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.config.FormulaPart;
 import com.elster.jupiter.orm.DataModel;
 
@@ -52,5 +53,10 @@ public interface ExpressionNode extends FormulaPart {
      * Update this ExpressionNode.
      */
     void save(DataModel dataModel);
+
+
+    void validate();
+
+    ReadingTypeUnit getReadingTypeUnit();
 
 }

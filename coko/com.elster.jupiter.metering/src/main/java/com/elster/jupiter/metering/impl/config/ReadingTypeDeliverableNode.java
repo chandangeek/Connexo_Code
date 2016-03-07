@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -28,4 +29,8 @@ public class ReadingTypeDeliverableNode extends AbstractNode {
         return visitor.visitDeliverable(this);
     }
 
+    @Override
+    public ReadingTypeUnit getReadingTypeUnit() {
+        return readingTypeDeliverable.get().getReadingType().getUnit();
+    }
 }

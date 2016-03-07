@@ -100,6 +100,11 @@ public abstract class AbstractNode implements ExpressionNode {
         }
     }
 
+    @Override
+    public void validate() {
+
+    }
+
     void doSave(DataModel dataModel) {
         if (id == 0) {
             persist(dataModel);
@@ -107,6 +112,7 @@ public abstract class AbstractNode implements ExpressionNode {
             doUpdate(dataModel);
         }
     }
+
 
     private void persist(DataModel dataModel) {
         Save.CREATE.save(dataModel, this);

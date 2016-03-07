@@ -2,8 +2,10 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.util.units.Dimension;
+import com.elster.jupiter.util.units.Unit;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * Provides support for unit conversion as part of data aggregation.
@@ -11,7 +13,7 @@ import java.util.Arrays;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-03-01 (11:12)
  */
-class UnitConversionSupport {
+public class UnitConversionSupport {
 
     /**
      * Tests if both {@link ReadingTypeUnit}s are compatible for unit conversion.
@@ -20,13 +22,13 @@ class UnitConversionSupport {
      * @param second The second ReadingTypeUnit
      * @return A flag that indicates if both ReadingTypeUnit are compatible or not
      */
-    static boolean areCompatibleForAutomaticUnitConversion(ReadingTypeUnit first, ReadingTypeUnit second) {
+    public static boolean areCompatibleForAutomaticUnitConversion(ReadingTypeUnit first, ReadingTypeUnit second) {
         return (isVolumeRelated(first) && isFlowRelated(second))
                 || (isFlowRelated(first) && isVolumeRelated(second))
                 || (sameDimension(first, second));
     }
 
-    static boolean isVolumeRelated(ReadingTypeUnit unit) {
+    public static boolean isVolumeRelated(ReadingTypeUnit unit) {
         switch (unit) {
             // Explicitly enumerate all the ones that we consider flow related
             case CUBICMETER: // Intentional fall-through
@@ -58,7 +60,7 @@ class UnitConversionSupport {
         }
     }
 
-    static boolean isFlowRelated(ReadingTypeUnit unit) {
+    public static boolean isFlowRelated(ReadingTypeUnit unit) {
         switch (unit) {
             // Explicitly enumerate all the ones that we consider flow related
             case WATT: // Intentional fall-through
@@ -88,19 +90,37 @@ class UnitConversionSupport {
         }
     }
 
-    static boolean sameDimension(ReadingTypeUnit first, ReadingTypeUnit second) {
+    public static boolean sameDimension(ReadingTypeUnit first, ReadingTypeUnit second) {
         return toDimension(first).hasSameDimensions(toDimension(second));
     }
 
-    static boolean isAllowedMultiplication(ReadingTypeUnit first, ReadingTypeUnit second) {
+    public static boolean isAllowedMultiplication(ReadingTypeUnit first, ReadingTypeUnit second) {
         return isAllowedMultiplicationOrDivision(first, second, true);
     }
 
-    static boolean isAllowedDivision(ReadingTypeUnit first, ReadingTypeUnit second) {
+    public static boolean isAllowedDivision(ReadingTypeUnit first, ReadingTypeUnit second) {
         return isAllowedMultiplicationOrDivision(first, second, false);
     }
 
-    private static boolean isAllowedMultiplicationOrDivision(ReadingTypeUnit first, ReadingTypeUnit second, boolean multiplication) {
+    public static Optional<ReadingTypeUnit> getMultiplicationUnit(ReadingTypeUnit first, ReadingTypeUnit second) {
+        return getMultiplicationOrDivisionUnit(first, second, true);
+    }
+
+    public static Optional<ReadingTypeUnit> getDivisionUnit(ReadingTypeUnit first, ReadingTypeUnit second) {
+        return getMultiplicationOrDivisionUnit(first, second, false);
+    }
+
+    public static Optional<ReadingTypeUnit> getMultiplicationOrDivisionUnit(ReadingTypeUnit first, ReadingTypeUnit second, boolean multiplication) {
+        Optional<Dimension> dimension = getMultiplicationOrDivisionDimension(first, second, multiplication);
+        if (dimension.isPresent()) {
+            Unit unit = Unit.getSIUnit(dimension.get());
+            return ReadingTypeUnit.get(unit);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public static Optional<Dimension> getMultiplicationOrDivisionDimension(ReadingTypeUnit first, ReadingTypeUnit second, boolean multiplication) {
         Dimension firstDim = toDimension(first);
         Dimension secondDim = toDimension(second);
 
@@ -116,13 +136,18 @@ class UnitConversionSupport {
 
         Dimension[] values = Dimension.values();
         return Arrays.asList(values).stream().filter(dim ->
-                                (dim.getLengthDimension() == length) &&
-                                (dim.getMassDimension() == mass) &&
-                                (dim.getTimeDimension() == time) &&
-                                (dim.getCurrentDimension() == current) &&
-                                (dim.getTemperatureDimension() == temp) &&
-                                (dim.getAmountDimension() == amount) &&
-                                (dim.getLuminousIntensityDimension() == luminous)).findAny().isPresent();
+                (dim.getLengthDimension() == length) &&
+                        (dim.getMassDimension() == mass) &&
+                        (dim.getTimeDimension() == time) &&
+                        (dim.getCurrentDimension() == current) &&
+                        (dim.getTemperatureDimension() == temp) &&
+                        (dim.getAmountDimension() == amount) &&
+                        (dim.getLuminousIntensityDimension() == luminous)).findAny();
+    }
+
+
+    private static boolean isAllowedMultiplicationOrDivision(ReadingTypeUnit first, ReadingTypeUnit second, boolean multiplication) {
+        return getMultiplicationOrDivisionDimension(first, second, multiplication).isPresent();
     }
 
     private static Dimension toDimension(ReadingTypeUnit unit) {

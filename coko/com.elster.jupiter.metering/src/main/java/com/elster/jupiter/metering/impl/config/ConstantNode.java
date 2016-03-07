@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+
 import javax.inject.Inject;
 import java.math.BigDecimal;
 
@@ -32,5 +34,10 @@ public class ConstantNode extends AbstractNode {
     public String toString() {
         return "constant(" + constantValue.toString() + ")";
     }
+
+    public ReadingTypeUnit getReadingTypeUnit() {
+       return ReadingTypeUnit.NOTAPPLICABLE;
+    }
+
 
 }
