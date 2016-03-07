@@ -9,6 +9,7 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
+import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
@@ -169,12 +170,15 @@ public class ServiceCallsCommands {
                 .orElseThrow(() -> new IllegalArgumentException("No such service call"));
         System.out.println(sc.getNumber() + " "
                         + sc.getState().getKey() + " " + sc.getType().getName() + " "
-                        + sc.getParent().map(p -> p.getNumber()).orElse("-P-") + " "
-                        + sc.getOrigin().orElse("-O-") + " "
-                + sc.getExternalReference().orElse("-E-"));
-        sc.getLogs()
-                .stream()
-                .forEach(log -> System.out.println("   " + log.getTime() + " " + log.getLogLevel() + " " + log.getMessage()));
+                + sc.getParent().map(p -> p.getNumber()).orElse("[no parent]") + " "
+                + sc.getOrigin().orElse("[no orig]") + " "
+                + sc.getExternalReference().orElse("[no ext ref]"));
+        for (ServiceCallLog log : sc.getLogs().find()) {
+            System.out.println("   " + log.getTime() + " " + log.getLogLevel() + " " + log.getMessage());
+            if (log.getStackTrace() != null) {
+                System.out.println("\t" + log.getStackTrace());
+            }
+        }
     }
 
     public void serviceCalls() {

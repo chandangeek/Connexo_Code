@@ -93,6 +93,11 @@ public class ServiceCallLogImpl implements ServiceCallLog, HasId {
         return message;
     }
 
+    @Override
+    public String getStackTrace() {
+        return stackTrace;
+    }
+
     public void save() {
         if (this.getId() > 0) {
             Save.UPDATE.save(this.dataModel, this, Save.Update.class);
