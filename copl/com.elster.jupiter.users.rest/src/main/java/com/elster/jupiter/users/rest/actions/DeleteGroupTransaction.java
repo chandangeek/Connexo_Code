@@ -30,7 +30,7 @@ public class DeleteGroupTransaction extends VoidTransaction {
     private Group findAndLockGroupByIdAndVersion(GroupInfo info) {
         return userService.findAndLockGroupByIdAndVersion(info.id, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                        .withActualVersion(() -> userService.getGroup(info.id).map(Group::getVersion).orElse(null))
+                        .withActualVersion(() -> userService.getGroup(info.id).map(Group::getVersion).orElse(0L))
                         .supplier());
     }
 }
