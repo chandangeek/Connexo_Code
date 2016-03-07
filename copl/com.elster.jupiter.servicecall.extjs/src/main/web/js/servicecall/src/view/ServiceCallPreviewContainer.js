@@ -34,7 +34,8 @@ Ext.define('Scs.view.ServiceCallPreviewContainer', {
 
         me.previewComponent = {
             xtype: 'servicecalls-preview',
-            itemId: 'pnl-servicecalls-preview'
+            itemId: 'pnl-servicecalls-preview',
+            router: me.router
         };
 
 

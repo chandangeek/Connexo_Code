@@ -2,6 +2,7 @@ Ext.define('Scs.view.Preview', {
     extend: 'Ext.panel.Panel',
     frame: true,
     alias: 'widget.servicecalls-preview',
+    router: null,
     requires: [
         'Scs.view.PreviewForm',
     ],
@@ -22,6 +23,7 @@ Ext.define('Scs.view.Preview', {
 
         me.items = {
             xtype: 'servicecalls-preview-form',
+            router: me.router
         };
         me.callParent(arguments);
     }

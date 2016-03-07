@@ -21,13 +21,13 @@ Ext.define('Scs.controller.history.ServiceCall', {
                             title: Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'),
                             controller: 'Scs.controller.ServiceCalls',
                             action: 'showServiceCallOverview',
-                            callback: function (route) {
+                            /*callback: function (route) {
                                 this.getApplication().on('servicecallload', function (arguments) {
                                     route.setTitle(arguments[0] ? arguments[0] : Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'));
                                     return true;
                                 }, {single: true});
                                 return this;
-                            }
+                            }*/
                         }
                     }
                 }

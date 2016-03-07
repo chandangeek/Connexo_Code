@@ -16,9 +16,9 @@ Ext.define('Scs.view.Grid', {
                 header: Uni.I18n.translate('general.serviceCall', 'SCS', 'Service call'),
                  dataIndex: 'name',
                  renderer: function (value, metaData, record) {
-                 var url = '#/workspace/servicecalls/';
-                 url += record.get('id');
-                 return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                     var url = '#/workspace/servicecalls/';
+                     url += record.get('id');
+                     return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                  },
                  flex: 0.6
             },

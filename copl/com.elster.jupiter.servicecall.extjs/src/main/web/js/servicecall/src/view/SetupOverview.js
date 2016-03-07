@@ -13,7 +13,6 @@ Ext.define('Scs.view.SetupOverview', {
 
     initComponent: function () {
         var me = this;
-
         me.content = {
             ui: 'large',
             title: Uni.I18n.translate('general.serviceCalls', 'SCS', 'Service calls'),

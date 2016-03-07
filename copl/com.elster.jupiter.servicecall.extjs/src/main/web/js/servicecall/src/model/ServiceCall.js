@@ -1,7 +1,7 @@
 Ext.define('Scs.model.ServiceCall', {
     extend: 'Uni.model.Version',
     fields: [
-        'name', 'externalReference', 'state', 'type', 'parents', 'childrenInfo',
+        'name', 'externalReference', 'state', 'type', 'parents', 'childrenInfo', 'origin',
         {
             name: 'version',
             defaultValue: 0
@@ -17,6 +17,25 @@ Ext.define('Scs.model.ServiceCall', {
         {
             name: 'lastCompletedTime',
             type: 'number'
+        },
+        {
+            name: 'topLevelParent',
+            persist: false,
+            mapping: function (data) {
+                 if(data.parents) {
+                     return data.parents.length > 1 ? data.parents[0] : "";
+                 }
+                return "";
+            }
+        },
+        {
+            name: 'parent',
+            persist: false,
+            mapping: function (data) {
+                if(data.parents) {
+                    return data.parents.length > 0 ? data.parents[data.parents.length - 1] : "";
+                }
+            }
         },
         {
             name: 'creationTimeDisplay',
