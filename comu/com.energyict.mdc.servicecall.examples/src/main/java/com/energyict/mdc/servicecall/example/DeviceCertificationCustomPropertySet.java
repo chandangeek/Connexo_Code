@@ -26,14 +26,16 @@ import java.util.Set;
 /**
  * Created by bvn on 2/15/16.
  */
-@Component(name = "com.energyict.servicecall.device.certification.customPropertySet", service = CustomPropertySet.class, immediate = true)
+@Component(name = "com.energyict.servicecall.device.certification.customPropertySet",
+        service = CustomPropertySet.class,
+        immediate = true)
 public class DeviceCertificationCustomPropertySet implements CustomPropertySet<ServiceCall, DeviceCertificationDomainExtension> {
 
     public DeviceCertificationCustomPropertySet() {
     }
 
     @Inject
-    public DeviceCertificationCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService) {
+    public DeviceCertificationCustomPropertySet(CustomPropertySetService customPropertySetService) {
         customPropertySetService.addCustomPropertySet(this);
     }
 
@@ -93,12 +95,19 @@ public class DeviceCertificationCustomPropertySet implements CustomPropertySet<S
                                 .javaName())
                         .describedAs("Device id")
                         .setDefaultValue(-1L)
+                        .finish(),
+                this.propertySpecService
+                        .longSpec()
+                        .named(DeviceCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.javaName(), DeviceCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION
+                                .javaName())
+                        .describedAs("Year of certification")
+                        .setDefaultValue(-1L)
                         .finish());
     }
 
     private class MyPersistenceSupport implements PersistenceSupport<ServiceCall, DeviceCertificationDomainExtension> {
-        private final String TABLE_NAME = "SCS_CPS_DEVICE_CERTIFICATION";
-        private final String FK = "FK_SCS_CPS_DEVICE_CERTIFICATION";
+        private final String TABLE_NAME = "SCS_CPS_DEV_CER";
+        private final String FK = "FK_SCS_CPS_DEV_CER";
 
         @Override
         public String componentName() {
@@ -141,6 +150,12 @@ public class DeviceCertificationCustomPropertySet implements CustomPropertySet<S
                     .column(DeviceCertificationDomainExtension.FieldNames.DEVICE_ID.databaseName())
                     .number()
                     .map(DeviceCertificationDomainExtension.FieldNames.DEVICE_ID.javaName())
+                    .notNull()
+                    .add();
+            table
+                    .column(DeviceCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.databaseName())
+                    .number()
+                    .map(DeviceCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.javaName())
                     .notNull()
                     .add();
         }
