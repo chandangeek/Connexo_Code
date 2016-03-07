@@ -2,10 +2,10 @@
     "name": "com.elster.insight.app",
 
     "requires": [
-        "com.elster.jupiter.loaderjs",
-        "com.elster.jupiter.unifyingjs",
-        "com.elster.jupiter.config.extjs",
-        "com.elster.insight.metering.extjs"
+        "com.elster.jupiter.loaderjs@1.1.0",
+        "com.elster.jupiter.unifyingjs@1.1.0",
+        "com.elster.jupiter.config.extjs@1.1.0",
+        "com.elster.insight.metering.extjs@1.0.0"
     ],
 
     "id": "7cde7b38-a4d1-4e19-aed4-8b4b3e92293e"
