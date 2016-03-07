@@ -57,7 +57,10 @@ public class Installer {
                 queue.activate();
                 queue.subscribe(subscriberName);
             } else {
-                boolean notSubscribedYet = !destinationSpecOptional.get().getSubscribers().stream().anyMatch(spec -> spec.getName().equals(subscriberName));
+                boolean notSubscribedYet = !destinationSpecOptional.get()
+                        .getSubscribers()
+                        .stream()
+                        .anyMatch(spec -> spec.getName().equals(subscriberName));
                 if (notSubscribedYet) {
                     destinationSpecOptional.get().activate();
                     destinationSpecOptional.get().subscribe(subscriberName);

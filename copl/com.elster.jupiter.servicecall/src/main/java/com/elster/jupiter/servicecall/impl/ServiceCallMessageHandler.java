@@ -23,7 +23,8 @@ public class ServiceCallMessageHandler implements MessageHandler {
     public void process(Message message) {
         TransitionNotification transitionNotification = jsonService.deserialize(message.getPayload(), TransitionNotification.class);
         ServiceCall serviceCall = serviceCallService.getServiceCall(transitionNotification.getServiceCallId())
-                .orElseThrow(()->new NoSuchServiceCallException(thesaurus, MessageSeeds.NO_SUCH_SERVICE_CALL, transitionNotification.getServiceCallId()));
+                .orElseThrow(() -> new NoSuchServiceCallException(thesaurus, MessageSeeds.NO_SUCH_SERVICE_CALL, transitionNotification
+                        .getServiceCallId()));
         serviceCall.getType().getServiceCallHandler()
                 .onStateChange(serviceCall, transitionNotification.getOldState(), transitionNotification.getNewState());
 

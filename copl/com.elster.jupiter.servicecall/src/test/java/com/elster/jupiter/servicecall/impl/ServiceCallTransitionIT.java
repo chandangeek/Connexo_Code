@@ -250,7 +250,8 @@ public class ServiceCallTransitionIT {
             context.commit();
         }
 
-        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.DESTINATION_NAME, ServiceCallServiceImpl.SUBSCRIBER_NAME).get();
+        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.DESTINATION_NAME, ServiceCallServiceImpl.SUBSCRIBER_NAME)
+                .get();
 
         try (TransactionContext context = transactionService.getContext()) {
             Message message = await().atMost(200, TimeUnit.MILLISECONDS)
@@ -301,7 +302,8 @@ public class ServiceCallTransitionIT {
             context.commit();
         }
 
-        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.DESTINATION_NAME, ServiceCallServiceImpl.SUBSCRIBER_NAME).get();
+        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.DESTINATION_NAME, ServiceCallServiceImpl.SUBSCRIBER_NAME)
+                .get();
 
         try (TransactionContext context = transactionService.getContext()) {
             Message message = await().atMost(500, TimeUnit.MILLISECONDS)
