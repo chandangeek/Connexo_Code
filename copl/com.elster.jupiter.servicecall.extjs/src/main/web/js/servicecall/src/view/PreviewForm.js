@@ -60,9 +60,7 @@ Ext.define('Scs.view.PreviewForm', {
 
     updatePreview: function (record) {
         var me = this,
-            childrenContainer = me.down('#serviceCallChildContainer'),
-            container,
-            field;
+            childrenContainer = me.down('#serviceCallChildContainer');
         if (!Ext.isDefined(record)) {
             return;
         }
@@ -72,6 +70,18 @@ Ext.define('Scs.view.PreviewForm', {
 
         me.loadRecord(record);
         childrenContainer.removeAll();
+        if(record.get('numberOfChildren')) {
+            me.addChildrenInfo(record, childrenContainer);
+        }
+
+        if (me.rendered) {
+            Ext.resumeLayouts(true);
+        }
+    },
+
+    addChildrenInfo: function(record, childrenContainer) {
+        var me = this,
+            container;
         if(record.get('childrenInfo')) {
             container = Ext.create('Ext.form.FieldContainer', {
                 layout: {
@@ -80,28 +90,36 @@ Ext.define('Scs.view.PreviewForm', {
                 labelAlign: 'top',
                 fieldLabel: Uni.I18n.translate('general.summaryOfChildren', 'SCS', 'Summary of children')
             });
+
+            container.add({
+                xtype: 'displayfield',
+                value: record.get('numberOfChildren'),
+                router: me.router,
+                record: record,
+                labelWidth: 250,
+                fieldLabel: Uni.I18n.translate('general.children', 'SCS', 'Children'),
+                renderer: function(value) {
+                    return '<a href="' + this.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: this.record.get('id')}) + '">' + value + '</a>'
+                }
+            });
             Ext.each(record.get('childrenInfo'), function (info) {
                 var statusFilter = {
                     status: info.state,
                 };
                 container.add({
-                        xtype: 'displayfield',
-                        value: info.percentage + '%',
-                        router: me.router,
-                        record: record,
-                        labelWidth: 250,
-                        fieldLabel: info.stateDisplayName,
-                        renderer: function(value) {
-                            return '<a href="' + this.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: this.record.get('id')}, statusFilter) + '">' + value + '</a>'
-                        }
-                    });
+                    xtype: 'displayfield',
+                    value: info.percentage + '%',
+                    router: me.router,
+                    record: record,
+                    labelWidth: 250,
+                    fieldLabel: info.stateDisplayName,
+                    renderer: function(value) {
+                        return '<a href="' + this.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: this.record.get('id')}, statusFilter) + '">' + value + '</a>'
+                    }
+                });
             });
 
             childrenContainer.add(container)
-        }
-
-        if (me.rendered) {
-            Ext.resumeLayouts(true);
         }
     }
 

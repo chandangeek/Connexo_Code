@@ -19,6 +19,10 @@ Ext.define('Scs.model.ServiceCall', {
             type: 'number'
         },
         {
+            name: 'numberOfChildren',
+            type: 'number'
+        },
+        {
             name: 'topLevelParent',
             persist: false,
             mapping: function (data) {
