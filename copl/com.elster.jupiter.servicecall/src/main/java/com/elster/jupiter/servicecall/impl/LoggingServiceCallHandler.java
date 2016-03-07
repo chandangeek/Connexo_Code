@@ -22,6 +22,7 @@ class LoggingServiceCallHandler implements ServiceCallHandler {
             return delegate.allowStateChange(serviceCall, oldState, newState);
         } catch (RuntimeException e) { // safety net for buggy ServiceCallHandler implementations
             logException(serviceCall, e);
+            serviceCall.requestTransition(DefaultState.FAILED);
             return false;
         }
     }
@@ -38,6 +39,7 @@ class LoggingServiceCallHandler implements ServiceCallHandler {
             delegate.onStateChange(serviceCall, oldState, newState);
         } catch (RuntimeException e) { // safety net for buggy ServiceCallHandler implementations
             logException(serviceCall, e);
+            serviceCall.requestTransition(DefaultState.FAILED);
         }
     }
 
@@ -47,6 +49,7 @@ class LoggingServiceCallHandler implements ServiceCallHandler {
             delegate.onChildStateChange(serviceCall, oldState, newState);
         } catch (RuntimeException e) {
             logException(serviceCall.getParent().get(), e);
+            serviceCall.requestTransition(DefaultState.FAILED);
         }
     }
 }

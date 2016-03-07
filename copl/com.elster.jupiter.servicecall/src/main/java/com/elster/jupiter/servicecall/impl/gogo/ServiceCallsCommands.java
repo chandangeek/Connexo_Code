@@ -104,7 +104,7 @@ public class ServiceCallsCommands {
 
         try (TransactionContext context = transactionService.getContext()) {
             serviceCallService.createServiceCallType(name, versionName)
-                    .customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCallType.class)
+                    .customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
                             .get(0))
                     .handler("DisconnectHandler1")
                     .create();

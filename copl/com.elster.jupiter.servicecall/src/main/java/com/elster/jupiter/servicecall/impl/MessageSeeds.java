@@ -19,7 +19,8 @@ public enum MessageSeeds implements MessageSeed {
     HANDLER_DISAPPEARED(8, Constants.HANDLER_DISAPPEARED, "The service call type was created with a handler ''{0}'' that can no longer be found in the system"),
     CANNOT_DELETE_SERVICECALLTYPE(9, "canNotRemoveType", "Service call type {0} can not be removed, since there are still service calls of that type (e.g. {1})."),
     LIFE_CYCLE_STILL_IN_USE(10, "LifeCycleIsStillInUse", "The service call life cycle is still referenced by service call types"),
-    SERVICE_CALL_HANDLER_FAILURE(11, "servicecallhandler.failed", "Service call handler failed.");
+    SERVICE_CALL_HANDLER_FAILURE(11, "servicecallhandler.failed", "Service call handler failed."),
+    NO_SUCH_SERVICE_CALL(12, "NoSuchServiceCall", "Service call with id {0} does not exist");
     ;
 
     private final int number;
