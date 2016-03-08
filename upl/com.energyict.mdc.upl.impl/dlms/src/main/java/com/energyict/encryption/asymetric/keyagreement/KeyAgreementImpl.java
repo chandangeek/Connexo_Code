@@ -40,7 +40,7 @@ public final class KeyAgreementImpl implements KeyAgreement {
      */
     KeyAgreementImpl(final ECCCurve curve, KeyPair keyPair) {
         try {
-            final KeyPair ephemeralKeys = (keyPair != null ? keyPair : KeyUtils.generateECCKeyPair(curve.getCurveName()));
+            final KeyPair ephemeralKeys = (keyPair != null ? keyPair : KeyUtils.generateECCKeyPair(curve));
 
             this.publicKey = ephemeralKeys.getPublic();
 
