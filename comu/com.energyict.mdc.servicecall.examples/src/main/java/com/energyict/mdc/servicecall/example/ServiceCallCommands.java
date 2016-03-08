@@ -2,6 +2,8 @@ package com.energyict.mdc.servicecall.example;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
@@ -24,17 +26,25 @@ import java.util.Optional;
 @Component(name = "com.energyict.mdc.servicecall.examples", service = ServiceCallCommands.class,
         property = {"osgi.command.scope=sch",
                 "osgi.command.function=updateYearOfCertification",
+                "osgi.command.function=updateYearOfCertificationGroup"
         }, immediate = true)
 public class ServiceCallCommands {
-    public static final String NAME = "yearUpdater";
-    public static final String VERSION_NAME = "v1.0";
+    public static final String HANDLER_NAME = "yearUpdater";
+    public static final String HANDLER_VERSION_NAME = "v1.0";
+    public static final String GROUP_HANDLER_NAME = "yearGroupUpdater";
+    public static final String GROUP_HANDLER_VERSION_NAME = "v1.0";
     private volatile ServiceCallService serviceCallService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile DeviceService deviceService;
 
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile MeteringGroupsService meteringGroupService;
 
+    @Reference
+    public void setMeteringGroupService(MeteringGroupsService meteringGroupService) {
+        this.meteringGroupService = meteringGroupService;
+    }
 
     @Reference
     public void setTransactionService(TransactionService transactionService) {
@@ -78,8 +88,8 @@ public class ServiceCallCommands {
                     .findFirst()
                     .orElseThrow(() -> new IllegalStateException("Could not find my custom property set"));
 
-            ServiceCallType serviceCallType = serviceCallService.findServiceCallType(NAME, VERSION_NAME)
-                    .orElseGet(() -> serviceCallService.createServiceCallType(NAME, VERSION_NAME)
+            ServiceCallType serviceCallType = serviceCallService.findServiceCallType(HANDLER_NAME, HANDLER_VERSION_NAME)
+                    .orElseGet(() -> serviceCallService.createServiceCallType(HANDLER_NAME, HANDLER_VERSION_NAME)
                             .handler("DeviceCertificationHandler")
                             .logLevel(LogLevel.FINEST)
                             .customPropertySet(customPropertySet)
@@ -107,4 +117,52 @@ public class ServiceCallCommands {
             context.commit();
         }
     }
+
+    public void updateYearOfCertificationGroup() {
+        System.out.println("Usage: updateYearOfCertificationGrop <device group id> <year>");
+    }
+
+    public void updateYearOfCertificationGroup(long deviceGroupId, long updateYearOfCertification) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+
+            RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
+                    .stream()
+                    .filter(cps -> cps.getCustomPropertySet()
+                            .getName()
+                            .equals(DeviceGroupCertificationCustomPropertySet.class.getSimpleName()))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("Could not find my custom property set"));
+
+            ServiceCallType serviceCallType = serviceCallService.findServiceCallType(GROUP_HANDLER_NAME, GROUP_HANDLER_VERSION_NAME)
+                    .orElseGet(() -> serviceCallService.createServiceCallType(GROUP_HANDLER_NAME, GROUP_HANDLER_VERSION_NAME)
+                            .handler("DeviceGroupCertificationHandler")
+                            .logLevel(LogLevel.FINEST)
+                            .customPropertySet(customPropertySet)
+                            .create());
+
+            Optional<EndDeviceGroup> endDeviceGroup = meteringGroupService.findEndDeviceGroup(deviceGroupId);
+            DeviceGroupCertificationDomainExtension deviceCertificationDomainExtension = new DeviceGroupCertificationDomainExtension();
+            deviceCertificationDomainExtension.setYearOfCertification(updateYearOfCertification);
+            deviceCertificationDomainExtension.setDeviceGroupId(deviceGroupId);
+            if (endDeviceGroup.isPresent()) {
+                ServiceCall serviceCall = serviceCallType.newServiceCall()
+                        .origin("Gogo")
+                        .extendedWith(deviceCertificationDomainExtension)
+                        .targetObject(endDeviceGroup.get())
+                        .create();
+                serviceCall.requestTransition(DefaultState.PENDING);
+            } else {
+                ServiceCall serviceCall = serviceCallType.newServiceCall()
+                        .origin("Gogo")
+                        .extendedWith(deviceCertificationDomainExtension)
+                        .create();
+                serviceCall.log(LogLevel.SEVERE, "Device group could not be found");
+                serviceCall.requestTransition(DefaultState.REJECTED);
+            }
+            context.commit();
+        }
+    }
+
 }
