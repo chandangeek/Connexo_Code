@@ -136,25 +136,23 @@ Ext.define('Isu.controller.IssueDetail', {
                     actionText: Uni.I18n.translate('issue.workspace.datacollection.added.comment','IDC','added a comment'),
                     creationDate: rec.data.creationDate,
                     contentText: rec.data.splittedComments,
-                    //processLink: router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/viewProcesses').buildUrl({issueId: issueId} , {details: false, issueType: issueType}),
                 });
             }
         );
-        procesStore.each(function(rec)
-            {
-                data.push({
-                    user: rec.data.startedBy,
-                    actionText: Uni.I18n.translate('issue.workspace.datacollection.processStarted','IDC','started a process'),
-                    creationDate: rec.data.startDate,
-                    contentText: rec.data.name,
-                    forProcess: true,
-                    processId: rec.data.processId,
-                    status: ' (' + rec.data.statusDisplay + ')',
-                    //processLink: router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/viewProcesses').buildUrl({issueId: issueId} , {details: false, issueType: issueType}),
-                });
-            }
-        );
-
+        if(Isu.privileges.Issue.canViewProcesses()) {
+            procesStore.each(function (rec) {
+                    data.push({
+                        user: rec.data.startedBy,
+                        actionText: Uni.I18n.translate('issue.workspace.datacollection.processStarted', 'IDC', 'started a process'),
+                        creationDate: rec.data.startDate,
+                        contentText: rec.data.name,
+                        forProcess: true,
+                        processId: rec.data.processId,
+                        status: ' (' + rec.data.statusDisplay + ')',
+                    });
+                }
+            );
+        }
         Ext.Array.each(data, function (item) {
             timelineStore.add(item);
         })
@@ -162,6 +160,8 @@ Ext.define('Isu.controller.IssueDetail', {
         timelineStore.sort('creationDate', 'DESC');
         timelineView.bindStore(timelineStore);
         timelineView.previousSibling('#no-issue-timeline').setVisible(timelineStore.data.items.length <= 0);
+
+        if(!Isu.privileges.Issue.canViewProcesses()) return;
 
         procesStore.sort('startDate', 'DESC');
         processView.bindStore(procesStore);
@@ -184,6 +184,7 @@ Ext.define('Isu.controller.IssueDetail', {
             router = this.getController('Uni.controller.history.Router');
 
         commentsStore.getProxy().url = '/api/isu/issues/' + record.getId() + '/comments';
+        commentsStore.sort('creationDate', 'DESC');
         commentsView.bindStore(commentsStore);
         commentsView.setLoading(true);
         commentsStore.load(function (records) {
@@ -242,7 +243,7 @@ Ext.define('Isu.controller.IssueDetail', {
             commentsStore.load(function (records) {
                 this.add(records);
                 commentsView.setLoading(false);
-                //me.loadTimeline(this);
+                me.loadTimeline(commentsStore);
             })
         }});
 
