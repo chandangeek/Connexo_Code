@@ -62,6 +62,7 @@ public class ConnexoLauncher {
         }
         if (install) {
             interactive = false;
+            configMap.put("admin.password", args[args.length - 1]);
         }
         if (!interactive) {
             configMap.put("gosh.args", "--nointeractive");
@@ -131,13 +132,18 @@ public class ConnexoLauncher {
     }
 
     private static void initAll() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        ServiceReference serviceReference = framework.getBundleContext().getServiceReference("com.elster.jupiter.install.InstallerService");
+        ServiceReference serviceReference = framework.getBundleContext()
+                .getServiceReference("com.elster.jupiter.install.InstallerService");
         if (serviceReference != null) {
             Object installService = framework.getBundleContext().getService(serviceReference);
             System.out.println("Installing database schema !");
             installService.getClass().getMethod("initAll").invoke(installService);
             System.out.println("Database installation finished.");
         }
+    }
+
+    private static void userPass() {
+
     }
 
 
