@@ -48,7 +48,7 @@ Ext.define('Idc.view.Detail', {
             {
                 xtype: 'panel',
                 ui: 'medium',
-                title: Uni.I18n.translate('issue.workspace.datacollection.context', 'IDC', 'Context information'),
+                title: Uni.I18n.translate('issue.workspace.datacollection.context', 'IDC', 'Contextual information'),
                 items: [
                     {
                         xtype: 'tabpanel',
@@ -84,6 +84,7 @@ Ext.define('Idc.view.Detail', {
                                 ui: 'medium',
                                 title: Uni.I18n.translate('issue.workspace.datacollection.processes', 'IDC', 'Processes'),
                                 itemId: 'tab-panel-issue-processes',
+                                privileges: Isu.privileges.Issue.canViewProcesses(),
                                 items: [
                                     {
                                         xtype: 'issue-process-list',
