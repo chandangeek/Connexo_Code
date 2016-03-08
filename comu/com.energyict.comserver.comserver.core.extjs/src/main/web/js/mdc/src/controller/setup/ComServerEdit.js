@@ -120,25 +120,28 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
             formErrorsPanel = form.down('uni-form-error-message'),
             model;
 
-        model = me.formToModel();
+        try {
+            model = me.formToModel();
+            button.setDisabled(true);
+            page.setLoading('Saving...');
+            formErrorsPanel.hide();
+            form.getForm().clearInvalid();
+            model.save({
+                backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/comservers').buildUrl(),
+                callback: function (model, operation, success) {
+                    page.setLoading(false);
+                    button.setDisabled(false);
 
-        button.setDisabled(true);
-        page.setLoading('Saving...');
-        formErrorsPanel.hide();
-        form.getForm().clearInvalid();
-        model.save({
-            backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/comservers').buildUrl(),
-            callback: function (model, operation, success) {
-                page.setLoading(false);
-                button.setDisabled(false);
-
-                if (success) {
-                    me.onSuccessSaving(operation.action, model.get('comServerType'));
-                } else {
-                    me.onFailureSaving(operation.response);
+                    if (success) {
+                        me.onSuccessSaving(operation.action, model.get('comServerType'));
+                    } else {
+                        me.onFailureSaving(operation.response);
+                    }
                 }
-            }
-        });
+            });
+        }catch(err){
+            formErrorsPanel.show();
+        }
     },
 
     modelToForm: function (model, form) {
@@ -171,13 +174,16 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
             queryString = Ext.Object.toQueryString(form.getValues()),
             values = Ext.Object.fromQueryString(queryString, true),
             model = this.comServerModel;
-        model.beginEdit();
-        model.set(values);
-        model.updateHostNameOfUrisIfNeeded();
-        model.updateMonitorAndStatusPortIfNeeded();
-        model.updateEventRegistrationPortIfNeeded();
-        model.endEdit();
-
+        if (form.isValid()){
+            model.beginEdit();
+            model.set(values);
+            model.updateHostNameOfUrisIfNeeded();
+            model.updateMonitorAndStatusPortIfNeeded();
+            model.updateEventRegistrationPortIfNeeded();
+            model.endEdit();
+        }else{
+            throw Uni.I18n.translate('comServer.form.invalid', 'MDC', 'Form contains invalid values.')
+        }
         return model;
     },
 
