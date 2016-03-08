@@ -87,9 +87,7 @@ public class ServiceCallsCommands {
                                 .stream()
                                 .map(RegisteredCustomPropertySet::getCustomPropertySet)
                                 .map(CustomPropertySet::getName)
-                                .collect(toList())) + "] handled by " + serviceCallType.getServiceCallHandler()
-                        .getClass()
-                        .getSimpleName());
+                                .collect(toList())) + "] handled by " + serviceCallType.getServiceCallHandler().getDisplayName());
             } catch (Exception e) {
                 System.err.println(e);
             }

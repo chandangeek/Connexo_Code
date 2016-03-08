@@ -68,4 +68,9 @@ class LoggingServiceCallHandler implements ServiceCallHandler {
             }
         }
     }
+
+    @Override
+    public String getDisplayName() {
+        return delegate.getDisplayName();
+    }
 }
