@@ -30,7 +30,6 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
                     xtype: 'selection-grid',
                     itemId: 'selection-grid',
                     store: me.getGridStore(),
-                    padding: 0,
                     maxHeight: 368,
                     columns: me.getGridColumns(),
                     padding: '0 0 5 0'
