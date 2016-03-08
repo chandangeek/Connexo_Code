@@ -69,14 +69,40 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINEST, "Now entering state " + newState.getKey());
         switch (newState) {
+            case WAITING:
+                serviceCall.log(LogLevel.FINE, "My children are now working while I sit back and relax");
             case ONGOING:
-                createChildren(serviceCall);
+                if (serviceCall.getChildren().paged(0, 1).find().isEmpty()) {
+                    createChildren(serviceCall);
+                } else {
+                    calculateResult(serviceCall);
+                }
                 break;
             case PENDING:
                 serviceCall.requestTransition(DefaultState.ONGOING);
                 break;
             default:
                 serviceCall.log(LogLevel.WARNING, String.format("I entered a state I have no action for: %s", newState));
+        }
+    }
+
+    private void calculateResult(ServiceCall serviceCall) {
+        Map<DefaultState, Long> collect = countStates(serviceCall);
+
+        boolean finished = EnumSet.of(DefaultState.PENDING, DefaultState.CREATED, DefaultState.SCHEDULED, DefaultState.PAUSED, DefaultState.WAITING, DefaultState.ONGOING)
+                .stream().noneMatch(state -> count(collect, state) > 0L);
+
+        if (finished && !EnumSet.of(DefaultState.PARTIAL_SUCCESS, DefaultState.CANCELLED, DefaultState.SUCCESSFUL, DefaultState.FAILED)
+                .contains(serviceCall.getState())) {
+            if (count(collect, DefaultState.FAILED) > 0L) {
+                if (count(collect, DefaultState.SUCCESSFUL) > 0L) {
+                    serviceCall.requestTransition(DefaultState.PARTIAL_SUCCESS);
+                } else {
+                    serviceCall.requestTransition(DefaultState.FAILED);
+                }
+            } else {
+                serviceCall.requestTransition(DefaultState.SUCCESSFUL); // If there are no children, we consider this success...
+            }
         }
     }
 
@@ -92,26 +118,22 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
                 parentServiceCall.log(LogLevel.FINE, "Another one bites the dust");
                 break;
             default:
-                parentServiceCall.log(LogLevel.FINEST, String.format("Child entered a state I don't care about no action for: %s", newState));
+                parentServiceCall.log(LogLevel.FINEST, String.format("Child entered a state I don't care about: %s", newState));
         }
-        Map<DefaultState, Long> collect = parentServiceCall.getChildren()
-                .stream()
-                .collect(Collectors.groupingBy(ServiceCall::getState, Collectors.counting()));
+        Map<DefaultState, Long> collect = countStates(parentServiceCall);
 
         boolean finished = EnumSet.of(DefaultState.PENDING, DefaultState.CREATED, DefaultState.SCHEDULED, DefaultState.PAUSED, DefaultState.WAITING, DefaultState.ONGOING)
                 .stream().noneMatch(state -> count(collect, state) > 0L);
 
-        if (finished) {
-            if (count(collect, DefaultState.FAILED) > 0L) {
-                if (count(collect, DefaultState.SUCCESSFUL) > 0L) {
-                    parentServiceCall.requestTransition(DefaultState.PARTIAL_SUCCESS);
-                } else {
-                    parentServiceCall.requestTransition(DefaultState.FAILED);
-                }
-            } else {
-                parentServiceCall.requestTransition(DefaultState.SUCCESSFUL); // If there are no children, we consider this success...
-            }
+        if (finished && parentServiceCall.getState() == DefaultState.WAITING) {
+            parentServiceCall.requestTransition(DefaultState.ONGOING); // RACE CONDITION
         }
+    }
+
+    protected Map<DefaultState, Long> countStates(ServiceCall parentServiceCall) {
+        return parentServiceCall.getChildren()
+                .stream()
+                .collect(Collectors.groupingBy(ServiceCall::getState, Collectors.counting()));
     }
 
     protected long count(Map<DefaultState, Long> collect, DefaultState state) {
@@ -140,6 +162,7 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
                             .create();
                     childServiceCall.requestTransition(DefaultState.PENDING);
                 }
+                serviceCall.requestTransition(DefaultState.WAITING);
             } else {
                 serviceCall.log(LogLevel.SEVERE, "Could not locate required service call type for children");
             }
