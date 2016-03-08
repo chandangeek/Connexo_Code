@@ -31,12 +31,14 @@ public class ServiceCallResource {
     private final ServiceCallService serviceCallService;
     private final ExceptionFactory exceptionFactory;
     private final ServiceCallInfoFactory serviceCallInfoFactory;
+    private final PropertyUtils propertyUtils;
 
     @Inject
-    public ServiceCallResource(ServiceCallService serviceCallService, ExceptionFactory exceptionFactory, ServiceCallInfoFactory serviceCallInfoFactory) {
+    public ServiceCallResource(ServiceCallService serviceCallService, ExceptionFactory exceptionFactory, ServiceCallInfoFactory serviceCallInfoFactory, PropertyUtils propertyUtils) {
         this.serviceCallService = serviceCallService;
         this.exceptionFactory = exceptionFactory;
         this.serviceCallInfoFactory = serviceCallInfoFactory;
+        this.propertyUtils = propertyUtils;
     }
 
     @GET
@@ -47,7 +49,7 @@ public class ServiceCallResource {
         ServiceCallFinder serviceCallFinder = serviceCallService.getServiceCallFinder();
         applyFilterToFinder(filter, serviceCallFinder);
         queryParameters.getLimit().ifPresent(limit -> serviceCallFinder.setLimit(limit + 1));
-        queryParameters.getStart().ifPresent(start -> serviceCallFinder.setStart(start));
+        queryParameters.getStart().ifPresent(serviceCallFinder::setStart);
         List<ServiceCall> serviceCalls = serviceCallFinder.find();
 
         serviceCalls.stream()
@@ -86,7 +88,7 @@ public class ServiceCallResource {
     @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALLS)
     public ServiceCallInfo getServiceCall(@PathParam("id") long id) {
         return serviceCallService.getServiceCall(id)
-                .map(serviceCall -> serviceCallInfoFactory.detailed(serviceCall, serviceCallService.getChildrenStatus(id)))
+                .map(serviceCall -> serviceCallInfoFactory.detailed(serviceCall, serviceCallService.getChildrenStatus(id), propertyUtils))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_SERVICE_CALL));
     }
 
@@ -101,7 +103,7 @@ public class ServiceCallResource {
         ServiceCallFinder serviceCallFinder = parent.getChildrenFinder();
         applyFilterToFinder(filter, serviceCallFinder);
         queryParameters.getLimit().ifPresent(limit -> serviceCallFinder.setLimit(limit + 1));
-        queryParameters.getStart().ifPresent(start -> serviceCallFinder.setStart(start));
+        queryParameters.getStart().ifPresent(serviceCallFinder::setStart);
         List<ServiceCall> serviceCalls = serviceCallFinder.find();
 
         serviceCalls.stream()

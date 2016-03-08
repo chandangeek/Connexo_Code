@@ -98,6 +98,7 @@ public class ServiceCallApplication extends Application implements TranslationKe
         protected void configure() {
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(PropertyUtils.class).to(PropertyUtils.class);
             bind(ServiceCallInfoFactory.class).to(ServiceCallInfoFactory.class);
             bind(ServiceCallTypeInfoFactory.class).to(ServiceCallTypeInfoFactory.class);
             bind(ServiceCallLogInfoFactory.class).to(ServiceCallLogInfoFactory.class);

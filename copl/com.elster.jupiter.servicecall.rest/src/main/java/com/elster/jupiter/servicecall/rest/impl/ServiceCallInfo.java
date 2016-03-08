@@ -21,6 +21,7 @@ public class ServiceCallInfo {
     public List<ServiceCallChildrenInfo> childrenInfo;
     public String type;
     public long numberOfChildren;
+    public List<ServiceCallCustomPropertySetInfo> customPropertySetInfos;
 
     public ServiceCallInfo() {
 
