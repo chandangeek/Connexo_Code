@@ -153,6 +153,7 @@ Ext.define('Scs.view.PreviewForm', {
     loadCustomPropertySets: function(record) {
         var me = this,
             container,
+            casContainer,
             i = 0,
             propertyForm;
 
@@ -160,11 +161,18 @@ Ext.define('Scs.view.PreviewForm', {
         me.down('#serviceCallPreviewCASColumnOne').removeAll();
         for(i; i < 5; i++) {
             container = i%2 === 0 ? me.down('#serviceCallPreviewColumnTwo') : me.down('#serviceCallPreviewCASColumnOne');
-
+            casContainer = Ext.create('Ext.form.FieldContainer', {
+                layout: {
+                    type: 'vbox'
+                },
+                labelAlign: 'top',
+                fieldLabel: record.customPropertySetInfos().getAt(0).get('name')
+            });
             propertyForm = Ext.create('Uni.property.form.Property');
             propertyForm.loadRecord(record.customPropertySetInfos().getAt(0));
 
-            container.add(propertyForm);
+            casContainer.add(propertyForm)
+            container.add(casContainer);
         }
     }
 
