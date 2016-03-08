@@ -125,7 +125,10 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
                     record = resultSet.records[0];
 
                 grid.reconfigure(record.processInstanceNodes());
+                grid.getSelectionModel().preventFocus = true;
                 grid.getSelectionModel().select(0);
+                delete grid.getSelectionModel().preventFocus;
+
             }
         })
     },

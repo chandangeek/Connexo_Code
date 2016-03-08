@@ -2,6 +2,8 @@ Ext.define('Bpm.monitorissueprocesses.view.IssueProcessesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.bpm-issue-processes-grid',
     store: 'Bpm.monitorissueprocesses.store.IssueProcesses',
+    width: '100%',
+    maxHeight: 150,
     requires: [
 
         'Bpm.monitorissueprocesses.store.IssueProcesses'

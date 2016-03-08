@@ -11,6 +11,7 @@ Ext.define('Bpm.monitorissueprocesses.view.IssueProcessesMainView', {
     ui: 'large',
     margin: '0 0 0 15',
     border: true,
+    overflowY: 'auto',
     items: [
         {
             xtype: 'bpm-issue-processes',

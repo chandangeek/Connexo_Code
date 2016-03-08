@@ -1,7 +1,6 @@
 Ext.define('Bpm.monitorissueprocesses.store.IssueProcesses', {
     extend: 'Ext.data.Store',
     model: 'Bpm.monitorissueprocesses.model.IssueProcess',
-
     autoLoad: false,
     proxy: 'memory',
 
