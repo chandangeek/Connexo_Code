@@ -73,7 +73,7 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
                 serviceCall.log(LogLevel.FINE, "My children are now working while I sit back and relax");
             case ONGOING:
                 if (serviceCall.getChildren().paged(0, 1).find().isEmpty()) {
-                    createChildren(serviceCall);
+                    createChildren(serviceCall); // In case of empty group => will wait for ever in WAITING state
                 } else {
                     calculateResult(serviceCall);
                 }
