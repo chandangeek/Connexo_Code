@@ -20,7 +20,7 @@ Ext.define('Idc.controller.history.Workspace', {
             route: 'workspace/issues/{issueId}/processes',
             controller: 'Bpm.monitorissueprocesses.controller.MonitorIssueProcesses',
             action: 'showProcesses',
-            privileges: Isu.privileges.Issue.viewProcesses,
+            privileges: Isu.privileges.Issue.viewAdminProcesses,
             params: {
                 process: '',
 
