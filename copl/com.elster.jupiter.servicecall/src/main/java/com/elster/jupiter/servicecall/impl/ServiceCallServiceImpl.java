@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.MissingHandlerNameException;
@@ -45,8 +46,10 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -56,9 +59,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Created by bvn on 2/4/16.
- */
 @Component(name = "com.elster.jupiter.servicecall",
         service = {ServiceCallService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
         property = "name=" + ServiceCallService.COMPONENT_NAME,
@@ -312,7 +312,7 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
 
     @Override
     public Map<DefaultState, Long> getChildrenStatus(long id) {
-        HashMap<DefaultState, Long> childrenCountInfo = new HashMap<>();
+        HashMap<DefaultState, Long> childrenStateCount = new HashMap<>();
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         sqlBuilder.append("SELECT fsm.NAME, scs.TOTAL FROM FSM_STATE fsm, ");
@@ -322,16 +322,19 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
         sqlBuilder.append("GROUP BY STATE) scs ");
         sqlBuilder.append("WHERE fsm.ID = scs.STATE");
 
-        try (PreparedStatement statement = sqlBuilder.prepare(dataModel.getConnection(false))) {
-            try (ResultSet resultSet = statement.executeQuery()) {
-                while (resultSet.next()) {
-                    childrenCountInfo.put(DefaultState.from(resultSet.getString(1)).get(), Long.parseLong(resultSet.getString(2)));
+        try (Connection connection = dataModel.getConnection(false)) {
+            try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        childrenStateCount.put(DefaultState.from(resultSet.getString(1))
+                                .get(), Long.parseLong(resultSet.getString(2)));
+                    }
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
         }
-        return childrenCountInfo;
+        return childrenStateCount;
     }
 
     private long numberToId(String number) {

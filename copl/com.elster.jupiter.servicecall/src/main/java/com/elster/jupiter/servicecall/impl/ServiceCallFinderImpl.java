@@ -101,7 +101,9 @@ public class ServiceCallFinderImpl implements ServiceCallFinder {
 
     @Override
     public List<ServiceCall> find() {
-        return stream().select();
+        try (QueryStream<ServiceCall> stream = stream()) {
+            return stream.select();
+        }
     }
 
     @Override
