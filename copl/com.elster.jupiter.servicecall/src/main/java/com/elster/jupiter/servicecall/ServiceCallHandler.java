@@ -20,9 +20,9 @@ public interface ServiceCallHandler {
     }
 
     /**
-     * @param serviceCall the child serviceCall
+     * @param parentServiceCall
      */
-    default void onChildStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
+    default void onChildStateChange(ServiceCall parentServiceCall, ServiceCall childServiceCall, DefaultState oldState, DefaultState newState) {
         // do nothing by default
     }
 

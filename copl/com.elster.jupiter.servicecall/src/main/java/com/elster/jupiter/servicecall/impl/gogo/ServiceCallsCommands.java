@@ -20,6 +20,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -180,7 +181,10 @@ public class ServiceCallsCommands {
     }
 
     public void serviceCalls() {
-        serviceCallService.getServiceCalls().stream().map(sc -> sc.getNumber() + " "
+        serviceCallService.getServiceCalls()
+                .stream()
+                .sorted(Comparator.comparing(ServiceCall::getId))
+                .map(sc -> sc.getNumber() + " "
                 + sc.getState().getKey() + " " + sc.getType().getName() + " "
                 + sc.getParent().map(p -> p.getNumber()).orElse("-P-") + " "
                 + sc.getOrigin().orElse("-O-") + " "
