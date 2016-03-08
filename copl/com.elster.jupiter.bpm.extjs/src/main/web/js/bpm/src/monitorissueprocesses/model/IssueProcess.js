@@ -1,7 +1,7 @@
 Ext.define('Bpm.monitorissueprocesses.model.IssueProcess', {
     extend: 'Ext.data.Model',
     requires: [
-        'Bpm.monitorprocesses.model.RunningProcessOpenTask'
+        'Bpm.monitorissueprocesses.model.IssueProcessOpenTask'
     ],
 
 fields: [
@@ -79,7 +79,7 @@ fields: [
     associations: [
         {
             type: 'hasMany',
-            model: 'Bpm.monitorprocesses.model.RunningProcessOpenTask',
+            model: 'Bpm.monitorissueprocesses.model.IssueProcessOpenTask',
             associationKey: 'openTasks',
             name: 'openTasks'
         }

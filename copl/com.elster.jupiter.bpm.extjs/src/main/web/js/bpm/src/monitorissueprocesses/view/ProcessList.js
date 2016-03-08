@@ -37,7 +37,7 @@ Ext.define('Bpm.monitorissueprocesses.view.ProcessList', {
                             '</td><td></td>',
                             '<td>',
                             '<tpl for="openTasks">',
-                                '<p><a name="{id}" href="javascript:void(0);" class="clickable">{name}</a> '+'('+'{statusDisplay}, {actualOwner})</p>',
+                                '<p><a name="{id}" href="javascript:void(0);" style="{taskLinkStyle}" class="clickable">{name}</a> '+'('+'{statusDisplay}, {actualOwner})</p>',
                             '</tpl>',
 
                             '</td>',
@@ -48,13 +48,19 @@ Ext.define('Bpm.monitorissueprocesses.view.ProcessList', {
                     hasOpenTasks: function (openTasks) {
                         return openTasks.length > 0;
                     },
+                    getTaskLinkStyle: function()
+                    {
+                        return (!Bpm.privileges.BpmManagement.canExecute())?"pointer-events: none; cursor: default;":"";
+                    }
 
                 }
             ),
             afterRender: function(){
                 this.el.on('click', function(event, target){
-                    if(target.name)
+                    if(target.name) {
+                        if (!Bpm.privileges.BpmManagement.canExecute()) return;
                         this.fireEvent("onClickTaskLink", target.name);
+                    }
                     else
                         this.fireEvent("onClickLink", target.innerHTML);
                 }, this, {delegate: '.clickable'});
