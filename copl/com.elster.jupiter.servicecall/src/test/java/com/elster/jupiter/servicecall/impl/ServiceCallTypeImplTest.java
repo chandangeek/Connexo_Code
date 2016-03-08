@@ -4,7 +4,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.servicecall.DefaultState;
-import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 
 import java.util.Optional;
@@ -38,7 +37,7 @@ public class ServiceCallTypeImplTest {
     @Mock
     private ServiceCallHandler serviceRequestHandler;
     @Mock
-    private ServiceCall serviceCall;
+    private ServiceCallImpl serviceCall;
 
     @Before
     public void setUp() {

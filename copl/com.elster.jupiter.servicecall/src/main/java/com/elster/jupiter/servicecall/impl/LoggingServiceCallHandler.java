@@ -22,13 +22,7 @@ class LoggingServiceCallHandler implements ServiceCallHandler {
             return delegate.allowStateChange(serviceCall, oldState, newState);
         } catch (RuntimeException e) { // safety net for buggy ServiceCallHandler implementations
             logException(serviceCall, e);
-            try {
-                serviceCall.requestTransition(DefaultState.FAILED);
-            } catch (RuntimeException e2) {
-                logException(serviceCall, e2);
-                ((ServiceCallImpl) serviceCall).setState(DefaultState.FAILED);
-            }
-
+            ((ServiceCallImpl) serviceCall).setState(DefaultState.FAILED);
             return false;
         }
     }
@@ -45,12 +39,7 @@ class LoggingServiceCallHandler implements ServiceCallHandler {
             delegate.onStateChange(serviceCall, oldState, newState);
         } catch (RuntimeException e) { // safety net for buggy ServiceCallHandler implementations
             logException(serviceCall, e);
-            try {
-                serviceCall.requestTransition(DefaultState.FAILED);
-            } catch (RuntimeException e2) {
-                logException(serviceCall, e2);
-                ((ServiceCallImpl) serviceCall).setState(DefaultState.FAILED);
-            }
+            ((ServiceCallImpl) serviceCall).setState(DefaultState.FAILED);
         }
     }
 
@@ -60,12 +49,7 @@ class LoggingServiceCallHandler implements ServiceCallHandler {
             delegate.onChildStateChange(parentServiceCall, childServiceCall, oldState, newState);
         } catch (RuntimeException e) {
             logException(childServiceCall.getParent().get(), e);
-            try {
-                childServiceCall.requestTransition(DefaultState.FAILED);
-            } catch (RuntimeException e2) {
-                logException(childServiceCall, e2);
-                ((ServiceCallImpl) childServiceCall).setState(DefaultState.FAILED);
-            }
+            ((ServiceCallImpl) childServiceCall).setState(DefaultState.FAILED);
         }
     }
 
