@@ -75,6 +75,11 @@ public class DeviceCertificationHandler implements ServiceCallHandler {
             device.get().setYearOfCertification(yearOfCertification);
             serviceCall.log(LogLevel.FINE, "Year updated");
             device.get().save();
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                serviceCall.log(LogLevel.WARNING, "Something happened while I was -euh- working: "+e);
+//            }
             serviceCall.log(LogLevel.INFO, "Device updated");
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {

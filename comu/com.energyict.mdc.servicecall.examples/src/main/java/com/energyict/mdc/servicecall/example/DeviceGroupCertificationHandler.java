@@ -18,7 +18,10 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.time.Instant;
+import java.util.EnumSet;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Example handler taking care of a setting the year of certification for a group of devices
@@ -77,9 +80,48 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
         }
     }
 
+    @Override
+    public void onChildStateChange(ServiceCall parentServiceCall, ServiceCall childServiceCall, DefaultState oldState, DefaultState newState) {
+        switch (newState) {
+            case SUCCESSFUL:
+                parentServiceCall.log(LogLevel.FINE, "Another one down");
+                break;
+            case FAILED:
+            case CANCELLED:
+            case REJECTED:
+                parentServiceCall.log(LogLevel.FINE, "Another one bites the dust");
+                break;
+            default:
+                parentServiceCall.log(LogLevel.FINEST, String.format("Child entered a state I don't care about no action for: %s", newState));
+        }
+        Map<DefaultState, Long> collect = parentServiceCall.getChildren()
+                .stream()
+                .collect(Collectors.groupingBy(ServiceCall::getState, Collectors.counting()));
+
+        boolean finished = EnumSet.of(DefaultState.PENDING, DefaultState.CREATED, DefaultState.SCHEDULED, DefaultState.PAUSED, DefaultState.WAITING, DefaultState.ONGOING)
+                .stream().noneMatch(state -> count(collect, state) > 0L);
+
+        if (finished) {
+            if (count(collect, DefaultState.FAILED) > 0L) {
+                if (count(collect, DefaultState.SUCCESSFUL) > 0L) {
+                    parentServiceCall.requestTransition(DefaultState.PARTIAL_SUCCESS);
+                } else {
+                    parentServiceCall.requestTransition(DefaultState.FAILED);
+                }
+            } else {
+                parentServiceCall.requestTransition(DefaultState.SUCCESSFUL); // If there are no children, we consider this success...
+            }
+        }
+    }
+
+    protected long count(Map<DefaultState, Long> collect, DefaultState state) {
+        return collect.containsKey(state) ? collect.get(state) : 0L;
+    }
+
     protected void createChildren(ServiceCall serviceCall) {
         DeviceGroupCertificationDomainExtension extensionFor = serviceCall.getExtensionFor(new DeviceGroupCertificationCustomPropertySet(customPropertySetService))
                 .get();
+
         Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroup(extensionFor.getDeviceGroupId());
 
         if (endDeviceGroup.isPresent()) {
