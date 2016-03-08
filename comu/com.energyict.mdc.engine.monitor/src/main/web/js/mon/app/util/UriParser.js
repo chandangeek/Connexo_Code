@@ -10,6 +10,9 @@ Ext.define('CSMonitor.util.UriParser', {
 
     parse: function (href) {
         var parser = document.createElement('a');
+        if (Ext.isIE){
+            document.body.appendChild(parser);
+        }
         parser.href = href;
 
         this.protocol = parser.protocol;    // => "http:"
@@ -19,6 +22,10 @@ Ext.define('CSMonitor.util.UriParser', {
         this.search = parser.search;           // => "?search=test"
         this.hash = parser.hash;               // => "#hash"
         this.host = parser.host;               // => "example.com:3000"
+
+        if (Ext.isIE){
+            document.body.removeChild(parser);
+        }
 
         return this;
     },
