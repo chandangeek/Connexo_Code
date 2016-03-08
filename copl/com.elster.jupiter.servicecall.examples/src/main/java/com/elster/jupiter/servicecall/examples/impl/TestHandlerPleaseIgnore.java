@@ -24,6 +24,19 @@ public class TestHandlerPleaseIgnore implements ServiceCallHandler {
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-        LOGGER.info("Entering state " + newState.name());
+        if (DefaultState.WAITING.equals(newState)) {
+            throw new RuntimeException("Unhandled exception when entering state " + newState.name());
+        } else {
+            LOGGER.info("Entering state " + newState.name());
+        }
+    }
+
+    @Override
+    public void onChildStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
+        if (DefaultState.WAITING.equals(newState)) {
+            throw new RuntimeException("Unhandled exception when child " + serviceCall.getNumber() + " entering state " + newState.name());
+        } else {
+            LOGGER.info("Child "  + serviceCall.getNumber() + " entering state " + newState.name());
+        }
     }
 }

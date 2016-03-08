@@ -29,4 +29,9 @@ public class BogusHandler implements ServiceCallHandler {
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         System.out.println("Now entering state " + newState.getKey());
     }
+
+    @Override
+    public void onChildStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
+        System.out.println("Child " + serviceCall.getNumber() + " entering state " + newState.getKey());
+    }
 }
