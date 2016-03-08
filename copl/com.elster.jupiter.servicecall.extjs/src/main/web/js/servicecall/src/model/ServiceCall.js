@@ -1,5 +1,8 @@
 Ext.define('Scs.model.ServiceCall', {
     extend: 'Uni.model.Version',
+    requires: [
+        'Scs.model.AttributeSetOnServiceCall'
+    ],
     fields: [
         'name', 'externalReference', 'state', 'type', 'parents', 'childrenInfo', 'origin',
         {
@@ -72,6 +75,19 @@ Ext.define('Scs.model.ServiceCall', {
                     return Uni.DateTime.formatDateTimeLong(new Date(lastCompletedTime));
                 }
                 return '-';
+            }
+        }
+    ],
+
+    associations: [
+        {
+            name: 'customPropertySetInfos',
+            type: 'hasMany',
+            model: 'Scs.model.AttributeSetOnServiceCall',
+            associationKey: 'customPropertySetInfos',
+            foreignKey: 'customPropertySetInfos',
+            getTypeDiscriminator: function (node) {
+                return 'Scs.model.AttributeSetOnServiceCall';
             }
         }
     ],

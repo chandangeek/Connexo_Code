@@ -3,7 +3,7 @@ Ext.define('Scs.view.PreviewForm', {
     alias: 'widget.servicecalls-preview-form',
     router: null,
     layout: {
-        type: 'vbox'
+        type: 'column'
     },
     defaults: {
         labelWidth: 250
@@ -12,48 +12,77 @@ Ext.define('Scs.view.PreviewForm', {
         var me = this;
         me.items = [
             {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.topLevelServiceCall', 'SCS', 'Top level service call'),
-                name: 'topLevelParent',
-                id: 'topLevelParentField',
-                hidden: true,
-                router: me.router,
-                renderer: function(value) {
-                    if(value.name) {
-                        return '<a href="' + this.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: value.id}) + '">' + value.name + '</a>';
+                xtype: 'container',
+                columnWidth: 0.5,
+                itemId: 'serviceCallPreviewColumnOne',
+                layout: {
+                    type: 'vbox'
+                },
+                defaults: {
+                    labelWidth: 250
+                },
+                items: [
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('general.topLevelServiceCall', 'SCS', 'Top level service call'),
+                        name: 'topLevelParent',
+                        itemId: 'topLevelParentField',
+                        hidden: true,
+                        router: me.router,
+                        renderer: function (value) {
+                            if (value.name) {
+                                return '<a href="' + this.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: value.id}) + '">' + value.name + '</a>';
+                            }
+                            return "-"
+                        }
+                    },
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('general.parentServiceCall', 'SCS', 'Parent service call'),
+                        name: 'parent',
+                        itemId: 'parentField',
+                        hidden: true,
+                        router: me.router,
+                        renderer: function (value) {
+                            if (value.name) {
+                                return '<a href="' + this.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: value.id}) + '">' + value.name + '</a>';
+                            }
+                            return "-"
+                        }
+                    },
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('general.origin', 'SCS', 'Origin'),
+                        name: 'origin',
+                        renderer: function (value) {
+                            return value === "" ? "-" : value;
+                        }
+                    },
+                    {
+                        xtype: 'container',
+                        itemId: 'serviceCallChildContainer',
+                        layout: {
+                            type: 'vbox'
+                        }
+                    },
+                    {
+                        xtype: 'container',
+                        itemId: 'serviceCallPreviewCASColumnOne',
+                        layout: {
+                            type: 'vbox'
+                        }
                     }
-                    return "-"
-                }
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.parentServiceCall', 'SCS', 'Parent service call'),
-                name: 'parent',
-                id: 'parentField',
-                hidden: true,
-                router: me.router,
-                renderer: function(value) {
-                    if (value.name) {
-                        return '<a href="' + this.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: value.id}) + '">' + value.name + '</a>';
-                    }
-                    return "-"
-                }
-            },
-            {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.origin', 'SCS', 'Origin'),
-                name: 'origin',
-                renderer: function(value) {
-                    return value === "" ? "-" : value;
-                }
+                ]
             },
             {
                 xtype: 'container',
-                id: 'serviceCallChildContainer',
+                columnWidth: 0.5,
                 layout: {
                     type: 'vbox'
-                }
+                },
+                itemId: 'serviceCallPreviewColumnTwo',
             }
+
         ];
         me.callParent(arguments);
     },
@@ -64,19 +93,17 @@ Ext.define('Scs.view.PreviewForm', {
         if (!Ext.isDefined(record)) {
             return;
         }
-        if (me.rendered) {
-            Ext.suspendLayouts();
-        }
+        Ext.suspendLayouts();
 
         me.loadRecord(record);
         childrenContainer.removeAll();
         if(record.get('numberOfChildren')) {
             me.addChildrenInfo(record, childrenContainer);
         }
+        me.loadCustomPropertySets(record);
 
-        if (me.rendered) {
-            Ext.resumeLayouts(true);
-        }
+        Ext.resumeLayouts(true);
+        me.doLayout();
     },
 
     addChildrenInfo: function(record, childrenContainer) {
@@ -120,6 +147,24 @@ Ext.define('Scs.view.PreviewForm', {
             });
 
             childrenContainer.add(container)
+        }
+    },
+
+    loadCustomPropertySets: function(record) {
+        var me = this,
+            container,
+            i = 0,
+            propertyForm;
+
+        me.down('#serviceCallPreviewColumnTwo').removeAll();
+        me.down('#serviceCallPreviewCASColumnOne').removeAll();
+        for(i; i < 5; i++) {
+            container = i%2 === 0 ? me.down('#serviceCallPreviewColumnTwo') : me.down('#serviceCallPreviewCASColumnOne');
+
+            propertyForm = Ext.create('Uni.property.form.Property');
+            propertyForm.loadRecord(record.customPropertySetInfos().getAt(0));
+
+            container.add(propertyForm);
         }
     }
 
