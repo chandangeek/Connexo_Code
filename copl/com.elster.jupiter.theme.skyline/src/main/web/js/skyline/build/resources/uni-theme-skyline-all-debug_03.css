@@ -1,3 +1,13 @@
+/* line 699, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-nlg .x-btn-tag-medium-disabled {
+  background-image: url(images/btn/btn-tag-medium-disabled-bg.gif);
+}
+
+/* line 707, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
+.x-nbr .x-btn-tag-medium {
+  background-image: none;
+}
+
 /* line 722, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-tag-medium .x-btn-split-right {
   background-image: url(images/button/tag-medium-s-arrow.png);
