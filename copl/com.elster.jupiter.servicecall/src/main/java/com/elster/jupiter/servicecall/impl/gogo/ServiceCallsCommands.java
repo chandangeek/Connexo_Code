@@ -192,42 +192,6 @@ public class ServiceCallsCommands {
                 .forEach(System.out::println);
     }
 
-    public void createServiceCall(String typeName, String typeVersion, String origin, String externalReference) {
-        threadPrincipalService.set(() -> "Console");
-
-        try (TransactionContext context = transactionService.getContext()) {
-            serviceCallService.getServiceCallTypes().find().stream()
-                    .filter(sct -> sct.getName().equals(typeName) && sct.getVersionName().equals(typeVersion))
-                    .findFirst()
-                    .map(sct -> sct.newServiceCall()
-                            .origin(origin)
-                            .externalReference(externalReference)
-                            .create())
-                    .map(sc -> sc.getId())
-                    .ifPresent(System.out::println);
-
-            context.commit();
-        }
-    }
-
-    public void createServiceCall(long parentId, String typeName, String typeVersion, String origin, String externalReference) {
-        threadPrincipalService.set(() -> "Console");
-
-        try (TransactionContext context = transactionService.getContext()) {
-            Optional<ServiceCall> parent = serviceCallService.getServiceCall(parentId);
-            Optional<ServiceCallType> type = serviceCallService.getServiceCallTypes().find().stream()
-                    .filter(sct -> sct.getName().equals(typeName) && sct.getVersionName().equals(typeVersion))
-                    .findFirst();
-
-            parent.orElseThrow(() -> new NoSuchElementException("No service call with id: " + parentId))
-                    .newChildCall(type.orElseThrow(() -> new NoSuchElementException("No service call type with name: " + typeName + " and version: " + typeVersion)))
-                    .origin(origin)
-                    .externalReference(externalReference)
-                    .create();
-            context.commit();
-        }
-    }
-
     public void transitionServiceCall(long id, String targetState) {
         threadPrincipalService.set(() -> "Console");
 
