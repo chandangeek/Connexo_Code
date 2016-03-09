@@ -214,7 +214,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     width: 600,
                     required: true,
                     allowBlank: false,
-                    blankText:Uni.I18n.translate('comserver.formFieldLabel.server.serverName.required', 'MDC', 'Server name is required.')
+                    blankText:Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
                 },
                 {
                     xtype: 'numberfield',
@@ -223,7 +223,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     name: 'monitorPort',
                     required: true,
                     allowBlank: false,
-                    blankText:Uni.I18n.translate('comserver.formFieldLabel.monitor.port.required','MDC', 'Monitor port is required.'),
+                    blankText:Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'),
                     minValue: 0,
                     // Remove spinner buttons, and arrow key and mouse wheel listeners
                     hideTrigger: true,
@@ -238,7 +238,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     name: 'eventRegistrationPort',
                     required: true,
                     allowBlank: false,
-                    blankText:Uni.I18n.translate('comserver.formFieldLabel.event.registration.required','MDC', 'Event registration port is required.'),
+                    blankText:Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'),
                     minValue: 0,
                     hideTrigger: true,
                     keyNavEnabled: false,
