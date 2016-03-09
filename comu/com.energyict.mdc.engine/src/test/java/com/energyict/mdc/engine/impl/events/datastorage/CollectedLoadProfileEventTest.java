@@ -1,8 +1,10 @@
 package com.energyict.mdc.engine.impl.events.datastorage;
 
+import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.google.common.collect.Range;
@@ -60,9 +62,9 @@ public class CollectedLoadProfileEventTest {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.toString()).thenReturn("My Device identifier");
 
-        LoadProfileIdentifierById loadProfileId = mock(LoadProfileIdentifierById.class);
-        when(loadProfileId.getIdentifier()).thenReturn(Collections.singletonList((Object) 123L));
-        when(loadProfileId.getDeviceIdentifier()).thenReturn(deviceIdentifier);
+        LoadProfileService loadProfileService = mock(LoadProfileService.class);
+
+        LoadProfileIdentifierById loadProfileId = new LoadProfileIdentifierById(123L, loadProfileService);
 
         CollectedLoadProfile loadProfile = mock(CollectedLoadProfile.class);
         when(loadProfile.getLoadProfileIdentifier()).thenReturn(loadProfileId);
