@@ -4,7 +4,7 @@ Ext.define('Imt.metrologyconfiguration.view.Setup', {
     itemId: 'metrology-configuration-setup',
     requires: [
         'Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu',
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm',
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationDetailsForm',
         'Imt.metrologyconfiguration.view.ActionMenu'
     ],
     router: null,

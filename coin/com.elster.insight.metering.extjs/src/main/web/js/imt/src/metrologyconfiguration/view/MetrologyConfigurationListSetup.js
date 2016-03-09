@@ -1,61 +1,56 @@
 Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationListSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.metrologyConfigurationListSetup',
-    itemId: 'metrologyConfigurationListSetup',
     requires: [
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Imt.metrologyconfiguration.view.MetrologyConfigurationList',
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationListPreview'
     ],
     router: null,
+
     initComponent: function () {
         var me = this;
-        
+
         me.content = [
             {
-                xtype: 'panel',
                 ui: 'large',
-                itemId: 'metrologyConfigurationListSetupPanel',
                 title: Uni.I18n.translate('metrologyconfiguration.label.metrologyconfiguration.list', 'IMT', 'Metrology configurations'),
-                layout: {
-                    type: 'fit',
-                    align: 'stretch'
-                },
-                defaults: {
-                    style: {
-                        marginRight: '20px',
-                        padding: '20px'
-                    }
-                },       
 
-                items: [{
-                    xtype: 'preview-container',    
-                    grid: {
-                        xtype: 'metrologyConfigurationList',
-//                        router: me.router,
-                    },
-                    emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        itemId: 'ctr-no-metrology-configurations',
-                        title: Uni.I18n.translate('metrologyconfiguration.list.empty', 'IMT', 'No metrology configurations found'),
-                        reasons: [
-                            Uni.I18n.translate('metrologyconfiguration.list.undefined', 'IMT', 'No metrology configurations have been defined yet.')
-                        ],
-                        stepItems: [
-                            {
-                                text: Uni.I18n.translate('metrologyconfiguration.general.add', 'IMT', 'Add metrology configuration'),
-//                                privileges : Cfg.privileges.Validation.admin,
-                                href: '#/administration/metrologyconfiguration/add'
-                            }
-                        ]
-                    },
-                    previewComponent: {
-                        xtype: 'container',
-                        itemId: 'previewComponentContainer'
+                items: [
+                    {
+                        xtype: 'preview-container',
+                        grid: {
+                            xtype: 'metrologyConfigurationList',
+                            itemId: 'metrologyConfigurationList',
+                            router: me.router
+                        },
+                        emptyComponent: {
+                            xtype: 'no-items-found-panel',
+                            itemId: 'ctr-no-metrology-configurations',
+                            title: Uni.I18n.translate('metrologyconfiguration.list.empty', 'IMT', 'No metrology configurations found'),
+                            reasons: [
+                                Uni.I18n.translate('metrologyconfiguration.list.undefined', 'IMT', 'No metrology configurations have been defined yet.')
+                            ],
+                            stepItems: [
+                                {
+                                    text: Uni.I18n.translate('metrologyconfiguration.general.add', 'IMT', 'Add metrology configuration'),
+                                    privileges: Imt.privileges.MetrologyConfig.admin,
+                                    href: '#/administration/metrologyconfiguration/add'
+                                }
+                            ]
+                        },
+                        previewComponent: {
+                            xtype: 'metrology-config-details',
+                            itemId: 'metrology-config-preview',
+                            frame: true,
+                            router: me.router
+                        }
                     }
-                }],
+                ]
             }
         ];
+
         me.callParent(arguments);
     }
 });

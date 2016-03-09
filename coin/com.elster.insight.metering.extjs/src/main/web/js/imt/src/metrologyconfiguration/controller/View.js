@@ -4,7 +4,6 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
         'Uni.controller.history.Router',
         'Imt.metrologyconfiguration.model.MetrologyConfiguration',
         'Imt.metrologyconfiguration.model.ValidationRuleSet',
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm',
         'Ext.container.Container'
     ],
     models: [
@@ -12,12 +11,12 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
              'Imt.metrologyconfiguration.model.ValidationRuleSet'
     ],
     stores: [
-        'Imt.metrologyconfiguration.store.MetrologyConfiguration',
+        //'Imt.metrologyconfiguration.store.MetrologyConfiguration',
         'Imt.metrologyconfiguration.store.LinkedValidationRulesSet'
     ],
     views: [
         'Imt.metrologyconfiguration.view.Setup',
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm',
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationDetailsForm',
         'Imt.metrologyconfiguration.view.CustomAttributeSets',
         'Imt.metrologyconfiguration.view.CustomAttributeSetsAdd'
     ],
@@ -42,7 +41,7 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
 
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            view = Ext.create('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm'),
+            view = Ext.create('Imt.metrologyconfiguration.view.MetrologyConfigurationDetailsForm'),
             metrologyConfigurationModel = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration'),
             linkedStore = Ext.getStore('Imt.metrologyconfiguration.store.LinkedValidationRulesSet'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
@@ -66,7 +65,7 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
                 me.getApplication().fireEvent('metrologyConfigurationLoaded', record);
                 var widget = Ext.widget('metrology-configuration-setup', {router: router});
                 actualModel = Ext.create('Imt.metrologyconfiguration.model.MetrologyConfiguration', record.data);
-                actualForm = Ext.create('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm', {router: router, mcid: id, count: count});
+                actualForm = Ext.create('Imt.metrologyconfiguration.view.MetrologyConfigurationDetailsForm', {router: router, mcid: id, count: count});
                 
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getAttributesPanel().add(actualForm);
