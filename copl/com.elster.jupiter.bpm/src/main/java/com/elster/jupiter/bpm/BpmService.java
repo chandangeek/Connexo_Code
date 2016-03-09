@@ -16,8 +16,10 @@ public interface BpmService {
     String BPM_QUEUE_SUBSC = "BpmQueueSubsc";
     String BPM_QUEUE_DISPLAYNAME = "Handle Connexo Flow";
 
+    @Deprecated
     List<String> getProcesses();
 
+    @Deprecated
     Map<String, Object> getProcessParameters(String processId);
 
     boolean startProcess(String deploymentId, String processId, Map<String, Object> parameters);
@@ -26,9 +28,11 @@ public interface BpmService {
 
     BpmServer getBpmServer();
 
-    BpmProcessDefinition findOrCreateBpmProcessDefinition(String processName, String association, String version, String status);
+    @Deprecated
+    BpmProcessDeviceState createBpmProcessDeviceState(BpmProcessDefinition bpmProcessDefinition, long deviceStateId, long deviceLifeCycleId, String name, String deviceName);
 
-    Query<BpmProcessDefinition> getQueryBpmProcessDefinition();
+    @Deprecated
+    BpmProcessDefinition findOrCreateBpmProcessDefinition(String processName, String association, String version, String status);
 
     List<BpmProcessDefinition> getBpmProcessDefinitions();
 
@@ -36,13 +40,23 @@ public interface BpmService {
 
     List<BpmProcessDefinition> getActiveBpmProcessDefinitions();
 
+    BpmProcessPrivilege createBpmProcessPrivilege(String privilegeName, String application);
+
+    @Deprecated
     BpmProcessPrivilege createBpmProcessPrivilege(BpmProcessDefinition bpmProcessDefinition, String privilegeName, String application);
 
-    BpmProcessDeviceState createBpmProcessDeviceState(BpmProcessDefinition bpmProcessDefinition, long deviceStateId, long deviceLifeCycleId, String name, String deviceName);
-
-    public Optional<BpmProcessDefinition> getBpmProcessDefinition(String processName, String version);
+    Optional<BpmProcessDefinition> getBpmProcessDefinition(String processName, String version);
 
     List<BpmProcessPrivilege> getBpmProcessPrivileges(long processId);
 
     QueryService getQueryService();
+
+    Query<BpmProcessDefinition> getQueryBpmProcessDefinition();
+
+    BpmProcessDefinitionBuilder newProcessBuilder();
+
+    List<ProcessAssociationProvider> getProcessAssociationProviders();
+
+    Optional<ProcessAssociationProvider> getProcessAssociationProvider(String type);
+
 }

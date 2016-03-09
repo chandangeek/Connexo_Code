@@ -6,10 +6,12 @@ import com.elster.jupiter.bpm.BpmProcessDeviceState;
 import com.elster.jupiter.bpm.BpmProcessPrivilege;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 
 public enum TableSpecs {
@@ -24,6 +26,21 @@ public enum TableSpecs {
             table.column("VERSION").varChar(NAME_LENGTH).notNull().map("version").add();
             table.column("STATUS").varChar(NAME_LENGTH).notNull().map("status").add();
             table.primaryKey("BPM_PK_PROCESS").on(idColumn).add();
+        }
+    },
+    BPM_PROCESS_PROPERTIES(BpmProcessProperty.class) {
+        @Override
+        void describeTable(Table table) {
+            table.map(BpmProcessPropertyImpl.class);
+
+            Column nameColumn = table.column("NAME").map("name").varChar(NAME_LENGTH).notNull().add();
+            Column processColumn = table.column("PROCESSID").type("number").conversion(NUMBER2LONG).notNull().add();
+            table.column("VALUE").map("value").varChar(DESCRIPTION_LENGTH).notNull().add();
+            table.addAuditColumns();
+
+            table.primaryKey("BPM_PROPS_PK_NAME").on(nameColumn, processColumn).add();
+            table.foreignKey("BPM_PROPS_FK_TO_PROCESS").on(processColumn).references(BPM_PROCESS.name())
+                    .map("processDefinition").reverseMap("properties").composition().onDelete(DeleteRule.CASCADE).add();
         }
     },
     BPM_PROCESS_PRIVILEGE(BpmProcessPrivilege.class) {
@@ -43,15 +60,30 @@ public enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(BpmProcessDeviceStateImpl.class);
-            Column processIdColumn = table.column("PROCESSID").number().notNull().conversion(NUMBER2LONG).map("processId").add();
-            Column deviceStateId = table.column("DEVICESTATEID").number().notNull().conversion(NUMBER2LONG).map("deviceStateId").add();
+            Column processIdColumn = table.column("PROCESSID")
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2LONG)
+                    .map("processId")
+                    .add();
+            Column deviceStateId = table.column("DEVICESTATEID")
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2LONG)
+                    .map("deviceStateId")
+                    .add();
             table.column("DEVICELIFECYCLEID").number().notNull().conversion(NUMBER2LONG).map("deviceLifeCycleId").add();
             table.column("NAME").type("varchar2(30)").notNull().map("name").add();
             table.column("DEVICESTATE").type("varchar2(30)").notNull().map("deviceState").add();
             table.addCreateTimeColumn("CREATETIME", "createTime");
             table.primaryKey("BPM_PK_DEVICESTATE").on(processIdColumn, deviceStateId).add();
-            table.foreignKey("FK_DEVICESTATE").references(BPM_PROCESS.name()).onDelete(CASCADE).map("bpmProcessDefinition")
-                    .reverseMap("processDeviceStates").on(processIdColumn).add();
+            table.foreignKey("FK_DEVICESTATE")
+                    .references(BPM_PROCESS.name())
+                    .onDelete(CASCADE)
+                    .map("bpmProcessDefinition")
+                    .reverseMap("processDeviceStates")
+                    .on(processIdColumn)
+                    .add();
         }
     };
 
