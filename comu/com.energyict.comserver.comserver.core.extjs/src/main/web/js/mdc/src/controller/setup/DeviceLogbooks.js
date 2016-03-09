@@ -85,7 +85,6 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
             deviceMRID = this.getController('Uni.controller.history.Router').arguments.mRID,
             logbookId = logbookRecordInGrid.get('id'),
             onLogbookLoaded = function(logbookRecord) {
-                debugger;
                 logbookRecordInGrid.set('lastReading', datePicker.getValue());
                 logbookRecord.beginEdit();
                 logbookRecord.set('lastReading', datePicker.getValue());
