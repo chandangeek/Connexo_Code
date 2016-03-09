@@ -546,7 +546,7 @@ public class BpmResource {
                         found = true;
                     }
                 }
-                if (!found && !bpmProcessDefinition.processes.isEmpty()) {
+                if (!found) {
                     eachConnexo.setStatus("UNDEPLOYED");
                     eachConnexo.save();
                 }
