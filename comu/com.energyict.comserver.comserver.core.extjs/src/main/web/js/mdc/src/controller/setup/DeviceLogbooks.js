@@ -2,7 +2,8 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
     extend: 'Ext.app.Controller',
 
     views: [
-        'Mdc.view.setup.devicelogbooks.Setup'
+        'Mdc.view.setup.devicelogbooks.Setup',
+        'Mdc.view.setup.devicelogbooks.EditWindow'
     ],
 
     models: [
@@ -55,10 +56,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
     },
 
     showPreview: function (selectionModel, record) {
-        var preview = this.getPreview();
-
-        preview.setTitle(record.get('name'));
-        preview.down('#deviceLogbooksPreviewForm').loadRecord(record);
+        this.getPreview().setLogbook(record);
     },
 
     chooseAction: function (menu, item) {
@@ -69,11 +67,16 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
         routeParams.logbookId = menu.record.getId();
 
         switch (item.action) {
-            case 'viewEvents':
-                route = 'devices/device/logbooks/logbook/data';
-                break;
-            case 'viewDetails':
-                route = 'devices/device/logbooks/logbookoverview';
+            //case 'viewEvents':
+            //    route = 'devices/device/logbooks/logbook/data';
+            //    break;
+            //case 'viewDetails':
+            //    route = 'devices/device/logbooks/logbookoverview';
+            //    break;
+            case 'editLogbook':
+                Ext.widget('devicelogbook-edit-window', {
+                    logbookRecord: menu.record
+                }).show();
                 break;
         }
 

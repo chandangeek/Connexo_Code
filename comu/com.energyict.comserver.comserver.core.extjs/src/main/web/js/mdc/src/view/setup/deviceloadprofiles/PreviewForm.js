@@ -44,18 +44,14 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.PreviewForm', {
                         name: 'interval_formatted'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('general.timestampLastValue', 'MDC', 'Timestamp last value'),
+                        fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
                         name: 'unknown_yet'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
+                        fieldLabel: Uni.I18n.translate('general.nextReadingBlockStart', 'MDC', 'Next reading block start'),
                         name: 'lastReading',
                         renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
-                            //var tooltip = Uni.I18n.translate('deviceloadprofiles.tooltip.lastreading', 'MDC', 'The moment when the data was read out for the last time.');
-                            //return value
-                            //    ? Uni.DateTime.formatDateTimeLong(value) + '<span style="margin: 0 0 0 10px; width: 16px; height: 16px" class="uni-icon-info-small" data-qtip="' + tooltip + '"></span>'
-                            //    : '';
+                            return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                         }
                     },
                     {

@@ -29,14 +29,14 @@ Ext.define('Mdc.view.setup.devicelogbooks.PreviewForm', {
             }
         },
         {
-            fieldLabel: Uni.I18n.translate('general.timestampLastEvent', 'MDC', 'Timestamp last event'),
+            fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
             name: 'lastEventDate',
             renderer: function (value) {
-                return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
+                return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
             }
         },
         {
-            fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
+            fieldLabel: Uni.I18n.translate('general.nextReadingBlockStart', 'MDC', 'Next reading block start'),
             name: 'lastReading',
             renderer: function (value) {
                 return value ? Uni.DateTime.formatDateTimeLong(value) : '-';

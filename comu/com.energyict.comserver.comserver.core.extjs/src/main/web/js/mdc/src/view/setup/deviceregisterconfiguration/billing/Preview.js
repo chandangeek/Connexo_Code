@@ -42,7 +42,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
                                 name: 'obisCode'
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('general.timestampLastValue', 'MDC', 'Timestamp last value'),
+                                fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
                                 name: 'timeStamp',
                                 renderer: function (value) {
                                     return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
                             },
                             {
                                 xtype: 'fieldcontainer',
-                                fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
+                                fieldLabel: Uni.I18n.translate('general.nextReadingBlockStart', 'MDC', 'Next reading block start'),
                                 layout: 'hbox',
                                 items: [
                                     {
@@ -58,26 +58,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
                                         name: 'reportedDateTime',
                                         renderer: function (value) {
                                             return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
-                                            //if (!Ext.isEmpty(value)) {
-                                            //    return Uni.DateTime.formatDateLong(new Date(value))
-                                            //        + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
-                                            //        + Uni.DateTime.formatTimeLong(new Date(value));
-                                            //}
-                                            //
-                                            //return '-';
                                         }
                                     }
-                                    //,
-                                    //{
-                                    //    xtype: 'button',
-                                    //    tooltip: Uni.I18n.translate('deviceregisterconfiguration.tooltip.latestReading', 'MDC', 'The moment when the data was read out for the last time'),
-                                    //    iconCls: 'icon-info-small',
-                                    //    ui: 'blank',
-                                    //    itemId: 'latestReadingHelp',
-                                    //    shadow: false,
-                                    //    margin: '6 0 0 10',
-                                    //    width: 16
-                                    //}
                                 ]
                             },
                             {

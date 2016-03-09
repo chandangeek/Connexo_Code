@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Preview', {
                                 name: 'obisCode'
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
+                                fieldLabel: Uni.I18n.translate('general.nextReadingBlockStart', 'MDC', 'Next reading block start'),
                                 name: 'reportedDateTime',
                                 renderer: function (value) {
                                     return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';

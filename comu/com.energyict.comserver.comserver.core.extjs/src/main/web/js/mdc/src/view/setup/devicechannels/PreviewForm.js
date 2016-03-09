@@ -72,7 +72,7 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                 //    }
                                 //},
                                 {
-                                    fieldLabel: Uni.I18n.translate('general.timestampLastValue', 'MDC', 'Timestamp last value'),
+                                    fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
                                     name: 'lastValueTimestamp_formatted'
                                 },
                                 {

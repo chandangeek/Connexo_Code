@@ -54,40 +54,24 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Preview', {
                             },
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('general.timestampLastValue', 'MDC', 'Timestamp last value'),
+                                fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
                                 name: 'timeStamp',
                                 renderer: function(value){
-                                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
+                                    return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
                                 }
                             },
                             {
                                 xtype: 'fieldcontainer',
-                                fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
+                                fieldLabel: Uni.I18n.translate('general.nextReadingBlockStart', 'MDC', 'Next reading block start'),
                                 layout: 'hbox',
                                 items: [
                                     {
                                         xtype: 'displayfield',
                                         name: 'reportedDateTime',
                                         renderer: function (value) {
-                                            return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
-                                            //if (!Ext.isEmpty(value)) {
-                                            //    return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))])
-                                            //}
-                                            //
-                                            //return '-';
+                                            return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
                                         }
                                     }
-                                    //,
-                                    //{
-                                    //    xtype: 'button',
-                                    //    tooltip: Uni.I18n.translate('deviceregisterconfiguration.tooltip.latestReading', 'MDC', 'The moment when the data was read out for the last time'),
-                                    //    iconCls: 'icon-info-small',
-                                    //    ui: 'blank',
-                                    //    itemId: 'latestReadingHelp',
-                                    //    shadow: false,
-                                    //    margin: '6 0 0 10',
-                                    //    width: 16
-                                    //}
                                 ]
 
                             },

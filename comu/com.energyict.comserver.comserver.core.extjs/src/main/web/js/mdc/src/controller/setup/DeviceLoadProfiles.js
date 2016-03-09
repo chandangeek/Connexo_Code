@@ -2,7 +2,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
     extend: 'Ext.app.Controller',
 
     views: [
-        'Mdc.view.setup.deviceloadprofiles.Setup'
+        'Mdc.view.setup.deviceloadprofiles.Setup',
+        'Mdc.view.setup.deviceloadprofiles.EditWindow'
     ],
 
     requires: [
@@ -127,6 +128,11 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             case 'viewSuspects':
                 filterParams.suspect = 'suspect';
                 route = 'devices/device/loadprofiles/loadprofiletableData';
+                break;
+            case 'editLoadProfile':
+                Ext.widget('deviceloadprofile-edit-window', {
+                    loadProfileRecord: menu.record
+                }).show();
                 break;
         }
 
