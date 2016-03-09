@@ -84,6 +84,11 @@ Ext.define('Isu.controller.Main', {
                         href: router.getRoute('workspace/issues').buildUrl()
                     },
                     {
+                        text: Uni.I18n.translate('workspace.issues.myOpenIssues', 'ISU', 'My open issues'),
+                        itemId: 'my-open-issues-item',
+                        href: router.getRoute('workspace/issues').buildUrl({}, {myopenissues: true})
+                    },
+                    {
                         text: Uni.I18n.translate('workspace.issues.issuesOverview', 'ISU', 'Issues overview'),
                         itemId: 'issues-overview-item',
                         href: router.getRoute('workspace/issuesoverview').buildUrl()
