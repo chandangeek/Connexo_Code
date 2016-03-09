@@ -21,7 +21,7 @@ import java.util.*;
  * Time: 13:30
  */
 @XmlRootElement
-public class LoadProfileIdentifierById implements LoadProfileIdentifier {
+public final class LoadProfileIdentifierById implements LoadProfileIdentifier {
 
     private Long id;
     private LoadProfileService loadProfileService;
