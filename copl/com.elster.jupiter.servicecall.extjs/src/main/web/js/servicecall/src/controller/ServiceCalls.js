@@ -98,13 +98,13 @@ Ext.define('Scs.controller.ServiceCalls', {
                             serviceCallId: record.get('name'),
                             store: store
                         });
-                            view.down('scs-landing-page').updateLandingPage(record);
+                        view.down('scs-landing-page').updateLandingPage(record);
                     } else {
                         view = Ext.widget('scs-landing-page', {
                             router: me.getController('Uni.controller.history.Router'),
                             serviceCallId: record.get('name')
                         });
-                            view.updateLandingPage(record);
+                        view.updateLandingPage(record);
                     }
                     var parents = record.get('parents');
                     parents.push({id:record.get('id'),name:record.get('name')});
