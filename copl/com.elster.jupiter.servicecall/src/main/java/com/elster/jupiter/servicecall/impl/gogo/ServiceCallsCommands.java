@@ -9,6 +9,7 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
+import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
@@ -19,6 +20,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -37,6 +39,7 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=removeServiceCallType",
                 "osgi.command.function=customPropertySets",
                 "osgi.command.function=createServiceCallLifeCycle",
+                "osgi.command.function=transitionServiceCall",
                 "osgi.command.function=handlers",
                 "osgi.command.function=serviceCallLifeCycles",
                 "osgi.command.function=createServiceCall",
@@ -85,9 +88,7 @@ public class ServiceCallsCommands {
                                 .stream()
                                 .map(RegisteredCustomPropertySet::getCustomPropertySet)
                                 .map(CustomPropertySet::getName)
-                                .collect(toList())) + "] handled by " + serviceCallType.getServiceCallHandler()
-                        .getClass()
-                        .getSimpleName());
+                                .collect(toList())) + "] handled by " + serviceCallType.getServiceCallHandler().getDisplayName());
             } catch (Exception e) {
                 System.err.println(e);
             }
@@ -168,16 +169,22 @@ public class ServiceCallsCommands {
                 .orElseThrow(() -> new IllegalArgumentException("No such service call"));
         System.out.println(sc.getNumber() + " "
                         + sc.getState().getKey() + " " + sc.getType().getName() + " "
-                        + sc.getParent().map(p -> p.getNumber()).orElse("-P-") + " "
-                        + sc.getOrigin().orElse("-O-") + " "
-                + sc.getExternalReference().orElse("-E-"));
-        sc.getLogs()
-                .stream()
-                .forEach(log -> System.out.println("   " + log.getTime() + " " + log.getLogLevel() + " " + log.getMessage()));
+                + sc.getParent().map(p -> p.getNumber()).orElse("[no parent]") + " "
+                + sc.getOrigin().orElse("[no orig]") + " "
+                + sc.getExternalReference().orElse("[no ext ref]"));
+        for (ServiceCallLog log : sc.getLogs().find()) {
+            System.out.println("   " + log.getTime() + " [" + log.getLogLevel() + "] " + log.getMessage());
+            if (log.getStackTrace() != null) {
+                System.out.println("\t" + log.getStackTrace());
+            }
+        }
     }
 
     public void serviceCalls() {
-        serviceCallService.getServiceCalls().stream().map(sc -> sc.getNumber() + " "
+        serviceCallService.getServiceCalls()
+                .stream()
+                .sorted(Comparator.comparing(ServiceCall::getId))
+                .map(sc -> sc.getNumber() + " "
                 + sc.getState().getKey() + " " + sc.getType().getName() + " "
                 + sc.getParent().map(p -> p.getNumber()).orElse("-P-") + " "
                 + sc.getOrigin().orElse("-O-") + " "
@@ -185,38 +192,13 @@ public class ServiceCallsCommands {
                 .forEach(System.out::println);
     }
 
-    public void createServiceCall(String typeName, String typeVersion, String origin, String externalReference) {
+    public void transitionServiceCall(long id, String targetState) {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            serviceCallService.getServiceCallTypes().find().stream()
-                    .filter(sct -> sct.getName().equals(typeName) && sct.getVersionName().equals(typeVersion))
-                    .findFirst()
-                    .map(sct -> sct.newServiceCall()
-                            .origin(origin)
-                            .externalReference(externalReference)
-                            .create())
-                    .map(sc -> sc.getId())
-                    .ifPresent(System.out::println);
-
-            context.commit();
-        }
-    }
-
-    public void createServiceCall(long parentId, String typeName, String typeVersion, String origin, String externalReference) {
-        threadPrincipalService.set(() -> "Console");
-
-        try (TransactionContext context = transactionService.getContext()) {
-            Optional<ServiceCall> parent = serviceCallService.getServiceCall(parentId);
-            Optional<ServiceCallType> type = serviceCallService.getServiceCallTypes().find().stream()
-                    .filter(sct -> sct.getName().equals(typeName) && sct.getVersionName().equals(typeVersion))
-                    .findFirst();
-
-            parent.orElseThrow(() -> new NoSuchElementException("No service call with id: " + parentId))
-                    .newChildCall(type.orElseThrow(() -> new NoSuchElementException("No service call type with name: " + typeName + " and version: " + typeVersion)))
-                    .origin(origin)
-                    .externalReference(externalReference)
-                    .create();
+            ServiceCall sc = serviceCallService.getServiceCall(id)
+                    .orElseThrow(() -> new IllegalArgumentException("No such service call"));
+            sc.requestTransition(DefaultState.valueOf(targetState));
             context.commit();
         }
     }
@@ -376,7 +358,7 @@ public class ServiceCallsCommands {
 
         public void create() {
             ServiceCallType serviceCallType = serviceCallService.findServiceCallType(name, version)
-                    .orElseThrow(() -> new IllegalStateException("Nu such service call type"));
+                    .orElseThrow(() -> new IllegalStateException("No such service call type"));
 
             System.out.println(String.format("Creating a total of %.0f service calls", total));
 

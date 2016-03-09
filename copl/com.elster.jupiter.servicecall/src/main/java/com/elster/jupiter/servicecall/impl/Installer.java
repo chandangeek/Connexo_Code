@@ -7,51 +7,67 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.servicecall.ServiceCallService;
 
 import javax.inject.Inject;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ServiceCallInstaller {
+/**
+ * Created by bvn on 3/7/16.
+ */
+public class Installer {
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
+    private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
 
-    private final Logger logger = Logger.getLogger(ServiceCallInstaller.class.getName());
-
-    private final FiniteStateMachineService finiteStateMachineService;
-    private final IServiceCallService serviceCallService;
-    private final DataModel dataModel;
     private final MessageService messageService;
+    private final ServiceCallService serviceCallService;
+    private final FiniteStateMachineService finiteStateMachineService;
+    private final DataModel dataModel;
 
     @Inject
-    ServiceCallInstaller(FiniteStateMachineService finiteStateMachineService, IServiceCallService serviceCallService, DataModel dataModel, MessageService messageService) {
-        this.finiteStateMachineService = finiteStateMachineService;
-        this.serviceCallService = serviceCallService;
-        this.dataModel = dataModel;
+    public Installer(MessageService messageService, ServiceCallService serviceCallService, FiniteStateMachineService finiteStateMachineService, DataModel dataModel) {
         this.messageService = messageService;
+        this.serviceCallService = serviceCallService;
+        this.finiteStateMachineService = finiteStateMachineService;
+        this.dataModel = dataModel;
     }
 
     public void install() {
         try {
             this.dataModel.install(true, true);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
+        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+        createMessageHandler(defaultQueueTableSpec, ServiceCallServiceImpl.DESTINATION_NAME, ServiceCallServiceImpl.SUBSCRIBER_NAME);
         installDefaultLifeCycle();
-        createServiceCallQueue();
     }
 
-    private void createServiceCallQueue() {
+    private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, String subscriberName) {
         try {
-            QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-            DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, DEFAULT_RETRY_DELAY_IN_SECONDS);
-            destinationSpec.activate();
-            destinationSpec.subscribe(ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME);
+            Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
+            if (!destinationSpecOptional.isPresent()) {
+                DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
+                queue.activate();
+                queue.subscribe(subscriberName);
+            } else {
+                boolean notSubscribedYet = !destinationSpecOptional.get()
+                        .getSubscribers()
+                        .stream()
+                        .anyMatch(spec -> spec.getName().equals(subscriberName));
+                if (notSubscribedYet) {
+                    destinationSpecOptional.get().activate();
+                    destinationSpecOptional.get().subscribe(subscriberName);
+                }
+            }
         } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.severe(e.getMessage());
         }
     }
 
@@ -69,14 +85,14 @@ public class ServiceCallInstaller {
 
     private Map<String, CustomStateTransitionEventType> findOrCreateStateTransitionEventTypes() {
         // Create default StateTransitionEventTypes
-        this.logger.fine(() -> "Finding (or creating) default finite state machine transitions...");
+        LOGGER.fine(() -> "Finding (or creating) default finite state machine transitions...");
         Map<String, CustomStateTransitionEventType> eventTypes = Stream
                 .of(DefaultCustomStateTransitionEventType.values())
                 .map(each -> each.findOrCreate(this.finiteStateMachineService))
                 .collect(Collectors.toMap(
                         StateTransitionEventType::getSymbol,
                         Function.identity()));
-        this.logger.fine(() -> "Found (or created) default finite state machine transitions");
+        LOGGER.fine(() -> "Found (or created) default finite state machine transitions");
         return eventTypes;
     }
 

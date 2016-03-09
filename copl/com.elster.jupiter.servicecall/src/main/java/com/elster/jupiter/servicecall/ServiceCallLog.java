@@ -17,4 +17,6 @@ public interface ServiceCallLog {
     Instant getTime();
 
     String getMessage();
+
+    String getStackTrace();
 }

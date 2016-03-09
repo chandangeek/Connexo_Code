@@ -65,8 +65,8 @@ import java.util.concurrent.ConcurrentHashMap;
         immediate = true)
 public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
 
-    static final String SERIVCE_CALLS_DESTINATION_NAME = "SerivceCalls";
-    static final String SERIVCE_CALLS_SUBSCRIBER_NAME = "SerivceCalls";
+    static final String DESTINATION_NAME = "SerivceCalls";
+    static final String SUBSCRIBER_NAME = "SerivceCalls";
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -186,9 +186,8 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
 
     @Override
     public void install() {
-        dataModel.getInstance(ServiceCallInstaller.class).install();
+        dataModel.getInstance(Installer.class).install();
     }
-
     @Override
     public Optional<ServiceCallHandler> findHandler(String handler) {
         if (Checks.is(handler).emptyOrOnlyWhiteSpace()) {
@@ -346,6 +345,6 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
         if (!dataModel.isInstalled()) {
             throw new IllegalStateException();
         }
-        return messageService.getDestinationSpec(SERIVCE_CALLS_DESTINATION_NAME).get();
+        return messageService.getDestinationSpec(DESTINATION_NAME).get();
     }
 }

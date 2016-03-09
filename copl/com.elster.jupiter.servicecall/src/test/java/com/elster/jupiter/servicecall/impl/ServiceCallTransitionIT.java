@@ -24,7 +24,9 @@ import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.Column;
@@ -129,6 +131,7 @@ public class ServiceCallTransitionIT {
     private Person person;
     private PartyService partyService;
     private JsonService jsonService;
+    private Thesaurus thesaurus;
 
     private class MockModule extends AbstractModule {
 
@@ -178,6 +181,7 @@ public class ServiceCallTransitionIT {
             @Override
             public Void perform() {
                 nlsService = injector.getInstance(NlsService.class);
+                thesaurus = nlsService.getThesaurus(ServiceCallServiceImpl.COMPONENT_NAME, Layer.DOMAIN);
                 customPropertySetService = injector.getInstance(CustomPropertySetService.class);
                 messageService = injector.getInstance(MessageService.class);
                 serviceCallService = (IServiceCallService) injector.getInstance(ServiceCallService.class);
@@ -246,13 +250,14 @@ public class ServiceCallTransitionIT {
             context.commit();
         }
 
-        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME).get();
+        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.DESTINATION_NAME, ServiceCallServiceImpl.SUBSCRIBER_NAME)
+                .get();
 
         try (TransactionContext context = transactionService.getContext()) {
             Message message = await().atMost(200, TimeUnit.MILLISECONDS)
                     .until(messageQueue::receive, Matchers.any(Message.class));
 
-            ServiceCallMessageHandler serviceCallMessageHandler = new ServiceCallMessageHandler(jsonService, serviceCallService);
+            ServiceCallMessageHandler serviceCallMessageHandler = new ServiceCallMessageHandler(jsonService, serviceCallService, thesaurus);
 
             serviceCallMessageHandler.process(message);
 
@@ -297,13 +302,14 @@ public class ServiceCallTransitionIT {
             context.commit();
         }
 
-        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME).get();
+        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.DESTINATION_NAME, ServiceCallServiceImpl.SUBSCRIBER_NAME)
+                .get();
 
         try (TransactionContext context = transactionService.getContext()) {
             Message message = await().atMost(500, TimeUnit.MILLISECONDS)
                     .until(messageQueue::receive, Matchers.any(Message.class));
 
-            ServiceCallMessageHandler serviceCallMessageHandler = new ServiceCallMessageHandler(jsonService, serviceCallService);
+            ServiceCallMessageHandler serviceCallMessageHandler = new ServiceCallMessageHandler(jsonService, serviceCallService, thesaurus);
 
             serviceCallMessageHandler.process(message);
 

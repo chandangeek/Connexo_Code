@@ -22,6 +22,7 @@ class LoggingServiceCallHandler implements ServiceCallHandler {
             return delegate.allowStateChange(serviceCall, oldState, newState);
         } catch (RuntimeException e) { // safety net for buggy ServiceCallHandler implementations
             logException(serviceCall, e);
+            ((ServiceCallImpl) serviceCall).setState(DefaultState.FAILED);
             return false;
         }
     }
@@ -38,15 +39,22 @@ class LoggingServiceCallHandler implements ServiceCallHandler {
             delegate.onStateChange(serviceCall, oldState, newState);
         } catch (RuntimeException e) { // safety net for buggy ServiceCallHandler implementations
             logException(serviceCall, e);
+            ((ServiceCallImpl) serviceCall).setState(DefaultState.FAILED);
         }
     }
 
     @Override
-    public void onChildStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
+    public void onChildStateChange(ServiceCall parentServiceCall, ServiceCall childServiceCall, DefaultState oldState, DefaultState newState) {
         try {
-            delegate.onChildStateChange(serviceCall, oldState, newState);
+            delegate.onChildStateChange(parentServiceCall, childServiceCall, oldState, newState);
         } catch (RuntimeException e) {
-            logException(serviceCall.getParent().get(), e);
+            logException(childServiceCall.getParent().get(), e);
+            ((ServiceCallImpl) childServiceCall).setState(DefaultState.FAILED);
         }
+    }
+
+    @Override
+    public String getDisplayName() {
+        return delegate.getDisplayName();
     }
 }
