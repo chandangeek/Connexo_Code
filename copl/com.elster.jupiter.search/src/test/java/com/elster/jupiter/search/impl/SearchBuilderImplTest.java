@@ -24,8 +24,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -56,6 +57,8 @@ public class SearchBuilderImplTest {
 
     @Mock
     private SearchDomain searchDomain;
+    @Mock
+    private SearchMonitor searchMonitor;
     @Mock
     private SearchableProperty idSearchProperty;
     @Mock
@@ -550,7 +553,7 @@ public class SearchBuilderImplTest {
     }
 
     private SearchBuilderImpl<Example> getTestInstance() {
-        return new SearchBuilderImpl<>(this.searchDomain);
+        return new SearchBuilderImpl<>(this.searchDomain, this.searchMonitor);
     }
 
     private static class Example {
