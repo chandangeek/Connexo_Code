@@ -71,18 +71,20 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
         switch (newState) {
             case WAITING:
                 serviceCall.log(LogLevel.FINE, "My children are now working while I sit back and relax");
+                break;
             case ONGOING:
                 if (oldState.equals(DefaultState.PENDING)) {
-                    createChildren(serviceCall);
+                    createChildren(serviceCall); // We will only create children on the first entry, that is, from PENDING
                 } else {
-                    calculateResult(serviceCall);
+                    calculateResult(serviceCall); // When we get to ONGOING from WAITING, we will calculate the result. So looks like we have an issue with PAUSED here
                 }
                 break;
             case PENDING:
-                serviceCall.requestTransition(DefaultState.ONGOING);
+                serviceCall.requestTransition(DefaultState.ONGOING); // If we forget this case, our process is stuck forever...
                 break;
             default:
-                serviceCall.log(LogLevel.WARNING, String.format("I entered a state I have no action for: %s", newState));
+                serviceCall.log(LogLevel.WARNING, String.format("I entered a state I have no action for: %s", newState)); // Nothing will ever happen after we reach this state
+                break;
         }
     }
 
@@ -130,8 +132,8 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
         boolean finished = EnumSet.of(DefaultState.PENDING, DefaultState.CREATED, DefaultState.SCHEDULED, DefaultState.PAUSED, DefaultState.WAITING, DefaultState.ONGOING)
                 .stream().noneMatch(state -> collect.getOrDefault(state, 0L) > 0L);
 
-        if (finished && parentServiceCall.getState() == DefaultState.WAITING) {
-            parentServiceCall.requestTransition(DefaultState.ONGOING); // RACE CONDITION?
+        if (finished && parentServiceCall.getState() == DefaultState.WAITING) { // I have to check for WAITING state, because I might hit the finished state once for EVERY child, but only want to transition once
+            parentServiceCall.requestTransition(DefaultState.ONGOING); // Race condition ?
         }
     }
 

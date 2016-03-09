@@ -26,13 +26,19 @@ import java.util.Optional;
 @Component(name = "com.energyict.mdc.servicecall.examples", service = ServiceCallCommands.class,
         property = {"osgi.command.scope=sch",
                 "osgi.command.function=updateYearOfCertification",
-                "osgi.command.function=updateYearOfCertificationGroup"
+                "osgi.command.function=updateYearOfCertificationGroup",
+                "osgi.command.function=hook",
+                "osgi.command.function=crash"
         }, immediate = true)
 public class ServiceCallCommands {
     public static final String HANDLER_NAME = "yearUpdater";
     public static final String HANDLER_VERSION_NAME = "v1.0";
     public static final String GROUP_HANDLER_NAME = "yearGroupUpdater";
     public static final String GROUP_HANDLER_VERSION_NAME = "v1.0";
+    public static final String CAPTAIN_HOOK_HANDLER_NAME = "captainHook";
+    public static final String CAPTAIN_HOOK_HANDLER_VERSION_NAME = "v1.0";
+    public static final String NULL_POINTER_HANDLER_NAME = "NullPointer";
+    public static final String NULL_POINTER_HANDLER_VERSION_NAME = "v1.0";
     private volatile ServiceCallService serviceCallService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile DeviceService deviceService;
@@ -159,6 +165,68 @@ public class ServiceCallCommands {
                         .extendedWith(deviceCertificationDomainExtension)
                         .create();
                 serviceCall.log(LogLevel.SEVERE, "Device group could not be found");
+                serviceCall.requestTransition(DefaultState.REJECTED);
+            }
+            context.commit();
+        }
+    }
+
+    public void hook() {
+        System.out.println("Usage: hook <device id> <# clocks>");
+    }
+
+    public void hook(long deviceId) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallType serviceCallType = serviceCallService.findServiceCallType(CAPTAIN_HOOK_HANDLER_NAME, CAPTAIN_HOOK_HANDLER_VERSION_NAME)
+                    .orElseGet(() -> serviceCallService.createServiceCallType(CAPTAIN_HOOK_HANDLER_NAME, CAPTAIN_HOOK_HANDLER_VERSION_NAME)
+                            .handler("CaptainHookHandler")
+                            .logLevel(LogLevel.FINEST)
+                            .create());
+
+            Optional<Device> device = deviceService.findDeviceById(deviceId);
+
+            if (device.isPresent()) {
+                ServiceCall serviceCall = serviceCallType.newServiceCall()
+                        .origin("Gogo")
+                        .targetObject(device.get())
+                        .create();
+                serviceCall.requestTransition(DefaultState.PENDING);
+            } else {
+                ServiceCall serviceCall = serviceCallType.newServiceCall()
+                        .origin("Gogo")
+                        .create();
+                serviceCall.log(LogLevel.SEVERE, "Device could not be found");
+                serviceCall.requestTransition(DefaultState.REJECTED);
+            }
+            context.commit();
+        }
+    }
+
+    public void crash(long deviceId) {
+        threadPrincipalService.set(() -> "Console");
+
+        try (TransactionContext context = transactionService.getContext()) {
+            ServiceCallType serviceCallType = serviceCallService.findServiceCallType(NULL_POINTER_HANDLER_NAME, NULL_POINTER_HANDLER_VERSION_NAME)
+                    .orElseGet(() -> serviceCallService.createServiceCallType(NULL_POINTER_HANDLER_NAME, NULL_POINTER_HANDLER_VERSION_NAME)
+                            .handler("NullPointerHandler")
+                            .logLevel(LogLevel.FINEST)
+                            .create());
+
+            Optional<Device> device = deviceService.findDeviceById(deviceId);
+
+            if (device.isPresent()) {
+                ServiceCall serviceCall = serviceCallType.newServiceCall()
+                        .origin("Gogo")
+                        .targetObject(device.get())
+                        .create();
+                serviceCall.requestTransition(DefaultState.PENDING);
+            } else {
+                ServiceCall serviceCall = serviceCallType.newServiceCall()
+                        .origin("Gogo")
+                        .create();
+                serviceCall.log(LogLevel.SEVERE, "Device could not be found");
                 serviceCall.requestTransition(DefaultState.REJECTED);
             }
             context.commit();
