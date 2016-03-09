@@ -26,7 +26,7 @@ Ext.define('Imt.servicecategories.view.ServiceCategoryDetailForm', {
                     }
                 });
 
-                return result;
+                return result || '-';
             }
         }
     ]
