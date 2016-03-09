@@ -29,6 +29,10 @@ Ext.define('Bpm.processes.controller.Processes', {
             selector: 'bpm-processes bpm-processes-grid'
         },
         {
+            ref: 'btnPreviewAction',
+            selector: 'bpm-processes #btn-preview-action'
+        },
+        {
             ref: 'processesForm',
             selector: 'bpm-processes #bpm-processes-form'
         },
@@ -89,8 +93,10 @@ Ext.define('Bpm.processes.controller.Processes', {
 
             callback: function (records, operation, success) {
                 view = Ext.widget('bpm-processes', {disableAction: !(success && (records.length > 0))});
+
                 me.getApplication().fireEvent('onBeforeLoad', view);
                 me.getApplication().fireEvent('changecontentevent', view);
+                me.getBtnPreviewAction().setVisible((success && (records.length > 0)));
             }
         });
 
@@ -186,7 +192,8 @@ Ext.define('Bpm.processes.controller.Processes', {
 
         editProcessForm.editProcessRecord = record;
         me.getApplication().fireEvent(activate ? 'activateProcesses' : 'editProcesses', name + ':' + version);
-        if (activate) {
+
+        if (activate && record.get('type') == "") {
             me.getAssociatedCombo().setValue(me.getAssociatedCombo().getStore().first().get(me.getAssociatedCombo().valueField));
         }
         else {
