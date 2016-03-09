@@ -3,28 +3,28 @@ package com.elster.jupiter.metering.rest.impl;
 import com.elster.jupiter.metering.LocationMember;
 
 public class LocationMemberInfo {
-    private long id;
-    private String countryCode;
-    private String countryName;
-    private String administrativeArea;
-    private String locality;
-    private String subLocality;
-    private String streetType;
-    private String streetName;
-    private String streetNumber;
-    private String establishmentType;
-    private String establishmentName;
-    private String establishmentNumber;
-    private String addressDetail;
-    private String zipCode;
-    private boolean defaultLocation;
-    private String locale;
+    public long locationId;
+    public String countryCode;
+    public String countryName;
+    public String administrativeArea;
+    public String locality;
+    public String subLocality;
+    public String streetType;
+    public String streetName;
+    public String streetNumber;
+    public String establishmentType;
+    public String establishmentName;
+    public String establishmentNumber;
+    public String addressDetail;
+    public String zipCode;
+    public boolean defaultLocation;
+    public String locale;
 
     public LocationMemberInfo() {
     }
 
     public LocationMemberInfo(LocationMember locationMember) {
-        id = locationMember.getLocationId();
+        locationId = locationMember.getLocationId();
         countryCode = locationMember.getCountryCode();
         countryName = locationMember.getCountryName();
         administrativeArea = locationMember.getAdministrativeArea();
