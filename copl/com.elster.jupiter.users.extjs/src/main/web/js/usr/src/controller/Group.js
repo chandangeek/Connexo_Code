@@ -68,7 +68,7 @@ Ext.define('Usr.controller.Group', {
             confirmText: Uni.I18n.translate('general.remove', 'USR', 'Remove')
         }).show({
             title: Ext.String.format(Uni.I18n.translate('role.remove.title', 'USR', 'Remove \'{0}\'?'), record.get('name')),
-            msg: Uni.I18n.translate('role.remove.message', 'USR', 'This user role will no longer be available.'),
+            msg: Uni.I18n.translate('role.remove.message', 'USR', 'This role will no longer be available for configured users.'),
             fn: function (state) {
                 if (state === 'confirm') {
                     groupGrid.setLoading();
