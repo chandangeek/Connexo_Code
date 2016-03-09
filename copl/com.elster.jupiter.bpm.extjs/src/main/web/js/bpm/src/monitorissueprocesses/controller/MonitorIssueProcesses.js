@@ -8,7 +8,6 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
         'Bpm.monitorissueprocesses.store.IssueProcesses'
     ],
     views: [
-        //'Bpm.monitorissueprocesses.view.IssueProcessesMain',
         'Bpm.monitorissueprocesses.view.IssueProcessesMainView'
     ],
     refs: [
@@ -23,7 +22,7 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
         me.control({
             'bpm-issue-processes-main-view': {
                 initStores: this.initStores,
-                initComponents: this.initComponents,
+                //initComponents: this.initComponents,
             },
             '#issue-processes #issue-processes-grid': {
                 select: this.showProcessPreview
@@ -45,19 +44,9 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
             issueProcessesStore.load({});
         }
 
-
-    },
-    initComponents: function (component) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            processRecord;
-
-        //processRecord = me.getIssueProcessesGrid().getStore().findRecord('processId', router.getRoute().params.process);
-        //me.getIssueProcessesGrid().getSelectionModel().select(processRecord);
-
     },
 
-    showProcesses:function (selectionModel, record) {
+    showProcesses:function (issueId, processId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
@@ -68,17 +57,24 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
 
         widget = Ext.widget('bpm-issue-processes-main-view', {
             properties: {
-                issueId: router.getRoute().params.issueId,
                 route: router.getRoute()
             }
         });
-        me.getApplication().fireEvent('changecontentevent', widget);
 
-        processRecord = me.getIssueProcessesGrid().getStore().findRecord('processId', record);
+        me.getApplication().fireEvent('changecontentevent', widget);
+        Ext.ModelManager.getModel('Idc.model.Issue').load(issueId, {
+            success: function (issue) {
+                me.getApplication().fireEvent('issueLoad', issue);
+            },
+            failure: function (response) {
+                viewport.setLoading(false);
+            }
+        });
+        viewport.setLoading(false);
+
+        processRecord = me.getIssueProcessesGrid().getStore().findRecord('processId', processId);
         if(processRecord)
             me.getIssueProcessesGrid().getSelectionModel().select(processRecord);
-
-        viewport.setLoading(false);
 
     },
     showProcessPreview: function (selectionModel, record) {
