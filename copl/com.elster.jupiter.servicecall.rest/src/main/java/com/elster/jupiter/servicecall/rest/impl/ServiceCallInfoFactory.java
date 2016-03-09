@@ -1,5 +1,6 @@
 package com.elster.jupiter.servicecall.rest.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
@@ -116,13 +117,12 @@ public class ServiceCallInfoFactory {
     }
 
     private ServiceCallCustomPropertySetInfo getServiceCallCustomPropertySetInfo(RegisteredCustomPropertySet propertySet, ServiceCall serviceCall, PropertyUtils propertyUtils) {
-        return new ServiceCallCustomPropertySetInfo(
-                propertySet,
-                propertyUtils.convertPropertySpecsToPropertyInfos(propertySet.getCustomPropertySet().getPropertySpecs()),
-                serviceCall.getId(),
-                serviceCall.getVersion(),
-                serviceCall.getType().getId(),
-                serviceCall.getType().getVersion());
+        CustomPropertySetValues extension = serviceCall.getValuesFor(propertySet.getCustomPropertySet());
+        Map<String, Object> values = new HashMap<>();
+        extension.propertyNames()
+                .stream()
+                .forEach(propertyName -> values.put(propertyName, extension.getProperty(propertyName)));
+        return new ServiceCallCustomPropertySetInfo(propertySet, propertyUtils.convertPropertySpecsToPropertyInfos(propertySet.getCustomPropertySet().getPropertySpecs(), values));
     }
 
 }
