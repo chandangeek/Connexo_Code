@@ -166,6 +166,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.bpm.extjs</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
