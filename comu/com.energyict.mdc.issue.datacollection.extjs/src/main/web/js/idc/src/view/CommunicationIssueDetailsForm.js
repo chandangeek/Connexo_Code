@@ -57,7 +57,7 @@ Ext.define('Idc.view.CommunicationIssueDetailsForm', {
                             {
                                 itemId: 'communication-issue-usage-point',
                                 fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'IDC', 'Usage point'),
-                                name: 'usagePoint_info'
+                                name: 'usage_point'
                             },
                             {
                                 itemId: 'communication-issue-device-type',
