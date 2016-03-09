@@ -1,16 +1,5 @@
 package com.elster.jupiter.metering.impl.search.enddevice;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.MessageService;
@@ -19,6 +8,7 @@ import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
@@ -26,6 +16,23 @@ import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link SearchDomain} interface
@@ -112,9 +119,8 @@ public class EndDeviceSearchDomain implements SearchDomain {
     }
 
     @Override
-    public Finder<?> finderFor(List<SearchablePropertyCondition> conditions) {
-        return DefaultFinder.of(EndDevice.class, this.toCondition(conditions), this.meteringService.getDataModel())
-                .defaultSortColumn("mRID");
+    public Finder<EndDevice> finderFor(List<SearchablePropertyCondition> conditions) {
+        return new EndDeviceFinder(this.toCondition(conditions));
     }
 
     @Override
@@ -146,6 +152,57 @@ public class EndDeviceSearchDomain implements SearchDomain {
             return this.property.toCondition(this.spec.getCondition());
         }
 
+    }
+
+    private class EndDeviceFinder implements Finder<EndDevice> {
+        private final Finder<EndDevice> finder;
+
+        private EndDeviceFinder(Condition condition) {
+            this.finder = DefaultFinder
+                                .of(EndDevice.class, condition, meteringService.getDataModel())
+                                .defaultSortColumn("mRID");
+        }
+
+        @Override
+        public int count() {
+            try (Connection connection = meteringService.getDataModel().getConnection(true)) {
+                SqlBuilder countSqlBuilder = new SqlBuilder();
+                countSqlBuilder.add(asFragment("count(*)"));
+                try (PreparedStatement statement = countSqlBuilder.prepare(connection)) {
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                        resultSet.next();
+                        return resultSet.getInt(1);
+                    }
+                }
+            } catch (SQLException e) {
+                throw new UnderlyingSQLFailedException(e);
+            }
+        }
+
+        @Override
+        public Finder<EndDevice> paged(int start, int pageSize) {
+            return this.finder.paged(start, pageSize);
+        }
+
+        @Override
+        public Finder<EndDevice> sorted(String sortColumn, boolean ascending) {
+            return this.finder.sorted(sortColumn, ascending);
+        }
+
+        @Override
+        public List<EndDevice> find() {
+            return this.finder.find();
+        }
+
+        @Override
+        public Subquery asSubQuery(String... fieldNames) {
+            return this.finder.asSubQuery(fieldNames);
+        }
+
+        @Override
+        public SqlFragment asFragment(String... fieldNames) {
+            return this.finder.asFragment(fieldNames);
+        }
     }
 
 }
