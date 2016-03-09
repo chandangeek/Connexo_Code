@@ -1,5 +1,6 @@
 package com.elster.jupiter.servicecall.rest.impl;
 
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFinder;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
@@ -93,7 +94,7 @@ public class ServiceCallResourceTest extends ServiceCallApplicationTest {
         when(serviceCall.getLastCompletedTime()).thenReturn(Optional.empty());
         when(serviceCall.getOrigin()).thenReturn(Optional.empty());
         when(serviceCall.getParent()).thenReturn(Optional.empty());
-
+        when(serviceCall.getState()).thenReturn(DefaultState.CREATED);
         return serviceCall;
     }
 }

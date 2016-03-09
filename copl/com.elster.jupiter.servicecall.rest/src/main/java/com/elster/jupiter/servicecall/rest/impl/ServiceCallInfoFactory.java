@@ -3,6 +3,7 @@ package com.elster.jupiter.servicecall.rest.impl;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -36,7 +37,7 @@ public class ServiceCallInfoFactory {
         if (lastCompletedOptional.isPresent()) {
             serviceCallInfo.lastCompletedTime = lastCompletedOptional.get().toEpochMilli();
         }
-        serviceCallInfo.state = serviceCall.getState();
+        serviceCallInfo.state = serviceCall.getState().getDisplayName(thesaurus);
         serviceCallInfo.origin = serviceCall.getOrigin().isPresent() ? serviceCall.getOrigin().get() : null;
         serviceCallInfo.externalReference = serviceCall.getExternalReference()
                 .isPresent() ? serviceCall.getExternalReference().get() : null;
@@ -55,7 +56,7 @@ public class ServiceCallInfoFactory {
         serviceCallInfo.version = serviceCall.getVersion();
         serviceCallInfo.creationTime = serviceCall.getCreationTime().toEpochMilli();
         serviceCallInfo.lastModificationTime = serviceCall.getLastModificationTime().toEpochMilli();
-        serviceCallInfo.state = serviceCall.getState();
+        serviceCallInfo.state = serviceCall.getState().getDisplayName(thesaurus);
         serviceCallInfo.externalReference = serviceCall.getExternalReference()
                 .isPresent() ? serviceCall.getExternalReference().get() : null;
         serviceCallInfo.type = serviceCall.getType().getName();

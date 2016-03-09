@@ -1,5 +1,6 @@
 package com.elster.jupiter.servicecall.rest.impl;
 
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.servicecall.DefaultState;
 
@@ -13,7 +14,7 @@ public class ServiceCallInfo {
     public long creationTime;
     public long lastModificationTime;
     public long lastCompletedTime;
-    public DefaultState state;
+    public String state;
     public String origin;
     public String externalReference;
     public Object targetObject;
