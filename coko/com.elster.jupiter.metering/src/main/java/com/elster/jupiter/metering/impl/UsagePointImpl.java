@@ -5,9 +5,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
-<<<<<<< HEAD
 import com.elster.jupiter.metering.*;
-=======
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.EventType;
@@ -30,7 +28,6 @@ import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.WaterDetailBuilder;
->>>>>>> master
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationImpl;
@@ -91,7 +88,7 @@ public class UsagePointImpl implements UsagePoint {
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String servicePriority;
 
-    private Location location;
+    private Location upLocation;
     @SuppressWarnings("unused")
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Instant installationTime;
@@ -699,6 +696,6 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public Location getLocation() {
-        return location;
+        return upLocation;
     }
 }
