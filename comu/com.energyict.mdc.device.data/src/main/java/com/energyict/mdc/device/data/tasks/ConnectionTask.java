@@ -283,6 +283,8 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      */
     SuccessIndicator getSuccessIndicator();
 
+    String getSuccessIndicatorDisplayName();
+
     /**
      * Gets the {@link ComSession.SuccessIndicator} of this ConnectionTask's
      * last {@link ComSession} or <code>absent</code> if this ConnectionTask
