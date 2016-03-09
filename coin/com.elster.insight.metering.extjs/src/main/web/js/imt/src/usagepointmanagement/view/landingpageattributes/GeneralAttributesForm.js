@@ -16,8 +16,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                 itemId: 'view-form',
                 defaults: {
                     xtype: 'displayfield',
-                    labelWidth: 250,
-                    maxHeight: 27
+                    labelWidth: 250
                 },
                 items: [
                     {
@@ -48,7 +47,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                         itemId: 'fld-up-created',
                         fieldLabel: Uni.I18n.translate('general.label.created', 'IMT', 'Created'),
                         renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateTimeShort(new Date(value * 1000)) : '-';
+                            return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                         }
                     },
                     {
@@ -99,8 +98,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                 hidden: true,
                 defaults: {
                     labelWidth: 250,
-                    width: 520,
-                    maxHeight: 27
+                    width: 520
                 },
                 items: [
                     {
@@ -127,7 +125,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.GeneralAttribute
                         itemId: 'fld-up-created',
                         fieldLabel: Uni.I18n.translate('general.label.created', 'IMT', 'Created'),
                         renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateTimeShort(new Date(value * 1000)) : '-';
+                            return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                         }
                     },
                     {

@@ -14,11 +14,11 @@ Ext.define('Imt.customattributesonvaluesobjects.view.AttributeSetsPlaceholderFor
     router: null,
     inline: null,
 
-    loadStore: function(store) {
+    loadStore: function(store, canAdministrate) {
         var me = this,
             form;
 
-        form = me.inline ? 'inline-editable-set-property-form' :'custom-attribute-set-property-form';
+        form = me.inline ? 'inline-editable-set-property-form' : 'custom-attribute-set-property-form';
 
         Ext.suspendLayouts();
         me.removeAll();
@@ -34,6 +34,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.AttributeSetsPlaceholderFor
                 router: me.router,
                 attributeSetType: me.attributeSetType,
                 actionMenuXtype: me.actionMenuXtype,
+                canAdministrate: canAdministrate,
                 flex: 1
             })
         });

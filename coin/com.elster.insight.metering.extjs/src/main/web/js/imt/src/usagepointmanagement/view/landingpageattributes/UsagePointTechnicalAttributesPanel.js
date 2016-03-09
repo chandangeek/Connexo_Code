@@ -220,10 +220,8 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.UsagePointTechni
             record,
             form = me.down('#edit-form');
         form.updateRecord();
-
         record = me.record.copy(me.record.get('mRID'));
-
         record.set('techInfo', form.getRecord().data);
-        me.fireEvent('saveClick', form, record);
+        me.fireEvent('saveClick', form.getForm(), record);
     }
 });

@@ -12,7 +12,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.ThermalInfo', {
             name: 'pressure',
             itemId: 'up-pressure-measurefield',
             fieldLabel: Uni.I18n.translate('general.label.pressure', 'IMT', 'Pressure'),
-            store: 'Imt.usagepointmanagement.store.measurementunits.PressureExtended',
+            store: 'Imt.usagepointmanagement.store.measurementunits.Pressure',
             value: {value: null, unit: 'Pa', multiplier: 0}
         },
         {
@@ -43,12 +43,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.ThermalInfo', {
             name: 'collar',
             itemId: 'up-collar-combo',
             fieldLabel: Uni.I18n.translate('general.label.collar', 'IMT', 'Collar')
-        },
-        {
-            xtype: 'checkbox',
-            name: 'interruptible',
-            itemId: 'up-interruptible-checkbox',
-            fieldLabel: Uni.I18n.translate('general.label.interruptible', 'IMT', 'Interruptible')
         }
     ]
 });

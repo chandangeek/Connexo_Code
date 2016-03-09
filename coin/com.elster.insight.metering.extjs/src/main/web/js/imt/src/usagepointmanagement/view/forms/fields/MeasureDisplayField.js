@@ -7,9 +7,10 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.MeasureDisplayField', {
         "amperage": 'Imt.usagepointmanagement.store.measurementunits.Amperage',
         "power": 'Imt.usagepointmanagement.store.measurementunits.Power',
         "pressure": 'Imt.usagepointmanagement.store.measurementunits.Pressure',
-        "pressureExtended": 'Imt.usagepointmanagement.store.measurementunits.PressureExtended',
+        "pressureExtended": 'Imt.usagepointmanagement.store.measurementunits.Pressure',
         "volume": 'Imt.usagepointmanagement.store.measurementunits.Volume',
-        "capacity": 'Imt.usagepointmanagement.store.measurementunits.Capacity'
+        "capacity": 'Imt.usagepointmanagement.store.measurementunits.Capacity',
+        "estimationLoad": 'Imt.usagepointmanagement.store.measurementunits.EstimationLoad'
     },
 
 
@@ -18,7 +19,11 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.MeasureDisplayField', {
         if (data) {
             store = Ext.getStore(me.unitStoresMap[me.unitType]);
             record = store.findUnit(data);
-            return data.value + "&nbsp" + record.get('displayValue');
+            if(record){
+                return data.value + "&nbsp" + record.get('displayValue');
+            } else {
+                return '-';
+            }
         } else {
             return '-';
         }
