@@ -1,17 +1,16 @@
-Ext.define('Mdc.view.setup.comtasks.ComtaskActionMenu', {
+Ext.define('Mdc.view.setup.comtasks.ComtaskActionActionMenu', {
     extend: 'Ext.menu.Menu',
-    alias: 'widget.comtaskActionMenu',
+    alias: 'widget.comtaskActionActionMenu',
     plain: true,
-    communicationTask: undefined,
     items: [
         {
             text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-            action: 'editComTask',
+            action: 'editComTaskAction',
             privileges: Mdc.privileges.Communication.admin
         },
         {
             text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-            action: 'deleteComTask',
+            action: 'deleteComTaskAction',
             privileges: Mdc.privileges.Communication.admin
         }
     ]
