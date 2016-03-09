@@ -99,6 +99,7 @@ Ext.define('Scs.controller.ServiceCalls', {
                             store: store
                         });
                         view.down('scs-landing-page').updateLandingPage(record);
+                            Uni.util.History.setSuspended(false);
                     } else {
                         view = Ext.widget('scs-landing-page', {
                             router: me.getController('Uni.controller.history.Router'),
