@@ -167,7 +167,7 @@ Ext.define('Scs.view.PreviewForm', {
             });
             Ext.each(record.get('childrenInfo'), function (info) {
                 var statusFilter = {
-                    status: info.state,
+                    status: info.state
                 };
                 container.add({
                     xtype: 'displayfield',
