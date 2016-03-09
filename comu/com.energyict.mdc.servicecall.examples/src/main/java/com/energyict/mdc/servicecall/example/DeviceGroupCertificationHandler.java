@@ -72,8 +72,8 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
             case WAITING:
                 serviceCall.log(LogLevel.FINE, "My children are now working while I sit back and relax");
             case ONGOING:
-                if (serviceCall.getChildren().paged(0, 1).find().isEmpty()) {
-                    createChildren(serviceCall); // In case of empty group => will wait for ever in WAITING state
+                if (oldState.equals(DefaultState.PENDING)) {
+                    createChildren(serviceCall);
                 } else {
                     calculateResult(serviceCall);
                 }
@@ -84,6 +84,11 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
             default:
                 serviceCall.log(LogLevel.WARNING, String.format("I entered a state I have no action for: %s", newState));
         }
+    }
+
+    @Override
+    public boolean allowStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
+        return !DefaultState.CANCELLED.equals(newState);
     }
 
     private void calculateResult(ServiceCall serviceCall) {
@@ -126,7 +131,7 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
                 .stream().noneMatch(state -> count(collect, state) > 0L);
 
         if (finished && parentServiceCall.getState() == DefaultState.WAITING) {
-            parentServiceCall.requestTransition(DefaultState.ONGOING); // RACE CONDITION
+            parentServiceCall.requestTransition(DefaultState.ONGOING); // RACE CONDITION?
         }
     }
 
