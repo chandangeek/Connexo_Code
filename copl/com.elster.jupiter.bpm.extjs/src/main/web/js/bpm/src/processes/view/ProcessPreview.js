@@ -10,6 +10,7 @@ Ext.define('Bpm.processes.view.ProcessPreview', {
         {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'BPM', 'Actions'),
+            itemId: 'btn-preview-action',
             iconCls: 'x-uni-action-iconD',
             privileges: Bpm.privileges.BpmManagement.administrateProcesses,
             menu: {
