@@ -16,6 +16,7 @@ import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.geo.SpatialGeometryObject;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -55,7 +56,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     private Instant createTime;
     private Instant obsoleteTime;
     private Instant modTime;
-    private Location location;
+
     @SuppressWarnings("unused")
     private String userName;
 
@@ -64,6 +65,8 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     private Reference<FiniteStateMachine> stateMachine = ValueReference.absent();
     private TemporalReference<EndDeviceLifeCycleStatus> status = Temporals.absent();
     private StateManager stateManager = new NoDeviceLifeCycle();
+    private final Reference<Location> location = ValueReference.absent();
+    private final Reference<GeoCoordinates> coordinates = ValueReference.absent();
 
     private final Clock clock;
     private final DataModel dataModel;
@@ -150,8 +153,25 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     }
 
     @Override
-    public Location getLocation() {
-        return location;
+    public long getLocationId() {
+        Optional<Location> location = getLocation();
+        return location.isPresent() ? location.get().getId() : 0L;
+    }
+
+    @Override
+    public Optional<Location> getLocation() {
+        return location.getOptional();
+    }
+
+    @Override
+    public long getGeoCoordinatesId() {
+        Optional<GeoCoordinates> coordinates = getGeoCoordinates();
+        return coordinates.isPresent() ? coordinates.get().getId() : 0L;
+    }
+
+    @Override
+    public Optional<GeoCoordinates> getGeoCoordinates() {
+        return coordinates.getOptional();
     }
 
     @Override

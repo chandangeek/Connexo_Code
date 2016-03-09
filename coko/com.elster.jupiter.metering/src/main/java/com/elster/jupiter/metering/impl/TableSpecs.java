@@ -133,6 +133,60 @@ public enum TableSpecs {
             table.unique("MTR_U_SERVICELOCATION").on(mRIDColumn).add();
         }
     },
+
+    MTR_LOCATION {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<Location> table = dataModel.addTable(name(), Location.class);
+            table.map(LocationImpl.class);
+            //table.setJournalTableName("MTR_LOCATIONJRNL");
+            Column idColumn = table.addAutoIdColumn();
+            Column nameColumn = table.column("NAME").varChar(Table.NAME_LENGTH).map("name").add();
+            table.primaryKey("MTR_PK_LOCATION").on(idColumn).add();
+            table.unique("MTR_U_NAME").on(nameColumn).add();
+        }
+    },
+    MTR_LOCATIONMEMBER {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<LocationMember> table = dataModel.addTable(name(), LocationMember.class);
+            table.map(LocationMemberImpl.class);
+            //table.setJournalTableName("MTR_LOCATIONMEMBERJRNL");
+            Column locationIdColumn = table.column("LOCATIONID").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map("locationId").add();
+            Column localeColumn = table.column("LOCALE").varChar(Table.NAME_LENGTH).notNull().map("locale").add();
+            table.column("COUNTRYCODE").varChar(Table.NAME_LENGTH).map("countryCode").add();
+            table.column("COUNTRYNAME").varChar(Table.NAME_LENGTH).map("countryName").add();
+            table.column("ADMINISTRATIVEAREA").varChar(Table.NAME_LENGTH).map("administrativeArea").add();
+            table.column("LOCALITY").varChar(Table.NAME_LENGTH).map("locality").add();
+            table.column("SUBLOCALITY").varChar(Table.NAME_LENGTH).map("subLocality").add();
+            table.column("STREETTYPE").varChar(Table.NAME_LENGTH).map("streetType").add();
+            Column streetNameColumn = table.column("STREETNAME").varChar(Table.NAME_LENGTH).map("streetName").add();
+            table.column("STREETNUMBER").varChar(Table.NAME_LENGTH).map("streetNumber").add();
+            table.column("ESTABLISHMENTTYPE").varChar(Table.NAME_LENGTH).map("establishmentType").add();
+            table.column("ESTABLISHMENTNAME").varChar(Table.NAME_LENGTH).map("establishmentName").add();
+            table.column("ESTABLISHMENTNUMBER").varChar(Table.NAME_LENGTH).map("establishmentNumber").add();
+            table.column("ADDRESSDETAIL").varChar(Table.NAME_LENGTH).map("addressDetail").add();
+            table.column("ZIPCODE").varChar(Table.NAME_LENGTH).map("zipCode").add();
+            table.column("DEFAULT").bool().map("defaultLocation").add();
+
+            table.primaryKey("MTR_PK_LOCATION_MEMBER").on(locationIdColumn, localeColumn).add();
+            table.foreignKey("MTR_FK_LOCATION_MEMBER").on(locationIdColumn).references(MTR_LOCATION.name()).composition().reverseMap("members").reverseMapOrder("locale").map("locationId").add();
+            //table.index("MTR_IDX_STREETNAME").on(streetNameColumn).add();
+        }
+    },
+
+    MTR_GEOCOORDINATES {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<GeoCoordinates> table = dataModel.addTable(name(), GeoCoordinates.class);
+            table.map(GeoCoordinatesImpl.class);
+            //table.setJournalTableName("MTR_GEOCOORDINATESJRNL");
+            Column idColumn = table.addAutoIdColumn();
+            Column coordinatesColumn = table.column("GEOCOORDINATES").sdoGeometry().notNull().map("coordinates").add();
+            table.primaryKey("MTR_PK_GEOCOORDS").on(idColumn).add();
+
+        }
+    },
     MTR_AMRSYSTEM {
         @Override
         void addTo(DataModel dataModel) {
@@ -167,6 +221,8 @@ public enum TableSpecs {
             table.column("SERVICEPRIORITY").varChar(NAME_LENGTH).map("servicePriority").add();
             table.column("SERVICEDELIVERYREMARK").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceDeliveryRemark").add();
             table.column("INSTALLATIONTIME").number().notNull().conversion(ColumnConversion.NUMBER2INSTANT).map("installationTime").add();
+            Column locationIdColumn = table.column("LOCATIONID").number().conversion(NUMBER2LONGNULLZERO).add();
+            Column geoCoordinatesIdColumn = table.column("GEOCOORDINATESID").number().conversion(NUMBER2LONGNULLZERO).add();
 
             table.addAuditColumns();
             table.primaryKey("MTR_PK_USAGEPOINT").on(idColumn).add();
@@ -183,6 +239,18 @@ public enum TableSpecs {
                     .onDelete(RESTRICT)
                     .map("serviceLocation")
                     .reverseMap("usagePoints")
+                    .add();
+            table.foreignKey("MTR_FK_USAGEPOINTLOCATION")
+                    .on(locationIdColumn)
+                    .references(Location.class)
+                    .onDelete(RESTRICT)
+                    .map("upLocation")
+                    .add();
+            table.foreignKey("MTR_FK_USAGEPOINTGEOCOORDS")
+                    .on(geoCoordinatesIdColumn)
+                    .references(GeoCoordinates.class)
+                    .onDelete(RESTRICT)
+                    .map("coordinates")
                     .add();
         }
     },
@@ -234,6 +302,9 @@ public enum TableSpecs {
             table.column("RETIREDDATE").number().map("retiredDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
             Column obsoleteTime = table.column("OBSOLETETIME").number().map("obsoleteTime").conversion(ColumnConversion.NUMBER2INSTANT).add();
             Column stateMachine = table.column("FSM").number().add();
+            Column locationIdColumn = table.column("LOCATIONID").number().conversion(NUMBER2LONGNULLZERO).add();
+            Column geoCoordinatesIdColumn = table.column("GEOCOORDINATESID").number().conversion(NUMBER2LONGNULLZERO).add();
+
             table.addAuditColumns();
             table.primaryKey("MTR_PK_METER").on(idColumn).add();
             table.unique("MTR_U_METER").on(mRIDColumn, obsoleteTime).add();
@@ -243,6 +314,18 @@ public enum TableSpecs {
                     .on(stateMachine)
                     .references(FiniteStateMachine.class)
                     .map("stateMachine")
+                    .add();
+            table.foreignKey("MTR_FK_ENDDEVICELOCATION")
+                    .on(locationIdColumn)
+                    .references(Location.class)
+                    .onDelete(RESTRICT)
+                    .map("location")
+                    .add();
+            table.foreignKey("MTR_FK_ENDDEVICEGEOCOORDS")
+                    .on(geoCoordinatesIdColumn)
+                    .references(GeoCoordinates.class)
+                    .onDelete(RESTRICT)
+                    .map("coordinates")
                     .add();
             table.index("MTR_IDX_ENDDEVICE_NAME").on(nameColumn).add();
         }
@@ -437,9 +520,9 @@ public enum TableSpecs {
                     .add();
             table.unique("MTR_U_READINGQUALITY").on(channelColumn, timestampColumn, typeColumn, readingTypeColumn).add();
             table
-                .index("MTR_READINGQUALITY_VAL_OVERVW")
-                .on(channelColumn, typeColumn, actual)
-                .add();
+                    .index("MTR_READINGQUALITY_VAL_OVERVW")
+                    .on(channelColumn, typeColumn, actual)
+                    .add();
         }
     },
     MTR_ENDDEVICEEVENTTYPE {
@@ -807,65 +890,6 @@ public enum TableSpecs {
                     .onDelete(CASCADE)
                     .map(ServiceCategoryCustomPropertySetUsage.Fields.CUSTOMPROPERTYSET.fieldName())
                     .add();
-        }
-    },
-
-     MTR_LOCATION {
-        @Override
-        void addTo(DataModel dataModel) {
-            Table<Location> table = dataModel.addTable(name(), Location.class);
-            table.map(LocationImpl.class);
-            //table.setJournalTableName("MTR_LOCATIONJRNL");
-            Column idColumn = table.addAutoIdColumn();
-            Column nameColumn = table.column("NAME").varChar(Table.NAME_LENGTH).map("name").add();
-            table.primaryKey("MTR_PK_LOCATION").on(idColumn).add();
-            table.unique("MTR_U_NAME").on(nameColumn).add();
-        }
-    },
-    MTR_LOCATIONMEMBER {
-        @Override
-        void addTo(DataModel dataModel) {
-            Table<LocationMember> table = dataModel.addTable(name(), LocationMember.class);
-            table.map(LocationMemberImpl.class);
-            //table.setJournalTableName("MTR_LOCATIONMEMBERJRNL");
-            Column locationIdColumn = table.column("LOCATIONID").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map("id").add();
-            Column localeColumn = table.column("LOCALE").varChar(Table.NAME_LENGTH).notNull().map("locale").add();
-            table.column("COUNTRYCODE").varChar(Table.NAME_LENGTH).map("countryCode").add();
-            table.column("COUNTRYNAME").varChar(Table.NAME_LENGTH).map("countryName").add();
-            table.column("ADMINISTRATIVEAREA").varChar(Table.NAME_LENGTH).map("administrativeArea").add();
-            table.column("LOCALITY").varChar(Table.NAME_LENGTH).map("locality").add();
-            table.column("SUBLOCALITY").varChar(Table.NAME_LENGTH).map("subLocality").add();
-            table.column("STREETTYPE").varChar(Table.NAME_LENGTH).map("streetType").add();
-            Column streetNameColumn = table.column("STREETNAME").varChar(Table.NAME_LENGTH).map("streetName").add();
-            table.column("STREETNUMBER").varChar(Table.NAME_LENGTH).map("streetNumber").add();
-            table.column("ESTABLISHMENTTYPE").varChar(Table.NAME_LENGTH).map("establishmentType").add();
-            table.column("ESTABLISHMENTNAME").varChar(Table.NAME_LENGTH).map("establishmentName").add();
-            table.column("ESTABLISHMENTNUMBER").varChar(Table.NAME_LENGTH).map("establishmentNumber").add();
-            table.column("ADDRESSDETAIL").varChar(Table.NAME_LENGTH).map("addressDetail").add();
-            table.column("ZIPCODE").varChar(Table.NAME_LENGTH).map("zipCode").add();
-           // table.column("COORDLAT").varChar(Table.NAME_LENGTH).map("coordLat").add();
-          //  table.column("COORDLONG").varChar(Table.NAME_LENGTH).map("coordLong").add();
-            table.column("DEFAULT"). bool().map("defaultLocation").add();
-
-            table.primaryKey("MTR_PK_LOCATION_MEMBER").on(locationIdColumn, localeColumn).add();
-            table.foreignKey("MTR_FK_LOCATION_MEMBER").on(locationIdColumn).references(MTR_LOCATION.name()).composition().reverseMap("members").reverseMapOrder("locale").map("locationId").add();
-            //table.index("MTR_IDX_STREETNAME").on(streetNameColumn).add();
-        }
-    },
-
-    MTR_GEOCOORDINATES {
-        @Override
-        void addTo(DataModel dataModel) {
-            Table<GeoCoordinates> table = dataModel.addTable(name(), GeoCoordinates.class);
-            table.map(GeoCoordinatesImpl.class);
-            //table.setJournalTableName("MTR_GEOCOORDINATESJRNL");
-            Column idColumn = table.addAutoIdColumn();
-            //Column coordLat = table.column("COORDLAT").varChar(Table.NAME_LENGTH).map("coordLat").add();
-           // Column coordLong = table.column("COORDLAT").varChar(Table.NAME_LENGTH).map("coordLong").add();
-           Column coordinatesColumn = table.column("GEOCOORDINATES").sdoGeometry().notNull().map("coordinates").add();
-            table.primaryKey("MTR_PK_GEOCOORDS").on(idColumn).add();
-           // table.unique("MTR_U_GEOCOORDS").on(coordinatesColumn).add();
-            //table.unique("MTR_U_COORDLONG").on(coordLong,coordLat).add();
         }
     };
 

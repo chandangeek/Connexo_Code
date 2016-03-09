@@ -26,8 +26,6 @@ public class LocationMemberImpl implements LocationMember {
     private String establishmentNumber;
     private String addressDetail;
     private String zipCode;
-    //private String coordLat;
-    //private String coordLong;
     private boolean defaultLocation;
     private String locale;
     private final DataModel dataModel;
@@ -52,8 +50,6 @@ public class LocationMemberImpl implements LocationMember {
                       String establishmentNumber,
                       String addressDetail,
                       String zipCode,
-                     // String coordLat,
-                     // String coordLong,
                       boolean defaultLocation,
                       String locale) {
 
@@ -70,8 +66,6 @@ public class LocationMemberImpl implements LocationMember {
         this.establishmentNumber = establishmentNumber;
         this.addressDetail = addressDetail;
         this.zipCode = zipCode;
-        //this.coordLat = coordLat;
-        //this.coordLong = coordLong;
         this.defaultLocation = defaultLocation;
         this.locale = locale;
         return this;
@@ -91,13 +85,10 @@ public class LocationMemberImpl implements LocationMember {
                              String establishmentNumber,
                              String addressDetail,
                              String zipCode,
-                             String coordLat,
-                             String coordLong,
                              boolean defaultLocation,
                              String locale) {
         return dataModel.getInstance(LocationMemberImpl.class).init(countryCode, countryName, administrativeArea,locality,subLocality,
                 streetType,streetName,streetNumber,establishmentType,establishmentName,establishmentNumber,addressDetail,zipCode,
-               // coordLat,coordLong,
                 defaultLocation,locale);
     }
 
@@ -171,9 +162,6 @@ public class LocationMemberImpl implements LocationMember {
         return zipCode;
     }
 
-   // public String getCoordLat() { return coordLat; }
-
-    //public String getCoordLong() { return coordLong;}
     @Override
     public boolean isDefaultLocation() {
         return defaultLocation;

@@ -88,7 +88,7 @@ public class UsagePointImpl implements UsagePoint {
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String servicePriority;
 
-    private Location upLocation;
+
     @SuppressWarnings("unused")
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Instant installationTime;
@@ -111,6 +111,8 @@ public class UsagePointImpl implements UsagePoint {
     private final List<MeterActivationImpl> meterActivations = new ArrayList<>();
     private final List<UsagePointAccountability> accountabilities = new ArrayList<>();
     private List<UsagePointConfigurationImpl> usagePointConfigurations = new ArrayList<>();
+    private final Reference<Location> upLocation = ValueReference.absent();
+    private final Reference<GeoCoordinates> coordinates = ValueReference.absent();
 
     private final Clock clock;
     private final DataModel dataModel;
@@ -695,7 +697,24 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public Location getLocation() {
-        return upLocation;
+    public long getLocationId() {
+        Optional<Location> location = getLocation();
+        return location.isPresent() ? location.get().getId() : 0L;
+    }
+
+    @Override
+    public Optional<Location> getLocation() {
+        return upLocation.getOptional();
+    }
+
+    @Override
+    public long getGeoCoordinatesId() {
+        Optional<GeoCoordinates> coordinates = getGeoCoordinates();
+        return coordinates.isPresent() ? coordinates.get().getId() : 0L;
+    }
+
+    @Override
+    public Optional<GeoCoordinates> getGeoCoordinates() {
+        return coordinates.getOptional();
     }
 }

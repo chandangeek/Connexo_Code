@@ -31,7 +31,9 @@ public enum MessageSeeds implements MessageSeed {
     CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER(4004, Constants.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, "The custom attribute set ''{0}'' is not editable by current user."),
     NO_LINKED_CUSTOM_PROPERTY_SET_ON_USAGE_POINT(4005, Constants.NO_LINKED_CUSTOM_PROPERTY_SET_ON_USAGE_POINT, "The custom attribute set ''{0}'' is not attached to the usage point."),
     CUSTOM_PROPERTY_SET_HAS_DIFFERENT_DOMAIN(4006, Constants.CUSTOM_PROPERTY_SET_HAS_DIFFERENT_DOMAIN, "The custom attribute set ''{0}'' has different domain type."),
-    CUSTOM_PROPERTY_SET_IS_NOT_VERSIONED(4007, Constants.CUSTOM_PROPERTY_SET_IS_NOT_VERSIONED, "The custom attribute set ''{0}'' is not versioned."),;
+    CUSTOM_PROPERTY_SET_IS_NOT_VERSIONED(4007, Constants.CUSTOM_PROPERTY_SET_IS_NOT_VERSIONED, "The custom attribute set ''{0}'' is not versioned."),
+    NO_SUCH_LOCATION(4008, Constants.NO_SUCH_LOCATION,"Location not found"),
+    DUPLICATE_LOCATION_ENTRY(4009, Constants.DUPLICATE_LOCATION_ENTRY,"You attempted to enter a duplicate location address. Please check again or perform an editing.");
 
     private final int number;
     private final String key;
@@ -96,6 +98,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CUSTOM_PROPERTY_SET_HAS_DIFFERENT_DOMAIN = "custom.property.set.has.different.domain";
         public static final String CUSTOM_PROPERTY_SET_IS_NOT_VERSIONED = "custom.property.set.is.not.versioned";
         public static final String FIELD_TOO_LONG = "invalidFieldLength";
+        public static final String NO_SUCH_LOCATION = "no.such.location";
+        public static final String DUPLICATE_LOCATION_ENTRY = "duplicate.address.entry";
     }
 
 }

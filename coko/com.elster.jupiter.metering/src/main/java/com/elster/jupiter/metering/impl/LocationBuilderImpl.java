@@ -53,7 +53,7 @@ public class LocationBuilderImpl implements LocationBuilder {
     public class LocationMemberBuilderImpl implements LocationMemberBuilder {
 
         private String name;
-        private long id;
+        private long locationId;
         private String countryCode;
         private String countryName;
         private String administrativeArea;
@@ -67,11 +67,15 @@ public class LocationBuilderImpl implements LocationBuilder {
         private String establishmentNumber;
         private String addressDetail;
         private String zipCode;
-        private String coordLat;
-        private String coordLong;
         private boolean defaultLocation;
         private String locale;
 
+
+        @Override
+        public LocationMemberBuilder setLocationId(long locationId) {
+            this.locationId = locationId;
+            return this;
+        }
 
         @Override
         public LocationMemberBuilder setCountryCode(String countryCode) {
@@ -152,18 +156,6 @@ public class LocationBuilderImpl implements LocationBuilder {
         }
 
         @Override
-        public LocationMemberBuilder setCoordLat(String coordLat) {
-            this.coordLat = coordLat;
-            return this;
-        }
-
-        @Override
-        public LocationMemberBuilder setCoordLong(String coordLong) {
-            this.coordLong = coordLong;
-            return this;
-        }
-
-        @Override
         public LocationMemberBuilder isDaultLocation(boolean defaultLocation) {
             this.defaultLocation = defaultLocation;
             return this;
@@ -196,7 +188,7 @@ public class LocationBuilderImpl implements LocationBuilder {
             return LocationMemberImpl
                     .from(dataModel,countryCode, countryName,administrativeArea,locality,subLocality,
                           streetType,streetName,streetNumber,establishmentType,establishmentName,
-                          establishmentNumber,addressDetail,zipCode,coordLat,coordLong,defaultLocation,locale);
+                          establishmentNumber,addressDetail,zipCode,defaultLocation,locale);
         }
     }
 }

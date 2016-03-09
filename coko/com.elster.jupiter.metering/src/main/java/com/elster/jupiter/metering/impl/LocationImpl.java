@@ -1,8 +1,12 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
+import com.google.common.collect.ImmutableList;
+
 import javax.inject.Inject;
 import java.util.*;
 
@@ -34,8 +38,8 @@ public class LocationImpl implements Location {
     }
 
     @Override
-    public List<? extends LocationMember> getMembers() {
-        return Collections.unmodifiableList(members);
+    public Optional<List<? extends LocationMember>> getMembers() {
+        return Optional.of(Collections.unmodifiableList(members));
     }
 
     @Override
@@ -87,5 +91,6 @@ public class LocationImpl implements Location {
     public final int hashCode() {
         return Objects.hash(id);
     }
+
 }
 

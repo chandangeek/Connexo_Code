@@ -655,44 +655,38 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         return new LocationBuilderImpl(dataModel);
     }
 
+
+    @Override
+    public Optional<Location> findLocation(long id){
+        return dataModel.mapper(Location.class).getOptional(id);
+    }
+
     @Override
     public Optional<Location> findDeviceLocation(String mRID) {
-        return findMeter(mRID).isPresent() ? Optional.of(findMeter(mRID).get().getLocation()) : Optional.empty();
+        return findMeter(mRID).isPresent() ? findMeter(mRID).get().getLocation() : Optional.empty();
     }
 
 
     @Override
     public Optional<Location> findDeviceLocation(long id) {
-        return findMeter(id).isPresent() ? Optional.of(findMeter(id).get().getLocation()) : Optional.empty();
+        return findMeter(id).isPresent() ? findMeter(id).get().getLocation() : Optional.empty();
     }
 
     @Override
     public Optional<Location> findUsagePointLocation(String mRID) {
-        return findUsagePoint(mRID).isPresent() ? Optional.of(findUsagePoint(mRID).get().getLocation()) : Optional.empty();
+        return findUsagePoint(mRID).isPresent() ? findUsagePoint(mRID).get().getLocation() : Optional.empty();
     }
 
     @Override
     public Optional<Location> findUsagePointLocation(long id) {
-        return findUsagePoint(id).isPresent() ? Optional.of(findUsagePoint(id).get().getLocation()) : Optional.empty();
+        return findUsagePoint(id).isPresent() ? findUsagePoint(id).get().getLocation() : Optional.empty();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Optional<List<LocationMember>> getLocationMembers(long locationId) {
-        return Optional.of(dataModel.query(LocationMember.class).select(Operator.EQUAL.compare("id", locationId)));
-
-    }
-
-    @Override
-    public Optional<LocationMember> getLocalizedLocationMember(long locationId, String locale) {
-        Optional<LocationMember> result = Optional.empty();
-        Condition idCondition = Operator.EQUAL.compare("id", locationId);
-        Condition localeCondition = Operator.EQUALIGNORECASE.compare("locale", locale);
-        List<LocationMember> locationMemberList = dataModel.query(LocationMember.class).select(idCondition.and(localeCondition));
-        if (!locationMemberList.isEmpty()) {
-            result = Optional.of(locationMemberList.get(0));
-        }
-        return result;
-
+    public Query<LocationMember> getLocationMemberQuery() {
+        QueryExecutor<?> executor = dataModel.query(LocationMember.class);
+        return queryService.wrap((QueryExecutor<LocationMember>) executor);
     }
 
 }

@@ -23,6 +23,7 @@ public interface LocationBuilder {
      */
     interface LocationMemberBuilder {
 
+        LocationMemberBuilder setLocationId(long locationId);
         LocationMemberBuilder setCountryCode(String countryCode);
         LocationMemberBuilder setCountryName(String countryName);
         LocationMemberBuilder setAdministrativeArea(String administrativeArea);
@@ -36,8 +37,6 @@ public interface LocationBuilder {
         LocationMemberBuilder setEstablishmentNumber(String establishmentNumber);
         LocationMemberBuilder setAddressDetail(String addressDetail);
         LocationMemberBuilder setZipCode(String zipCode);
-        LocationMemberBuilder setCoordLat(String coordLat);
-        LocationMemberBuilder setCoordLong(String coordLong);
         LocationMemberBuilder isDaultLocation(boolean defaultLocation);
         LocationMemberBuilder setLocale(String locale);
         String getLocale();

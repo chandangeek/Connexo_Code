@@ -9,6 +9,7 @@ import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.util.geo.SpatialGeometryObject;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -22,14 +23,17 @@ public interface EndDevice extends IdentifiedObject {
 	String getSerialNumber();
 	String getUtcNumber();
 	ElectronicAddress getElectronicAddress();
-    Location getLocation();
-	AmrSystem getAmrSystem();
+    AmrSystem getAmrSystem();
 	String getAmrId();
 	void update();
     Instant getCreateTime();
     Instant getModTime();
     long getVersion();
     void delete();
+    Optional<Location> getLocation();
+    long getLocationId();
+    Optional<GeoCoordinates> getGeoCoordinates();
+    long getGeoCoordinatesId();
 
     EndDeviceEventRecordBuilder addEventRecord(EndDeviceEventType type, Instant instant);
 

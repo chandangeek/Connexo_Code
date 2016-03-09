@@ -45,17 +45,6 @@ public class GeoCoordinatesImpl implements GeoCoordinates{
         return dataModel.getInstance(GeoCoordinatesImpl.class).init(coordinates);
     }
 
-
-   /* GeoCoordinatesImpl init(String coordLat, String coordLong) {
-        this.coordLat=coordLat;
-        this.coordLong = coordLong;
-        return this;
-    }
-
-    static GeoCoordinates from(DataModel dataModel, String coordLat, String coordLong) {
-        return dataModel.getInstance(GeoCoordinatesImpl.class).init(coordLat, coordLong);
-    }
-*/
     @Override
     public long getId() {
         return id;
@@ -66,16 +55,4 @@ public class GeoCoordinatesImpl implements GeoCoordinates{
     @Override
     public SpatialGeometryObject getCoordinates() { return coordinates; }
 
-/*
-    @Override
-    public String getLat() {
-        return coordLat;
-    }
-
-    @Override
-    public String getLong() {
-        return coordLong;
-    }
-
-  */
 }

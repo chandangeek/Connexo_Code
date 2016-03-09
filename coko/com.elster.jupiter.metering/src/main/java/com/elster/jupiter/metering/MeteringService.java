@@ -142,11 +142,11 @@ public interface MeteringService {
 
     LocationBuilder newLocationBuilder();
 
+    Optional<Location>findLocation(long id);
     Optional<Location> findDeviceLocation(String mRID);
     Optional<Location> findDeviceLocation(long id);
     Optional<Location> findUsagePointLocation(String mRID);
     Optional<Location> findUsagePointLocation(long id);
-    Optional<List<LocationMember>> getLocationMembers(long locationId);
-    Optional<LocationMember> getLocalizedLocationMember(long locationId, String locale);
+    Query<LocationMember> getLocationMemberQuery();
 
 }
