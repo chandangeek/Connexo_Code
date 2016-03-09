@@ -23,6 +23,7 @@ Ext.define('Scs.view.Preview', {
 
         me.items = {
             xtype: 'servicecalls-preview-form',
+            itemId: 'servicecall-grid-preview-form',
             router: me.router
         };
         me.callParent(arguments);

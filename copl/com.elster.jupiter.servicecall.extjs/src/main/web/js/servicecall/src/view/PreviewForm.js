@@ -2,6 +2,7 @@ Ext.define('Scs.view.PreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.servicecalls-preview-form',
     router: null,
+    detailed: false,
     requires: [
         'Uni.property.form.Property'
     ],
@@ -52,11 +53,53 @@ Ext.define('Scs.view.PreviewForm', {
                     },
                     {
                         xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('general.serviceCallID', 'SCS', 'Service call ID'),
+                        name: 'name',
+                        hidden: !me.detailed
+                    },
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('general.externalReference', 'SCS', 'External reference'),
+                        name: 'externalReference',
+                        hidden: !me.detailed,
+                        renderer: function (value) {
+                            if (value) {
+                                return value;
+                            }
+                            return "-"
+                        }
+                    },
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('general.type', 'SCS', 'Type'),
+                        name: 'type',
+                        hidden: !me.detailed
+                    },
+                    {
+                        xtype: 'displayfield',
                         fieldLabel: Uni.I18n.translate('general.origin', 'SCS', 'Origin'),
                         name: 'origin',
                         renderer: function (value) {
                             return value === "" ? "-" : value;
                         }
+                    },
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('general.status', 'SCS', 'Status'),
+                        name: 'state',
+                        hidden: !me.detailed
+                    },
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('general.receivedDate', 'SCS', 'Received date'),
+                        name: 'creationTimeDisplay',
+                        hidden: !me.detailed
+                    },
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('general.modificationDate', 'SCS', 'Modification date'),
+                        name: 'lastModificationTimeDisplay',
+                        hidden: !me.detailed
                     },
                     {
                         xtype: 'container',
@@ -85,6 +128,8 @@ Ext.define('Scs.view.PreviewForm', {
             return;
         }
         Ext.suspendLayouts();
+        record.get('topLevelParent') === "" ? me.down("#topLevelParentField").hide() : me.down("#topLevelParentField").show();
+        record.get('parent') === "" ? me.down("#parentField").hide() : me.down("#parentField").show();
 
         me.loadRecord(record);
         childrenContainer.removeAll();

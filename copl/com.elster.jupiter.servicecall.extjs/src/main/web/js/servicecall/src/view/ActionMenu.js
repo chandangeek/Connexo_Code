@@ -6,7 +6,7 @@ Ext.define('Scs.view.ActionMenu', {
     shadow: false,
     record: null,
     items: [
-        {
+       /* {
             itemId: 'cancel-scs',
             text: Uni.I18n.translate('general.cancel', 'SCS', 'Cancel'),
             //privileges: Apr.privileges.AppServer.admin,
@@ -42,7 +42,7 @@ Ext.define('Scs.view.ActionMenu', {
             visible: function() {
                 return true;
             }
-        }
+        }*/
     ],
     listeners: {
         beforeshow: function() {

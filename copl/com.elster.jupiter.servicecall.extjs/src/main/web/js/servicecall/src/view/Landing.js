@@ -2,11 +2,12 @@ Ext.define('Scs.view.Landing', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.scs-landing-page',
     requires: [
-        'Scs.view.LandingPageForm',
+        'Scs.view.PreviewForm',
         'Scs.view.ActionMenu',
         'Scs.view.log.Setup'
     ],
     serviceCallId: null,
+    router: null,
 
     initComponent: function () {
         var me = this;
@@ -15,7 +16,7 @@ Ext.define('Scs.view.Landing', {
             items: [
                 {
                     ui: 'large',
-                    title: me.title === 'none' ? '' : me.serviceCallId,
+                   // title: me.title === 'none' ? '' : me.serviceCallId,
                     tools: [
                         {
                             xtype: 'button',
@@ -31,8 +32,10 @@ Ext.define('Scs.view.Landing', {
                     flex: 1,
                     items: [
                         {
-                            xtype: 'scs-landing-page-form',
-                            margin: '0 0 0 100'
+                            xtype: 'servicecalls-preview-form',
+                            itemId: 'service-call-landing-page-form',
+                            router: me.router,
+                            detailed: true
                         },
                         {
                             xtype: 'scs-log-setup',
@@ -44,5 +47,11 @@ Ext.define('Scs.view.Landing', {
             ]
         };
         this.callParent(arguments);
+    },
+
+    updateLandingPage: function (record) {
+        var me = this,
+            previewForm = me.down('#service-call-landing-page-form');
+        previewForm.updatePreview(record);
     }
 });

@@ -5,7 +5,8 @@ Ext.define('Scs.controller.ServiceCalls', {
         'Scs.view.Setup',
         'Scs.view.Landing',
         'Scs.view.SetupOverview',
-        'Scs.view.ServiceCallPreviewContainer'
+        'Scs.view.ServiceCallPreviewContainer',
+        'Scs.view.PreviewForm'
     ],
     stores: [
         'Scs.store.ServiceCalls',
@@ -97,9 +98,13 @@ Ext.define('Scs.controller.ServiceCalls', {
                             serviceCallId: record.get('name'),
                             store: store
                         });
+                            view.down('scs-landing-page').updateLandingPage(record);
                     } else {
-                        view = Ext.widget('scs-landing-page', {serviceCallId: record.get('name')});
-                        view.down('scs-landing-page-form').updateLandingPage(record);
+                        view = Ext.widget('scs-landing-page', {
+                            router: me.getController('Uni.controller.history.Router'),
+                            serviceCallId: record.get('name')
+                        });
+                            view.updateLandingPage(record);
                     }
                     var parents = record.get('parents');
                     parents.push({id:record.get('id'),name:record.get('name')});
@@ -147,13 +152,11 @@ Ext.define('Scs.controller.ServiceCalls', {
             page = me.getPage(),
             preview = page.down('servicecalls-preview'),
             serviceCallName = record.get('name'),
-            previewForm = preview.down('servicecalls-preview-form');
+            previewForm = preview.down('#servicecall-grid-preview-form');
 
         me.getModel('Scs.model.ServiceCall').load(record.get('id'), {
             success: function (record) {
                 previewForm.updatePreview(record);
-               // record.get('topLevelParent') === "" ? previewForm.down("#topLevelParentField").hide():previewForm.down("#topLevelParentField").show();
-                //record.get('parent') === "" ? previewForm.down("#parentField").hide():previewForm.down("#parentField").show();
             },
             failure: function() {
             }

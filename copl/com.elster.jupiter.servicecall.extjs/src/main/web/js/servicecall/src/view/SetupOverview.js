@@ -30,6 +30,7 @@ Ext.define('Scs.view.SetupOverview', {
                                 {
                                     xtype: 'scs-landing-page',
                                     serviceCallId: me.serviceCallId,
+                                    router: me.router,
                                     title: 'none'
                                 }
                             ]
