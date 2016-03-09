@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering;
 
+import java.time.Instant;
+
 public interface UsagePointBuilder {
 
     UsagePointBuilder withAliasName(String aliasName);
@@ -10,19 +12,23 @@ public interface UsagePointBuilder {
 
     UsagePointBuilder withName(String name);
 
-    UsagePointBuilder withIsSdp(Boolean isSdp);
+    UsagePointBuilder withIsSdp(boolean isSdp);
 
-    UsagePointBuilder withIsVirtual(Boolean isVirtual);
+    UsagePointBuilder withIsVirtual(boolean isVirtual);
 
     UsagePointBuilder withOutageRegion(String outageRegion);
-
-    UsagePointBuilder withReadCycle(String readCycle);
 
     UsagePointBuilder withReadRoute(String readRoute);
 
     UsagePointBuilder withServicePriority(String servicePriority);
 
-    UsagePointBuilder setServiceLocation(ServiceLocation location);
+    UsagePointBuilder withServiceDeliveryRemark(String serviceDeliveryRemark);
+
+    UsagePointBuilder withServiceLocation(ServiceLocation location);
+
+    UsagePointBuilder withServiceLocationString(String serviceLocationString);
 
     UsagePoint create();
+
+    UsagePoint validate();
 }

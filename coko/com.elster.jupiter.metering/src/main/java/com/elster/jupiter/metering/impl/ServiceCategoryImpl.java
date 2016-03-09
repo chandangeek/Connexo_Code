@@ -11,14 +11,15 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ServiceCategoryImpl implements ServiceCategory {
@@ -52,27 +53,29 @@ public class ServiceCategoryImpl implements ServiceCategory {
 	private String userName;
 
     private final DataModel dataModel;
+    private final Clock clock;
     private final Thesaurus thesaurus;
     private final Provider<UsagePointImpl> usagePointFactory;
 
     private List<ServiceCategoryCustomPropertySetUsage> serviceCategoryCustomPropertySetUsages = new ArrayList<>();
 
     @Inject
-	ServiceCategoryImpl(DataModel dataModel,Provider<UsagePointImpl> usagePointFactory, Thesaurus thesaurus) {
+	ServiceCategoryImpl(DataModel dataModel, Clock clock, Provider<UsagePointImpl> usagePointFactory, Thesaurus thesaurus) {
         this.dataModel = dataModel;
+        this.clock = clock;
         this.thesaurus = thesaurus;
         this.usagePointFactory = usagePointFactory;
     }
-	
+
 	ServiceCategoryImpl init(ServiceKind kind) {
 		this.kind = kind;
         return this;
 	}
 
-	public ServiceKind getKind() {	
+	public ServiceKind getKind() {
 		return kind;
 	}
-	
+
 	public long getId() {
 		return kind.ordinal() + 1;
 	}
@@ -81,7 +84,7 @@ public class ServiceCategoryImpl implements ServiceCategory {
 	public String getName() {
 		return kind.getDisplayName(thesaurus);
 	}
-	
+
 	@Override
 	public String getAliasName() {
 		return aliasName;
@@ -108,10 +111,15 @@ public class ServiceCategoryImpl implements ServiceCategory {
         dataModel.update(this);
     }
 
-    public UsagePointBuilder newUsagePoint(String mRid) {
-		return new UsagePointBuilderImpl(dataModel, mRid, this);
+    public UsagePointBuilder newUsagePoint(String mRID) {
+		return this.newUsagePoint(mRID, this.clock.instant());
 	}
-    
+
+    @Override
+    public UsagePointBuilder newUsagePoint(String mRID, Instant installationTime) {
+        return new UsagePointBuilderImpl(dataModel, mRID, installationTime, this);
+    }
+
     @Override
     public String getTranslationKey() {
         return ServiceKind.getTranslationKey(this.kind);
@@ -126,6 +134,8 @@ public class ServiceCategoryImpl implements ServiceCategory {
             return GasDetailImpl.from(dataModel, usagePoint, interval);
         } else if (kind.equals(ServiceKind.WATER)) {
             return WaterDetailImpl.from(dataModel, usagePoint, interval);
+        } else if (kind.equals(ServiceKind.HEAT)) {
+            return HeatDetailImpl.from(dataModel, usagePoint, interval);
         } else {
             return DefaultDetailImpl.from(dataModel, usagePoint, interval);
         }
@@ -154,6 +164,11 @@ public class ServiceCategoryImpl implements ServiceCategory {
                 .filter(f -> f.getServiceCategory().getId() == this.getId())
                 .filter(f -> f.getRegisteredCustomPropertySet().getId() == registeredCustomPropertySet.getId())
                 .findAny().ifPresent(serviceCategoryCustomPropertySetUsages::remove);
+    }
+
+    @Override
+    public String getDisplayName() {
+        return this.kind.getDisplayName(thesaurus);
     }
 
     @Override

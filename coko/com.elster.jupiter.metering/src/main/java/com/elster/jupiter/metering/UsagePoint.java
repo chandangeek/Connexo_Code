@@ -24,7 +24,9 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
 
     String getOutageRegion();
 
-    String getReadCycle();
+    String getAliasName();
+
+    String getDescription();
 
     String getReadRoute();
 
@@ -38,15 +40,25 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
 
     Optional<ServiceLocation> getServiceLocation();
 
+    String getServiceLocationString();
+
     ServiceCategory getServiceCategory();
 
+    public Instant getInstallationTime();
+
+    public void setInstallationTime(Instant installationTime);
+
+    String getServiceDeliveryRemark();
+
+    void setServiceDeliveryRemark(String serviceDeliveryRemark);
+
     void setServiceLocation(ServiceLocation serviceLocation);
+
+    public void setServiceLocationString(String serviceLocationString);
 
     void setServicePriority(String servicePriority);
 
     void setReadRoute(String readRoute);
-
-    void setReadCycle(String readCycle);
 
     void setOutageRegion(String outageRegion);
 
@@ -96,11 +108,15 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
 
     Optional<MeterActivation> getMeterActivation(Instant when);
 
+    UsagePointDetailBuilder newDefaultDetailBuilder(Instant start);
+
     ElectricityDetailBuilder newElectricityDetailBuilder(Instant start);
 
     GasDetailBuilder newGasDetailBuilder(Instant instant);
 
     WaterDetailBuilder newWaterDetailBuilder(Instant instant);
+
+    HeatDetailBuilder newHeatDetailBuilder(Instant start);
 
     List<? extends BaseReadingRecord> getReadingsWithFill(Range<Instant> range, ReadingType readingType);
 
@@ -109,12 +125,6 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
     Optional<UsagePointConfiguration> getConfiguration(Instant time);
 
     Location getLocation();
-
-    /**
-     * @deprecated This is not the type of method that we want on a public API, the object should be in charge of its version number
-     */
-    @Deprecated
-    void touch();
 
     /**
      * Applies the specified {@link MetrologyConfiguration} to this UsagePoint
@@ -164,6 +174,8 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
     List<MetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period);
 
     void removeMetrologyConfiguration(Instant when);
+
+    UsagePointCustomPropertySetExtension forCustomProperties();
 
     interface UsagePointConfigurationBuilder {
 

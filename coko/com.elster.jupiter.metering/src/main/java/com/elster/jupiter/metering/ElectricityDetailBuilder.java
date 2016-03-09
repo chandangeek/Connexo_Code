@@ -1,21 +1,14 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.cbo.PhaseCode;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
 
-public interface ElectricityDetailBuilder {
+public interface ElectricityDetailBuilder extends UsagePointDetailBuilder{
 
-    ElectricityDetailBuilder withAmiBillingReady(AmiBillingReadyKind amiBillingReady);
+    ElectricityDetailBuilder withCollar(YesNoAnswer collar);
 
-    ElectricityDetailBuilder withCheckBilling(Boolean checkBilling);
-
-    ElectricityDetailBuilder withConnectionState(UsagePointConnectedKind connectionState);
-
-    ElectricityDetailBuilder withMinimalUsageExpected(Boolean minimalUsageExpected);
-
-    ElectricityDetailBuilder withServiceDeliveryRemark(String serviceDeliveryRemark);
-
-    ElectricityDetailBuilder withGrounded(Boolean grounded);
+    ElectricityDetailBuilder withGrounded(boolean grounded);
 
     ElectricityDetailBuilder withNominalServiceVoltage(Quantity nominalServiceVoltage);
 
@@ -27,28 +20,14 @@ public interface ElectricityDetailBuilder {
 
     ElectricityDetailBuilder withEstimatedLoad(Quantity estimatedLoad);
 
-    AmiBillingReadyKind getAmiBillingReady();
+    ElectricityDetailBuilder withLimiter(boolean limiter);
 
-    boolean isCheckBilling();
+    ElectricityDetailBuilder withLoadLimit(Quantity loadLimit);
 
-    UsagePointConnectedKind getConnectionState();
+    ElectricityDetailBuilder withLoadLimiterType(String loadLimiterType);
 
-    boolean isMinimalUsageExpected();
+    ElectricityDetailBuilder withInterruptible(boolean interruptible);
 
-    String getServiceDeliveryRemark();
-
-    boolean isGrounded();
-
-    Quantity getNominalServiceVoltage();
-
-    PhaseCode getPhaseCode();
-
-    Quantity getRatedCurrent();
-
-    Quantity getRatedPower();
-
-    Quantity getEstimatedLoad();
-
-    ElectricityDetail build();
+    ElectricityDetail create();
 
 }

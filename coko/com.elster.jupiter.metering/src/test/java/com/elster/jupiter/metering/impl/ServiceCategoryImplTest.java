@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 import javax.inject.Provider;
 import javax.validation.ValidatorFactory;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -60,8 +61,8 @@ public class ServiceCategoryImplTest {
 
     @Before
     public void setUp() {
-    	Provider<UsagePointImpl> usagePointFactory = () -> new UsagePointImpl(clock, dataModel, eventService, meterActivationFactory, accountabilityFactory, customPropertySetService);
-        serviceCategory = new ServiceCategoryImpl(dataModel,usagePointFactory,thesaurus).init(ServiceKind.ELECTRICITY);
+        Provider<UsagePointImpl> usagePointFactory = () -> new UsagePointImpl(clock, dataModel, eventService, thesaurus, meterActivationFactory, accountabilityFactory, customPropertySetService);
+        serviceCategory = new ServiceCategoryImpl(dataModel, clock, usagePointFactory, thesaurus).init(ServiceKind.ELECTRICITY);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), anyVararg())).thenReturn(Collections.emptySet());
@@ -101,9 +102,9 @@ public class ServiceCategoryImplTest {
 
     @Test
     public void testNewUsagePoint() {
-        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, () -> null, () -> null, customPropertySetService));
+        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, () -> null, () -> null, customPropertySetService));
 
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId").create();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId", Instant.EPOCH).create();
         assertThat(usagePoint).isInstanceOf(UsagePointImpl.class);
     }
 

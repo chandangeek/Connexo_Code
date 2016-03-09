@@ -25,7 +25,6 @@ import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUMPLUSONE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
@@ -157,15 +156,18 @@ public enum TableSpecs {
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
             Column serviceKindColumn = table.column("SERVICEKIND").number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
             Column serviceLocationIdColumn = table.column("SERVICELOCATIONID").number().conversion(NUMBER2LONGNULLZERO).add();
+            table.column("SERVICELOCATIONSTRING").varChar(SHORT_DESCRIPTION_LENGTH).map("location").add();
             table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
             table.column("ISSDP").bool().map("isSdp").add();
             table.column("ISVIRTUAL").bool().map("isVirtual").add();
             table.column("OUTAGEREGION").varChar(NAME_LENGTH).map("outageRegion").add();
-            table.column("READCYCLE").varChar(NAME_LENGTH).map("readCycle").add();
             table.column("READROUTE").varChar(NAME_LENGTH).map("readRoute").add();
             table.column("SERVICEPRIORITY").varChar(NAME_LENGTH).map("servicePriority").add();
+            table.column("SERVICEDELIVERYREMARK").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceDeliveryRemark").add();
+            table.column("INSTALLATIONTIME").number().notNull().conversion(ColumnConversion.NUMBER2INSTANT).map("installationTime").add();
+
             table.addAuditColumns();
             table.primaryKey("MTR_PK_USAGEPOINT").on(idColumn).add();
             table.unique("MTR_U_USAGEPOINT").on(mRIDColumn).add();
@@ -526,18 +528,24 @@ public enum TableSpecs {
 
             table.addDiscriminatorColumn("SERVICECATEGORY", "varchar2(1)");
 
-            table.column("AMIBILLINGREADY").number().notNull().conversion(NUMBER2ENUM).map("amiBillingReady").add();
-            table.column("CHECKBILLING").bool().map("checkBilling").add();
-            table.column("CONNECTIONSTATE").number().notNull().conversion(NUMBER2ENUM).map("connectionState").add();
-            table.column("MINIMALUSAGEEXPECTED").bool().map("minimalUsageExpected").add();
-            table.column("SERVICEDELIVERYREMARK").varChar(NAME_LENGTH).map("serviceDeliveryRemark").add();
-
             table.column("GROUNDED").type("char(1)").conversion(CHAR2BOOLEAN).map("grounded").add();
             table.addQuantityColumns("NOMINALVOLTAGE", false, "nominalServiceVoltage");
             table.column("PHASECODE").type("varchar2(7)").conversion(CHAR2ENUM).map("phaseCode").add();
+            table.addQuantityColumns("PHYSICALCAPACITY", false, "physicalCapacity");
             table.addQuantityColumns("RATEDCURRENT", false, "ratedCurrent");
             table.addQuantityColumns("RATEDPOWER", false, "ratedPower");
             table.addQuantityColumns("ESTIMATEDLOAD", false, "estimatedLoad");
+            table.column("LIMITER").type("char(1)").conversion(CHAR2BOOLEAN).map("limiter").add();
+            table.column("LOADLIMITERTYPE").varChar(NAME_LENGTH).map("loadLimiterType").add();
+            table.addQuantityColumns("LOADLIMIT", false, "loadLimit");
+            table.addQuantityColumns("PRESSURE", false, "pressure");
+            table.column("INTERRUPTIBLE").type("char(1)").conversion(CHAR2BOOLEAN).map("interruptible").add();
+            table.column("COLLAR").type("varchar2(7)").conversion(CHAR2ENUM).map("collar").add();
+            table.column("BYPASS").type("varchar2(7)").conversion(CHAR2ENUM).map("bypass").add();
+            table.column("BYPASSSTATUS").type("varchar2(7)").conversion(CHAR2ENUM).map("bypassStatus").add();
+            table.column("VALVE").type("varchar2(7)").conversion(CHAR2ENUM).map("valve").add();
+            table.column("CAPPED").type("varchar2(7)").conversion(CHAR2ENUM).map("capped").add();
+            table.column("CLAMPED").type("varchar2(7)").conversion(CHAR2ENUM).map("clamped").add();
 
             table.addAuditColumns();
             table.primaryKey("MTR_PK_USAGEPOINTDETAIL").on(usagePointIdColumn, intervalColumns.get(0)).add();
