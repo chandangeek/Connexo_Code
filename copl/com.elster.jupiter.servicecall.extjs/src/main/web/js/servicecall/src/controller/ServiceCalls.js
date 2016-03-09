@@ -152,8 +152,8 @@ Ext.define('Scs.controller.ServiceCalls', {
         me.getModel('Scs.model.ServiceCall').load(record.get('id'), {
             success: function (record) {
                 previewForm.updatePreview(record);
-                record.get('topLevelParent') === "" ? previewForm.down("#topLevelParentField").hide():previewForm.down("#topLevelParentField").show();
-                record.get('parent') === "" ? previewForm.down("#parentField").hide():previewForm.down("#parentField").show();
+               // record.get('topLevelParent') === "" ? previewForm.down("#topLevelParentField").hide():previewForm.down("#topLevelParentField").show();
+                //record.get('parent') === "" ? previewForm.down("#parentField").hide():previewForm.down("#parentField").show();
             },
             failure: function() {
             }
