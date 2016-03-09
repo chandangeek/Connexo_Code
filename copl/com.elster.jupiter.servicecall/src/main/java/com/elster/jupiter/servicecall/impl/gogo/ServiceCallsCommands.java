@@ -25,7 +25,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -190,6 +192,13 @@ public class ServiceCallsCommands {
                 + sc.getOrigin().orElse("-O-") + " "
                 + sc.getExternalReference().orElse("-E-"))
                 .forEach(System.out::println);
+    }
+
+    public void transitionServiceCall() {
+        System.out.println("Usage: transitionServiceCall <device id> <targetState>");
+        System.out.println("   where targetState is one of: " + Stream.of(DefaultState.values())
+                .map(DefaultState::name)
+                .collect(joining(", ")));
     }
 
     public void transitionServiceCall(long id, String targetState) {
