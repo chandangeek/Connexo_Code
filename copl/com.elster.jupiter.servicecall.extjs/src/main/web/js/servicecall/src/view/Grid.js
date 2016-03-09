@@ -4,7 +4,7 @@ Ext.define('Scs.view.Grid', {
     store: 'Scs.store.ServiceCalls',
     router: null,
     requires: [
-        'Uni.grid.column.Action',
+        //'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom'
     ],
@@ -46,7 +46,7 @@ Ext.define('Scs.view.Grid', {
                 header: Uni.I18n.translate('general.modificationDate', 'SCS', 'Modification date'),
                 dataIndex: 'lastModificationTimeDisplay',
                 flex: 1
-            },
+            }/*,
             {
                 xtype: 'uni-actioncolumn',
                // privileges: Apr.privileges.AppServer.admin,
@@ -54,7 +54,7 @@ Ext.define('Scs.view.Grid', {
                     xtype: 'scs-action-menu',
                     itemId: 'scs-action-menu'
                 }
-            }
+            }*/
         ];
 
         me.dockedItems = [
