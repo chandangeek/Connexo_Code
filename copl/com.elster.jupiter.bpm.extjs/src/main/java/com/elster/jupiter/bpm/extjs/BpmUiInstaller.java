@@ -29,11 +29,9 @@ public class BpmUiInstaller implements TranslationKeyProvider {
 
     private static final Logger LOGGER = Logger.getLogger(BpmUiInstaller.class.getName());
     private volatile ServiceRegistration<HttpResource> registration;
-    private volatile License license;
 
     public BpmUiInstaller() {
     }
-
 
     @Activate
     public void activate(BundleContext context) {
@@ -46,11 +44,6 @@ public class BpmUiInstaller implements TranslationKeyProvider {
     @Deactivate
     public void deactivate() {
         registration.unregister();
-    }
-
-    @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
-    public void setLicense(License license) {
-        this.license = license;
     }
 
     @Override
