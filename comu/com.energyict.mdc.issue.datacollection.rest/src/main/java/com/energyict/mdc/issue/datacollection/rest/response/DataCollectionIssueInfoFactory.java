@@ -27,7 +27,6 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
@@ -64,8 +63,7 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
     public void setNlsService(NlsService nlsService) {
         Thesaurus domainThesaurus = nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN);
         Thesaurus restThesaurus = nlsService.getThesaurus(IssueDataCollectionApplication.ISSUE_DATACOLLECTION_REST_COMPONENT, Layer.REST);
-        Thesaurus dashboardRestThesaurus = nlsService.getThesaurus(IssueDataCollectionApplication.DASHBOARD_REST_COMPONENT_NAME, Layer.REST);
-        this.thesaurus = domainThesaurus.join(restThesaurus).join(dashboardRestThesaurus);
+        this.thesaurus = domainThesaurus.join(restThesaurus);
     }
 
     @Reference
@@ -187,18 +185,15 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
         info.id = connectionTask.getId();
         info.latestAttempt = connectionTask.getLastCommunicationStart();
         info.lastSuccessfulAttempt = connectionTask.getLastSuccessfulCommunicationEnd();
-        String connectionTaskIndicatorName = connectionTask.getSuccessIndicator().name();
-        info.latestStatus = new IdWithNameInfo(connectionTaskIndicatorName,
-                thesaurus.getString(connectionTaskIndicatorName, connectionTaskIndicatorName));
-                //ConnectionTaskSuccessIndicatorTranslationKeys.translationFor(connectionTask.getSuccessIndicator(), thesaurus));
+        info.latestStatus = connectionTask.getSuccessIndicator() != null ?
+                new IdWithNameInfo(connectionTask.getSuccessIndicator().name(), connectionTask.getSuccessIndicatorDisplayName()) : null;
 
         Optional<ComSession> comSessionRef = connectionTask.getLastComSession();
         if(comSessionRef.isPresent()) {
-            ComSession.SuccessIndicator successIndicator = comSessionRef.get().getSuccessIndicator();
-            String thesaurusKey = ComSession.class.getSimpleName() + "." + successIndicator.name();
-            info.latestResult = new IdWithNameInfo(successIndicator.name(), thesaurus.getString(thesaurusKey, thesaurusKey));
-                    //ComSessionSuccessIndicatorTranslationKeys.translationFor(successIndicator, thesaurus));
-            info.journals = comSessionRef.get().getJournalEntries().stream().map(this::asComSessionJournalInfo).collect(Collectors.toList());
+            info.latestResult = comSessionRef.get().getSuccessIndicator() != null ?
+                    new IdWithNameInfo(comSessionRef.get().getSuccessIndicator().name(), comSessionRef.get().getSuccessIndicatorDisplayName()) : null;
+            info.journals = comSessionRef.get().getJournalEntries().stream().map(this::asComSessionJournalInfo).collect(Collectors
+                    .toList());
 
         }
         info.connectionMethod = new IdWithNameInfo(connectionTask.getPartialConnectionTask());
@@ -214,16 +209,13 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
         } else {
             communicationTaskInfo.name = comTaskExecution.getComTasks().stream().map(ComTask::getName).collect(Collectors.joining(" + "));
         }
-        //TaskStatusTranslationKeys taskStatusTranslationKey = TaskStatusTranslationKeys.from(comTaskExecution.getStatus());
-        String thesaurusKey = comTaskExecution.getStatus().name();
-        communicationTaskInfo.latestStatus = new IdWithNameInfo(thesaurusKey, thesaurus.getString(thesaurusKey, thesaurusKey));
-        //communicationTaskInfo.latestStatus = new IdWithNameInfo(taskStatusTranslationKey.getKey(), thesaurus.getFormat(taskStatusTranslationKey).format());
+        communicationTaskInfo.latestStatus = comTaskExecution.getStatus() != null ?
+                new IdWithNameInfo(comTaskExecution.getStatus().name(), comTaskExecution.getStatusDisplayName()) : null;
         Optional<ComTaskExecutionSession> lastComTaskExecutionSessionRef = this.communicationTaskService.findLastSessionFor(comTaskExecution);
         if (lastComTaskExecutionSessionRef.isPresent()) {
-            communicationTaskInfo.latestResult = lastComTaskExecutionSessionRef
-                    .map(ComTaskExecutionSession::getHighestPriorityCompletionCode)
-                    .map(this::getLatestResultAsInfo)
-                    .orElse(null);
+            communicationTaskInfo.latestResult =  lastComTaskExecutionSessionRef.get().getHighestPriorityCompletionCode() != null ?
+                    new IdWithNameInfo(lastComTaskExecutionSessionRef.get().getHighestPriorityCompletionCode().name(),
+                    lastComTaskExecutionSessionRef.get().getHighestPriorityCompletionCodeDisplayName()) : null;
             communicationTaskInfo.journals = lastComTaskExecutionSessionRef.get().getComTaskExecutionJournalEntries().stream()
                     .map(this::asComSessionTaskJournalInfo)
                     .collect(Collectors.toList());
@@ -236,11 +228,6 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
         }
 
         return communicationTaskInfo;
-    }
-
-    private IdWithNameInfo getLatestResultAsInfo(CompletionCode completionCode) {
-        String completionCodeName = completionCode.name();
-        return new IdWithNameInfo(completionCodeName, thesaurus.getString(completionCodeName, completionCodeName));
     }
 
     private JournalEntryInfo asComSessionJournalInfo(ComSessionJournalEntry comSessionJournalEntry) {

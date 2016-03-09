@@ -37,7 +37,6 @@ import java.util.*;
 public class IssueDataCollectionApplication extends Application implements MessageSeedProvider, TranslationKeyProvider {
     public static final String APP_KEY = "MDC";
     public static final String ISSUE_DATACOLLECTION_REST_COMPONENT = "IDR";
-    public static final String DASHBOARD_REST_COMPONENT_NAME = "DSR";
 
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
@@ -96,8 +95,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
         this.nlsService = nlsService;
         Thesaurus domainThesaurus = nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN);
         Thesaurus restThesaurus = nlsService.getThesaurus(ISSUE_DATACOLLECTION_REST_COMPONENT, Layer.REST);
-        Thesaurus dashboardRestThesaurus = nlsService.getThesaurus(DASHBOARD_REST_COMPONENT_NAME, Layer.REST);
-        this.thesaurus = domainThesaurus.join(restThesaurus).join(dashboardRestThesaurus);
+        this.thesaurus = domainThesaurus.join(restThesaurus);
     }
 
     @Reference
@@ -150,13 +148,6 @@ public class IssueDataCollectionApplication extends Application implements Messa
     @Override
     public List<TranslationKey> getKeys() {
         return Arrays.asList(DataCollectionIssueTranslationKeys.values());
-       /* Collections.addAll(translationKeys, DataCollectionIssueTranslationKeys.values());
-        List<TranslationKey> translationKeys = new ArrayList<>();
-        translationKeys.addAll(Arrays.asList(DataCollectionIssueTranslationKeys.values()));
-        translationKeys.addAll(Arrays.asList(CompletionCodeTranslationKeys.values()));
-        translationKeys.addAll(Arrays.asList(ComSessionSuccessIndicatorTranslationKeys.values()));
-        translationKeys.addAll(Arrays.asList(ConnectionTaskSuccessIndicatorTranslationKeys.values()));
-        return translationKeys;*/
     }
 
     @Override
