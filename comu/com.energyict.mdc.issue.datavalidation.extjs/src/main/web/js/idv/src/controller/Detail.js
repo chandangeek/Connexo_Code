@@ -2,7 +2,6 @@ Ext.define('Idv.controller.Detail', {
     extend: 'Isu.controller.IssueDetail',
 
     stores: [
-        'Isu.store.Issues',
         'Isu.store.IssueActions',
         'Isu.store.Clipboard',
         'Idv.store.NonEstimatedDataStore'
