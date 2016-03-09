@@ -95,12 +95,12 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
         Map<DefaultState, Long> collect = countStates(serviceCall);
 
         boolean finished = EnumSet.of(DefaultState.PENDING, DefaultState.CREATED, DefaultState.SCHEDULED, DefaultState.PAUSED, DefaultState.WAITING, DefaultState.ONGOING)
-                .stream().noneMatch(state -> count(collect, state) > 0L);
+                .stream().noneMatch(state -> collect.getOrDefault(state, 0L) > 0L);
 
         if (finished && !EnumSet.of(DefaultState.PARTIAL_SUCCESS, DefaultState.CANCELLED, DefaultState.SUCCESSFUL, DefaultState.FAILED)
                 .contains(serviceCall.getState())) {
-            if (count(collect, DefaultState.FAILED) > 0L) {
-                if (count(collect, DefaultState.SUCCESSFUL) > 0L) {
+            if (collect.getOrDefault(DefaultState.FAILED, 0L) > 0L) {
+                if (collect.getOrDefault(DefaultState.SUCCESSFUL, 0L) > 0L) {
                     serviceCall.requestTransition(DefaultState.PARTIAL_SUCCESS);
                 } else {
                     serviceCall.requestTransition(DefaultState.FAILED);
@@ -128,7 +128,7 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
         Map<DefaultState, Long> collect = countStates(parentServiceCall);
 
         boolean finished = EnumSet.of(DefaultState.PENDING, DefaultState.CREATED, DefaultState.SCHEDULED, DefaultState.PAUSED, DefaultState.WAITING, DefaultState.ONGOING)
-                .stream().noneMatch(state -> count(collect, state) > 0L);
+                .stream().noneMatch(state -> collect.getOrDefault(state, 0L) > 0L);
 
         if (finished && parentServiceCall.getState() == DefaultState.WAITING) {
             parentServiceCall.requestTransition(DefaultState.ONGOING); // RACE CONDITION?
@@ -139,10 +139,6 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
         return parentServiceCall.getChildren()
                 .stream()
                 .collect(Collectors.groupingBy(ServiceCall::getState, Collectors.counting()));
-    }
-
-    protected long count(Map<DefaultState, Long> collect, DefaultState state) {
-        return collect.containsKey(state) ? collect.get(state) : 0L;
     }
 
     protected void createChildren(ServiceCall serviceCall) {
