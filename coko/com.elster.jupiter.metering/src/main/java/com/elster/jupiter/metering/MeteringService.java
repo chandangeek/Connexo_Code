@@ -139,4 +139,14 @@ public interface MeteringService {
     Optional<MultiplierType> getMultiplierType(String name);
 
     List<MultiplierType> getMultiplierTypes();
+
+    LocationBuilder newLocationBuilder();
+
+    Optional<Location> findDeviceLocation(String mRID);
+    Optional<Location> findDeviceLocation(long id);
+    Optional<Location> findUsagePointLocation(String mRID);
+    Optional<Location> findUsagePointLocation(long id);
+    Optional<List<LocationMember>> getLocationMembers(long locationId);
+    Optional<LocationMember> getLocalizedLocationMember(long locationId, String locale);
+
 }

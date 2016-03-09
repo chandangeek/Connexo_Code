@@ -5,25 +5,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.ElectricityDetailBuilder;
-import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.GasDetailBuilder;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MessageSeeds;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingContainer;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceLocation;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointAccountability;
-import com.elster.jupiter.metering.UsagePointConfiguration;
-import com.elster.jupiter.metering.UsagePointDetail;
-import com.elster.jupiter.metering.WaterDetailBuilder;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationImpl;
@@ -70,6 +52,7 @@ public class UsagePointImpl implements UsagePoint {
     private String readCycle;
     private String readRoute;
     private String servicePriority;
+    private Location location;
     @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
@@ -620,5 +603,10 @@ public class UsagePointImpl implements UsagePoint {
                 .filter(usagePointConfiguration -> usagePointConfiguration.isEffectiveAt(time))
                 .map(UsagePointConfiguration.class::cast)
                 .findAny();
+    }
+
+    @Override
+    public Location getLocation() {
+        return location;
     }
 }

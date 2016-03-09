@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.security;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.util.conditions.Constant;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -20,7 +22,10 @@ public enum Privileges implements TranslationKey {
 
     ADMINISTER_METROLOGY_CONFIGURATION(Constants.ADMINISTER_METROLOGY_CONFIGURATION, "Administer metrology configuration"),
     VIEW_METROLOGY_CONFIGURATION(Constants.VIEW_METROLOGY_CONFIGURATION, "View metrology configuration"),
-    ;
+
+	ADMINISTER_LOCATION_CONFIGURATION(Constants.ADMINISTER_LOCATION_CONFIGURATION, "Administer location configuration"),
+	VIEW_LOCATION_CONFIGURATION(Constants.VIEW_LOCATION_CONFIGURATION, "View location configuration")
+	;
 
 	private final String key;
 	private final String description;
@@ -49,7 +54,7 @@ public enum Privileges implements TranslationKey {
 				.collect(Collectors.toList())
 				.toArray(new String[Privileges.values().length]);
 	}
-
+	@ProviderType
 	public interface Constants {
         String VIEW_ANY_USAGEPOINT = "privilege.view.anyUsagePoint";
         String ADMINISTER_ANY_USAGEPOINT = "privilege.administer.anyUsagePoint";
@@ -60,5 +65,7 @@ public enum Privileges implements TranslationKey {
         String VIEW_SERVICECATEGORY = "privilege.view.serviceCategory";
         String VIEW_METROLOGY_CONFIGURATION = "privilege.view.metrologyConfiguration";
         String ADMINISTER_METROLOGY_CONFIGURATION = "privilege.administer.metrologyConfiguration";
+		String ADMINISTER_LOCATION_CONFIGURATION ="privilege.administer.locationConfiguration";
+		String VIEW_LOCATION_CONFIGURATION = "privilege.view.locationConfiguration";
     }
 }

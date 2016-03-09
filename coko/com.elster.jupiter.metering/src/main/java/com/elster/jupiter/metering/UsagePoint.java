@@ -108,6 +108,8 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
 
     Optional<UsagePointConfiguration> getConfiguration(Instant time);
 
+    Location getLocation();
+
     /**
      * @deprecated This is not the type of method that we want on a public API, the object should be in charge of its version number
      */

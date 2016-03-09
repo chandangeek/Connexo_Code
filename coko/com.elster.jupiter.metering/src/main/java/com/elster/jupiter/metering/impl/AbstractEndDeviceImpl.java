@@ -5,12 +5,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.LifecycleDates;
-import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -60,6 +55,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     private Instant createTime;
     private Instant obsoleteTime;
     private Instant modTime;
+    private Location location;
     @SuppressWarnings("unused")
     private String userName;
 
@@ -151,6 +147,11 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     @Override
     public ElectronicAddress getElectronicAddress() {
         return electronicAddress == null ? null : electronicAddress.copy();
+    }
+
+    @Override
+    public Location getLocation() {
+        return location;
     }
 
     @Override

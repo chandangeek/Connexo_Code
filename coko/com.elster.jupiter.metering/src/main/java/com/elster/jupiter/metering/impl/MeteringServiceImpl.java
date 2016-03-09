@@ -11,30 +11,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.AmiBillingReadyKind;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.MessageSeeds;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.MultiplierType;
-import com.elster.jupiter.metering.PurgeConfiguration;
-import com.elster.jupiter.metering.ReadingStorer;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ReadingTypeFieldsFactory;
-import com.elster.jupiter.metering.ReadingTypeFilter;
-import com.elster.jupiter.metering.ReadingTypeMridFilter;
-import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.ServiceLocation;
-import com.elster.jupiter.metering.StorerProcess;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointAccountability;
-import com.elster.jupiter.metering.UsagePointConnectedKind;
-import com.elster.jupiter.metering.UsagePointDetail;
-import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
@@ -75,6 +52,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.swing.text.html.Option;
 import javax.validation.MessageInterpolator;
 import javax.validation.constraints.NotNull;
 import java.time.Clock;
@@ -162,16 +140,16 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public List<ReadingType> findReadingTypes(List<String> mRids) {
-       return dataModel.mapper(ReadingType.class).select(Where.where("mRID").in(mRids));
+        return dataModel.mapper(ReadingType.class).select(Where.where("mRID").in(mRids));
     }
 
     @Override
-    public Finder<ReadingType> findReadingTypes(ReadingTypeFilter filter){
-        return DefaultFinder.of(ReadingType.class,filter.getCondition(),dataModel);
+    public Finder<ReadingType> findReadingTypes(ReadingTypeFilter filter) {
+        return DefaultFinder.of(ReadingType.class, filter.getCondition(), dataModel);
     }
 
     @Override
-    public Optional<ReadingType> findAndLockReadingTypeByIdAndVersion(String mRID, long version){
+    public Optional<ReadingType> findAndLockReadingTypeByIdAndVersion(String mRID, long version) {
         return dataModel.mapper(ReadingType.class).lockObjectIfVersion(version, mRID);
     }
 
@@ -473,10 +451,10 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Override
     public Finder<UsagePoint> getUsagePoints(UsagePointFilter filter) {
         Condition condition = Condition.TRUE;
-        if (!Checks.is(filter.getMrid()).emptyOrOnlyWhiteSpace()){
+        if (!Checks.is(filter.getMrid()).emptyOrOnlyWhiteSpace()) {
             condition = condition.and(where("mRID").likeIgnoreCase(filter.getMrid()));
         }
-        if (filter.isAccountabilityOnly()){
+        if (filter.isAccountabilityOnly()) {
             condition = condition.and(hasAccountability());
         }
         return DefaultFinder.of(UsagePoint.class, condition, dataModel);
@@ -599,11 +577,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             throw new IllegalArgumentException("Effective timestamp of the statemachine switch over cannot be in the future");
         }
         StateMachineSwitcher
-            .forValidation(this.dataModel)
-            .validate(effective, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
+                .forValidation(this.dataModel)
+                .validate(effective, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
         StateMachineSwitcher
-            .forPublishing(this.dataModel, this.messageService, this.jsonService)
-            .publishEvents(effective, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
+                .forPublishing(this.dataModel, this.messageService, this.jsonService)
+                .publishEvents(effective, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
     }
 
     @Override
@@ -671,4 +649,50 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     public List<MultiplierType> getMultiplierTypes() {
         return dataModel.mapper(MultiplierType.class).find();
     }
+
+    @Override
+    public LocationBuilder newLocationBuilder() {
+        return new LocationBuilderImpl(dataModel);
+    }
+
+    @Override
+    public Optional<Location> findDeviceLocation(String mRID) {
+        return findMeter(mRID).isPresent() ? Optional.of(findMeter(mRID).get().getLocation()) : Optional.empty();
+    }
+
+
+    @Override
+    public Optional<Location> findDeviceLocation(long id) {
+        return findMeter(id).isPresent() ? Optional.of(findMeter(id).get().getLocation()) : Optional.empty();
+    }
+
+    @Override
+    public Optional<Location> findUsagePointLocation(String mRID) {
+        return findUsagePoint(mRID).isPresent() ? Optional.of(findUsagePoint(mRID).get().getLocation()) : Optional.empty();
+    }
+
+    @Override
+    public Optional<Location> findUsagePointLocation(long id) {
+        return findUsagePoint(id).isPresent() ? Optional.of(findUsagePoint(id).get().getLocation()) : Optional.empty();
+    }
+
+    @Override
+    public Optional<List<LocationMember>> getLocationMembers(long locationId) {
+        return Optional.of(dataModel.query(LocationMember.class).select(Operator.EQUAL.compare("id", locationId)));
+
+    }
+
+    @Override
+    public Optional<LocationMember> getLocalizedLocationMember(long locationId, String locale) {
+        Optional<LocationMember> result = Optional.empty();
+        Condition idCondition = Operator.EQUAL.compare("id", locationId);
+        Condition localeCondition = Operator.EQUALIGNORECASE.compare("locale", locale);
+        List<LocationMember> locationMemberList = dataModel.query(LocationMember.class).select(idCondition.and(localeCondition));
+        if (!locationMemberList.isEmpty()) {
+            result = Optional.of(locationMemberList.get(0));
+        }
+        return result;
+
+    }
+
 }
