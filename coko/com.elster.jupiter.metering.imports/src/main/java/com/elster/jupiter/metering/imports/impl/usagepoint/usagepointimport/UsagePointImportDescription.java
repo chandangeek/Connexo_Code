@@ -1,25 +1,22 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint.usagepointimport;
 
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.CustomPropertySetValues;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.imports.impl.usagepoint.CustomPropertySetDescription;
-import com.elster.jupiter.metering.imports.impl.usagepoint.CustomPropertySetRecord;
+import com.elster.jupiter.metering.imports.impl.usagepoint.FieldParser;
 import com.elster.jupiter.metering.imports.impl.usagepoint.FileImportDescription;
 import com.elster.jupiter.metering.imports.impl.usagepoint.MeteringDataImporterContext;
-import com.elster.jupiter.metering.imports.impl.usagepoint.exceptions.ValueParserException;
 import com.elster.jupiter.metering.imports.impl.usagepoint.fields.CommonField;
 import com.elster.jupiter.metering.imports.impl.usagepoint.fields.FileImportField;
-import com.elster.jupiter.metering.imports.impl.usagepoint.parsers.*;
+import com.elster.jupiter.metering.imports.impl.usagepoint.parsers.BigDecimalParser;
+import com.elster.jupiter.metering.imports.impl.usagepoint.parsers.BooleanParser;
+import com.elster.jupiter.metering.imports.impl.usagepoint.parsers.DateParser;
+import com.elster.jupiter.metering.imports.impl.usagepoint.parsers.LiteralStringParser;
+import com.elster.jupiter.metering.imports.impl.usagepoint.parsers.NumberParser;
+import com.elster.jupiter.metering.imports.impl.usagepoint.parsers.YesNoAnswerParser;
 import com.elster.jupiter.metering.imports.impl.usagepoint.properties.SupportedNumberFormat;
-import com.elster.jupiter.util.YesNoAnswer;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class UsagePointImportDescription extends CustomPropertySetDescription implements FileImportDescription<UsagePointImportRecord> {
@@ -232,6 +229,19 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
         return fields;
     }
 
+    @Override
+    public Map<Class, FieldParser> getParsers() {
+        Map<Class, FieldParser> parsers = new HashMap<>();
+        Arrays.asList(
+                dateParser,
+                bigDecimalParser,
+                new LiteralStringParser(),
+                new BooleanParser(),
+                new NumberParser(),
+                new YesNoAnswerParser()
+        ).forEach(e -> parsers.put(e.getValueType(), e));
+        return parsers;
+    }
 
 
 }

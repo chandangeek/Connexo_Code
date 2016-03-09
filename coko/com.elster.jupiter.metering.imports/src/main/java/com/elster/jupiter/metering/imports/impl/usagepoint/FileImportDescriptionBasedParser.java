@@ -10,13 +10,17 @@ import com.elster.jupiter.metering.imports.impl.usagepoint.exceptions.ValueParse
 import com.elster.jupiter.metering.imports.impl.usagepoint.fields.FieldSetter;
 import com.elster.jupiter.metering.imports.impl.usagepoint.fields.FileImportField;
 import com.elster.jupiter.metering.imports.impl.usagepoint.parsers.DateParser;
-import com.elster.jupiter.metering.imports.impl.usagepoint.parsers.FieldParser;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
+
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class FileImportDescriptionBasedParser<T extends FileImportRecord> implements FileImportParser<T> {
@@ -65,20 +69,27 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
 
             if(dateParser instanceof DateParser){
                 if(csvRecord.isMapped(set.getId()+".versionId")){
-                    customPropertySetRecord.setStartTime(((DateParser)dateParser).parse(csvRecord.get(set.getId()+".versionId")));
+                    customPropertySetRecord.setVersionId(((DateParser) dateParser).parse(csvRecord.get(set.getId() + ".versionId")));
                 }
                 if(csvRecord.isMapped(set.getId()+".startTime")){
                     customPropertySetRecord.setStartTime(((DateParser)dateParser).parse(csvRecord.get(set.getId()+".startTime")));
                 }
                 if(csvRecord.isMapped(set.getId()+".endTime")){
-                    customPropertySetRecord.setStartTime(((DateParser)dateParser).parse(csvRecord.get(set.getId()+".endTime")));
+                    customPropertySetRecord.setEndTime(((DateParser) dateParser).parse(csvRecord.get(set.getId() + ".endTime")));
                 }
             }
 
+            Map<Class, FieldParser> parsers = descriptor.getParsers();
             for (Object spec : set.getPropertySpecs()) {
                 if(spec instanceof PropertySpec && csvRecord.isMapped(set.getId()+"."+((PropertySpec) spec).getName())){
-                    //values.setProperty(((PropertySpec) spec).getName(),csvRecord.get(set.getId()+"."+((PropertySpec) spec).getName()));
-                    values.setProperty(((PropertySpec) spec).getName(),((PropertySpec) spec).getValueFactory().fromStringValue(csvRecord.get(set.getId()+"."+((PropertySpec) spec).getName())));
+                    FieldParser parser = parsers.get(((PropertySpec) spec).getValueFactory().getValueType());
+                    if (parser != null) {
+                        values.setProperty(((PropertySpec) spec).getName(), parser.parse(csvRecord.get(set.getId() + "." + ((PropertySpec) spec)
+                                .getName())));
+                    } else {
+                        values.setProperty(((PropertySpec) spec).getName(), ((PropertySpec) spec).getValueFactory()
+                                .fromStringValue(csvRecord.get(set.getId() + "." + ((PropertySpec) spec).getName())));
+                    }
                 }
             }
             customPropertySetRecord.setCustomPropertySetValues(values);

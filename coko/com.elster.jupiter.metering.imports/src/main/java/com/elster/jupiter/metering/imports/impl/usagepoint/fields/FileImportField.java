@@ -1,7 +1,7 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint.fields;
 
 
-import com.elster.jupiter.metering.imports.impl.usagepoint.parsers.FieldParser;
+import com.elster.jupiter.metering.imports.impl.usagepoint.FieldParser;
 
 public interface FileImportField<R> {
 

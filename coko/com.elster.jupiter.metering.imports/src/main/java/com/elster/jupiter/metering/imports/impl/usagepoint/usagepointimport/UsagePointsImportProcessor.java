@@ -69,7 +69,9 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             updateDetails(usagePointOptional.get(),data,logger).validate();
             validateCustomPropertySetValues(usagePointOptional.get(),data,logger);
         } else {
-            UsagePoint dummyUsagePoint = serviceCategory.newUsagePoint("dummyUsagePointForValidation"+data.hashCode()).withInstallationTime(context.getClock().instant()).validate();
+            UsagePoint dummyUsagePoint = serviceCategory.newUsagePoint("dummyUsagePointForValidation" + data.hashCode(), context
+                    .getClock()
+                    .instant()).validate();
             createDetails(dummyUsagePoint,data,logger).validate();
             validateCustomPropertySetValues(dummyUsagePoint,data,logger);
         }
@@ -90,7 +92,9 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             }
             return updateUsagePoint(usagePoint,data,logger);
         } else {
-            return createUsagePoint(serviceCategory.get().newUsagePoint(mRID),data,logger);
+            return createUsagePoint(serviceCategory.get()
+                    .newUsagePoint(mRID, data.getInstallationTime()
+                            .orElse(context.getClock().instant())), data, logger);
         }
     }
 
@@ -149,7 +153,6 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         usagePointBuilder.withOutageRegion(data.getOutageRegion().orElse(null));
         usagePointBuilder.withReadRoute(data.getReadRoute().orElse(null));
         usagePointBuilder.withServicePriority(data.getServicePriority().orElse(null));
-        usagePointBuilder.withInstallationTime(data.getInstallationTime().orElse(context.getClock().instant()));
         usagePointBuilder.withServiceDeliveryRemark(data.getServiceDeliveryRemark().orElse(null));
 
         return usagePointBuilder.create();
@@ -346,10 +349,10 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             return Range.all();
         }
         else if (!customPropertySetRecord.getStartTime().isPresent()){
-            return Range.lessThan(customPropertySetRecord.getStartTime().get());
+            return Range.lessThan(customPropertySetRecord.getEndTime().get());
         }
         else if (!customPropertySetRecord.getEndTime().isPresent()){
-            return Range.atLeast(customPropertySetRecord.getEndTime().get());
+            return Range.atLeast(customPropertySetRecord.getStartTime().get());
         }
         else {
             return Range.closedOpen(customPropertySetRecord.getStartTime().get(),customPropertySetRecord.getEndTime().get());
@@ -365,7 +368,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
                 return Range.closedOpen(customPropertySetRecord.getStartTime().get(),oldRange.upperEndpoint());
             }
             else {
-                return Range.lessThan(customPropertySetRecord.getStartTime().get());
+                return Range.lessThan(customPropertySetRecord.getEndTime().get());
             }
         }
         else if (!customPropertySetRecord.getEndTime().isPresent()){
@@ -373,7 +376,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
                 return Range.closedOpen(oldRange.lowerEndpoint(),customPropertySetRecord.getEndTime().get());
             }
             else {
-                return Range.atLeast(customPropertySetRecord.getEndTime().get());
+                return Range.atLeast(customPropertySetRecord.getStartTime().get());
             }
         }
         else {

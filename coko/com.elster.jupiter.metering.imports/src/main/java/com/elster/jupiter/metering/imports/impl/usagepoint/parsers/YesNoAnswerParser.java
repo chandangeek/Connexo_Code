@@ -1,16 +1,20 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint.parsers;
 
+import com.elster.jupiter.metering.imports.impl.usagepoint.FieldParser;
 import com.elster.jupiter.metering.imports.impl.usagepoint.exceptions.ValueParserException;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.YesNoAnswer;
-
-import org.omg.CORBA.UNKNOWN;
 
 import java.util.Arrays;
 
 public class YesNoAnswerParser implements FieldParser<YesNoAnswer> {
 
     public YesNoAnswerParser() {
+    }
+
+    @Override
+    public Class<YesNoAnswer> getValueType() {
+        return YesNoAnswer.class;
     }
 
     public YesNoAnswer parse(String value) {

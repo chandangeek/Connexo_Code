@@ -50,7 +50,7 @@ public abstract class FileImportLoggerImpl<T extends FileImportRecord> implement
 
     @Override
     public void importFailed(Exception exception) {
-        String message = exception.getLocalizedMessage();
+        String message = exception.toString();
         if (exception instanceof ImportException) {
             message = ((ImportException) exception).getLocalizedMessage(this.context.getThesaurus());
         }

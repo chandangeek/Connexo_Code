@@ -44,9 +44,9 @@ public class CustomPropertySetRecord extends FileImportRecord {
     }
 
     public boolean isEmpty() {
-        return versionId != null &&
-                startTime != null &&
-                endTime != null &&
-                !customPropertySetValues.isEmpty();
+        return versionId == null &&
+                startTime == null &&
+                endTime == null &&
+                customPropertySetValues.isEmpty();
     }
 }

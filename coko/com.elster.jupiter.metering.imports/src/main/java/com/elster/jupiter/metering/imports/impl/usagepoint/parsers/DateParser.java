@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint.parsers;
 
 
+import com.elster.jupiter.metering.imports.impl.usagepoint.FieldParser;
 import com.elster.jupiter.metering.imports.impl.usagepoint.exceptions.ValueParserException;
 import com.elster.jupiter.metering.imports.impl.usagepoint.properties.TimeZonePropertySpec;
 import com.elster.jupiter.util.Checks;
@@ -19,6 +20,11 @@ public class DateParser implements FieldParser<Instant> {
     public DateParser(String format, String timeZone) {
         this.format = format;
         this.timeZone = timeZone;
+    }
+
+    @Override
+    public Class<Instant> getValueType() {
+        return Instant.class;
     }
 
     public Instant parse(String value) throws ValueParserException {

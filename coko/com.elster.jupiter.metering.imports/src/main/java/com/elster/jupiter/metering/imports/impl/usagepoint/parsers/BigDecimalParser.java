@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint.parsers;
 
+import com.elster.jupiter.metering.imports.impl.usagepoint.FieldParser;
 import com.elster.jupiter.metering.imports.impl.usagepoint.exceptions.ValueParserException;
 import com.elster.jupiter.metering.imports.impl.usagepoint.properties.SupportedNumberFormat;
 import com.elster.jupiter.util.Checks;
@@ -18,9 +19,14 @@ public class BigDecimalParser implements FieldParser<BigDecimal> {
         this.numberFormat = numberFormat;
     }
 
+    @Override
+    public Class<BigDecimal> getValueType() {
+        return BigDecimal.class;
+    }
+
     public BigDecimal parse(String value) throws ValueParserException {
         if (Checks.is(value).emptyOrOnlyWhiteSpace()) {
-            throw new ValueParserException(value, numberFormat.getExample());
+            return null;
         }
         return parseNonEmptyBigDecimalString(value);
     }

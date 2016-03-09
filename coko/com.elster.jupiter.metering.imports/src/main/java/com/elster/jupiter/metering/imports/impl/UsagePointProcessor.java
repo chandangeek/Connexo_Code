@@ -1,18 +1,13 @@
 package com.elster.jupiter.metering.imports.impl;
 
-import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
-import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.units.Quantity;
 
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
@@ -80,7 +75,7 @@ public class UsagePointProcessor {
                 return false;
             }
         } else {
-            usagePoint = serviceCategory.get().newUsagePoint(usagePointFileInfo.getmRID()).create();
+            usagePoint = serviceCategory.get().newUsagePoint(usagePointFileInfo.getmRID(), clock.instant()).create();
             isUpdatable = true;
         }
         if (isUpdatable) {
