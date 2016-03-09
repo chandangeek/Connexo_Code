@@ -193,7 +193,7 @@ Ext.define('Bpm.processes.controller.Processes', {
         editProcessForm.editProcessRecord = record;
         me.getApplication().fireEvent(activate ? 'activateProcesses' : 'editProcesses', name + ':' + version);
 
-        if (activate && record.get('type') == "") {
+        if (activate) {
             me.getAssociatedCombo().setValue(me.getAssociatedCombo().getStore().first().get(me.getAssociatedCombo().valueField));
         }
         else {
