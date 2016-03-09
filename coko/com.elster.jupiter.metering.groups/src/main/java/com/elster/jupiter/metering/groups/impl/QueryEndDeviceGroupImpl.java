@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.groups.NoSuchQueryProvider;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
@@ -17,6 +18,7 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyValue;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
 import com.google.common.collect.ImmutableRangeSet;
@@ -26,6 +28,10 @@ import com.google.common.collect.RangeSet;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -72,6 +78,22 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
     @Override
     public List<EndDevice> getMembers(Instant instant) {
         return getEndDeviceQueryProvider().findEndDevices(instant, getSearchablePropertyConditions());
+    }
+
+    @Override
+    public long getMemberCount(Instant instant) {
+        try (Connection connection = this.getDataModel().getConnection(true)) {
+            SqlBuilder countSqlBuilder = new SqlBuilder();
+            countSqlBuilder.add(getSearchBuilder().toFinder().asFragment("count(*)"));
+            try (PreparedStatement statement = countSqlBuilder.prepare(connection)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    resultSet.next();
+                    return resultSet.getLong(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
     }
 
     @Override

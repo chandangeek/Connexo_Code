@@ -23,6 +23,7 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
@@ -39,6 +40,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -223,6 +225,10 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
 
     @Override
     public List<EndDevice> getMembers(final Instant instant) {
+        return this.getMemberStream(instant).collect(Collectors.toList());
+    }
+
+    private Stream<EndDevice> getMemberStream(Instant instant) {
         return getMemberships().stream()
                 .sorted(new Comparator<EndDeviceMembership>() {
                     @Override
@@ -231,8 +237,12 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
                     }
                 })
                 .filter(Active.at(instant))
-                .map(To.END_DEVICE)
-                .collect(Collectors.toList());
+                .map(To.END_DEVICE);
+    }
+
+    @Override
+    public long getMemberCount(Instant instant) {
+        return this.getMemberStream(instant).count();
     }
 
     @Override
