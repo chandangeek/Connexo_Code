@@ -16,9 +16,13 @@ Ext.define('Idc.view.CommunicationIssueDetailsForm', {
                 xtype: 'data-collection-details-container'
             },
             {
-                itemId: 'communication-issue-details-panel',
+                itemId: 'communication-issue-details-panel-title',
                 title: Uni.I18n.translate('general.communicationDetails', 'IDC', 'Communication details'),
-                ui: 'medium',
+                ui: 'medium'
+            },
+            {
+                xtype: 'container',
+                itemId: 'communication-issue-other-details-container',
                 layout: 'column',
                 items: [
                     {
@@ -53,7 +57,7 @@ Ext.define('Idc.view.CommunicationIssueDetailsForm', {
                             {
                                 itemId: 'communication-issue-usage-point',
                                 fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'IDC', 'Usage point'),
-                                name: 'usagePoint_info'
+                                name: 'usage_point'
                             },
                             {
                                 itemId: 'communication-issue-device-type',
