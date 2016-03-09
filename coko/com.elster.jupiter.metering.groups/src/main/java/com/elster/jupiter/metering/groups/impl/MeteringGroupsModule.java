@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.search.SearchService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
@@ -22,5 +23,7 @@ public class MeteringGroupsModule extends AbstractModule {
         requireBinding(SearchService.class);
 
         bind(MeteringGroupsService.class).to(MeteringGroupsServiceImpl.class).in(Scopes.SINGLETON);
+        bind(EndDeviceGroupMemberCountMonitor.class).to(EndDeviceGroupMemberCountMonitorImpl.class).in(Scopes.SINGLETON);
     }
+
 }

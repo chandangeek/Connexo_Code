@@ -20,6 +20,7 @@ import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.elster.jupiter.util.time.StopWatch;
 
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
@@ -65,13 +66,15 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
 
     private final MeteringGroupsService meteringGroupService;
     private final SearchService searchService;
+    private final EndDeviceGroupMemberCountMonitor countMonitor;
     private final Thesaurus thesaurus;
 
     @Inject
-    public QueryEndDeviceGroupImpl(DataModel dataModel, MeteringGroupsService meteringGroupService, EventService eventService, SearchService searchService, Thesaurus thesaurus) {
+    public QueryEndDeviceGroupImpl(DataModel dataModel, MeteringGroupsService meteringGroupService, EventService eventService, SearchService searchService, EndDeviceGroupMemberCountMonitor countMonitor, Thesaurus thesaurus) {
         super(eventService, dataModel);
         this.meteringGroupService = meteringGroupService;
         this.searchService = searchService;
+        this.countMonitor = countMonitor;
         this.thesaurus = thesaurus;
     }
 
@@ -82,6 +85,7 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
 
     @Override
     public long getMemberCount(Instant instant) {
+        StopWatch stopWatch = new StopWatch();
         try (Connection connection = this.getDataModel().getConnection(true)) {
             SqlBuilder countSqlBuilder = new SqlBuilder();
             countSqlBuilder.add(getSearchBuilder().toFinder().asFragment("count(*)"));
@@ -93,6 +97,9 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
             }
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
+        } finally {
+            stopWatch.stop();
+            this.countMonitor.countExecuted(stopWatch.getElapsed());
         }
     }
 

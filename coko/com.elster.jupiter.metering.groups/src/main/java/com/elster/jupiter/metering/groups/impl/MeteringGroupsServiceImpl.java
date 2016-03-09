@@ -30,6 +30,7 @@ import com.elster.jupiter.util.concurrent.CopyOnWriteServiceContainer;
 import com.elster.jupiter.util.concurrent.OptionalServiceContainer;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
+
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -65,7 +66,9 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     private volatile QueryService queryService;
     private volatile EventService eventService;
     private volatile SearchService searchService;
+    private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
+    private volatile EndDeviceGroupMemberCountMonitor countMonitor;
 
     private final OptionalServiceContainer<EndDeviceQueryProvider> endDeviceQueryProviders = new CopyOnWriteServiceContainer<>();
 
@@ -73,13 +76,14 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     }
 
     @Inject
-    public MeteringGroupsServiceImpl(OrmService ormService, MeteringService meteringService, QueryService queryService, EventService eventService, SearchService searchService, NlsService nlsService) {
+    public MeteringGroupsServiceImpl(OrmService ormService, MeteringService meteringService, QueryService queryService, EventService eventService, SearchService searchService, NlsService nlsService, EndDeviceGroupMemberCountMonitor countMonitor) {
         setOrmService(ormService);
         setMeteringService(meteringService);
         setQueryService(queryService);
         setEventService(eventService);
         setSearchService(searchService);
         setNlsService(nlsService);
+        setCountMonitor(countMonitor);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -119,8 +123,10 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
                     bind(EventService.class).toInstance(eventService);
                     bind(QueryService.class).toInstance(queryService);
                     bind(SearchService.class).toInstance(searchService);
+                    bind(NlsService.class).toInstance(nlsService);
                     bind(Thesaurus.class).toInstance(thesaurus);
                     bind(MessageInterpolator.class).toInstance(thesaurus);
+                    bind(EndDeviceGroupMemberCountMonitor.class).toInstance(countMonitor);
                 }
             });
         } catch (Exception e) {
@@ -152,12 +158,12 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     public Optional<EnumeratedUsagePointGroup> findEnumeratedUsagePointGroup(long id) {
         return dataModel.mapper(EnumeratedUsagePointGroup.class).getOptional(id);
     }
-    
+
     @Override
     public List<UsagePointGroup> findUsagePointGroups() {
         return dataModel.mapper(UsagePointGroup.class).find();
     }
-    
+
     @Override
     public Optional<UsagePointGroup> findUsagePointGroup(long id) {
         return dataModel.mapper(UsagePointGroup.class).getOptional(id);
@@ -167,7 +173,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     public Optional<UsagePointGroup> findUsagePointGroup(String mRID) {
         return dataModel.mapper(UsagePointGroup.class).select(Operator.EQUAL.compare("mRID", mRID)).stream().findFirst();
     }
-    
+
     @Override
     public Optional<UsagePointGroup> findUsagePointGroupByName(String name) {
         return dataModel.mapper(UsagePointGroup.class).select(Operator.EQUALIGNORECASE.compare("name", name)).stream().findFirst();
@@ -222,7 +228,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     public Query<EndDeviceGroup> getEndDeviceGroupQuery() {
         return queryService.wrap(dataModel.query(EndDeviceGroup.class));
     }
-    
+
     @Override
     public Query<UsagePointGroup> getUsagePointGroupQuery() {
         return queryService.wrap(dataModel.query(UsagePointGroup.class));
@@ -290,7 +296,13 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
 
     @Reference
     public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public void setCountMonitor(EndDeviceGroupMemberCountMonitor countMonitor) {
+        this.countMonitor = countMonitor;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)

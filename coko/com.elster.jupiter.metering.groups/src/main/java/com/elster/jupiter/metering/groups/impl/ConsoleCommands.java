@@ -15,6 +15,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -30,7 +32,16 @@ import java.util.stream.LongStream;
 
 import static com.elster.jupiter.util.streams.Functions.asStream;
 
-@Component(name = "com.elster.jupiter.metering.groups.console", service = ConsoleCommands.class, property = {"osgi.command.scope=metering", "osgi.command.function=createEnumeratedEndDeviceGroup", "osgi.command.function=updateEnumeratedEndDeviceGroup", "osgi.command.function=createEnumeratedUsagePointGroup", "osgi.command.function=updateEnumeratedUsagePointGroup", "osgi.command.function=endDeviceGroups"}, immediate = true)
+@Component(name = "com.elster.jupiter.metering.groups.console",
+        service = ConsoleCommands.class,
+        property = {
+                "osgi.command.scope=metering",
+                "osgi.command.function=createEnumeratedEndDeviceGroup",
+                "osgi.command.function=updateEnumeratedEndDeviceGroup",
+                "osgi.command.function=createEnumeratedUsagePointGroup",
+                "osgi.command.function=updateEnumeratedUsagePointGroup",
+                "osgi.command.function=countGroupMembers",
+                "osgi.command.function=endDeviceGroups"}, immediate = true)
 public class ConsoleCommands {
 
     private volatile MeteringGroupsService meteringGroupsService;
@@ -58,7 +69,7 @@ public class ConsoleCommands {
             threadPrincipalService.clear();
         }
     }
-    
+
     public void createEnumeratedUsagePointGroup(String name, long... ids) {
         try {
             transactionService.builder()
@@ -105,7 +116,7 @@ public class ConsoleCommands {
             threadPrincipalService.clear();
         }
     }
-    
+
     public void updateEnumeratedUsagePointGroup(String name, long... ids) {
         UsagePointGroup usagePointGroup = meteringGroupsService.findUsagePointGroupByName(name).orElseThrow(() -> new IllegalArgumentException("group not found"));
         final EnumeratedUsagePointGroup enumeratedUsagePointGroup = (EnumeratedUsagePointGroup) usagePointGroup;
@@ -139,7 +150,7 @@ public class ConsoleCommands {
     private Collector<EnumeratedEndDeviceGroup.Entry, ?, Map<Long, EnumeratedEndDeviceGroup.Entry>> endDeviceMapper() {
         return Collectors.toMap(entry -> entry.getEndDevice().getId(), Function.identity());
     }
-    
+
     private Collector<EnumeratedUsagePointGroup.Entry, ?, Map<Long, EnumeratedUsagePointGroup.Entry>> usagePointMapper() {
         return Collectors.toMap(entry -> entry.getUsagePoint().getId(), Function.identity());
     }
@@ -150,6 +161,31 @@ public class ConsoleCommands {
                 .flatMap(group -> group.getMembers(clock.instant()).stream())
                 .map(device -> "\t" + device.getId() + " " + device.getMRID())
                 .forEach(System.out::println);
+    }
+
+    public void countGroupMembers(String mRID) {
+        Optional<EndDeviceGroup> deviceGroup = meteringGroupsService.findEndDeviceGroup(mRID);
+        if (deviceGroup.isPresent()) {
+            this.countGroupMembers(deviceGroup.get());
+        } else {
+            System.out.println("No end device group with mRID " + mRID);
+        }
+    }
+
+    private void countGroupMembers(EndDeviceGroup deviceGroup) {
+        threadPrincipalService.set(() -> "console");
+        try {
+            transactionService.execute(VoidTransaction.of(() -> this.doCountGroupMembers(deviceGroup)));
+        } catch (RuntimeException e) {
+            e.printStackTrace(System.err);
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
+    private void doCountGroupMembers(EndDeviceGroup deviceGroup) {
+        long memberCount = deviceGroup.getMemberCount(clock.instant());
+        System.out.println("number of members in group: " + memberCount);
     }
 
     @Reference
