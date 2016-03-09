@@ -208,6 +208,18 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                         return '-'
                     }
                 }
+            },
+            {
+                name: 'location',
+                itemId: 'fld-device-location',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.location', 'MDC', 'Location'),
+                renderer: function (value) {
+                    if (!Ext.isEmpty(value) && !Ext.isEmpty(value.displayValue)) {
+                        return value.displayValue
+                    } else {
+                        return '-'
+                    }
+                }
             }
         ];
 
