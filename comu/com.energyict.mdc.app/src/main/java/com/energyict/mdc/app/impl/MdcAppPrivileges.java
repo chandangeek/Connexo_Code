@@ -1,6 +1,8 @@
 package com.energyict.mdc.app.impl;
 
 
+import com.elster.jupiter.metering.security.Privileges;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -158,5 +160,12 @@ class MdcAppPrivileges {
                 com.elster.jupiter.cps.Privileges.Constants.EDIT_CUSTOM_PROPERTIES_2,
                 com.elster.jupiter.cps.Privileges.Constants.EDIT_CUSTOM_PROPERTIES_3,
                 com.elster.jupiter.cps.Privileges.Constants.EDIT_CUSTOM_PROPERTIES_4);
+
+                //com.elster.jupiter.metering.security - devices
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_LOCATION_CONFIGURATION;
+                com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_LOCATION_CONFIGURATION;
+
+
+
     }
 }
