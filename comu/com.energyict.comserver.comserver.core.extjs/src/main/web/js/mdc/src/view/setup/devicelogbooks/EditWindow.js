@@ -11,7 +11,9 @@ Ext.define('Mdc.view.setup.devicelogbooks.EditWindow', {
     ],
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            currentNextReadingBlockStart = me.logbookRecord && me.logbookRecord.get('lastReading')
+                ? me.logbookRecord.get('lastReading') : new Date();
 
         me.items = {
             xtype: 'form',
@@ -42,9 +44,11 @@ Ext.define('Mdc.view.setup.devicelogbooks.EditWindow', {
                     items: [
                         {
                             xtype: 'date-time',
+                            valueInMilliseconds: true,
+                            itemId: 'mdc-devicelogbook-edit-window-date-picker',
                             layout: 'hbox',
                             labelAlign: 'left',
-                            value: me.logbookRecord.get('lastReading'),
+                            value: currentNextReadingBlockStart,
                             style: {
                                 border: 'none',
                                 padding: 0,
@@ -70,13 +74,13 @@ Ext.define('Mdc.view.setup.devicelogbooks.EditWindow', {
                     items: [
                         {
                             xtype: 'button',
-                            itemId: 'estimate-reading-button',
+                            itemId: 'mdc-devicelogbook-edit-window-save',
                             text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
                             ui: 'action'
                         },
                         {
                             xtype: 'button',
-                            itemId: 'cancel-button',
+                            itemId: 'mdc-devicelogbook-edit-window-cancel',
                             text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                             ui: 'link',
                             handler: function () {

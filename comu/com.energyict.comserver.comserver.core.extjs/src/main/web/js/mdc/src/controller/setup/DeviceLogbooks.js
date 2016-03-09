@@ -18,6 +18,10 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
         {
             ref: 'preview',
             selector: 'deviceLogbooksSetup #deviceLogbooksPreview'
+        },
+        {
+            ref: 'deviceLogbookEditWindow',
+            selector: 'devicelogbook-edit-window'
         }
     ],
 
@@ -27,7 +31,10 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
                 select: this.showPreview
             },
             '#deviceLogbooksActionMenu': {
-                click: this.chooseAction
+                click: this.onDeviceLogbookAction
+            },
+            '#mdc-devicelogbook-edit-window-save': {
+                click: this.saveLogBook
             }
         });
     },
@@ -59,32 +66,51 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
         this.getPreview().setLogbook(record);
     },
 
-    chooseAction: function (menu, item) {
-        var router = this.getController('Uni.controller.history.Router'),
-            routeParams = router.arguments,
-            route;
-
-        routeParams.logbookId = menu.record.getId();
-
+    onDeviceLogbookAction: function (menu, item) {
         switch (item.action) {
-            //case 'viewEvents':
-            //    route = 'devices/device/logbooks/logbook/data';
-            //    break;
-            //case 'viewDetails':
-            //    route = 'devices/device/logbooks/logbookoverview';
-            //    break;
             case 'editLogbook':
                 Ext.widget('devicelogbook-edit-window', {
                     logbookRecord: menu.record
                 }).show();
                 break;
         }
+    },
 
-        if (route) {
-            route = router.getRoute(route);
-            if (route) {
-                route.forward(routeParams);
-            }
-        }
+    saveLogBook: function() {
+        var me = this,
+            editWindow = me.getDeviceLogbookEditWindow(),
+            datePicker = editWindow.down('#mdc-devicelogbook-edit-window-date-picker'),
+            logbookRecordInGrid = editWindow.logbookRecord,
+            logbookModel = me.getModel('Mdc.model.LogbookOfDevice'),
+            deviceMRID = this.getController('Uni.controller.history.Router').arguments.mRID,
+            logbookId = logbookRecordInGrid.get('id'),
+            onLogbookLoaded = function(logbookRecord) {
+                debugger;
+                logbookRecordInGrid.set('lastReading', datePicker.getValue());
+                logbookRecord.beginEdit();
+                logbookRecord.set('lastReading', datePicker.getValue());
+                if (!logbookRecord.get('lastEventType')) {
+                    logbookRecord.set('lastEventType', null);
+                }
+                if (!logbookRecord.get('lastEventDate')) {
+                    logbookRecord.set('lastEventDate', null);
+                }
+                logbookRecord.endEdit();
+                logbookRecord.save({
+                    success: onLogBookSaved
+                });
+                editWindow.close();
+            },
+            onLogBookSaved = function() {
+                me.getApplication().fireEvent('acknowledge',
+                    Uni.I18n.translate('devicelogbooks.acknowledge.updateSuccess', 'MDC', 'Logbook saved')
+                );
+                me.getPreview().setLogbook(logbookRecordInGrid);
+            };
+
+        logbookModel.getProxy().setUrl(deviceMRID);
+        logbookModel.load(logbookId, {
+            success: onLogbookLoaded
+        });
     }
 });

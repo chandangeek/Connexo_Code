@@ -39,7 +39,11 @@ Ext.define('Mdc.view.setup.devicelogbooks.Grid', {
                 header: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
                 dataIndex: 'lastEventDate',
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    if (value) {
+                        var date = new Date(value);
+                        return Uni.DateTime.formatDateShort(date) + ' - ' + Uni.DateTime.formatTimeLong(date);
+                    }
+                    return '';
                 },
                 flex: 1
             }
