@@ -33,7 +33,7 @@ Ext.define('Bpm.view.task.bulk.CompleteTaskForm', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'bpm-tasks-occurences-grid',
-                        itemId: 'bpm-tasks-complete',
+                        itemId: 'tasks-complete-grid',
                         router: me.router
                     },
 
