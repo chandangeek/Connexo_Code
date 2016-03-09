@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.rest.impl;
 import com.elster.jupiter.metering.UsagePoint;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,12 +34,6 @@ public class UsagePointInfos {
 		for (UsagePoint each : usagePoints) {
 			add(each, clock);
 		}
-	}
-	
-	void addServiceLocationInfo() {
-		for (UsagePointInfo each : usagePoints) {
-			each.addServiceLocationInfo();
-		}		
 	}
 	
 }
