@@ -72,7 +72,7 @@ Ext.define('Idc.controller.Detail', {
 
         route = router.getRoute(router.currentRoute + '/viewProcesses');
         route.params.process = processId;
-        route.forward();
+        route.forward(router.arguments, router.queryParams);
 
     },
     showTask: function(task){
