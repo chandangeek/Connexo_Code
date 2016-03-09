@@ -88,7 +88,6 @@ Ext.define('Scs.controller.ServiceCalls', {
             me.getModel('Scs.model.ServiceCall').load(servicecallId, {
                 success: function (record) {
                     logStore.getProxy().setUrl(servicecallId);
-                    debugger;
                     //logStore.load({
                     //
                     //})

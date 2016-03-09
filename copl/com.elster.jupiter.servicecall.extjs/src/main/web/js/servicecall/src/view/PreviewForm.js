@@ -3,17 +3,17 @@ Ext.define('Scs.view.PreviewForm', {
     alias: 'widget.servicecalls-preview-form',
     router: null,
     layout: {
-        type: 'column'
+        type: 'vbox'
     },
     defaults: {
         labelWidth: 250
     },
     initComponent: function () {
         var me = this;
-        me.items = [
+        me.items = /*[
             {
                 xtype: 'container',
-                columnWidth: 0.5,
+                //columnWidth: 0.5,
                 itemId: 'serviceCallPreviewColumnOne',
                 layout: {
                     type: 'vbox'
@@ -21,7 +21,7 @@ Ext.define('Scs.view.PreviewForm', {
                 defaults: {
                     labelWidth: 250
                 },
-                items: [
+                items: */[
                     {
                         xtype: 'displayfield',
                         fieldLabel: Uni.I18n.translate('general.topLevelServiceCall', 'SCS', 'Top level service call'),
@@ -59,6 +59,15 @@ Ext.define('Scs.view.PreviewForm', {
                         }
                     },
                     {
+                        xtype: 'property-form',
+                        isEdit: false,
+                        defaults: {
+                            xtype: 'container',
+                            resetButtonHidden: true,
+                            labelWidth: 250
+                        }
+                    }/*,
+                    {
                         xtype: 'container',
                         itemId: 'serviceCallChildContainer',
                         layout: {
@@ -71,9 +80,9 @@ Ext.define('Scs.view.PreviewForm', {
                         layout: {
                             type: 'vbox'
                         }
-                    }
+                    }*/
                 ]
-            },
+          /*  }
             {
                 xtype: 'container',
                 columnWidth: 0.5,
@@ -81,9 +90,9 @@ Ext.define('Scs.view.PreviewForm', {
                     type: 'vbox'
                 },
                 itemId: 'serviceCallPreviewColumnTwo',
-            }
+            }*/
 
-        ];
+       // ];
         me.callParent(arguments);
     },
 
@@ -96,14 +105,16 @@ Ext.define('Scs.view.PreviewForm', {
         Ext.suspendLayouts();
 
         me.loadRecord(record);
-        childrenContainer.removeAll();
+       /* childrenContainer.removeAll();
         if(record.get('numberOfChildren')) {
             me.addChildrenInfo(record, childrenContainer);
         }
-        me.loadCustomPropertySets(record);
-
+        me.loadCustomPropertySets(record);*/
+        me.down('property-form').loadRecord(record.customPropertySetInfos().getAt(0));
         Ext.resumeLayouts(true);
+        //me.updateLayout();
         me.doLayout();
+        debugger;
     },
 
     addChildrenInfo: function(record, childrenContainer) {
@@ -168,7 +179,14 @@ Ext.define('Scs.view.PreviewForm', {
                 labelAlign: 'top',
                 fieldLabel: record.customPropertySetInfos().getAt(0).get('name')
             });
-            propertyForm = Ext.create('Uni.property.form.Property');
+            propertyForm = Ext.create('Uni.property.form.Property', {
+                isEdit: false,
+                defaults: {
+                    xtype: 'container',
+                    resetButtonHidden: true,
+                    labelWidth: 250
+                }
+            });
             propertyForm.loadRecord(record.customPropertySetInfos().getAt(0));
 
             casContainer.add(propertyForm)
