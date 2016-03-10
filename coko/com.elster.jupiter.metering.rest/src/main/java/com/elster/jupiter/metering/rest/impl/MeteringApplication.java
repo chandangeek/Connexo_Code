@@ -54,7 +54,8 @@ public class MeteringApplication extends Application implements TranslationKeyPr
                 ReadingTypeResource.class,
                 MeteringFieldResource.class,
                 ServiceCategoryResource.class,
-                EndDeviceEventTypeResource.class);
+                EndDeviceEventTypeResource.class,
+                LocationResource.class);
     }
 
     @Reference
