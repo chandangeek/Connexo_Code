@@ -20,13 +20,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Grid', {
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute('devices/device/loadprofiles/loadprofiledata').buildUrl({mRID: encodeURIComponent(me.mRID), loadProfileId: record.get('id')});
-                    return '<a href="{url}">{value}</a>'.replace('{url}', url).replace('{value}', Ext.String.htmlEncode(value));
+                    return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value));
                 },
-                flex: 1
-            },
-            {
-                xtype: 'obis-column',
-                dataIndex: 'obisCode',
                 flex: 1
             },
             {
@@ -36,7 +31,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Grid', {
             },
             {
                 header: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
-                dataIndex: 'lastReading',
+                dataIndex: 'lastChecked',
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                 },

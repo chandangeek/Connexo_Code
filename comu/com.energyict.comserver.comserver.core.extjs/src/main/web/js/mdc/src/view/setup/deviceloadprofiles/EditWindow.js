@@ -42,6 +42,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.EditWindow', {
                     items: [
                         {
                             xtype: 'date-time',
+                            valueInMilliseconds: true,
+                            itemId: 'mdc-deviceloadprofile-edit-window-date-picker',
                             layout: 'hbox',
                             //labelWidth: 30,
                             labelAlign: 'left',
@@ -71,13 +73,13 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.EditWindow', {
                     items: [
                         {
                             xtype: 'button',
-                            itemId: 'estimate-reading-button',
+                            itemId: 'mdc-deviceloadprofile-edit-window-save',
                             text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
                             ui: 'action'
                         },
                         {
                             xtype: 'button',
-                            itemId: 'cancel-button',
+                            itemId: 'mdc-deviceloadprofile-edit-window-cancel',
                             text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                             ui: 'link',
                             handler: function () {

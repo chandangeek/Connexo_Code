@@ -45,13 +45,24 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.PreviewForm', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
-                        name: 'unknown_yet'
+                        name: 'lastChecked',
+                        renderer: function (value) {
+                            if (value) {
+                                var date = new Date(value);
+                                return Uni.DateTime.formatDateLong(date) + ' - ' + Uni.DateTime.formatTimeShort(date);
+                            }
+                            return '-';
+                        }
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.nextReadingBlockStart', 'MDC', 'Next reading block start'),
                         name: 'lastReading',
                         renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
+                            if (value) {
+                                var date = new Date(value);
+                                return Uni.DateTime.formatDateLong(date) + ' - ' + Uni.DateTime.formatTimeShort(date);
+                            }
+                            return '-';
                         }
                     },
                     {

@@ -8,9 +8,9 @@ Ext.define('Mdc.model.LoadProfileOfDevice', {
         {name: 'name', type: 'string'},
         {name: 'obisCode', type: 'string'},
         {name: 'interval', type: 'auto'},
-        {name: 'lastReading', dateFormat: 'time', type: 'date'},
+        {name: 'lastReading', type: 'long', useNull: true},
         {name: 'channels', type: 'auto'},
-        {name: 'lastChecked', dateFormat: 'time', type: 'date'},
+        //{name: 'lastChecked', type: 'long', useNull: true},
         {name: 'validationInfo', type: 'auto'},
         {
             name: 'loadProfile',

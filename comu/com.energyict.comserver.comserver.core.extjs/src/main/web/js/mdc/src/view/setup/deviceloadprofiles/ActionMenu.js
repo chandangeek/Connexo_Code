@@ -22,7 +22,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.ActionMenu', {
         {
             itemId: 'editLoadProfile',
             text: Uni.I18n.translate('general.changeNextReadingBlockStart', 'MDC', 'Change next reading block start'),
-            action: 'editLoadProfile'
+            action: 'editLoadProfile',
+            privileges: Mdc.privileges.Device.administrateDeviceData
         }
     ]
 });
