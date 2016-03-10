@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.rt.template;
 
 import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingTypeTemplate;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttribute;
@@ -9,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -39,6 +41,7 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private String name;
+    @Valid
     private List<ReadingTypeTemplateAttribute> persistedAttributes = new ArrayList<>(ReadingTypeTemplateAttributeName.values().length);
 
     private long version;
@@ -90,7 +93,8 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
                 .init(this, name, code, possibleValues);
         this.persistedAttributes.remove(attribute);
         this.allAttributes.remove(attribute);
-        if (possibleValues != null && possibleValues.length > 0 || code != null && (code != 0 || name.canBeWildcard())) { // do not persist default attributes
+        Save.CREATE.validate(this.dataModel, attribute);
+        if (possibleValues != null && possibleValues.length > 0 || code != null && (code != 0 || name.getDefinition().canBeWildcard())) { // do not persist default attributes
             this.persistedAttributes.add(attribute);
         }
         this.allAttributes.add(attribute);

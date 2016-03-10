@@ -914,6 +914,7 @@ public enum TableSpecs {
                     .add();
             table.column(ReadingTypeTemplateAttributeImpl.Fields.CODE.name())
                     .number()
+                    .conversion(NUMBER2INT)
                     .map(ReadingTypeTemplateAttributeImpl.Fields.CODE.fieldName())
                     .add();
 
@@ -941,6 +942,7 @@ public enum TableSpecs {
                     .add();
             Column valueColumn = table.column(ReadingTypeTemplateAttributeValueImpl.Fields.CODE.name())
                     .number()
+                    .conversion(NUMBER2INT)
                     .notNull()
                     .map(ReadingTypeTemplateAttributeValueImpl.Fields.CODE.fieldName())
                     .add();
