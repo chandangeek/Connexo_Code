@@ -17,6 +17,11 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.FileImporterFactory;
+import com.elster.jupiter.fileimport.ImportSchedule;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
+import com.elster.jupiter.fileimport.impl.FileImportServiceImpl;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.fsm.impl.StateTransitionTriggerEventTopicHandler;
@@ -34,9 +39,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.PartyService;
-import com.elster.jupiter.parties.Person;
-import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -55,6 +57,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.time.Never;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -69,6 +72,7 @@ import org.osgi.service.log.LogService;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.math.BigDecimal;
+import java.nio.file.Paths;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -98,6 +102,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceCallTransitionIT {
 
+    private static final String IMPORTER_NAME = "someImporter";
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private final Instant now = ZonedDateTime.of(2016, 1, 8, 10, 0, 0, 0, ZoneId.of("UTC")).toInstant();
     private Injector injector;
@@ -123,15 +128,16 @@ public class ServiceCallTransitionIT {
     private MessageInterpolator messageInterpolator;
     @Mock
     private ServiceCallHandler serviceCallHandler;
+    @Mock
+    private FileImporterFactory fileImporterFactory;
 
     private Clock clock;
     private CustomPropertySetService customPropertySetService;
     private ServiceCallType serviceCallType;
     private MyCustomPropertySet customPropertySet;
-    private Person person;
-    private PartyService partyService;
     private JsonService jsonService;
     private Thesaurus thesaurus;
+    private ImportSchedule importSchedule;
 
     private class MockModule extends AbstractModule {
 
@@ -147,6 +153,10 @@ public class ServiceCallTransitionIT {
 
     @Before
     public void setUp() {
+        when(fileImporterFactory.getName()).thenReturn(IMPORTER_NAME);
+        when(fileImporterFactory.getApplicationName()).thenReturn("appName");
+        when(fileImporterFactory.getDestinationName()).thenReturn("dest");
+
         clock = new ProgrammableClock(ZoneId.of("UTC"), now);
         try {
             injector = Guice.createInjector(
@@ -167,7 +177,7 @@ public class ServiceCallTransitionIT {
                     new TimeModule(),
                     new BasicPropertiesModule(),
                     new ServiceCallModule(),
-                    new PartyModule()
+                    new FileImportModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -176,6 +186,7 @@ public class ServiceCallTransitionIT {
         transactionService.execute(new Transaction<Void>() {
 
 
+            private FileImportService fileImportService;
             private EventService eventService;
 
             @Override
@@ -186,9 +197,10 @@ public class ServiceCallTransitionIT {
                 messageService = injector.getInstance(MessageService.class);
                 serviceCallService = (IServiceCallService) injector.getInstance(ServiceCallService.class);
                 propertySpecService = injector.getInstance(PropertySpecService.class);
-                partyService = injector.getInstance(PartyService.class);
                 jsonService = injector.getInstance(JsonService.class);
                 eventService = injector.getInstance(EventService.class);
+                fileImportService = injector.getInstance(FileImportService.class);
+                ((FileImportServiceImpl) fileImportService).addFileImporter(fileImporterFactory);
 
                 customPropertySet = new MyCustomPropertySet(propertySpecService);
                 customPropertySetService.addCustomPropertySet(customPropertySet);
@@ -213,7 +225,16 @@ public class ServiceCallTransitionIT {
                 stateTransitionTriggerEventTopicHandler.setEventService(eventService);
                 eventService.addTopicHandler(stateTransitionTriggerEventTopicHandler);
 
-                person = partyService.newPerson("Test", "test")
+                importSchedule = fileImportService.newBuilder()
+                        .setImportDirectory(Paths.get("./i"))
+                        .setFailureDirectory(Paths.get("./f"))
+                        .setProcessingDirectory(Paths.get("./p"))
+                        .setSuccessDirectory(Paths.get("./s"))
+                        .setScheduleExpression(Never.NEVER)
+                        .setImporterName(IMPORTER_NAME)
+                        .setName("name")
+                        .setPathMatcher("*.*")
+                        .setDestination("dest")
                         .create();
                 return null;
             }
@@ -237,7 +258,7 @@ public class ServiceCallTransitionIT {
             serviceCall = serviceCallType.newServiceCall()
                     .externalReference("external")
                     .origin("CST")
-                    .targetObject(person)
+                    .targetObject(importSchedule)
                     .extendedWith(extension)
                     .create();
             context.commit();
@@ -250,7 +271,7 @@ public class ServiceCallTransitionIT {
             context.commit();
         }
 
-        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.DESTINATION_NAME, ServiceCallServiceImpl.SUBSCRIBER_NAME)
+        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME)
                 .get();
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -284,7 +305,7 @@ public class ServiceCallTransitionIT {
             serviceCall = serviceCallType.newServiceCall()
                     .externalReference("external")
                     .origin("CST")
-                    .targetObject(person)
+                    .targetObject(importSchedule)
                     .extendedWith(extension)
                     .create();
             context.commit();
@@ -302,7 +323,7 @@ public class ServiceCallTransitionIT {
             context.commit();
         }
 
-        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.DESTINATION_NAME, ServiceCallServiceImpl.SUBSCRIBER_NAME)
+        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME)
                 .get();
 
         try (TransactionContext context = transactionService.getContext()) {

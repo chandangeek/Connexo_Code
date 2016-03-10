@@ -4,6 +4,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
@@ -31,6 +32,7 @@ import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -54,7 +56,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Created by bvn on 2/4/16.
@@ -65,8 +69,8 @@ import java.util.concurrent.ConcurrentHashMap;
         immediate = true)
 public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
 
-    static final String DESTINATION_NAME = "SerivceCalls";
-    static final String SUBSCRIBER_NAME = "SerivceCalls";
+    static final String SERIVCE_CALLS_DESTINATION_NAME = "SerivceCalls";
+    static final String SERIVCE_CALLS_SUBSCRIBER_NAME = "SerivceCalls";
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -185,6 +189,7 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     public void install() {
         dataModel.getInstance(Installer.class).install();
     }
+
     @Override
     public Optional<ServiceCallHandler> findHandler(String handler) {
         if (Checks.is(handler).emptyOrOnlyWhiteSpace()) {
@@ -342,6 +347,20 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
         if (!dataModel.isInstalled()) {
             throw new IllegalStateException();
         }
-        return messageService.getDestinationSpec(DESTINATION_NAME).get();
+        return messageService.getDestinationSpec(SERIVCE_CALLS_DESTINATION_NAME).get();
+    }
+
+    @Override
+    public Set<ServiceCall> findServiceCalls(Object targetObject, Set<DefaultState> inState) {
+
+        List<String> stateKeys = inState.stream()
+                .map(DefaultState::getKey)
+                .collect(Collectors.toList());
+
+        return dataModel.stream(ServiceCall.class)
+                .join(State.class)
+                .filter(Where.where(ServiceCallImpl.Fields.state.fieldName() + ".name").in(stateKeys))
+                .filter(serviceCall -> serviceCall.getTargetObject().map(targetObject::equals).orElse(false))
+                .collect(Collectors.toSet());
     }
 }

@@ -45,7 +45,7 @@ public class Installer {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        createMessageHandler(defaultQueueTableSpec, ServiceCallServiceImpl.DESTINATION_NAME, ServiceCallServiceImpl.SUBSCRIBER_NAME);
+        createMessageHandler(defaultQueueTableSpec, ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME);
         installDefaultLifeCycle();
     }
 
