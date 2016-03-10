@@ -23,6 +23,8 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.StopWatch;
+
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
@@ -39,21 +41,24 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements EnumeratedEndDeviceGroup {
 
     private final QueryService queryService;
+    private final EndDeviceGroupMemberCountMonitor countMonitor;
 
     private List<EntryImpl> entries;
 
     private final List<EndDeviceMembershipImpl> memberships = new ArrayList<>();
 
     @Inject
-    EnumeratedEndDeviceGroupImpl(DataModel dataModel, EventService eventService, QueryService queryService) {
+    EnumeratedEndDeviceGroupImpl(DataModel dataModel, EventService eventService, QueryService queryService, EndDeviceGroupMemberCountMonitor countMonitor) {
         super(eventService, dataModel);
         this.queryService = queryService;
+        this.countMonitor = countMonitor;
     }
 
     public List<EntryImpl> getEntries() {
@@ -98,15 +103,6 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
         private Reference<EnumeratedEndDeviceGroup> endDeviceGroup = ValueReference.absent();
         private Reference<EndDevice> endDevice = ValueReference.absent();
         private Interval interval;
-
-        private final DataModel dataModel;
-        private final MeteringService meteringService;
-
-        @Inject
-        EntryImpl(DataModel dataModel, MeteringService meteringService) {
-            this.dataModel = dataModel;
-            this.meteringService = meteringService;
-        }
 
         EntryImpl init(EnumeratedEndDeviceGroup endDeviceGroup, EndDevice endDevice, Range<Instant> range) {
             setEndDeviceGroup(endDeviceGroup);
@@ -194,7 +190,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
         for (EntryImpl entry : doGetEntries()) {
             entry.setEndDeviceGroup(this);
         }
-        ArrayList<Entry> result = new ArrayList<>();
+        List<Entry> result = new ArrayList<>();
         for (EntryImpl entry : doGetEntries()) {
             result.add(entry);
         }
@@ -223,6 +219,10 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
 
     @Override
     public List<EndDevice> getMembers(final Instant instant) {
+        return this.getMemberStream(instant).collect(Collectors.toList());
+    }
+
+    private Stream<EndDevice> getMemberStream(Instant instant) {
         return getMemberships().stream()
                 .sorted(new Comparator<EndDeviceMembership>() {
                     @Override
@@ -231,8 +231,18 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
                     }
                 })
                 .filter(Active.at(instant))
-                .map(To.END_DEVICE)
-                .collect(Collectors.toList());
+                .map(To.END_DEVICE);
+    }
+
+    @Override
+    public long getMemberCount(Instant instant) {
+        StopWatch stopWatch = new StopWatch();
+        try {
+            return this.getMemberStream(instant).count();
+        } finally {
+            stopWatch.stop();
+            this.countMonitor.countExecuted(stopWatch.getElapsed());
+        }
     }
 
     @Override
@@ -292,7 +302,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
                 .orElse(null);
     }
 
-    private static abstract class Active implements Predicate<EndDeviceMembershipImpl> {
+    private abstract static class Active implements Predicate<EndDeviceMembershipImpl> {
 
         public static Active at(Instant instant) {
             return new ActiveAt(instant);

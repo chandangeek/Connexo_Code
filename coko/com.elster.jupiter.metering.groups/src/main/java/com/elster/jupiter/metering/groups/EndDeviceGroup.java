@@ -2,17 +2,22 @@ package com.elster.jupiter.metering.groups;
 
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.util.HasId;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
 
+@ProviderType
 public interface EndDeviceGroup extends HasId {
 
     String getType();
 
     List<EndDevice> getMembers(Instant instant);
-    
+
+    long getMemberCount(Instant instant);
+
     List<EndDevice> getMembers(Instant instant, int start, int limit);
 
     List<EndDeviceMembership> getMembers(Range<Instant> range);
