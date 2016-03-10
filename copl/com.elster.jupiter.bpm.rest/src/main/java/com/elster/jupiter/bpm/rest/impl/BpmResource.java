@@ -583,7 +583,7 @@ public class BpmResource {
     }
 
     private ProcessDefinitionInfos filterProcesses(List<BpmProcessDefinition> activeProcesses, String filterProperty, String auth){
-        ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinition(auth);
+        ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinitions(auth);
         processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
                 .filter(s -> {
                     if(filterProperty != null) {
@@ -593,8 +593,6 @@ public class BpmResource {
                     }
                 })
                 .collect(Collectors.toList());
-        processDefinitionInfos.processes.stream()
-                .forEach(s -> s.id = s.id + " (" + s.deploymentId + ") ");
         processDefinitionInfos.total = processDefinitionInfos.processes.size();
         return processDefinitionInfos;
     }
