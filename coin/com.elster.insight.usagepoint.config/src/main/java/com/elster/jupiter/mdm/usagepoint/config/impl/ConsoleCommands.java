@@ -2,7 +2,13 @@ package com.elster.jupiter.mdm.usagepoint.config.impl;
 
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.readings.IntervalReading;
@@ -14,11 +20,13 @@ import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
+
 import org.apache.felix.service.command.Descriptor;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -48,6 +56,7 @@ public class ConsoleCommands {
     private volatile TransactionService transactionService;
     private volatile MeteringService meteringService;
     private volatile ValidationService validationService;
+    private volatile Clock clock;
 
     public void createMetrologyConfiguration(String name) {
         try {
@@ -157,7 +166,7 @@ public class ConsoleCommands {
             ServiceCategory category = meteringService
                     .getServiceCategory(ServiceKind.ELECTRICITY)
                     .orElseThrow(() -> new IllegalArgumentException("Could not get service"));
-            UsagePointBuilder builder = category.newUsagePoint(upId);
+            UsagePointBuilder builder = category.newUsagePoint(upId, this.clock.instant());
             UsagePoint up = builder.withName(name).withIsSdp(true).withIsVirtual(false).create();
             up.newElectricityDetailBuilder(Instant.now())
                     .withGrounded(true)
@@ -306,6 +315,11 @@ public class ConsoleCommands {
     @Reference
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Reference
