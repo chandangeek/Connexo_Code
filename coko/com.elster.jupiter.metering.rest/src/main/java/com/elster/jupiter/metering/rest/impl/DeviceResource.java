@@ -98,7 +98,7 @@ public class DeviceResource {
     }
 
     @GET
-    @RolesAllowed({Privileges.Constants.VIEW_LOCATION_CONFIGURATION, Privileges.Constants.VIEW_ANY_USAGEPOINT})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT})
     @Path("/{mRID}/location/{locale}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public LocationMemberInfos getDeviceLocation(@PathParam("mRID") String mRID, @PathParam("locale") String locale, @Context SecurityContext securityContext) {
@@ -120,7 +120,7 @@ public class DeviceResource {
 
 
     @GET
-    @RolesAllowed({Privileges.Constants.VIEW_LOCATION_CONFIGURATION, Privileges.Constants.VIEW_ANY_USAGEPOINT})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT})
     @Path("/{mRID}/locations")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public LocationMemberInfos getDeviceLocations(@PathParam("mRID") String mRID, @PathParam("locale") String locale, @Context SecurityContext securityContext) {
