@@ -62,6 +62,13 @@ public class ServiceCallResourceTest extends ServiceCallApplicationTest {
         assertThat(jsonModel.<Integer>get("parents[0].id")).isEqualTo(1);
     }
 
+    @Test
+    public void getNonExistingServiceCall() throws  Exception {
+        when(serviceCallService.getServiceCall(3)).thenReturn(Optional.empty());
+        Response response = target("/servicecalls/3").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
     private void mockSetup() {
         ServiceCall serviceCall = mockServiceCall(1L);
         ServiceCall child = mockServiceCall(2L);
