@@ -47,7 +47,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Component(name = "com.elster.jupiter.rest.whiteboard.implementation", immediate = true, service = {})
+@Component (name = "com.elster.jupiter.rest.whiteboard.implementation" , immediate = true , service = {}  )
 public class WhiteBoard {
 
     private static final Logger LOGGER = Logger.getLogger(WhiteBoard.class.getName());
@@ -147,6 +147,29 @@ public class WhiteBoard {
         if (!alias.isPresent()) {
             return;
         }
+    	this.configuration = provider.getConfiguration();
+		this.httpContext = new HttpContextImpl(new BasicAuthentication(userService));
+	}
+
+	void fire(RestCallExecutedEvent event) {
+		publisher.publish(event);
+		if (configuration.log()) {
+			Logger.getLogger("com.elster.jupiter.rest.whiteboard").info(event.toString());
+		}
+		if (configuration.throwEvents()) {
+			EventAdmin eventAdmin = eventAdminHolder.get();
+			if (eventAdmin != null) {
+				eventAdmin.postEvent(event.toOsgiEvent());
+			}
+		}
+	}
+
+    @Reference(name="ZApplication",cardinality=ReferenceCardinality.MULTIPLE,policy=ReferencePolicy.DYNAMIC)
+    public void addResource(Application application, Map<String,Object> properties) {
+    	Optional<String> alias = getAlias(properties);
+    	if (!alias.isPresent()) {
+    		return;
+    	}
         ResourceConfig secureConfig = ResourceConfig.forApplication(Objects.requireNonNull(application));
         secureConfig.register(ObjectMapperProvider.class);
         secureConfig.register(JacksonFeature.class);
