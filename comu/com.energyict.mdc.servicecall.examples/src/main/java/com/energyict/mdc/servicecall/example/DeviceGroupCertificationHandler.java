@@ -82,6 +82,9 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
             case PENDING:
                 serviceCall.requestTransition(DefaultState.ONGOING); // If we forget this case, our process is stuck forever...
                 break;
+            case CANCELLED:
+                serviceCall.getChildren().stream().forEach(sc -> sc.requestTransition(DefaultState.CANCELLED));
+                break;
             default:
                 serviceCall.log(LogLevel.WARNING, String.format("I entered a state I have no action for: %s", newState)); // Nothing will ever happen after we reach this state
                 break;
