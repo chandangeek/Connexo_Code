@@ -9,6 +9,9 @@ class MdcAppPrivileges {
     static List<String> getApplicationPrivileges() {
         return Arrays.asList(
 
+                //monitor
+                com.energyict.mdc.engine.monitor.app.security.MdcMonitorAppPrivileges.MONITOR_COMMUNICATION_SERVER,
+
                 //validation
                 com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
                 com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
