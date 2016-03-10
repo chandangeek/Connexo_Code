@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.rt.template;
 
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 
@@ -10,7 +11,7 @@ public class ReadingTypeTemplateAttributeValueImpl {
 
     public enum Fields {
         CODE("code"),
-        ATTRIBUTE("attribute");
+        ATTR("attribute");
         private String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -22,9 +23,9 @@ public class ReadingTypeTemplateAttributeValueImpl {
         }
     }
 
-    private int code;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingTypeTemplateAttribute> attribute = Reference.empty();
+    private int code;
 
     @Inject
     public ReadingTypeTemplateAttributeValueImpl() {

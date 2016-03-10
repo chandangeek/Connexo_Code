@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.impl.rt.template;
+package com.elster.jupiter.metering;
 
 import java.util.List;
 

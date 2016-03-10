@@ -1,6 +1,9 @@
 package com.elster.jupiter.metering.impl.rt.template;
 
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.ReadingTypeTemplate;
+import com.elster.jupiter.metering.ReadingTypeTemplateAttribute;
+import com.elster.jupiter.metering.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -17,6 +20,7 @@ import java.util.stream.Collectors;
 
 public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttribute {
     public enum Fields {
+        ID("id"),
         TEMPLATE("template"),
         NAME("name"),
         ANY_VALUE("canBeAny"),
@@ -35,6 +39,7 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
 
     private final DataModel dataModel;
 
+    private long id;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingTypeTemplate> template = ValueReference.absent();
     @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
@@ -78,11 +83,13 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<Integer> getPossibleValues() {
         if (canBeAny()) {
-            Function<?, Integer> valueToCodeConverter = getName().getValueToCodeConverter();
+            Function<Object, Integer> valueToCodeConverter = (Function<Object, Integer>) getName().getValueToCodeConverter();
             return getName().getPossibleValues()
                     .stream()
+                    .map(Object.class::cast)
                     .map(valueToCodeConverter::apply)
                     .collect(Collectors.toList());
         }
@@ -101,7 +108,6 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
         }
         ReadingTypeTemplateAttributeImpl that = (ReadingTypeTemplateAttributeImpl) o;
         return name == that.name && template.equals(that.template);
-
     }
 
     @Override

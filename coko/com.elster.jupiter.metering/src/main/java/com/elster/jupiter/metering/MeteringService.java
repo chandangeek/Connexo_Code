@@ -139,4 +139,6 @@ public interface MeteringService {
     Optional<MultiplierType> getMultiplierType(String name);
 
     List<MultiplierType> getMultiplierTypes();
+
+    ReadingTypeTemplate createReadingTypeTemplate(String name);
 }

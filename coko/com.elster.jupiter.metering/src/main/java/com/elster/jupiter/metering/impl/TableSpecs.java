@@ -13,6 +13,8 @@ import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ReadingTypeTemplate;
+import com.elster.jupiter.metering.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
@@ -31,8 +33,6 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
 import com.elster.jupiter.metering.impl.config.ServiceCategoryMeterRoleUsage;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationImpl;
-import com.elster.jupiter.metering.impl.rt.template.ReadingTypeTemplate;
-import com.elster.jupiter.metering.impl.rt.template.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.impl.rt.template.ReadingTypeTemplateAttributeImpl;
 import com.elster.jupiter.metering.impl.rt.template.ReadingTypeTemplateAttributeValueImpl;
 import com.elster.jupiter.metering.impl.rt.template.ReadingTypeTemplateImpl;
@@ -883,17 +883,13 @@ public enum TableSpecs {
             Table table = dataModel.addTable(name(), ReadingTypeTemplate.class);
             table.map(ReadingTypeTemplateImpl.class);
 
-            Column idColumn = table
-                    .column(ReadingTypeTemplateImpl.Fields.ID.name())
-                    .number()
-                    .notNull()
-                    .map(ReadingTypeTemplateImpl.Fields.ID.fieldName())
-                    .add();
+            Column idColumn = table.addAutoIdColumn();
             table.column(ReadingTypeTemplateImpl.Fields.NAME.name())
                     .varChar(NAME_LENGTH)
                     .notNull()
                     .map(ReadingTypeTemplateImpl.Fields.NAME.fieldName())
                     .add();
+            table.addAuditColumns();
 
             table.primaryKey("MTR_RT_TEMPLATE_PK").on(idColumn).add();
         }
@@ -904,6 +900,7 @@ public enum TableSpecs {
             Table table = dataModel.addTable(name(), ReadingTypeTemplateAttribute.class);
             table.map(ReadingTypeTemplateAttributeImpl.class);
 
+            Column idColumn = table.addAutoIdColumn();
             Column templateColumn = table
                     .column(ReadingTypeTemplateAttributeImpl.Fields.TEMPLATE.name())
                     .number()
@@ -926,11 +923,11 @@ public enum TableSpecs {
                     .map(ReadingTypeTemplateAttributeImpl.Fields.CODE.fieldName())
                     .add();
 
-            table.primaryKey("MTR_RT_TEMPLATE_ATTR_PK").on(templateColumn, nameColumn).add();
+            table.primaryKey("MTR_RT_TEMPLATE_ATTR_PK").on(idColumn).add();
+            table.unique("MTR_RT_TEMPLATE_ATTR_UQ").on(templateColumn, nameColumn).add();
             table.foreignKey("FK_TEMPLATE_ATTR_TO_TEMPLATE")
                     .references(ReadingTypeTemplate.class)
                     .on(templateColumn)
-                    .onDelete(CASCADE)
                     .map(ReadingTypeTemplateAttributeImpl.Fields.TEMPLATE.fieldName())
                     .reverseMap(ReadingTypeTemplateImpl.Fields.ATTRIBUTES.fieldName())
                     .composition()
@@ -944,10 +941,9 @@ public enum TableSpecs {
             table.map(ReadingTypeTemplateAttributeValueImpl.class);
 
             Column attrColumn = table
-                    .column(ReadingTypeTemplateAttributeValueImpl.Fields.ATTRIBUTE.name())
+                    .column(ReadingTypeTemplateAttributeValueImpl.Fields.ATTR.name())
                     .number()
                     .notNull()
-                    .map(ReadingTypeTemplateAttributeValueImpl.Fields.ATTRIBUTE.fieldName())
                     .add();
             Column valueColumn = table.column(ReadingTypeTemplateAttributeValueImpl.Fields.CODE.name())
                     .number()
@@ -955,12 +951,11 @@ public enum TableSpecs {
                     .map(ReadingTypeTemplateAttributeValueImpl.Fields.CODE.fieldName())
                     .add();
 
-            table.primaryKey("MTR_RT_TEMPLATE_ATTR_VALUE_PK").on(attrColumn, valueColumn).add();
-            table.foreignKey("FK_TEMPLATE_ATTR_VALUE_TO_ATTR")
+            table.primaryKey("MTR_RT_TPL_ATTR_VALUE_PK").on(attrColumn, valueColumn).add();
+            table.foreignKey("FK_RT_TPL_ATTR_VALUE_TO_ATTR")
                     .references(ReadingTypeTemplateAttribute.class)
                     .on(attrColumn)
-                    .onDelete(CASCADE)
-                    .map(ReadingTypeTemplateAttributeValueImpl.Fields.ATTRIBUTE.fieldName())
+                    .map(ReadingTypeTemplateAttributeValueImpl.Fields.ATTR.fieldName())
                     .reverseMap(ReadingTypeTemplateAttributeImpl.Fields.POSSIBLE_VALUES.fieldName())
                     .composition()
                     .add();

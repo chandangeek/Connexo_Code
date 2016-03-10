@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.impl.rt.template;
+package com.elster.jupiter.metering;
 
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;

@@ -2,10 +2,14 @@ package com.elster.jupiter.metering.impl.rt.template;
 
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.ReadingTypeTemplate;
+import com.elster.jupiter.metering.ReadingTypeTemplateAttribute;
+import com.elster.jupiter.metering.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -37,11 +41,21 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     private String name;
     private List<ReadingTypeTemplateAttribute> persistedAttributes = new ArrayList<>(ReadingTypeTemplateAttributeName.values().length);
 
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
+    private String userName;
+
     private Set<ReadingTypeTemplateAttribute> allAttributes;
 
     @Inject
     public ReadingTypeTemplateImpl(DataModel dataModel) {
         this.dataModel = dataModel;
+    }
+
+    public ReadingTypeTemplateImpl init(String name) {
+        this.name = name;
+        return this;
     }
 
     @Override
@@ -80,6 +94,7 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
             this.persistedAttributes.add(attribute);
         }
         this.allAttributes.add(attribute);
+        this.dataModel.touch(this);
         return this;
     }
 
@@ -89,5 +104,9 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
                 .map(ReadingTypeTemplateAttributeImpl.class::cast)
                 .map(ReadingTypeTemplateAttributeImpl::getAttributeAsString)
                 .collect(Collectors.joining("."));
+    }
+
+    public void save() {
+        this.dataModel.persist(this);
     }
 }
