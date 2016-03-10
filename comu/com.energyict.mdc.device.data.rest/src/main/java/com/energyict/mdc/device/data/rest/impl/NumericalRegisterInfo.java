@@ -13,6 +13,7 @@ public class NumericalRegisterInfo extends RegisterInfo {
     public BigDecimal overflow;
     public DetailedValidationInfo detailedValidationInfo;
     public BigDecimal multiplier;
+    public Boolean useMultiplier;
     @JsonProperty("calculatedReadingType")
     public ReadingTypeInfo calculatedReadingType;
 

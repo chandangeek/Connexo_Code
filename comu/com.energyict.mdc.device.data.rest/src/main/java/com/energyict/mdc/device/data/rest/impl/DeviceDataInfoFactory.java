@@ -303,6 +303,7 @@ public class DeviceDataInfoFactory {
         Instant timeStamp = register.getLastReadingDate().orElse(clock.instant());
         register.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> billingRegisterInfo.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType));
         billingRegisterInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
+        billingRegisterInfo.useMultiplier = register.getRegisterSpec().isUseMultiplier();
         return billingRegisterInfo;
     }
 
@@ -327,6 +328,7 @@ public class DeviceDataInfoFactory {
         Instant timeStamp = numericalRegister.getLastReadingDate().orElse(clock.instant());
         numericalRegister.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> numericalRegisterInfo.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType));
         numericalRegisterInfo.multiplier = numericalRegister.getMultiplier(timeStamp).orElseGet(() -> null);
+        numericalRegisterInfo.useMultiplier = registerSpec.isUseMultiplier();
         return numericalRegisterInfo;
     }
 }
