@@ -28,6 +28,10 @@ Ext.define('Scs.controller.ServiceCalls', {
         {
             ref: 'breadcrumbs',
             selector: 'breadcrumbTrail'
+        },
+        {
+            ref: 'overviewTabPanel',
+            selector: '#service-call-overview-tab'
         }
     ],
 
@@ -41,6 +45,9 @@ Ext.define('Scs.controller.ServiceCalls', {
             },
             'servicecalls-grid': {
                 serviceCallLinkClicked: this.clickedColumn
+            },
+            'servicecalls-setup-overview #service-call-overview-tab': {
+                tabchange: this.onTabChange
             }
         });
     },
@@ -67,7 +74,23 @@ Ext.define('Scs.controller.ServiceCalls', {
         me.getApplication().fireEvent('changecontentevent', view);
     },
 
-    showServiceCallOverview: function () {
+    showServiceCallSpecifications: function () {
+        if(!Uni.util.History.isSuspended()) {
+            this.showServiceCallOverview(arguments, 'specs');
+        } else {
+            this.setBreadcrumb(this.getOverviewTabPanel().breadcrumbs, true);
+        }
+    },
+
+    showServiceCallGrid: function() {
+        if(!Uni.util.History.isSuspended()) {
+            this.showServiceCallOverview(arguments, 'grid');
+        } else {
+            this.setBreadcrumb(this.getOverviewTabPanel().breadcrumbs, false);
+        }
+    },
+
+    showServiceCallOverview: function (arguments, tab) {
         var me = this,
             store = Ext.getStore('Scs.store.ServiceCalls'),
             logStore = Ext.getStore('Scs.store.Logs'),
@@ -92,12 +115,19 @@ Ext.define('Scs.controller.ServiceCalls', {
                     //logStore.load({
                     //
                     //})
+                    var parents = record.get('parents');
+                    parents.push({id:record.get('id'),name:record.get('name')});
+
                     if (record.get('childrenInfo').length > 0) {
                         view = Ext.widget('servicecalls-setup-overview', {
                             router: me.getController('Uni.controller.history.Router'),
                             serviceCallId: record.get('name'),
-                            store: store
+                            serviceCallParam: servicecallId,
+                            store: store,
+                            tab: tab,
+                            breadcrumbs: parents
                         });
+                        me.setBreadcrumb(parents, tab === 'specs');
                         view.down('scs-landing-page').updateLandingPage(record);
                             Uni.util.History.setSuspended(false);
                     } else {
@@ -106,10 +136,9 @@ Ext.define('Scs.controller.ServiceCalls', {
                             serviceCallId: record.get('name')
                         });
                         view.updateLandingPage(record);
+                        me.setBreadcrumb(parents, false);
                     }
-                    var parents = record.get('parents');
-                    parents.push({id:record.get('id'),name:record.get('name')});
-                    me.setBreadcrumb(parents);
+
                     me.getApplication().fireEvent('changecontentevent', view);
 
                 },
@@ -123,7 +152,19 @@ Ext.define('Scs.controller.ServiceCalls', {
         }
     },
 
-    setBreadcrumb: function (breadcrumbs) {
+    onTabChange: function (tabPanel, newTab) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            addDestinationRoute,
+            route,
+            showSpecs = newTab.itemId === 'specifications-tab';
+
+        route = !showSpecs ? router.getRoute('workspace/servicecalls/overview') : router.getRoute('workspace/servicecalls/overview/specifications');
+        Uni.util.History.suspendEventsForNextCall(true);
+        route.forward(tabPanel.servicecallParam);
+    },
+
+    setBreadcrumb: function (breadcrumbs, showSpecificationBreadcrumb) {
         var me = this,
             trail = this.getBreadcrumbs(),
             root = Ext.create('Uni.model.BreadcrumbItem', {
@@ -133,10 +174,11 @@ Ext.define('Scs.controller.ServiceCalls', {
             parent = Ext.create('Uni.model.BreadcrumbItem', {
                 text: 'Service calls',
                 href: 'servicecalls'
-            });
+            }),
+            bc;
         root.setChild(parent);
             Ext.each(breadcrumbs, function (item) {
-                var bc = Ext.create('Uni.model.BreadcrumbItem', {
+                bc = Ext.create('Uni.model.BreadcrumbItem', {
                     key: item.id,
                     text: item.name,
                     href: '/' + item.id,
@@ -145,7 +187,17 @@ Ext.define('Scs.controller.ServiceCalls', {
                 parent.setChild(bc);
                 parent = bc;
             });
+
+        if(showSpecificationBreadcrumb) {
+            bc = Ext.create('Uni.model.BreadcrumbItem', {
+                text: Uni.I18n.translate('general.specifications', 'SCS', 'Specifications'),
+                href: '/specifications',
+                relative: true
+            });
+            parent.setChild(bc);
+        }
         trail.setBreadcrumbItem(root);
+        trail.doLayout();
     },
 
     showPreview: function (selectionModel, record) {

@@ -13,10 +13,10 @@ Ext.define('Scs.view.Landing', {
         var me = this;
 
         me.content = {
+            ui: 'large',
+            title: me.serviceCallId,
             items: [
                 {
-                    ui: 'large',
-                   // title: me.title === 'none' ? '' : me.serviceCallId,
                     tools: [
                         {
                             xtype: 'button',

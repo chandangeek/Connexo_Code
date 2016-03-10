@@ -44,7 +44,7 @@
         <profile>
             <id>sencha-build</id>
             <properties>
-                <js.dir>js/servicecalltype</js.dir>
+                <js.dir>js/servicecall</js.dir>
                 <package.name>com.elster.jupiter.servicecall.extjs</package.name>
             </properties>
         </profile>

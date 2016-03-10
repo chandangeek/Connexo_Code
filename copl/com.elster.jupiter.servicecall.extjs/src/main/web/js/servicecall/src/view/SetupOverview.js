@@ -3,7 +3,10 @@ Ext.define('Scs.view.SetupOverview', {
     alias: 'widget.servicecalls-setup-overview',
     router: null,
     serviceCallId: null,
+    servicecallParam: null,
     store: null,
+    tab: null,
+    breadcrumbs: null,
 
     requires: [
         'Scs.view.ServiceCallPreviewContainer',
@@ -15,13 +18,15 @@ Ext.define('Scs.view.SetupOverview', {
         var me = this;
         me.content = {
             ui: 'large',
-            title: Uni.I18n.translate('general.serviceCalls', 'SCS', 'Service calls'),
+            title: me.serviceCallId,
             items: [
                 {
                     xtype: 'tabpanel',
                     ui: 'large',
                     itemId: 'service-call-overview-tab',
-                    activeTab: 1,
+                    activeTab: me.tab === 'grid' ? 1 : 0,
+                    breadcrumbs: me.breadcrumbs,
+                    servicecallParam: me.servicecallParam,
                     items: [
                         {
                             title: Uni.I18n.translate('general.specifications', 'SCS', 'Specifications'),
@@ -29,7 +34,6 @@ Ext.define('Scs.view.SetupOverview', {
                             items: [
                                 {
                                     xtype: 'scs-landing-page',
-                                    serviceCallId: me.serviceCallId,
                                     router: me.router,
                                     title: 'none'
                                 }

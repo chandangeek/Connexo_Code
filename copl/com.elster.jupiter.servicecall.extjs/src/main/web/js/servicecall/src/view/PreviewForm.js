@@ -3,6 +3,7 @@ Ext.define('Scs.view.PreviewForm', {
     alias: 'widget.servicecalls-preview-form',
     router: null,
     detailed: false,
+    serviceCallId: null,
     requires: [
         'Uni.property.form.Property'
     ],

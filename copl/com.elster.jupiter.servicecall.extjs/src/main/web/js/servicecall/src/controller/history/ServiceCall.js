@@ -20,7 +20,7 @@ Ext.define('Scs.controller.history.ServiceCall', {
                             privileges: Scs.privileges.ServiceCall.view,
                             title: Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'),
                             controller: 'Scs.controller.ServiceCalls',
-                            action: 'showServiceCallOverview'
+                            action: 'showServiceCallGrid',
                             /*callback: function (route) {
                                 this.getApplication().on('servicecallload', function (arguments) {
                                     route.setTitle(arguments[0] ? arguments[0] : Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call overview'));
@@ -28,6 +28,15 @@ Ext.define('Scs.controller.history.ServiceCall', {
                                 }, {single: true});
                                 return this;
                             }*/
+                            items: {
+                                specifications: {
+                                    route: 'specifications',
+                                    privileges: Scs.privileges.ServiceCall.view,
+                                    title: Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call specifications'),
+                                    controller: 'Scs.controller.ServiceCalls',
+                                    action: 'showServiceCallSpecifications'
+                                }
+                            }
                         }
                     }
                 }
