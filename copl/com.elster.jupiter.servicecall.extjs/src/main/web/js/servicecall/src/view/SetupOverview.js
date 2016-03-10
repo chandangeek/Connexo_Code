@@ -11,7 +11,7 @@ Ext.define('Scs.view.SetupOverview', {
     requires: [
         'Scs.view.ServiceCallPreviewContainer',
         'Scs.view.ServiceCallFilter',
-        'Scs.view.Landing',
+        'Scs.view.Landing'
     ],
 
     initComponent: function () {
