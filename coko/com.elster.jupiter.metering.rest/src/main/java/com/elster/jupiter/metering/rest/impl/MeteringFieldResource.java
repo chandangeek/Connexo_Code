@@ -142,7 +142,8 @@ public class MeteringFieldResource {
 
     @GET
     @Path("/connectionstates")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getConnectionStates(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithDisplayValueInfo<String>> connectionStates = Arrays.stream(UsagePointConnectedKind.values())
@@ -154,7 +155,8 @@ public class MeteringFieldResource {
 
     @GET
     @Path("/amibilling")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getAmiBillings(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithDisplayValueInfo<String>> billings = Arrays.stream(AmiBillingReadyKind.values())
@@ -166,7 +168,8 @@ public class MeteringFieldResource {
 
     @GET
     @Path("/servicecategory")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getServiceCategories(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithDisplayValueInfo<String>> categories = Arrays.stream(ServiceKind.values())
@@ -178,7 +181,8 @@ public class MeteringFieldResource {
 
     @GET
     @Path("/phasecodes")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getPhaseCodes(@BeanParam JsonQueryParameters queryParameters) {
         return PagedInfoList.fromCompleteList("phaseCodes", Arrays.stream(PhaseCode.values()).distinct().map(pc -> new IdWithDisplayValueInfo<>(pc.name(),pc.getValue())).collect(Collectors.toList()), queryParameters);
@@ -186,7 +190,8 @@ public class MeteringFieldResource {
 
     @GET
     @Path("/bypassstatus")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getBypassStatus(@BeanParam JsonQueryParameters queryParameters) {
         return PagedInfoList.fromCompleteList("bypassStatus", Arrays.stream(BypassStatus.values()).map(bs -> new IdWithDisplayValueInfo<>(bs.name(),bs.getDisplayValue())).collect(Collectors.toList()), queryParameters);
@@ -194,7 +199,8 @@ public class MeteringFieldResource {
 
     @GET
     @Path("/usagepointtype")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getUsagePointType(@BeanParam JsonQueryParameters queryParameters) {
         List<UsagePointTypeInfo> infos = Arrays.stream(UsagePointTypeInfo.UsagePointType.values()).map(t -> new UsagePointTypeInfo(t,thesaurus)).collect(Collectors.toList());
