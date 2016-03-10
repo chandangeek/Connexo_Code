@@ -181,7 +181,7 @@ public class ServiceCallsCommands {
     }
 
     public void serviceCalls() {
-        serviceCallService.getServiceCalls()
+        serviceCallService.getServiceCallFinder().find()
                 .stream()
                 .sorted(Comparator.comparing(ServiceCall::getId))
                 .map(sc -> sc.getNumber() + " "
@@ -277,7 +277,7 @@ public class ServiceCallsCommands {
         System.out.println("Usage: createChildServiceCall <type> <typeVersion> <externalReference> <parentReference>");
     }
 
-    public void createChildServiceCall(String type, String typeVersion, String externalReference, String parent) {
+    public void createChildServiceCall(String type, String typeVersion, String externalReference, Long parent) {
         Optional<ServiceCallType> serviceCallType = serviceCallService.findServiceCallType(type, typeVersion);
         Optional<ServiceCall> serviceCall = serviceCallService.getServiceCall(parent);
         if (!serviceCall.isPresent()) {

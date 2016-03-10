@@ -293,18 +293,6 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     }
 
     @Override
-    public Optional<ServiceCall> getServiceCall(String number) {
-        return getServiceCall(numberToId(number));
-    }
-
-    @Override
-    public Finder<ServiceCall> getServiceCalls() {
-        return DefaultFinder.of(ServiceCall.class, dataModel)
-                .sorted("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ", 0))", true)
-                .sorted(ServiceCallImpl.Fields.modTime.fieldName(), false);
-    }
-
-    @Override
     public ServiceCallFinder getServiceCallFinder() {
         return new ServiceCallFinderImpl(dataModel);
     }
@@ -334,10 +322,6 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
             throw new UnderlyingSQLFailedException(e);
         }
         return childrenStateCount;
-    }
-
-    private long numberToId(String number) {
-        return Long.parseLong(number.substring(3));
     }
 
     @Override

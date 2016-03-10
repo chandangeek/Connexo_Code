@@ -65,6 +65,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -234,6 +235,7 @@ public class ServiceCallImplIT {
 
         ServiceCall parentServiceCall = null;
         ServiceCall serviceCall = null;
+
         try (TransactionContext context = transactionService.getContext()) {
             parentServiceCall = serviceCallType.newServiceCall()
                     .externalReference("external")
@@ -249,14 +251,16 @@ public class ServiceCallImplIT {
             context.commit();
         }
 
+        Map<DefaultState, Long> childrenStatus = serviceCallService.getChildrenStatus(parentServiceCall.getId());
         serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
         parentServiceCall = serviceCallService.getServiceCall(parentServiceCall.getId()).get();
-
         assertThat(serviceCall.getState()).isEqualTo(DefaultState.CREATED);
         assertThat(serviceCall.getExternalReference()).contains("externalChild");
         assertThat(serviceCall.getOrigin()).contains("CSTchild");
         assertThat((Optional<Object>) serviceCall.getTargetObject()).contains(person);
         assertThat(serviceCall.getParent()).contains(parentServiceCall);
+        assertThat(childrenStatus.size()).isEqualTo(1);
+        assertThat(childrenStatus.get(DefaultState.CREATED)).isEqualTo(1);
 
         extension = serviceCall.getExtensionFor(customPropertySet).get();
 
