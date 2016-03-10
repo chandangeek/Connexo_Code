@@ -257,9 +257,9 @@ public class PacketBuilder {
         }
     }
 
-    private int[] parseValues(byte[] buffer) {
+    private long[] parseValues(byte[] buffer) {
         String strValues = new String(buffer);
-        int[] valuesArray = new int[nrOfChannels];
+        long[] valuesArray = new long[nrOfChannels];
         StringTokenizer st = new StringTokenizer(strValues, ",");
         int iTokens = st.countTokens();
         if (iTokens != nrOfChannels) {
@@ -267,7 +267,7 @@ public class PacketBuilder {
         }
         try {
             for (int i = 0; i < iTokens; i++) {
-                valuesArray[i] = Integer.parseInt(st.nextToken());
+                valuesArray[i] = Long.parseLong(st.nextToken());
             }
         } catch (NumberFormatException e) {
             throw CommunicationException.numberFormatException(e, EIWebConstants.METER_DATA_PARAMETER_NAME, strValues);
@@ -275,7 +275,7 @@ public class PacketBuilder {
         return valuesArray;
     }
 
-    private void createData(String utc, String code, String statebits, int[] values) throws IOException {
+    private void createData(String utc, String code, String statebits, long[] values) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         LittleEndianOutputStream os = new LittleEndianOutputStream(bos);
         this.addUTCToDataStream(utc, os);
@@ -311,10 +311,10 @@ public class PacketBuilder {
         }
     }
 
-    private void addValuesToDataStream(int[] values, LittleEndianOutputStream os) throws IOException {
+    private void addValuesToDataStream(long[] values, LittleEndianOutputStream os) throws IOException {
         for (int i = 0; i < values.length; i++) {
             if (version < VERSION_32BITS_3) {
-                os.writeLEShort((short) values[i]);
+                os.writeLEShort(values[i]);
             } else {
                 os.writeLEInt(values[i]);
             }
