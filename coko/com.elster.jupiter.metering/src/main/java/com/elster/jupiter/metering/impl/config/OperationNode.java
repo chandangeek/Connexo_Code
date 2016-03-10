@@ -6,6 +6,7 @@ import java.util.OptionalInt;
 
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
+import com.elster.jupiter.util.units.Dimension;
 
 /**
  * Created by igh on 4/02/2016.
@@ -55,39 +56,39 @@ public class OperationNode extends AbstractNode {
         right.validate();
         if (operator.equals(Operator.MINUS) || operator.equals(Operator.PLUS)) {
            if (!UnitConversionSupport.areCompatibleForAutomaticUnitConversion(
-                   left.getReadingTypeUnit(), right.getReadingTypeUnit())) {
-                throw new InvalidNodeException("Only reading type units that are compatible for automatic unit conversion can be summed or substracted");
+                   left.getDimension(), right.getDimension())) {
+                throw new InvalidNodeException("Only dimensions that are compatible for automatic unit conversion can be summed or substracted");
            }
         }
         if ((operator.equals(Operator.MULTIPLY)) &&
-                (!UnitConversionSupport.isAllowedMultiplication(left.getReadingTypeUnit(), right.getReadingTypeUnit()))) {
-                throw new InvalidNodeException("Invalid reading type arguments for multiplication");
+                (!UnitConversionSupport.isAllowedMultiplication(left.getDimension(), right.getDimension()))) {
+                throw new InvalidNodeException("The dimensions of the arguments are not valid for multiplication");
         }
         if ((operator.equals(Operator.DIVIDE)) &&
-                (!UnitConversionSupport.isAllowedDivision(left.getReadingTypeUnit(), right.getReadingTypeUnit()))) {
-                throw new InvalidNodeException("Invalid reading type arguments for division");
+                (!UnitConversionSupport.isAllowedDivision(left.getDimension(), right.getDimension()))) {
+                throw new InvalidNodeException("The dimensions of the arguments are not valid for  division");
         }
 
     }
 
     @Override
-    public ReadingTypeUnit getReadingTypeUnit() {
+    public Dimension getDimension() {
         if (operator.equals(Operator.MINUS) || operator.equals(Operator.PLUS)) {
-            return getLeftOperand().getReadingTypeUnit();
+            return getLeftOperand().getDimension();
         } else if (operator.equals(Operator.MULTIPLY)) {
-            Optional<ReadingTypeUnit> readingTypeUnit =
-                    UnitConversionSupport.getMultiplicationUnit(getLeftOperand().getReadingTypeUnit(), getRightOperand().getReadingTypeUnit());
-            if (!readingTypeUnit.isPresent()) {
-                throw new InvalidNodeException("units from multiplication arguments do not result in a valid unit");
+            Optional<Dimension> dimension =
+                    UnitConversionSupport.getMultiplicationDimension(getLeftOperand().getDimension(), getRightOperand().getDimension());
+            if (!dimension.isPresent()) {
+                throw new InvalidNodeException("Dimensions from multiplication arguments do not result in a valid dimension.");
             }
-            return readingTypeUnit.get();
+            return dimension.get();
         } else {
-            Optional<ReadingTypeUnit> readingTypeUnit =
-                    UnitConversionSupport.getDivisionUnit(getLeftOperand().getReadingTypeUnit(), getRightOperand().getReadingTypeUnit());
-            if (!readingTypeUnit.isPresent()) {
-                throw new InvalidNodeException("units from division arguments do not result in a valid unit");
+            Optional<Dimension> dimension =
+                    UnitConversionSupport.getDivisionDimension(getLeftOperand().getDimension(), getRightOperand().getDimension());
+            if (!dimension.isPresent()) {
+                throw new InvalidNodeException("Dimensions from division arguments do not result in a valid dimension");
             }
-            return readingTypeUnit.get();
+            return dimension.get();
         }
     }
 }

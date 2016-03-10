@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.config.FormulaPart;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.units.Dimension;
 
 /**
  * Models a node of expression that comply with the BNF below.
@@ -57,6 +58,6 @@ public interface ExpressionNode extends FormulaPart {
 
     void validate();
 
-    ReadingTypeUnit getReadingTypeUnit();
+    Dimension getDimension();
 
 }

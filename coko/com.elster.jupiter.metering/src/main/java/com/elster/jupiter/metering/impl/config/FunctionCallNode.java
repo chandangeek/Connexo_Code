@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
+import com.elster.jupiter.util.units.Dimension;
 
 import java.util.List;
 
@@ -59,14 +60,14 @@ public class FunctionCallNode extends AbstractNode {
             ExpressionNode child = this.getChildren().get(i);
             child.validate();
             if (!UnitConversionSupport.areCompatibleForAutomaticUnitConversion(
-                    first.getReadingTypeUnit(), child.getReadingTypeUnit())) {
-                throw new InvalidNodeException("Only reading type units that are compatible for automatic unit conversion can be used as children of a function");
+                    first.getDimension(), child.getDimension())) {
+                throw new InvalidNodeException("Only dimensions that are compatible for automatic unit conversion can be used as children of a function");
             }
         }
     }
 
     @Override
-    public ReadingTypeUnit getReadingTypeUnit() {
-        return this.getChildren().get(0).getReadingTypeUnit();
+    public Dimension getDimension() {
+        return this.getChildren().get(0).getDimension();
     }
 }

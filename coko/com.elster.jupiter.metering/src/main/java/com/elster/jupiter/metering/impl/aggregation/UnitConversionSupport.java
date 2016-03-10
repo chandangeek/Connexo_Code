@@ -100,6 +100,65 @@ public class UnitConversionSupport {
     }
 
     /**
+     * Tests if both {@link Dimension}s are compatible for unit conversion.
+     *
+     * @param first The first Dimension
+     * @param second The second Dimension
+     * @return A flag that indicates if both Dimension are compatible or not
+     */
+    public static boolean areCompatibleForAutomaticUnitConversion(Dimension first, Dimension second) {
+        return (isVolumeRelated(first) && isFlowRelated(second))
+                || (isFlowRelated(first) && isVolumeRelated(second))
+                || (first.hasSameDimensions(second));
+    }
+
+    static boolean isVolumeRelated(Dimension dim) {
+        switch (dim) {
+            // Explicitly enumerate all the ones that we consider flow related
+            case VOLUME: // Intentional fall-through
+            case APPARENT_ENERGY: // Intentional fall-through
+            case ENERGY: // Intentional fall-through
+            case ELECTRIC_CHARGE: // Intentional fall-through
+            case REACTIVE_ENERGY: // Intentional fall-through
+            case MAGNETIC_FLUX: {
+                return true;
+            }
+            case AMOUNT_OF_SUBSTANCE: { // Debatable but will not support this as volume for now
+                return false;
+            }
+            default: {
+                // All others are not volume related
+                return false;
+            }
+        }
+    }
+
+    static boolean isFlowRelated(Dimension dim) {
+        switch (dim) {
+            // Explicitly enumerate all the ones that we consider flow related
+            case POWER: // Intentional fall-through
+            case ELECTRIC_POTENTIAL: // Intentional fall-through
+            case ELECTRIC_CURRENT: // Intentional fall-through
+            case ELECTRIC_POTENTIAL_SQUARED: // Intentional fall-through
+            case ELECTRIC_CURRENT_SQUARED: // Intentional fall-through
+            case VOLUME_FLOW: // Intentional fall-through
+            case APPARENT_POWER: // Intentional fall-through
+            case REACTIVE_POWER: {
+                return true;
+            }
+            case DIMENSIONLESS: {
+                /* Debatable but because the volume related unit (QUANTITYPOWERHOUR) is not there
+                 * we will not consider it a flow unit for now. */
+                return false;
+            }
+            default: {
+                // All others are not flow related
+                return false;
+            }
+        }
+    }
+
+    /**
      * Returns an expression tree that converts a variable from
      * the specified {@link Unit source unit} to the target Unit.
      *
@@ -155,28 +214,16 @@ public class UnitConversionSupport {
     }
 
 
-    public static Optional<ReadingTypeUnit> getMultiplicationUnit(ReadingTypeUnit first, ReadingTypeUnit second) {
-        return getMultiplicationOrDivisionUnit(first, second, true);
+    public static Optional<Dimension> getMultiplicationDimension(Dimension first, Dimension second) {
+        return getMultiplicationOrDivisionDimension(first, second, true);
     }
 
-    public static Optional<ReadingTypeUnit> getDivisionUnit(ReadingTypeUnit first, ReadingTypeUnit second) {
-        return getMultiplicationOrDivisionUnit(first, second, false);
+    public static Optional<Dimension> getDivisionDimension(Dimension first, Dimension second) {
+        return getMultiplicationOrDivisionDimension(first, second, false);
     }
 
-    public static Optional<ReadingTypeUnit> getMultiplicationOrDivisionUnit(ReadingTypeUnit first, ReadingTypeUnit second, boolean multiplication) {
-        Optional<Dimension> dimension = getMultiplicationOrDivisionDimension(first, second, multiplication);
-        if (dimension.isPresent()) {
-            Unit unit = Unit.getSIUnit(dimension.get());
-            return ReadingTypeUnit.get(unit);
-        } else {
-            return Optional.empty();
-        }
-    }
 
-    public static Optional<Dimension> getMultiplicationOrDivisionDimension(ReadingTypeUnit first, ReadingTypeUnit second, boolean multiplication) {
-        Dimension firstDim = toDimension(first);
-        Dimension secondDim = toDimension(second);
-
+    public static Optional<Dimension> getMultiplicationOrDivisionDimension(Dimension firstDim, Dimension secondDim, boolean multiplication) {
         int factor = (multiplication) ? 1 : -1;
 
         int length = firstDim.getLengthDimension() + (secondDim.getLengthDimension() * factor);
@@ -201,15 +248,15 @@ public class UnitConversionSupport {
 
 
 
-    public static boolean isAllowedMultiplication(ReadingTypeUnit first, ReadingTypeUnit second) {
+    public static boolean isAllowedMultiplication(Dimension first, Dimension second) {
         return isAllowedMultiplicationOrDivision(first, second, true);
     }
 
-    public static boolean isAllowedDivision(ReadingTypeUnit first, ReadingTypeUnit second) {
+    public static boolean isAllowedDivision(Dimension first, Dimension second) {
         return isAllowedMultiplicationOrDivision(first, second, false);
     }
 
-    private static boolean isAllowedMultiplicationOrDivision(ReadingTypeUnit first, ReadingTypeUnit second, boolean multiplication) {
+    private static boolean isAllowedMultiplicationOrDivision(Dimension first, Dimension second, boolean multiplication) {
         return getMultiplicationOrDivisionDimension(first, second, multiplication).isPresent();
     }
 

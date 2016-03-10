@@ -7,6 +7,7 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.units.Dimension;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,5 +62,12 @@ public interface ReadingTypeRequirement extends HasId, HasName {
      * @return The List of matching ReadingTypes
      */
     List<Channel> getMatchingChannelsFor(MeterActivation meterActivation);
+
+    /**
+     * Returns the {@link Dimension} that is represented by this ReadingTypeRequirement.
+     *
+     * @return The Dimension
+     */
+    Dimension getDimension();
 
 }
