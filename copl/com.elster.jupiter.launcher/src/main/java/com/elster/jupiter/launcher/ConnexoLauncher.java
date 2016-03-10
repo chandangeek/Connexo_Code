@@ -142,11 +142,6 @@ public class ConnexoLauncher {
         }
     }
 
-    private static void userPass() {
-
-    }
-
-
     private static Map<String, String> loadConfig(File rootDir) throws IOException {
         Properties props = new Properties();
         File configFile;
