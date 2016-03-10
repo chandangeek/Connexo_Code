@@ -8,13 +8,15 @@ Ext.define('Bpm.controller.Main', {
         'Bpm.controller.Task',
         'Bpm.controller.TaskBulk',
         'Bpm.controller.history.BpmManagement',
-        'Bpm.privileges.BpmManagement'
+        'Bpm.privileges.BpmManagement',
+        'Bpm.monitorprocesses.controller.MonitorProcesses'
     ],
 
     controllers: [
         'Bpm.controller.history.BpmManagement',
         'Bpm.controller.Task',
-        'Bpm.controller.TaskBulk'
+        'Bpm.controller.TaskBulk',
+        'Bpm.monitorprocesses.controller.MonitorProcesses'
     ],
 
     refs: [
