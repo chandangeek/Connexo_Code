@@ -83,7 +83,6 @@ public class UsagePointResource {
     public UsagePointInfos getUsagePoint(@PathParam("id") long id, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
         UsagePointInfos result = new UsagePointInfos(usagePoint, clock);
-        result.addServiceLocationInfo();
         return result;
     }
 

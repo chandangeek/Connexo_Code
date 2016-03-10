@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.*;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -38,7 +39,8 @@ public class MeteringApplication extends Application implements TranslationKeyPr
                 ReadingTypeResource.class,
                 MeteringFieldResource.class,
                 ServiceCategoryResource.class,
-                EndDeviceEventTypeResource.class);
+                EndDeviceEventTypeResource.class,
+                RestValidationExceptionMapper.class);
     }
 
     @Reference
