@@ -56,27 +56,16 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Preview', {
                                 xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
                                 name: 'timeStamp',
-                                renderer: function(value){
-                                    return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
+                                renderer: function (value) {
+                                    if (value) {
+                                        var date = new Date(value);
+                                        return Uni.DateTime.formatDateLong(date) + ' - ' + Uni.DateTime.formatTimeShort(date);
+                                    }
+                                    return '-';
                                 }
                             },
                             {
-                                xtype: 'fieldcontainer',
-                                fieldLabel: Uni.I18n.translate('general.nextReadingBlockStart', 'MDC', 'Next reading block start'),
-                                layout: 'hbox',
-                                items: [
-                                    {
-                                        xtype: 'displayfield',
-                                        name: 'reportedDateTime',
-                                        renderer: function (value) {
-                                            return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
-                                        }
-                                    }
-                                ]
-
-                            },
-                            {
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastValue', 'MDC', 'Last value'),
+                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestValue', 'MDC', 'Latest value'),
                                 name: 'value'
                             },
                             {
@@ -93,6 +82,15 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Preview', {
                             {
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
                                 name: 'numberOfFractionDigits'
+                            },
+                            {
+                                fieldLabel: Uni.I18n.translate('channelConfig.useMultiplier', 'MDC', 'Use multiplier'),
+                                name: 'useMultiplier',
+                                renderer: function(value) {
+                                    return value
+                                        ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+                                        : Uni.I18n.translate('general.no', 'MDC', 'No');
+                                }
                             }
                         ]
                     },

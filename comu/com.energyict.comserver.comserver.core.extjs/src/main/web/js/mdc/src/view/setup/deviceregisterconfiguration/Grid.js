@@ -25,10 +25,10 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                 renderer: function (value, metaData, record) {
                     return '<a href="#/devices/' + me.mRID + '/registers/' + record.get('id') + '/data">' + Ext.String.htmlEncode(value.fullAliasName) + '</a>';
                 },
-                flex: 3
+                flex: 2
             },
             {
-                header: Uni.I18n.translate('general.timestampLastValue', 'MDC', 'Timestamp last value'),
+                header: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
                 dataIndex: 'timeStamp',
                 renderer: function(value){
                     if(!Ext.isEmpty(value)) {
@@ -39,18 +39,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
-                dataIndex: 'reportedDateTime',
-                renderer: function(value){
-                    if(!Ext.isEmpty(value)) {
-                        return Uni.DateTime.formatDateTimeShort(new Date(value));
-                    }
-                    return '-';
-                },
-                flex: 1
-            },
-            {
-                header: Uni.I18n.translate('deviceregisterconfiguration.lastValue', 'MDC', 'Last value'),
+                header: Uni.I18n.translate('deviceregisterconfiguration.latestValue', 'MDC', 'Latest value'),
                 dataIndex: 'value',
                 flex: 1
             },

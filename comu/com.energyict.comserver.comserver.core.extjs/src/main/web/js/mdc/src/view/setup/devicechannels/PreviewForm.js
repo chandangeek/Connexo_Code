@@ -84,6 +84,15 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                     name: 'nbrOfFractionDigits'
                                 },
                                 {
+                                    fieldLabel: Uni.I18n.translate('channelConfig.useMultiplier', 'MDC', 'Use multiplier'),
+                                    name: 'useMultiplier',
+                                    renderer: function(value) {
+                                        return value
+                                            ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+                                            : Uni.I18n.translate('general.no', 'MDC', 'No');
+                                    }
+                                },
+                                {
                                     fieldLabel: Uni.I18n.translate('deviceloadprofiles.loadProfile', 'MDC', 'Load profile'),
                                     name: 'loadProfileId',
                                     renderer: function (value) {
