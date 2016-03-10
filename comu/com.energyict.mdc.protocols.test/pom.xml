@@ -12,7 +12,7 @@
     <artifactId>mdc.protocols.test</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>[MDC] mdc.protocols.test[init TPR]</name>
+    <name>[MDC] mdc.protocols.test</name>
     <description>
         Contains license service for all the test protocols
     </description>
