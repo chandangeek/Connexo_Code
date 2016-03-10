@@ -11,6 +11,8 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
 
     INVALID_VALUE(1, "InvalidValue", "Invalid value"),
+    MBEAN_OBJECT_FORMAT(2, "mbeanObjectFormat", "MalformedObjectNameException for ComServer {0}"),
+    COMPOSITE_TYPE_CREATION(3, "compositeTypeCreation", "CompositeType creation failed for class {0}"),
     ;
 
     private final int number;

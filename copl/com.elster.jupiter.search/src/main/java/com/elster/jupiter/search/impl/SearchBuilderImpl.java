@@ -12,6 +12,9 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.sql.SqlFragment;
+import com.elster.jupiter.util.time.StopWatch;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,11 +34,13 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
 
     private final SearchDomain searchDomain;
     private final List<SearchablePropertyCondition> conditions = new ArrayList<>();
+    private final SearchMonitor searchMonitor;
     private List<CriterionBuilder<T>> incompleteBuilders = new ArrayList<>();
 
-    public SearchBuilderImpl(SearchDomain searchDomain) {
+    public SearchBuilderImpl(SearchDomain searchDomain, SearchMonitor searchMonitor) {
         super();
         this.searchDomain = searchDomain;
+        this.searchMonitor = searchMonitor;
     }
 
     @Override
@@ -59,7 +64,9 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
     @SuppressWarnings("unchecked")
     public Finder<T> toFinder() {
         this.validateNoIncompleteBuilders();
-        return (Finder<T>) this.searchDomain.finderFor(Collections.unmodifiableList(this.conditions));
+        return new MonitoringFinder(
+                (Finder<T>) this.searchDomain.finderFor(Collections.unmodifiableList(this.conditions)),
+                this.searchMonitor);
     }
 
     @Override
@@ -330,4 +337,48 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
             return this.condition;
         }
     }
+
+    private class MonitoringFinder implements Finder<T> {
+        private final Finder<T> actualFinder;
+        private final SearchMonitor searchMonitor;
+
+        private MonitoringFinder(Finder<T> actualFinder, SearchMonitor searchMonitor) {
+            this.actualFinder = actualFinder;
+            this.searchMonitor = searchMonitor;
+        }
+
+        public Finder<T> paged(int start, int pageSize) {
+            return this.actualFinder.paged(start, pageSize);
+        }
+
+        public Finder<T> sorted(String sortColumn, boolean ascending) {
+            return this.actualFinder.sorted(sortColumn, ascending);
+        }
+
+        public List<T> find() {
+            StopWatch stopWatch = new StopWatch();
+            List<T> result = this.actualFinder.find();
+            stopWatch.stop();
+            this.searchMonitor.searchExecuted(searchDomain, stopWatch.getElapsed());
+            return result;
+        }
+
+        public Subquery asSubQuery(String... fieldNames) {
+            return this.actualFinder.asSubQuery(fieldNames);
+        }
+
+        public SqlFragment asFragment(String... fieldNames) {
+            return this.actualFinder.asFragment(fieldNames);
+        }
+
+        @Override
+        public int count() {
+            StopWatch stopWatch = new StopWatch();
+            int result = this.actualFinder.count();
+            stopWatch.stop();
+            this.searchMonitor.countExecuted(searchDomain, stopWatch.getElapsed());
+            return result;
+        }
+    }
+
 }

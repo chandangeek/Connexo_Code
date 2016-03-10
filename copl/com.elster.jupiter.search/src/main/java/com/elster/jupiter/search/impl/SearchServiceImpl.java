@@ -14,6 +14,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import javax.inject.Inject;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +32,25 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class SearchServiceImpl implements SearchService, MessageSeedProvider {
 
-    private volatile OptionalServiceContainer<SearchDomain> searchProviders = new CopyOnWriteServiceContainer<>();
+    private final OptionalServiceContainer<SearchDomain> searchProviders = new CopyOnWriteServiceContainer<>();
+    private volatile SearchMonitor searchMonitor;
+
+    // For OSGi purposes
+    public SearchServiceImpl() {
+        super();
+    }
+
+    // For testing purposes
+    @Inject
+    public SearchServiceImpl(SearchMonitor searchMonitor) {
+        this();
+        this.setSearchMonitor(searchMonitor);
+    }
+
+    @Reference
+    public void setSearchMonitor(SearchMonitor searchMonitor) {
+        this.searchMonitor = searchMonitor;
+    }
 
     @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -78,7 +97,7 @@ public class SearchServiceImpl implements SearchService, MessageSeedProvider {
     @Override
     public SearchBuilder<Object> search(SearchDomain searchDomain) {
         validateRegisteredDomain(searchDomain);
-        return new SearchBuilderImpl<>(searchDomain);
+        return new SearchBuilderImpl<>(searchDomain, this.searchMonitor);
     }
 
     private void validateRegisteredDomain(SearchDomain searchDomain) {
@@ -94,4 +113,5 @@ public class SearchServiceImpl implements SearchService, MessageSeedProvider {
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
+
 }
