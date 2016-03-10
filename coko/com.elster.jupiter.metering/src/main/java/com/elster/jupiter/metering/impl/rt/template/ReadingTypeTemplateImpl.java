@@ -94,7 +94,8 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
         this.persistedAttributes.remove(attribute);
         this.allAttributes.remove(attribute);
         Save.CREATE.validate(this.dataModel, attribute);
-        if (possibleValues != null && possibleValues.length > 0 || code != null && (code != 0 || name.getDefinition().canBeWildcard())) { // do not persist default attributes
+        if (!attribute.getPossibleValues().isEmpty() || (attribute.getCode().isPresent()
+                && (attribute.getCode().get() != 0 || attribute.getName().getDefinition().canBeWildcard()))) { // do not persist default attributes
             this.persistedAttributes.add(attribute);
         }
         this.allAttributes.add(attribute);

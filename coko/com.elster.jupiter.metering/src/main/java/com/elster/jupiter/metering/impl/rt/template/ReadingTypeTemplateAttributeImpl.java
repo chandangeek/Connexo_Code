@@ -60,9 +60,6 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
         this.template.set(template);
         this.name = name;
         this.code = code;
-        if (this.code == null && !this.name.getDefinition().canBeWildcard()) {
-            this.code = 0;
-        }
         if (possibleValues != null && possibleValues.length > 0) {
             this.values.addAll(Arrays.stream(possibleValues)
                     .filter(Objects::nonNull)
@@ -70,7 +67,14 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
                     .map(value -> dataModel.getInstance(ReadingTypeTemplateAttributeValueImpl.class).init(this, value))
                     .collect(Collectors.toList()));
         }
+        if (this.code == null && !canHaveNullCode()) {
+            this.code = 0;
+        }
         return this;
+    }
+
+    private boolean canHaveNullCode() {
+        return !this.values.isEmpty() || this.name.getDefinition().canBeWildcard();
     }
 
     @Override
@@ -97,10 +101,10 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
                 .collect(Collectors.toList());
     }
 
-    private boolean validateCodeIsInAllowedCodes(ConstraintValidatorContext context, List<Integer> allowedCodes) {
-        if (this.code != null && !allowedCodes.isEmpty() && !allowedCodes.contains(this.code)) {
+    private boolean validateCodeIsNotEmpty(ConstraintValidatorContext context, ReadingTypeTemplateAttributeName.ReadingTypeAttribute<?> definition) {
+        if (this.code == null && !canHaveNullCode()) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}")
+            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.REQUIRED + "}")
                     .addPropertyNode(Fields.CODE.fieldName())
                     .addConstraintViolation();
             return false;
@@ -108,10 +112,10 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
         return true;
     }
 
-    private boolean validateCodeIsNotEmpty(ConstraintValidatorContext context, ReadingTypeTemplateAttributeName.ReadingTypeAttribute<?> definition) {
-        if (this.code == null && !definition.canBeWildcard()) {
+    private boolean validateCodeIsInAllowedCodes(ConstraintValidatorContext context, List<Integer> allowedCodes) {
+        if (this.code != null && !allowedCodes.isEmpty() && !allowedCodes.contains(this.code)) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.REQUIRED + "}")
+            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}")
                     .addPropertyNode(Fields.CODE.fieldName())
                     .addConstraintViolation();
             return false;
