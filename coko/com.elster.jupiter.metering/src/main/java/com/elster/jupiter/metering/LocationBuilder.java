@@ -1,9 +1,6 @@
 package com.elster.jupiter.metering;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.metering.impl.LocationBuilderImpl;
-import com.elster.jupiter.metering.impl.LocationBuilderImpl.LocationMemberBuilderImpl;
-
 import java.util.Optional;
 
 @ProviderType
@@ -15,7 +12,7 @@ public interface LocationBuilder {
     LocationBuilder named(String name);
 
     LocationMemberBuilder member();
-    Optional<LocationMemberBuilderImpl> getMember(String locale);
+    Optional<LocationMemberBuilder> getMember(String locale);
 
 
     /**
@@ -42,6 +39,7 @@ public interface LocationBuilder {
         String getLocale();
 
         LocationMemberBuilder named(String name);
+        LocationMember createMember();
 
         LocationBuilder add();
     }

@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
+import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.orm.DataModel;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,7 @@ public class LocationBuilderImpl implements LocationBuilder {
 
 
     private String name;
-    private List<LocationMemberBuilderImpl> members = new ArrayList<>();
+    private List<LocationMemberBuilder> members = new ArrayList<>();
 
 
     private final DataModel dataModel;
@@ -24,7 +25,7 @@ public class LocationBuilderImpl implements LocationBuilder {
     @Override
     public Location create() {
         LocationImpl location = LocationImpl.from(dataModel, name);
-        for (LocationMemberBuilderImpl member : members) {
+        for (LocationMemberBuilder member : members) {
             member.createMember();
         }
         location.doSave();
@@ -39,7 +40,7 @@ public class LocationBuilderImpl implements LocationBuilder {
 
 
 
-    public Optional<LocationMemberBuilderImpl> getMember(String locale) {
+    public Optional<LocationMemberBuilder> getMember(String locale) {
         return members.stream().filter(location -> location.getLocale().equalsIgnoreCase(locale))
                 .findFirst();
     }
@@ -50,7 +51,7 @@ public class LocationBuilderImpl implements LocationBuilder {
         return new LocationMemberBuilderImpl();
     }
 
-    public class LocationMemberBuilderImpl implements LocationMemberBuilder {
+    private class LocationMemberBuilderImpl implements LocationMemberBuilder {
 
         private String name;
         private long locationId;
@@ -184,7 +185,9 @@ public class LocationBuilderImpl implements LocationBuilder {
         public String getLocale(){
             return this.locale;
         }
-        LocationMemberImpl createMember() {
+
+        @Override
+        public LocationMember createMember() {
             return LocationMemberImpl
                     .from(dataModel,countryCode, countryName,administrativeArea,locality,subLocality,
                           streetType,streetName,streetNumber,establishmentType,establishmentName,

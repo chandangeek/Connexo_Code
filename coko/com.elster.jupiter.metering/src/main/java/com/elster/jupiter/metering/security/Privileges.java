@@ -22,10 +22,7 @@ public enum Privileges implements TranslationKey {
 	VIEW_SERVICECATEGORY(Constants.VIEW_SERVICECATEGORY, "View service categories"),
 
     ADMINISTER_METROLOGY_CONFIGURATION(Constants.ADMINISTER_METROLOGY_CONFIGURATION, "Administer metrology configuration"),
-    VIEW_METROLOGY_CONFIGURATION(Constants.VIEW_METROLOGY_CONFIGURATION, "View metrology configuration"),
-
-	ADMINISTER_LOCATION_CONFIGURATION(Constants.ADMINISTER_LOCATION_CONFIGURATION, "Administer location configuration"),
-	VIEW_LOCATION_CONFIGURATION(Constants.VIEW_LOCATION_CONFIGURATION, "View location configuration")
+    VIEW_METROLOGY_CONFIGURATION(Constants.VIEW_METROLOGY_CONFIGURATION, "View metrology configuration")
 	;
 
 	private final String key;
@@ -66,8 +63,6 @@ public enum Privileges implements TranslationKey {
         String VIEW_SERVICECATEGORY = "privilege.view.serviceCategory";
         String VIEW_METROLOGY_CONFIGURATION = "privilege.view.metrologyConfiguration";
         String ADMINISTER_METROLOGY_CONFIGURATION = "privilege.administer.metrologyConfiguration";
-		String ADMINISTER_LOCATION_CONFIGURATION ="privilege.administer.locationConfiguration";
-		String VIEW_LOCATION_CONFIGURATION = "privilege.view.locationConfiguration";
 		String ADMINISTER_USAGEPOINT_TIME_SLICED_CPS = "privilege.administer.usage.point.time.sliced.cps";
 	}
 }
