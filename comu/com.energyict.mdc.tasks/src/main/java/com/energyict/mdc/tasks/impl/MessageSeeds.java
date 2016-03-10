@@ -1,8 +1,7 @@
 package com.energyict.mdc.tasks.impl;
 
-import com.energyict.mdc.tasks.TaskService;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.tasks.TaskService;
 
 import java.util.logging.Level;
 
