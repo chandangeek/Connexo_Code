@@ -188,6 +188,7 @@
                 <module>../com.energyict.mdc.dynamic</module>
                 <module>../com.energyict.mdc.engine</module>
                 <module>../com.energyict.mdc.engine.config</module>
+                <module>../com.energyict.mdc.engine.monitor</module>
                 <module>../com.energyict.mdc.favorites</module>
                 <module>../com.energyict.mdc.firmware</module>
                 <module>../com.energyict.mdc.firmware.extjs</module>
