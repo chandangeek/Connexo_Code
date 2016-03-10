@@ -53,6 +53,9 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
                         me.getApplication().fireEvent('changecontentevent', widget);
                     }
                 });
+            },
+            callback: function () {
+                pageMainContent.setLoading(false);
             }
         });
     },

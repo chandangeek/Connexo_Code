@@ -1,8 +1,10 @@
 Ext.define('Mdc.privileges.UsagePoint', {
     requires: [
-        'Uni.Auth'
+        'Uni.Auth',
+        'Uni.store.Apps'
     ],
     singleton: true,
+    appsStoreLoaded: false,
 
     view: ['privilege.view.anyUsagePoint', 'privilege.view.ownUsagePoint', 'privilege.administer.ownUsagePoint', 'privilege.administer.anyUsagePoint'],
     admin: ['privilege.administer.ownUsagePoint', 'privilege.administer.anyUsagePoint'],
@@ -15,14 +17,20 @@ Ext.define('Mdc.privileges.UsagePoint', {
         return Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.view);
     },
 
-    canViewWithInsight: function () {
-        return !(this.checkApp('INS') && Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.view));
-    },
     canAdmin: function () {
         return Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.admin);
     },
     canAdminWithInsight: function () {
-        return !(this.checkApp('INS') && Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.admin));
+        var app = 'Insight';
+        Uni.store.Apps.load({
+            callback: function () {
+                if (!!Uni.store.Apps.findRecord('name', app)) {
+                    return false;
+                } else {
+                    return Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.admin);
+                }
+            }
+        });
     },
     canViewInInsight: function () {
         var result = false;
@@ -32,19 +40,5 @@ Ext.define('Mdc.privileges.UsagePoint', {
             }
         });
         return result;
-    },
-
-    checkApp: function (app) {
-        var status = false;
-        Ext.Ajax.request({
-            url: '/api/apps/apps/status/' + app,
-            method: 'GET',
-            async: false,
-            success: function (response) {
-                var data = Ext.JSON.decode(response.responseText);
-                status = data.status == 'ACTIVE';
-            }
-        });
-        return status;
     }
 });

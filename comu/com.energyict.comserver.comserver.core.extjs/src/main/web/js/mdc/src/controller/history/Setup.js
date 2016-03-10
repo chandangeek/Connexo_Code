@@ -15,13 +15,15 @@ Ext.define('Mdc.controller.history.Setup', {
                     title: Uni.I18n.translate('general.addUsagePoint', 'MDC', 'Add usage point'),
                     route: 'add',
                     controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
-                    //privileges: Mdc.privileges.UsagePoint.canAdminWithInsight(),
+                    privileges: Mdc.privileges.UsagePoint.admin,
+                    hideIfAppInstalled: 'Insight',
                     action: 'showAddUsagePoint'
                 },
                 usagepoint: {
                     title: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
-                    //privileges: Mdc.privileges.UsagePoint.canViewWithInsight(),
+                    privileges: Mdc.privileges.UsagePoint.view,
                     route: '{usagePointId}',
+                    hideIfAppInstalled: 'Insight',
                     controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
                     action: 'showUsagePoint',
                     callback: function (route) {
@@ -37,7 +39,8 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: Uni.I18n.translate('general.editUsagePoint', 'MDC', 'Edit usage point'),
                             route: 'edit',
                             controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
-                            //privileges: Mdc.privileges.UsagePoint.canAdminWithInsight(),
+                            privileges: Mdc.privileges.UsagePoint.admin,
+                            hideIfAppInstalled: 'Insight',
                             action: 'showEditUsagePoint',
                             callback: function (route) {
                                 this.getApplication().on('editUsagePointLoaded', function (record) {

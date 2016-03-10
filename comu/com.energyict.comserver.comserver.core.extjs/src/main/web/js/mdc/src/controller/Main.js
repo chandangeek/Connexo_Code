@@ -287,34 +287,31 @@ Ext.define('Mdc.controller.Main', {
         }
 
 
-        //if (Mdc.privileges.UsagePoint.canViewWithInsight()) {
+        if (Mdc.privileges.UsagePoint.canAdminWithInsight()) {
             var usagePointsMenuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.usagePoints', 'MDC', 'Usage points'),
                 href: '#/usagepoints',
-                glyph: 'devices',
+                glyph: 'usagepoints',
                 portal: 'usagepoints',
                 index: 20
             });
-
             Uni.store.MenuItems.add(usagePointsMenuItem);
 
-            //if (Mdc.privileges.UsagePoint.canAdminWithInsight()) {
-                var portalItem = Ext.create('Uni.model.PortalItem', {
-                    title: Uni.I18n.translate('general.usagePointManagement', 'MDC', 'Usage point management'),
-                    portal: 'usagepoints',
-                    route: 'usagepoints',
-                    items: [
-                        {
-                            text: Uni.I18n.translate('usagePointAdd.title', 'MDC', 'Add Usage point'),
-                            itemId: 'lnk-add-usagepoints',
-                            href: '#/usagepoints/add',
-                            route: 'add'
-                        }
-                    ]
-                });
+            var portalItem = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.usagePointManagement', 'MDC', 'Usage point management'),
+                portal: 'usagepoints',
+                route: 'usagepoints',
+                items: [
+                    {
+                        text: Uni.I18n.translate('usagePointAdd.title', 'MDC', 'Add Usage point'),
+                        itemId: 'lnk-add-usagepoints',
+                        href: '#/usagepoints/add',
+                        route: 'add'
+                    }
+                ]
+            });
+            Uni.store.PortalItems.add(portalItem);
 
-                Uni.store.PortalItems.add(portalItem);
-            //}
-        //}
+        }
     }
 });

@@ -44,7 +44,7 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointAttributesFormMain', {
                         renderer: function (value) {
                             var store = Ext.getStore('Mdc.usagepointmanagement.store.ServiceCategories'),
                                 record = store.findRecord('name', value);
-                            return record.get('displayName');
+                            return record ? record.get('displayName') : value;
                         }
                     },
                     {

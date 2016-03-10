@@ -40,7 +40,6 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                         this.hide();
                         return null;
                     }
-
                 }
             },
             {
@@ -135,15 +134,17 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 fieldLabel: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
                 usagePointLink: null,
                 renderer: function (value) {
+                    var appName = 'Insight',
+                        url;
                     if (value && (value.available || me.fullInfo)) {
                         this.show();
                         if (Ext.isEmpty(value.displayValue)) {
                             return '-'
                         } else {
-                            if (Mdc.privileges.UsagePoint.checkApp('INS')) {
+                            console.log(Uni.store.Apps.checkApp(appName));
+                            if (Uni.store.Apps.checkApp(appName)) {
                                 if (Mdc.privileges.UsagePoint.canViewInInsight()) {
-                                    //var url = me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: value.attributeId});
-                                    var url = '/apps/insight/index.html';
+                                    url = Ext.String.format('{0}/usagepoints/{1}', Uni.store.Apps.getAppUrl(appName), encodeURIComponent(value.displayValue));
                                     return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value.displayValue));
                                 }
                             } else {
@@ -153,15 +154,11 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                                 }
                             }
                             return Ext.String.htmlEncode(value.displayValue);
-
-                            //var url = me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: value.attributeId});
-                            //return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value.displayValue));
                         }
                     } else {
                         this.hide();
                         return null;
                     }
-
                 }
             },
             {
@@ -175,40 +172,35 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                         return '-'
                     }
                 }
-            }
-            ,
+            },
             {
                 xtype: 'deviceFormDateField',
                 name: 'shipmentDate',
                 itemId: 'fld-device-shipment-date',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.shipmentDate', 'MDC', 'Shipment date'),
                 fullInfo: me.fullInfo
-            }
-            ,
+            },
             {
                 xtype: 'deviceFormDateField',
                 name: 'installationDate',
                 itemId: 'fld-device-installation-date',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.installationDate', 'MDC', 'Installation date'),
                 fullInfo: me.fullInfo
-            }
-            ,
+            },
             {
                 xtype: 'deviceFormDateField',
                 name: 'deactivationDate',
                 itemId: 'fld-device-deactivation-date',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.deactivationDate', 'MDC', 'Deactivation date'),
                 fullInfo: me.fullInfo
-            }
-            ,
+            },
             {
                 xtype: 'deviceFormDateField',
                 name: 'decommissioningDate',
                 itemId: 'fld-device-decommission-date',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.decommissionDate', 'MDC', 'Decommissioning date'),
                 fullInfo: me.fullInfo
-            }
-            ,
+            },
             {
                 name: 'yearOfCertification',
                 itemId: 'fld-year-of-certification',
@@ -221,8 +213,7 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                         return '-'
                     }
                 }
-            }
-            ,
+            },
             {
                 name: 'batch',
                 itemId: 'fld-device-batch',
@@ -236,10 +227,7 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                     }
                 }
             }
-        ]
-        ;
-
+        ];
         me.callParent(arguments);
     }
-})
-;
+});
