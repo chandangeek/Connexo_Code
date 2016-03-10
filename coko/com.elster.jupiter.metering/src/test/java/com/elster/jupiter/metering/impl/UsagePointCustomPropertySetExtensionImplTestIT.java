@@ -87,8 +87,7 @@ public class UsagePointCustomPropertySetExtensionImplTestIT {
         return inMemoryBootstrapModule.getMeteringService()
                 .getServiceCategory(ServiceKind.ELECTRICITY)
                 .get()
-                .newUsagePoint(USAGE_POINT_MRID)
-                .withInstallationTime(Instant.EPOCH)
+                .newUsagePoint(USAGE_POINT_MRID, Instant.EPOCH)
                 .create();
     }
 

@@ -18,7 +18,6 @@ public class HeatDetailImpl extends UsagePointDetailImpl implements HeatDetail {
     private YesNoAnswer bypass;
     private BypassStatus bypassStatus;
     private YesNoAnswer valve;
-    private boolean interruptible;
 
     @Inject
     HeatDetailImpl(Clock clock, DataModel dataModel) {
@@ -59,11 +58,6 @@ public class HeatDetailImpl extends UsagePointDetailImpl implements HeatDetail {
         return valve;
     }
 
-    @Override
-    public boolean isInterruptible() {
-        return interruptible;
-    }
-
     public void setPressure(Quantity pressure) {
         this.pressure = pressure;
     }
@@ -82,9 +76,5 @@ public class HeatDetailImpl extends UsagePointDetailImpl implements HeatDetail {
 
     public void setValve(YesNoAnswer valve) {
         this.valve = valve;
-    }
-
-    public void setInterruptible(boolean interruptible) {
-        this.interruptible = interruptible;
     }
 }

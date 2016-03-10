@@ -1,23 +1,31 @@
 package com.elster.jupiter.metering;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.nls.HasTranslatableName;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.util.HasId;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.List;
 
 @ProviderType
 public interface ServiceCategory extends HasTranslatableName, HasAuditInfo, HasId {
+<<<<<<< HEAD
 
     String getAliasName();
 
     String getDescription();
 
     ServiceKind getKind();
+
+    UsagePointBuilder newUsagePoint(String mRID);
+=======
+	String getAliasName();
+	String getDescription();
+	ServiceKind getKind();
 
     /**
      * Creates a new UsagePoint for this ServiceCategory.
@@ -26,7 +34,8 @@ public interface ServiceCategory extends HasTranslatableName, HasAuditInfo, HasI
      * @param installationTime The time of installation of the new UsagePoint
      * @return The builder that allows you to specify optional information
      */
-    UsagePointBuilder newUsagePoint(String mRID, Instant installationTime);
+	UsagePointBuilder newUsagePoint(String mRID, Instant installationTime);
+>>>>>>> master
 
     UsagePointDetail newUsagePointDetail(UsagePoint usagePoint, Instant start);
 

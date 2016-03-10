@@ -28,8 +28,6 @@ public interface UsagePointBuilder {
 
     UsagePointBuilder withServiceLocationString(String serviceLocationString);
 
-    UsagePointBuilder withInstallationTime(Instant installationTime);
-
     UsagePoint create();
 
     UsagePoint validate();

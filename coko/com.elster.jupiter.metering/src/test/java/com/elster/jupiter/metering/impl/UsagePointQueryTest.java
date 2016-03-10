@@ -155,9 +155,7 @@ public class UsagePointQueryTest {
                 .setMainAddress(new StreetAddress(new StreetDetail("Stasegemsesteenweg","112"), new TownDetail("8500",  "Kortrijk", "BE")))
                 .setName("EnergyICT")
                 .create();
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID")
-                .withInstallationTime(Instant.EPOCH)
-                .withServiceLocation(location).create();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID", Instant.EPOCH).withServiceLocation(location).create();
         usagePoint.setServiceLocation(location);
         ElectricityDetailImpl detail = (ElectricityDetailImpl) serviceCategory.newUsagePointDetail(usagePoint, Instant.now());
         detail.setRatedPower(Unit.WATT_HOUR.amount(BigDecimal.valueOf(1000),3));
@@ -171,7 +169,7 @@ public class UsagePointQueryTest {
         query.setEager();
         assertThat(query.select(condition)).hasSize(1);
         for (int i = 0 ; i < 10 ; i++) {
-        	usagePoint = serviceCategory.newUsagePoint("mrID" + i).withInstallationTime(Instant.EPOCH).create();
+        	usagePoint = serviceCategory.newUsagePoint("mrID" + i, Instant.EPOCH).create();
         }
         assertThat(query.select(Condition.TRUE)).hasSize(11);
         assertThat(query.select(Condition.TRUE,1,5)).hasSize(5);

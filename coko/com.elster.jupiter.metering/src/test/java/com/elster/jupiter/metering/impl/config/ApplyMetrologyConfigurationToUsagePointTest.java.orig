@@ -120,9 +120,15 @@ public class ApplyMetrologyConfigurationToUsagePointTest {
             MeteringService mtrService = getMeteringService();
             MetrologyConfigurationService service = getMetrologyConfigurationService();
             ServiceCategory serviceCategory = mtrService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-            up = serviceCategory.newUsagePoint("UpdateMe", Instant.EPOCH).create();
+<<<<<<< HEAD
+            up = serviceCategory.newUsagePoint("UpdateMe").withInstallationTime(Instant.EPOCH).create();
             mc1 = service.newMetrologyConfiguration("First", serviceCategory).create();
             mc2 = service.newMetrologyConfiguration("Second", serviceCategory).create();
+=======
+            up = serviceCategory.newUsagePoint("UpdateMe", Instant.EPOCH).create();
+            mc1 = service.newMetrologyConfiguration("First");
+            mc2 = service.newMetrologyConfiguration("Second");
+>>>>>>> master
             context.commit();
             mc1Id = mc1.getId();
             mc2Id = mc2.getId();

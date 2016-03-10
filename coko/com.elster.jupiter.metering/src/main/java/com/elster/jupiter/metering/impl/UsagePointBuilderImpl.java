@@ -29,9 +29,10 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     private ServiceCategory serviceCategory;
     private ServiceLocation serviceLocation;
 
-    public UsagePointBuilderImpl(DataModel dataModel, String mRID, ServiceCategory serviceCategory) {
+    public UsagePointBuilderImpl(DataModel dataModel, String mRID, Instant installationTime, ServiceCategory serviceCategory) {
         this.serviceCategory = serviceCategory;
         this.mRID = mRID;
+        this.installationTime = installationTime;
         this.dataModel = dataModel;
     }
 
@@ -104,12 +105,6 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     @Override
     public UsagePointBuilder withServiceLocationString(String serviceLocationString) {
         this.serviceLocationString = serviceLocationString;
-        return this;
-    }
-
-    @Override
-    public UsagePointBuilder withInstallationTime(Instant installationTime) {
-        this.installationTime = installationTime;
         return this;
     }
 
