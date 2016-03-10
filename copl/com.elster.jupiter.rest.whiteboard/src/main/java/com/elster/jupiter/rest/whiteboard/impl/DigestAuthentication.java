@@ -1,21 +1,21 @@
 package com.elster.jupiter.rest.whiteboard.impl;
 
+import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import java.util.Optional;
 
 import org.osgi.service.http.HttpContext;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.DatatypeConverter;
-
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class DigestAuthentication implements Authentication {
 	private final UserService userService;
@@ -71,8 +71,8 @@ public class DigestAuthentication implements Authentication {
 		
     private boolean allow(HttpServletRequest request, Principal user) {
         request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
-        request.setAttribute(WhiteBoardConfiguration.USERPRINCIPAL, user);
-        request.setAttribute(HttpContext.REMOTE_USER, user.getName());
+		request.setAttribute(HttpAuthenticationService.USERPRINCIPAL, user);
+		request.setAttribute(HttpContext.REMOTE_USER, user.getName());
         return true;
     }
 

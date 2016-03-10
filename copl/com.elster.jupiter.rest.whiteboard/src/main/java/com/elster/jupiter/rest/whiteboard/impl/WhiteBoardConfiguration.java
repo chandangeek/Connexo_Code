@@ -7,8 +7,7 @@ class WhiteBoardConfiguration {
 	private static final String LOG = "log";
 	private static final String EVENT = "event";
 	private static final String AUTHENTICATION = "authentication";
-	static final String USERPRINCIPAL = "com.elster.jupiter.userprincipal";
-	
+
 	private final boolean debug;
 	private final boolean log;
 	private final boolean throwEvents;
