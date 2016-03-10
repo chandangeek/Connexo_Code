@@ -18,13 +18,7 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.conditions.Condition;
 
 import com.google.common.collect.ImmutableList;
-import oracle.AQ.AQDriverManager;
-import oracle.AQ.AQException;
-import oracle.AQ.AQQueue;
-import oracle.AQ.AQQueueProperty;
 import oracle.AQ.AQQueueTable;
-import oracle.AQ.AQQueueTableProperty;
-import oracle.AQ.AQSession;
 import oracle.jdbc.OracleConnection;
 import oracle.jms.AQjmsDestination;
 import oracle.jms.AQjmsDestinationProperty;
@@ -271,50 +265,6 @@ class DestinationSpecImpl implements DestinationSpec {
             }
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
-        }
-    }
-
-    public void createWesternShippingQueueTable() {
-        try (Connection connection = dataModel.getConnection(false)) {
-            AQSession aq_sess;
-            AQQueueTableProperty mqt_prop;
-            AQQueueTable mq_table;
-            AQQueueProperty q_prop;
-            AQQueue bookedorders_q;
-
-            /* Create an AQ Session: */
-            aq_sess = AQDriverManager.createAQSession(connection);
-
-
-            /* Create a priority queue table for WS */
-            mqt_prop = new AQQueueTableProperty("BOLADM.order_typ");
-            mqt_prop.setComment("Western Shipping Priority MultiConsumer Orders queue table");
-            mqt_prop.setCompatible("8.1");
-            mqt_prop.setMultiConsumer(true);
-            mqt_prop.setSortOrder("priority,enq_time");
-
-            mq_table = aq_sess.createQueueTable("WS", "WS_orders_pr_mqtab",
-                    mqt_prop);
-
-            /* Booked orders are stored in the priority queue table: */
-            q_prop = new AQQueueProperty();
-
-            bookedorders_q = aq_sess.createQueue(mq_table, "WS_bookedorders_que", q_prop);
-
-            /* Start the queue */
-            bookedorders_q.start(true, true);
-
-
-
-  /* At each region, the shipping application dequeues orders from the
-     regional booked order queue according to the orders' shipping priorities,
-     processes the orders, and enqueues the processed orders into the shipped
-     orders queues or the back orders queues.
-   */
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (AQException ex) {
-            System.out.println("AQ Exception: " + ex);
         }
     }
 
