@@ -62,6 +62,7 @@ public class ConnexoLauncher {
         }
         if (install) {
             interactive = false;
+            configMap.put("admin.password", args[args.length - 1]);
             configMap.put("install.dir", installDir.getAbsolutePath());
         }
         if (!interactive) {
@@ -132,7 +133,8 @@ public class ConnexoLauncher {
     }
 
     private static void initAll() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        ServiceReference serviceReference = framework.getBundleContext().getServiceReference("com.elster.jupiter.install.InstallerService");
+        ServiceReference serviceReference = framework.getBundleContext()
+                .getServiceReference("com.elster.jupiter.install.InstallerService");
         if (serviceReference != null) {
             Object installService = framework.getBundleContext().getService(serviceReference);
             System.out.println("Installing database schema !");
@@ -140,7 +142,6 @@ public class ConnexoLauncher {
             System.out.println("Database installation finished.");
         }
     }
-
 
     private static Map<String, String> loadConfig(File rootDir) throws IOException {
         Properties props = new Properties();
