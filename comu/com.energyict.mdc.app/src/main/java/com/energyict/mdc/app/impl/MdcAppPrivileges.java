@@ -161,10 +161,6 @@ class MdcAppPrivileges {
                 com.elster.jupiter.cps.Privileges.Constants.EDIT_CUSTOM_PROPERTIES_3,
                 com.elster.jupiter.cps.Privileges.Constants.EDIT_CUSTOM_PROPERTIES_4);
 
-                //com.elster.jupiter.metering.security - devices
-                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_LOCATION_CONFIGURATION;
-                com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_LOCATION_CONFIGURATION;
-
 
 
     }
