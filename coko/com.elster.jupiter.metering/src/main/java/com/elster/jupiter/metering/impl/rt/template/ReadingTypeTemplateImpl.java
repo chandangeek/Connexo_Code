@@ -46,7 +46,7 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     private Instant modTime;
     private String userName;
 
-    private Set<ReadingTypeTemplateAttribute> allAttributes;
+    private Set<ReadingTypeTemplateAttribute> allAttributes = new TreeSet<>(Comparator.comparing(ReadingTypeTemplateAttribute::getName));
 
     @Inject
     public ReadingTypeTemplateImpl(DataModel dataModel) {
@@ -55,18 +55,17 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
 
     public ReadingTypeTemplateImpl init(String name) {
         this.name = name;
+        postLoad();
         return this;
     }
 
     @Override
     public void postLoad() {
-        this.allAttributes = new TreeSet<>(Comparator.comparing(ReadingTypeTemplateAttribute::getName));
         Set<ReadingTypeTemplateAttributeName> attributeNames = EnumSet.allOf(ReadingTypeTemplateAttributeName.class);
         this.allAttributes.addAll(this.persistedAttributes);
         this.persistedAttributes.stream().forEach(attr -> attributeNames.remove(attr.getName()));
         for (ReadingTypeTemplateAttributeName attributeName : attributeNames) {
-            this.allAttributes.add(dataModel.getInstance(ReadingTypeTemplateAttributeImpl.class)
-                    .init(this, attributeName, 0, true));
+            this.allAttributes.add(dataModel.getInstance(ReadingTypeTemplateAttributeImpl.class).init(this, attributeName, null));
         }
     }
 
@@ -86,11 +85,11 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     }
 
     @Override
-    public ReadingTypeTemplate setAttribute(ReadingTypeTemplateAttributeName name, int code, boolean canBeAny, Integer... possibleValues) {
+    public ReadingTypeTemplate setAttribute(ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues) {
         ReadingTypeTemplateAttributeImpl attribute = dataModel.getInstance(ReadingTypeTemplateAttributeImpl.class)
-                .init(this, name, code, canBeAny, possibleValues);
+                .init(this, name, code, possibleValues);
         this.persistedAttributes.remove(attribute);
-        if (code != 0 || !canBeAny) { // do not persist default attributes
+        if (possibleValues != null && possibleValues.length > 0 && code != null && code != 0) { // do not persist default attributes
             this.persistedAttributes.add(attribute);
         }
         this.allAttributes.add(attribute);

@@ -912,12 +912,6 @@ public enum TableSpecs {
                     .notNull()
                     .map(ReadingTypeTemplateAttributeImpl.Fields.NAME.fieldName())
                     .add();
-            table.column(ReadingTypeTemplateAttributeImpl.Fields.ANY_VALUE.name())
-                    .varChar(1)
-                    .conversion(CHAR2BOOLEAN)
-                    .notNull()
-                    .map(ReadingTypeTemplateAttributeImpl.Fields.ANY_VALUE.fieldName())
-                    .add();
             table.column(ReadingTypeTemplateAttributeImpl.Fields.CODE.name())
                     .number()
                     .map(ReadingTypeTemplateAttributeImpl.Fields.CODE.fieldName())

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -23,7 +24,6 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
         ID("id"),
         TEMPLATE("template"),
         NAME("name"),
-        ANY_VALUE("canBeAny"),
         CODE("code"),
         POSSIBLE_VALUES("values");
         private String javaFieldName;
@@ -44,8 +44,7 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
     private Reference<ReadingTypeTemplate> template = ValueReference.absent();
     @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private ReadingTypeTemplateAttributeName name;
-    private boolean canBeAny;
-    private int code;
+    private Integer code;
     private List<ReadingTypeTemplateAttributeValueImpl> values = new ArrayList<>();
 
     @Inject
@@ -53,12 +52,14 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
         this.dataModel = dataModel;
     }
 
-    public ReadingTypeTemplateAttributeImpl init(ReadingTypeTemplate template, ReadingTypeTemplateAttributeName name, int code, boolean canBeAny, Integer... possibleValues) {
+    public ReadingTypeTemplateAttributeImpl init(ReadingTypeTemplate template, ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues) {
         this.template.set(template);
         this.name = name;
         this.code = code;
-        this.canBeAny = canBeAny;
-        if (canBeAny && possibleValues != null && possibleValues.length > 0) {
+        if (this.code == null && !this.name.canBeWildcard()) {
+            this.code = 0;
+        }
+        if (possibleValues != null && possibleValues.length > 0) {
             this.values.addAll(Arrays.stream(possibleValues)
                     .filter(Objects::nonNull)
                     .map(value -> dataModel.getInstance(ReadingTypeTemplateAttributeValueImpl.class).init(this, value))
@@ -73,19 +74,14 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
     }
 
     @Override
-    public boolean canBeAny() {
-        return this.canBeAny;
-    }
-
-    @Override
-    public int getCode() {
-        return this.code;
+    public Optional<Integer> getCode() {
+        return Optional.ofNullable(this.code);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<Integer> getPossibleValues() {
-        if (canBeAny()) {
+        if (this.values.isEmpty()) {
             Function<Object, Integer> valueToCodeConverter = (Function<Object, Integer>) getName().getValueToCodeConverter();
             return getName().getPossibleValues()
                     .stream()
@@ -123,8 +119,8 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
     }
 
     String getAttributeAsString() {
-        return canBeAny()
-                ? String.valueOf(getCode())
+        return this.values.isEmpty()
+                ? getCode().isPresent() ? String.valueOf(getCode().get()) : "*"
                 : "(" + getPossibleValues().stream().map(String::valueOf).collect(Collectors.joining("|")) + ")";
     }
 }

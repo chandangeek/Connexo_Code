@@ -35,6 +35,8 @@ public class ReadingTypeTemplateImplTestIT {
     public void createEmptyTemplate() {
         String name = "Empty";
         ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate(name);
+        System.out.println("Template: " + template);
+
         assertThat(template.getId()).isGreaterThan(0);
         assertThat(template.getName()).isEqualTo(name);
     }
