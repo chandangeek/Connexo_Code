@@ -89,7 +89,8 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
         ReadingTypeTemplateAttributeImpl attribute = dataModel.getInstance(ReadingTypeTemplateAttributeImpl.class)
                 .init(this, name, code, possibleValues);
         this.persistedAttributes.remove(attribute);
-        if (possibleValues != null && possibleValues.length > 0 && code != null && code != 0) { // do not persist default attributes
+        this.allAttributes.remove(attribute);
+        if (possibleValues != null && possibleValues.length > 0 || code != null && (code != 0 || name.canBeWildcard())) { // do not persist default attributes
             this.persistedAttributes.add(attribute);
         }
         this.allAttributes.add(attribute);
@@ -107,5 +108,10 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
 
     public void save() {
         this.dataModel.persist(this);
+    }
+
+    @Override
+    public long getVersion() {
+        return this.version;
     }
 }

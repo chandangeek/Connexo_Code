@@ -20,4 +20,6 @@ public interface ReadingTypeTemplate extends HasId, HasName {
      * @return the template
      */
     ReadingTypeTemplate setAttribute(ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues);
+
+    long getVersion();
 }
