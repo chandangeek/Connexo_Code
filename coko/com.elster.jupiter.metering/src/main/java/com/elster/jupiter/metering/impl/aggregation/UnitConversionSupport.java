@@ -107,7 +107,11 @@ public class UnitConversionSupport {
      * @return A flag that indicates if both Dimension are compatible or not
      */
     public static boolean areCompatibleForAutomaticUnitConversion(Dimension first, Dimension second) {
-        return (isVolumeRelated(first) && isFlowRelated(second))
+        if ((first.hasSameDimensions(Dimension.DIMENSIONLESS)) || (second.hasSameDimensions(Dimension.DIMENSIONLESS))) {
+            return true;
+        }
+        return ((first.hasSameDimensions(Dimension.DIMENSIONLESS)) || (second.hasSameDimensions(Dimension.DIMENSIONLESS))) ||
+                (isVolumeRelated(first) && isFlowRelated(second))
                 || (isFlowRelated(first) && isVolumeRelated(second))
                 || (first.hasSameDimensions(second));
     }
@@ -249,11 +253,13 @@ public class UnitConversionSupport {
 
 
     public static boolean isAllowedMultiplication(Dimension first, Dimension second) {
-        return isAllowedMultiplicationOrDivision(first, second, true);
+        return ((first.hasSameDimensions(Dimension.DIMENSIONLESS)) || (second.hasSameDimensions(Dimension.DIMENSIONLESS))) ||
+                isAllowedMultiplicationOrDivision(first, second, true);
     }
 
     public static boolean isAllowedDivision(Dimension first, Dimension second) {
-        return isAllowedMultiplicationOrDivision(first, second, false);
+        return ((first.hasSameDimensions(Dimension.DIMENSIONLESS)) || (second.hasSameDimensions(Dimension.DIMENSIONLESS))) ||
+                isAllowedMultiplicationOrDivision(first, second, false);
     }
 
     private static boolean isAllowedMultiplicationOrDivision(Dimension first, Dimension second, boolean multiplication) {
