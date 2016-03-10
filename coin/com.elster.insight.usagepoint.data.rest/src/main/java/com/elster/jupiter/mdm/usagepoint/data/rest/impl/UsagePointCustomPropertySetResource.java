@@ -1,6 +1,11 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.cps.*;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.OverlapCalculatorBuilder;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.ValuesRangeConflict;
+import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.cps.rest.ValuesRangeConflictInfo;
@@ -10,6 +15,7 @@ import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
@@ -20,17 +26,27 @@ import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class UsagePointCustomPropertySetResource {
+    private static final String PRIVILEGE_EDITABLE_CPS = "privilege.edit.usage.point.cps";
 
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
     private final ResourceHelper resourceHelper;
@@ -157,6 +173,26 @@ public class UsagePointCustomPropertySetResource {
         return info;
     }
 
+    @GET
+    @Path("/{rcpsId}/privileges")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response getCustomPropertySetPrivileges(@PathParam("mrid") String usagePointMrid,
+                                                   @PathParam("rcpsId") long rcpsId,
+                                                   @BeanParam JsonQueryParameters queryParameters) {
+        UsagePointPropertySet propertySet = resourceHelper
+                .findUsagePointByMrIdOrThrowException(usagePointMrid)
+                .forCustomProperties()
+                .getPropertySet(rcpsId);
+
+        List<IdWithNameInfo> privileges = (propertySet.isEditableByCurrentUser()
+                ? Collections.singletonList(PRIVILEGE_EDITABLE_CPS)
+                : Collections.<String>emptyList())
+                .stream()
+                .map(privilege -> new IdWithNameInfo(null, privilege))
+                .collect(Collectors.toList());
+        return Response.ok(PagedInfoList.fromCompleteList("privileges", privileges, queryParameters)).build();
+    }
+
     @PUT
     @Path("/{rcpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -207,6 +243,7 @@ public class UsagePointCustomPropertySetResource {
                 .stream()
                 .map(value -> customPropertySetInfoFactory.getFullInfo(versionedPropertySet, value))
                 .collect(Collectors.toList());
+        Collections.reverse(versions);
         return PagedInfoList.fromCompleteList("versions", versions, queryParameters);
     }
 

@@ -16,7 +16,6 @@ public class HeatUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
     public YesNoAnswer bypass;
     public BypassStatus bypassStatus;
     public YesNoAnswer valve;
-    public boolean interruptible;
 
     public HeatUsagePointDetailsInfo() {
     }
@@ -28,7 +27,6 @@ public class HeatUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
         this.bypass = detail.isBypassInstalled();
         this.bypassStatus = detail.getBypassStatus();
         this.valve = detail.isValveInstalled();
-        this.interruptible = detail.isInterruptible();
     }
 
     @Override
@@ -44,7 +42,6 @@ public class HeatUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
                 .withPhysicalCapacity(physicalCapacity)
                 .withBypass(bypass)
                 .withBypassStatus(bypassStatus)
-                .withValve(valve)
-                .withInterruptible(interruptible);
+                .withValve(valve);
     }
 }

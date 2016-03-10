@@ -29,6 +29,11 @@ public class ResourceHelper {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mrid));
     }
 
+    public UsagePoint findUsagePointByIdOrThrowException(long id) {
+        return meteringService.findUsagePoint(id)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_ID, id));
+    }
+
     public ReadingType findReadingTypeByMrIdOrThrowException(String rt_mrid) {
         return meteringService.getReadingType(rt_mrid).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_READING_TYPE_FOR_MRID, rt_mrid));
     }

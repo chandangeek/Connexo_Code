@@ -11,7 +11,10 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+<<<<<<< HEAD
+=======
 import com.elster.jupiter.metering.UsagePointPropertySet;
+>>>>>>> master
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -19,12 +22,21 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+<<<<<<< HEAD
 import com.elster.jupiter.rest.util.ListPager;
+=======
+>>>>>>> master
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
+<<<<<<< HEAD
+import com.elster.jupiter.users.User;
+
+import com.google.common.collect.Range;
+=======
+>>>>>>> master
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -33,11 +45,18 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+<<<<<<< HEAD
+=======
 import javax.ws.rs.PUT;
+>>>>>>> master
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+<<<<<<< HEAD
+import javax.ws.rs.WebApplicationException;
+=======
+>>>>>>> master
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -47,6 +66,10 @@ import java.time.Clock;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+<<<<<<< HEAD
+import java.util.Optional;
+=======
+>>>>>>> master
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -128,6 +151,8 @@ public class UsagePointResource {
         return queryService.wrap(query).select(queryParameters);
     }
 
+<<<<<<< HEAD
+=======
     @PUT
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -140,6 +165,7 @@ public class UsagePointResource {
         return usagePointInfoFactory.from(usagePoint);
     }
 
+>>>>>>> master
     @GET
     @Path("/{mrid}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -187,7 +213,7 @@ public class UsagePointResource {
             if (step == 1) {
                 usagePointInfoFactory.newUsagePointBuilder(info).validate();
             } else if (step == 2) {
-                if (info.techInfo == null) {
+                if(info.techInfo==null){
                     throw exceptionFactory.newException(MessageSeeds.NO_SUCH_TECHNICAL_INFO, info.serviceCategory);
                 }
                 info.techInfo.getUsagePointDetailBuilder(usagePointInfoFactory.newUsagePointBuilder(info)
@@ -221,9 +247,9 @@ public class UsagePointResource {
         return Response.status(Response.Status.CREATED).entity(usagePointInfoFactory.from(usagePoint)).build();
     }
 
-    private void validateSeviceKind(String serviceKindString) {
-        if (Arrays.stream(ServiceKind.values()).allMatch(sk -> !sk.name().equals(serviceKindString))) {
-            throw new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_SERVICE_CATEGORY, "serviceCategory");
+    private void validateSeviceKind(String serviceKindString){
+        if (Arrays.stream(ServiceKind.values()).allMatch(sk -> !sk.name().equals(serviceKindString))){
+            throw new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_SERVICE_CATEGORY,"serviceCategory");
         }
     }
 
