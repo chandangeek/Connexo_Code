@@ -80,6 +80,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private volatile ThreadPrincipalService threadPrincipalService;
     private List<User> loggedInUsers = new CopyOnWriteArrayList<>();
     private volatile DataVaultService dataVaultService;
+    private volatile BundleContext bundleContext;
 
 
     private static final String TRUSTSTORE_PATH = "com.elster.jupiter.users.truststore";
@@ -127,6 +128,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     public void activate(BundleContext context) {
         if (context != null) {
             setTrustStore(context);
+            bundleContext = context;
         }
         dataModel.register(new AbstractModule() {
             @Override
@@ -305,6 +307,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Deactivate
     public void deactivate() {
+        bundleContext = null;
     }
 
     @Override
@@ -518,7 +521,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                 doInstallPrivileges(this);
             }
             installPrivileges();
-            installer.addDefaults();
+            installer.addDefaults(bundleContext != null ? bundleContext.getProperty("admin.password") : null);
         }
     }
 

@@ -12,6 +12,7 @@ import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserPreference;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
@@ -85,7 +86,8 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column authenticationNameColumn = table.column("AUTHNAME").varChar(NAME_LENGTH).notNull().map("authenticationName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
-            table.column("HA1").type("varchar2(32)").map("ha1").add();
+            table.column("HA1").type("varchar2(65)").map("ha1").add();
+            table.column("SALT").number().conversion(NUMBER2INT).map("salt").add();
             table.column("LANGUAGETAG").type("varchar2(64)").map("languageTag").add();
             Column userDirColumn = table.column("USER_DIRECTORY").number().notNull().add();
             table.column("Active").type("char(1)").conversion(CHAR2BOOLEAN).map("status").add();
