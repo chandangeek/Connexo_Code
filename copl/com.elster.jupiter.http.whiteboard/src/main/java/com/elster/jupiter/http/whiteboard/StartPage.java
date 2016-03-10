@@ -1,8 +1,11 @@
 package com.elster.jupiter.http.whiteboard;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 import java.util.Map;
 
+@ProviderType
 public interface StartPage {
 	String getHtmlPath();
 	String getIconPath();

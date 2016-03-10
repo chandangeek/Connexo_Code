@@ -1,4 +1,4 @@
-package com.elster.jupiter.http.whiteboard;
+package com.elster.jupiter.http.whiteboard.impl;
 
 public class RoleClaimInfo {
     public RoleClaimInfo(long id, String name) {
