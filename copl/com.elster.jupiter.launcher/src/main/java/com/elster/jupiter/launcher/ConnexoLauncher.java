@@ -62,6 +62,7 @@ public class ConnexoLauncher {
         }
         if (install) {
             interactive = false;
+            configMap.put("install.dir", installDir.getAbsolutePath());
         }
         if (!interactive) {
             configMap.put("gosh.args", "--nointeractive");
