@@ -25,7 +25,7 @@ import java.util.StringTokenizer;
  * Date: 19/11/13
  * Time: 09:52
  */
-@Component(name = "com.energyict.mdc.service.licensedprotocols", service = LicensedProtocolService.class, immediate = true)
+@Component(name = "com.energyict.mdc.service.licensedtestprotocols", service = LicensedProtocolService.class, immediate = true)
 public class LicensedProtocolServiceImpl implements LicensedProtocolService {
 
     @Override
