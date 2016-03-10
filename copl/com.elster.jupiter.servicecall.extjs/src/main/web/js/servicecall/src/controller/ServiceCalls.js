@@ -95,10 +95,7 @@ Ext.define('Scs.controller.ServiceCalls', {
             store = Ext.getStore('Scs.store.ServiceCalls'),
             logStore = Ext.getStore('Scs.store.Logs'),
             view,
-            servicecallIds = Array.prototype.slice.call(arguments),
-            servicecallId = arguments[arguments.length - 1],
-            parentsIdArray = [],
-            parentsNameArray = [];
+            servicecallId = arguments[arguments.length - 1];
         if (servicecallId) {
             store.setProxy({
                 type: 'rest',
@@ -230,20 +227,5 @@ Ext.define('Scs.controller.ServiceCalls', {
             case 'retry':
                 break;
         }
-    },
-
-    /*isEqual: function (array1, array2) {
-        var i;
-        if (array1.length !== array2.length) {
-            return false;
-        }
-
-        for (i = 0; i < array1.length; i++) {
-            if (array1[i] !== array2[i]) {
-                return false;
-            }
-        }
-
-        return true;
-    }*/
+    }
 });

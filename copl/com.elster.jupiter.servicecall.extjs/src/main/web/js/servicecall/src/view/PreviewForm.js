@@ -11,7 +11,7 @@ Ext.define('Scs.view.PreviewForm', {
         type: 'column'
     },
     defaults: {
-        //labelWidth: 250
+        labelWidth: 250
     },
     initComponent: function () {
         var me = this;

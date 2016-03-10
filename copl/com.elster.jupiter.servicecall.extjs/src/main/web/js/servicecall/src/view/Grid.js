@@ -49,7 +49,7 @@ Ext.define('Scs.view.Grid', {
             }/*,
             {
                 xtype: 'uni-actioncolumn',
-               // privileges: Apr.privileges.AppServer.admin,
+               // privileges: Scs.privileges.ServiceCall.admin,
                 menu: {
                     xtype: 'scs-action-menu',
                     itemId: 'scs-action-menu'

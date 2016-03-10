@@ -24,7 +24,6 @@ Ext.define('Scs.view.ServiceCallPreviewContainer', {
 
     initComponent: function () {
         var me = this;
-        //me.title =  me.title === 'none' ? '' : Uni.I18n.translate('general.serviceCalls', 'SCS', 'Service calls');
         me.grid = {
             xtype: 'servicecalls-grid',
             itemId: 'grd-service-calls',

@@ -20,7 +20,7 @@ Ext.define('Scs.view.Landing', {
                     tools: [
                         {
                             xtype: 'button',
-                            //privileges: Apr.privileges.AppServer.admin,
+                            privileges: Scs.privileges.ServiceCall.admin,
                             text: Uni.I18n.translate('general.actions', 'SCS', 'Actions'),
                             iconCls: 'x-uni-action-iconD',
                             margin: '20 0 0 0',

@@ -57,21 +57,6 @@ Ext.define('Scs.view.SetupOverview', {
 
                     ]
                 }
-                /*,
-                {
-                    xtype: 'tabpanel',
-                    ui: 'large',
-                    title: Uni.I18n.translate('general.specifications', 'SCS', 'Specifications'),
-                    itemId: 'service-call-grid-tab2',
-                    items: [
-                        {
-                            xtype: 'container',
-                            layout: 'hbox',
-                            title: Uni.I18n.translate('general.overview', 'SCS', 'Overview'),
-                            items: []
-                        }
-                    ]
-                }*/
             ]
         };
 
