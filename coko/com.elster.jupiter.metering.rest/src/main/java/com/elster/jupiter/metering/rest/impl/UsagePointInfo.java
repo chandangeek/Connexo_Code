@@ -16,8 +16,6 @@ public class UsagePointInfo {
     public ServiceKind serviceCategory;
     public String mRID;
     public String name;
-    public boolean isSdp;
-    public boolean isVirtual;
     public Long installationTime;
     public long version;
     public long createTime;
@@ -31,8 +29,6 @@ public class UsagePointInfo {
         mRID = usagePoint.getMRID();
         serviceCategory = usagePoint.getServiceCategory().getKind();
         name = usagePoint.getName();
-        isSdp = usagePoint.isSdp();
-        isVirtual = usagePoint.isVirtual();
         installationTime = usagePoint.getInstallationTime().getEpochSecond();
         version = usagePoint.getVersion();
         createTime = usagePoint.getCreateDate().toEpochMilli();

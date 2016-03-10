@@ -1,49 +1,23 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -54,13 +28,19 @@ public class UsagePointResource {
     private final TransactionService transactionService;
     private final Clock clock;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final UsagePointInfoFactory usagePointInfoFactory;
 
     @Inject
-    public UsagePointResource(MeteringService meteringService, TransactionService transactionService, Clock clock, ConcurrentModificationExceptionFactory conflictFactory) {
+    public UsagePointResource(MeteringService meteringService,
+                              TransactionService transactionService,
+                              Clock clock,
+                              ConcurrentModificationExceptionFactory conflictFactory,
+                              UsagePointInfoFactory usagePointInfoFactory) {
         this.meteringService = meteringService;
         this.transactionService = transactionService;
         this.clock = clock;
         this.conflictFactory = conflictFactory;
+        this.usagePointInfoFactory = usagePointInfoFactory;
     }
 
     @GET
@@ -111,9 +91,16 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public UsagePointInfos createUsagePoint(UsagePointInfo info) {
-        UsagePointInfos result = new UsagePointInfos();
-        throw new UnsupportedOperationException("not implemented yet");
+    @Transactional
+    public UsagePointInfo createUsagePoint(UsagePointInfo info) {
+
+        new RestValidationBuilder()
+                .notEmpty(info.mRID, "mRID")
+                .notEmpty(info.installationTime, "installationTime")
+                .notEmpty(info.serviceCategory, "serviceCategory")
+                .validate();
+        UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
+        return new UsagePointInfo(usagePoint, clock);
     }
 
     @GET
