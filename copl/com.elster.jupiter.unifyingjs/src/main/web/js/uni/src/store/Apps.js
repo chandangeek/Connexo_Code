@@ -7,6 +7,8 @@ Ext.define('Uni.store.Apps', {
     storeId: 'apps',
     singleton: true,
     autoLoad: false,
+    storeLoaded: false,
+
 
     proxy: {
         type: 'ajax',
@@ -22,5 +24,22 @@ Ext.define('Uni.store.Apps', {
             property: 'name',
             direction: 'ASC'
         }
-    ]
+    ],
+
+    listeners : {
+        load: function(){
+            this.storeLoaded = true;
+        }
+    },
+
+    checkApp: function(appName){
+        var record = this.findRecord('name', appName);
+        return !!record;
+    },
+
+    getAppUrl: function(appName){
+        var url = null,
+        record = this.findRecord('name', appName);
+        return record ? record.get('url') : this.findRecord('name', "Admin");
+    }
 });
