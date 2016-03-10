@@ -31,6 +31,11 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
 import com.elster.jupiter.metering.impl.config.ServiceCategoryMeterRoleUsage;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationImpl;
+import com.elster.jupiter.metering.impl.rt.template.ReadingTypeTemplate;
+import com.elster.jupiter.metering.impl.rt.template.ReadingTypeTemplateAttribute;
+import com.elster.jupiter.metering.impl.rt.template.ReadingTypeTemplateAttributeImpl;
+import com.elster.jupiter.metering.impl.rt.template.ReadingTypeTemplateAttributeValueImpl;
+import com.elster.jupiter.metering.impl.rt.template.ReadingTypeTemplateImpl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -43,6 +48,7 @@ import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUMPLUSONE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
@@ -455,9 +461,9 @@ public enum TableSpecs {
                     .add();
             table.unique("MTR_U_READINGQUALITY").on(channelColumn, timestampColumn, typeColumn, readingTypeColumn).add();
             table
-                .index("MTR_READINGQUALITY_VAL_OVERVW")
-                .on(channelColumn, typeColumn, actual)
-                .add();
+                    .index("MTR_READINGQUALITY_VAL_OVERVW")
+                    .on(channelColumn, typeColumn, actual)
+                    .add();
         }
     },
     MTR_ENDDEVICEEVENTTYPE {
@@ -871,7 +877,95 @@ public enum TableSpecs {
                     .add();
         }
     },
+    MTR_RT_TEMPLATE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), ReadingTypeTemplate.class);
+            table.map(ReadingTypeTemplateImpl.class);
 
+            Column idColumn = table
+                    .column(ReadingTypeTemplateImpl.Fields.ID.name())
+                    .number()
+                    .notNull()
+                    .map(ReadingTypeTemplateImpl.Fields.ID.fieldName())
+                    .add();
+            table.column(ReadingTypeTemplateImpl.Fields.NAME.name())
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(ReadingTypeTemplateImpl.Fields.NAME.fieldName())
+                    .add();
+
+            table.primaryKey("MTR_RT_TEMPLATE_PK").on(idColumn).add();
+        }
+    },
+    MTR_RT_TEMPLATE_ATTR {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), ReadingTypeTemplateAttribute.class);
+            table.map(ReadingTypeTemplateAttributeImpl.class);
+
+            Column templateColumn = table
+                    .column(ReadingTypeTemplateAttributeImpl.Fields.TEMPLATE.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column nameColumn = table.column(ReadingTypeTemplateAttributeImpl.Fields.NAME.name())
+                    .number()
+                    .conversion(NUMBER2ENUM)
+                    .notNull()
+                    .map(ReadingTypeTemplateAttributeImpl.Fields.NAME.fieldName())
+                    .add();
+            table.column(ReadingTypeTemplateAttributeImpl.Fields.ANY_VALUE.name())
+                    .varChar(1)
+                    .conversion(CHAR2BOOLEAN)
+                    .notNull()
+                    .map(ReadingTypeTemplateAttributeImpl.Fields.ANY_VALUE.fieldName())
+                    .add();
+            table.column(ReadingTypeTemplateAttributeImpl.Fields.CODE.name())
+                    .number()
+                    .map(ReadingTypeTemplateAttributeImpl.Fields.CODE.fieldName())
+                    .add();
+
+            table.primaryKey("MTR_RT_TEMPLATE_ATTR_PK").on(templateColumn, nameColumn).add();
+            table.foreignKey("FK_TEMPLATE_ATTR_TO_TEMPLATE")
+                    .references(ReadingTypeTemplate.class)
+                    .on(templateColumn)
+                    .onDelete(CASCADE)
+                    .map(ReadingTypeTemplateAttributeImpl.Fields.TEMPLATE.fieldName())
+                    .reverseMap(ReadingTypeTemplateImpl.Fields.ATTRIBUTES.fieldName())
+                    .composition()
+                    .add();
+        }
+    },
+    MTR_RT_TEMPLATE_ATTR_VALUE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), ReadingTypeTemplateAttributeValueImpl.class);
+            table.map(ReadingTypeTemplateAttributeValueImpl.class);
+
+            Column attrColumn = table
+                    .column(ReadingTypeTemplateAttributeValueImpl.Fields.ATTRIBUTE.name())
+                    .number()
+                    .notNull()
+                    .map(ReadingTypeTemplateAttributeValueImpl.Fields.ATTRIBUTE.fieldName())
+                    .add();
+            Column valueColumn = table.column(ReadingTypeTemplateAttributeValueImpl.Fields.CODE.name())
+                    .number()
+                    .notNull()
+                    .map(ReadingTypeTemplateAttributeValueImpl.Fields.CODE.fieldName())
+                    .add();
+
+            table.primaryKey("MTR_RT_TEMPLATE_ATTR_VALUE_PK").on(attrColumn, valueColumn).add();
+            table.foreignKey("FK_TEMPLATE_ATTR_VALUE_TO_ATTR")
+                    .references(ReadingTypeTemplateAttribute.class)
+                    .on(attrColumn)
+                    .onDelete(CASCADE)
+                    .map(ReadingTypeTemplateAttributeValueImpl.Fields.ATTRIBUTE.fieldName())
+                    .reverseMap(ReadingTypeTemplateAttributeImpl.Fields.POSSIBLE_VALUES.fieldName())
+                    .composition()
+                    .add();
+        }
+    }
     ;
 
     abstract void addTo(DataModel dataModel);

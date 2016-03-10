@@ -1,0 +1,124 @@
+package com.elster.jupiter.metering.impl.rt.template;
+
+import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttribute {
+    public enum Fields {
+        TEMPLATE("template"),
+        NAME("name"),
+        ANY_VALUE("canBeAny"),
+        CODE("code"),
+        POSSIBLE_VALUES("values");
+        private String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        public String fieldName() {
+            return javaFieldName;
+        }
+    }
+
+    private final DataModel dataModel;
+
+    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Reference<ReadingTypeTemplate> template = ValueReference.absent();
+    @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private ReadingTypeTemplateAttributeName name;
+    private boolean canBeAny;
+    private int code;
+    private List<ReadingTypeTemplateAttributeValueImpl> values = new ArrayList<>();
+
+    @Inject
+    public ReadingTypeTemplateAttributeImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
+    }
+
+    public ReadingTypeTemplateAttributeImpl init(ReadingTypeTemplate template, ReadingTypeTemplateAttributeName name, int code, boolean canBeAny, Integer... possibleValues) {
+        this.template.set(template);
+        this.name = name;
+        this.code = code;
+        this.canBeAny = canBeAny;
+        if (canBeAny && possibleValues != null && possibleValues.length > 0) {
+            this.values.addAll(Arrays.stream(possibleValues)
+                    .filter(Objects::nonNull)
+                    .map(value -> dataModel.getInstance(ReadingTypeTemplateAttributeValueImpl.class).init(this, value))
+                    .collect(Collectors.toList()));
+        }
+        return this;
+    }
+
+    @Override
+    public ReadingTypeTemplateAttributeName getName() {
+        return this.name;
+    }
+
+    @Override
+    public boolean canBeAny() {
+        return this.canBeAny;
+    }
+
+    @Override
+    public int getCode() {
+        return this.code;
+    }
+
+    @Override
+    public List<Integer> getPossibleValues() {
+        if (canBeAny()) {
+            Function<?, Integer> valueToCodeConverter = getName().getValueToCodeConverter();
+            return getName().getPossibleValues()
+                    .stream()
+                    .map(valueToCodeConverter::apply)
+                    .collect(Collectors.toList());
+        }
+        return this.values.stream()
+                .map(ReadingTypeTemplateAttributeValueImpl::getCode)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ReadingTypeTemplateAttributeImpl that = (ReadingTypeTemplateAttributeImpl) o;
+        return name == that.name && template.equals(that.template);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = template != null ? template.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return getName() + ": " + getAttributeAsString();
+    }
+
+    String getAttributeAsString() {
+        return canBeAny()
+                ? String.valueOf(getCode())
+                : "(" + getPossibleValues().stream().map(String::valueOf).collect(Collectors.joining("|")) + ")";
+    }
+}
