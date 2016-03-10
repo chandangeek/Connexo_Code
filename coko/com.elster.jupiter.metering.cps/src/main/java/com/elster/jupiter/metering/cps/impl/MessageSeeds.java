@@ -7,7 +7,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import java.util.logging.Level;
 
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 
     CAN_NOT_BE_EMPTY(1, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
     FIELD_TOO_LONG(2, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters"),
@@ -36,7 +36,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     @Override
     public String getModule() {
-        return TranslationInstaller.COMPONENT_NAME;
+        return MeteringCustomPropertySetsDemoInstaller.COMPONENT_NAME;
     }
 
     @Override

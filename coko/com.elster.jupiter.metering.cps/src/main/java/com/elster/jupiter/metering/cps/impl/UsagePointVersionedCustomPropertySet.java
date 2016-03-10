@@ -30,47 +30,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.metering.cps.UsagePointVersionedCustomPropertySet", service = CustomPropertySet.class, immediate = true)
 @SuppressWarnings("unused")
 public class UsagePointVersionedCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointVersionedDomainExtension> {
 
     public static final String TABLE_NAME = "RVK_CPS_USAGEPOINT_VER";
     public static final String FK_CPS_DEVICE_ONE = "FK_CPS_USAGEPOINT_VER";
 
-    public volatile PropertySpecService propertySpecService;
-    public volatile MeteringService meteringService;
-    public volatile NlsService nlsService;
-
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.nlsService = nlsService;
-    }
-
-    @Reference(cardinality = ReferenceCardinality.MANDATORY)
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
+    public PropertySpecService propertySpecService;
+    public Thesaurus thesaurus;
 
     public UsagePointVersionedCustomPropertySet() {
         super();
     }
 
-    @Inject
-    public UsagePointVersionedCustomPropertySet(PropertySpecService propertySpecService, MeteringService meteringService) {
+    public UsagePointVersionedCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this();
-        this.setPropertySpecService(propertySpecService);
-        this.setMeteringService(meteringService);
-    }
-
-    @Activate
-    public void activate() {
-        System.out.println(TABLE_NAME);
+        this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -85,7 +61,7 @@ public class UsagePointVersionedCustomPropertySet implements CustomPropertySet<U
 
     @Override
     public PersistenceSupport<UsagePoint, UsagePointVersionedDomainExtension> getPersistenceSupport() {
-        return new UsagePointVerPeristenceSupport(nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN));
+        return new UsagePointVerPeristenceSupport(thesaurus);
     }
 
     @Override

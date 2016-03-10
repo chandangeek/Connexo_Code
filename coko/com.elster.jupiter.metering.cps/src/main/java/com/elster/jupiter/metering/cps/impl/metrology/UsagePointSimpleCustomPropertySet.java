@@ -4,57 +4,30 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.cps.impl.TranslationInstaller;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.metering.cps.impl.metrology.UsagePointSimpleCustomPropertySet", service = CustomPropertySet.class, immediate = true)
 @SuppressWarnings("unused")
 public class UsagePointSimpleCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointSimplePersistentDomainExtension> {
 
-    private volatile PropertySpecService propertySpecService;
-    private volatile MeteringService meteringService;
-    private volatile Thesaurus thesaurus;
+    private PropertySpecService propertySpecService;
+    private Thesaurus thesaurus;
 
     public UsagePointSimpleCustomPropertySet() {
     }
 
-    public UsagePointSimpleCustomPropertySet(PropertySpecService propertySpecService) {
+    public UsagePointSimpleCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
-        setPropertySpecService(propertySpecService);
-        activate();
-    }
-
-    @Activate
-    public void activate(){
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
-    }
-
-    @Reference
-    public void setNlsService(NlsService nlsService){
-        this.thesaurus = nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
-    }
-    @Reference
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
+        this.thesaurus = thesaurus;
     }
 
     @Override

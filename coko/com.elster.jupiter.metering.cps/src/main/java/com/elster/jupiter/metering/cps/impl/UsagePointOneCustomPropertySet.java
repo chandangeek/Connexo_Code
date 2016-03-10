@@ -30,41 +30,24 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.metering.cps.UsagePointOneCustomPropertySet", service = CustomPropertySet.class, immediate = true)
 @SuppressWarnings("unused")
 public class UsagePointOneCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointOneDomainExtension> {
 
     public static final String TABLE_NAME = "RVK_CPS_USAGEPOINT_ONE";
     public static final String FK_CPS_DEVICE_ONE = "FK_CPS_USAGEPOINT_ONE";
 
-    public volatile PropertySpecService propertySpecService;
-    public volatile MeteringService meteringService;
-    public volatile NlsService nlsService;
+    public PropertySpecService propertySpecService;
+    public Thesaurus thesaurus;
 
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.nlsService = nlsService;
-    }
-
-    @Reference(cardinality = ReferenceCardinality.MANDATORY)
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
 
     public UsagePointOneCustomPropertySet() {
         super();
     }
 
-    @Inject
-    public UsagePointOneCustomPropertySet(PropertySpecService propertySpecService, MeteringService meteringService) {
+    public UsagePointOneCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this();
-        this.setPropertySpecService(propertySpecService);
-        this.setMeteringService(meteringService);
+        this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
     @Activate
@@ -84,7 +67,7 @@ public class UsagePointOneCustomPropertySet implements CustomPropertySet<UsagePo
 
     @Override
     public PersistenceSupport<UsagePoint, UsagePointOneDomainExtension> getPersistenceSupport() {
-        return new UsagePointOnePeristenceSupport(nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN));
+        return new UsagePointOnePeristenceSupport(thesaurus);
     }
 
     @Override
