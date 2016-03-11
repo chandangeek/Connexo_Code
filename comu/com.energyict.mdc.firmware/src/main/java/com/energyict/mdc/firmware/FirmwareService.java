@@ -1,5 +1,6 @@
 package com.energyict.mdc.firmware;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
@@ -14,6 +15,7 @@ import java.util.Set;
 /**
  * Provides Firmware related services.
  */
+@ProviderType
 public interface FirmwareService {
     String COMPONENTNAME = "FWC";
     int MAX_FIRMWARE_FILE_SIZE = 50 * 1024 * 1024;
@@ -61,6 +63,7 @@ public interface FirmwareService {
     Finder<FirmwareCampaign> getFirmwareCampaigns();
     FirmwareCampaign newFirmwareCampaign(DeviceType deviceType, EndDeviceGroup endDeviceGroup);
     Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(FirmwareCampaign firmwareCampaign);
+    Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(DevicesInFirmwareCampaignFilter filter);
     void cancelFirmwareCampaign(FirmwareCampaign firmwareCampaign);
 
     /**
