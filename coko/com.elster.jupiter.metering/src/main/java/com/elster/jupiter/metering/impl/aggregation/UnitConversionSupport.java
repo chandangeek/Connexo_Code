@@ -107,13 +107,14 @@ public class UnitConversionSupport {
      * @return A flag that indicates if both Dimension are compatible or not
      */
     public static boolean areCompatibleForAutomaticUnitConversion(Dimension first, Dimension second) {
-        if ((first.hasSameDimensions(Dimension.DIMENSIONLESS)) || (second.hasSameDimensions(Dimension.DIMENSIONLESS))) {
-            return true;
-        }
-        return ((first.hasSameDimensions(Dimension.DIMENSIONLESS)) || (second.hasSameDimensions(Dimension.DIMENSIONLESS))) ||
+        return (isDimensionless(first) || (isDimensionless(second))) ||
                 (isVolumeRelated(first) && isFlowRelated(second))
                 || (isFlowRelated(first) && isVolumeRelated(second))
                 || (first.hasSameDimensions(second));
+    }
+
+    private static boolean isDimensionless(Dimension dim) {
+        return (dim.hasSameDimensions(Dimension.DIMENSIONLESS)) && (dim != Dimension.CURRENCY);
     }
 
     static boolean isVolumeRelated(Dimension dim) {
@@ -253,12 +254,12 @@ public class UnitConversionSupport {
 
 
     public static boolean isAllowedMultiplication(Dimension first, Dimension second) {
-        return ((first.hasSameDimensions(Dimension.DIMENSIONLESS)) || (second.hasSameDimensions(Dimension.DIMENSIONLESS))) ||
+        return (isDimensionless(first) || (isDimensionless(second))) ||
                 isAllowedMultiplicationOrDivision(first, second, true);
     }
 
     public static boolean isAllowedDivision(Dimension first, Dimension second) {
-        return ((first.hasSameDimensions(Dimension.DIMENSIONLESS)) || (second.hasSameDimensions(Dimension.DIMENSIONLESS))) ||
+        return (isDimensionless(first) || (isDimensionless(second))) ||
                 isAllowedMultiplicationOrDivision(first, second, false);
     }
 

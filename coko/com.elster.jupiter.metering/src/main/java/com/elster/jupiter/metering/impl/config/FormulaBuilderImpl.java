@@ -4,6 +4,8 @@ import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaPart;
 import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.NodeBuilder;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.orm.DataModel;
 
 import java.math.BigDecimal;
@@ -44,6 +46,14 @@ public class FormulaBuilderImpl implements FormulaBuilder {
         return formula;
     }
 
+    public NodeBuilder deliverable(ReadingTypeDeliverable readingTypeDeliverable) {
+        return () -> new ReadingTypeDeliverableNode(readingTypeDeliverable);
+    }
+
+    public NodeBuilder requirement(ReadingTypeRequirement value) {
+        return () -> new ReadingTypeRequirementNode(value);
+    }
+
     public NodeBuilder constant(BigDecimal value) {
         return () -> new ConstantNode(value);
     }
@@ -81,11 +91,11 @@ public class FormulaBuilderImpl implements FormulaBuilder {
     }
 
     public NodeBuilder divide(NodeBuilder dividend, NodeBuilder divisor) {
-        return () -> new OperationNode(Operator.MINUS, (ExpressionNode) dividend.create(), (ExpressionNode) divisor.create());
+        return () -> new OperationNode(Operator.DIVIDE, (ExpressionNode) dividend.create(), (ExpressionNode) divisor.create());
     }
 
     public NodeBuilder multiply(NodeBuilder multiplier, NodeBuilder multiplicand) {
-        return () -> new OperationNode(Operator.MINUS, (ExpressionNode) multiplier.create(), (ExpressionNode) multiplicand.create());
+        return () -> new OperationNode(Operator.MULTIPLY, (ExpressionNode) multiplier.create(), (ExpressionNode) multiplicand.create());
     }
 
     private NodeBuilder function(Function function, NodeBuilder... terms) {

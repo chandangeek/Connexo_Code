@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.NodeBuilder;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -11,17 +12,25 @@ import com.elster.jupiter.transaction.TransactionService;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import static org.mockito.Mockito.when;
 
+import com.elster.jupiter.util.units.Dimension;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FormulaCrudTest {
+
+    @Mock
+    private ReadingTypeRequirement readingTypeRequirement1;
+    @Mock
+    private ReadingTypeRequirement readingTypeRequirement2;
 
     private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
 
@@ -310,6 +319,9 @@ public class FormulaCrudTest {
 
         }
     }
+
+
+
 
 
 }
