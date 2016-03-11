@@ -23,7 +23,6 @@ public class MeteringGroupsModule extends AbstractModule {
         requireBinding(SearchService.class);
 
         bind(MeteringGroupsService.class).to(MeteringGroupsServiceImpl.class).in(Scopes.SINGLETON);
-        bind(EndDeviceGroupMemberCountMonitor.class).to(EndDeviceGroupMemberCountMonitorImpl.class).in(Scopes.SINGLETON);
     }
 
 }

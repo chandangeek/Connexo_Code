@@ -30,6 +30,8 @@ import com.elster.jupiter.util.concurrent.CopyOnWriteServiceContainer;
 import com.elster.jupiter.util.concurrent.OptionalServiceContainer;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.time.ExecutionTimer;
+import com.elster.jupiter.util.time.ExecutionTimerService;
 
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -68,22 +70,23 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     private volatile SearchService searchService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
-    private volatile EndDeviceGroupMemberCountMonitor countMonitor;
-
+    private volatile ExecutionTimerService executionTimerService;
+    private ExecutionTimer endDeviceGroupMemberCountTimer;
     private final OptionalServiceContainer<EndDeviceQueryProvider> endDeviceQueryProviders = new CopyOnWriteServiceContainer<>();
 
     public MeteringGroupsServiceImpl() {
     }
 
     @Inject
-    public MeteringGroupsServiceImpl(OrmService ormService, MeteringService meteringService, QueryService queryService, EventService eventService, SearchService searchService, NlsService nlsService, EndDeviceGroupMemberCountMonitor countMonitor) {
+    public MeteringGroupsServiceImpl(OrmService ormService, MeteringService meteringService, QueryService queryService, EventService eventService, SearchService searchService, NlsService nlsService, ExecutionTimerService executionTimerService) {
+        this();
         setOrmService(ormService);
         setMeteringService(meteringService);
         setQueryService(queryService);
         setEventService(eventService);
         setSearchService(searchService);
         setNlsService(nlsService);
-        setCountMonitor(countMonitor);
+        setExecutionTimerService(executionTimerService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -114,6 +117,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     @Activate
     public void activate() {
         try {
+            this.endDeviceGroupMemberCountTimer = this.executionTimerService.newTimer("EndDeviceGroupMemberCountMonitor", Duration.ofMinutes(2));
             dataModel.register(new AbstractModule() {
                 @Override
                 protected void configure() {
@@ -126,7 +130,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
                     bind(NlsService.class).toInstance(nlsService);
                     bind(Thesaurus.class).toInstance(thesaurus);
                     bind(MessageInterpolator.class).toInstance(thesaurus);
-                    bind(EndDeviceGroupMemberCountMonitor.class).toInstance(countMonitor);
+                    bind(ExecutionTimer.class).toInstance(endDeviceGroupMemberCountTimer);
                 }
             });
         } catch (Exception e) {
@@ -137,6 +141,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
 
     @Deactivate
     public void deactivate() {
+        this.endDeviceGroupMemberCountTimer.deactivate();
     }
 
     @Override
@@ -301,8 +306,8 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     }
 
     @Reference
-    public void setCountMonitor(EndDeviceGroupMemberCountMonitor countMonitor) {
-        this.countMonitor = countMonitor;
+    public void setExecutionTimerService(ExecutionTimerService executionTimerService) {
+        this.executionTimerService = executionTimerService;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)

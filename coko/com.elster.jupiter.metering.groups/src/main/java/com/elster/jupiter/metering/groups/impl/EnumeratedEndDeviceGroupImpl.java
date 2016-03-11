@@ -22,8 +22,8 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.time.ExecutionTimer;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.StopWatch;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableRangeSet;
@@ -48,17 +48,17 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements EnumeratedEndDeviceGroup {
 
     private final QueryService queryService;
-    private final EndDeviceGroupMemberCountMonitor countMonitor;
+    private final ExecutionTimer endDeviceGroupMemberCountTimer;
 
     private List<EntryImpl> entries;
 
     private final List<EndDeviceMembershipImpl> memberships = new ArrayList<>();
 
     @Inject
-    EnumeratedEndDeviceGroupImpl(DataModel dataModel, EventService eventService, QueryService queryService, EndDeviceGroupMemberCountMonitor countMonitor) {
+    EnumeratedEndDeviceGroupImpl(DataModel dataModel, EventService eventService, QueryService queryService, ExecutionTimer endDeviceGroupMemberCountTimer) {
         super(eventService, dataModel);
         this.queryService = queryService;
-        this.countMonitor = countMonitor;
+        this.endDeviceGroupMemberCountTimer = endDeviceGroupMemberCountTimer;
     }
 
     public List<EntryImpl> getEntries() {
@@ -236,12 +236,11 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
 
     @Override
     public long getMemberCount(Instant instant) {
-        StopWatch stopWatch = new StopWatch();
         try {
-            return this.getMemberStream(instant).count();
-        } finally {
-            stopWatch.stop();
-            this.countMonitor.countExecuted(stopWatch.getElapsed());
+            return this.endDeviceGroupMemberCountTimer.time(() -> this.getMemberStream(instant).count());
+        } catch (Exception e) {
+            // actual Caller implementation is not throwing any exception
+            return 0;
         }
     }
 

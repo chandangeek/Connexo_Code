@@ -33,12 +33,14 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Dictionary;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,6 +52,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QueryUsagePointGroupImplIT {
@@ -59,6 +64,8 @@ public class QueryUsagePointGroupImplIT {
 
     @Mock
     private BundleContext bundleContext;
+    @Mock
+    private ServiceRegistration serviceRegistration;
     @Mock
     private UserService userService;
     @Mock
@@ -78,6 +85,7 @@ public class QueryUsagePointGroupImplIT {
 
     @Before
     public void setUp() throws SQLException {
+        when(this.bundleContext.registerService(any(Class.class), anyObject(), any(Dictionary.class))).thenReturn(this.serviceRegistration);
         try {
             injector = Guice.createInjector(
                     new MockModule(),
