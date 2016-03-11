@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.ReadingTypeTemplate;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
 import org.junit.AfterClass;
@@ -34,6 +35,11 @@ public class ReadingTypeTemplateImplTestIT {
     @BeforeClass
     public static void beforeClass() {
         inMemoryBootstrapModule.activate();
+        try (TransactionContext context = inMemoryBootstrapModule.getTransactionService().getContext()) {
+            DataModel dataModel = inMemoryBootstrapModule.getMeteringService().getDataModel();
+            dataModel.mapper(ReadingTypeTemplate.class).remove(dataModel.query(ReadingTypeTemplate.class).select(Condition.TRUE));
+            context.commit();
+        }
     }
 
     @AfterClass

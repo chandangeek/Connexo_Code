@@ -21,6 +21,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.exception.ExceptionCatcher;
 import com.elster.jupiter.util.streams.BufferedReaderIterable;
 
 import java.io.BufferedReader;
@@ -82,6 +83,13 @@ public class InstallerImpl {
         createEndDeviceEventTypes();
         createEventTypes();
         createQueues();
+        createReadingTypeTemplates();
+    }
+
+    private void createReadingTypeTemplates() {
+        ExceptionCatcher.executing(() -> new ReadingTypeTemplateInstaller(this.meteringService).install())
+                .andHandleExceptionsWith(Throwable::printStackTrace)
+                .execute();
     }
 
     private void createEventTypes() {

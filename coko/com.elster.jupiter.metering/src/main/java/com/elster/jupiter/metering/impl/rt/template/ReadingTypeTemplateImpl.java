@@ -91,7 +91,7 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
 
     @Override
     public String toString() {
-        return getName() + " - " + this.allAttributes.stream()
+        return getName() + " " + this.allAttributes.stream()
                 .map(ReadingTypeTemplateAttributeImpl.class::cast)
                 .map(ReadingTypeTemplateAttributeImpl::getAttributeAsString)
                 .collect(Collectors.joining("."));

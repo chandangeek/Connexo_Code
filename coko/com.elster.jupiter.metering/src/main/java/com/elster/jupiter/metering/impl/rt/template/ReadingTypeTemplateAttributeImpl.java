@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @SelfValid
@@ -79,26 +78,12 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
 
     @Override
     public boolean validate(ConstraintValidatorContext context) {
-        boolean isValid = true;
         ReadingTypeTemplateAttributeName.ReadingTypeAttribute<?> definition = getName().getDefinition();
-        List<Integer> systemAllowedCodes = getSystemAllowedCodes(definition);
-        isValid = validateCodeIsNotEmpty(context, definition);
-        isValid &= validateCodeIsInAllowedCodes(context, systemAllowedCodes);
+        boolean isValid = validateCodeIsNotEmpty(context, definition);
         if (!this.values.isEmpty()) {
-            for (int i = 0; i < this.values.size() && !systemAllowedCodes.isEmpty(); i++) {
-                isValid &= validatePossibleValueIsInAllowedCodes(context, systemAllowedCodes, i);
-            }
             isValid &= validateCodeIsInAllowedCodes(context, getPossibleValues());
         }
         return isValid;
-    }
-
-    private <T> List<Integer> getSystemAllowedCodes(ReadingTypeTemplateAttributeName.ReadingTypeAttribute<T> definition) {
-        Function<T, Integer> converter = definition.getValueToCodeConverter();
-        return definition.getPossibleValues().stream()
-                .filter(Objects::nonNull)
-                .map(converter)
-                .collect(Collectors.toList());
     }
 
     private boolean validateCodeIsNotEmpty(ConstraintValidatorContext context, ReadingTypeTemplateAttributeName.ReadingTypeAttribute<?> definition) {
@@ -117,17 +102,6 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}")
                     .addPropertyNode(Fields.CODE.fieldName())
-                    .addConstraintViolation();
-            return false;
-        }
-        return true;
-    }
-
-    private boolean validatePossibleValueIsInAllowedCodes(ConstraintValidatorContext context, List<Integer> allowedCodes, int currentIdx) {
-        if (!allowedCodes.contains(this.values.get(currentIdx).getCode())) {
-            context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}")
-                    .addPropertyNode(Fields.POSSIBLE_VALUES.fieldName() + "[" + currentIdx + "]")
                     .addConstraintViolation();
             return false;
         }
@@ -176,12 +150,13 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
 
     @Override
     public String toString() {
-        return getName() + ": " + getAttributeAsString();
+        return getName() + ": " + (this.code != null ? "x:=" + String.valueOf(this.code) + ", " : "") +
+                (this.values.isEmpty() ? "x∈{ℕ}" : getPossibleValues().stream().map(String::valueOf).collect(Collectors.joining(",", "x∈{", "}")));
     }
 
     String getAttributeAsString() {
-        return this.values.isEmpty()
-                ? (this.code != null ? String.valueOf(getCode().get()) : "*")
-                : "(" + getPossibleValues().stream().map(String::valueOf).collect(Collectors.joining("|")) + ")";
+        return this.code != null
+                ? String.valueOf(getCode().get())
+                : this.values.isEmpty() ? "*" : "(" + getPossibleValues().stream().map(String::valueOf).collect(Collectors.joining(",")) + ")";
     }
 }
