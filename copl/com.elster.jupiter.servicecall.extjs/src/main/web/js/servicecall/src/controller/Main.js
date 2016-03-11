@@ -34,7 +34,7 @@ Ext.define('Scs.controller.Main', {
             var menuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.workspace', 'SCS', 'Workspace'),
                 portal: 'workspace',
-                glyph: 'settings'
+                glyph: 'workspace'
             });
 
             Uni.store.MenuItems.add(menuItem);
