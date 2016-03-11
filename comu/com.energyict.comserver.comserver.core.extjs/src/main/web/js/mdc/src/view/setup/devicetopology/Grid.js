@@ -69,7 +69,8 @@ Ext.define('Mdc.view.setup.devicetopology.Grid', {
                         {value: '15'},
                         {value: '30'},
                         {value: '50'},
-                        {value: '100'}
+                        {value: '100'},
+                        {value: '200'}
                     ]
                 })
             }
