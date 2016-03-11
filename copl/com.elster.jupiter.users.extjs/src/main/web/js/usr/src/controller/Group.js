@@ -53,6 +53,11 @@ Ext.define('Usr.controller.Group', {
         this.getApplication().fireEvent('editRole', record);
     },
 
+    removeGroupMenu: function (button) {
+        var record = button.up('#groupBrowse').down('#groupDetailsForm').getRecord();
+        this.removeGroup(record);
+    },
+
     removeGroup: function (record) {
         var me = this,
             groupGrid = me.getGroupList();
@@ -61,7 +66,7 @@ Ext.define('Usr.controller.Group', {
             confirmText: Uni.I18n.translate('general.remove', 'USR', 'Remove')
         }).show({
             title: Ext.String.format(Uni.I18n.translate('role.remove.title', 'USR', 'Remove \'{0}\'?'), record.get('name')),
-            msg: Uni.I18n.translate('role.remove.message', 'USR', 'This role will no longer be available for configured users.'),
+            msg: Uni.I18n.translate('role.remove.message', 'USR', 'Any user with this role will lose the associated privileges unless they are associated with other roles for the concerned user.'),
             fn: function (state) {
                 if (state === 'confirm') {
                     groupGrid.setLoading();
