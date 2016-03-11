@@ -11,15 +11,21 @@ public interface ReadingTypeTemplate extends HasId, HasName {
      */
     Set<ReadingTypeTemplateAttribute> getAttributes();
 
-    /**
-     * Updates attribute in template.
-     *
-     * @param name           reading type attribute name
-     * @param code           attribute value
-     * @param possibleValues possible attribute values, will be ignored if the <code>canBeAny</code> is true
-     * @return the template
-     */
-    ReadingTypeTemplate setAttribute(ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues);
+    ReadingTypeTemplateUpdater updater();
 
     long getVersion();
+
+    interface ReadingTypeTemplateUpdater {
+        /**
+         * Updates attribute in template.
+         *
+         * @param name           reading type attribute name
+         * @param code           attribute value
+         * @param possibleValues possible attribute values, will be ignored if the <code>canBeAny</code> is true
+         * @return the updater
+         */
+        ReadingTypeTemplateUpdater setAttribute(ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues);
+
+        void done();
+    }
 }

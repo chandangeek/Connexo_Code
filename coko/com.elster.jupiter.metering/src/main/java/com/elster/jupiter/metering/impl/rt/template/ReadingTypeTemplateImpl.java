@@ -13,9 +13,11 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -84,28 +86,12 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
 
     @Override
     public Set<ReadingTypeTemplateAttribute> getAttributes() {
-        return this.allAttributes;
-    }
-
-    @Override
-    public ReadingTypeTemplate setAttribute(ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues) {
-        ReadingTypeTemplateAttributeImpl attribute = dataModel.getInstance(ReadingTypeTemplateAttributeImpl.class)
-                .init(this, name, code, possibleValues);
-        this.persistedAttributes.remove(attribute);
-        this.allAttributes.remove(attribute);
-        Save.CREATE.validate(this.dataModel, attribute);
-        if (!attribute.getPossibleValues().isEmpty() || (attribute.getCode().isPresent()
-                && (attribute.getCode().get() != 0 || attribute.getName().getDefinition().canBeWildcard()))) { // do not persist default attributes
-            this.persistedAttributes.add(attribute);
-        }
-        this.allAttributes.add(attribute);
-        this.dataModel.touch(this);
-        return this;
+        return Collections.unmodifiableSet(this.allAttributes);
     }
 
     @Override
     public String toString() {
-        return this.allAttributes.stream()
+        return getName() + " - " + this.allAttributes.stream()
                 .map(ReadingTypeTemplateAttributeImpl.class::cast)
                 .map(ReadingTypeTemplateAttributeImpl::getAttributeAsString)
                 .collect(Collectors.joining("."));
@@ -118,5 +104,49 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     @Override
     public long getVersion() {
         return this.version;
+    }
+
+    @Override
+    public ReadingTypeTemplateUpdater updater() {
+        return new ReadingTypeTemplateUpdaterImpl(this);
+    }
+
+    private static class ReadingTypeTemplateUpdaterImpl implements ReadingTypeTemplateUpdater {
+
+        private final ReadingTypeTemplateImpl template;
+        private List<ReadingTypeTemplateAttributeImpl> attributes;
+
+        private ReadingTypeTemplateUpdaterImpl(ReadingTypeTemplateImpl template) {
+            this.template = template;
+            this.attributes = new ArrayList<>();
+        }
+
+        @Override
+        public ReadingTypeTemplateUpdater setAttribute(ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues) {
+            attributes.add(template.dataModel.getInstance(ReadingTypeTemplateAttributeImpl.class)
+                    .init(template, name, code, possibleValues));
+            return this;
+        }
+
+        @Override
+        public void done() {
+            if (!this.attributes.isEmpty()) {
+                this.template.allAttributes.removeAll(this.attributes);
+                this.template.allAttributes.addAll(this.attributes);
+                this.template.persistedAttributes.removeAll(this.attributes);
+                ListIterator<ReadingTypeTemplateAttributeImpl> attrItr = this.attributes.listIterator();
+                while (attrItr.hasNext()) {
+                    ReadingTypeTemplateAttributeImpl attribute = attrItr.next();
+                    Save.CREATE.validate(this.template.dataModel, attribute);
+                    // do not persist default attributes
+                    if (attribute.getPossibleValues().isEmpty() && (!attribute.getCode().isPresent()
+                            || attribute.getCode().get() == 0 && !attribute.getName().getDefinition().canBeWildcard())) {
+                        attrItr.remove();
+                    }
+                }
+                this.template.persistedAttributes.addAll(this.attributes);
+                this.template.dataModel.touch(this.template);
+            }
+        }
     }
 }
