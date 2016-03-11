@@ -287,6 +287,7 @@ public class ServiceCallsCommands {
     }
 
     public void createChildServiceCall(String type, String typeVersion, String externalReference, Long parent) {
+        threadPrincipalService.set(() -> "Console");
         Optional<ServiceCallType> serviceCallType = serviceCallService.findServiceCallType(type, typeVersion);
         Optional<ServiceCall> serviceCall = serviceCallService.getServiceCall(parent);
         if (!serviceCall.isPresent()) {
