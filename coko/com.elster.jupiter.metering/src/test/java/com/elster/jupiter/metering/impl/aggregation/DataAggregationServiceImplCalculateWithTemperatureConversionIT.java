@@ -59,6 +59,7 @@ import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -91,7 +92,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
-    public static final String DAILY_TEMPERATURE_MRID = "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0";
+    public static final String DAILY_TEMPERATURE_CELCIUS_MRID = "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0";
+    public static final String DAILY_TEMPERATURE_FAHRENHEIT_MRID = "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.279.0";
+    public static final String DAILY_TEMPERATURE_KELVIN_MRID = "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.6.0";
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private static Injector injector;
     private static ReadingType K_15min;
@@ -104,7 +107,8 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
     private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
-    private static long TEMPERATURE_REQUIREMENT_ID = 97L;
+    private static long TEMPERATURE1_REQUIREMENT_ID = 97L;
+    private static long TEMPERATURE2_REQUIREMENT_ID = 98L;
     private static long DELIVERABLE_ID = 99L;
 
     @Rule
@@ -216,7 +220,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.selectClauseBuilder = new SqlBuilder();
         this.completeSqlBuilder = new SqlBuilder();
         when(sqlBuilderFactory.newClauseAwareSqlBuilder()).thenReturn(clauseAwareSqlBuilder);
-        when(clauseAwareSqlBuilder.with(matches("rid" + TEMPERATURE_REQUIREMENT_ID + ".*"), any(Optional.class), anyVararg())).thenReturn(this.temperatureWithClauseBuilder);
+        when(clauseAwareSqlBuilder.with(matches("rid" + TEMPERATURE1_REQUIREMENT_ID + ".*"), any(Optional.class), anyVararg())).thenReturn(this.temperatureWithClauseBuilder);
         when(clauseAwareSqlBuilder.with(matches("rod" + DELIVERABLE_ID + ".*"), any(Optional.class), anyVararg())).thenReturn(this.deliverableWithClauseBuilder);
         when(clauseAwareSqlBuilder.select()).thenReturn(this.selectClauseBuilder);
         when(clauseAwareSqlBuilder.finish()).thenReturn(this.completeSqlBuilder);
@@ -249,7 +253,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         // Setup configuration requirements
         ReadingTypeRequirement temperature = mock(ReadingTypeRequirement.class);
         when(temperature.getName()).thenReturn("T");
-        when(temperature.getId()).thenReturn(TEMPERATURE_REQUIREMENT_ID);
+        when(temperature.getId()).thenReturn(TEMPERATURE1_REQUIREMENT_ID);
         when(this.configuration.getRequirements()).thenReturn(Collections.singletonList(temperature));
         // Setup configuration deliverables
         ReadingTypeDeliverable avgTemperature = mock(ReadingTypeDeliverable.class);
@@ -279,7 +283,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + TEMPERATURE_REQUIREMENT_ID + ".*" + DELIVERABLE_ID + ".*1"),
+                        matches("rid" + TEMPERATURE1_REQUIREMENT_ID + ".*" + DELIVERABLE_ID + ".*1"),
                         any(Optional.class),
                         anyVararg());
             assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
@@ -297,10 +301,204 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             verify(clauseAwareSqlBuilder).select();
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
-            assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(DAILY_TEMPERATURE_MRID) + "'.*");
+            assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(DAILY_TEMPERATURE_CELCIUS_MRID) + "'.*");
             /* Assert that the overall select statement converts the Kelvin values to Celcius
              * first and then takes the average to group by day. */
             assertThat(overallSelectWithoutNewlines).matches(".*[avg|AVG]\\(\\(rod99_1\\.value\\s*-\\s*273\\.15\\)\\).*");
+            assertThat(overallSelectWithoutNewlines).matches(".*[trunc|TRUNC]\\(rod99_1\\.localdate, 'DDD'\\).*");
+            assertThat(overallSelectWithoutNewlines).matches(".*[group by trunc|GROUP BY TRUNC]\\(rod99_1\\.localdate, 'DDD'\\).*");
+        }
+    }
+
+    /**
+     * Tests the unit conversion K -> °C
+     * Metrology configuration
+     *    requirements:
+     *       T ::= any temperature (15m)
+     *    deliverables:
+     *       averageTemperature (daily °F) ::= T + 10
+     * Device:
+     *    meter activations:
+     *       Jan 1st 2015 -> forever
+     *           T -> 15 min K
+     * In other words, the requirement is provided by exactly
+     * one matching channel from a single meter activation
+     * but the temparature channel needs to be converted from
+     * Kelvin to degrees Fahrenheit while aggregating.
+     */
+    @Test
+    @Transactional
+    public void kelvinToFahrenheit() {
+        DataAggregationService service = this.testInstance();
+        this.setupMeter("kelvinToFahrenheit");
+        this.setupUsagePoint("kelvinToFahrenheit");
+        this.activateMeterWithKelvin();
+
+        // Setup configuration requirements
+        ReadingTypeRequirement temperature = mock(ReadingTypeRequirement.class);
+        when(temperature.getName()).thenReturn("T");
+        when(temperature.getId()).thenReturn(TEMPERATURE1_REQUIREMENT_ID);
+        when(this.configuration.getRequirements()).thenReturn(Collections.singletonList(temperature));
+        // Setup configuration deliverables
+        ReadingTypeDeliverable avgTemperature = mock(ReadingTypeDeliverable.class);
+        when(avgTemperature.getId()).thenReturn(DELIVERABLE_ID);
+        when(avgTemperature.getName()).thenReturn("averageT");
+        when(avgTemperature.getReadingType()).thenReturn(F_daily);
+        ServerFormula formula = mock(ServerFormula.class);
+        when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
+        doReturn(
+                new OperationNode(
+                        Operator.PLUS,
+                        new ReadingTypeRequirementNode(temperature),
+                        new ConstantNode(BigDecimal.TEN)))
+                .when(formula).expressionNode();
+        when(avgTemperature.getFormula()).thenReturn(formula);
+        // Setup contract deliverables
+        when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(avgTemperature));
+        // Setup meter activations
+        when(temperature.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(K_15min));
+        when(temperature.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(this.temperatureChannel));
+
+        // Business method
+        try {
+            service.calculate(this.usagePoint, this.contract, year2016());
+        } catch (UnderlyingSQLFailedException e) {
+            // Expected because the statement contains WITH clauses
+            // Asserts:
+            verify(clauseAwareSqlBuilder)
+                    .with(
+                        matches("rid" + TEMPERATURE1_REQUIREMENT_ID + ".*" + DELIVERABLE_ID + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
+            assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
+            verify(clauseAwareSqlBuilder)
+                    .with(
+                        matches("rod" + DELIVERABLE_ID + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
+            // Assert that one of the requirements is used as source for the timeline
+            assertThat(this.deliverableWithClauseBuilder.getText())
+                    .matches("SELECT -1, rid97_99_1\\.timestamp,.*");
+            // Assert that the formula is applied to the requirements' value in the select clause
+            assertThat(this.deliverableWithClauseBuilder.getText())
+                    .matches("SELECT.*\\(rid97_99_1\\.value\\s*\\+\\s*\\?\\s*\\).*");
+            verify(clauseAwareSqlBuilder).select();
+            // Assert that the overall select statement selects the target reading type
+            String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
+            assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(DAILY_TEMPERATURE_FAHRENHEIT_MRID) + "'.*");
+            /* Assert that the overall select statement converts the Kelvin values to Celcius
+             * first and then takes the average to group by day. */
+            assertThat(overallSelectWithoutNewlines).matches(".*[avg|AVG]\\(\\(\\(9\\s*\\*\\s*\\(rod99_1\\.value\\s*-\\s*255\\.3722*\\)\\)\\s*/\\s*5\\)\\).*");
+            assertThat(overallSelectWithoutNewlines).matches(".*[trunc|TRUNC]\\(rod99_1\\.localdate, 'DDD'\\).*");
+            assertThat(overallSelectWithoutNewlines).matches(".*[group by trunc|GROUP BY TRUNC]\\(rod99_1\\.localdate, 'DDD'\\).*");
+        }
+    }
+
+    /**
+     * Tests the unit conversion to K
+     * Metrology configuration
+     *    requirements:
+     *       minT ::= any temperature (15m)
+     *       maxT ::= any temperature (15m)
+     *    deliverables:
+     *       averageTemperature (daily K) ::= (minT + maxT) / 2
+     * Device:
+     *    meter activations:
+     *       Jan 1st 2015 -> forever
+     *           minT -> 15 min °C
+     *           minT -> 15 min °F
+     * In other words, the requirement is provided by exactly
+     * one matching channel from a single meter activation
+     * but the temparature channel needs to be converted from
+     * Kelvin to degrees Celcius while aggregating.
+     */
+    @Test
+    @Transactional
+    public void celciusAndFahrenheitToKelvin() {
+        DataAggregationService service = this.testInstance();
+        this.setupMeter("celciusAndFahrenheitToKelvin");
+        this.setupUsagePoint("celciusAndFahrenheitToKelvin");
+        this.meterActivation = this.usagePoint.activate(this.meter, jan1st2015);
+        Channel minTChannel = this.meterActivation.createChannel(C_15min);
+        Channel maxTChannel = this.meterActivation.createChannel(F_15min);
+
+        // Setup configuration requirements
+        ReadingTypeRequirement minTemperature = mock(ReadingTypeRequirement.class);
+        when(minTemperature.getName()).thenReturn("minT");
+        when(minTemperature.getId()).thenReturn(TEMPERATURE1_REQUIREMENT_ID);
+        ReadingTypeRequirement maxTemperature = mock(ReadingTypeRequirement.class);
+        when(maxTemperature.getName()).thenReturn("maxT");
+        when(maxTemperature.getId()).thenReturn(TEMPERATURE2_REQUIREMENT_ID);
+        when(this.configuration.getRequirements()).thenReturn(Arrays.asList(minTemperature, maxTemperature));
+        // Setup configuration deliverables
+        ReadingTypeDeliverable avgTemperature = mock(ReadingTypeDeliverable.class);
+        when(avgTemperature.getId()).thenReturn(DELIVERABLE_ID);
+        when(avgTemperature.getName()).thenReturn("averageT");
+        when(avgTemperature.getReadingType()).thenReturn(K_daily);
+        ServerFormula formula = mock(ServerFormula.class);
+        when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
+        doReturn(
+                new OperationNode(
+                        Operator.DIVIDE,
+                        new OperationNode(
+                                Operator.PLUS,
+                                new ReadingTypeRequirementNode(minTemperature),
+                                new ReadingTypeRequirementNode(maxTemperature)),
+                        new ConstantNode(BigDecimal.valueOf(2L))))
+                .when(formula).expressionNode();
+        when(avgTemperature.getFormula()).thenReturn(formula);
+        // Setup contract deliverables
+        when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(avgTemperature));
+        // Setup meter activations
+        when(minTemperature.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(C_15min));
+        when(minTemperature.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(minTChannel));
+        when(maxTemperature.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(F_15min));
+        when(maxTemperature.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(maxTChannel));
+        SqlBuilder minTemperatureWithClauseBuilder = new SqlBuilder();
+        SqlBuilder maxTemperatureWithClauseBuilder = new SqlBuilder();
+        when(clauseAwareSqlBuilder.with(matches("rid" + TEMPERATURE1_REQUIREMENT_ID + ".*"), any(Optional.class), anyVararg())).thenReturn(minTemperatureWithClauseBuilder);
+        when(clauseAwareSqlBuilder.with(matches("rid" + TEMPERATURE2_REQUIREMENT_ID + ".*"), any(Optional.class), anyVararg())).thenReturn(maxTemperatureWithClauseBuilder);
+
+        // Business method
+        try {
+            service.calculate(this.usagePoint, this.contract, year2016());
+        } catch (UnderlyingSQLFailedException e) {
+            // Expected because the statement contains WITH clauses
+            // Asserts:
+            verify(clauseAwareSqlBuilder)
+                    .with(
+                        matches("rid" + TEMPERATURE1_REQUIREMENT_ID + ".*" + DELIVERABLE_ID + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
+            assertThat(minTemperatureWithClauseBuilder.getText()).isNotEmpty();
+            verify(clauseAwareSqlBuilder)
+                    .with(
+                        matches("rid" + TEMPERATURE2_REQUIREMENT_ID + ".*" + DELIVERABLE_ID + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
+            assertThat(maxTemperatureWithClauseBuilder.getText()).isNotEmpty();
+            verify(clauseAwareSqlBuilder)
+                    .with(
+                        matches("rod" + DELIVERABLE_ID + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
+            // Assert that one of the requirements is used as source for the timeline
+            assertThat(this.deliverableWithClauseBuilder.getText())
+                    .matches("SELECT -1, rid97_99_1\\.timestamp,.*");
+            // Assert that the min temperature requirements' value is coverted to Fahrenheit
+            assertThat(this.deliverableWithClauseBuilder.getText())
+                    .matches("SELECT.*\\(273.15\\s*\\+\\s*rid97_99_1\\.value\\).*");
+            verify(clauseAwareSqlBuilder).select();
+            // Assert that the max temperature requirements' value is not coverted
+            assertThat(this.deliverableWithClauseBuilder.getText())
+                    .matches("SELECT.*\\+\\s*rid98_99_1\\.value\\).*");
+            verify(clauseAwareSqlBuilder).select();
+            // Assert that the overall select statement selects the target reading type
+            String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
+            assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(DAILY_TEMPERATURE_KELVIN_MRID) + "'.*");
+            /* Assert that the overall select statement converts the Fahrenheit values to Kelvin
+             * first and then takes the average to group by day. */
+            assertThat(overallSelectWithoutNewlines).matches(".*[avg|AVG]\\(\\(255.3722*\\s*\\+\\s*\\(\\(5\\s*\\*\\s*rod99_1\\.value\\)\\s*/\\s*9\\)\\)\\).*");
             assertThat(overallSelectWithoutNewlines).matches(".*[trunc|TRUNC]\\(rod99_1\\.localdate, 'DDD'\\).*");
             assertThat(overallSelectWithoutNewlines).matches(".*[group by trunc|GROUP BY TRUNC]\\(rod99_1\\.localdate, 'DDD'\\).*");
         }
