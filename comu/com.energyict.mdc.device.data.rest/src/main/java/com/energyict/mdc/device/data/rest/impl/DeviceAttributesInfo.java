@@ -14,6 +14,54 @@ import java.util.Optional;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeviceAttributesInfo {
+    public DeviceAttributeInfo<String> mrid;
+    public DeviceAttributeInfo<String> deviceType;
+    public DeviceAttributeInfo<String> deviceConfiguration;
+    public DeviceAttributeInfo<String> serialNumber;
+    public DeviceAttributeInfo<BigDecimal> multiplier;
+    public DeviceAttributeInfo<Integer> yearOfCertification;
+    public DeviceAttributeInfo<String> lifeCycleState;
+    public DeviceAttributeInfo<String> batch;
+    public DeviceAttributeInfo<String> usagePoint;
+    public DeviceAttributeInfo<Instant> shipmentDate;
+    public DeviceAttributeInfo<Instant> installationDate;
+    public DeviceAttributeInfo<Instant> deactivationDate;
+    public DeviceAttributeInfo<Instant> decommissioningDate;
+    public DeviceAttributeInfo<String> location;
+    public DeviceInfo device;
+
+    @JsonIgnore
+    public Optional<Instant> getShipmentDate() {
+        if (this.shipmentDate == null || this.shipmentDate.displayValue == null) {
+            return Optional.empty();
+        }
+        return Optional.of(this.shipmentDate.displayValue);
+    }
+
+    @JsonIgnore
+    public Optional<Instant> getInstallationDate() {
+        if (this.installationDate == null || this.installationDate.displayValue == null) {
+            return Optional.empty();
+        }
+        return Optional.of(this.installationDate.displayValue);
+    }
+
+    @JsonIgnore
+    public Optional<Instant> getDeactivationDate() {
+        if (this.deactivationDate == null || this.deactivationDate.displayValue == null) {
+            return Optional.empty();
+        }
+        return Optional.of(this.deactivationDate.displayValue);
+    }
+
+    @JsonIgnore
+    public Optional<Instant> getDecommissioningDate() {
+        if (this.decommissioningDate == null || this.decommissioningDate.displayValue == null) {
+            return Optional.empty();
+        }
+        return Optional.of(this.decommissioningDate.displayValue);
+    }
+
     public enum DeviceAttribute {
         MRID {
             @Override
@@ -103,6 +151,12 @@ public class DeviceAttributesInfo {
             public List<DefaultState> attributeIsAllowedForStates() {
                 return Arrays.asList(DefaultState.DECOMMISSIONED);
             }
+        },
+        LOCATION {
+            @Override
+            public List<DefaultState> attributeIsEditableForStates() {
+                return Collections.emptyList();
+            }
         },;
 
         public List<DefaultState> attributeIsEditableForStates() {
@@ -135,52 +189,5 @@ public class DeviceAttributesInfo {
             }
             return false;
         }
-    }
-
-    public DeviceAttributeInfo<String> mrid;
-    public DeviceAttributeInfo<String> deviceType;
-    public DeviceAttributeInfo<String> deviceConfiguration;
-    public DeviceAttributeInfo<String> serialNumber;
-    public DeviceAttributeInfo<BigDecimal> multiplier;
-    public DeviceAttributeInfo<Integer> yearOfCertification;
-    public DeviceAttributeInfo<String> lifeCycleState;
-    public DeviceAttributeInfo<String> batch;
-    public DeviceAttributeInfo<String> usagePoint;
-    public DeviceAttributeInfo<Instant> shipmentDate;
-    public DeviceAttributeInfo<Instant> installationDate;
-    public DeviceAttributeInfo<Instant> deactivationDate;
-    public DeviceAttributeInfo<Instant> decommissioningDate;
-    public DeviceInfo device;
-
-    @JsonIgnore
-    public Optional<Instant> getShipmentDate(){
-        if (this.shipmentDate == null || this.shipmentDate.displayValue == null){
-            return Optional.empty();
-        }
-        return Optional.of(this.shipmentDate.displayValue);
-    }
-
-    @JsonIgnore
-    public Optional<Instant> getInstallationDate(){
-        if (this.installationDate == null || this.installationDate.displayValue == null){
-            return Optional.empty();
-        }
-        return Optional.of(this.installationDate.displayValue);
-    }
-
-    @JsonIgnore
-    public Optional<Instant> getDeactivationDate(){
-        if (this.deactivationDate == null || this.deactivationDate.displayValue == null){
-            return Optional.empty();
-        }
-        return Optional.of(this.deactivationDate.displayValue);
-    }
-
-    @JsonIgnore
-    public Optional<Instant> getDecommissioningDate(){
-        if (this.decommissioningDate == null || this.decommissioningDate.displayValue == null){
-            return Optional.empty();
-        }
-        return Optional.of(this.decommissioningDate.displayValue);
     }
 }
