@@ -15,7 +15,6 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.impl.example.DisconnectHandler;
@@ -222,7 +221,7 @@ public class ServicecCallFinderImplIT {
         assertThat(result).hasSize(2);
         assertThat(result).contains(serviceCallOne, serviceCallThree);
 
-        result = serviceCallOne.getChildrenFinder().find();
+        result = serviceCallOne.findChildren().find();
         assertThat(result).hasSize(1);
         assertThat(result).contains(serviceCallTwo);
     }

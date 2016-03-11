@@ -278,7 +278,7 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     @Override
-    public ServiceCallFinder getChildrenFinder() {
+    public ServiceCallFinder findChildren() {
         ServiceCallFinder finder = new ServiceCallFinderImpl(dataModel);
         finder.setParent(this);
         return finder;
