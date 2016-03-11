@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.NodeBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
 import java.math.BigDecimal;
@@ -21,10 +22,12 @@ public class FormulaBuilderImpl implements FormulaBuilder {
     private DataModel dataModel;
     private NodeBuilder nodebuilder; // use with api (default)
     private ExpressionNode node; // use with parser (first create a node from a String representation using ExpressionNodeParser)
+    private Thesaurus thesaurus;
 
-    public FormulaBuilderImpl(Formula.Mode mode, DataModel dataModel) {
+    public FormulaBuilderImpl(Formula.Mode mode, DataModel dataModel, Thesaurus thesaurus) {
         this.mode = mode;
         this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
     }
 
     public FormulaBuilder init(NodeBuilder nodeBuilder) {
@@ -83,19 +86,19 @@ public class FormulaBuilderImpl implements FormulaBuilder {
     }
 
     public NodeBuilder plus(NodeBuilder term1, NodeBuilder term2) {
-        return () -> new OperationNode(Operator.PLUS, (ExpressionNode) term1.create(), (ExpressionNode) term2.create());
+        return () -> new OperationNode(Operator.PLUS, (ExpressionNode) term1.create(), (ExpressionNode) term2.create(), thesaurus);
     }
 
     public NodeBuilder minus(NodeBuilder term1, NodeBuilder term2) {
-        return () -> new OperationNode(Operator.MINUS, (ExpressionNode) term1.create(), (ExpressionNode) term2.create());
+        return () -> new OperationNode(Operator.MINUS, (ExpressionNode) term1.create(), (ExpressionNode) term2.create(), thesaurus);
     }
 
     public NodeBuilder divide(NodeBuilder dividend, NodeBuilder divisor) {
-        return () -> new OperationNode(Operator.DIVIDE, (ExpressionNode) dividend.create(), (ExpressionNode) divisor.create());
+        return () -> new OperationNode(Operator.DIVIDE, (ExpressionNode) dividend.create(), (ExpressionNode) divisor.create(), thesaurus);
     }
 
     public NodeBuilder multiply(NodeBuilder multiplier, NodeBuilder multiplicand) {
-        return () -> new OperationNode(Operator.MULTIPLY, (ExpressionNode) multiplier.create(), (ExpressionNode) multiplicand.create());
+        return () -> new OperationNode(Operator.MULTIPLY, (ExpressionNode) multiplier.create(), (ExpressionNode) multiplicand.create(), thesaurus);
     }
 
     private NodeBuilder function(Function function, NodeBuilder... terms) {
@@ -103,17 +106,6 @@ public class FormulaBuilderImpl implements FormulaBuilder {
                 Arrays.stream(terms)
                         .map((NodeBuilder b) -> (ExpressionNode) b.create())
                         .collect(Collectors.toList()),
-                        function);
-    }
-
-
-    public static void main(String[] args) {
-        DataModel dataModel = null;
-
-        FormulaBuilder builder = new FormulaBuilderImpl(Formula.Mode.EXPERT, dataModel);
-        builder.init(builder.maximum(
-                builder.sum(builder.constant(5.33), builder.constant(3)),
-                builder.multiply(builder.constant(7), builder.constant(2)))).build();
-
+                        function, thesaurus);
     }
 }

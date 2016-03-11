@@ -140,7 +140,7 @@ public class DataAggregationServiceImplCalculateTest {
             new OperationNode(
                     Operator.PLUS,
                     new ReadingTypeRequirementNode(production),
-                    new ReadingTypeRequirementNode(consumption)))
+                    new ReadingTypeRequirementNode(consumption), meteringService.getThesaurus()))
             .when(formula).expressionNode();
         when(netConsumption.getFormula()).thenReturn(formula);
         VirtualReadingTypeRequirement virtualConsumption = mock(VirtualReadingTypeRequirement.class);
@@ -242,7 +242,7 @@ public class DataAggregationServiceImplCalculateTest {
             new OperationNode(
                     Operator.PLUS,
                     new ReadingTypeRequirementNode(production),
-                    new ReadingTypeRequirementNode(consumption)))
+                    new ReadingTypeRequirementNode(consumption), meteringService.getThesaurus()))
             .when(formula).expressionNode();
         when(netConsumption.getFormula()).thenReturn(formula);
         VirtualReadingTypeRequirement virtualConsumption = mock(VirtualReadingTypeRequirement.class);

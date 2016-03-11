@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -46,6 +47,9 @@ public class CopyAndVirtualizeReferencesTest {
     @Mock
     private ReadingTypeDeliverableForMeterActivationProvider readingTypeDeliverableForMeterActivationProvider;
 
+    @Mock
+    private Thesaurus thesaurus;
+
     @Before
     public void initializeMocks() {
         ReadingType readingType = mock(ReadingType.class);
@@ -74,7 +78,7 @@ public class CopyAndVirtualizeReferencesTest {
         com.elster.jupiter.metering.impl.config.FunctionCallNode node =
                 new com.elster.jupiter.metering.impl.config.FunctionCallNode(
                         Collections.emptyList(),
-                        com.elster.jupiter.metering.impl.config.Function.MIN);
+                        com.elster.jupiter.metering.impl.config.Function.MIN, thesaurus);
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -93,7 +97,7 @@ public class CopyAndVirtualizeReferencesTest {
         com.elster.jupiter.metering.impl.config.FunctionCallNode node =
                 new com.elster.jupiter.metering.impl.config.FunctionCallNode(
                         Collections.emptyList(),
-                        com.elster.jupiter.metering.impl.config.Function.MAX);
+                        com.elster.jupiter.metering.impl.config.Function.MAX, thesaurus);
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -113,7 +117,7 @@ public class CopyAndVirtualizeReferencesTest {
                 new com.elster.jupiter.metering.impl.config.FunctionCallNode(
                         Collections.singletonList(
                                 new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.TEN)),
-                                com.elster.jupiter.metering.impl.config.Function.MIN);
+                                com.elster.jupiter.metering.impl.config.Function.MIN, thesaurus);
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -136,7 +140,7 @@ public class CopyAndVirtualizeReferencesTest {
                 new com.elster.jupiter.metering.impl.config.FunctionCallNode(Arrays.asList(
                         new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.TEN),
                         new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.ZERO)),
-                        com.elster.jupiter.metering.impl.config.Function.MAX);
+                        com.elster.jupiter.metering.impl.config.Function.MAX, thesaurus);
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -163,7 +167,7 @@ public class CopyAndVirtualizeReferencesTest {
                             new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.TEN),
                             new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.valueOf(1000L)),
                             new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.ONE)),
-                        com.elster.jupiter.metering.impl.config.Function.MAX);
+                        com.elster.jupiter.metering.impl.config.Function.MAX, thesaurus);
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -191,7 +195,7 @@ public class CopyAndVirtualizeReferencesTest {
         com.elster.jupiter.metering.impl.config.OperationNode node = new com.elster.jupiter.metering.impl.config.OperationNode(
                 com.elster.jupiter.metering.impl.config.Operator.PLUS,
                 new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.TEN),
-                new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.ZERO));
+                new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.ZERO), thesaurus);
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -226,7 +230,7 @@ public class CopyAndVirtualizeReferencesTest {
                     new com.elster.jupiter.metering.impl.config.FunctionCallNode(Arrays.asList(
                                 new com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableNode(readingTypeDeliverable),
                                 new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.TEN)),
-                            com.elster.jupiter.metering.impl.config.Function.MAX));
+                            com.elster.jupiter.metering.impl.config.Function.MAX, thesaurus), thesaurus);
         ReadingTypeDeliverableForMeterActivation readingTypeDeliverableForMeterActivation =
                 new ReadingTypeDeliverableForMeterActivation(
                         readingTypeDeliverable,

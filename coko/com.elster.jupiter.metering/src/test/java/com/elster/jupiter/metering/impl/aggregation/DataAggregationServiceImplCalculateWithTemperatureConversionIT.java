@@ -36,6 +36,7 @@ import com.elster.jupiter.metering.impl.config.OperationNode;
 import com.elster.jupiter.metering.impl.config.Operator;
 import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -126,6 +127,10 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     private MeterActivation meterActivation;
     private Channel temperatureChannel;
     private UsagePoint usagePoint;
+
+
+    @Mock
+    private Thesaurus thesaurus;
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -266,7 +271,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
                 new OperationNode(
                         Operator.PLUS,
                         new ReadingTypeRequirementNode(temperature),
-                        new ConstantNode(BigDecimal.TEN)))
+                        new ConstantNode(BigDecimal.TEN), thesaurus))
                 .when(formula).expressionNode();
         when(avgTemperature.getFormula()).thenReturn(formula);
         // Setup contract deliverables
@@ -350,7 +355,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
                 new OperationNode(
                         Operator.PLUS,
                         new ReadingTypeRequirementNode(temperature),
-                        new ConstantNode(BigDecimal.TEN)))
+                        new ConstantNode(BigDecimal.TEN), thesaurus))
                 .when(formula).expressionNode();
         when(avgTemperature.getFormula()).thenReturn(formula);
         // Setup contract deliverables
@@ -443,8 +448,8 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
                         new OperationNode(
                                 Operator.PLUS,
                                 new ReadingTypeRequirementNode(minTemperature),
-                                new ReadingTypeRequirementNode(maxTemperature)),
-                        new ConstantNode(BigDecimal.valueOf(2L))))
+                                new ReadingTypeRequirementNode(maxTemperature), thesaurus),
+                        new ConstantNode(BigDecimal.valueOf(2L)), thesaurus))
                 .when(formula).expressionNode();
         when(avgTemperature.getFormula()).thenReturn(formula);
         // Setup contract deliverables
