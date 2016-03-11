@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.rest.impl;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
@@ -19,6 +20,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Path("/usagepoints")
@@ -29,18 +31,21 @@ public class UsagePointResource {
     private final Clock clock;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final UsagePointInfoFactory usagePointInfoFactory;
+    private final Thesaurus thesaurus;
 
     @Inject
     public UsagePointResource(MeteringService meteringService,
                               TransactionService transactionService,
                               Clock clock,
                               ConcurrentModificationExceptionFactory conflictFactory,
-                              UsagePointInfoFactory usagePointInfoFactory) {
+                              UsagePointInfoFactory usagePointInfoFactory,
+                              Thesaurus thesaurus) {
         this.meteringService = meteringService;
         this.transactionService = transactionService;
         this.clock = clock;
         this.conflictFactory = conflictFactory;
         this.usagePointInfoFactory = usagePointInfoFactory;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -100,6 +105,21 @@ public class UsagePointResource {
                 .validate();
         UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
         return new UsagePointInfo(usagePoint, clock);
+    }
+
+    @GET
+    @RolesAllowed({Privileges.Constants.VIEW_SERVICECATEGORY})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/servicecategory")
+    public PagedInfoList getServiceCategories(@BeanParam JsonQueryParameters queryParameters) {
+        List<ServiceCategoryInfo> categories = Arrays.stream(ServiceKind.values())
+                .map(meteringService::getServiceCategory)
+                .flatMap(sc -> sc.isPresent() && sc.get().isActive() ? Stream.of(sc.get()) : Stream.empty())
+                .sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName()))
+                .map(sc -> new ServiceCategoryInfo(sc, thesaurus))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("categories", categories, queryParameters);
     }
 
     @GET
