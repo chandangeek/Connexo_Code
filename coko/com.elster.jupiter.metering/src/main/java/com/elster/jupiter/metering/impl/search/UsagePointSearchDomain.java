@@ -170,7 +170,7 @@ public class UsagePointSearchDomain implements SearchDomain {
 
         @Override
         public int count() {
-            try (Connection connection = meteringService.getDataModel().getConnection(true)) {
+            try (Connection connection = meteringService.getDataModel().getConnection(false)) {
                 SqlBuilder countSqlBuilder = new SqlBuilder();
                 countSqlBuilder.add(asFragment("count(*)"));
                 try (PreparedStatement statement = countSqlBuilder.prepare(connection)) {
