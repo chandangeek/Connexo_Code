@@ -32,7 +32,7 @@ Ext.define('Scs.controller.history.ServiceCall', {
                                 specifications: {
                                     route: 'specifications',
                                     privileges: Scs.privileges.ServiceCall.view,
-                                    title: Uni.I18n.translate('general.serviceCallOverview', 'SCS', 'Service call specifications'),
+                                    title: Uni.I18n.translate('general.serviceCallOverviewSpecifications', 'SCS', 'Service call specifications'),
                                     controller: 'Scs.controller.ServiceCalls',
                                     action: 'showServiceCallSpecifications'
                                 }
