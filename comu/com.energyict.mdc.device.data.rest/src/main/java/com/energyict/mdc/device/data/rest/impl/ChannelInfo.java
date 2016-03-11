@@ -73,6 +73,7 @@ public class ChannelInfo {
             info.id = simpleChannel.getId();
             info.name = simpleChannel.getName();
             info.readingType = new ReadingTypeInfo(simpleChannel.getReadingType());
+            info.lastValueTimestamp = simpleChannel.getLastDateTime().orElse(null);
             return info;
         }).collect(Collectors.toList());
     }
