@@ -146,7 +146,7 @@ Ext.define('Scs.view.PreviewForm', {
     addChildrenInfo: function(record, childrenContainer) {
         var me = this,
             container;
-        if(record.get('childrenInfo')) {
+        if(record.get('children')) {
             container = Ext.create('Ext.form.FieldContainer', {
                 layout: {
                     type: 'vbox'
@@ -166,13 +166,13 @@ Ext.define('Scs.view.PreviewForm', {
                     return '<a href="' + this.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: this.record.get('id')}) + '">' + value + '</a>'
                 }
             });
-            Ext.each(record.get('childrenInfo'), function (info) {
+            Ext.each(record.get('children'), function (info) {
                 var statusFilter = {
                     status: info.state
                 };
                 container.add({
                     xtype: 'displayfield',
-                    value: info.percentage + '%',
+                    value: info.percentage + '% (' + info.count + ')',
                     router: me.router,
                     record: record,
                     labelWidth: 250,
@@ -196,11 +196,11 @@ Ext.define('Scs.view.PreviewForm', {
 
         me.down('#serviceCallPreviewColumnTwo').removeAll();
         me.down('#serviceCallPreviewCASColumnOne').removeAll();
-        for(i; i < record.customPropertySetInfos().getCount(); i++) {
+        for(i; i < record.customPropertySets().getCount(); i++) {
             container = i%2 === 0 ? me.down('#serviceCallPreviewColumnTwo') : me.down('#serviceCallPreviewCASColumnOne');
             casContainer = Ext.create('Ext.form.FieldContainer', {
                 labelAlign: 'top',
-                fieldLabel: record.customPropertySetInfos().getAt(i).get('name')
+                fieldLabel: record.customPropertySets().getAt(i).get('name')
             });
             propertyForm = Ext.create('Uni.property.form.Property', {
                 isEdit: false,
@@ -210,7 +210,7 @@ Ext.define('Scs.view.PreviewForm', {
                     labelWidth: 250
                 }
             });
-            propertyForm.loadRecord(record.customPropertySetInfos().getAt(i));
+            propertyForm.loadRecord(record.customPropertySets().getAt(i));
 
             casContainer.add(propertyForm)
             container.add(casContainer);

@@ -4,7 +4,7 @@ Ext.define('Scs.model.ServiceCall', {
         'Scs.model.AttributeSetOnServiceCall'
     ],
     fields: [
-        'name', 'externalReference', 'state', 'type', 'parents', 'childrenInfo', 'origin',
+        'name', 'externalReference', 'state', 'type', 'parents', 'children', 'origin',
         {
             name: 'version',
             defaultValue: 0
@@ -81,11 +81,11 @@ Ext.define('Scs.model.ServiceCall', {
 
     associations: [
         {
-            name: 'customPropertySetInfos',
+            name: 'customPropertySets',
             type: 'hasMany',
             model: 'Scs.model.AttributeSetOnServiceCall',
-            associationKey: 'customPropertySetInfos',
-            foreignKey: 'customPropertySetInfos',
+            associationKey: 'customPropertySets',
+            foreignKey: 'customPropertySets',
             getTypeDiscriminator: function (node) {
                 return 'Scs.model.AttributeSetOnServiceCall';
             }

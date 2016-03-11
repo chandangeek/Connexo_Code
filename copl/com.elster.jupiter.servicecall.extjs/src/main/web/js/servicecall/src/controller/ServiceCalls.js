@@ -115,7 +115,7 @@ Ext.define('Scs.controller.ServiceCalls', {
                     var parents = record.get('parents');
                     parents.push({id:record.get('id'),name:record.get('name')});
 
-                    if (record.get('childrenInfo').length > 0) {
+                    if (record.get('numberOfChildren') > 0) {
                         view = Ext.widget('servicecalls-setup-overview', {
                             router: me.getController('Uni.controller.history.Router'),
                             serviceCallId: record.get('name'),
