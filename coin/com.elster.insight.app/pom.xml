@@ -110,6 +110,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>systemadmin</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>

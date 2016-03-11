@@ -13,6 +13,10 @@ Ext.onReady(function () {
         {
             name: 'Imt',
             path: '../../apps/imt/src'
+        },
+        {
+            name: 'Scs',
+            path: '../../apps/scs/src'
         }
     ];
 

@@ -24,7 +24,11 @@ class MdmAppPrivileges {
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_METROLOGY_CONFIGURATION,
 
                 //service category
-                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY,
+
+                //com.elster.jupiter.servicecall
+                com.elster.jupiter.servicecall.security.Privileges.Constants.VIEW_SERVICE_CALLS,
+                com.elster.jupiter.servicecall.security.Privileges.Constants.CHANGE_SERVICE_CALL_STATE
         );
     }
 }
