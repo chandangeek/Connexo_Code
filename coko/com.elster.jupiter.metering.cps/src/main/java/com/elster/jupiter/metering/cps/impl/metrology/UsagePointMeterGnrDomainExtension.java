@@ -32,10 +32,10 @@ public class UsagePointMeterGnrDomainExtension implements PersistentDomainExtens
                 return "model";
             }
         },
-        CLASS {
+        CLAZZ {
             @Override
             public String javaName() {
-                return "class";
+                return "clazz";
             }
         };
 
@@ -66,12 +66,12 @@ public class UsagePointMeterGnrDomainExtension implements PersistentDomainExtens
         this.model = model;
     }
 
-    public String get_class() {
-        return _class;
+    public String getClazz() {
+        return clazz;
     }
 
-    public void set_class(String _class) {
-        this._class = _class;
+    public void setClazz(String clazz) {
+        this.clazz = clazz;
     }
 
     Reference<UsagePoint> usagePoint = ValueReference.absent();
@@ -83,7 +83,7 @@ public class UsagePointMeterGnrDomainExtension implements PersistentDomainExtens
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String model;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
-    private String _class;
+    private String clazz;
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
         return registeredCustomPropertySet.get();
@@ -94,14 +94,14 @@ public class UsagePointMeterGnrDomainExtension implements PersistentDomainExtens
         this.usagePoint.set(domainInstance);
         this.setModel((String) propertyValues.getProperty(Fields.MANUFACTURER.javaName()));
         this.setManufacturer((String) propertyValues.getProperty(Fields.MODEL.javaName()));
-        this.set_class((String) propertyValues.getProperty(Fields.CLASS.javaName()));
+        this.setClazz((String) propertyValues.getProperty(Fields.CLAZZ.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(Fields.MODEL.javaName(), this.getModel());
         propertySetValues.setProperty(Fields.MANUFACTURER.javaName(), this.getManufacturer());
-        propertySetValues.setProperty(Fields.CLASS.javaName(), this.get_class());
+        propertySetValues.setProperty(Fields.CLAZZ.javaName(), this.getClazz());
     }
 
     @Override

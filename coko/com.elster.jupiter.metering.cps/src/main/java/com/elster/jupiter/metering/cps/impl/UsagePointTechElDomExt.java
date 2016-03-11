@@ -7,14 +7,16 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.util.units.Quantity;
 
 import javax.validation.constraints.Size;
 
-public class UsagePointTechElectricityDomainExtension implements PersistentDomainExtension<UsagePoint> {
+public class UsagePointTechElDomExt implements PersistentDomainExtension<UsagePoint> {
     public enum FieldNames {
         DOMAIN("usagePoint", "usage_point"),
         CROSS_SECTIONAL_AREA("crossSectionalArea", "cross_sectional_area"),
-        VOLTAGE_LEVEL("voltageLevel", "voltage_level");
+        VOLTAGE_LEVEL("voltageLevel", "voltage_level"),
+        CABLE_LOCATION("cableLocation", "cable_location");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -41,8 +43,9 @@ public class UsagePointTechElectricityDomainExtension implements PersistentDomai
     private String crossSectionalArea;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String voltageLevel;
+    private Quantity cableLocation;
 
-    public UsagePointTechElectricityDomainExtension() {
+    public UsagePointTechElDomExt() {
         super();
     }
 
@@ -66,17 +69,27 @@ public class UsagePointTechElectricityDomainExtension implements PersistentDomai
         this.voltageLevel = voltageLevel;
     }
 
+    public Quantity getCableLocation() {
+        return cableLocation;
+    }
+
+    public void setCableLocation(Quantity cableLocation) {
+        this.cableLocation = cableLocation;
+    }
+
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(domainInstance);
         this.setCrossSectionalArea((String) propertyValues.getProperty(FieldNames.CROSS_SECTIONAL_AREA.javaName()));
         this.setVoltageLevel((String) propertyValues.getProperty(FieldNames.VOLTAGE_LEVEL.javaName()));
+        this.setCableLocation((Quantity) propertyValues.getProperty(FieldNames.CABLE_LOCATION.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.CROSS_SECTIONAL_AREA.javaName(), this.getCrossSectionalArea());
         propertySetValues.setProperty(FieldNames.VOLTAGE_LEVEL.javaName(), this.getVoltageLevel());
+        propertySetValues.setProperty(FieldNames.CABLE_LOCATION.javaName(), this.getCableLocation());
     }
 
     @Override

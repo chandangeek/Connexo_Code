@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.units.Quantity;
 
 import javax.validation.constraints.Size;
 
@@ -27,16 +28,16 @@ public class UsagePointConvDomainExtension implements PersistentDomainExtension<
                 return "serialNumber";
             }
         },
-        NO_OF_CORRECTED_DIALS {
+        N_C_DI {
             @Override
             public String javaName() {
-                return "noOfCorrectedDials";
+                return "noOfCorDials";
             }
         },
-        NO_OF_UNCORRECTED_DIALS {
+        N_UNC_DI {
             @Override
             public String javaName() {
-                return "noOfUncorrectedDials";
+                return "noOfUncorDials";
             }
         };
 
@@ -53,10 +54,8 @@ public class UsagePointConvDomainExtension implements PersistentDomainExtension<
 
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String serialNumber;
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
-    private String noOfCorrectedDials;
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
-    private String noOfUncorrectedDials;
+    private Quantity noOfCorDials;
+    private Quantity noOfUncorDials;
 
     private Interval interval;
 
@@ -76,35 +75,35 @@ public class UsagePointConvDomainExtension implements PersistentDomainExtension<
         this.serialNumber = serialNumber;
     }
 
-    public String getNoOfCorrectedDials() {
-        return noOfCorrectedDials;
+    public Quantity getNoOfCorDials() {
+        return noOfCorDials;
     }
 
-    public void setNoOfCorrectedDials(String noOfCorrectedDials) {
-        this.noOfCorrectedDials = noOfCorrectedDials;
+    public void setNoOfCorDials(Quantity noOfCorDials) {
+        this.noOfCorDials = noOfCorDials;
     }
 
-    public String getNoOfUncorrectedDials() {
-        return noOfUncorrectedDials;
+    public Quantity getNoOfUncorDials() {
+        return noOfUncorDials;
     }
 
-    public void setNoOfUncorrectedDials(String noOfUncorrectedDials) {
-        this.noOfUncorrectedDials = noOfUncorrectedDials;
+    public void setNoOfUncorDials(Quantity noOfUncorDials) {
+        this.noOfUncorDials = noOfUncorDials;
     }
 
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(domainInstance);
         this.setSerialNumber((String) propertyValues.getProperty(Fields.SERIAL_NUMBER.javaName()));
-        this.setNoOfCorrectedDials((String) propertyValues.getProperty(Fields.NO_OF_CORRECTED_DIALS.javaName()));
-        this.setNoOfUncorrectedDials((String) propertyValues.getProperty(Fields.NO_OF_UNCORRECTED_DIALS.javaName()));
+        this.setNoOfCorDials((Quantity) propertyValues.getProperty(Fields.N_C_DI.javaName()));
+        this.setNoOfUncorDials((Quantity) propertyValues.getProperty(Fields.N_UNC_DI.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(Fields.SERIAL_NUMBER.javaName(), this.getSerialNumber());
-        propertySetValues.setProperty(Fields.NO_OF_CORRECTED_DIALS.javaName(), this.getNoOfCorrectedDials());
-        propertySetValues.setProperty(Fields.NO_OF_UNCORRECTED_DIALS.javaName(), this.getNoOfUncorrectedDials());
+        propertySetValues.setProperty(Fields.N_C_DI.javaName(), this.getNoOfCorDials());
+        propertySetValues.setProperty(Fields.N_UNC_DI.javaName(), this.getNoOfUncorDials());
     }
 
     @Override

@@ -4,11 +4,8 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.cps.impl.metrology.TranslationKeys;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
@@ -17,11 +14,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
 
-import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -29,40 +22,27 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "c.e.j.metering.cps.impl.UsagePointTechElectricityCustomPropertySet", service = CustomPropertySet.class, immediate = true)
-public class UsagePointTechElectricityCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointTechElectricityDomainExtension> {
+//@Component(name = "c.e.j.metering.cps.impl.UsagePointTechElCPS", service = CustomPropertySet.class, immediate = true)
+public class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsagePointTechElDomExt> {
 
     public static final String TABLE_NAME = "RVK_CPS_TECH_EL";
     public static final String FK_CPS_DEVICE_ONE = "FK_CPS_TECH_EL";
 
-    public volatile PropertySpecService propertySpecService;
-    public volatile MeteringService meteringService;
-    public volatile NlsService nlsService;
+    public PropertySpecService propertySpecService;
+    public Thesaurus thesaurus;
 
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.nlsService = nlsService;
-    }
-
-    @Reference(cardinality = ReferenceCardinality.MANDATORY)
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    public UsagePointTechElectricityCustomPropertySet() {
+    public UsagePointTechElCPS() {
         super();
     }
 
-    @Inject
-    public UsagePointTechElectricityCustomPropertySet(PropertySpecService propertySpecService, MeteringService meteringService) {
+    public UsagePointTechElCPS(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this();
-        this.setPropertySpecService(propertySpecService);
-        this.setMeteringService(meteringService);
+        this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
+    }
+
+    public Thesaurus getThesaurus() {
+        return this.thesaurus;
     }
 
     @Activate
@@ -82,7 +62,7 @@ public class UsagePointTechElectricityCustomPropertySet implements CustomPropert
     }
 
     @Override
-    public PersistenceSupport<UsagePoint, UsagePointTechElectricityDomainExtension> getPersistenceSupport() {
+    public PersistenceSupport<UsagePoint, UsagePointTechElDomExt> getPersistenceSupport() {
         return new UsagePointTechnicalElectricityPersistenceSupport(this.getThesaurus());
     }
 
@@ -110,7 +90,7 @@ public class UsagePointTechElectricityCustomPropertySet implements CustomPropert
     public List<PropertySpec> getPropertySpecs() {
         PropertySpec crossSectionalAreaSpec = propertySpecService
                 .stringSpec()
-                .named(UsagePointTechElectricityDomainExtension.FieldNames.CROSS_SECTIONAL_AREA.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_CROSS_SECTIONAL_AREA)
+                .named(UsagePointTechElDomExt.FieldNames.CROSS_SECTIONAL_AREA.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_CROSS_SECTIONAL_AREA)
                 .describedAs(TranslationKeys.CPS_TECHNICAL_PROPERTIES_CROSS_SECTIONAL_AREA_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("EU", "NA")
@@ -118,21 +98,25 @@ public class UsagePointTechElectricityCustomPropertySet implements CustomPropert
 
         PropertySpec volatageLevelSpec = propertySpecService
                 .stringSpec()
-                .named(UsagePointTechElectricityDomainExtension.FieldNames.VOLTAGE_LEVEL.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_VOLTAGE_LEVEL)
+                .named(UsagePointTechElDomExt.FieldNames.VOLTAGE_LEVEL.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_VOLTAGE_LEVEL)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("low", "medium", "high")
                 .finish();
 
+        PropertySpec cableLocationSpec = propertySpecService
+                .specForValuesOf(new QuantityValueFactory())
+                .named(UsagePointTechElDomExt.FieldNames.CABLE_LOCATION.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_CABLE_LOCATION)
+                .describedAs(TranslationKeys.CPS_TECHNICAL_PROPERTIES_CABLE_LOCATION_DESCRIPTION)
+                .fromThesaurus(this.getThesaurus())
+                .finish();
+
         return Arrays.asList(
                 crossSectionalAreaSpec,
-                volatageLevelSpec);
+                volatageLevelSpec,
+                cableLocationSpec);
     }
 
-    private Thesaurus getThesaurus() {
-        return nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-    private static class UsagePointTechnicalElectricityPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointTechElectricityDomainExtension> {
+    private static class UsagePointTechnicalElectricityPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointTechElDomExt> {
         private Thesaurus thesaurus;
 
         public UsagePointTechnicalElectricityPersistenceSupport(Thesaurus thesaurus) {
@@ -152,7 +136,7 @@ public class UsagePointTechElectricityCustomPropertySet implements CustomPropert
 
         @Override
         public String domainFieldName() {
-            return UsagePointTechElectricityDomainExtension.FieldNames.DOMAIN.javaName();
+            return UsagePointTechElDomExt.FieldNames.DOMAIN.javaName();
         }
 
         @Override
@@ -161,8 +145,8 @@ public class UsagePointTechElectricityCustomPropertySet implements CustomPropert
         }
 
         @Override
-        public Class<UsagePointTechElectricityDomainExtension> persistenceClass() {
-            return UsagePointTechElectricityDomainExtension.class;
+        public Class<UsagePointTechElDomExt> persistenceClass() {
+            return UsagePointTechElDomExt.class;
         }
 
         @Override
@@ -177,14 +161,17 @@ public class UsagePointTechElectricityCustomPropertySet implements CustomPropert
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(UsagePointTechElectricityDomainExtension.FieldNames.CROSS_SECTIONAL_AREA.databaseName())
+            table.column(UsagePointTechElDomExt.FieldNames.CROSS_SECTIONAL_AREA.databaseName())
                     .varChar(255)
-                    .map(UsagePointTechElectricityDomainExtension.FieldNames.CROSS_SECTIONAL_AREA.javaName())
+                    .map(UsagePointTechElDomExt.FieldNames.CROSS_SECTIONAL_AREA.javaName())
                     .add();
-            table.column(UsagePointTechElectricityDomainExtension.FieldNames.VOLTAGE_LEVEL.databaseName())
+            table.column(UsagePointTechElDomExt.FieldNames.VOLTAGE_LEVEL.databaseName())
                     .varChar(255)
-                    .map(UsagePointTechElectricityDomainExtension.FieldNames.VOLTAGE_LEVEL.javaName())
+                    .map(UsagePointTechElDomExt.FieldNames.VOLTAGE_LEVEL.javaName())
                     .add();
+            table.addQuantityColumns(UsagePointTechElDomExt.FieldNames.CABLE_LOCATION.databaseName(), false, UsagePointTechElDomExt.FieldNames.CABLE_LOCATION
+                    .javaName());
+
         }
     }
 }

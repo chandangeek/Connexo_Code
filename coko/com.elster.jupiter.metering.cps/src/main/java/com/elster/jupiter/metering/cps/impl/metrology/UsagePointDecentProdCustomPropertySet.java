@@ -4,13 +4,11 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.cps.impl.TranslationInstaller;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.metering.cps.impl.QuantityValueFactory;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -18,11 +16,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
 
-import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -30,12 +24,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "c.e.j.m.cps.impl.mtr.UsagePointDecentProdCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+//@Component(name = "c.e.j.m.cps.impl.mtr.UsagePointDecentProdCustomPropertySet", service = CustomPropertySet.class, immediate = true)
 public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointDecentProdDomExt> {
 
-    public volatile PropertySpecService propertySpecService;
-    public volatile MeteringService meteringService;
-    public volatile NlsService nlsService;
+    public PropertySpecService propertySpecService;
+    public Thesaurus thesaurus;
 
     public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_DEC";
     public static final String FK_CPS_DEVICE_DECENTRALIZED_PRODUCTION = "FK_CPS_MTR_USAGEPOINT_DEC";
@@ -45,34 +38,23 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
         super();
     }
 
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.nlsService = nlsService;
-    }
-
-    @Reference(cardinality = ReferenceCardinality.MANDATORY)
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    @Inject
-    public UsagePointDecentProdCustomPropertySet(PropertySpecService propertySpecService, MeteringService meteringService) {
+    public UsagePointDecentProdCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this();
-        this.setPropertySpecService(propertySpecService);
-        this.setMeteringService(meteringService);
+        this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
+
+    public Thesaurus getThesaurus() {
+        return this.thesaurus;
+    }
+
     @Activate
     public void activate() {
     }
 
     @Override
     public String getName() {
-        return this.getTheasarus().getFormat(TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_SIMPLE_NAME).format();
+        return this.getThesaurus().getFormat(TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_SIMPLE_NAME).format();
     }
 
     @Override
@@ -82,7 +64,7 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
 
     @Override
     public PersistenceSupport<UsagePoint, UsagePointDecentProdDomExt> getPersistenceSupport() {
-        return new UsagePointDecentrProdPS(this.getTheasarus());
+        return new UsagePointDecentrProdPS(this.getThesaurus());
     }
 
     @Override
@@ -107,45 +89,39 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        //unused until QuantityFactory is created
-//        PropertySpec installedPowerSpec = propertySpecService
-//                .stringSpec()
-//                .named(UsagePointDecentProdDomExt.Fields.INSTALLED_POWER.javaName(), TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_INSTALLED_POWER)
-//                .fromThesaurus(this.getTheasarus())
-//                .markEditable()
-//                .markRequired()
-//                .finish();
-//        PropertySpec convertorPowerSpec = propertySpecService
-//                .stringSpec()
-//                .named(UsagePointDecentProdDomExt.Fields.CONVERTOR_POWER.javaName(), TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_CONVERTER_POWER)
-//                .fromThesaurus(this.getTheasarus())
-//                .markEditable()
-//                .markRequired()
-//                .finish();
+        PropertySpec installedPowerSpec = propertySpecService
+                .specForValuesOf(new QuantityValueFactory())
+                .named(UsagePointDecentProdDomExt.Fields.INS_POWER.javaName(), TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_INSTALLED_POWER)
+                .fromThesaurus(this.getThesaurus())
+                .markEditable()
+                .markRequired()
+                .finish();
+        PropertySpec convertorPowerSpec = propertySpecService
+                .specForValuesOf(new QuantityValueFactory())
+                .named(UsagePointDecentProdDomExt.Fields.CONVERTOR_POWER.javaName(), TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_CONVERTER_POWER)
+                .fromThesaurus(this.getThesaurus())
+                .markEditable()
+                .markRequired()
+                .finish();
         PropertySpec typeOfDecentralizedProductionSpec = propertySpecService
                 .stringSpec()
-                .named(UsagePointDecentProdDomExt.Fields.TYPE_OF_DECENTRALIZED_PROD.javaName(), TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_TYPE_OF_DECENTRALIZED_PRODUCTION)
-                .fromThesaurus(this.getTheasarus())
+                .named(UsagePointDecentProdDomExt.Fields.DEC_PROD.javaName(), TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_TYPE_OF_DECENTRALIZED_PRODUCTION)
+                .fromThesaurus(this.getThesaurus())
                 .addValues("solar", "wind", "other")
                 .markRequired()
                 .finish();
-
         PropertySpec commissioningDateSpec = propertySpecService
                 .specForValuesOf(new InstantFactory())
                 .named(UsagePointDecentProdDomExt.Fields.COMMISSIONING_DATE.javaName(), TranslationKeys.CPS_DECENTRALIZED_PRODUCTION_COMMISSIONING_DATE)
-                .fromThesaurus(this.getTheasarus())
+                .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .finish();
 
         return Arrays.asList(
-                //    installedPowerSpec,
-                //    convertorPowerSpec,
+                installedPowerSpec,
+                convertorPowerSpec,
                 typeOfDecentralizedProductionSpec,
                 commissioningDateSpec);
-    }
-
-    private Thesaurus getTheasarus() {
-        return nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     private static class UsagePointDecentrProdPS implements PersistenceSupport<UsagePoint, UsagePointDecentProdDomExt> {
@@ -192,24 +168,18 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            //unused until QuantityFactory is created
-//            table.column(UsagePointDecentProdDomExt.Fields.INSTALLED_POWER.databaseName())
-//                    .varChar(255)
-//                    .map(UsagePointDecentProdDomExt.Fields.INSTALLED_POWER.javaName())
-//                    .notNull()
-//                    .add();
-//            table.column(UsagePointDecentProdDomExt.Fields.CONVERTOR_POWER.databaseName())
-//                    .varChar(255)
-//                    .map(UsagePointDecentProdDomExt.Fields.CONVERTOR_POWER.javaName())
-//                    .notNull()
-//                    .add();
-            table.column(UsagePointDecentProdDomExt.Fields.TYPE_OF_DECENTRALIZED_PROD.databaseName())
+            table.addQuantityColumns(UsagePointDecentProdDomExt.Fields.INS_POWER.databaseName(), true,
+                    UsagePointDecentProdDomExt.Fields.INS_POWER.javaName());
+            table.addQuantityColumns(UsagePointDecentProdDomExt.Fields.CONVERTOR_POWER.databaseName(), true,
+                    UsagePointDecentProdDomExt.Fields.CONVERTOR_POWER.javaName());
+            table.column(UsagePointDecentProdDomExt.Fields.DEC_PROD.databaseName())
                     .varChar(255)
-                    .map(UsagePointDecentProdDomExt.Fields.TYPE_OF_DECENTRALIZED_PROD.javaName())
+                    .map(UsagePointDecentProdDomExt.Fields.DEC_PROD.javaName())
                     .notNull()
                     .add();
             table.column(UsagePointDecentProdDomExt.Fields.COMMISSIONING_DATE.databaseName())
-                    .varChar(255)
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(UsagePointDecentProdDomExt.Fields.COMMISSIONING_DATE.javaName())
                     .notNull()
                     .add();

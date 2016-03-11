@@ -11,7 +11,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.validation.constraints.Size;
 
-public class UsagePointTechnicalWGTDomainExtension implements PersistentDomainExtension<UsagePoint> {
+public class UsagePointTechnicalWGTDomExt implements PersistentDomainExtension<UsagePoint> {
     public enum Fields {
         DOMAIN {
             @Override

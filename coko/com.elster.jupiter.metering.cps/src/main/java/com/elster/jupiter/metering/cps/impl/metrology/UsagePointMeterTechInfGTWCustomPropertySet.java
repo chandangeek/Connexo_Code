@@ -4,11 +4,8 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.cps.impl.TranslationInstaller;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.metering.cps.impl.QuantityValueFactory;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
@@ -17,11 +14,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
 
-import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -29,12 +22,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "c.e.j.m.cps.impl.metrology.UsagePointMeterTechInfGTWCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+//@Component(name = "c.e.j.m.cps.impl.metrology.UsagePointMeterTechInfGTWCustomPropertySet", service = CustomPropertySet.class, immediate = true)
 public class UsagePointMeterTechInfGTWCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointMeterTechInfGTWDomExt> {
 
-    public volatile PropertySpecService propertySpecService;
-    public volatile MeteringService meteringService;
-    public volatile NlsService nlsService;
+    public PropertySpecService propertySpecService;
+    public Thesaurus thesaurus;
 
     public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_T_IN";
     public static final String FK_CPS_DEVICE_METER_TECH_INFORM = "FK_CPS_MTR_USAGEPOINT_T_IN";
@@ -44,26 +36,14 @@ public class UsagePointMeterTechInfGTWCustomPropertySet implements CustomPropert
         super();
     }
 
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.nlsService = nlsService;
-    }
-
-    @Reference(cardinality = ReferenceCardinality.MANDATORY)
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    @Inject
-    public UsagePointMeterTechInfGTWCustomPropertySet(PropertySpecService propertySpecService, MeteringService meteringService) {
+    public UsagePointMeterTechInfGTWCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this();
-        this.setPropertySpecService(propertySpecService);
-        this.setMeteringService(meteringService);
+        this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
+    }
+
+    public Thesaurus getThesaurus() {
+        return this.thesaurus;
     }
 
     @Activate
@@ -126,43 +106,37 @@ public class UsagePointMeterTechInfGTWCustomPropertySet implements CustomPropert
                 .describedAs(TranslationKeys.CPS_METER_TECH_CONVERSION_METROLOGY_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .finish();
-
-        //unused until QuantityFactory is created
-//        PropertySpec capacityMinimalSpec = propertySpecService
-//                .stringSpec()
-//                .named(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_MINIMAL.javaName(), TranslationKeys.CPS_METER_TECH_CAPACITY_MINIMAL)
-//                .describedAs(TranslationKeys.CPS_METER_TECH_CAPACITY_MINIMAL_DESCRIPTION)
-//                .fromThesaurus(this.getThesaurus())
-//                .finish();
-//        PropertySpec capacityNominalSpec = propertySpecService
-//                .stringSpec()
-//                .named(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_NOMINAL.javaName(), TranslationKeys.CPS_METER_TECH_CAPACITY_NOMINAL)
-//                .describedAs(TranslationKeys.CPS_METER_TECH_CAPACITY_NOMINAL_DESCRIPTION)
-//                .fromThesaurus(this.getThesaurus())
-//                .finish();
-//        PropertySpec capacityMaximalSpec = propertySpecService
-//                .stringSpec()
-//                .named(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_MAXIMAL.javaName(), TranslationKeys.CPS_METER_TECH_CAPACITY_MAXIMAL)
-//                .describedAs(TranslationKeys.CPS_METER_TECH_CAPACITY_MAXIMAL_DESCRIPTION)
-//                .fromThesaurus(this.getThesaurus())
-//                .finish();
-//        PropertySpec pressureMaximalSpec = propertySpecService
-//                .stringSpec()
-//                .named(UsagePointMeterTechInfGTWDomExt.Fields.PRESSURE_MAXIMAL.javaName(), TranslationKeys.CPS_METER_TECH_PRESSURE_MAXIMAL)
-//                .describedAs(TranslationKeys.CPS_METER_TECH_PRESSURE_MAXIMAL_DESCRIPTION)
-//                .fromThesaurus(this.getThesaurus())
-//                .finish();
+        PropertySpec capacityMinimalSpec = propertySpecService
+                .specForValuesOf(new QuantityValueFactory())
+                .named(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_MIN.javaName(), TranslationKeys.CPS_METER_TECH_CAPACITY_MINIMAL)
+                .describedAs(TranslationKeys.CPS_METER_TECH_CAPACITY_MINIMAL_DESCRIPTION)
+                .fromThesaurus(this.getThesaurus())
+                .finish();
+        PropertySpec capacityNominalSpec = propertySpecService
+                .specForValuesOf(new QuantityValueFactory())
+                .named(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_NOM.javaName(), TranslationKeys.CPS_METER_TECH_CAPACITY_NOMINAL)
+                .describedAs(TranslationKeys.CPS_METER_TECH_CAPACITY_NOMINAL_DESCRIPTION)
+                .fromThesaurus(this.getThesaurus())
+                .finish();
+        PropertySpec capacityMaximalSpec = propertySpecService
+                .specForValuesOf(new QuantityValueFactory())
+                .named(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_MAX.javaName(), TranslationKeys.CPS_METER_TECH_CAPACITY_MAXIMAL)
+                .describedAs(TranslationKeys.CPS_METER_TECH_CAPACITY_MAXIMAL_DESCRIPTION)
+                .fromThesaurus(this.getThesaurus())
+                .finish();
+        PropertySpec pressureMaximalSpec = propertySpecService
+                .specForValuesOf(new QuantityValueFactory())
+                .named(UsagePointMeterTechInfGTWDomExt.Fields.PRESSURE_MAX.javaName(), TranslationKeys.CPS_METER_TECH_PRESSURE_MAXIMAL)
+                .describedAs(TranslationKeys.CPS_METER_TECH_PRESSURE_MAXIMAL_DESCRIPTION)
+                .fromThesaurus(this.getThesaurus())
+                .finish();
         return Arrays.asList(recessedLengthSpec,
                 connectionTypeSpec,
-                conversionMetrologySpec);
-        // capacityMinimalSpec,
-        // capacityNominalSpec,
-        // capacityMaximalSpec,
-        //pressureMaximalSpec);
-    }
-
-    private Thesaurus getThesaurus() {
-        return nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
+                conversionMetrologySpec,
+                capacityMinimalSpec,
+                capacityNominalSpec,
+                capacityMaximalSpec,
+                pressureMaximalSpec);
     }
 
     private static class UsagePointMeterTechInfGTWPersSupp implements PersistenceSupport<UsagePoint, UsagePointMeterTechInfGTWDomExt> {
@@ -222,24 +196,14 @@ public class UsagePointMeterTechInfGTWCustomPropertySet implements CustomPropert
                     .varChar(255)
                     .map(UsagePointMeterTechInfGTWDomExt.Fields.CONVERSION_METROLOGY.javaName())
                     .add();
-
-            //unused until QuantityFactory is created
-//            table.column(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_MINIMAL.databaseName())
-//                    .varChar(255)
-//                    .map(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_MINIMAL.javaName())
-//                    .add();
-//            table.column(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_NOMINAL.databaseName())
-//                    .varChar(255)
-//                    .map(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_NOMINAL.javaName())
-//                    .add();
-//            table.column(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_MAXIMAL.databaseName())
-//                    .varChar(255)
-//                    .map(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_MAXIMAL.javaName())
-//                    .add();
-//            table.column(UsagePointMeterTechInfGTWDomExt.Fields.PRESSURE_MAXIMAL.databaseName())
-//                    .varChar(255)
-//                    .map(UsagePointMeterTechInfGTWDomExt.Fields.PRESSURE_MAXIMAL.javaName())
-//                    .add();
+            table.addQuantityColumns(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_MIN.databaseName(), false,
+                    UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_MIN.javaName());
+            table.addQuantityColumns(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_MAX.databaseName(), false,
+                    UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_MAX.javaName());
+            table.addQuantityColumns(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_NOM.databaseName(), false,
+                    UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_NOM.javaName());
+            table.addQuantityColumns(UsagePointMeterTechInfGTWDomExt.Fields.PRESSURE_MAX.databaseName(), false,
+                    UsagePointMeterTechInfGTWDomExt.Fields.PRESSURE_MAX.javaName());
         }
     }
 }

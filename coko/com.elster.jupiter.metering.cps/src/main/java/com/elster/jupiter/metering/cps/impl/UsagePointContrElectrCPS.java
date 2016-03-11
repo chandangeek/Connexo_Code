@@ -1,10 +1,11 @@
-package com.elster.jupiter.metering.cps.impl.metrology;
+package com.elster.jupiter.metering.cps.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.cps.impl.metrology.TranslationKeys;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
@@ -12,7 +13,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,21 +21,20 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-//@Component(name = "c.e.j.m.cps.impl.mtr.UsagePointContCustomPropertySet", service = CustomPropertySet.class, immediate = true)
-public class UsagePointContCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointContDomainExtension> {
-
+//@Component(name = "c.e.j.mtr.cps.impl.UsagePointContrElectrCPS", service = CustomPropertySet.class, immediate = true)
+public class UsagePointContrElectrCPS implements CustomPropertySet<UsagePoint, UsagePointContrElectrDomExt> {
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_CON";
-    public static final String FK_CPS_DEVICE_CONTRACTUAL = "FK_CPS_MTR_USAGEPOINT_CON";
-    public static final String COMPONENT_NAME = "CON";
+    public static final String TABLE_NAME = "RVK_CPS_USAGEPOINT_EL_CON";
+    public static final String FK_CPS_DEVICE_CONTR_ELECTRICITY = "FK_CPS_USAGEPOINT_EL_CON";
+    public static final String COMPONENT_NAME = "EL_CON";
 
-    public UsagePointContCustomPropertySet() {
+    public UsagePointContrElectrCPS() {
         super();
     }
 
-    public UsagePointContCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public UsagePointContrElectrCPS(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this();
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
@@ -45,13 +44,9 @@ public class UsagePointContCustomPropertySet implements CustomPropertySet<UsageP
         return this.thesaurus;
     }
 
-    @Activate
-    public void activate() {
-    }
-
     @Override
     public String getName() {
-        return this.getThesaurus().getFormat(TranslationKeys.CPS_CONTRACTUAL_SIMPLE_NAME).format();
+        return getThesaurus().getFormat(TranslationKeys.CPS_CUSTOM_CONTRACTUAL_SIMPLE_NAME).format();
     }
 
     @Override
@@ -60,8 +55,8 @@ public class UsagePointContCustomPropertySet implements CustomPropertySet<UsageP
     }
 
     @Override
-    public PersistenceSupport<UsagePoint, UsagePointContDomainExtension> getPersistenceSupport() {
-        return new UsagePointConPersistenceSupport(this.getThesaurus());
+    public PersistenceSupport<UsagePoint, UsagePointContrElectrDomExt> getPersistenceSupport() {
+        return new UsagePointContractualPerSupp(this.getThesaurus());
     }
 
     @Override
@@ -71,7 +66,7 @@ public class UsagePointContCustomPropertySet implements CustomPropertySet<UsageP
 
     @Override
     public boolean isVersioned() {
-        return false;
+        return true;
     }
 
     @Override
@@ -86,22 +81,18 @@ public class UsagePointContCustomPropertySet implements CustomPropertySet<UsageP
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        PropertySpec billingCycleSpec = propertySpecService
-                .stringSpec()
-                .named(UsagePointContDomainExtension.Fields.BILLING_CYCLE.javaName(), TranslationKeys.CPS_CONTRACTUAL_BILLING_CYCLE)
+        PropertySpec contractedPowerSpec = propertySpecService
+                .specForValuesOf(new QuantityValueFactory())
+                .named(UsagePointContrElectrDomExt.Fields.CONTRACTED_POWER.javaName(), TranslationKeys.CPS_CUSTOM_CONTRACTUAL_CONTRACTED_POWER)
                 .fromThesaurus(this.getThesaurus())
-                .addValues("Monthly", "Yearly", "Billing month")
-                .markRequired()
                 .finish();
-
-        return Arrays.asList(billingCycleSpec);
+        return Arrays.asList(contractedPowerSpec);
     }
 
-    private static class UsagePointConPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointContDomainExtension> {
-
+    private class UsagePointContractualPerSupp implements PersistenceSupport<UsagePoint, UsagePointContrElectrDomExt> {
         private Thesaurus thesaurus;
 
-        public UsagePointConPersistenceSupport(Thesaurus thesaurus) {
+        public UsagePointContractualPerSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -117,17 +108,17 @@ public class UsagePointContCustomPropertySet implements CustomPropertySet<UsageP
 
         @Override
         public String domainFieldName() {
-            return UsagePointContDomainExtension.Fields.DOMAIN.javaName();
+            return UsagePointGeneralDomainExtension.Fields.DOMAIN.javaName();
         }
 
         @Override
         public String domainForeignKeyName() {
-            return FK_CPS_DEVICE_CONTRACTUAL;
+            return FK_CPS_DEVICE_CONTR_ELECTRICITY;
         }
 
         @Override
-        public Class<UsagePointContDomainExtension> persistenceClass() {
-            return UsagePointContDomainExtension.class;
+        public Class<UsagePointContrElectrDomExt> persistenceClass() {
+            return UsagePointContrElectrDomExt.class;
         }
 
         @Override
@@ -142,11 +133,9 @@ public class UsagePointContCustomPropertySet implements CustomPropertySet<UsageP
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(UsagePointContDomainExtension.Fields.BILLING_CYCLE.databaseName())
-                    .varChar(255)
-                    .map(UsagePointContDomainExtension.Fields.BILLING_CYCLE.javaName())
-                    .notNull()
-                    .add();
+            table.addQuantityColumns(UsagePointContrElectrDomExt.Fields.CONTRACTED_POWER.databaseName(), false, UsagePointContrElectrDomExt.Fields.CONTRACTED_POWER
+                    .javaName());
         }
     }
 }
+

@@ -21,21 +21,21 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-//@Component(name = "com.e.j.m.cps.impl.metrology.UsagePointMetrologyGeneralCPS", service = CustomPropertySet.class, immediate = true)
-public class UsagePointMetrologyGeneralCPS implements CustomPropertySet<UsagePoint, UsagePointMetrologyGeneralDomExt> {
+//@Component(name = "c.e.j.mtr.cps.impl.mtr.UsagePointTechInstAllCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+public class UsagePointTechInstAllCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointTechInstAllDomExt> {
 
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_GENERAL";
-    public static final String FK_CPS_DEVICE_GENERAL = "FK_CPS_MTR_USAGEPOINT_GENERAL";
-    public static final String COMPONENT_NAME = "MTR_GNR";
+    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_TECH";
+    public static final String FK_CPS_DEVICE_TECHNICAL_INSTALLATION = "FK_CPS_MTR_USAGEPOINT_TECH";
+    public static final String COMPONENT_NAME = "MTR_INST";
 
-    public UsagePointMetrologyGeneralCPS() {
+    public UsagePointTechInstAllCustomPropertySet() {
         super();
     }
 
-    public UsagePointMetrologyGeneralCPS(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public UsagePointTechInstAllCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this();
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
@@ -51,7 +51,7 @@ public class UsagePointMetrologyGeneralCPS implements CustomPropertySet<UsagePoi
 
     @Override
     public String getName() {
-        return this.getThesaurus().getFormat(TranslationKeys.CPS_METROLOGY_GENERAL_SIMPLE_NAME).format();
+        return this.getThesaurus().getFormat(TranslationKeys.CPS_TECHNICAL_INSTALLATION_ALL_SIMPLE_NAME).format();
     }
 
     @Override
@@ -60,8 +60,8 @@ public class UsagePointMetrologyGeneralCPS implements CustomPropertySet<UsagePoi
     }
 
     @Override
-    public PersistenceSupport<UsagePoint, UsagePointMetrologyGeneralDomExt> getPersistenceSupport() {
-        return new UsagePointMetrologyGeneralPersSupp(this.getThesaurus());
+    public PersistenceSupport<UsagePoint, UsagePointTechInstAllDomExt> getPersistenceSupport() {
+        return new UsagePointTechInstAllPersSupp(this.getThesaurus());
     }
 
     @Override
@@ -84,30 +84,22 @@ public class UsagePointMetrologyGeneralCPS implements CustomPropertySet<UsagePoi
         return EnumSet.allOf(EditPrivilege.class);
     }
 
+
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        PropertySpec readCycleSpec = propertySpecService
+        PropertySpec substationSpec = propertySpecService
                 .stringSpec()
-                .named(UsagePointMetrologyGeneralDomExt.Fields.READ_CYCLE.javaName(), TranslationKeys.CPS_METROLOGY_GENERAL_PROPERTIES_READ_CYCLE)
+                .named(UsagePointTechInstAllDomExt.Fields.SUBSTATION.javaName(), TranslationKeys.CPS_TECHNICAL_INSTALLATION_SUBSTATION)
                 .fromThesaurus(this.getThesaurus())
-                .markRequired()
                 .finish();
-        PropertySpec informationFrequencySpec = propertySpecService
-                .stringSpec()
-                .named(UsagePointMetrologyGeneralDomExt.Fields.INFORMATION_FREQUENCY.javaName(), TranslationKeys.CPS_METROLOGY_GENERAL_PROPERTIES_INFORMATION_FREQUENCY)
-                .describedAs(TranslationKeys.CPS_METROLOGY_GENERAL_PROPERTIES_INFORMATION_FREQUENCY_DESCRIPTION)
-                .fromThesaurus(this.getThesaurus())
-                .markRequired()
-                .markEditable()
-                .finish();
-        return Arrays.asList(readCycleSpec, informationFrequencySpec);
+        return Arrays.asList(substationSpec);
     }
 
-    private static class UsagePointMetrologyGeneralPersSupp implements PersistenceSupport<UsagePoint, UsagePointMetrologyGeneralDomExt> {
+    private static class UsagePointTechInstAllPersSupp implements PersistenceSupport<UsagePoint, UsagePointTechInstAllDomExt> {
 
         private Thesaurus thesaurus;
 
-        public UsagePointMetrologyGeneralPersSupp(Thesaurus thesaurus) {
+        public UsagePointTechInstAllPersSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -123,17 +115,17 @@ public class UsagePointMetrologyGeneralCPS implements CustomPropertySet<UsagePoi
 
         @Override
         public String domainFieldName() {
-            return UsagePointMetrologyGeneralDomExt.Fields.DOMAIN.javaName();
+            return UsagePointTechInstAllDomExt.Fields.DOMAIN.javaName();
         }
 
         @Override
         public String domainForeignKeyName() {
-            return FK_CPS_DEVICE_GENERAL;
+            return FK_CPS_DEVICE_TECHNICAL_INSTALLATION;
         }
 
         @Override
-        public Class<UsagePointMetrologyGeneralDomExt> persistenceClass() {
-            return UsagePointMetrologyGeneralDomExt.class;
+        public Class<UsagePointTechInstAllDomExt> persistenceClass() {
+            return UsagePointTechInstAllDomExt.class;
         }
 
         @Override
@@ -148,16 +140,11 @@ public class UsagePointMetrologyGeneralCPS implements CustomPropertySet<UsagePoi
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(UsagePointMetrologyGeneralDomExt.Fields.READ_CYCLE.databaseName())
+            table.column(UsagePointTechInstAllDomExt.Fields.SUBSTATION.databaseName())
                     .varChar(255)
-                    .map(UsagePointMetrologyGeneralDomExt.Fields.READ_CYCLE.javaName())
-                    .notNull()
-                    .add();
-            table.column(UsagePointMetrologyGeneralDomExt.Fields.INFORMATION_FREQUENCY.databaseName())
-                    .varChar(255)
-                    .map(UsagePointMetrologyGeneralDomExt.Fields.INFORMATION_FREQUENCY.javaName())
-                    .notNull()
+                    .map(UsagePointTechInstAllDomExt.Fields.SUBSTATION.javaName())
                     .add();
         }
     }
+
 }

@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.units.Quantity;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -22,10 +23,10 @@ public class UsagePointDecentProdDomExt implements PersistentDomainExtension<Usa
                 return "usagePoint";
             }
         },
-        INSTALLED_POWER {
+        INS_POWER {
             @Override
             public String javaName() {
-                return "installedPower";
+                return "installationPower";
             }
         },
         CONVERTOR_POWER {
@@ -34,7 +35,7 @@ public class UsagePointDecentProdDomExt implements PersistentDomainExtension<Usa
                 return "convertorPower";
             }
         },
-        TYPE_OF_DECENTRALIZED_PROD {
+        DEC_PROD {
             @Override
             public String javaName() {
                 return "typeOfDecentralizedProduction";
@@ -59,16 +60,13 @@ public class UsagePointDecentProdDomExt implements PersistentDomainExtension<Usa
     Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     @NotNull(message = "{CannotBeNull}")
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
-    private String installedPower;
+    private Quantity installationPower;
     @NotNull(message = "{CannotBeNull}")
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
-    private String convertorPower;
+    private Quantity convertorPower;
     @NotNull(message = "{CannotBeNull}")
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String typeOfDecentralizedProduction;
     @NotNull(message = "{CannotBeNull}")
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private Instant commissioningDate;
 
     public UsagePointDecentProdDomExt() {
@@ -83,24 +81,8 @@ public class UsagePointDecentProdDomExt implements PersistentDomainExtension<Usa
         this.typeOfDecentralizedProduction = typeOfDecentralizedProduction;
     }
 
-    public void setInstalledPower(String installedPower) {
-        this.installedPower = installedPower;
-    }
-
-    public void setConvertorPower(String convertorPower) {
-        this.convertorPower = convertorPower;
-    }
-
     public void setCommissioningDate(Instant commissioningDate) {
         this.commissioningDate = commissioningDate;
-    }
-
-    public String getInstalledPower() {
-        return installedPower;
-    }
-
-    public String getConvertorPower() {
-        return convertorPower;
     }
 
     public String getTypeOfDecentralizedProduction() {
@@ -111,12 +93,28 @@ public class UsagePointDecentProdDomExt implements PersistentDomainExtension<Usa
         return commissioningDate;
     }
 
+    public Quantity getConvertorPower() {
+        return convertorPower;
+    }
+
+    public void setConvertorPower(Quantity convertorPower) {
+        this.convertorPower = convertorPower;
+    }
+
+    public Quantity getInstallationPower() {
+        return installationPower;
+    }
+
+    public void setInstallationPower(Quantity installationPower) {
+        this.installationPower = installationPower;
+    }
+
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(domainInstance);
-        this.setInstalledPower((String) propertyValues.getProperty(Fields.INSTALLED_POWER.javaName()));
-        this.setConvertorPower((String) propertyValues.getProperty(Fields.CONVERTOR_POWER.javaName()));
-        this.setTypeOfDecentralizedProduction((String) propertyValues.getProperty(Fields.TYPE_OF_DECENTRALIZED_PROD
+        this.setInstallationPower((Quantity) propertyValues.getProperty(Fields.INS_POWER.javaName()));
+        this.setConvertorPower((Quantity) propertyValues.getProperty(Fields.CONVERTOR_POWER.javaName()));
+        this.setTypeOfDecentralizedProduction((String) propertyValues.getProperty(Fields.DEC_PROD
                 .javaName()));
         this.setCommissioningDate((Instant) propertyValues.getProperty(Fields.COMMISSIONING_DATE.javaName()));
 
@@ -124,9 +122,9 @@ public class UsagePointDecentProdDomExt implements PersistentDomainExtension<Usa
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(Fields.INSTALLED_POWER.javaName(), this.getInstalledPower());
+        propertySetValues.setProperty(Fields.INS_POWER.javaName(), this.getInstallationPower());
         propertySetValues.setProperty(Fields.CONVERTOR_POWER.javaName(), this.getConvertorPower());
-        propertySetValues.setProperty(Fields.TYPE_OF_DECENTRALIZED_PROD.javaName(), this.getTypeOfDecentralizedProduction());
+        propertySetValues.setProperty(Fields.DEC_PROD.javaName(), this.getTypeOfDecentralizedProduction());
         propertySetValues.setProperty(Fields.COMMISSIONING_DATE.javaName(), this.getCommissioningDate());
     }
 

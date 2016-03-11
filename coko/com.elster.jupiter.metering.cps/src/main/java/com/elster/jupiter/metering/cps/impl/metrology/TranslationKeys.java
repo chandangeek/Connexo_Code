@@ -10,7 +10,7 @@ public enum TranslationKeys implements TranslationKey {
     CPS_GENERAL_PROPERTIES_PREPAY("usage.point.cps.general.properties.general.prepay", "Prepay"),
     CPS_GENERAL_PROPERTIES_PREPAY_DESCRIPTION("usage.point.cps.general.properties.prepay.descr", "Actively delivered on prepayment or deactivated, only relevant for SDP"),
     CPS_GENERAL_PROPERTIES_MARKET_CODE_SECTOR("usage.point.cps.general.properties.market.code.sector", "Market code sector"),
-    CPS_GENERAL_PROPERTIES_MARKED_CODE_SECTOR_DESCRIPTION("usage.point.cps.general.properties.market.code.sector.descr", "UsagePointTechElectricityCustomPropertySet classification of a usage point"),
+    CPS_GENERAL_PROPERTIES_MARKED_CODE_SECTOR_DESCRIPTION("usage.point.cps.general.properties.market.code.sector.descr", "UsagePointTechElCPS classification of a usage point"),
     CPS_GENERAL_PROPERTIES_METERING_POINT_TYPE("usage.point.cps.general.properties.metering.point.type", "Metering point type"),
     CPS_GENERAL_PROPERTIES_METERING_POINT_TYPE_DESCRIPTION("usage.point.cps.general.properties.metering.point.type.descr", "Geeft de richting van de aansluiting aan: levering, teruglevering of beide"),
 
@@ -59,6 +59,8 @@ public enum TranslationKeys implements TranslationKey {
     //CPS_TECHNICAL_INSTALLATION_FEEDER_DESCRIPTION("usage.point.cps.tech.installation.name.feeder.descr", ""),
     CPS_TECHNICAL_INSTALLATION_UTILIZATION_CATEGORY("usage.point.cps.tech.installation.utilization.category", "Utilization Category"),
     CPS_TECHNICAL_INSTALLATION_UTILIZATION_CATEGORY_DESCRIPTION("usage.point.cps.tech.installation.utilization.category.descr", "An indication of specific category of energy usage. Example: public lighting."),
+
+    CPS_TECHNICAL_INSTALLATION_ELECTRICITY_GAS_SIMPLE_NAME("usage.point.tech.installation.electricity.gas.name", "Technical Installation (Electricity, gas)"),
     CPS_TECHNICAL_INSTALLATION_LOSS_FACTOR("usage.point.cps.tech.installation.loss.factor", "Loss factor"),
     CPS_TECHNICAL_INSTALLATION_LOSS_FACTOR_DESCRIPTION("usage.point.cps.tech.installation.loss.factor.descr", "Energy losses which need to be accounted for specified as a factor of a measured value,( i.e. % of the total energy measured for Cupper losses)\t"),
 
@@ -92,8 +94,8 @@ public enum TranslationKeys implements TranslationKey {
     CPS_METER_GENERAL_MANUFACTURER_DESCRIPTION("usage.point.cps.meter.general.manufacturer.descr", "The manufacturer of the device, eg. Elster"),
     CPS_METER_GENERAL_MODEL("usage.point.cps.meter.general.model", "Model"),
     CPS_METER_GENERAL_MODEL_DESCRIPTION("usage.point.cps.meter.general.model.descr", "Depends on manufacturer, eg. AS300\n"),
-    CPS_METER_GENERAL_CLASS("usage.point.cps.meter.general.class", "Class"),
-    CPS_METER_GENERAL_CLASS_DESCRIPTION("usage.point.cps.meter.general.class.descr", "accuracy of meter, eg. class 1\t\n"),
+    CPS_METER_GENERAL_CLAZZ("usage.point.cps.meter.general.class", "Clazz"),
+    CPS_METER_GENERAL_CLAZZ_DESCRIPTION("usage.point.cps.meter.general.class.descr", "accuracy of meter, eg. class 1\t\n"),
 
     CPS_METER_TECH_INFORMATION_GTW_SIMPLE_NAME("usage.point.cps.meter.tech.information.gtw.name", "Meter technical information(Gas, Water, Thermal)"),
     CPS_METER_TECH_INFORMATION_ELECTRICITY_SIMPLE_NAME("usage.point.cps.meter.tech.information.electricity.name", "Meter technical information(Electricity)"),
@@ -127,6 +129,9 @@ public enum TranslationKeys implements TranslationKey {
     CPS_METER_TECH_TYPE("usage.point.cps.meter.tech.information.type", "Meter type"),
     CPS_METER_TECH_TYPE_DESCRIPTION("usage.point.cps.meter.tech.information.type.descr", "The type of meter"),
 
+    CPS_CUSTOM_CONTRACTUAL_SIMPLE_NAME("usage.point.cps.custom.contractual.name", "Contractual custom (Electricity)"),
+    CPS_CUSTOM_CONTRACTUAL_CONTRACTED_POWER("usage.point.cps.custom.contractual.contracted.power", "Contracted power"),
+
     SIMPLE_CPS_NAME("usage.point.cps.simple.name", "Simple usage point CAS"),
     VERSIONED_CPS_NAME("usage.point.cps.versioned.name", "Versioned usage point CAS"),
     CPS_PROPERTIES_NAME("usage.point.cps.properties.name", "Name"),
@@ -137,8 +142,11 @@ public enum TranslationKeys implements TranslationKey {
     CPS_PROPERTIES_COMBOBOX_DESCRIPTION("usage.point.cps.properties.combobox.descr", "Combobox for CAS"),
 
 
-    QUANTITY_NAME("quantity.name", "Quantity"),
-    QUANTITY_FIELD("quantity.field", "QuantityField");
+    QUANTITY_NAME("usage.point.cps.quantity.name", "Quantity"),
+    QUANTITY_FIELD("usage.point.cps.quantity.field", "QuantityField"),
+    INSTANT_NAME("usage.point.cps.instant.name", "instant"),
+    INSTANT_FIELD("usage.point.cps.instant.field", "Instant"),
+    INSTANT_DESCRIPTION("usage.point.cps.instant.description", "description");
 
     private String key;
     private String defaultFormat;

@@ -9,8 +9,9 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.units.Quantity;
 
-public class UsagePointTechnicalElectricityDomainExtension implements PersistentDomainExtension<UsagePoint> {
+import java.time.Instant;
 
+public class TestDomainExtension implements PersistentDomainExtension<UsagePoint> {
     public enum Fields {
         DOMAIN {
             @Override
@@ -18,22 +19,16 @@ public class UsagePointTechnicalElectricityDomainExtension implements Persistent
                 return "usagePoint";
             }
         },
-        CROSS_SECTIONAL_AREA {
+        QUANTITY {
             @Override
             public String javaName() {
-                return "crossSectionalArea";
+                return "quantity";
             }
         },
-        CABLE_LOCATION {
+        INSTANT {
             @Override
             public String javaName() {
-                return "cableLocation";
-            }
-        },
-        VOLTAGE_LEVEL {
-            @Override
-            public String javaName() {
-                return "voltageLevel";
+                return "instant";
             }
         };
 
@@ -44,29 +39,44 @@ public class UsagePointTechnicalElectricityDomainExtension implements Persistent
         }
     }
 
-    @IsPresent
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
     @IsPresent
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
-    private String crossSectionalArea;
-    private Quantity cableLocation;
-    private String voltageLevel;
+    private Quantity quantity;
+    private Instant instant;
 
+    public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
+        return this.registeredCustomPropertySet.get();
+    }
+
+    public Quantity getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Quantity quantity) {
+        this.quantity = quantity;
+    }
+
+    public Instant getInstant() {
+        return instant;
+    }
+
+    public void setInstant(Instant instant) {
+        this.instant = instant;
+    }
 
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(domainInstance);
-        this.crossSectionalArea = (String) propertyValues.getProperty(Fields.CROSS_SECTIONAL_AREA.javaName());
-        this.cableLocation = (Quantity) propertyValues.getProperty(Fields.CABLE_LOCATION.javaName());
-        this.voltageLevel = (String) propertyValues.getProperty(Fields.VOLTAGE_LEVEL.javaName());
+        this.setQuantity((Quantity) propertyValues.getProperty(Fields.QUANTITY.javaName()));
+        this.setInstant((Instant) propertyValues.getProperty(Fields.INSTANT.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(Fields.CROSS_SECTIONAL_AREA.javaName(), this.crossSectionalArea);
-        propertySetValues.setProperty(Fields.CABLE_LOCATION.javaName(), this.cableLocation);
-        propertySetValues.setProperty(Fields.VOLTAGE_LEVEL.javaName(), this.voltageLevel);
+        propertySetValues.setProperty(Fields.QUANTITY.javaName(), this.getQuantity());
+        propertySetValues.setProperty(Fields.INSTANT.javaName(), this.getInstant());
     }
 
     @Override

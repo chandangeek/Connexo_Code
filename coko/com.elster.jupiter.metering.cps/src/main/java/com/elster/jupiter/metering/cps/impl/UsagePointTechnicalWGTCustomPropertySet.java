@@ -4,11 +4,8 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.cps.impl.metrology.TranslationKeys;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
@@ -17,11 +14,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
 
-import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -29,37 +22,24 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "c.e.j.mtr.cps.impl.UsagePointTechnicalWGTCustomPropertySet", service = CustomPropertySet.class, immediate = true)
-public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointTechnicalWGTDomainExtension> {
+//@Component(name = "c.e.j.mtr.cps.impl.UsagePointTechnicalWGTCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointTechnicalWGTDomExt> {
 
-    public volatile PropertySpecService propertySpecService;
-    public volatile MeteringService meteringService;
-    public volatile NlsService nlsService;
-
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.nlsService = nlsService;
-    }
-
-    @Reference(cardinality = ReferenceCardinality.MANDATORY)
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
+    public PropertySpecService propertySpecService;
+    public Thesaurus thesaurus;
 
     public UsagePointTechnicalWGTCustomPropertySet() {
         super();
     }
 
-    @Inject
-    public UsagePointTechnicalWGTCustomPropertySet(PropertySpecService propertySpecService, MeteringService meteringService) {
+    public UsagePointTechnicalWGTCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this();
-        this.setPropertySpecService(propertySpecService);
-        this.setMeteringService(meteringService);
+        this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
+    }
+
+    public Thesaurus getThesaurus() {
+        return this.thesaurus;
     }
 
     @Activate
@@ -78,7 +58,7 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
     }
 
     @Override
-    public PersistenceSupport<UsagePoint, UsagePointTechnicalWGTDomainExtension> getPersistenceSupport() {
+    public PersistenceSupport<UsagePoint, UsagePointTechnicalWGTDomExt> getPersistenceSupport() {
         return new UsagePointTechnicalWGTPersistenceSupport(this.getThesaurus());
     }
 
@@ -106,21 +86,21 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
     public List<PropertySpec> getPropertySpecs() {
         PropertySpec pipeSizeSpec = propertySpecService
                 .stringSpec()
-                .named(UsagePointTechnicalWGTDomainExtension.Fields.PIPE_SIZE.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_PIPE_SIZE)
+                .named(UsagePointTechnicalWGTDomExt.Fields.PIPE_SIZE.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_PIPE_SIZE)
                 .describedAs(TranslationKeys.CPS_TECHNICAL_PROPERTIES_PIPE_SIZE_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("EU", "UK", "NA")
                 .finish();
         PropertySpec pipeTypeSpec = propertySpecService
                 .stringSpec()
-                .named(UsagePointTechnicalWGTDomainExtension.Fields.PIPE_TYPE.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_PIPE_TYPE)
+                .named(UsagePointTechnicalWGTDomExt.Fields.PIPE_TYPE.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_PIPE_TYPE)
                 .describedAs(TranslationKeys.CPS_TECHNICAL_PROPERTIES_PIPE_TYPE_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("Asbestos", "Lead", "Iron", "Steel", "Bronze", "Copper", "Non metallic")
                 .finish();
         PropertySpec pressureLevelSpec = propertySpecService
                 .stringSpec()
-                .named(UsagePointTechnicalWGTDomainExtension.Fields.PRESSURE_LEVEL.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_PRESSURE_LEVEL)
+                .named(UsagePointTechnicalWGTDomExt.Fields.PRESSURE_LEVEL.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_PRESSURE_LEVEL)
                 .fromThesaurus(this.getThesaurus())
                 .addValues("low", "medium", "high")
                 .finish();
@@ -129,11 +109,7 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
                 pressureLevelSpec);
     }
 
-    private Thesaurus getThesaurus() {
-        return nlsService.getThesaurus(TranslationInstaller.COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-    private class UsagePointTechnicalWGTPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointTechnicalWGTDomainExtension> {
+    private class UsagePointTechnicalWGTPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointTechnicalWGTDomExt> {
         private Thesaurus thesaurus;
 
         public UsagePointTechnicalWGTPersistenceSupport(Thesaurus thesaurus) {
@@ -152,7 +128,7 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
 
         @Override
         public String domainFieldName() {
-            return UsagePointTechnicalWGTDomainExtension.Fields.DOMAIN.javaName();
+            return UsagePointTechnicalWGTDomExt.Fields.DOMAIN.javaName();
         }
 
         @Override
@@ -161,8 +137,8 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
         }
 
         @Override
-        public Class<UsagePointTechnicalWGTDomainExtension> persistenceClass() {
-            return UsagePointTechnicalWGTDomainExtension.class;
+        public Class<UsagePointTechnicalWGTDomExt> persistenceClass() {
+            return UsagePointTechnicalWGTDomExt.class;
         }
 
         @Override
@@ -177,17 +153,17 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(UsagePointTechnicalWGTDomainExtension.Fields.PIPE_SIZE.databaseName())
+            table.column(UsagePointTechnicalWGTDomExt.Fields.PIPE_SIZE.databaseName())
                     .varChar(255)
-                    .map(UsagePointTechnicalWGTDomainExtension.Fields.PIPE_SIZE.javaName())
+                    .map(UsagePointTechnicalWGTDomExt.Fields.PIPE_SIZE.javaName())
                     .add();
-            table.column(UsagePointTechnicalWGTDomainExtension.Fields.PIPE_TYPE.databaseName())
+            table.column(UsagePointTechnicalWGTDomExt.Fields.PIPE_TYPE.databaseName())
                     .varChar(255)
-                    .map(UsagePointTechnicalWGTDomainExtension.Fields.PIPE_TYPE.javaName())
+                    .map(UsagePointTechnicalWGTDomExt.Fields.PIPE_TYPE.javaName())
                     .add();
-            table.column(UsagePointTechnicalWGTDomainExtension.Fields.PRESSURE_LEVEL.databaseName())
+            table.column(UsagePointTechnicalWGTDomExt.Fields.PRESSURE_LEVEL.databaseName())
                     .varChar(255)
-                    .map(UsagePointTechnicalWGTDomainExtension.Fields.PRESSURE_LEVEL.javaName())
+                    .map(UsagePointTechnicalWGTDomExt.Fields.PRESSURE_LEVEL.javaName())
                     .add();
         }
     }
