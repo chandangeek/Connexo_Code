@@ -128,29 +128,6 @@ public class WhiteBoard {
         this.httpContext = new HttpContextImpl(authenticationService);
     }
 
-    void fire(RestCallExecutedEvent event) {
-        publisher.publish(event);
-        if (configuration.log()) {
-            Logger.getLogger("com.elster.jupiter.rest.whiteboard").info(event.toString());
-        }
-        if (configuration.throwEvents()) {
-            EventAdmin eventAdmin = eventAdminHolder.get();
-            if (eventAdmin != null) {
-                eventAdmin.postEvent(event.toOsgiEvent());
-            }
-        }
-    }
-
-    @Reference(name = "ZApplication", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addResource(Application application, Map<String, Object> properties) {
-        Optional<String> alias = getAlias(properties);
-        if (!alias.isPresent()) {
-            return;
-        }
-    	this.configuration = provider.getConfiguration();
-		this.httpContext = new HttpContextImpl(new BasicAuthentication(userService));
-	}
-
 	void fire(RestCallExecutedEvent event) {
 		publisher.publish(event);
 		if (configuration.log()) {
