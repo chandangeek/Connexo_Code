@@ -19,4 +19,6 @@ public interface IServiceCallService extends ServiceCallService {
     DestinationSpec getServiceCallQueue();
 
     Thesaurus getThesaurus();
+
+    void cancelServiceCallsFor(Object target);
 }

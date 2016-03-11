@@ -52,6 +52,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -362,5 +363,18 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
                 .filter(Where.where(ServiceCallImpl.Fields.state.fieldName() + ".name").in(stateKeys))
                 .filter(serviceCall -> serviceCall.getTargetObject().map(targetObject::equals).orElse(false))
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public void cancelServiceCallsFor(Object target) {
+        EnumSet<DefaultState> states = EnumSet.allOf(DefaultState.class);
+        states.remove(DefaultState.CANCELLED);
+        states.remove(DefaultState.FAILED);
+        states.remove(DefaultState.SUCCESSFUL);
+        states.remove(DefaultState.PARTIAL_SUCCESS);
+        states.remove(DefaultState.REJECTED);
+        findServiceCalls(target, states)
+                .stream()
+                .forEach(ServiceCall::cancel);
     }
 }

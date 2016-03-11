@@ -268,8 +268,44 @@ public class ServiceCallServiceImplIT {
         assertThat(serviceCalls)
                 .hasSize(1)
                 .contains(serviceCall);
+    }
 
+    @Test
+    public void cancelServiceCallsForTargetObject() {
+        MyPersistentExtension extension = new MyPersistentExtension();
+        extension.setValue(BigDecimal.valueOf(65456));
+        MyPersistentExtension extension2 = new MyPersistentExtension();
+        extension2.setValue(BigDecimal.valueOf(65456));
 
+        ServiceCall serviceCall = null;
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCall = serviceCallType.newServiceCall()
+                    .externalReference("external")
+                    .origin("CST")
+                    .targetObject(importSchedule2)
+                    .extendedWith(extension)
+                    .create();
+            serviceCallType.newServiceCall()
+                    .externalReference("external1")
+                    .origin("CST")
+                    .targetObject(importSchedule1)
+                    .extendedWith(extension2)
+                    .create();
+            context.commit();
+        }
+
+        serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
+        serviceCall.requestTransition(DefaultState.ONGOING);
+
+        List<ServiceCall> all = serviceCallService.getServiceCallFinder().find();
+
+        assertThat(all).hasSize(2);
+
+        serviceCallService.cancelServiceCallsFor(importSchedule2);
+
+        serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
+
+        assertThat(serviceCall.getState()).isEqualTo(DefaultState.CANCELLED);
     }
 
     static class MyPersistentExtension implements PersistentDomainExtension<ServiceCall> {
