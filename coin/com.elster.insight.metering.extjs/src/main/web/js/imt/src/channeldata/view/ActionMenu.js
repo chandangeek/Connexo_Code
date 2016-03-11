@@ -15,7 +15,7 @@ Ext.define('Imt.channeldata.view.ActionMenu', {
         {
             itemId: 'validateNowChannel',
             text: Uni.I18n.translate('channels.menu.validate', 'IMT', 'Validate now'),
-            privileges:Cfg.privileges.Validation.validateManual,
+            //privileges:Cfg.privileges.Validation.validateManual,
 //            dynamicPrivilege: Imt.dynamicprivileges.UsagePointState.validationActions,
             action: 'validateNow'
         }

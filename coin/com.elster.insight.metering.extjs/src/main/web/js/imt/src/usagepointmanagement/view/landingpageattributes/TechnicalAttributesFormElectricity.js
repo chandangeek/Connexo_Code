@@ -4,7 +4,11 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
 
 
     requires: [
-        'Uni.form.field.Duration'
+
+        'Imt.usagepointmanagement.view.forms.ElectricityInfo',
+        'Imt.usagepointmanagement.view.forms.fields.MeasureDisplayField',
+        'Imt.usagepointmanagement.view.forms.fields.ThreeValuesDisplayField'
+
     ],
 
     initComponent: function () {
@@ -16,6 +20,7 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                 defaults: {
                     xtype: 'displayfield',
                     labelWidth: 250,
+                    paddingBottom: 0,
                     width: 600
                 },
                 items: [
@@ -28,11 +33,11 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         }
                     },
                     {
+                        xtype: 'measuredisplayfield',
                         name: 'nominalServiceVoltage',
                         itemId: 'fld-up-service-voltage',
                         fieldLabel: Uni.I18n.translate('general.label.voltage', 'IMT', 'Nominal voltage'),
-                        renderer: Ext.bind(me.renderValue, me)
-
+                        unitType: 'voltage'
                     },
                     {
                         name: 'phaseCode',
@@ -43,77 +48,78 @@ Ext.define('Imt.usagepointmanagement.view.landingpageattributes.TechnicalAttribu
                         }
                     },
                     {
-                        name: 'ratedCurrent',
-                        itemId: 'fld-up-rated-current',
-                        fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current'),
-                        renderer: Ext.bind(me.renderValue, me)
-                    },
-                    {
+                        xtype: 'measuredisplayfield',
                         name: 'ratedPower',
                         itemId: 'fld-up-rated-power',
                         fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power'),
-                        renderer: Ext.bind(me.renderValue, me)
+                        unitType: 'power'
                     },
                     {
+                        xtype: 'measuredisplayfield',
                         name: 'estimatedLoad',
                         itemId: 'fld-up-estimated-load',
                         fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load'),
-                        renderer: Ext.bind(me.renderValue, me)
+                        unitType: 'estimationLoad'
+                    },
+
+                    {
+                        name: 'limiter',
+                        itemId: 'fld-up-limiter',
+                        fieldLabel: Uni.I18n.translate('general.label.limiter', 'IMT', 'Limiter'),
+                        renderer: function (value) {
+                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
+                        }
+                    },
+                    {
+                        name: 'loadLimiterType',
+                        itemId: 'fld-up-loadLimiterType',
+                        hidden: true,
+                        fieldLabel: Uni.I18n.translate('general.label.loadLimiterType', 'IMT', 'Load limiter type'),
+                        listeners: {
+                            beforerender: function (fld){
+                                fld.setVisible(me.down('#fld-up-limiter').getValue())
+                            }
+                        }
+                    },
+                    {
+                        xtype: 'measuredisplayfield',
+                        name: 'loadLimit',
+                        itemId: 'fld-up-loadLimit',
+                        fieldLabel: Uni.I18n.translate('general.label.loadLimit', 'IMT', 'Load limit'),
+                        unitType: 'power',
+                        listeners: {
+                            beforerender: function (fld){
+                                fld.setVisible(me.down('#fld-up-limiter').getValue())
+                            }
+                        }
+                    },
+                    {
+                        xtype: 'threevaluesdisplayfield',
+                        name: 'collar',
+                        itemId: 'fld-up-collar',
+                        fieldLabel: Uni.I18n.translate('general.label.collar', 'IMT', 'Collar')
+                    },
+                    {
+                        name: 'interruptible',
+                        itemId: 'fld-up-interruptible',
+                        fieldLabel: Uni.I18n.translate('general.label.interruptible', 'IMT', 'Interruptible'),
+                        renderer: function (value) {
+                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
+                        }
                     }
                 ]
             },
             {
-                xtype: 'form',
+                xtype: 'electricity-info-form',
                 itemId: 'edit-form',
                 hidden: true,
                 defaults: {
-                    xtype: 'textfield',
+                    width: 520,
+                    minHeight: 27,
                     labelWidth: 250
-                },
-                items: [
-                    {
-                        xtype: 'checkbox',
-                        name: 'grounded',
-                        itemId: 'up-grounded-textfield',
-                        fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
-                    },
-                    {
-                        name: 'nominalServiceVoltage',
-                        itemId: 'up-service-voltage-textfield',
-                        fieldLabel: Uni.I18n.translate('general.label.voltage', 'IMT', 'Nominal voltage')
-                    },
-                    {
-                        name: 'phaseCode',
-                        itemId: 'up-phase-textfield',
-                        fieldLabel: Uni.I18n.translate('general.label.phaseCode', 'IMT', 'Phase code')
-                    },
-                    {
-                        name: 'ratedCurrent',
-                        itemId: 'up-rated-current-textfield',
-                        fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current')
-                    },
-                    {
-                        name: 'ratedPower',
-                        itemId: 'up-rated-power-textfield',
-                        fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power')
-                    },
-                    {
-                        name: 'estimatedLoad',
-                        itemId: 'up-estimated-load-textfield',
-                        fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load')
-                    }
-                ]
+                }
             }
         ];
         me.callParent();
-    },
-    renderValue: function (data) {
-    if (data) {
-        if (data.multiplier == 0)
-            return data.value + ' ' + data.unit;
-        else
-            return data.value + '*10<span style="position: relative;top: -6px;font-size: 10px;">' + data.multiplier + '</span> ' + data.unit;
-
-    } else return '-';
-}
+    }
 });

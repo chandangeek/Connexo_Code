@@ -38,17 +38,19 @@ Ext.define('Imt.customattributesonvaluesobjects.service.ActionMenuManager', {
         });
     },
 
-    setDisabledAllEditBtns: function (disabled) {
+    setAvailableEditBtns: function (available) {
         var actionMenuItems = Ext.ComponentQuery.query('[menuItemClass=inlineEditableAttributeSet]');
 
         Ext.suspendLayouts();
 
         Ext.each(actionMenuItems, function (item) {
-            item.setDisabled(disabled);
+            //item.setDisabled(disabled);
+            item.editAvailable = available;
         });
         var pencilBtns = Ext.ComponentQuery.query('#pencil-btn');
         Ext.each(pencilBtns, function(btn){
-            btn.setDisabled(disabled);
+            //btn.setDisabled(disabled);
+            btn.editAvailable = available;
         });
 
         Ext.resumeLayouts(true);

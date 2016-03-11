@@ -2,32 +2,32 @@ Ext.define('Imt.customattributesonvaluesobjects.service.RouteMap', {
     singleton: true,
 
     routeMap: {
-        "device": "devices/device/attributes/editcustomattributes",
+        "usagePoint": "usagepoints/view/attributes/editcustomattributes",
         "channel": "devices/device/channels/channel/editcustomattributes",
         "register": "devices/device/registers/register/editcustomattributes",
         "up": "usagepoints/view"
     },
 
     timeSlicedRouteMapEdit: {
-        "device": "devices/device/history/customattributesversionsedit",
+        "usagePoint": "usagepoints/view/history/customattributesversionsedit",
         "channel": "devices/device/channels/channel/customattributesversions/edit",
         "register": "devices/device/registers/register/customattributesversions/edit"
     },
 
     timeSlicedRouteMapAdd: {
-        "device": "devices/device/history/customattributesversionsadd",
+        "usagePoint": "usagepoints/view/history/customattributesversionsadd",
         "channel": "devices/device/channels/channel/customattributesversions/add",
         "register": "devices/device/registers/register/customattributesversions/add"
     },
 
     timeSlicedRouteMapClone: {
-        "device": "devices/device/history/customattributesversionsclone",
+        "usagePoint": "usagepoints/view/history/customattributesversionsclone",
         "channel": "devices/device/channels/channel/customattributesversions/clone",
         "register": "devices/device/registers/register/customattributesversions/clone"
     },
 
     timeSlicedRouteMapVersion: {
-        "device": "devices/device/history",
+        "usagePoint": "usagepoints/view/history",
         "channel": "devices/device/channels/channel/customattributesversions",
         "register": "devices/device/registers/register/customattributesversions"
     },
