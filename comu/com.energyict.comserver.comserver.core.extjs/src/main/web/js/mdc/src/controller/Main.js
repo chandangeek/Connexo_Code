@@ -286,8 +286,7 @@ Ext.define('Mdc.controller.Main', {
             }
         }
 
-
-        if (Mdc.privileges.UsagePoint.canAdminWithInsight()) {
+        Mdc.privileges.UsagePoint.checkAdminWithInsight(function(){
             var usagePointsMenuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.usagePoints', 'MDC', 'Usage points'),
                 href: '#/usagepoints',
@@ -311,7 +310,6 @@ Ext.define('Mdc.controller.Main', {
                 ]
             });
             Uni.store.PortalItems.add(portalItem);
-
-        }
+        })
     }
 });

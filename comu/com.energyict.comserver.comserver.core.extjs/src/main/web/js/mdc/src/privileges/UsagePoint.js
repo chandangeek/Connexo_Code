@@ -20,18 +20,6 @@ Ext.define('Mdc.privileges.UsagePoint', {
     canAdmin: function () {
         return Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.admin);
     },
-    canAdminWithInsight: function () {
-        var app = 'Insight';
-        Uni.store.Apps.load({
-            callback: function () {
-                if (!!Uni.store.Apps.findRecord('name', app)) {
-                    return false;
-                } else {
-                    return Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.admin);
-                }
-            }
-        });
-    },
     canViewInInsight: function () {
         var result = false;
         Mdc.privileges.UsagePoint.insightView.forEach(function (item) {
@@ -40,5 +28,22 @@ Ext.define('Mdc.privileges.UsagePoint', {
             }
         });
         return result;
+    },
+
+    checkAdminWithInsight: function(updateMenu){
+        var app = 'Insight';
+        if(Uni.store.Apps.storeLoaded){
+            if (!Uni.store.Apps.findRecord('name', app) && Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.admin)) {
+                updateMenu();
+            }
+        } else {
+            Uni.store.Apps.load({
+                callback: function () {
+                    if (!Uni.store.Apps.findRecord('name', app) && Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.admin)) {
+                        updateMenu();
+                    }
+                }
+            });
+        }
     }
 });
