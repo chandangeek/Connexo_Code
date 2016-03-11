@@ -66,7 +66,7 @@ public class OperationNode extends AbstractNode {
         }
         if ((operator.equals(Operator.DIVIDE)) &&
                 (!UnitConversionSupport.isAllowedDivision(left.getDimension(), right.getDimension()))) {
-                throw new InvalidNodeException("The dimensions of the arguments are not valid for  division");
+                throw new InvalidNodeException("The dimensions of the arguments are not valid for division");
         }
 
     }

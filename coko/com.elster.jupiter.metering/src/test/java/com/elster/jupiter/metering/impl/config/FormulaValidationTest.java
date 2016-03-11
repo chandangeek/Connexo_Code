@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.units.Dimension;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -136,8 +137,8 @@ public class FormulaValidationTest {
     }
 
     @Test
-    // formula = multiply(readingTypeRequirement1, readingTypeRequirement2)
-    public void testMultiplicationOfIncompatibleDimensions() {
+     // formula = multiply(readingTypeRequirement1, readingTypeRequirement2)
+     public void testMultiplicationOfIncompatibleDimensions() {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.POWER);
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.ELECTRIC_CURRENT);
         MetrologyConfigurationService service = getMetrologyConfigurationService();
@@ -153,6 +154,69 @@ public class FormulaValidationTest {
             fail("InvalidNodeException expected");
         } catch (InvalidNodeException e) {
             assertEquals(e.getMessage(), "The dimensions of the arguments are not valid for multiplication");
+        }
+    }
+
+    @Test
+    // formula = multiply(readingTypeRequirement1, readingTypeRequirement2)
+    public void testMultiplicationOfCompatibleDimensions() {
+        when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.LENGTH);
+        when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.LENGTH);
+        MetrologyConfigurationService service = getMetrologyConfigurationService();
+
+        FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+
+        NodeBuilder nodeBuilder = builder.multiply(
+                builder.requirement(readingTypeRequirement1),
+                builder.requirement(readingTypeRequirement2));
+        ExpressionNode node = (ExpressionNode) nodeBuilder.create();
+        try {
+            node.validate();
+            assertEquals(node.getDimension(), Dimension.SURFACE);
+        } catch (InvalidNodeException e) {
+            fail("No InvalidNodeException expected!");
+        }
+    }
+
+    @Test
+    // formula = multiply(readingTypeRequirement1, readingTypeRequirement2)
+    public void testDivisionOfCompatibleDimensions() {
+        when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.SURFACE);
+        when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.LENGTH);
+        MetrologyConfigurationService service = getMetrologyConfigurationService();
+
+        FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+
+        NodeBuilder nodeBuilder = builder.divide(
+                builder.requirement(readingTypeRequirement1),
+                builder.requirement(readingTypeRequirement2));
+        ExpressionNode node = (ExpressionNode) nodeBuilder.create();
+        try {
+            node.validate();
+            assertEquals(node.getDimension(), Dimension.LENGTH);
+        } catch (InvalidNodeException e) {
+            fail("No InvalidNodeException expected!");
+        }
+    }
+
+    @Test
+    // formula = multiply(readingTypeRequirement1, readingTypeRequirement2)
+    public void testDivisionOfIncompatibleDimensions() {
+        when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.SURFACE);
+        when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.ELECTRIC_CURRENT);
+        MetrologyConfigurationService service = getMetrologyConfigurationService();
+
+        FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+
+        NodeBuilder nodeBuilder = builder.divide(
+                builder.requirement(readingTypeRequirement1),
+                builder.requirement(readingTypeRequirement2));
+        ExpressionNode node = (ExpressionNode) nodeBuilder.create();
+        try {
+            node.validate();
+            fail("InvalidNodeException expected");
+        } catch (InvalidNodeException e) {
+            assertEquals(e.getMessage(), "The dimensions of the arguments are not valid for division");
         }
     }
 }
