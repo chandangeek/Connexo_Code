@@ -17,6 +17,7 @@ public enum MessageSeeds implements MessageSeed {
     FILE_FORMAT_ERROR(5, "FileFormatError", "File format error: wrong number of columns in the line {0}. Importer service expects {1} but was {2}.", Level.SEVERE),
     LINE_MISSING_VALUE_ERROR(6, "LineMissingValueError", "Format error for line {0}: missing value for column ''{1}''.", Level.SEVERE),
     LINE_FORMAT_ERROR(7, "LineFormatError", "Format error for line {0}: wrong value format for column ''{1}'' (expected format = ''{2}'')", Level.SEVERE),
+    UPDATE_NOT_ALLOWED(8, Constants.UPDATE_NOT_ALLOWED, "Update not allowed for ''{0}''", Level.SEVERE),
 
     IMPORT_USAGEPOINT_SUCCEEDED(1010, Constants.IMPORT_SUCCEEDED, " ''{0}'' usage points successfully imported without any errors", Level.INFO),
     IMPORT_USAGEPOINT_SUCCEEDED_WITH_FAILURES(1011, Constants.IMPORT_SUCCEEDED_WITH_FAILURES, " ''{0}'' usage points successfully imported, ''{1}'' usage points failed", Level.WARNING),
@@ -90,5 +91,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String IMPORT_USAGEPOINT_INVALID_SERVICELOCATION = "up.invalid.service.location";
         public static final String IMPORT_PARSER_INVALID = "up.invalid.parser";
         public static final String IMPORT_VERSIONED_VALUES_NOT_FOUND = "up.versioned.values.not.found";
+        public static final String UPDATE_NOT_ALLOWED = "update.not.allowed";
     }
 }

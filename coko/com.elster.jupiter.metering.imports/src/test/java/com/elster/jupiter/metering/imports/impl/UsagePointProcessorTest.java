@@ -7,6 +7,12 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+
+import java.io.IOException;
+import java.time.Clock;
+import java.util.Optional;
+import java.util.logging.Logger;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,14 +21,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
-import java.time.Clock;
-import java.util.Optional;
-import java.util.logging.Logger;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointProcessorTest {
@@ -67,24 +68,11 @@ public class UsagePointProcessorTest {
 
     @Test
     public void testProcessCorrectInfo() throws IOException {
-        UsagePointFileInfo usagePointFileInfo = new UsagePointFileInfo();
-        UsagePointProcessor usagePointProcessor = new UsagePointProcessor(clock, thesaurus, meteringService);
-        usagePointFileInfo.setmRID("test");
-        usagePointFileInfo.setServiceKind("GAS");
-        usagePointFileInfo.setAllowUpdate("false");
-        usagePointFileInfo.setServiceLocationID(23L);
-        when(serviceCategoryOne.getId()).thenReturn(34L);
-        assertTrue(usagePointProcessor.createOrUpdateUsagePoint(usagePointFileInfo, logger, 5));
+
     }
 
     @Test
     public void testProcessIncorrectInfo() throws IOException {
-        UsagePointFileInfo usagePointFileInfo = new UsagePointFileInfo();
-        UsagePointProcessor usagePointProcessor = new UsagePointProcessor(clock, thesaurus, meteringService);
-        usagePointFileInfo.setmRID("test");
-        usagePointFileInfo.setServiceKind("GAS");
-        usagePointFileInfo.setAllowUpdate("false");
-        when(serviceCategoryOne.getId()).thenReturn(54L);
-        assertFalse(usagePointProcessor.createOrUpdateUsagePoint(usagePointFileInfo, logger, 5));
+
     }
 }
