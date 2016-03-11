@@ -299,10 +299,12 @@ Ext.define('Mdc.controller.setup.Devices', {
         if (communicationsList) {
             communicationsList.bindStore(deviceCommunicationsStore);
             deviceCommunicationsStore.getProxy().setUrl(device.get('mRID'));
-            lastUpdateField.update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())]));
+            lastUpdateField.update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', Uni.DateTime.formatTimeShort(new Date())));
             deviceCommunicationsStore.load(function (records) {
                 if (!widget.isDestroyed) {
-                    !!widget.down('#communicationslist') && widget.down('#communicationslist').setTitle(Ext.String.format(Uni.I18n.translate('device.communicationTasks.title', 'MDC', 'Communication tasks ({0})'), records.length));
+                    !!widget.down('#communicationslist') && widget.down('#communicationslist').setTitle(
+                        Uni.I18n.translate('device.communicationTasks.title', 'MDC', 'Communication tasks ({0})', records ? records.length : 0)
+                    );
                 }
             });
         }

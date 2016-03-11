@@ -23,10 +23,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.PreviewForm', {
         },
         {
             xtype: 'last-event-type-displayfield',
-            name: 'lastEventType',
-            renderer: function (value) {
-                return value ? value : '-';
-            }
+            name: 'lastEventType'
         },
         {
             fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
