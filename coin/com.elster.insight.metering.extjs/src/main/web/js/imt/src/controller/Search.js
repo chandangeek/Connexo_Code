@@ -94,6 +94,12 @@ Ext.define('Imt.controller.Search', {
                     fn: me.service.clearFilters,
                     scope: me.service
                 }
+            },
+            'uni-view-search-overview button[action=count]': {
+                click: {
+                    fn: me.service.count,
+                    scope: me.service
+                }
             }
         });
 
