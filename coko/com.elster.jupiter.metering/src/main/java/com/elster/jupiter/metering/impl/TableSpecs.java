@@ -21,10 +21,14 @@ import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
+import com.elster.jupiter.metering.impl.config.AbstractNode;
+import com.elster.jupiter.metering.impl.config.ExpressionNode;
+import com.elster.jupiter.metering.impl.config.FormulaImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsageImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
@@ -832,6 +836,55 @@ public enum TableSpecs {
                     .onDelete(CASCADE)
                     .map(ServiceCategoryCustomPropertySetUsage.Fields.CUSTOMPROPERTYSET.fieldName())
                     .add();
+        }
+    },
+    MTR_FORMULA_NODE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ExpressionNode> table = dataModel.addTable(name(),ExpressionNode.class);
+            table.map(AbstractNode.IMPLEMENTERS);
+            Column idColumn = table.addAutoIdColumn();
+            table.addDiscriminatorColumn("NODETYPE", "char(3)");
+
+            // parent node
+            Column parentColumn = table.column("PARENTID").number().conversion(NUMBER2LONG).add();
+
+            Column argumentIndex = table.column("ARGUMENTINDEX").number().notNull().map("argumentIndex").conversion(NUMBER2INT).add();
+
+            //OperationNode operator value
+            table.column("OPERATOR").number().conversion(ColumnConversion.NUMBER2ENUM).map("operator").add();
+
+            //FunctionCallNode function value
+            table.column("FUNCTION").number().conversion(ColumnConversion.NUMBER2ENUM).map("function").add();
+
+            //ConstantNode constantValue
+            table.column("CONSTANTVALUE").number().map("constantValue").add();
+
+            // ReadingTypeDeliverableNode readingTypeDeliverable value
+            //todo add foreign key
+            Column readingTypeDeliverableIdColumn = table.column("READINGTYPE_DELIVERABLE").number().conversion(NUMBER2LONG).map("readingTypeDeliverable").add();
+
+            // ReadingTypeRequirementNode readingTypeRequirement value
+            //todo add foreign key
+            Column readingTypeRequirementIdColumn = table.column("READINGTYPE_REQUIREMENT").number().conversion(NUMBER2LONG).map("readingTypeRequirement").add();
+
+            table.primaryKey("MTR_PK_FORMULA_NODE").on(idColumn).add();
+
+            table.foreignKey("MTR_VALIDCHILD").references(MTR_FORMULA_NODE.name()).on(parentColumn).onDelete(CASCADE)
+                    .map("parent").reverseMap("children").reverseMapOrder("argumentIndex").add();
+        }
+    },
+    MTR_FORMULA {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<Formula> table = dataModel.addTable(name(), Formula.class);
+            table.map(FormulaImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            table.column("FORMULA_MODE").number().conversion(ColumnConversion.NUMBER2ENUM).map("mode").add();
+            Column expressionNodeColumn = table.column("EXPRESSION_NODE_ID").number().conversion(NUMBER2LONG).add();
+            table.primaryKey("MTR_PK_FORMULA").on(idColumn).add();
+            table.foreignKey("MTR_VALIDNODE").references(MTR_FORMULA_NODE.name()).on(expressionNodeColumn).onDelete(CASCADE)
+                    .map("expressionNode").add();
         }
     },
 

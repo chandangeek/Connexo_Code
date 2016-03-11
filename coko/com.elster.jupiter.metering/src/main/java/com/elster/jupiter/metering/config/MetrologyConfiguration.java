@@ -32,4 +32,10 @@ public interface MetrologyConfiguration extends HasId, HasName {
 
     long getVersion();
 
+    List<MetrologyContract> getContracts();
+
+    List<ReadingTypeRequirement> getRequirements();
+
+    List<ReadingTypeDeliverable> getDeliverables();
+
 }

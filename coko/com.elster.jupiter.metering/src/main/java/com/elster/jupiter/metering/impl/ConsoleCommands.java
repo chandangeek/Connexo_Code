@@ -7,6 +7,10 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.impl.config.ExpressionNode;
+import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.orm.DataModel;
@@ -45,7 +49,9 @@ import java.util.stream.Collectors;
         "osgi.command.function=endCurrentMeterActivation",
         "osgi.command.function=advanceStartDate",
         "osgi.command.function=explain",
-        "osgi.command.function=addEvents"
+        "osgi.command.function=addEvents",
+        "osgi.command.function=addFormula",
+        "osgi.command.function=formulas"
 }, immediate = true)
 public class ConsoleCommands {
 
@@ -53,6 +59,7 @@ public class ConsoleCommands {
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
 
     public void printDdl() {
         try {
@@ -225,6 +232,20 @@ public class ConsoleCommands {
         }
     }
 
+    public void addFormula(String formulaString) {
+        try (TransactionContext context = transactionService.getContext()) {
+            ExpressionNode node = new ExpressionNodeParser().parse(formulaString);
+            Formula formula = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
+            context.commit();
+        }
+    }
+
+    public void formulas() {
+        metrologyConfigurationService.findFormulas().stream()
+                .map(Formula::toString)
+                .forEach(System.out::println);
+    }
+
     @Reference
     public void setMeteringService(ServerMeteringService meteringService) {
         this.meteringService = meteringService;
@@ -234,6 +255,11 @@ public class ConsoleCommands {
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Reference

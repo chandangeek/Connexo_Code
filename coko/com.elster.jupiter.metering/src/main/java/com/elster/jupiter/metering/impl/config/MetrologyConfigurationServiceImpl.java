@@ -6,6 +6,8 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
@@ -27,7 +29,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -170,6 +171,23 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
         List<UsagePointMetrologyConfiguration> atLeastOneUsagePoint = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(condition, new Order[0], false, new String[0], 1, 1);
         return !atLeastOneUsagePoint.isEmpty();
     }
+
+
+    @Override
+    public FormulaBuilder newFormulaBuilder(Formula.Mode mode) {
+        return new FormulaBuilderImpl(mode, getDataModel());
+    }
+
+    @Override
+    public Optional<Formula> findFormula(long id) {
+        return getDataModel().mapper(Formula.class).getOptional(id);
+    }
+
+    @Override
+    public List<Formula> findFormulas() {
+        return getDataModel().mapper(Formula.class).find();
+    }
+
 
     @Override
     public MeterRole newMeterRole(TranslationKey key) {

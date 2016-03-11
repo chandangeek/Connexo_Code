@@ -35,4 +35,13 @@ public interface MetrologyConfigurationService {
 
     Optional<MeterRole> findMeterRole(String key);
 
+    FormulaBuilder newFormulaBuilder(Formula.Mode mode);
+
+    /**
+     * Good for now but will need to be facaded with another API before final release.
+     */
+    Optional<Formula> findFormula(long id);
+
+    List<Formula> findFormulas();
+
 }
