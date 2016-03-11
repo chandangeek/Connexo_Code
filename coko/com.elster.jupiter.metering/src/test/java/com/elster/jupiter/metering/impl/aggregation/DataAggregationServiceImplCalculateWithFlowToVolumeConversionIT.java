@@ -30,13 +30,15 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FormulaBuilder;
+import com.elster.jupiter.metering.config.FormulaPart;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.ConstantNode;
 import com.elster.jupiter.metering.impl.config.OperationNode;
 import com.elster.jupiter.metering.impl.config.Operator;
 import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNode;
@@ -195,6 +197,14 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
                 injector.getInstance(ServerMeteringService.class),
                 VirtualFactoryImpl::new,
                 sqlBuilderFactory);
+    }
+
+    private static MetrologyConfigurationService getMetrologyConfigurationService() {
+        return injector.getInstance(MetrologyConfigurationService.class);
+    }
+
+    private static FormulaBuilder newFormulaBuilder() {
+        return getMetrologyConfigurationService().newFormulaBuilder(Formula.Mode.AUTO);
     }
 
     private static void setupReadingTypes() {
@@ -481,17 +491,15 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         when(netConsumption.getName()).thenReturn("consumption");
         ReadingType netConsumptionReadingType = this.mockMonthlyNetConsumptionReadingType();
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
+        FormulaBuilder formulaBuilder = newFormulaBuilder();
+        FormulaPart node = formulaBuilder.plus(
+                formulaBuilder.requirement(consumption),
+                formulaBuilder.multiply(
+                        formulaBuilder.requirement(production),
+                        formulaBuilder.constant(BigDecimal.valueOf(2L)))).create();
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
-        doReturn(
-                new OperationNode(
-                        Operator.PLUS,
-                        new ReadingTypeRequirementNode(consumption),
-                        new OperationNode(
-                                Operator.MULTIPLY,
-                                new ReadingTypeRequirementNode(production),
-                                new ConstantNode(BigDecimal.valueOf(2L)))))
-                .when(formula).expressionNode();
+        doReturn(node).when(formula).expressionNode();
         when(netConsumption.getFormula()).thenReturn(formula);
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));
