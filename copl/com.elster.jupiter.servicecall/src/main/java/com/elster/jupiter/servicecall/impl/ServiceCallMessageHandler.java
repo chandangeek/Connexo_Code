@@ -3,6 +3,7 @@ package com.elster.jupiter.servicecall.impl;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.NoSuchServiceCallException;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.util.json.JsonService;
@@ -25,13 +26,28 @@ public class ServiceCallMessageHandler implements MessageHandler {
         ServiceCall serviceCall = serviceCallService.getServiceCall(transitionNotification.getServiceCallId())
                 .orElseThrow(() -> new NoSuchServiceCallException(thesaurus, MessageSeeds.NO_SUCH_SERVICE_CALL, transitionNotification
                         .getServiceCallId()));
-        serviceCall.getType().getServiceCallHandler()
-                .onStateChange(serviceCall, transitionNotification.getOldState(), transitionNotification.getNewState());
+        try {
+            serviceCall.getType().getServiceCallHandler()
+                    .onStateChange(serviceCall, transitionNotification.getOldState(), transitionNotification.getNewState());
 
-        serviceCall.getParent()
-                .ifPresent(parent -> parent.getType().getServiceCallHandler()
-                        .onChildStateChange(parent, serviceCall, transitionNotification.getOldState(), transitionNotification
-                                .getNewState()));
+        } catch (RuntimeException e) {
+            ((ServiceCallImpl) serviceCall).setState(DefaultState.FAILED);
+            serviceCall.save();
+            serviceCall.getParent()
+                    .ifPresent(parent -> parent.getType().getServiceCallHandler()
+                            .onChildStateChange(parent, serviceCall, transitionNotification.getOldState(), DefaultState.FAILED));
+            return;
+        }
+
+        try {
+            serviceCall.getParent()
+                    .ifPresent(parent -> parent.getType().getServiceCallHandler()
+                            .onChildStateChange(parent, serviceCall, transitionNotification.getOldState(), transitionNotification
+                                    .getNewState()));
+        } catch (RuntimeException e) {
+            ServiceCallImpl parent = (ServiceCallImpl) serviceCall.getParent().get();
+            parent.setState(DefaultState.FAILED);
+            parent.save();
+        }
     }
-
 }
