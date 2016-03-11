@@ -19,10 +19,10 @@ public class ServiceCallInfo {
     public String externalReference;
     public Object targetObject;
     public List<IdWithNameInfo> parents;
-    public List<ServiceCallChildrenInfo> childrenInfo;
+    public List<ServiceCallChildrenInfo> children;
     public String type;
     public long numberOfChildren;
-    public List<ServiceCallCustomPropertySetInfo> customPropertySetInfos;
+    public List<ServiceCallCustomPropertySetInfo> customPropertySets;
 
     public ServiceCallInfo() {
 

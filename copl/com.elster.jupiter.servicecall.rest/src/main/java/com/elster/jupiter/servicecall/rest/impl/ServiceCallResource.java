@@ -88,7 +88,7 @@ public class ServiceCallResource {
     @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALLS)
     public ServiceCallInfo getServiceCall(@PathParam("id") long id) {
         return serviceCallService.getServiceCall(id)
-                .map(serviceCall -> serviceCallInfoFactory.detailed(serviceCall, serviceCallService.getChildrenStatus(id), propertyUtils))
+                .map(serviceCall -> serviceCallInfoFactory.detailed(serviceCall, serviceCallService.getChildrenStatus(id)))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_SERVICE_CALL));
     }
 
@@ -100,7 +100,7 @@ public class ServiceCallResource {
         ServiceCall parent = serviceCallService.getServiceCall(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL));
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
-        ServiceCallFinder serviceCallFinder = parent.getChildrenFinder();
+        ServiceCallFinder serviceCallFinder = parent.findChildren();
         applyFilterToFinder(filter, serviceCallFinder);
         queryParameters.getLimit().ifPresent(limit -> serviceCallFinder.setLimit(limit + 1));
         queryParameters.getStart().ifPresent(serviceCallFinder::setStart);

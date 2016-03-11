@@ -4,14 +4,16 @@ package com.elster.jupiter.servicecall.rest.impl;
 public class ServiceCallChildrenInfo {
     public String state;
     public String stateDisplayName;
-    public Object percentage;
+    public long percentage;
+    public long count;
 
     public ServiceCallChildrenInfo() {
     }
 
-    public ServiceCallChildrenInfo(String state, String stateDisplayName, Object percentage) {
+    public ServiceCallChildrenInfo(String state, String stateDisplayName, long percentage, long count) {
         this.state = state;
         this.stateDisplayName = stateDisplayName;
         this.percentage = percentage;
+        this.count = count;
     }
 }

@@ -3,7 +3,6 @@ package com.elster.jupiter.servicecall.rest.impl;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -12,6 +11,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -20,13 +20,15 @@ import java.util.stream.Collectors;
 public class ServiceCallInfoFactory {
 
     private final Thesaurus thesaurus;
+    private final PropertyUtils propertyUtils;
 
     @Inject
-    public ServiceCallInfoFactory(Thesaurus thesaurus) {
+    public ServiceCallInfoFactory(Thesaurus thesaurus, PropertyUtils propertyUtils) {
         this.thesaurus = thesaurus;
+        this.propertyUtils = propertyUtils;
     }
 
-    public ServiceCallInfo detailed(ServiceCall serviceCall, Map<DefaultState, Long> childrenInformation, PropertyUtils propertyUtils) {
+    public ServiceCallInfo detailed(ServiceCall serviceCall, Map<DefaultState, Long> childrenInformation) {
         ServiceCallInfo serviceCallInfo = new ServiceCallInfo();
         serviceCallInfo.id = serviceCall.getId();
         serviceCallInfo.name = serviceCall.getNumber();
@@ -42,7 +44,7 @@ public class ServiceCallInfoFactory {
         serviceCallInfo.externalReference = serviceCall.getExternalReference()
                 .isPresent() ? serviceCall.getExternalReference().get() : null;
 //        targetObject = serviceCall.getTargetObject().isPresent() ? serviceCall.getTargetObject().get() : null;
-        addCustomPropertySetInfos(serviceCall, serviceCallInfo, propertyUtils);
+        addCustomPropertySetInfos(serviceCall, serviceCallInfo);
         addParents(serviceCallInfo, serviceCall.getParent());
         addChildrenInfo(serviceCallInfo, childrenInformation);
         serviceCallInfo.type = serviceCall.getType().getName();
@@ -78,46 +80,48 @@ public class ServiceCallInfoFactory {
         Collections.reverse(serviceCallInfo.parents);
     }
 
-    private void addChildrenInfo(ServiceCallInfo serviceCallInfo, Map<DefaultState, Long> childrenInformation) {
-        serviceCallInfo.childrenInfo = new ArrayList<>();
-        Long total = childrenInformation.values()
+    private void addChildrenInfo(ServiceCallInfo serviceCallInfo, Map<DefaultState, Long> childStateCounts) {
+        serviceCallInfo.children = new ArrayList<>();
+        Long total = childStateCounts.values()
                 .stream()
-                .reduce(0L, (a, b) -> a + b);
+                .reduce(0L, Long::sum);
         serviceCallInfo.numberOfChildren = total;
-        childrenInformation.keySet().stream()
-                .forEach(key -> serviceCallInfo.childrenInfo.add(new ServiceCallChildrenInfo(key.name(), key.getDisplayName(thesaurus),
-                        Math.round((childrenInformation.get(key).doubleValue() / total.doubleValue()) * 100))));
-
-        verifyRoundingErrors(childrenInformation);
+        Map<DefaultState, Integer> childStatePercentages = childStateCounts.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> (int) Math.round((entry.getValue().doubleValue() / total
+                        .doubleValue()) * 100)));
+        verifyRoundingErrors(childStatePercentages);
+        childStatePercentages.entrySet()
+                .stream()
+                .forEach(entry -> serviceCallInfo.children.add(new ServiceCallChildrenInfo(entry.getKey().name(),entry.getKey().getDisplayName(thesaurus),entry.getValue(), childStateCounts.get(entry.getKey()))));
     }
 
-    private void verifyRoundingErrors(Map<DefaultState, Long> childrenInformation) {
-        DefaultState keyMax = null;
-        long max = 0;
-        int sum = 0;
-        for (DefaultState state : childrenInformation.keySet()) {
-            long value = childrenInformation.get(state);
-            sum += value;
-            if (value > max) {
-                max = value;
-                keyMax = state;
-            }
-        }
+    private void verifyRoundingErrors(Map<DefaultState, Integer> childStatePercentages) {
+        childStatePercentages.values()
+                .stream()
+                .reduce(Integer::sum)
+                .ifPresent(sum -> handleDifference(childStatePercentages, sum));
+    }
+
+    private void handleDifference(Map<DefaultState, Integer> childStatePercentages, Integer sum) {
         int difference = sum - 100;
-        if (difference > 0 && keyMax != null) {
-            childrenInformation.put(keyMax, childrenInformation.get(keyMax) - difference);
+        if (difference != 0) {
+            childStatePercentages.entrySet()
+                    .stream()
+                    .max(Comparator.comparing(Map.Entry::getValue))
+                    .ifPresent(maxEntry -> maxEntry.setValue(maxEntry.getValue() - difference));
         }
     }
 
-    private void addCustomPropertySetInfos(ServiceCall serviceCall, ServiceCallInfo serviceCallInfo, PropertyUtils propertyUtils) {
-        serviceCallInfo.customPropertySetInfos = serviceCall.getType().getCustomPropertySets()
+    private void addCustomPropertySetInfos(ServiceCall serviceCall, ServiceCallInfo serviceCallInfo) {
+        serviceCallInfo.customPropertySets = serviceCall.getType().getCustomPropertySets()
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
-                .map(registeredCustomPropertySet -> getServiceCallCustomPropertySetInfo(registeredCustomPropertySet, serviceCall, propertyUtils))
+                .map(registeredCustomPropertySet -> getServiceCallCustomPropertySetInfo(registeredCustomPropertySet, serviceCall))
                 .collect(Collectors.toList());
     }
 
-    private ServiceCallCustomPropertySetInfo getServiceCallCustomPropertySetInfo(RegisteredCustomPropertySet propertySet, ServiceCall serviceCall, PropertyUtils propertyUtils) {
+    private ServiceCallCustomPropertySetInfo getServiceCallCustomPropertySetInfo(RegisteredCustomPropertySet propertySet, ServiceCall serviceCall) {
         CustomPropertySetValues extension = serviceCall.getValuesFor(propertySet.getCustomPropertySet());
         Map<String, Object> values = new HashMap<>();
         extension.propertyNames()

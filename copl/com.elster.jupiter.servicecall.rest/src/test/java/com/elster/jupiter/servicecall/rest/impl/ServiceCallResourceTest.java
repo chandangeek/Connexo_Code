@@ -79,10 +79,10 @@ public class ServiceCallResourceTest extends ServiceCallApplicationTest {
         when(finder.find()).thenReturn(Collections.singletonList(serviceCall));
         when(serviceCallService.getServiceCall(1)).thenReturn(Optional.of(serviceCall));
         when(serviceCallService.getServiceCallFinder()).thenReturn(finder);
-        when(serviceCall.getChildrenFinder()).thenReturn(childrenFinder);
-        when(serviceCall.getChildrenFinder().find()).thenReturn(Collections.singletonList(child));
-        when(child.getChildrenFinder()).thenReturn(childrenOfChildFinder);
-        when(child.getChildrenFinder().find()).thenReturn(Collections.emptyList());
+        when(serviceCall.findChildren()).thenReturn(childrenFinder);
+        when(serviceCall.findChildren().find()).thenReturn(Collections.singletonList(child));
+        when(child.findChildren()).thenReturn(childrenOfChildFinder);
+        when(child.findChildren().find()).thenReturn(Collections.emptyList());
         when(serviceCallService.getServiceCall(2)).thenReturn(Optional.of(child));
     }
 
