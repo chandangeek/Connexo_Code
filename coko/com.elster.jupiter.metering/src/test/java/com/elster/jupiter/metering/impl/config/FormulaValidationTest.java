@@ -32,6 +32,8 @@ public class FormulaValidationTest {
     private ReadingTypeRequirement readingTypeRequirement1;
     @Mock
     private ReadingTypeRequirement readingTypeRequirement2;
+    @Mock
+    private ReadingTypeRequirement readingTypeRequirement3;
 
     private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
 
@@ -179,7 +181,7 @@ public class FormulaValidationTest {
     }
 
     @Test
-    // formula = multiply(readingTypeRequirement1, readingTypeRequirement2)
+    // formula = divide(readingTypeRequirement1, readingTypeRequirement2)
     public void testDivisionOfCompatibleDimensions() {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.SURFACE);
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.LENGTH);
@@ -200,7 +202,7 @@ public class FormulaValidationTest {
     }
 
     @Test
-    // formula = multiply(readingTypeRequirement1, readingTypeRequirement2)
+    // formula = divide(readingTypeRequirement1, readingTypeRequirement2)
     public void testDivisionOfIncompatibleDimensions() {
         when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.SURFACE);
         when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.ELECTRIC_CURRENT);
@@ -217,6 +219,73 @@ public class FormulaValidationTest {
             fail("InvalidNodeException expected");
         } catch (InvalidNodeException e) {
             assertEquals(e.getMessage(), "The dimensions of the arguments are not valid for division");
+        }
+    }
+
+    @Test
+    // formula = plus(readingTypeRequirement1, readingTypeRequirement2)
+    public void testPlusOfFlowAndVolumeDimensions() {
+        when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.VOLUME);
+        when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.POWER);
+        MetrologyConfigurationService service = getMetrologyConfigurationService();
+
+        FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+
+        NodeBuilder nodeBuilder = builder.plus(
+                builder.requirement(readingTypeRequirement1),
+                builder.requirement(readingTypeRequirement2));
+        ExpressionNode node = (ExpressionNode) nodeBuilder.create();
+        try {
+            node.validate();
+            assertEquals(node.getDimension(), Dimension.VOLUME);
+        } catch (InvalidNodeException e) {
+            fail("No InvalidNodeException expected!");
+        }
+    }
+
+    @Test
+    // formula = max(readingTypeRequirement1, readingTypeRequirement2, readingTypeRequirement3)
+    public void testMaximumOfCompatibleDimensions() {
+        when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.VOLUME);
+        when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.POWER);
+        when(readingTypeRequirement3.getDimension()).thenReturn(Dimension.POWER);
+        MetrologyConfigurationService service = getMetrologyConfigurationService();
+
+        FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+
+        NodeBuilder nodeBuilder = builder.maximum(
+                builder.requirement(readingTypeRequirement1),
+                builder.requirement(readingTypeRequirement2),
+                builder.requirement(readingTypeRequirement3));
+        ExpressionNode node = (ExpressionNode) nodeBuilder.create();
+        try {
+            node.validate();
+            assertEquals(node.getDimension(), Dimension.VOLUME);
+        } catch (InvalidNodeException e) {
+            fail("No InvalidNodeException expected!");
+        }
+    }
+
+    @Test
+    // formula = max(readingTypeRequirement1, readingTypeRequirement2, readingTypeRequirement3)
+    public void testMaximumOfIncompatibleDimensions() {
+        when(readingTypeRequirement1.getDimension()).thenReturn(Dimension.VOLUME);
+        when(readingTypeRequirement2.getDimension()).thenReturn(Dimension.POWER);
+        when(readingTypeRequirement3.getDimension()).thenReturn(Dimension.ELECTRIC_CHARGE);
+        MetrologyConfigurationService service = getMetrologyConfigurationService();
+
+        FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
+
+        NodeBuilder nodeBuilder = builder.maximum(
+                builder.requirement(readingTypeRequirement1),
+                builder.requirement(readingTypeRequirement2),
+                builder.requirement(readingTypeRequirement3));
+        ExpressionNode node = (ExpressionNode) nodeBuilder.create();
+        try {
+            node.validate();
+            fail("InvalidNodeException expected");
+        } catch (InvalidNodeException e) {
+            assertEquals(e.getMessage(), "Only dimensions that are compatible for automatic unit conversion can be used as children of a function");
         }
     }
 }
