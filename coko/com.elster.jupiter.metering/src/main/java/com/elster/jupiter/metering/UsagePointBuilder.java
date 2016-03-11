@@ -28,18 +28,6 @@ public interface UsagePointBuilder {
 
     UsagePointBuilder withServiceLocationString(String serviceLocationString);
 
-    /**
-     * For backwards compatibility only with API that should never have
-     * been there in the first place and will be removed as soon
-     * as {@link ServiceCategory#newUsagePoint(String)} has been removed.
-     *
-     * @param installationTime The time on which the UsagePoint was installed
-     * @return The builder to support method chaining
-     * @deprecated
-     */
-    @Deprecated
-    UsagePointBuilder withInstallationTime(Instant installationTime);
-
     UsagePoint create();
 
     UsagePoint validate();

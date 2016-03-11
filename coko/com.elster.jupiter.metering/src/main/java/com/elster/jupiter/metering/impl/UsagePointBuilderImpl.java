@@ -109,12 +109,6 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
-    public UsagePointBuilder withInstallationTime(Instant installationTime) {
-        this.installationTime = installationTime;
-        return this;
-    }
-
-    @Override
     public UsagePoint create() {
         UsagePointImpl usagePoint = this.build();
         usagePoint.doSave();
