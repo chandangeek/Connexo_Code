@@ -14,7 +14,6 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.elster.jupiter.util.time.StopWatch;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -356,11 +355,12 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
         }
 
         public List<T> find() {
-            StopWatch stopWatch = new StopWatch();
-            List<T> result = this.actualFinder.find();
-            stopWatch.stop();
-            this.searchMonitor.searchExecuted(searchDomain, stopWatch.getElapsed());
-            return result;
+            try {
+                return this.searchMonitor.searchTimer(searchDomain).time(actualFinder::find);
+            } catch (Exception e) {
+                // actual Caller implementation is not throwing any exception
+                return Collections.emptyList();
+            }
         }
 
         public Subquery asSubQuery(String... fieldNames) {
@@ -373,11 +373,12 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
 
         @Override
         public int count() {
-            StopWatch stopWatch = new StopWatch();
-            int result = this.actualFinder.count();
-            stopWatch.stop();
-            this.searchMonitor.countExecuted(searchDomain, stopWatch.getElapsed());
-            return result;
+            try {
+                return this.searchMonitor.countTimer(searchDomain).time(actualFinder::count);
+            } catch (Exception e) {
+                // actual Caller implementation is not throwing any exception
+                return 0;
+            }
         }
     }
 

@@ -13,16 +13,26 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link SearchServiceImpl} component.
  */
+@RunWith(MockitoJUnitRunner.class)
 public class SearchServiceImplTest {
+
+    @Mock
+    private SearchMonitor searchMonitor;
 
     @Test
     public void registeredDomainsWithoutRegistrations() {
@@ -31,6 +41,7 @@ public class SearchServiceImplTest {
 
         // Asserts
         assertThat(domains).isEmpty();
+        verify(this.searchMonitor, never()).searchDomainRegistered(any(SearchDomain.class));
     }
 
     @Test
@@ -44,6 +55,7 @@ public class SearchServiceImplTest {
 
         // Asserts
         assertThat(domains).containsOnly(searchDomain);
+        verify(this.searchMonitor).searchDomainRegistered(searchDomain);
     }
 
     @Test
@@ -59,6 +71,8 @@ public class SearchServiceImplTest {
 
         // Asserts
         assertThat(domains).containsOnly(sd1, sd2);
+        verify(this.searchMonitor).searchDomainRegistered(sd1);
+        verify(this.searchMonitor).searchDomainRegistered(sd2);
     }
 
     @Test
@@ -76,6 +90,7 @@ public class SearchServiceImplTest {
 
         // Asserts
         assertThat(domains).containsOnly(sd2);
+        verify(this.searchMonitor).searchDomainUnregistered(sd1);
     }
 
     @Test
@@ -308,7 +323,7 @@ public class SearchServiceImplTest {
     }
 
     private SearchServiceImpl getTestInstance() {
-        return new SearchServiceImpl();
+        return new SearchServiceImpl(this.searchMonitor);
     }
 
 }

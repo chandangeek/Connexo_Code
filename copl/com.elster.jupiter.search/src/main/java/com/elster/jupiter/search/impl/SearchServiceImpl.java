@@ -47,20 +47,22 @@ public class SearchServiceImpl implements SearchService, MessageSeedProvider {
         this.setSearchMonitor(searchMonitor);
     }
 
-    @Reference
+    @Reference(name = "AAA")
     public void setSearchMonitor(SearchMonitor searchMonitor) {
         this.searchMonitor = searchMonitor;
     }
 
     @Override
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @Reference(name = "ZZZ", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void register(SearchDomain searchDomain) {
         this.searchProviders.register(searchDomain);
+        this.searchMonitor.searchDomainRegistered(searchDomain);
     }
 
     @Override
     public void unregister(SearchDomain searchDomain) {
         this.searchProviders.unregister(searchDomain);
+        this.searchMonitor.searchDomainUnregistered(searchDomain);
     }
 
     @Override
