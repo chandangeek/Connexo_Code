@@ -261,12 +261,13 @@ Ext.define('Uni.controller.history.Router', {
                         } else if (config.dynamicPrivilegeStores){
                             Uni.DynamicPrivileges.loadPage(config.dynamicPrivilegeStores, config.dynamicPrivilege, applyAction, me);
                         } else if (config.hideIfAppInstalled){
+                            //Ex.: If Insight installed, Usage points are not available in Multisense
                             if(Uni.store.Apps.storeLoaded){
-                                Uni.store.Apps.getAppUrl(config.checkApp) ? crossroads.parse("/error/notfound") : applyAction();
+                                Uni.store.Apps.checkApp(config.hideIfAppInstalled) ? crossroads.parse("/error/notfound") : applyAction();
                             } else {
                                 Uni.store.Apps.load({
                                     callback: function () {
-                                        Uni.store.Apps.getAppUrl(config.hideIfAppInstalled) ? crossroads.parse("/error/notfound") : applyAction();
+                                        Uni.store.Apps.checkApp(config.hideIfAppInstalled) ? crossroads.parse("/error/notfound") : applyAction();
                                     }
                                 });
                             }
