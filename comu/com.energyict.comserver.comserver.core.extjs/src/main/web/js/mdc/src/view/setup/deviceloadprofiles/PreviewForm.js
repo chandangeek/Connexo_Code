@@ -45,9 +45,9 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.PreviewForm', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
-                        name: 'lastChecked',
+                        name: 'dataUntil',
                         renderer: function (value) {
-                            if (value) {
+                            if (!Ext.isEmpty(value)) {
                                 var date = new Date(value);
                                 return Uni.DateTime.formatDateLong(date) + ' - ' + Uni.DateTime.formatTimeShort(date);
                             }
