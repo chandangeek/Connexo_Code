@@ -2,10 +2,10 @@ Ext.define('MdmApp.Application', {
     extend: 'Ext.app.Application',
 
     requires:[
+        'Scs.privileges.ServiceCall',
         'Imt.privileges.UsagePoint',
         'Imt.privileges.ServiceCategory',
-        'Imt.privileges.MetrologyConfig',
-        'Scs.privileges.ServiceCall'
+        'Imt.privileges.MetrologyConfig'
     ],
 
     controllers: [

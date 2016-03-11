@@ -7,10 +7,10 @@ Ext.define('MdmApp.controller.Main', {
     requires: [
         'Cfg.controller.Main',
         'Uni.controller.Navigation',
+        'Scs.privileges.ServiceCall',
         'Imt.controller.Main',
         'Imt.privileges.UsagePoint',
-        'Imt.privileges.ServiceCategory',
-        'Scs.privileges.ServiceCall'
+        'Imt.privileges.ServiceCategory'
     ],
 
     applicationTitle: 'Connexo Insight',
@@ -20,15 +20,15 @@ Ext.define('MdmApp.controller.Main', {
     onlineHelpEnabled: false,
 
     privileges: Ext.Array.merge(
+        Scs.privileges.ServiceCall.all(),
         Imt.privileges.ServiceCategory.all(),
-        Imt.privileges.UsagePoint.all(),
-        Scs.privileges.ServiceCall.all()
+        Imt.privileges.UsagePoint.all()
     ),
 
     controllers: [
+        'Scs.controller.Main',
         'Cfg.controller.Main',
-        'Imt.controller.Main',
-        'Scs.controller.Main'
+        'Imt.controller.Main'
     ],
     init: function () {
         var router = this.getController('Uni.controller.history.Router');
