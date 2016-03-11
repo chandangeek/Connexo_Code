@@ -113,7 +113,7 @@ public class FormulaValidationTest {
             node.validate();
             fail("InvalidNodeException expected");
         } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(),"Only dimensions that are compatible for automatic unit conversion can be summed or substracted");
+            assertEquals(e.getMessage(),"Only dimensions that are compatible for automatic unit conversion can be summed or substracted.");
         }
     }
 
@@ -134,7 +134,7 @@ public class FormulaValidationTest {
             node.validate();
             fail("InvalidNodeException expected");
         } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "Only dimensions that are compatible for automatic unit conversion can be summed or substracted");
+            assertEquals(e.getMessage(), "Only dimensions that are compatible for automatic unit conversion can be summed or substracted.");
         }
     }
 
@@ -155,7 +155,7 @@ public class FormulaValidationTest {
             node.validate();
             fail("InvalidNodeException expected");
         } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "The dimensions of the arguments are not valid for multiplication");
+            assertEquals(e.getMessage(), "Dimensions from multiplication arguments do not result in a valid dimension.");
         }
     }
 
@@ -218,7 +218,7 @@ public class FormulaValidationTest {
             node.validate();
             fail("InvalidNodeException expected");
         } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "The dimensions of the arguments are not valid for division");
+            assertEquals(e.getMessage(), "Dimensions from division arguments do not result in a valid dimension.");
         }
     }
 
@@ -285,7 +285,7 @@ public class FormulaValidationTest {
             node.validate();
             fail("InvalidNodeException expected");
         } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "Only dimensions that are compatible for automatic unit conversion can be used as children of a function");
+            assertEquals(e.getMessage(), "Only dimensions that are compatible for automatic unit conversion can be used as children of a function.");
         }
     }
 }

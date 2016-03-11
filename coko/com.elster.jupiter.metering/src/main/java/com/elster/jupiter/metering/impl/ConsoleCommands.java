@@ -234,7 +234,7 @@ public class ConsoleCommands {
 
     public void addFormula(String formulaString) {
         try (TransactionContext context = transactionService.getContext()) {
-            ExpressionNode node = new ExpressionNodeParser().parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus()).parse(formulaString);
             Formula formula = metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
             context.commit();
         }

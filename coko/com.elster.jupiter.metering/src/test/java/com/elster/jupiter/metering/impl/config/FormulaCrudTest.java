@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.NodeBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
@@ -31,6 +32,8 @@ public class FormulaCrudTest {
     private ReadingTypeRequirement readingTypeRequirement1;
     @Mock
     private ReadingTypeRequirement readingTypeRequirement2;
+    @Mock
+    Thesaurus thesaurus;
 
     private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
 
@@ -176,7 +179,7 @@ public class FormulaCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             MetrologyConfigurationService service = getMetrologyConfigurationService();
 
-            ExpressionNode node = new ExpressionNodeParser().parse("constant(10)");
+            ExpressionNode node = new ExpressionNodeParser(thesaurus).parse("constant(10)");
 
             Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
             context.commit();
@@ -202,7 +205,7 @@ public class FormulaCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             MetrologyConfigurationService service = getMetrologyConfigurationService();
 
-            ExpressionNode node = new ExpressionNodeParser().parse("max(constant(10), constant(0))");
+            ExpressionNode node = new ExpressionNodeParser(thesaurus).parse("max(constant(10), constant(0))");
 
             Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
 
@@ -240,7 +243,7 @@ public class FormulaCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             MetrologyConfigurationService service = getMetrologyConfigurationService();
 
-            ExpressionNode node = new ExpressionNodeParser().parse("max(constant(1), plus(constant(2), constant(3)))");
+            ExpressionNode node = new ExpressionNodeParser(thesaurus).parse("max(constant(1), plus(constant(2), constant(3)))");
 
             Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
 
@@ -281,7 +284,7 @@ public class FormulaCrudTest {
             MetrologyConfigurationService service = getMetrologyConfigurationService();
 
             String formulaString = "max(constant(1), min(constant(2), constant(3), constant(4)))";
-            ExpressionNode node = new ExpressionNodeParser().parse("max(constant(1), min(constant(2), constant(3), constant(4)))");
+            ExpressionNode node = new ExpressionNodeParser(thesaurus).parse("max(constant(1), min(constant(2), constant(3), constant(4)))");
 
             Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
 
@@ -308,7 +311,7 @@ public class FormulaCrudTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             MetrologyConfigurationService service = getMetrologyConfigurationService();
             String formulaString = "multiply(sum(max(constant(10), constant(0)), constant(5), constant(3)), constant(2))";
-            ExpressionNode node = new ExpressionNodeParser().parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(thesaurus).parse(formulaString);
             Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
             context.commit();
             List<Formula> formulas = service.findFormulas();

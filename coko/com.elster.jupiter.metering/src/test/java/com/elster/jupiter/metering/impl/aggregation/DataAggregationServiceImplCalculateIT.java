@@ -41,6 +41,7 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.OperationNode;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -129,6 +130,9 @@ public class DataAggregationServiceImplCalculateIT {
     private Channel production30MinChannel;
     private Channel consumption15MinChannel;
     private UsagePoint usagePoint;
+
+    @Mock
+    private Thesaurus thesaurus;
 
     private static class MockModule extends AbstractModule {
         @Override
