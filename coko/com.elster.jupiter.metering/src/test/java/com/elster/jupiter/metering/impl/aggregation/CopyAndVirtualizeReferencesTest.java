@@ -4,10 +4,18 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FormulaBuilder;
+import com.elster.jupiter.metering.config.FormulaPart;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
+import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.Range;
 
@@ -45,6 +53,14 @@ public class CopyAndVirtualizeReferencesTest {
     private MeterActivation meterActivation;
     @Mock
     private ReadingTypeDeliverableForMeterActivationProvider readingTypeDeliverableForMeterActivationProvider;
+    @Mock
+    private ServerMeteringService meteringService;
+    @Mock
+    private EventService eventService;
+    @Mock
+    private UserService userService;
+
+    private MetrologyConfigurationService metrologyConfigurationService;
 
     @Before
     public void initializeMocks() {
@@ -52,6 +68,7 @@ public class CopyAndVirtualizeReferencesTest {
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
         when(this.deliverable.getReadingType()).thenReturn(readingType);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.eventService, this.userService);
     }
 
     @Test
@@ -188,10 +205,11 @@ public class CopyAndVirtualizeReferencesTest {
     @Test
     public void copyPlusOperation() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
-        com.elster.jupiter.metering.impl.config.OperationNode node = new com.elster.jupiter.metering.impl.config.OperationNode(
-                com.elster.jupiter.metering.impl.config.Operator.PLUS,
-                new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.TEN),
-                new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.ZERO));
+        FormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
+        FormulaPart formulaPart = formulaBuilder.plus(
+                formulaBuilder.constant(BigDecimal.TEN),
+                formulaBuilder.constant(BigDecimal.ZERO)).create();
+        com.elster.jupiter.metering.impl.config.OperationNode node = (com.elster.jupiter.metering.impl.config.OperationNode) formulaPart;
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -219,14 +237,14 @@ public class CopyAndVirtualizeReferencesTest {
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
         when(readingTypeDeliverable.getReadingType()).thenReturn(readingType);
-        com.elster.jupiter.metering.impl.config.OperationNode node =
-                new com.elster.jupiter.metering.impl.config.OperationNode(
-                        com.elster.jupiter.metering.impl.config.Operator.PLUS,
-                    new com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNode(mock(ReadingTypeRequirement.class)),
-                    new com.elster.jupiter.metering.impl.config.FunctionCallNode(Arrays.asList(
-                                new com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableNode(readingTypeDeliverable),
-                                new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.TEN)),
-                            com.elster.jupiter.metering.impl.config.Function.MAX));
+        FormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
+        FormulaPart formulaPart =
+                formulaBuilder.plus(
+                    formulaBuilder.requirement(mock(ReadingTypeRequirement.class)),
+                    formulaBuilder.maximum(
+                        formulaBuilder.deliverable(readingTypeDeliverable),
+                        formulaBuilder.constant(BigDecimal.TEN))).create();
+        com.elster.jupiter.metering.impl.config.OperationNode node = (com.elster.jupiter.metering.impl.config.OperationNode) formulaPart;
         ReadingTypeDeliverableForMeterActivation readingTypeDeliverableForMeterActivation =
                 new ReadingTypeDeliverableForMeterActivation(
                         readingTypeDeliverable,
