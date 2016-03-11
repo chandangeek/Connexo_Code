@@ -44,14 +44,19 @@ public class JbpmTaskResource {
     RuntimeDataService runtimeDataService;
 
 
-    @GET
+    @POST
     @Produces("application/json")
-    public TaskSummaryList getTasks(@Context UriInfo uriInfo){
+    public TaskSummaryList getTasks(ProcessDefinitionInfos processDefinitionInfos, @Context UriInfo uriInfo){
         Map<String, JsonNode> filterProperties;
         Map<String, JsonNode> sortProperties;
         filterProperties = getFilterProperties(getQueryValue(uriInfo,"filter"),"value");
         sortProperties = getFilterProperties(getQueryValue(uriInfo,"sort"),"direction");
-        List<String> deploymentIds = uriInfo.getQueryParameters().get("deploymentid");
+        List<String> deploymentIds = new ArrayList<>();
+        List<String> processIds = new ArrayList<>();
+        for(ProcessDefinitionInfo processDefinitionInfo : processDefinitionInfos.processes){
+            deploymentIds.add(processDefinitionInfo.deploymentId);
+            processIds.add(processDefinitionInfo.processId);
+        }
         int startIndex = 0;
         int endIndex = Integer.MAX_VALUE;
         try {
@@ -60,7 +65,7 @@ public class JbpmTaskResource {
             endIndex++;
         }catch (NumberFormatException e){
         }
-        if(deploymentIds != null) {
+        if(deploymentIds != null && processIds != null) {
             if (emf != null) {
                 EntityManager em = emf.createEntityManager();
                 CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
@@ -204,8 +209,12 @@ public class JbpmTaskResource {
                     List<Predicate> predicateList = new ArrayList<Predicate>();
                     List<Predicate> predicatesStatus = new ArrayList<>();
                     List<Predicate> predicatesDeploymentId = new ArrayList<>();
+                    List<Predicate> predicatesProcessId = new ArrayList<>();
                     for (String each : deploymentIds) {
                         predicatesDeploymentId.add(criteriaBuilder.equal(taskRoot.get("taskData").get("deploymentId"), each));
+                    }
+                    for (String each : processIds) {
+                        predicatesProcessId.add(criteriaBuilder.equal(taskRoot.get("taskData").get("processId"), each));
                     }
                     predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.InProgress));
                     predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Created));
@@ -216,8 +225,13 @@ public class JbpmTaskResource {
                         p1 = criteriaBuilder.or(predicatesDeploymentId.toArray(new Predicate[predicatesDeploymentId.size()]));
                         predicateList.add(p1);
                     }
+                    Predicate p2 = criteriaBuilder.disjunction();
+                    if(!predicatesProcessId.isEmpty()){
+                        p2 = criteriaBuilder.or(predicatesProcessId.toArray(new Predicate[predicatesProcessId.size()]));
+                    }
                     p1 = criteriaBuilder.or(predicatesStatus.toArray(new Predicate[predicatesStatus.size()]));
                     predicateList.add(p1);
+                    predicateList.add(p2);
                     criteriaQuery.where(criteriaBuilder.and(predicateList.toArray(new Predicate[predicateList.size()])));
                 }
                 criteriaQuery.select(criteriaBuilder.construct(TaskSummary.class,
