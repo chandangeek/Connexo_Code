@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ProcessDefinitionInfo {
+
     public String name;
     public String processId;
     public String version;

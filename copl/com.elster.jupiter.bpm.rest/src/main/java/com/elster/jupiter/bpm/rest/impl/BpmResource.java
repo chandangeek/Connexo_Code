@@ -198,19 +198,16 @@ public class BpmResource {
         String jsonContent;
         int total = -1;
         JSONArray arr = null;
+        ObjectMapper mapper = new ObjectMapper();
+        String payload;
         try {
             String rest = "/rest/tasks";
             String req = getQueryParam(queryParameters);
             if (!req.equals("")) {
                 rest += req;
             }
-            List<String> deployemntIds = getAvailableProcesses(uriInfo, auth).processes.stream()
-                    .map(s -> s.deploymentId)
-                    .collect(Collectors.toList());
-            for(String each : deployemntIds){
-                rest += "&deploymentid=" + each;
-            }
-            jsonContent = bpmService.getBpmServer().doGet(rest, auth);
+            payload = mapper.writeValueAsString(getAvailableProcesses(uriInfo, auth));
+            jsonContent = bpmService.getBpmServer().doPost(rest, payload, auth, 0L);
             if (!"".equals(jsonContent)) {
                 JSONObject obj = new JSONObject(jsonContent);
                 total = Integer.valueOf(obj.get("total").toString());
@@ -220,6 +217,8 @@ public class BpmResource {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(String.format(this.errorNotFoundMessage, e.getMessage())).build());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         }
         TaskInfos infos = new TaskInfos(arr);
         if(total > 0){
