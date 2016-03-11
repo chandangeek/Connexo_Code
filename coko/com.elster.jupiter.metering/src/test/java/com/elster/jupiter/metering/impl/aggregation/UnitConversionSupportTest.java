@@ -285,6 +285,78 @@ public class UnitConversionSupportTest {
         assertThat(conversion).isEqualTo("(255.372222222222 + ((5 * var) / 9))");
     }
 
+    @Test
+    public void inchToMeter() {
+        VariableReferenceNode variable = new VariableReferenceNode("var");
+
+        // Business method
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.INCH, ReadingTypeUnit.METER);
+
+        // Asserts
+        String conversion = expression.accept(new ExpressionNodeToString());
+        assertThat(conversion).isEqualTo("(0.0254 * var)");
+    }
+
+    @Test
+    public void meterToInch() {
+        VariableReferenceNode variable = new VariableReferenceNode("var");
+
+        // Business method
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, ReadingTypeUnit.INCH);
+
+        // Asserts
+        String conversion = expression.accept(new ExpressionNodeToString());
+        assertThat(conversion).isEqualTo("(var / 0.0254)");
+    }
+
+    @Test
+    public void footToMeter() {
+        VariableReferenceNode variable = new VariableReferenceNode("var");
+
+        // Business method
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.FOOT, ReadingTypeUnit.METER);
+
+        // Asserts
+        String conversion = expression.accept(new ExpressionNodeToString());
+        assertThat(conversion).isEqualTo("(0.3048 * var)");
+    }
+
+    @Test
+    public void meterToFoot() {
+        VariableReferenceNode variable = new VariableReferenceNode("var");
+
+        // Business method
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, ReadingTypeUnit.FOOT);
+
+        // Asserts
+        String conversion = expression.accept(new ExpressionNodeToString());
+        assertThat(conversion).isEqualTo("(var / 0.3048)");
+    }
+
+    @Test
+    public void mileToMeter() {
+        VariableReferenceNode variable = new VariableReferenceNode("var");
+
+        // Business method
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.MILE, ReadingTypeUnit.METER);
+
+        // Asserts
+        String conversion = expression.accept(new ExpressionNodeToString());
+        assertThat(conversion).isEqualTo("(1609.344 * var)");
+    }
+
+    @Test
+    public void meterToMile() {
+        VariableReferenceNode variable = new VariableReferenceNode("var");
+
+        // Business method
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, ReadingTypeUnit.MILE);
+
+        // Asserts
+        String conversion = expression.accept(new ExpressionNodeToString());
+        assertThat(conversion).isEqualTo("(var / 1609.344)");
+    }
+
     private Set<ReadingTypeUnit> imperialLengthUnits() {
         return EnumSet.of(
                 ReadingTypeUnit.NAUTICALMILE,
