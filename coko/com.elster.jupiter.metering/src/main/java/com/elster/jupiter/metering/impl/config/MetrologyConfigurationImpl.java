@@ -10,6 +10,9 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -23,6 +26,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -178,6 +182,21 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
                     customPropertySets.remove(cpsUsage);
                     dataModel.touch(MetrologyConfigurationImpl.this);
                 });
+    }
+
+    @Override
+    public List<MetrologyContract> getContracts() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<ReadingTypeRequirement> getRequirements() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<ReadingTypeDeliverable> getDeliverables() {
+        return Collections.emptyList();
     }
 
     void create() {

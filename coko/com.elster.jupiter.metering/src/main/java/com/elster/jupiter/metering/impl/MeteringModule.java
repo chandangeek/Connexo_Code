@@ -6,7 +6,13 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.impl.aggregation.DataAggregationServiceImpl;
+import com.elster.jupiter.metering.impl.aggregation.SqlBuilderFactory;
+import com.elster.jupiter.metering.impl.aggregation.SqlBuilderFactoryImpl;
+import com.elster.jupiter.metering.impl.aggregation.VirtualFactory;
+import com.elster.jupiter.metering.impl.aggregation.VirtualFactoryImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
@@ -59,6 +65,9 @@ public class MeteringModule extends AbstractModule {
         bind(MetrologyConfigurationService.class).to(MetrologyConfigurationServiceImpl.class).in(Scopes.SINGLETON);
         bind(MeteringService.class).to(MeteringServiceImpl.class).in(Scopes.SINGLETON);
         bind(ServerMeteringService.class).to(MeteringServiceImpl.class).in(Scopes.SINGLETON);
+        bind(VirtualFactory.class).to(VirtualFactoryImpl.class).in(Scopes.SINGLETON);
+        bind(SqlBuilderFactory.class).to(SqlBuilderFactoryImpl.class).in(Scopes.SINGLETON);
+        bind(DataAggregationService.class).to(DataAggregationServiceImpl.class).in(Scopes.SINGLETON);
     }
 
 }

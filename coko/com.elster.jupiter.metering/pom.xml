@@ -139,6 +139,12 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools.persistence</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>systemadmin</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
