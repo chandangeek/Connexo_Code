@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.MissingHandlerNameException;
@@ -47,8 +48,10 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -61,9 +64,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-/**
- * Created by bvn on 2/4/16.
- */
 @Component(name = "com.elster.jupiter.servicecall",
         service = {ServiceCallService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
         property = "name=" + ServiceCallService.COMPONENT_NAME,
@@ -183,6 +183,9 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
                 Privileges.RESOURCE_SERVICE_CALL_TYPES.getKey(), Privileges.RESOURCE_SERVICE_CALL_TYPES_DESCRIPTION.getKey(),
                 Arrays.asList(Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES, Privileges.Constants.VIEW_SERVICE_CALL_TYPES)));
+        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
+                Privileges.RESOURCE_SERVICE_CALL.getKey(), Privileges.RESOURCE_SERVICE_CALL_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.VIEW_SERVICE_CALLS, Privileges.Constants.CHANGE_SERVICE_CALL_STATE)));
         return resources;
     }
 
@@ -296,51 +299,35 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     }
 
     @Override
-    public Optional<ServiceCall> getServiceCall(String number) {
-        return getServiceCall(numberToId(number));
-    }
-
-    @Override
-    public Finder<ServiceCall> getServiceCalls() {
-        return DefaultFinder.of(ServiceCall.class, dataModel)
-                .sorted("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ", 0))", true)
-                .sorted(ServiceCallImpl.Fields.modTime.fieldName(), false);
-    }
-
-    @Override
     public ServiceCallFinder getServiceCallFinder() {
-        Order parentOrder = Order.ascending("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ", 0))");
-        Order modeTimeOrder = Order.descending(ServiceCallImpl.Fields.modTime.fieldName());
-        return new ServiceCallFinderImpl(dataModel, parentOrder, modeTimeOrder);
+        return new ServiceCallFinderImpl(dataModel);
     }
 
     @Override
-    public Map<String, Long> getChildrenStatus(String number) {
-        HashMap<String, Long> childrenCountInfo = new HashMap<>();
+    public Map<DefaultState, Long> getChildrenStatus(long id) {
+        HashMap<DefaultState, Long> childrenStateCount = new HashMap<>();
         SqlBuilder sqlBuilder = new SqlBuilder();
 
-        sqlBuilder.append("SELECT fsm.NAME, scs.TOTAL FROM FSM_STATE as fsm, ");
-        sqlBuilder.append("(SELECT STATE, COUNT(*) as TOTAL FROM SCS_SERVICE_CALL ");
-        sqlBuilder.append("WHERE id IN (SELECT childID FROM SCS_SERVICE_CALL_PARENT where parentID=");
-        sqlBuilder.append(numberToId(number) + " ");
-        sqlBuilder.append("GROUP BY STATE) as scs");
+        sqlBuilder.append("SELECT fsm.NAME, scs.TOTAL FROM FSM_STATE fsm, ");
+        sqlBuilder.append("(SELECT STATE, COUNT(*) TOTAL FROM SCS_SERVICE_CALL ");
+        sqlBuilder.append("WHERE id IN (SELECT id FROM SCS_SERVICE_CALL where parent=");
+        sqlBuilder.append(id + ") ");
+        sqlBuilder.append("GROUP BY STATE) scs ");
         sqlBuilder.append("WHERE fsm.ID = scs.STATE");
 
-        try (PreparedStatement statement = sqlBuilder.prepare(dataModel.getConnection(false))) {
-            try (ResultSet resultSet = statement.executeQuery()) {
-                while (resultSet.next()) {
-                    childrenCountInfo.put(DefaultState.valueOf(resultSet.getString(0))
-                            .name(), Long.parseLong(resultSet.getString(1)));
+        try (Connection connection = dataModel.getConnection(false)) {
+            try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        childrenStateCount.put(DefaultState.from(resultSet.getString(1))
+                                .get(), Long.parseLong(resultSet.getString(2)));
+                    }
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
         }
-        return childrenCountInfo;
-    }
-
-    private long numberToId(String number) {
-        return Long.parseLong(number.substring(3));
+        return childrenStateCount;
     }
 
     @Override

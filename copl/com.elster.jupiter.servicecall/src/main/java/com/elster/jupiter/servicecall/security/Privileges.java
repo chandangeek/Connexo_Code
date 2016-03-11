@@ -10,10 +10,16 @@ public enum Privileges implements TranslationKey {
     //Resources
     RESOURCE_SERVICE_CALL_TYPES("serviceCallTypes.serviceCallTypes", "Service call types"),
     RESOURCE_SERVICE_CALL_TYPES_DESCRIPTION("serviceCallTypes.serviceCallTypes.description", "Manage service call types"),
+    RESOURCE_SERVICE_CALL("serviceCalls.serviceCalls", "Service calls"),
+    RESOURCE_SERVICE_CALL_DESCRIPTION("serviceCalls.serviceCalls.description", "Manage service calls"),
+
+
 
     //Privileges
     VIEW_SERVICE_CALL_TYPES(Constants.VIEW_SERVICE_CALL_TYPES, "View"),
-    ADMINISTRATE_SERVICE_CALL_TYPES(Constants.ADMINISTRATE_SERVICE_CALL_TYPES, "Administrate");
+    ADMINISTRATE_SERVICE_CALL_TYPES(Constants.ADMINISTRATE_SERVICE_CALL_TYPES, "Administrate"),
+    VIEW_SERVICE_CALL_OVERVIEW(Constants.VIEW_SERVICE_CALLS, "View"),
+    CHANGE_SERVICE_CALL_STATE(Constants.CHANGE_SERVICE_CALL_STATE, "Change state");
 
     private final String key;
     private final String description;
@@ -46,5 +52,8 @@ public enum Privileges implements TranslationKey {
     public interface Constants {
         String VIEW_SERVICE_CALL_TYPES = "privilege.view.serviceCallTypes";
         String ADMINISTRATE_SERVICE_CALL_TYPES = "privilege.administrate.serviceCallTypes";
+        String VIEW_SERVICE_CALLS = "privelege.view.serviceCalls";
+        String CHANGE_SERVICE_CALL_STATE = "privilege.administrate.serviceCall";
+
     }
 }

@@ -30,7 +30,8 @@ public class ServiceCallMessageHandler implements MessageHandler {
 
         serviceCall.getParent()
                 .ifPresent(parent -> parent.getType().getServiceCallHandler()
-                        .onChildStateChange(serviceCall, transitionNotification.getOldState(), transitionNotification.getNewState()));
+                        .onChildStateChange(parent, serviceCall, transitionNotification.getOldState(), transitionNotification
+                                .getNewState()));
     }
 
 }

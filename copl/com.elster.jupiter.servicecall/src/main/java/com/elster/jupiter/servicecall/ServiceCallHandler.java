@@ -8,6 +8,10 @@ import aQute.bnd.annotation.ConsumerType;
 @ConsumerType
 public interface ServiceCallHandler {
 
+    default String getDisplayName() {
+        return this.getClass().getSimpleName();
+    }
+
     /**
      * The default implementation returns true, so implementers who never disallow needn't implement this method.
      */
@@ -16,9 +20,9 @@ public interface ServiceCallHandler {
     }
 
     /**
-     * @param serviceCall the child serviceCall
+     * @param parentServiceCall
      */
-    default void onChildStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
+    default void onChildStateChange(ServiceCall parentServiceCall, ServiceCall childServiceCall, DefaultState oldState, DefaultState newState) {
         // do nothing by default
     }
 

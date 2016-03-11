@@ -81,21 +81,6 @@ public interface ServiceCallService {
     Optional<ServiceCall> getServiceCall(long id);
 
     /**
-     * Finds and returns a service call with the given internal number
-     *
-     * @param number The number of the service call (starts with SC_)
-     * @return The optional service call
-     */
-    Optional<ServiceCall> getServiceCall(String number);
-
-    /**
-     * Returns list of known service calls. This method supports paging.
-     *
-     * @return Finder
-     */
-    Finder<ServiceCall> getServiceCalls();
-
-    /**
      * Returns a finder which allows you to filter the found service calls
      *
      * @return ServiceCallFinder
@@ -105,10 +90,10 @@ public interface ServiceCallService {
     /**
      * Returns information about the status of the children in a given service call
      *
-     * @param number The unique number that identifies the service call
+     * @param id The unique id that identifies the service call
      * @return Map of the names of the states, with their respective percentage
      */
-    Map<String, Long> getChildrenStatus(String number);
+    Map<DefaultState, Long> getChildrenStatus(long id);
 
     /**
      * Returns a list of names of all known service call handlers in the system

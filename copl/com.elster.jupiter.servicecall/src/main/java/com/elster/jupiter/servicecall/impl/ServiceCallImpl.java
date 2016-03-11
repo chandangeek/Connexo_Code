@@ -2,6 +2,7 @@ package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.DefaultFinder;
@@ -16,9 +17,9 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallFinder;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
 
@@ -33,9 +34,17 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
-public class ServiceCallImpl implements ServiceCall {
-    private static final NumberFormat NUMBER_PREFIX = new DecimalFormat("SC_00000000");
+import static java.util.Arrays.fill;
 
+public class ServiceCallImpl implements ServiceCall {
+    static final int ZEROFILL_SIZE = 8;
+    private static final NumberFormat NUMBER_PREFIX = createFormat();
+
+    private static NumberFormat createFormat() {
+        char[] zeroFillChars = new char[ZEROFILL_SIZE];
+        fill(zeroFillChars, '0');
+        return new DecimalFormat("SC_" + new String(zeroFillChars));
+    }
     private final IServiceCallService serviceCallService;
     private final JsonService jsonService;
 
@@ -269,15 +278,20 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     @Override
-    public Finder<ServiceCall> getChildren() {
-        Condition condition = Where.where("parent").isEqualTo(this);
-        return DefaultFinder.of(ServiceCall.class, condition, dataModel)
-                .defaultSortColumn(ServiceCallImpl.Fields.type.fieldName());
+    public ServiceCallFinder getChildrenFinder() {
+        ServiceCallFinder finder = new ServiceCallFinderImpl(dataModel);
+        finder.setParent(this);
+        return finder;
     }
 
     @Override
     public <T extends PersistentDomainExtension<ServiceCall>> Optional<T> getExtensionFor(CustomPropertySet<ServiceCall, T> customPropertySet, Object... additionalPrimaryKeyValues) {
         return customPropertySetService.getUniqueValuesEntityFor(customPropertySet, this, additionalPrimaryKeyValues);
+    }
+
+    @Override
+    public <T extends PersistentDomainExtension<ServiceCall>> CustomPropertySetValues getValuesFor(CustomPropertySet<ServiceCall, T> customPropertySet, Object... additionalPrimaryKeyValues) {
+        return customPropertySetService.getUniqueValuesFor(customPropertySet, this, additionalPrimaryKeyValues);
     }
 
     @Override

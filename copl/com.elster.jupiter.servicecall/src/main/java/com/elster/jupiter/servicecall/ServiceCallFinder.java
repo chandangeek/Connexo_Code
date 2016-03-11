@@ -19,11 +19,13 @@ public interface ServiceCallFinder {
 
     ServiceCallFinder setType(List<String> types);
 
-    ServiceCallFinder setState(int state);
+    ServiceCallFinder setState(List<String> states);
 
     ServiceCallFinder withCreationTimeIn(Range<Instant> interval);
 
     ServiceCallFinder withModTimeIn(Range<Instant> interval);
+
+    ServiceCallFinder setParent(ServiceCall parent);
 
     List<ServiceCall> find();
 
