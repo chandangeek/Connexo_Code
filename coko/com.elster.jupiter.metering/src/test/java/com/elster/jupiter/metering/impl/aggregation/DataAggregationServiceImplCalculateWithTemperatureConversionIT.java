@@ -25,18 +25,16 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FormulaBuilder;
+import com.elster.jupiter.metering.config.FormulaPart;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.ConstantNode;
-import com.elster.jupiter.metering.impl.config.OperationNode;
-import com.elster.jupiter.metering.impl.config.Operator;
-import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -127,10 +125,6 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     private MeterActivation meterActivation;
     private Channel temperatureChannel;
     private UsagePoint usagePoint;
-
-
-    @Mock
-    private Thesaurus thesaurus;
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -265,14 +259,13 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         when(avgTemperature.getId()).thenReturn(DELIVERABLE_ID);
         when(avgTemperature.getName()).thenReturn("averageT");
         when(avgTemperature.getReadingType()).thenReturn(C_daily);
+        FormulaBuilder formulaBuilder = newFormulaBuilder();
+        FormulaPart node = formulaBuilder.plus(
+                formulaBuilder.requirement(temperature),
+                formulaBuilder.constant(BigDecimal.TEN)).create();
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
-        doReturn(
-                new OperationNode(
-                        Operator.PLUS,
-                        new ReadingTypeRequirementNode(temperature),
-                        new ConstantNode(BigDecimal.TEN), thesaurus))
-                .when(formula).expressionNode();
+        doReturn(node).when(formula).expressionNode();
         when(avgTemperature.getFormula()).thenReturn(formula);
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(avgTemperature));
@@ -349,14 +342,13 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         when(avgTemperature.getId()).thenReturn(DELIVERABLE_ID);
         when(avgTemperature.getName()).thenReturn("averageT");
         when(avgTemperature.getReadingType()).thenReturn(F_daily);
+        FormulaBuilder formulaBuilder = newFormulaBuilder();
+        FormulaPart node = formulaBuilder.plus(
+                formulaBuilder.requirement(temperature),
+                formulaBuilder.constant(BigDecimal.TEN)).create();
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
-        doReturn(
-                new OperationNode(
-                        Operator.PLUS,
-                        new ReadingTypeRequirementNode(temperature),
-                        new ConstantNode(BigDecimal.TEN), thesaurus))
-                .when(formula).expressionNode();
+        doReturn(node).when(formula).expressionNode();
         when(avgTemperature.getFormula()).thenReturn(formula);
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(avgTemperature));
@@ -440,17 +432,17 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         when(avgTemperature.getId()).thenReturn(DELIVERABLE_ID);
         when(avgTemperature.getName()).thenReturn("averageT");
         when(avgTemperature.getReadingType()).thenReturn(K_daily);
+        FormulaBuilder formulaBuilder = newFormulaBuilder();
+        FormulaPart node =
+                formulaBuilder.divide(
+                    formulaBuilder.plus(
+                        formulaBuilder.requirement(minTemperature),
+                        formulaBuilder.requirement(maxTemperature)),
+                    formulaBuilder.constant(BigDecimal.valueOf(2L))).create();
+
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
-        doReturn(
-                new OperationNode(
-                        Operator.DIVIDE,
-                        new OperationNode(
-                                Operator.PLUS,
-                                new ReadingTypeRequirementNode(minTemperature),
-                                new ReadingTypeRequirementNode(maxTemperature), thesaurus),
-                        new ConstantNode(BigDecimal.valueOf(2L)), thesaurus))
-                .when(formula).expressionNode();
+        doReturn(node).when(formula).expressionNode();
         when(avgTemperature.getFormula()).thenReturn(formula);
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(avgTemperature));
@@ -490,20 +482,20 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.deliverableWithClauseBuilder.getText())
                     .matches("SELECT -1, rid97_99_1\\.timestamp,.*");
-            // Assert that the min temperature requirements' value is coverted to Fahrenheit
-            assertThat(this.deliverableWithClauseBuilder.getText())
-                    .matches("SELECT.*\\(273.15\\s*\\+\\s*rid97_99_1\\.value\\).*");
-            verify(clauseAwareSqlBuilder).select();
             // Assert that the max temperature requirements' value is not coverted
             assertThat(this.deliverableWithClauseBuilder.getText())
-                    .matches("SELECT.*\\+\\s*rid98_99_1\\.value\\).*");
+                    .matches("SELECT.*\\(rid97_99_1\\.value\\s*\\+\\s*\\(.*");
+            verify(clauseAwareSqlBuilder).select();
+            // Assert that the max temperature requirements' value is coverted to Celcius
+            assertThat(this.deliverableWithClauseBuilder.getText())
+                    .matches("SELECT.*\\(255.3722*\\s*\\+\\s*\\(\\(5\\s*\\*\\s*rid98_99_1\\.value\\).*");
             verify(clauseAwareSqlBuilder).select();
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
             assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(DAILY_TEMPERATURE_KELVIN_MRID) + "'.*");
-            /* Assert that the overall select statement converts the Fahrenheit values to Kelvin
+            /* Assert that the overall select statement converts the Celcius values to Kelvin
              * first and then takes the average to group by day. */
-            assertThat(overallSelectWithoutNewlines).matches(".*[avg|AVG]\\(\\(255.3722*\\s*\\+\\s*\\(\\(5\\s*\\*\\s*rod99_1\\.value\\)\\s*/\\s*9\\)\\)\\).*");
+            assertThat(overallSelectWithoutNewlines).matches(".*[avg|AVG]\\(\\(273.15*\\s*\\+\\s*rod99_1\\.value\\)\\).*");
             assertThat(overallSelectWithoutNewlines).matches(".*[trunc|TRUNC]\\(rod99_1\\.localdate, 'DDD'\\).*");
             assertThat(overallSelectWithoutNewlines).matches(".*[group by trunc|GROUP BY TRUNC]\\(rod99_1\\.localdate, 'DDD'\\).*");
         }
@@ -515,6 +507,14 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
     private DataAggregationService testInstance() {
         return getDataAggregationService();
+    }
+
+    private static MetrologyConfigurationService getMetrologyConfigurationService() {
+        return injector.getInstance(MetrologyConfigurationService.class);
+    }
+
+    private static FormulaBuilder newFormulaBuilder() {
+        return getMetrologyConfigurationService().newFormulaBuilder(Formula.Mode.AUTO);
     }
 
     private void setupMeter(String amrIdBase) {
@@ -529,14 +529,6 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
     private void activateMeterWithKelvin() {
         this.activateMeter(K_15min);
-    }
-
-    private void activateMeterWithCelcius() {
-        this.activateMeter(C_15min);
-    }
-
-    private void activateMeterWithFahrenheit() {
-        this.activateMeter(F_15min);
     }
 
     private void activateMeter(ReadingType readingType) {
