@@ -1,9 +1,7 @@
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.util.units.Dimension;
 
-import javax.inject.Inject;
 import java.math.BigDecimal;
 
 /**
@@ -15,11 +13,12 @@ public class ConstantNode extends AbstractNode {
 
     private BigDecimal constantValue;
 
-    @Inject
-    public ConstantNode() {}
+    public ConstantNode() {
+        super();
+    }
 
     public ConstantNode(BigDecimal value) {
-        super();
+        this();
         this.constantValue = value;
     }
 

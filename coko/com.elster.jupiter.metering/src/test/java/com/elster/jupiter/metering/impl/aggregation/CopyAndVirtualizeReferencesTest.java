@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.config.ConstantNode;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.users.UserService;
 
@@ -72,7 +73,8 @@ public class CopyAndVirtualizeReferencesTest {
     @Test
     public void copyConstantNode() {
         CopyAndVirtualizeReferences visitor = getTestInstance();
-        com.elster.jupiter.metering.impl.config.ConstantNode node = new com.elster.jupiter.metering.impl.config.ConstantNode(BigDecimal.TEN);
+
+        ConstantNode node = (ConstantNode) this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO).constant(BigDecimal.TEN).create();
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);

@@ -1,14 +1,12 @@
 package com.elster.jupiter.metering.impl.config;
 
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.OptionalInt;
-
-import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.units.Dimension;
+
+import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * Created by igh on 4/02/2016.
@@ -46,11 +44,7 @@ public class OperationNode extends AbstractNode {
     }
 
     public String toString() {
-        StringBuilder result = new StringBuilder(operator.toString() + "(");
-        result.append(getLeftOperand().toString()).append(", ");
-        result.append(getRightOperand().toString());
-        result.append(")");
-        return result.toString();
+        return operator.toString() + "(" + getLeftOperand().toString() + ", " + getRightOperand().toString() + ")";
     }
 
     public void validate() {
