@@ -105,6 +105,13 @@ public interface DeviceMessage<D extends BaseDevice> extends HasId {
     public String getTrackingId();
 
     /**
+     * Returns the sender's tracking id
+     *
+     * @return the sender's tracking id
+     */
+    public String getTrackingCategory();
+
+    /**
      * This is the date & time when a message was actually transmitted to the device. Will be empty if the message was not sent yet.
      * @return The sent-date or empty if unsent
      */
