@@ -3,7 +3,7 @@ Ext.define('Mdc.usagepointmanagement.store.ServiceCategories', {
     model: 'Mdc.usagepointmanagement.model.ServiceCategory',
     proxy: {
         type: 'rest',
-        url: '/api/mtr/usagepoints/servicecategory',
+        url: '/api/mtr/servicecategory',
         reader: {
             type: 'json',
             root: 'categories'

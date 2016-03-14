@@ -14,7 +14,7 @@ Ext.define('Mdc.usagepointmanagement.model.UsagePoint', {
         url: '/api/mtr/usagepoints/',
         timeout: 240000,
         reader: {
-            type: 'json',
+            type: 'json'
         }
     }
 });
