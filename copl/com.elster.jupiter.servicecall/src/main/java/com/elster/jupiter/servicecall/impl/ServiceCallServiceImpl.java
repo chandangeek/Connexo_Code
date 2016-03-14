@@ -14,13 +14,14 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.MissingHandlerNameException;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallFinder;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycleBuilder;
@@ -32,11 +33,13 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -51,6 +54,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,10 +67,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
 @Component(name = "com.elster.jupiter.servicecall",
         service = {ServiceCallService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
         property = "name=" + ServiceCallService.COMPONENT_NAME,
         immediate = true)
+@LiteralSql
 public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
 
     static final String SERIVCE_CALLS_DESTINATION_NAME = "SerivceCalls";
@@ -202,6 +209,11 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     }
 
     @Override
+    public ServiceCallFilter newServiceCallFilter() {
+        return new ServiceCallFilterImpl();
+    }
+
+    @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList(OrmService.COMPONENTNAME,
                 UserService.COMPONENTNAME,
@@ -298,8 +310,10 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     }
 
     @Override
-    public ServiceCallFinder getServiceCallFinder() {
-        return new ServiceCallFinderImpl(dataModel);
+    public Finder<ServiceCall> getServiceCallFinder(ServiceCallFilter filter) {
+         return DefaultFinder.of(ServiceCall.class, createConditionFromFilter(filter), dataModel, ServiceCallType.class, State.class)
+                .sorted("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ", 0))", true)
+                .sorted(ServiceCallImpl.Fields.modTime.fieldName(), false);
     }
 
     @Override
@@ -309,7 +323,7 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
 
         sqlBuilder.append("SELECT fsm.NAME, scs.TOTAL FROM FSM_STATE fsm, ");
         sqlBuilder.append("(SELECT STATE, COUNT(*) TOTAL FROM SCS_SERVICE_CALL ");
-        sqlBuilder.append("WHERE id IN (SELECT id FROM SCS_SERVICE_CALL where parent=");
+        sqlBuilder.append("WHERE id IN (SELECT id FROM " + TableSpecs.SCS_SERVICE_CALL  +" where parent=");
         sqlBuilder.append(id + ") ");
         sqlBuilder.append("GROUP BY STATE) scs ");
         sqlBuilder.append("WHERE fsm.ID = scs.STATE");
@@ -319,7 +333,7 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         childrenStateCount.put(DefaultState.from(resultSet.getString(1))
-                                .get(), Long.parseLong(resultSet.getString(2)));
+                                .get(), resultSet.getLong(2));
                     }
                 }
             }
@@ -363,5 +377,55 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
         findServiceCalls(target, states)
                 .stream()
                 .forEach(ServiceCall::cancel);
+    }
+
+    private Condition createConditionFromFilter(ServiceCallFilter filter) {
+        Condition condition = Condition.TRUE;
+
+        if (filter.getReference() != null) {
+            condition = condition.and(where(ServiceCallImpl.Fields.externalReference.fieldName()).like(filter.getReference()).or(where("internalReference").like(filter.getReference())));
+        }
+        if (!filter.getTypes().isEmpty()) {
+            condition = condition.and(ofAnyType(filter.getTypes()));
+        }
+        if (!filter.getStates().isEmpty()) {
+            condition = condition.and(ofAnyState(filter.getStates()));
+        }
+        if (filter.getReceivedDateFrom() != null) {
+            Range<Instant> interval =
+                    Range.closed(filter.getReceivedDateFrom(),filter.getReceivedDateTo() != null ? filter.getReceivedDateTo() : Instant.now());
+            condition = condition.and(where(ServiceCallImpl.Fields.createTime.fieldName()).in(interval));
+        } else if (filter.getReceivedDateTo() != null) {
+            Range<Instant> interval =
+                    Range.closed(Instant.EPOCH,filter.getReceivedDateTo());
+            condition = condition.and(where(ServiceCallImpl.Fields.createTime.fieldName()).in(interval));
+        }
+        if(filter.getModificationDateFrom() != null) {
+            Range<Instant> interval =
+                    Range.closed(filter.getModificationDateFrom(),filter.getModificationDateTo() != null ? filter.getModificationDateTo() : Instant.now());
+            condition = condition.and(where(ServiceCallImpl.Fields.createTime.fieldName()).in(interval));
+        } else if (filter.getModificationDateTo() != null) {
+            Range<Instant> interval =
+                    Range.closed(Instant.EPOCH, filter.getModificationDateTo());
+            condition = condition.and(where(ServiceCallImpl.Fields.createTime.fieldName()).in(interval));
+        }
+        if (filter.getParent() != null) {
+            condition = condition.and(where(ServiceCallImpl.Fields.parent.fieldName()).isEqualTo(filter.getParent()));
+        }
+
+        return condition;
+    }
+
+    private Condition ofAnyType(List<String> types) {
+        return types.stream()
+                .map(typeName -> where(ServiceCallImpl.Fields.type.fieldName() + "." + ServiceCallTypeImpl.Fields.name.fieldName())
+                        .isEqualTo(typeName))
+                .reduce(Condition.FALSE, Condition::or);
+    }
+
+    private Condition ofAnyState(List<String> states) {
+        return states.stream()
+                .map(stateName -> where(ServiceCallImpl.Fields.state.fieldName() + ".name").isEqualTo(DefaultState.valueOf(stateName).getKey()))
+                .reduce(Condition.FALSE, Condition::or);
     }
 }

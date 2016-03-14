@@ -61,7 +61,7 @@ public interface ServiceCall extends HasId {
 
     void save();
 
-    ServiceCallFinder getChildrenFinder();
+    Finder<ServiceCall> findChildren(ServiceCallFilter filter);
 
     <T extends PersistentDomainExtension<ServiceCall>> Optional<T> getExtensionFor(CustomPropertySet<ServiceCall, T> customPropertySet, Object... additionalPrimaryKeyValues);
 

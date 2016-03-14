@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -80,7 +81,12 @@ public class ServiceCallTypeImplTest {
 
         ServiceCallHandler actualHandler = serviceCallType.getServiceCallHandler();
 
-        actualHandler.onStateChange(serviceCall, DefaultState.CREATED, DefaultState.PENDING);
+        try {
+            actualHandler.onStateChange(serviceCall, DefaultState.CREATED, DefaultState.PENDING);
+            fail("Exception expected");
+        } catch (RuntimeException e) {
+            // empty
+        }
 
         verify(serviceCall).log(anyString(), eq(runtimeException));
     }

@@ -95,6 +95,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static com.jayway.awaitility.Awaitility.await;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -290,6 +291,114 @@ public class ServiceCallTransitionIT {
         serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
 
         assertThat(serviceCall.getState()).isEqualTo(DefaultState.PENDING);
+
+    }
+
+    @Test
+    public void forceFailServiceCallOnUnexpectedException() {
+        when(serviceCallHandler.allowStateChange(any(), any(), any())).thenReturn(true);
+        doThrow(new RuntimeException()).when(serviceCallHandler).onStateChange(any(), any(), any());
+
+        MyExtension extension = new MyExtension();
+        extension.setValue(BigDecimal.valueOf(65456));
+
+        ServiceCall serviceCall = null;
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCall = serviceCallType.newServiceCall()
+                    .externalReference("external")
+                    .origin("CST")
+                    .targetObject(importSchedule)
+                    .extendedWith(extension)
+                    .create();
+            context.commit();
+        }
+
+        serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCall.requestTransition(DefaultState.PENDING);
+            context.commit();
+        }
+
+        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME)
+                .get();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            Message message = await().atMost(200, TimeUnit.MILLISECONDS)
+                    .until(messageQueue::receive, Matchers.any(Message.class));
+
+            ServiceCallMessageHandler serviceCallMessageHandler = new ServiceCallMessageHandler(jsonService, serviceCallService, thesaurus);
+
+            serviceCallMessageHandler.process(message);
+
+            context.commit();
+        }
+
+        verify(serviceCallHandler).onStateChange(serviceCall, DefaultState.CREATED, DefaultState.PENDING);
+
+        serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
+
+        assertThat(serviceCall.getState()).isEqualTo(DefaultState.FAILED);
+
+    }
+
+    @Test
+    public void transitionParentServiceCallIfChildFailsOnUnexpectedException() {
+        when(serviceCallHandler.allowStateChange(any(), any(), any())).thenReturn(true);
+        doThrow(new RuntimeException()).when(serviceCallHandler).onStateChange(any(), any(), any());
+
+        MyExtension extension = new MyExtension();
+        extension.setValue(BigDecimal.valueOf(65456));
+
+        ServiceCall parentServiceCall = null;
+        ServiceCall serviceCall = null;
+        try (TransactionContext context = transactionService.getContext()) {
+            parentServiceCall = serviceCallType.newServiceCall()
+                    .externalReference("external")
+                    .origin("CST")
+                    .targetObject(importSchedule)
+                    .extendedWith(extension)
+                    .create();
+            serviceCall = parentServiceCall.newChildCall(serviceCallType)
+                    .origin("CST")
+                    .targetObject(importSchedule)
+                    .extendedWith(extension)
+                    .create();
+            ((ServiceCallImpl) parentServiceCall).setState(DefaultState.WAITING);
+            parentServiceCall.save();
+            context.commit();
+        }
+
+        serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCall.requestTransition(DefaultState.PENDING);
+            context.commit();
+        }
+
+        SubscriberSpec messageQueue = messageService.getSubscriberSpec(ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME)
+                .get();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            Message message = await().atMost(200, TimeUnit.MILLISECONDS)
+                    .until(messageQueue::receive, Matchers.any(Message.class));
+
+            ServiceCallMessageHandler serviceCallMessageHandler = new ServiceCallMessageHandler(jsonService, serviceCallService, thesaurus);
+
+            serviceCallMessageHandler.process(message);
+
+            context.commit();
+        }
+
+        verify(serviceCallHandler).onStateChange(serviceCall, DefaultState.CREATED, DefaultState.PENDING);
+        verify(serviceCallHandler).onChildStateChange(parentServiceCall, serviceCall, DefaultState.CREATED, DefaultState.FAILED);
+
+        serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
+
+        assertThat(serviceCall.getState()).describedAs("Child should be FAILED").isEqualTo(DefaultState.FAILED);
+
+        // This assumes the parent *should* not change state if a child fails, of course, this decision depends on the actual implementation of the ServiceCallHandler
+        assertThat(parentServiceCall.getState()).isEqualTo(DefaultState.WAITING);
 
     }
 

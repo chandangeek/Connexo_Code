@@ -18,34 +18,35 @@ public interface ServiceCallService {
      * Get all known service call life cycles in tghe system, support paging.
      * @return Finder
      */
-    public Finder<ServiceCallLifeCycle> getServiceCallLifeCycles();
+    Finder<ServiceCallLifeCycle> getServiceCallLifeCycles();
 
     /**
      * Return a service call life cycle identified by the name
      * @param name
      * @return Optional life cycle
      */
-    public Optional<ServiceCallLifeCycle> getServiceCallLifeCycle(String name);
+    Optional<ServiceCallLifeCycle> getServiceCallLifeCycle(String name);
 
     /**
      * Returns the default service call life cycle. This default model is installed upon bundle init.
      * @return Will return empty if no init has been done yet
      */
-    public Optional<ServiceCallLifeCycle> getDefaultServiceCallLifeCycle();
-    public ServiceCallLifeCycleBuilder createServiceCallLifeCycle(String name);
+    Optional<ServiceCallLifeCycle> getDefaultServiceCallLifeCycle();
+
+    ServiceCallLifeCycleBuilder createServiceCallLifeCycle(String name);
 
     /**
      * Returns list of known service call types. This method supports paging.
      * @return Finder
      */
-    public Finder<ServiceCallType> getServiceCallTypes();
+    Finder<ServiceCallType> getServiceCallTypes();
 
     /**
      * Creates a new service call type, using provided name, version and life cycle. This method start a builder.
      * @param name
      * @return
      */
-    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle);
+    ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle);
 
     /**
      * Creates a new service call type, using provided name and version. The default life cycle is used. This method start a builder.
@@ -85,7 +86,7 @@ public interface ServiceCallService {
      *
      * @return ServiceCallFinder
      */
-    ServiceCallFinder getServiceCallFinder();
+    Finder<ServiceCall> getServiceCallFinder(ServiceCallFilter serviceCallFilter);
 
     /**
      * Returns information about the status of the children in a given service call
@@ -106,6 +107,8 @@ public interface ServiceCallService {
      * @param handler Service call handler name
      */
     Optional<ServiceCallHandler> findHandler(String handler);
+
+    ServiceCallFilter newServiceCallFilter();
 
     Set<ServiceCall> findServiceCalls(Object targetObject, Set<DefaultState> inState);
 
