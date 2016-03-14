@@ -117,10 +117,15 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 Uni.I18n.translatePlural('devicetype.registers', deviceTypes[0].get('registerCount'), 'MDC', 'No register types', '{0} register type', '{0} register types')
             );
 
-            logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/logbooktypes');
-            logBookLink.setText(
-                Uni.I18n.translatePlural('devicetype.logbooks', deviceTypes[0].get('logBookCount'), 'MDC', 'No logbook types', '{0} logbook type', '{0} logbook types')
-            );
+            if (deviceTypes[0].get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
+                logBookLink.hide();
+            } else {
+                logBookLink.show();
+                logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/logbooktypes');
+                logBookLink.setText(
+                    Uni.I18n.translatePlural('devicetype.logbooks', deviceTypes[0].get('logBookCount'), 'MDC', 'No logbook types', '{0} logbook type', '{0} logbook types')
+                );
+            }
 
             loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/loadprofiles');
             loadProfilesLink.setText(
@@ -179,11 +184,16 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                         'No register types', '{0} register type', '{0} register types')
                 );
 
-                logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/logbooktypes');
-                logBookLink.setText(
-                    Uni.I18n.translatePlural('devicetype.logbooks', deviceType.get('logBookCount'), 'MDC',
-                        'No logbook types', '{0} logbook type', '{0} logbook types')
-                );
+                if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
+                    logBookLink.hide();
+                } else {
+                    logBookLink.show();
+                    logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/logbooktypes');
+                    logBookLink.setText(
+                        Uni.I18n.translatePlural('devicetype.logbooks', deviceType.get('logBookCount'), 'MDC',
+                            'No logbook types', '{0} logbook type', '{0} logbook types')
+                    );
+                }
 
                 loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/loadprofiles');
                 loadProfilesLink.setText(

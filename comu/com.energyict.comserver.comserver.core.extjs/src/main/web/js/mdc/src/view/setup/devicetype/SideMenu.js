@@ -3,6 +3,7 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
     alias: 'widget.deviceTypeSideMenu',
     title: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
     deviceTypeId: null,
+    isDataLoggerSlave: undefined,
     initComponent: function () {
         var me = this;
 
@@ -57,15 +58,44 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
                 ]
             }
         ];
-        me.callParent(arguments);
 
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
-            success: function (deviceType) {
-                if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
-                    me.down('#logbooksLink').hide();
-                }
-            }
+        me.executeIfDataLoggerSlave(function() {
+            me.down('#logbooksLink').hide();
         });
+
+        me.callParent(arguments);
+    },
+
+    executeIfDataLoggerSlave: function(executeWhenDetermined) {
+        var me = this;
+        if (me.isDataLoggerSlave === undefined) {
+            Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
+                success: function (deviceType) {
+                    me.isDataLoggerSlave = deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
+                    if (me.isDataLoggerSlave) {
+                        executeWhenDetermined();
+                    }
+                }
+            });
+        } else if (me.isDataLoggerSlave) {
+            executeWhenDetermined();
+        }
+    },
+
+    executeIfNoDataLoggerSlave: function(executeWhenDetermined) {
+        var me = this;
+        if (me.isDataLoggerSlave === undefined) {
+            Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
+                success: function (deviceType) {
+                    me.isDataLoggerSlave = deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
+                    if (!me.isDataLoggerSlave) {
+                        executeWhenDetermined();
+                    }
+                }
+            });
+        } else if (!me.isDataLoggerSlave) {
+            executeWhenDetermined();
+        }
     }
 });
 

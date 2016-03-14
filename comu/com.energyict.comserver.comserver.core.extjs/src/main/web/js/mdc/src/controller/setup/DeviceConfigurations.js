@@ -178,62 +178,72 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     success: function (deviceType) {
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
                         widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
-                        widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
-                        me.getDeviceConfigurationsGrid().getSelectionModel().doSelect(0);
+                        widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(
+                            Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
+                        );
                     }
                 });
             }
         });
     },
 
-    previewDeviceConfiguration: function (grid, record) {
-        var deviceConfigurations = this.getDeviceConfigurationsGrid().getSelectionModel().getSelection(),
-            deviceConfigurationId,
-            registerLink,
-            logBookLink,
-            loadProfilesLink;
+    previewDeviceConfiguration: function () {
+        var me = this,
+            deviceConfigurations = me.getDeviceConfigurationsGrid().getSelectionModel().getSelection(),
+            onDeviceTypeLoad = function() {
+                var deviceConfigurationId = deviceConfigurations[0].get('id'),
+                    registerLink = me.getDeviceConfigurationRegisterLink();
+                    logBookLink = me.getDeviceConfigurationLogBookLink();
+                    loadProfilesLink = me.getDeviceConfigurationLoadProfilesLink();
+
+                Ext.suspendLayouts();
+
+                registerLink.setHref('#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/registerconfigurations');
+                registerLink.setText(
+                    Uni.I18n.translatePlural('general.registerConfigurations', deviceConfigurations[0].get('registerCount'), 'MDC',
+                        'No register configurations', '1 register configuration', '{0} register configurations')
+                );
+
+                logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/logbookconfigurations');
+                logBookLink.setText(
+                    Uni.I18n.translatePlural('general.logbookConfigurations', deviceConfigurations[0].get('logBookCount'), 'MDC',
+                        'No logbook configurations', '1 logbook configuration', '{0} logbook configurations')
+                );
+
+                loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/loadprofiles');
+                loadProfilesLink.setText(
+                    Uni.I18n.translatePlural('general.loadProfileConfigurations', deviceConfigurations[0].get('loadProfileCount'), 'MDC',
+                        'No load profile configurations', '1 load profile configuration', '{0} load profile configurations')
+                );
+
+                me.getDeviceConfigurationPreviewForm().loadRecord(deviceConfigurations[0]);
+
+                var actionMenu = me.getDeviceConfigurationPreview().down('#device-configuration-action-menu');
+                if (actionMenu)
+                    actionMenu.record = deviceConfigurations[0];
+
+                if (me.getDeviceConfigurationPreview().down('#device-configuration-action-menu')) {
+                    me.getDeviceConfigurationPreview().down('#device-configuration-action-menu').record = deviceConfigurations[0];
+                }
+                me.getDeviceConfigurationPreview().getLayout().setActiveItem(1);
+                me.getDeviceConfigurationPreview().setTitle(Ext.String.htmlEncode(deviceConfigurations[0].get('name')));
+
+                Ext.resumeLayouts(true);
+            };
 
         if (deviceConfigurations.length == 1) {
-            deviceConfigurationId = deviceConfigurations[0].get('id');
-            registerLink = this.getDeviceConfigurationRegisterLink();
-            logBookLink = this.getDeviceConfigurationLogBookLink();
-            loadProfilesLink = this.getDeviceConfigurationLoadProfilesLink();
-
-            Ext.suspendLayouts();
-
-            registerLink.setHref('#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/registerconfigurations');
-            registerLink.setText(
-                Uni.I18n.translatePlural('general.registerConfigurations', deviceConfigurations[0].get('registerCount'), 'MDC',
-                    'No register configurations', '1 register configuration', '{0} register configurations')
-            );
-
-            logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/logbookconfigurations');
-            logBookLink.setText(
-                Uni.I18n.translatePlural('general.logbookConfigurations', deviceConfigurations[0].get('logBookCount'), 'MDC',
-                    'No logbook configurations', '1 logbook configuration', '{0} logbook configurations')
-            );
-
-            loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/loadprofiles');
-            loadProfilesLink.setText(
-                Uni.I18n.translatePlural('general.loadProfileConfigurations', deviceConfigurations[0].get('loadProfileCount'), 'MDC',
-                    'No load profile configurations', '1 load profile configuration', '{0} load profile configurations')
-            );
-
-            this.getDeviceConfigurationPreviewForm().loadRecord(deviceConfigurations[0]);
-
-            var actionMenu = this.getDeviceConfigurationPreview().down('#device-configuration-action-menu');
-            if (actionMenu)
-                actionMenu.record = deviceConfigurations[0];
-
-            if (this.getDeviceConfigurationPreview().down('#device-configuration-action-menu')) {
-                this.getDeviceConfigurationPreview().down('#device-configuration-action-menu').record = deviceConfigurations[0];
-            }
-            this.getDeviceConfigurationPreview().getLayout().setActiveItem(1);
-            this.getDeviceConfigurationPreview().setTitle(Ext.String.htmlEncode(deviceConfigurations[0].get('name')));
-
-            Ext.resumeLayouts(true);
+            Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
+                success: function (deviceType) {
+                    if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
+                        me.getDeviceConfigurationLogBookLink().hide();
+                    } else {
+                        me.getDeviceConfigurationLogBookLink().show();
+                    }
+                    onDeviceTypeLoad();
+                }
+            });
         } else {
-            this.getDeviceConfigurationPreview().getLayout().setActiveItem(0);
+            me.getDeviceConfigurationPreview().getLayout().setActiveItem(0);
         }
     },
 
@@ -269,11 +279,16 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                                 'No register configurations', '1 register configuration', '{0} register configurations')
                         );
 
-                        logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/logbookconfigurations');
-                        logBookLink.setText(
-                            Uni.I18n.translatePlural('general.logbookConfigurations', deviceConfiguration.get('logBookCount'), 'MDC',
-                                'No logbook configurations', '1 logbook configuration', '{0} logbook configurations')
-                        );
+                        if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
+                            logBookLink.hide();
+                        } else {
+                            logBookLink.show();
+                            logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/logbookconfigurations');
+                            logBookLink.setText(
+                                Uni.I18n.translatePlural('general.logbookConfigurations', deviceConfiguration.get('logBookCount'), 'MDC',
+                                    'No logbook configurations', '1 logbook configuration', '{0} logbook configurations')
+                            );
+                        }
 
                         loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/loadprofiles');
                         loadProfilesLink.setText(
