@@ -37,6 +37,7 @@ Ext.define('Scs.view.log.Grid', {
             },
             {
                 xtype: 'pagingtoolbarbottom',
+                defaultPageSize: 50,
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('log.pagingtoolbarbottom.itemsPerPage', 'SCS', 'Log lines per page'),
                 dock: 'bottom'
