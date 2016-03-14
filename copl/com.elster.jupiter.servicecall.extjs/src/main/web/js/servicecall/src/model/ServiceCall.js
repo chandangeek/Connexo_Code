@@ -4,7 +4,7 @@ Ext.define('Scs.model.ServiceCall', {
         'Scs.model.AttributeSetOnServiceCall'
     ],
     fields: [
-        'name', 'externalReference', 'state', 'type', 'parents', 'children', 'origin',
+        'name', 'externalReference', 'state', 'type', 'parents', 'children', 'origin', 'targetObject',
         {
             name: 'version',
             defaultValue: 0
