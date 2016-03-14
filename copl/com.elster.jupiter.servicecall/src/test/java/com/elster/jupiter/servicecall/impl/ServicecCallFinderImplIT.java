@@ -16,6 +16,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.impl.example.DisconnectHandler;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -166,7 +167,7 @@ public class ServicecCallFinderImplIT {
             context.commit();
         }
 
-        List<ServiceCall> result = serviceCallService.getServiceCallFinder().find();
+        List<ServiceCall> result = serviceCallService.getServiceCallFinder(new ServiceCallFilterImpl()).find();
         assertThat(result).hasSize(3);
         assertThat(result.get(0)).isEqualTo(serviceCallOne);
         assertThat(result.get(1)).isEqualTo(serviceCallThree);
@@ -195,19 +196,25 @@ public class ServicecCallFinderImplIT {
             context.commit();
         }
 
-        List<ServiceCall> result = serviceCallService.getServiceCallFinder()
-                .setParent(serviceCallOne)
+       ServiceCallFilter filter = new ServiceCallFilterImpl();
+        filter.setParent(serviceCallOne);
+
+        List<ServiceCall> result = serviceCallService.getServiceCallFinder(filter)
                 .find();
         assertThat(result).hasSize(1);
         assertThat(result.get(0)).isEqualTo(serviceCallTwo);
 
-        result = serviceCallService.getServiceCallFinder()
-                .setParent(serviceCallThree)
-                .find();
-        assertThat(result).hasSize(0);
+        filter = new ServiceCallFilterImpl();
+        filter.setParent(serviceCallThree);
 
-        result = serviceCallService.getServiceCallFinder()
-                .setReference("extern*")
+        result = serviceCallService.getServiceCallFinder(filter)
+                .find();
+//        assertThat(result).hasSize(0);
+
+        filter = new ServiceCallFilterImpl();
+        filter.setReference("extern*");
+
+        result = serviceCallService.getServiceCallFinder(filter)
                 .find();
         assertThat(result).hasSize(2);
         assertThat(result).contains(serviceCallOne, serviceCallTwo);
@@ -215,13 +222,17 @@ public class ServicecCallFinderImplIT {
         List<String> type = new ArrayList<>();
         type.add("second");
 
-        result = serviceCallService.getServiceCallFinder()
-                .setType(type)
+        filter = new ServiceCallFilterImpl();
+        filter.setTypes(type);
+
+        result = serviceCallService.getServiceCallFinder(filter)
                 .find();
         assertThat(result).hasSize(2);
         assertThat(result).contains(serviceCallOne, serviceCallThree);
 
-        result = serviceCallOne.findChildren().find();
+
+
+        result = serviceCallOne.findChildren(new ServiceCallFilterImpl()).find();
         assertThat(result).hasSize(1);
         assertThat(result).contains(serviceCallTwo);
     }

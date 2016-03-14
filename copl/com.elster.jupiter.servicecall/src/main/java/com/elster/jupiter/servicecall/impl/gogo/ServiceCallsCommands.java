@@ -13,6 +13,7 @@ import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
+import com.elster.jupiter.servicecall.impl.ServiceCallFilterImpl;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
@@ -183,7 +184,7 @@ public class ServiceCallsCommands {
     }
 
     public void serviceCalls() {
-        serviceCallService.getServiceCallFinder().find()
+        serviceCallService.getServiceCallFinder(new ServiceCallFilterImpl()).find()
                 .stream()
                 .sorted(Comparator.comparing(ServiceCall::getId))
                 .map(sc -> sc.getNumber() + " "

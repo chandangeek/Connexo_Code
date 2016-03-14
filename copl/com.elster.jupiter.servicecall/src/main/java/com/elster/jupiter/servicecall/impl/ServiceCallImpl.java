@@ -17,7 +17,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
-import com.elster.jupiter.servicecall.ServiceCallFinder;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.conditions.Where;
@@ -278,10 +278,9 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     @Override
-    public ServiceCallFinder findChildren() {
-        ServiceCallFinder finder = new ServiceCallFinderImpl(dataModel);
-        finder.setParent(this);
-        return finder;
+    public Finder<ServiceCall> findChildren(ServiceCallFilter filter) {
+        filter.setParent(this);
+        return serviceCallService.getServiceCallFinder(filter);
     }
 
     @Override
