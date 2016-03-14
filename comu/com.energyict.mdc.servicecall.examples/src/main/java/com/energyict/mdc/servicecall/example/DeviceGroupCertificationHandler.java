@@ -83,7 +83,7 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
                 serviceCall.requestTransition(DefaultState.ONGOING); // If we forget this case, our process is stuck forever...
                 break;
             case CANCELLED:
-                serviceCall.findChildren().stream().forEach(sc -> sc.requestTransition(DefaultState.CANCELLED));
+                serviceCall.findChildren(serviceCallService.newServiceCallFilter()).stream().forEach(sc -> sc.requestTransition(DefaultState.CANCELLED));
                 break;
             default:
                 serviceCall.log(LogLevel.WARNING, String.format("I entered a state I have no action for: %s", newState)); // Nothing will ever happen after we reach this state
@@ -141,7 +141,7 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
     }
 
     protected Map<DefaultState, Long> countStates(ServiceCall parentServiceCall) {
-        return parentServiceCall.findChildren()
+        return parentServiceCall.findChildren(serviceCallService.newServiceCallFilter())
                 .stream()
                 .collect(Collectors.groupingBy(ServiceCall::getState, Collectors.counting()));
     }
