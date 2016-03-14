@@ -8,6 +8,8 @@ import com.elster.jupiter.servicecall.DefaultState;
  */
 public enum TranslationKeys implements TranslationKey {
 
+    SERVICE_CALL_SUBSCRIBER(ServiceCallServiceImpl.SUBSCRIBER_NAME, "Handle service calls"),
+
     DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME("scs.standard.service.call.life.cycle", "Default service call life cycle"),
 
     TRANSITION_FROM_PENDING_TO_ONGOING(DefaultState.PENDING.getKey()+DefaultCustomStateTransitionEventType.ONGOING.getSymbol(), "Activate handler"),
