@@ -300,22 +300,11 @@ public class ReadingTypeTemplateInstaller {
             this.updater = this.template.updater();
         }
 
-        @SuppressWarnings("unchecked")
-        <T> Integer convertToInteger(ReadingTypeTemplateAttributeName.ReadingTypeAttribute<?> definition, T value) {
-            if (value == null) {
-                return null;
-            }
-            if (!value.getClass().isAssignableFrom(definition.getType())) {
-                throw new IllegalArgumentException("Values must be " + definition.getType());
-            }
-            return ((ReadingTypeTemplateAttributeName.ReadingTypeAttribute<T>) definition).getValueToCodeConverter().apply(value);
-        }
-
         <T> Template withValues(ReadingTypeTemplateAttributeName attr, T... values) {
             if (values != null && values.length > 0) {
                 Integer[] possibleValues = new Integer[values.length];
                 for (int i = 0; i < values.length; i++) {
-                    possibleValues[i] = convertToInteger(attr.getDefinition(), values[i]);
+                    possibleValues[i] = ReadingTypeTemplateAttributeName.getCodeFromAttributeValue(attr.getDefinition(), values[i]);
                 }
                 this.updater.setAttribute(attr, values.length == 1 ? possibleValues[0] : null, possibleValues);
             }

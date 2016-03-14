@@ -403,6 +403,25 @@ public enum ReadingTypeTemplateAttributeName {
         return this.attribute;
     }
 
+    public static <T> int getReadingTypeAttributeCode(ReadingTypeAttribute<T> definition, ReadingType candidate) {
+        return getCodeFromAttributeValue(definition, definition.getReadingTypeAttributeValue().apply(candidate));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> int getCodeFromAttributeValue(ReadingTypeAttribute<?> definition, T attributeValue) {
+        if (attributeValue == null) {
+            return 0;
+        }
+        if (!attributeValue.getClass().isAssignableFrom(definition.getType())) {
+            throw new IllegalArgumentException("Values must be " + definition.getType());
+        }
+        return ((ReadingTypeAttribute<T>) definition).getValueToCodeConverter().apply(attributeValue);
+    }
+
+    public static <T> T getAttributeValueFromCode(ReadingTypeAttribute<T> definition, int attributeValueCode) {
+        return definition.getCodeToValueConverter().apply(attributeValueCode);
+    }
+
     public static abstract class ReadingTypeAttribute<T> {
         private final Class<T> clazz;
 

@@ -134,15 +134,11 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
     public boolean matches(ReadingType candidate) {
         ReadingTypeTemplateAttributeName.ReadingTypeAttribute<?> definition = getName().getDefinition();
         if (getCode().isPresent()) {
-            return getReadingTypeAttributeCode(definition, candidate) == getCode().get();
+            return ReadingTypeTemplateAttributeName.getReadingTypeAttributeCode(definition, candidate) == getCode().get();
         } else if (!this.values.isEmpty()) {
-            this.getPossibleValues().contains(getReadingTypeAttributeCode(definition, candidate));
+            this.getPossibleValues().contains(ReadingTypeTemplateAttributeName.getReadingTypeAttributeCode(definition, candidate));
         }
         return true; // true for wildcard
-    }
-
-    static <T> int getReadingTypeAttributeCode(ReadingTypeTemplateAttributeName.ReadingTypeAttribute<T> definition, ReadingType candidate) {
-        return definition.getValueToCodeConverter().apply(definition.getReadingTypeAttributeValue().apply(candidate));
     }
 
     @Override

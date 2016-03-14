@@ -1,13 +1,18 @@
 package com.elster.jupiter.metering.impl.rt.template;
 
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.ReadingTypeTemplate;
+import com.elster.jupiter.metering.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 
 import javax.inject.Inject;
+import javax.validation.ConstraintValidatorContext;
+import java.util.List;
 
-public class PartiallySpecifiedReadingTypeAttributeValueImpl {
+@SelfValid
+public class PartiallySpecifiedReadingTypeAttributeValueImpl implements SelfObjectValidator {
 
     public enum Fields {
         READING_TYPE_REQUIREMENT("readingTypeRequirement"),
@@ -46,6 +51,39 @@ public class PartiallySpecifiedReadingTypeAttributeValueImpl {
 
     public ReadingTypeTemplateAttributeName getName() {
         return this.attributeName;
+    }
+
+    @Override
+    public boolean validate(ConstraintValidatorContext context) {
+        ReadingTypeTemplate readingTypeTemplate = this.readingTypeRequirement.get().getReadingTypeTemplate();
+        ReadingTypeTemplateAttribute templateAttribute = readingTypeTemplate.getAttributes()
+                .stream()
+                .filter(attrName -> attrName.getName() == getName())
+                .findAny()
+                .orElseThrow(() -> new IllegalStateException("ReadingTypeTemplate missed " + getName()));
+        List<Integer> attributePossibleValues = templateAttribute.getPossibleValues();
+        if (!isCodeInAttributePossibleValues(attributePossibleValues)
+                || !isCodeInSystemPossibleValues(templateAttribute, attributePossibleValues)) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}")
+                    .addPropertyNode(Fields.CODE.fieldName())
+                    .addConstraintViolation();
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isCodeInAttributePossibleValues(List<Integer> attributePossibleValues) {
+        return attributePossibleValues.isEmpty() || attributePossibleValues.contains(this.code);
+    }
+
+    private boolean isCodeInSystemPossibleValues(ReadingTypeTemplateAttribute templateAttribute, List<Integer> attributePossibleValues) {
+        return !attributePossibleValues.isEmpty()
+                || templateAttribute.getName().getDefinition().getPossibleValues().isEmpty()
+                || templateAttribute.getName().getDefinition().getPossibleValues()
+                .stream()
+                .map(possibleValue -> ReadingTypeTemplateAttributeName.getCodeFromAttributeValue(templateAttribute.getName().getDefinition(), possibleValue))
+                .anyMatch(possibleCode -> possibleCode == this.code);
     }
 
     @Override

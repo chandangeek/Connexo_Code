@@ -1,8 +1,10 @@
 package com.elster.jupiter.metering.impl.rt.template;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeTemplate;
+import com.elster.jupiter.metering.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -45,15 +48,26 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
 
     @Override
     public boolean matches(ReadingType candidate) {
-        if (this.overriddenAttributes.isEmpty()) {
-            return this.readingTypeTemplate.get().matches(candidate);
-        }
         Map<ReadingTypeTemplateAttributeName, Function<ReadingType, Boolean>> attributeMatchers = getReadingTypeTemplate().getAttributes()
                 .stream()
-                .collect(Collectors.toMap(attr -> attr.getName(), attr -> attr::matches));
+                .collect(Collectors.toMap(ReadingTypeTemplateAttribute::getName, this::getMatcherWithSystemPossibleValues));
         this.overriddenAttributes.stream().forEach(attr -> attributeMatchers.put(attr.getName(),
-                rt -> ReadingTypeTemplateAttributeImpl.getReadingTypeAttributeCode(attr.getName().getDefinition(), rt) == attr.getCode()));
+                rt -> ReadingTypeTemplateAttributeName.getReadingTypeAttributeCode(attr.getName().getDefinition(), rt) == attr.getCode()));
         return attributeMatchers.values().stream().allMatch(matcher -> matcher.apply(candidate));
+    }
+
+    private Function<ReadingType, Boolean> getMatcherWithSystemPossibleValues(ReadingTypeTemplateAttribute attribute) {
+        if (attribute.getCode().isPresent() || !attribute.getPossibleValues().isEmpty()) {
+            return attribute::matches;
+        }
+        ReadingTypeTemplateAttributeName.ReadingTypeAttribute<?> definition = attribute.getName().getDefinition();
+        Set<?> systemPossibleValues = definition.getPossibleValues()
+                .stream()
+                .map(possibleValue -> ReadingTypeTemplateAttributeName.getCodeFromAttributeValue(definition, possibleValue))
+                .collect(Collectors.toSet());
+        return !systemPossibleValues.isEmpty()
+                ? rt -> systemPossibleValues.contains(ReadingTypeTemplateAttributeName.getReadingTypeAttributeCode(definition, rt))
+                : rt -> true;
     }
 
     void touch() {
@@ -64,6 +78,7 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
     public PartiallySpecifiedReadingType overrideAttribute(ReadingTypeTemplateAttributeName name, int code) {
         PartiallySpecifiedReadingTypeAttributeValueImpl value = this.dataModel.getInstance(PartiallySpecifiedReadingTypeAttributeValueImpl.class);
         value.init(this, name, code);
+        Save.CREATE.validate(this.dataModel, value);
         this.overriddenAttributes.remove(value);
         this.overriddenAttributes.add(value);
         touch();
