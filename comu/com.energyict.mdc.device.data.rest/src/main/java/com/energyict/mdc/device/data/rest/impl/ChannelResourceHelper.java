@@ -15,10 +15,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -70,7 +67,11 @@ public class ChannelResourceHelper {
     public void addValidationInfo(Channel channel, ChannelInfo channelInfo) {
         List<DataValidationStatus> states =
                 channel.getDevice().forValidation().getValidationStatus(channel, Collections.emptyList(), lastMonth());
-        channelInfo.validationInfo = validationInfoFactory.createDetailedValidationInfo(isValidationActive(channel), states, channel.getDevice().forValidation().getLastChecked(channel));
+        Optional<Instant> lastCheck  = Optional.empty();
+        if(channel.getDevice().forValidation().getLastChecked(channel).isPresent()){
+            lastCheck = channel.getDevice().forValidation().getLastChecked(channel).equals(Optional.of(channel.getDevice().getMeterActivationsMostRecentFirst().get(0).getStart())) ? Optional.empty() : channel.getDevice().forValidation().getLastChecked(channel);
+        }
+        channelInfo.validationInfo = validationInfoFactory.createDetailedValidationInfo(isValidationActive(channel), states, lastCheck);
         if (states.isEmpty()) {
             channelInfo.validationInfo.dataValidated = channel.getDevice().forValidation().allDataValidated(channel, clock.instant());
         }

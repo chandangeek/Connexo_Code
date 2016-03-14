@@ -55,6 +55,7 @@ import org.mockito.Mock;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -121,6 +122,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     private IntervalReadingRecord readingRecord, addedReadingRecord, editedReadingRecord, confirmedReadingRecord;
     @Mock
     private DeviceConfiguration deviceConfiguration;
+    @Mock
+    private MeterActivation meterActivation;
 
     private ReadingQualityType readingQualityTypeAdded = new ReadingQualityType("3.7.1");
     private ReadingQualityType readingQualityTypeEdited = new ReadingQualityType("3.7.0");
@@ -130,6 +133,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Before
     public void setUpStubs() {
+        when(device.getMeterActivationsMostRecentFirst()).thenReturn(Arrays.asList(meterActivation));
+        when(meterActivation.getStart()).thenReturn(NOW);
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceBymRIDAndVersion("1", 1L)).thenReturn(Optional.of(device));
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile));
