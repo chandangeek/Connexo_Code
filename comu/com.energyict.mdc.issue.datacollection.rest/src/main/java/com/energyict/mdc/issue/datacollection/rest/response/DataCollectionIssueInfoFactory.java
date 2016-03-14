@@ -1,6 +1,8 @@
 package com.energyict.mdc.issue.datacollection.rest.response;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,11 +25,14 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.history.ComCommandJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionMessageJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 
@@ -114,11 +119,15 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
         return issues.stream().map(issue -> this.asInfo(issue, DeviceShortInfo.class)).collect(Collectors.toList());
     }
 
-    private Long getComTask(ComTaskExecution comTaskExecution) {
-        if (!comTaskExecution.getComTasks().isEmpty()) {
+    private Long getComTask(ComSession comSession, ComTaskExecution comTaskExecution) {
+       /* if (!comTaskExecution.getComTasks().isEmpty()) {
             return comTaskExecution.getComTasks().get(0).getId();//Get first com task: works ok for manually scheduled comtask execution, but scheduled comtask execution?
         }
-        return null;
+        return null;*/
+        return comSession.getComTaskExecutionSessions().stream()
+                .filter(es -> es.getComTaskExecution().getId() == comTaskExecution.getId())
+                .findFirst().map(ComTaskExecutionSession::getComTask)
+                .map(es -> es.getId()).orElse(null);
     }
 
     private Long getComTaskExecutionSession(ComSession comSession, ComTaskExecution comTaskExecution) {
@@ -192,8 +201,9 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
         if(comSessionRef.isPresent()) {
             info.latestResult = comSessionRef.get().getSuccessIndicator() != null ?
                     new IdWithNameInfo(comSessionRef.get().getSuccessIndicator().name(), comSessionRef.get().getSuccessIndicatorDisplayName()) : null;
-            info.journals = comSessionRef.get().getJournalEntries().stream().map(this::asComSessionJournalInfo).collect(Collectors
-                    .toList());
+            info.journals = comSessionRef.get().getJournalEntries().stream()
+                    .sorted((je1,je2) -> je2.getTimestamp().compareTo(je1.getTimestamp()))
+                    .map(this::asComSessionJournalInfo).collect(Collectors.toList());
 
         }
         info.connectionMethod = new IdWithNameInfo(connectionTask.getPartialConnectionTask());
@@ -211,12 +221,17 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
         }
         communicationTaskInfo.latestStatus = comTaskExecution.getStatus() != null ?
                 new IdWithNameInfo(comTaskExecution.getStatus().name(), comTaskExecution.getStatusDisplayName()) : null;
-        Optional<ComTaskExecutionSession> lastComTaskExecutionSessionRef = this.communicationTaskService.findLastSessionFor(comTaskExecution);
+        Optional<ComTaskExecutionSession> lastComTaskExecutionSessionRef = comTaskExecution.getLastSession();
+        // this.communicationTaskService.findLastSessionFor(comTaskExecution);
         if (lastComTaskExecutionSessionRef.isPresent()) {
             communicationTaskInfo.latestResult =  lastComTaskExecutionSessionRef.get().getHighestPriorityCompletionCode() != null ?
                     new IdWithNameInfo(lastComTaskExecutionSessionRef.get().getHighestPriorityCompletionCode().name(),
                     lastComTaskExecutionSessionRef.get().getHighestPriorityCompletionCodeDisplayName()) : null;
-            communicationTaskInfo.journals = lastComTaskExecutionSessionRef.get().getComTaskExecutionJournalEntries().stream()
+            communicationTaskInfo.journals = lastComTaskExecutionSessionRef.get().getComSession()
+                    .getCommunicationTaskJournalEntries(EnumSet.allOf(ComServer.LogLevel.class)).stream()
+                    //.findComTaskExecutionJournalEntries(EnumSet.allOf(ComServer.LogLevel.class)).stream()
+                    //.getComTaskExecutionJournalEntries().stream()
+                   // .sorted((je1, je2) -> je2.getTimestamp().compareTo(je1.getTimestamp()))
                     .map(this::asComSessionTaskJournalInfo)
                     .collect(Collectors.toList());
         }
@@ -242,7 +257,12 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
         JournalEntryInfo info = new JournalEntryInfo();
         info.timestamp=comTaskExecutionJournalEntry.getTimestamp();
         info.logLevel=comTaskExecutionJournalEntry.getLogLevel();
-        info.details=comTaskExecutionJournalEntry.getErrorDescription();
+        if (comTaskExecutionJournalEntry instanceof ComTaskExecutionMessageJournalEntry) {
+            info.details=((ComTaskExecutionMessageJournalEntry)comTaskExecutionJournalEntry).getMessage();
+        } else if (comTaskExecutionJournalEntry instanceof ComCommandJournalEntry) {
+            info.details=((ComCommandJournalEntry)comTaskExecutionJournalEntry).getCommandDescription();
+        }
+        //info.details=comTaskExecutionJournalEntry.getErrorDescription();
         return info;
     }
 
