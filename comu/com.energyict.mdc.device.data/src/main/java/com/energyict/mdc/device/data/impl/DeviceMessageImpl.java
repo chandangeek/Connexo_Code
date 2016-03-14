@@ -1,5 +1,13 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.IllegalDeviceMessageIdException;
 import com.energyict.mdc.device.data.exceptions.InvalidDeviceMessageStatusMove;
@@ -13,15 +21,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -84,6 +83,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     private ReleaseDateUpdater releaseDateUpdater;
     private Instant sentDate;
     private String trackingId;
+    private String trackingCategory;
     private String protocolInfo;
     private Optional<DeviceMessageSpec> messageSpec;
     @Valid
@@ -198,6 +198,15 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
 
     public void setTrackingId(String trackingId) {
         this.trackingId = trackingId;
+    }
+
+    @Override
+    public String getTrackingCategory() {
+        return trackingCategory;
+    }
+
+    public void setTrackingCategory(String trackingCategory) {
+        this.trackingCategory = trackingCategory;
     }
 
     public void setReleaseDate(Instant releaseDate) {

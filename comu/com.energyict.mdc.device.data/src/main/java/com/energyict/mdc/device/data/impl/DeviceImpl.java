@@ -138,6 +138,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
@@ -2153,6 +2154,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         @Override
         public DeviceMessageBuilder setTrackingId(String trackingId) {
             this.deviceMessage.setTrackingId(trackingId);
+            return this;
+        }
+
+        @Override
+        public DeviceMessageBuilder setTrackingCategory(String trackingCategory) {
+            this.deviceMessage.setTrackingCategory(trackingCategory);
             return this;
         }
 
