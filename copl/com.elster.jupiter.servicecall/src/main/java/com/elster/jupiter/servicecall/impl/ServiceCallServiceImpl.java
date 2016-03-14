@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -63,6 +64,7 @@ import java.util.concurrent.ConcurrentHashMap;
         service = {ServiceCallService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
         property = "name=" + ServiceCallService.COMPONENT_NAME,
         immediate = true)
+@LiteralSql
 public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
 
     static final String DESTINATION_NAME = "SerivceCalls";
@@ -304,7 +306,7 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
 
         sqlBuilder.append("SELECT fsm.NAME, scs.TOTAL FROM FSM_STATE fsm, ");
         sqlBuilder.append("(SELECT STATE, COUNT(*) TOTAL FROM SCS_SERVICE_CALL ");
-        sqlBuilder.append("WHERE id IN (SELECT id FROM SCS_SERVICE_CALL where parent=");
+        sqlBuilder.append("WHERE id IN (SELECT id FROM " + TableSpecs.SCS_SERVICE_CALL  +" where parent=");
         sqlBuilder.append(id + ") ");
         sqlBuilder.append("GROUP BY STATE) scs ");
         sqlBuilder.append("WHERE fsm.ID = scs.STATE");
@@ -314,7 +316,7 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         childrenStateCount.put(DefaultState.from(resultSet.getString(1))
-                                .get(), Long.parseLong(resultSet.getString(2)));
+                                .get(), resultSet.getLong(2));
                     }
                 }
             }
