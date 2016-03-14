@@ -20,7 +20,7 @@ public class TestDomain {
 
     public enum FieldNames {
         NAME("name", "NAME"),
-        DESCRIPTION("description", "DESC");
+        DESCRIPTION("description", "DESCR");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
