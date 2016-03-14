@@ -13,8 +13,18 @@ public interface ReadingTypeTemplate extends HasId, HasName {
 
     ReadingTypeTemplateUpdater updater();
 
+    /**
+     * Indicates that one or more attributes does not define nor specific code, nor possible values.
+     */
     boolean hasWildcards();
 
+    /**
+     * Checks that all attributes in the given reading type (candidate) are within template limits.
+     *
+     * @param candidate reading type for check
+     * @return <code>true</code> if all attributes are within limits
+     * @see ReadingTypeTemplateAttribute#matches(ReadingType)
+     */
     boolean matches(ReadingType candidate);
 
     long getVersion();
@@ -25,7 +35,7 @@ public interface ReadingTypeTemplate extends HasId, HasName {
          *
          * @param name           reading type attribute name
          * @param code           attribute value
-         * @param possibleValues possible attribute values, will be ignored if the <code>canBeAny</code> is true
+         * @param possibleValues possible attribute values
          * @return the updater
          */
         ReadingTypeTemplateUpdater setAttribute(ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues);

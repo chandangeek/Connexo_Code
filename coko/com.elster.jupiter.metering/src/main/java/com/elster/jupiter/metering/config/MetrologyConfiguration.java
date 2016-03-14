@@ -5,8 +5,6 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeTemplate;
 import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.impl.rt.template.FullySpecifiedReadingType;
-import com.elster.jupiter.metering.impl.rt.template.PartiallySpecifiedReadingType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 

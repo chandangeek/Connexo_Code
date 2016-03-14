@@ -1,9 +1,10 @@
-package com.elster.jupiter.metering.impl.rt.template;
+package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.orm.associations.IsPresent;

@@ -1,8 +1,7 @@
-package com.elster.jupiter.metering.impl.rt.template;
+package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.metering.ReadingTypeTemplate;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttributeName;
-import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 
 public interface PartiallySpecifiedReadingType extends ReadingTypeRequirement {
     String TYPE_IDENTIFIER = "P";
