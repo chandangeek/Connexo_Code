@@ -1,8 +1,11 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
 import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 import java.util.List;
@@ -26,6 +29,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-05-15 (16:13)
  */
+@ConsumerType
 public interface DeviceMessage<D extends BaseDevice> extends HasId {
 
     public void save();
@@ -109,7 +113,7 @@ public interface DeviceMessage<D extends BaseDevice> extends HasId {
      *
      * @return the sender's tracking id
      */
-    public String getTrackingCategory();
+    public TrackingCategory getTrackingCategory();
 
     /**
      * This is the date & time when a message was actually transmitted to the device. Will be empty if the message was not sent yet.
