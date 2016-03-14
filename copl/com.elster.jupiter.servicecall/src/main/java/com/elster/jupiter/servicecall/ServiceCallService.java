@@ -108,4 +108,6 @@ public interface ServiceCallService {
     Optional<ServiceCallHandler> findHandler(String handler);
 
     Set<ServiceCall> findServiceCalls(Object targetObject, Set<DefaultState> inState);
+
+    void cancelServiceCallsFor(Object target);
 }

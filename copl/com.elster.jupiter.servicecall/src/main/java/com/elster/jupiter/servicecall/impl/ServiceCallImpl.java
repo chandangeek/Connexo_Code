@@ -196,7 +196,7 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public void cancel() {
-
+        requestTransition(DefaultState.CANCELLED);
     }
 
     @Override

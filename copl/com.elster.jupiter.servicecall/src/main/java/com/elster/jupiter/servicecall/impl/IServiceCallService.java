@@ -20,5 +20,4 @@ public interface IServiceCallService extends ServiceCallService {
 
     Thesaurus getThesaurus();
 
-    void cancelServiceCallsFor(Object target);
 }

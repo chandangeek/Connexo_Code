@@ -32,7 +32,6 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
@@ -355,6 +354,7 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     @Override
     public void cancelServiceCallsFor(Object target) {
         EnumSet<DefaultState> states = EnumSet.allOf(DefaultState.class);
+        states.remove(DefaultState.CREATED);
         states.remove(DefaultState.CANCELLED);
         states.remove(DefaultState.FAILED);
         states.remove(DefaultState.SUCCESSFUL);
