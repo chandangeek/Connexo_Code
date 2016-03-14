@@ -15,7 +15,7 @@ import org.osgi.service.component.annotations.Reference;
  * Created by bvn on 3/7/16.
  */
 @Component(name = "com.elster.jupiter.servicecalls.messagehandlerfactory",
-        property = {"subscriber=" + ServiceCallServiceImpl.SUBSCRIBER_NAME, "destination=" + ServiceCallServiceImpl.DESTINATION_NAME},
+        property = {"subscriber=" + ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME, "destination=" + ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME},
         service = MessageHandlerFactory.class,
         immediate = true)
 public class ServiceCallMessageHandlerFactory implements MessageHandlerFactory {

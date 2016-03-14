@@ -14,12 +14,24 @@ import com.elster.jupiter.util.json.JsonService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
+
 @Component(name = "com.elster.jupiter.servicecall.topichandler", service = TopicHandler.class)
 public class ServiceCallStateChangeTopicHandler implements TopicHandler {
 
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile IServiceCallService serviceCallService;
     private volatile JsonService jsonService;
+
+    public ServiceCallStateChangeTopicHandler() {
+    }
+
+    @Inject
+    ServiceCallStateChangeTopicHandler(FiniteStateMachineService finiteStateMachineService, IServiceCallService serviceCallService, JsonService jsonService) {
+        this.finiteStateMachineService = finiteStateMachineService;
+        this.serviceCallService = serviceCallService;
+        this.jsonService = jsonService;
+    }
 
     @Override
     public void handle(LocalEvent localEvent) {

@@ -7,6 +7,7 @@ import aQute.bnd.annotation.ProviderType;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @ProviderType
 public interface ServiceCallService {
@@ -109,4 +110,7 @@ public interface ServiceCallService {
 
     ServiceCallFilter newServiceCallFilter();
 
+    Set<ServiceCall> findServiceCalls(Object targetObject, Set<DefaultState> inState);
+
+    void cancelServiceCallsFor(Object target);
 }
