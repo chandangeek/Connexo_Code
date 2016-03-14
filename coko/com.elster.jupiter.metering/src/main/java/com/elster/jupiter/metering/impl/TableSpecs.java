@@ -1039,7 +1039,7 @@ public enum TableSpecs {
                     .add();
             Column readingTypeColumn = table
                     .column(PartiallySpecifiedReadingTypeImpl.Fields.READING_TYPE.name())
-                    .number()
+                    .varChar(NAME_LENGTH)
                     .add();
             table.addAuditColumns();
 
@@ -1048,6 +1048,8 @@ public enum TableSpecs {
                     .references(MetrologyConfiguration.class)
                     .on(metrologyConfig)
                     .map(PartiallySpecifiedReadingTypeImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
+                    .reverseMap(MetrologyConfigurationImpl.Fields.RT_REQUIREMENTS.fieldName())
+                    .composition()
                     .add();
             table.foreignKey("FK_RT_REQUIREMENT_TO_TPL")
                     .references(ReadingTypeTemplate.class)

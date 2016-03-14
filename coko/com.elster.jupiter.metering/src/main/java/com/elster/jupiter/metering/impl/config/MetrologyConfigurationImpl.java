@@ -6,6 +6,8 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ReadingTypeTemplate;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -13,6 +15,10 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.rt.template.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.impl.rt.template.FullySpecifiedReadingTypeImpl;
+import com.elster.jupiter.metering.impl.rt.template.PartiallySpecifiedReadingType;
+import com.elster.jupiter.metering.impl.rt.template.PartiallySpecifiedReadingTypeImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -43,6 +49,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
         STATUS("status"),
         SERVICECATEGORY("serviceCategory"),
         CUSTOM_PROPERTY_SETS("customPropertySets"),
+        RT_REQUIREMENTS("rtRequirements"),
         ;
 
         private final String javaFieldName;
@@ -74,6 +81,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
     private Reference<ServiceCategory> serviceCategory = ValueReference.absent();
     @Valid
     private List<MetrologyConfigurationCustomPropertySetUsage> customPropertySets = new ArrayList<>();
+    private List<ReadingTypeRequirement> rtRequirements = new ArrayList<>();
 
     @SuppressWarnings("unused")
     private long version;
@@ -191,7 +199,27 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration,
 
     @Override
     public List<ReadingTypeRequirement> getRequirements() {
-        return Collections.emptyList();
+        return Collections.unmodifiableList(this.rtRequirements);
+    }
+
+    @Override
+    public FullySpecifiedReadingType addFullySpecifiedReadingTypeRequirement(String name, ReadingType readingType) {
+        FullySpecifiedReadingTypeImpl fullySpecifiedReadingType = this.dataModel.getInstance(FullySpecifiedReadingTypeImpl.class)
+                .init(this, name, readingType);
+        Save.CREATE.validate(this.dataModel, fullySpecifiedReadingType);
+        this.rtRequirements.add(fullySpecifiedReadingType);
+        this.dataModel.touch(this);
+        return fullySpecifiedReadingType;
+    }
+
+    @Override
+    public PartiallySpecifiedReadingType addPartiallySpecifiedReadingTypeRequirement(String name, ReadingTypeTemplate readingTypeTemplate) {
+        PartiallySpecifiedReadingType fullySpecifiedReadingType = this.dataModel.getInstance(PartiallySpecifiedReadingTypeImpl.class)
+                .init(this, name, readingTypeTemplate);
+        Save.CREATE.validate(this.dataModel, fullySpecifiedReadingType);
+        this.rtRequirements.add(fullySpecifiedReadingType);
+        this.dataModel.touch(this);
+        return fullySpecifiedReadingType;
     }
 
     @Override

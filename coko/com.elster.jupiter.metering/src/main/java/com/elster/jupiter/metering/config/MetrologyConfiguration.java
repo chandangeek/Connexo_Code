@@ -1,11 +1,14 @@
 package com.elster.jupiter.metering.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ReadingTypeTemplate;
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.impl.rt.template.FullySpecifiedReadingType;
+import com.elster.jupiter.metering.impl.rt.template.PartiallySpecifiedReadingType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-
-import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 
@@ -35,6 +38,10 @@ public interface MetrologyConfiguration extends HasId, HasName {
     List<MetrologyContract> getContracts();
 
     List<ReadingTypeRequirement> getRequirements();
+
+    FullySpecifiedReadingType addFullySpecifiedReadingTypeRequirement(String name, ReadingType readingType);
+
+    PartiallySpecifiedReadingType addPartiallySpecifiedReadingTypeRequirement(String name, ReadingTypeTemplate readingTypeTemplate);
 
     List<ReadingTypeDeliverable> getDeliverables();
 

@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.rt.template;
 
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -17,9 +18,9 @@ public class FullySpecifiedReadingTypeImpl extends ReadingTypeRequirementImpl im
         super();
     }
 
-    FullySpecifiedReadingTypeImpl init(ReadingType readingType, String name) {
+    public FullySpecifiedReadingTypeImpl init(MetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType) {
+        super.init(metrologyConfiguration, name);
         this.readingType.set(readingType);
-        setName(name);
         return this;
     }
 

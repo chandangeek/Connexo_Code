@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeTemplate;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttributeName;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -22,7 +23,7 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
     private final DataModel dataModel;
 
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    private Reference<ReadingTypeTemplate> template = ValueReference.absent();
+    private Reference<ReadingTypeTemplate> readingTypeTemplate = ValueReference.absent();
     private List<PartiallySpecifiedReadingTypeAttributeValueImpl> overriddenAttributes = new ArrayList<>(ReadingTypeTemplateAttributeName.values().length);
 
     @Inject
@@ -31,23 +32,23 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
         this.dataModel = dataModel;
     }
 
-    PartiallySpecifiedReadingTypeImpl init(ReadingTypeTemplate template, String name) {
-        this.template.set(template);
-        setName(name);
+    public PartiallySpecifiedReadingTypeImpl init(MetrologyConfiguration metrologyConfiguration, String name, ReadingTypeTemplate template) {
+        super.init(metrologyConfiguration, name);
+        this.readingTypeTemplate.set(template);
         return this;
     }
 
     @Override
-    public ReadingTypeTemplate getTemplate() {
-        return this.template.get();
+    public ReadingTypeTemplate getReadingTypeTemplate() {
+        return this.readingTypeTemplate.get();
     }
 
     @Override
     public boolean matches(ReadingType candidate) {
         if (this.overriddenAttributes.isEmpty()) {
-            return this.template.get().matches(candidate);
+            return this.readingTypeTemplate.get().matches(candidate);
         }
-        Map<ReadingTypeTemplateAttributeName, Function<ReadingType, Boolean>> attributeMatchers = getTemplate().getAttributes()
+        Map<ReadingTypeTemplateAttributeName, Function<ReadingType, Boolean>> attributeMatchers = getReadingTypeTemplate().getAttributes()
                 .stream()
                 .collect(Collectors.toMap(attr -> attr.getName(), attr -> attr::matches));
         this.overriddenAttributes.stream().forEach(attr -> attributeMatchers.put(attr.getName(),

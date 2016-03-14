@@ -27,5 +27,5 @@ public interface PartiallySpecifiedReadingType extends ReadingTypeRequirement {
     /**
      * @return A source template
      */
-    ReadingTypeTemplate getTemplate();
+    ReadingTypeTemplate getReadingTypeTemplate();
 }

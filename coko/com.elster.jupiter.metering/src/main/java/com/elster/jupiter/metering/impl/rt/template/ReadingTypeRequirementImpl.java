@@ -25,9 +25,10 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
         ID("id"),
         NAME("name"),
         METROLOGY_CONFIGURATION("metrologyConfiguration"),
-        TEMPLATE("template"),
+        TEMPLATE("readingTypeTemplate"),
         ATTRIBUTES("overriddenAttributes"),
         READING_TYPE("readingType"),;
+
         private String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -40,15 +41,23 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
     }
 
     private long id;
-    private String name;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private String name;
 
     private long version;
     private Instant createTime;
     private Instant modTime;
     private String userName;
+
+    public ReadingTypeRequirementImpl() {
+    }
+
+    protected void init(MetrologyConfiguration metrologyConfiguration, String name) {
+        this.metrologyConfiguration.set(metrologyConfiguration);
+        this.name = name;
+    }
 
     @Override
     public long getId() {
@@ -72,10 +81,6 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
     @Override
     public MetrologyConfiguration getMetrologyConfiguration() {
         return this.metrologyConfiguration.get();
-    }
-
-    protected void setMetrologyConfiguration(MetrologyConfiguration metrologyConfiguration) {
-        this.metrologyConfiguration.set(metrologyConfiguration);
     }
 
     @Override
