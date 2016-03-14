@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+
 import javax.inject.Inject;
 import java.time.Instant;
 
@@ -12,7 +13,6 @@ import java.time.Instant;
 public class LocationMemberImpl implements LocationMember {
     private Reference<Location> location = ValueReference.absent();
 
-    private long locationId;
     private String countryCode;
     private String countryName;
     private String administrativeArea;
@@ -37,21 +37,22 @@ public class LocationMemberImpl implements LocationMember {
         this.dataModel = dataModel;
     }
 
-    LocationMemberImpl init(String countryCode,
-                      String countryName,
-                      String administrativeArea,
-                      String locality,
-                      String subLocality,
-                      String streetType,
-                      String streetName,
-                      String streetNumber,
-                      String establishmentType,
-                      String establishmentName,
-                      String establishmentNumber,
-                      String addressDetail,
-                      String zipCode,
-                      boolean defaultLocation,
-                      String locale) {
+    LocationMemberImpl init(Location location,
+                            String countryCode,
+                            String countryName,
+                            String administrativeArea,
+                            String locality,
+                            String subLocality,
+                            String streetType,
+                            String streetName,
+                            String streetNumber,
+                            String establishmentType,
+                            String establishmentName,
+                            String establishmentNumber,
+                            String addressDetail,
+                            String zipCode,
+                            boolean defaultLocation,
+                            String locale) {
 
         this.countryCode = countryCode;
         this.countryName = countryName;
@@ -72,30 +73,27 @@ public class LocationMemberImpl implements LocationMember {
     }
 
     static LocationMemberImpl from(DataModel dataModel,
-                             String countryCode,
-                             String countryName,
-                             String administrativeArea,
-                             String locality,
-                             String subLocality,
-                             String streetType,
-                             String streetName,
-                             String streetNumber,
-                             String establishmentType,
-                             String establishmentName,
-                             String establishmentNumber,
-                             String addressDetail,
-                             String zipCode,
-                             boolean defaultLocation,
-                             String locale) {
-        return dataModel.getInstance(LocationMemberImpl.class).init(countryCode, countryName, administrativeArea,locality,subLocality,
-                streetType,streetName,streetNumber,establishmentType,establishmentName,establishmentNumber,addressDetail,zipCode,
-                defaultLocation,locale);
+                                   Location location,
+                                   String countryCode,
+                                   String countryName,
+                                   String administrativeArea,
+                                   String locality,
+                                   String subLocality,
+                                   String streetType,
+                                   String streetName,
+                                   String streetNumber,
+                                   String establishmentType,
+                                   String establishmentName,
+                                   String establishmentNumber,
+                                   String addressDetail,
+                                   String zipCode,
+                                   boolean defaultLocation,
+                                   String locale) {
+        return dataModel.getInstance(LocationMemberImpl.class).init(location,countryCode, countryName, administrativeArea, locality, subLocality,
+                streetType, streetName, streetNumber, establishmentType, establishmentName, establishmentNumber, addressDetail, zipCode,
+                defaultLocation, locale);
     }
 
-
-    public long getLocationId() {
-        return locationId;
-    }
 
     @Override
     public String getCountryCode() {

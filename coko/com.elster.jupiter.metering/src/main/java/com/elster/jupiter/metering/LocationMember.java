@@ -4,7 +4,6 @@ public interface LocationMember {
 
     Location getLocation();
     String getLocale();
-    long getLocationId();
     String getCountryCode();
     String getCountryName();
     String getAdministrativeArea();

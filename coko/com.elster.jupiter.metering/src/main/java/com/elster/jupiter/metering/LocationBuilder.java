@@ -39,7 +39,7 @@ public interface LocationBuilder {
         String getLocale();
 
         LocationMemberBuilder named(String name);
-        LocationMember createMember();
+        LocationMember createMember(Location location);
 
         LocationBuilder add();
     }

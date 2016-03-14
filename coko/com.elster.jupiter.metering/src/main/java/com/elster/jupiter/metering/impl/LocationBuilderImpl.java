@@ -26,7 +26,7 @@ public class LocationBuilderImpl implements LocationBuilder {
     public Location create() {
         LocationImpl location = LocationImpl.from(dataModel, name);
         for (LocationMemberBuilder member : members) {
-            member.createMember();
+            member.createMember(location);
         }
         location.doSave();
         return location;
@@ -187,9 +187,9 @@ public class LocationBuilderImpl implements LocationBuilder {
         }
 
         @Override
-        public LocationMember createMember() {
+        public LocationMember createMember(Location location) {
             return LocationMemberImpl
-                    .from(dataModel,countryCode, countryName,administrativeArea,locality,subLocality,
+                    .from(dataModel,location,countryCode, countryName,administrativeArea,locality,subLocality,
                           streetType,streetName,streetNumber,establishmentType,establishmentName,
                           establishmentNumber,addressDetail,zipCode,defaultLocation,locale);
         }
