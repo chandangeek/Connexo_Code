@@ -78,12 +78,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                         forceSelection: true,
                         typeAhead: true,
                         msgTarget: 'under',
-                        width: 600,
-                        listeners: {
-                            afterrender: function (field) {
-                                field.focus(false, 200);
-                            }
-                        }
+                        width: 600
                     },
                     {
                         xtype: 'textfield',
