@@ -2,6 +2,7 @@ package com.elster.jupiter.servicecall.rest.impl;
 
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.whiteboard.ReferenceInfo;
 import com.elster.jupiter.servicecall.DefaultState;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public class ServiceCallInfo {
     public String state;
     public String origin;
     public String externalReference;
-    public Object targetObject;
+    public ReferenceInfo targetObject;
     public List<IdWithNameInfo> parents;
     public List<ServiceCallChildrenInfo> children;
     public String type;

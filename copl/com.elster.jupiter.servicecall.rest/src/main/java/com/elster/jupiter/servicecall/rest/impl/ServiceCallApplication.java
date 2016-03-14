@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.rest.whiteboard.ReferenceResolver;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -36,6 +37,7 @@ public class ServiceCallApplication extends Application implements TranslationKe
     private volatile ServiceCallService serviceCallService;
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
+    private volatile ReferenceResolver referenceResolver;
 
 
     @Override
@@ -92,6 +94,11 @@ public class ServiceCallApplication extends Application implements TranslationKe
         this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setReferenceResolver(ReferenceResolver referenceResolver) {
+        this.referenceResolver = referenceResolver;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -105,6 +112,7 @@ public class ServiceCallApplication extends Application implements TranslationKe
             bind(serviceCallService).to(ServiceCallService.class);
             bind(transactionService).to(TransactionService.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(referenceResolver).to(ReferenceResolver.class);
         }
     }
 }
