@@ -36,6 +36,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.impl.example.DisconnectHandler;
@@ -63,6 +64,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -113,6 +115,7 @@ public class ServiceCallImplIT {
     private Clock clock;
     private CustomPropertySetService customPropertySetService;
     private ServiceCallType serviceCallType;
+    private ServiceCallType serviceCallTypeTwo;
     private MyCustomPropertySet customPropertySet;
     private Person person;
     private PartyService partyService;
@@ -182,6 +185,11 @@ public class ServiceCallImplIT {
                 serviceCallType = serviceCallService.createServiceCallType("primer", "v1")
                         .handler("someHandler")
                         .customPropertySet(registeredCustomPropertySet)
+                        .handler("DisconnectHandler1")
+                        .create();
+
+                serviceCallTypeTwo = serviceCallService.createServiceCallType("second", "v2")
+                        .handler("someHandler")
                         .handler("DisconnectHandler1")
                         .create();
 
@@ -294,6 +302,109 @@ public class ServiceCallImplIT {
 
         assertThat(extension.getServiceCall()).isEqualTo(serviceCall);
         assertThat(extension.getValue()).isEqualTo(BigDecimal.valueOf(65456));
+    }
+
+    @Test
+    public void testServiceCallFinderSorting() {
+        ServiceCall serviceCallOne = null;
+        ServiceCall serviceCallTwo = null;
+        ServiceCall serviceCallThree = null;
+
+        MyPersistentExtension extension = new MyPersistentExtension();
+        extension.setValue(BigDecimal.valueOf(65456));
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCallOne = serviceCallType.newServiceCall()
+                    .externalReference("external")
+                    .origin("CST")
+                    .extendedWith(extension)
+                    .create();
+            serviceCallTwo = serviceCallOne.newChildCall(serviceCallType)
+                    .externalReference("external")
+                    .origin("CST")
+                    .extendedWith(extension)
+                    .create();
+            serviceCallThree = serviceCallType.newServiceCall()
+                    .externalReference("external")
+                    .origin("CST")
+                    .extendedWith(extension)
+                    .create();
+
+            context.commit();
+        }
+
+        List<ServiceCall> result = serviceCallService.getServiceCallFinder(new ServiceCallFilterImpl()).find();
+        assertThat(result).hasSize(3);
+        assertThat(result.get(0)).isEqualTo(serviceCallOne);
+        assertThat(result.get(1)).isEqualTo(serviceCallThree);
+        assertThat(result.get(2)).isEqualTo(serviceCallTwo);
+    }
+
+    @Test
+    public void testServiceCallFinderFiltering() {
+        ServiceCall serviceCallOne = null;
+        ServiceCall serviceCallTwo = null;
+        ServiceCall serviceCallThree = null;
+
+        MyPersistentExtension extension = new MyPersistentExtension();
+        extension.setValue(BigDecimal.valueOf(65456));
+
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCallOne = serviceCallTypeTwo.newServiceCall()
+                    .externalReference("external")
+                    .origin("CST")
+                    .create();
+            serviceCallTwo = serviceCallOne.newChildCall(serviceCallType)
+                    .externalReference("external")
+                    .origin("CST")
+                    .extendedWith(extension)
+                    .create();
+            serviceCallThree = serviceCallTypeTwo.newServiceCall()
+                    .externalReference("SAP")
+                    .origin("CST")
+                    .create();
+
+            context.commit();
+        }
+
+        ServiceCallFilter filter = new ServiceCallFilterImpl();
+        filter.setParent(serviceCallOne);
+
+        List<ServiceCall> result = serviceCallService.getServiceCallFinder(filter)
+                .find();
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0)).isEqualTo(serviceCallTwo);
+
+        filter = new ServiceCallFilterImpl();
+        filter.setParent(serviceCallThree);
+
+        result = serviceCallService.getServiceCallFinder(filter)
+                .find();
+        assertThat(result).hasSize(0);
+
+        filter = new ServiceCallFilterImpl();
+        filter.setReference("extern*");
+
+        result = serviceCallService.getServiceCallFinder(filter)
+                .find();
+        assertThat(result).hasSize(2);
+        assertThat(result).contains(serviceCallOne, serviceCallTwo);
+
+        List<String> type = new ArrayList<>();
+        type.add("second");
+
+        filter = new ServiceCallFilterImpl();
+        filter.setTypes(type);
+
+        result = serviceCallService.getServiceCallFinder(filter)
+                .find();
+        assertThat(result).hasSize(2);
+        assertThat(result).contains(serviceCallOne, serviceCallThree);
+
+
+
+        result = serviceCallOne.findChildren(new ServiceCallFilterImpl()).find();
+        assertThat(result).hasSize(1);
+        assertThat(result).contains(serviceCallTwo);
     }
 
     static class MyPersistentExtension implements PersistentDomainExtension<ServiceCall> {
