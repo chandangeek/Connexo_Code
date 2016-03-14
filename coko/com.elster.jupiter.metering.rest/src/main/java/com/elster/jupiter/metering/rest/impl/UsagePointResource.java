@@ -85,9 +85,9 @@ public class UsagePointResource {
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public UsagePointInfos getUsagePoint(@PathParam("id") long id, @Context SecurityContext securityContext) {
+    public UsagePointInfo getUsagePoint(@PathParam("id") long id, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
-        UsagePointInfos result = new UsagePointInfos(usagePoint, clock);
+        UsagePointInfo result = new UsagePointInfo(usagePoint, clock);
         return result;
     }
 
@@ -105,21 +105,6 @@ public class UsagePointResource {
                 .validate();
         UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
         return new UsagePointInfo(usagePoint, clock);
-    }
-
-    @GET
-    @RolesAllowed({Privileges.Constants.VIEW_SERVICECATEGORY})
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Path("/servicecategory")
-    public PagedInfoList getServiceCategories(@BeanParam JsonQueryParameters queryParameters) {
-        List<ServiceCategoryInfo> categories = Arrays.stream(ServiceKind.values())
-                .map(meteringService::getServiceCategory)
-                .flatMap(sc -> sc.isPresent() && sc.get().isActive() ? Stream.of(sc.get()) : Stream.empty())
-                .sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName()))
-                .map(sc -> new ServiceCategoryInfo(sc, thesaurus))
-                .collect(Collectors.toList());
-        return PagedInfoList.fromCompleteList("categories", categories, queryParameters);
     }
 
     @GET

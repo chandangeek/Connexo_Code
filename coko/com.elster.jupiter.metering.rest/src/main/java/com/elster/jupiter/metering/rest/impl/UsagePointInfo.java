@@ -29,7 +29,7 @@ public class UsagePointInfo {
         mRID = usagePoint.getMRID();
         serviceCategory = usagePoint.getServiceCategory().getKind();
         name = usagePoint.getName();
-        installationTime = usagePoint.getInstallationTime().getEpochSecond();
+        installationTime = usagePoint.getInstallationTime().toEpochMilli();
         version = usagePoint.getVersion();
         createTime = usagePoint.getCreateDate().toEpochMilli();
         modTime = usagePoint.getModificationDate().toEpochMilli();
