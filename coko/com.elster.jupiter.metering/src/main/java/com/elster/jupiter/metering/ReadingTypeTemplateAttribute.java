@@ -17,8 +17,15 @@ public interface ReadingTypeTemplateAttribute {
 
     /**
      * @return a sub-set of system allowed values for that reading type attribute.
-     * @see ReadingTypeTemplateAttributeName#getPossibleValues()
+     * @see ReadingTypeTemplateAttributeName.ReadingTypeAttribute#getPossibleValues()
      */
     List<Integer> getPossibleValues();
 
+    /**
+     * Tests a candidate reading type's attribute.
+     *
+     * @param candidate
+     * @return <code>true</code> if candidate has correct value in that attribute
+     */
+    boolean matches(ReadingType candidate);
 }

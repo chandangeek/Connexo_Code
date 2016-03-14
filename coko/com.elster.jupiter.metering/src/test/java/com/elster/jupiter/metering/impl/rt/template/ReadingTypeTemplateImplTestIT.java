@@ -146,26 +146,6 @@ public class ReadingTypeTemplateImplTestIT {
     @Test
     @Transactional
     @ExpectedConstraintViolation(property = "code", messageId = "{" + MessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}", strict = true)
-    public void createAttributeWithBadTimeCode() {
-        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Bad time code");
-        assertThat(ReadingTypeTemplateAttributeName.TIME.getDefinition().canBeWildcard()).isTrue()
-                .as("This test need attribute which can accept wildcards");
-        template.updater().setAttribute(ReadingTypeTemplateAttributeName.TIME, 1024).done();
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(property = "values[0]", messageId = "{" + MessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}", strict = true)
-    public void createAttributeWithBadPossibleTimeValue() {
-        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Bad time possible value");
-        assertThat(ReadingTypeTemplateAttributeName.TIME.getDefinition().canBeWildcard()).isTrue()
-                .as("This test need attribute which can accept wildcards");
-        template.updater().setAttribute(ReadingTypeTemplateAttributeName.TIME, null, 1024).done();
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(property = "code", messageId = "{" + MessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}", strict = true)
     public void createAttributeWithCodeIsNotWithinPossibleValues() {
         ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Bad time code");
         template.updater().setAttribute(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.MINUTE15.getId(), TimeAttribute.MINUTE1.getId()).done();

@@ -22,21 +22,25 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
-import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
 import com.elster.jupiter.metering.impl.config.ExpressionNode;
 import com.elster.jupiter.metering.impl.config.FormulaImpl;
+import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsageImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
 import com.elster.jupiter.metering.impl.config.ServiceCategoryMeterRoleUsage;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationImpl;
+import com.elster.jupiter.metering.impl.rt.template.PartiallySpecifiedReadingTypeAttributeValueImpl;
+import com.elster.jupiter.metering.impl.rt.template.PartiallySpecifiedReadingTypeImpl;
+import com.elster.jupiter.metering.impl.rt.template.ReadingTypeRequirementImpl;
 import com.elster.jupiter.metering.impl.rt.template.ReadingTypeTemplateAttributeImpl;
 import com.elster.jupiter.metering.impl.rt.template.ReadingTypeTemplateAttributeValueImpl;
 import com.elster.jupiter.metering.impl.rt.template.ReadingTypeTemplateImpl;
@@ -847,7 +851,7 @@ public enum TableSpecs {
     MTR_FORMULA_NODE {
         @Override
         void addTo(DataModel dataModel) {
-            Table<ExpressionNode> table = dataModel.addTable(name(),ExpressionNode.class);
+            Table<ExpressionNode> table = dataModel.addTable(name(), ExpressionNode.class);
             table.map(AbstractNode.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("NODETYPE", "char(3)");
@@ -1011,7 +1015,87 @@ public enum TableSpecs {
                     .composition()
                     .add();
         }
-    }
+    },
+    MTR_RT_REQUIREMENT {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), ReadingTypeRequirement.class);
+            table.map(ReadingTypeRequirementImpl.IMPLEMENTERS);
+
+            Column idColumn = table.addAutoIdColumn();
+            table.column(ReadingTypeTemplateImpl.Fields.NAME.name())
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(ReadingTypeTemplateImpl.Fields.NAME.fieldName())
+                    .add();
+            Column metrologyConfig = table
+                    .column(PartiallySpecifiedReadingTypeImpl.Fields.METROLOGY_CONFIGURATION.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column templateColumn = table
+                    .column(PartiallySpecifiedReadingTypeImpl.Fields.TEMPLATE.name())
+                    .number()
+                    .add();
+            Column readingTypeColumn = table
+                    .column(PartiallySpecifiedReadingTypeImpl.Fields.READING_TYPE.name())
+                    .number()
+                    .add();
+            table.addAuditColumns();
+
+            table.primaryKey("MTR_RT_REQUIREMENT_PK").on(idColumn).add();
+            table.foreignKey("FK_RT_REQUIREMENT_TO_M_CONFIG")
+                    .references(MetrologyConfiguration.class)
+                    .on(metrologyConfig)
+                    .map(PartiallySpecifiedReadingTypeImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
+                    .add();
+            table.foreignKey("FK_RT_REQUIREMENT_TO_TPL")
+                    .references(ReadingTypeTemplate.class)
+                    .on(templateColumn)
+                    .map(PartiallySpecifiedReadingTypeImpl.Fields.TEMPLATE.fieldName())
+                    .add();
+            table.foreignKey("FK_RT_REQUIREMENT_TO_RT")
+                    .references(ReadingType.class)
+                    .on(readingTypeColumn)
+                    .map(PartiallySpecifiedReadingTypeImpl.Fields.READING_TYPE.fieldName())
+                    .add();
+        }
+    },
+    MTR_RT_REQUIREMENT_ATTR_VALUE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), PartiallySpecifiedReadingTypeAttributeValueImpl.class);
+            table.map(PartiallySpecifiedReadingTypeAttributeValueImpl.class);
+
+            Column requirementColumn = table
+                    .column(PartiallySpecifiedReadingTypeAttributeValueImpl.Fields.READING_TYPE_REQUIREMENT.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column nameColumn = table.column(PartiallySpecifiedReadingTypeAttributeValueImpl.Fields.ATTRIBUTE_NAME.name())
+                    .number()
+                    .conversion(NUMBER2ENUM)
+                    .notNull()
+                    .map(PartiallySpecifiedReadingTypeAttributeValueImpl.Fields.ATTRIBUTE_NAME.fieldName())
+                    .add();
+            table.column(PartiallySpecifiedReadingTypeAttributeValueImpl.Fields.CODE.name())
+                    .number()
+                    .conversion(NUMBER2INT)
+                    .notNull()
+                    .map(PartiallySpecifiedReadingTypeAttributeValueImpl.Fields.CODE.fieldName())
+                    .add();
+
+            table.primaryKey("MTR_RT_REQ_ATTR_VALUE_PK").on(requirementColumn, nameColumn).add();
+            table.foreignKey("FK_RT_REQ_ATTR_VALUE_TO_RT_REQ")
+                    .references(ReadingTypeRequirement.class)
+                    .on(requirementColumn)
+                    .onDelete(CASCADE)
+                    .map(PartiallySpecifiedReadingTypeAttributeValueImpl.Fields.READING_TYPE_REQUIREMENT.fieldName())
+                    .reverseMap(ReadingTypeRequirementImpl.Fields.ATTRIBUTES.fieldName())
+                    .composition()
+                    .add();
+        }
+    },
     ;
 
     abstract void addTo(DataModel dataModel);

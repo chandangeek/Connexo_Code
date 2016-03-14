@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.rt.template;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeTemplate;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttributeName;
@@ -99,6 +100,11 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
 
     public void save() {
         this.dataModel.persist(this);
+    }
+
+    @Override
+    public boolean matches(ReadingType candidate) {
+        return this.allAttributes.stream().allMatch(attr -> attr.matches(candidate));
     }
 
     @Override

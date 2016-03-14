@@ -13,6 +13,8 @@ public interface ReadingTypeTemplate extends HasId, HasName {
 
     ReadingTypeTemplateUpdater updater();
 
+    boolean matches(ReadingType candidate);
+
     long getVersion();
 
     interface ReadingTypeTemplateUpdater {

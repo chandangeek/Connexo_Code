@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.rt.template;
 
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeTemplate;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttributeName;
@@ -127,6 +128,21 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
         return this.values.stream()
                 .map(ReadingTypeTemplateAttributeValueImpl::getCode)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean matches(ReadingType candidate) {
+        ReadingTypeTemplateAttributeName.ReadingTypeAttribute<?> definition = getName().getDefinition();
+        if (getCode().isPresent()) {
+            return getReadingTypeAttributeCode(definition, candidate) == getCode().get();
+        } else if (!this.values.isEmpty()) {
+            this.getPossibleValues().contains(getReadingTypeAttributeCode(definition, candidate));
+        }
+        return true; // true for wildcard
+    }
+
+    static <T> int getReadingTypeAttributeCode(ReadingTypeTemplateAttributeName.ReadingTypeAttribute<T> definition, ReadingType candidate) {
+        return definition.getValueToCodeConverter().apply(definition.getReadingTypeAttributeValue().apply(candidate));
     }
 
     @Override

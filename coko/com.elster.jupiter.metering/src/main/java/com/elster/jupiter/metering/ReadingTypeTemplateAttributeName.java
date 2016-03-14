@@ -53,6 +53,11 @@ public enum ReadingTypeTemplateAttributeName {
         public Function<MacroPeriod, TranslationKey> getTranslationProvider() {
             return ReadingTypeTranslationKeys.MacroPeriod::new;
         }
+
+        @Override
+        public Function<ReadingType, MacroPeriod> getReadingTypeAttributeValue() {
+            return ReadingType::getMacroPeriod;
+        }
     }),
     AGGREGATE(new ReadingTypeAttribute<Aggregate>(Aggregate.class) {
         @Override
@@ -68,6 +73,11 @@ public enum ReadingTypeTemplateAttributeName {
         @Override
         public Function<Aggregate, TranslationKey> getTranslationProvider() {
             return ReadingTypeTranslationKeys.Aggregate::new;
+        }
+
+        @Override
+        public Function<ReadingType, Aggregate> getReadingTypeAttributeValue() {
+            return ReadingType::getAggregate;
         }
     }),
     TIME(new ReadingTypeAttribute<TimeAttribute>(TimeAttribute.class) {
@@ -98,6 +108,11 @@ public enum ReadingTypeTemplateAttributeName {
         @Override
         public Function<TimeAttribute, TranslationKey> getTranslationProvider() {
             return ReadingTypeTranslationKeys.MeasuringPeriod::new;
+        }
+
+        @Override
+        public Function<ReadingType, TimeAttribute> getReadingTypeAttributeValue() {
+            return ReadingType::getMeasuringPeriod;
         }
 
         @Override
@@ -134,6 +149,11 @@ public enum ReadingTypeTemplateAttributeName {
         public Function<Accumulation, TranslationKey> getTranslationProvider() {
             return ReadingTypeTranslationKeys.AccumulationFields::new;
         }
+
+        @Override
+        public Function<ReadingType, Accumulation> getReadingTypeAttributeValue() {
+            return ReadingType::getAccumulation;
+        }
     }),
     FLOW_DIRECTION(new ReadingTypeAttribute<FlowDirection>(FlowDirection.class) {
         @Override
@@ -149,6 +169,11 @@ public enum ReadingTypeTemplateAttributeName {
         @Override
         public Function<FlowDirection, TranslationKey> getTranslationProvider() {
             return ReadingTypeTranslationKeys.FlowDirection::new;
+        }
+
+        @Override
+        public Function<ReadingType, FlowDirection> getReadingTypeAttributeValue() {
+            return ReadingType::getFlowDirection;
         }
     }),
     COMMODITY(new ReadingTypeAttribute<Commodity>(Commodity.class) {
@@ -166,6 +191,11 @@ public enum ReadingTypeTemplateAttributeName {
         public Function<Commodity, TranslationKey> getTranslationProvider() {
             return ReadingTypeTranslationKeys.CommodityFields::new;
         }
+
+        @Override
+        public Function<ReadingType, Commodity> getReadingTypeAttributeValue() {
+            return ReadingType::getCommodity;
+        }
     }),
     MEASUREMENT_KIND(new ReadingTypeAttribute<MeasurementKind>(MeasurementKind.class) {
         @Override
@@ -182,15 +212,45 @@ public enum ReadingTypeTemplateAttributeName {
         public Function<MeasurementKind, TranslationKey> getTranslationProvider() {
             return ReadingTypeTranslationKeys.MeasurementKind::new;
         }
+
+        @Override
+        public Function<ReadingType, MeasurementKind> getReadingTypeAttributeValue() {
+            return ReadingType::getMeasurementKind;
+        }
     }),
-    INTERHARMONIC_NUMERATOR(new IntegerReadingTypeAttribute()),
-    INTERHARMONIC_DENOMINATOR(new IntegerReadingTypeAttribute()),
-    ARGUMENT_NUMERATOR(new IntegerReadingTypeAttribute()),
-    ARGUMENT_DENOMINATOR(new IntegerReadingTypeAttribute()),
+    INTERHARMONIC_NUMERATOR(new IntegerReadingTypeAttribute() {
+        @Override
+        public Function<ReadingType, Integer> getReadingTypeAttributeValue() {
+            return rt -> Long.valueOf(rt.getInterharmonic().getNumerator()).intValue();
+        }
+    }),
+    INTERHARMONIC_DENOMINATOR(new IntegerReadingTypeAttribute() {
+        @Override
+        public Function<ReadingType, Integer> getReadingTypeAttributeValue() {
+            return rt -> Long.valueOf(rt.getInterharmonic().getDenominator()).intValue();
+        }
+    }),
+    ARGUMENT_NUMERATOR(new IntegerReadingTypeAttribute() {
+        @Override
+        public Function<ReadingType, Integer> getReadingTypeAttributeValue() {
+            return rt -> Long.valueOf(rt.getArgument().getNumerator()).intValue();
+        }
+    }),
+    ARGUMENT_DENOMINATOR(new IntegerReadingTypeAttribute() {
+        @Override
+        public Function<ReadingType, Integer> getReadingTypeAttributeValue() {
+            return rt -> Long.valueOf(rt.getArgument().getDenominator()).intValue();
+        }
+    }),
     TIME_OF_USE(new IntegerReadingTypeAttribute() {
         @Override
         public Set<Integer> getPossibleValues() {
             return IntStream.range(0, 49).collect(HashSet::new, HashSet::add, HashSet::addAll);
+        }
+
+        @Override
+        public Function<ReadingType, Integer> getReadingTypeAttributeValue() {
+            return ReadingType::getTou;
         }
     }),
     CRITICAL_PEAK_PERIOD(new IntegerReadingTypeAttribute() {
@@ -198,11 +258,21 @@ public enum ReadingTypeTemplateAttributeName {
         public Set<Integer> getPossibleValues() {
             return IntStream.range(0, 49).collect(HashSet::new, HashSet::add, HashSet::addAll);
         }
+
+        @Override
+        public Function<ReadingType, Integer> getReadingTypeAttributeValue() {
+            return ReadingType::getCpp;
+        }
     }),
     CONSUMPTION_TIER(new IntegerReadingTypeAttribute() {
         @Override
         public Set<Integer> getPossibleValues() {
             return IntStream.range(0, 49).collect(HashSet::new, HashSet::add, HashSet::addAll);
+        }
+
+        @Override
+        public Function<ReadingType, Integer> getReadingTypeAttributeValue() {
+            return ReadingType::getConsumptionTier;
         }
     }),
     PHASE(new ReadingTypeAttribute<Phase>(Phase.class) {
@@ -224,6 +294,11 @@ public enum ReadingTypeTemplateAttributeName {
         @Override
         public Function<Phase, TranslationKey> getTranslationProvider() {
             return ReadingTypeTranslationKeys.Phase::new;
+        }
+
+        @Override
+        public Function<ReadingType, Phase> getReadingTypeAttributeValue() {
+            return ReadingType::getPhases;
         }
     }),
     METRIC_MULTIPLIER(new ReadingTypeAttribute<MetricMultiplier>(MetricMultiplier.class) {
@@ -264,6 +339,11 @@ public enum ReadingTypeTemplateAttributeName {
         public Function<MetricMultiplier, TranslationKey> getTranslationProvider() {
             return value -> new SimpleTranslationKey(getType().getName() + "." + value.name(), value.getSymbol());
         }
+
+        @Override
+        public Function<ReadingType, MetricMultiplier> getReadingTypeAttributeValue() {
+            return ReadingType::getMultiplier;
+        }
     }),
     UNIT_OF_MEASURE(new ReadingTypeAttribute<ReadingTypeUnit>(ReadingTypeUnit.class) {
         @Override
@@ -279,6 +359,11 @@ public enum ReadingTypeTemplateAttributeName {
         @Override
         public Function<ReadingTypeUnit, TranslationKey> getTranslationProvider() {
             return ReadingTypeTranslationKeys.UnitFields::new;
+        }
+
+        @Override
+        public Function<ReadingType, ReadingTypeUnit> getReadingTypeAttributeValue() {
+            return ReadingType::getUnit;
         }
     }),
     CURRENCY(new ReadingTypeAttribute<Currency>(Currency.class) {
@@ -300,6 +385,11 @@ public enum ReadingTypeTemplateAttributeName {
         public Function<Currency, TranslationKey> getTranslationProvider() {
             return value -> new SimpleTranslationKey("readingType.currency." + value,
                     ReadingTypeTranslationKeys.Currency.getCurrencyDefaultFormat(value));
+        }
+
+        @Override
+        public Function<ReadingType, Currency> getReadingTypeAttributeValue() {
+            return ReadingType::getCurrency;
         }
     }),;
 
@@ -337,9 +427,11 @@ public enum ReadingTypeTemplateAttributeName {
         public abstract Function<T, Integer> getValueToCodeConverter();
 
         public abstract Function<T, TranslationKey> getTranslationProvider();
+
+        public abstract Function<ReadingType, T> getReadingTypeAttributeValue();
     }
 
-    private static class IntegerReadingTypeAttribute extends ReadingTypeAttribute<Integer> {
+    private abstract static class IntegerReadingTypeAttribute extends ReadingTypeAttribute<Integer> {
         public IntegerReadingTypeAttribute() {
             super(Integer.class);
         }
