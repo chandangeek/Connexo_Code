@@ -39,6 +39,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
@@ -358,7 +359,15 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     GatewayType getConfigurationGatewayType();
 
+    /**
+     * Build a new device message with the default tracking category 'manual'
+     *
+     * @param deviceMessageId message id to create a device message with
+     * @return device message builder
+     */
     DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId);
+
+    DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId, TrackingCategory trackingCategory);
 
     /**
      * Tests if there are open issues against this Device.
@@ -520,16 +529,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
          * @return this builder
          */
         DeviceMessageBuilder setTrackingId(String trackingId);
-
-        /**
-         * Set a tracking category information for the currently building DeviceMessage
-         * <br/>
-         * (a TrackingID should be a business process 'item', most probably it will not be set by the User)
-         *
-         * @param trackingCategory the tracking category, describing the type of the tracker, e.g. servicecall.
-         * @return this builder
-         */
-        DeviceMessageBuilder setTrackingCategory(String trackingCategory);
 
         /**
          * Create the actual DeviceMessage based on the info in the builder.

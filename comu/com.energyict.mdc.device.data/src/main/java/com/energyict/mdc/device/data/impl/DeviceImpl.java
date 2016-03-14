@@ -132,6 +132,7 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -2016,7 +2017,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId) {
-        return new InternalDeviceMessageBuilder(deviceMessageId);
+        return this.newDeviceMessage(deviceMessageId, TrackingCategory.manual);
+    }
+
+    @Override
+    public DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId, TrackingCategory trackingCategory) {
+        return new InternalDeviceMessageBuilder(deviceMessageId, trackingCategory);
     }
 
     @Override
@@ -2135,8 +2141,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
         private final DeviceMessageImpl deviceMessage;
 
-        private InternalDeviceMessageBuilder(DeviceMessageId deviceMessageId) {
+        private InternalDeviceMessageBuilder(DeviceMessageId deviceMessageId, TrackingCategory trackingCategory) {
             deviceMessage = DeviceImpl.this.dataModel.getInstance(DeviceMessageImpl.class).initialize(DeviceImpl.this, deviceMessageId);
+            deviceMessage.setTrackingCategory(trackingCategory);
         }
 
         @Override
@@ -2154,12 +2161,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         @Override
         public DeviceMessageBuilder setTrackingId(String trackingId) {
             this.deviceMessage.setTrackingId(trackingId);
-            return this;
-        }
-
-        @Override
-        public DeviceMessageBuilder setTrackingCategory(String trackingCategory) {
-            this.deviceMessage.setTrackingCategory(trackingCategory);
             return this;
         }
 
