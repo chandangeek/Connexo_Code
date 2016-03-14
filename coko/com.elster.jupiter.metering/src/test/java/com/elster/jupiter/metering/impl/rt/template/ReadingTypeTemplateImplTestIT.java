@@ -10,6 +10,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeTemplate;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttributeName;
@@ -192,5 +193,48 @@ public class ReadingTypeTemplateImplTestIT {
             inMemoryBootstrapModule.getMeteringService().getDataModel().remove(template);
             context.commit();
         }
+    }
+
+    @Test
+    @Transactional
+    public void testMatchDefaultAttributeInTemplate() {
+        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Default template");
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "ToU reading type");
+        assertThat(template.matches(readingType)).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testMatchCodeAttributeInTemplate() {
+        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Code template");
+        template.updater().setAttribute(ReadingTypeTemplateAttributeName.COMMODITY, 7).done();
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.7.0.0.0.0.0.0.0.0.0.0.0.0", "Commodity reading type");
+        assertThat(template.matches(readingType)).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testMatchPossibleValuesAttributeInTemplate() {
+        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Possible values template");
+        template.updater().setAttribute(ReadingTypeTemplateAttributeName.CRITICAL_PEAK_PERIOD, null, 4, 6).done();
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.6.0.0.0.0.0", "CPP reading type");
+        assertThat(template.matches(readingType)).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void testMatchCodeAndPossibleValuesAttributeInTemplate() {
+        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Code and possible values template");
+        template.updater().setAttribute(ReadingTypeTemplateAttributeName.ARGUMENT_DENOMINATOR, 5, 5, 6).done();
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.6.0.0.0.0.0.0.0", "Arg. denom. reading type");
+        assertThat(template.matches(readingType)).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void testMatchWildcardAttributeInTemplate() {
+        ReadingTypeTemplate template = inMemoryBootstrapModule.getMeteringService().createReadingTypeTemplate("Wildcard template");
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("8.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Macro period reading type");
+        assertThat(template.matches(readingType)).isTrue();
     }
 }

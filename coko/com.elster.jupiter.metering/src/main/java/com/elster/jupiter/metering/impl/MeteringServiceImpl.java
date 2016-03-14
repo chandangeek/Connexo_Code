@@ -686,4 +686,14 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         template.save();
         return template;
     }
+
+    @Override
+    public Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id) {
+        return dataModel.mapper(ReadingTypeTemplate.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<ReadingTypeTemplate> findAndLockReadingTypeTemplateByIdAndVersion(long id, long version) {
+        return dataModel.mapper(ReadingTypeTemplate.class).lockObjectIfVersion(version, id);
+    }
 }

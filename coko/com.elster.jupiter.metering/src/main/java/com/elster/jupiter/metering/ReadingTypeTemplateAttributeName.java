@@ -378,7 +378,7 @@ public enum ReadingTypeTemplateAttributeName {
 
         @Override
         public Function<Currency, Integer> getValueToCodeConverter() {
-            return Currency::getNumericCode;
+            return currency -> currency.getNumericCode() == 999 ? 0 : currency.getNumericCode();
         }
 
         @Override

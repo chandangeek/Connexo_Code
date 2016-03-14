@@ -141,4 +141,8 @@ public interface MeteringService {
     List<MultiplierType> getMultiplierTypes();
 
     ReadingTypeTemplate createReadingTypeTemplate(String name);
+
+    Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id);
+
+    Optional<ReadingTypeTemplate> findAndLockReadingTypeTemplateByIdAndVersion(long id, long version);
 }

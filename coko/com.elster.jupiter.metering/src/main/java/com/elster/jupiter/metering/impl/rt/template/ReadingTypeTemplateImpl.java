@@ -117,6 +117,11 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
         return new ReadingTypeTemplateUpdaterImpl(this);
     }
 
+    @Override
+    public boolean hasWildcards() {
+        return this.allAttributes.stream().anyMatch(attr -> !attr.getCode().isPresent() && attr.getPossibleValues().isEmpty());
+    }
+
     private static class ReadingTypeTemplateUpdaterImpl implements ReadingTypeTemplateUpdater {
 
         private final ReadingTypeTemplateImpl template;
