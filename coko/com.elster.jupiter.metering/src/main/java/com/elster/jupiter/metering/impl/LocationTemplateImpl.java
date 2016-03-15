@@ -52,7 +52,7 @@ public class LocationTemplateImpl implements LocationTemplate {
             rankings = new HashMap<>();
             String[] templateElements = locationTemplate.trim().split(",");
             if (Arrays.asList(templateElements).containsAll(ALLOWED_LOCATION_TEMPLATE_ELEMENTS)
-                    && Arrays.asList(templateElements).contains(Arrays.asList(mandatoryFields.trim().split(",")))) {
+                    && Arrays.asList(templateElements).containsAll(Arrays.asList(mandatoryFields.trim().split(",")))) {
                 AtomicInteger index = new AtomicInteger();
                 Arrays.asList(templateElements).stream().forEach(t ->
                         rankings.put(templateMap.get(t), index.incrementAndGet()));
