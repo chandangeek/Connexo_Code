@@ -30,20 +30,12 @@ Ext.define('Mdc.privileges.UsagePoint', {
         return result;
     },
 
-    checkAdminWithInsight: function(updateMenu){
-        var app = 'Insight';
-        if(Uni.store.Apps.storeLoaded){
-            if (!Uni.store.Apps.findRecord('name', app) && Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.admin)) {
-                updateMenu();
-            }
-        } else {
-            Uni.store.Apps.load({
-                callback: function () {
-                    if (!Uni.store.Apps.findRecord('name', app) && Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.admin)) {
-                        updateMenu();
-                    }
-                }
-            });
-        }
+    checkAdminWithInsight: function(){
+        var app = 'Admin';
+        return (!Uni.store.Apps.checkApp(app) && Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.admin));
+    },
+
+    checkApp: function (app) {
+        return Uni.store.Apps.checkApp(app);
     }
 });

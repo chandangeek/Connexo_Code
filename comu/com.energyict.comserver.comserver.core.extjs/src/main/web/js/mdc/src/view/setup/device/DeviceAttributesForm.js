@@ -141,7 +141,6 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                         if (Ext.isEmpty(value.displayValue)) {
                             return '-'
                         } else {
-                            console.log(Uni.store.Apps.checkApp(appName));
                             if (Uni.store.Apps.checkApp(appName)) {
                                 if (Mdc.privileges.UsagePoint.canViewInInsight()) {
                                     url = Ext.String.format('{0}/usagepoints/{1}', Uni.store.Apps.getAppUrl(appName), encodeURIComponent(value.displayValue));
