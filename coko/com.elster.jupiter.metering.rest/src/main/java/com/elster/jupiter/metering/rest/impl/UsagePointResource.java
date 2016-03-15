@@ -53,8 +53,8 @@ public class UsagePointResource {
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getUsagePoints(@Context SecurityContext securityContext,
-                                          @BeanParam JsonQueryParameters queryParameters,
-                                          @QueryParam("like") String like) {
+                                        @BeanParam JsonQueryParameters queryParameters,
+                                        @QueryParam("like") String like) {
         UsagePointFilter usagePointFilter = new UsagePointFilter();
         if (!Checks.is(like).emptyOrOnlyWhiteSpace()){
             usagePointFilter.setMrid("*"+like+"*");
