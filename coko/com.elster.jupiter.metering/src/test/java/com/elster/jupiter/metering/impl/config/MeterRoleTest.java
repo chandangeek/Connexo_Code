@@ -14,11 +14,6 @@ import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.TableSpecs;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.callback.InstallService;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -26,6 +21,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -61,9 +60,6 @@ public class MeterRoleTest {
     @Test
     @Transactional
     public void testOutOfTheBoxMeterRoles() {
-        //Business method
-        ((InstallService) getMetrologyConfigurationService()).install();
-
         //Asserts
         Optional<MeterRole> defaultMeterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey());
         assertThat(defaultMeterRole).isPresent();
@@ -141,32 +137,30 @@ public class MeterRoleTest {
     @Test
     @Transactional
     public void testAttachMeterRoleToServiceCategory() {
-        ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+        ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.INTERNET).get();
         assertThat(serviceCategory.getMeterRoles()).isEmpty();
-        MeterRole meterRole = getMetrologyConfigurationService().newMeterRole(DefaultMeterRole.DEFAULT);
+        MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
 
         //Business method
         serviceCategory.addMeterRole(meterRole);
         serviceCategory.addMeterRole(meterRole);
 
         //Asserts
-        serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+        serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.INTERNET).get();
         assertThat(serviceCategory.getMeterRoles()).containsExactly(meterRole);
     }
 
     @Test
     @Transactional
     public void testDetachMeterRoleFromServiceCategory() {
-        ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        assertThat(serviceCategory.getMeterRoles()).isEmpty();
-        MeterRole meterRole = getMetrologyConfigurationService().newMeterRole(DefaultMeterRole.DEFAULT);
-        serviceCategory.addMeterRole(meterRole);
+        ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.INTERNET).get();
+        MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
 
         //Business method
         serviceCategory.removeMeterRole(meterRole);
 
         //Asserts
-        serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+        serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.INTERNET).get();
         assertThat(serviceCategory.getMeterRoles()).isEmpty();
     }
 }

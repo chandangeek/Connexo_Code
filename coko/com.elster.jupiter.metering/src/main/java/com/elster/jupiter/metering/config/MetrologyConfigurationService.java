@@ -1,9 +1,8 @@
 package com.elster.jupiter.metering.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.nls.TranslationKey;
-
-import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,5 +42,13 @@ public interface MetrologyConfigurationService {
     Optional<Formula> findFormula(long id);
 
     List<Formula> findFormulas();
+
+    MetrologyPurpose.MetrologyPurposeBuilder createMetrologyPurpose();
+
+    Optional<MetrologyPurpose> findMetrologyPurpose(long id);
+
+    Optional<MetrologyPurpose> findMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose);
+
+    List<MetrologyPurpose> getMetrologyPurposes();
 
 }

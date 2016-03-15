@@ -6,12 +6,14 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.impl.DefaultTranslationKey;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.security.Privileges;
@@ -37,6 +39,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Provides an implementation for the {@link MetrologyConfigurationService} interface.
@@ -66,6 +70,7 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
         setMeteringService(meteringService);
         setEventService(eventService);
         setUserService(userService);
+        install();
     }
 
     @Override
@@ -111,6 +116,7 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     public List<TranslationKey> getKeys() {
         List<TranslationKey> translationKeys = new ArrayList<>();
         translationKeys.addAll(Arrays.asList(Privileges.values()));
+        translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
         return translationKeys;
     }
 
@@ -199,5 +205,28 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     @Override
     public Optional<MeterRole> findMeterRole(String key) {
         return getDataModel().mapper(MeterRole.class).getUnique(MeterRoleImpl.Fields.KEY.fieldName(), key);
+    }
+
+    @Override
+    public MetrologyPurpose.MetrologyPurposeBuilder createMetrologyPurpose() {
+        return new MetrologyPurposeBuilderImpl(getDataModel());
+    }
+
+    @Override
+    public Optional<MetrologyPurpose> findMetrologyPurpose(long id) {
+        return getDataModel().mapper(MetrologyPurpose.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<MetrologyPurpose> findMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose) {
+        return getDataModel().query(MetrologyPurpose.class)
+                .select(where(MetrologyPurposeImpl.Fields.DEFAULT_PURPOSE.fieldName()).isEqualTo(defaultMetrologyPurpose))
+                .stream()
+                .findFirst();
+    }
+
+    @Override
+    public List<MetrologyPurpose> getMetrologyPurposes() {
+        return getDataModel().mapper(MetrologyPurpose.class).find();
     }
 }

@@ -4,8 +4,10 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 public class Installer {
 
@@ -18,7 +20,11 @@ public class Installer {
     }
 
     public void install() {
-        createMeterRoles();
+        ExceptionCatcher.executing(
+                this::createMeterRoles,
+                this::createMetrologyPurposes
+        ).andHandleExceptionsWith(Throwable::printStackTrace)
+                .execute();
     }
 
     private void createMeterRoles() {
@@ -38,5 +44,11 @@ public class Installer {
         for (MeterRole meterRole : meterRoles) {
             serviceCategory.addMeterRole(meterRole);
         }
+    }
+
+    private void createMetrologyPurposes() {
+        metrologyConfigurationService.createMetrologyPurpose().fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
+        metrologyConfigurationService.createMetrologyPurpose().fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION);
+        metrologyConfigurationService.createMetrologyPurpose().fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.VOLTAGE_MONITORING);
     }
 }

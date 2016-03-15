@@ -160,7 +160,8 @@ public enum EventType {
     },
     METROLOGYCONFIGURATION_CREATED("metrologyconfiguration/CREATED"),
     METROLOGYCONFIGURATION_UPDATED("metrologyconfiguration/UPDATED"),
-    METROLOGYCONFIGURATION_DELETED("metrologyconfiguration/DELETED");
+    METROLOGYCONFIGURATION_DELETED("metrologyconfiguration/DELETED"),
+    METROLOGY_PURPOSE_DELETED("metrologypurpose/DELETED"),;
 
     private static final String NAMESPACE = "com/elster/jupiter/metering/";
     private final String topic;

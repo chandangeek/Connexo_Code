@@ -25,6 +25,7 @@ import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -35,6 +36,7 @@ import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsageImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
+import com.elster.jupiter.metering.impl.config.MetrologyPurposeImpl;
 import com.elster.jupiter.metering.impl.config.PartiallySpecifiedReadingTypeAttributeValueImpl;
 import com.elster.jupiter.metering.impl.config.PartiallySpecifiedReadingTypeImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementImpl;
@@ -64,6 +66,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
+import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 
@@ -1096,6 +1099,32 @@ public enum TableSpecs {
                     .reverseMap(ReadingTypeRequirementImpl.Fields.ATTRIBUTES.fieldName())
                     .composition()
                     .add();
+        }
+    },
+    MTR_METROLOGY_PURPOSE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), MetrologyPurpose.class);
+            table.map(MetrologyPurposeImpl.class);
+
+            Column idColumn = table.addAutoIdColumn();
+            Column nameColumn = table.column(MetrologyPurposeImpl.Fields.NAME.name())
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(MetrologyPurposeImpl.Fields.NAME.fieldName())
+                    .add();
+            table.column(MetrologyPurposeImpl.Fields.DESCRIPTION.name())
+                    .varChar(DESCRIPTION_LENGTH)
+                    .map(MetrologyPurposeImpl.Fields.DESCRIPTION.fieldName())
+                    .add();
+            table.column(MetrologyPurposeImpl.Fields.DEFAULT_PURPOSE.name())
+                    .number()
+                    .conversion(NUMBER2ENUM)
+                    .map(MetrologyPurposeImpl.Fields.DEFAULT_PURPOSE.fieldName())
+                    .add();
+
+            table.primaryKey("MTR_METROLOGY_PURPOSE_PK").on(idColumn).add();
+            table.unique("MTR_METROLOGY_PURPOSE_NAME_UQ").on(nameColumn).add();
         }
     },
     ;
