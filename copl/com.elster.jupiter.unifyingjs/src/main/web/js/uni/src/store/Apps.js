@@ -6,8 +6,8 @@ Ext.define('Uni.store.Apps', {
     model: 'Uni.model.App',
     storeId: 'apps',
     singleton: true,
-    autoLoad: false,
-    storeLoaded: false,
+    //autoLoad: true,
+    //storeLoaded: false,
 
 
     proxy: {
@@ -26,11 +26,11 @@ Ext.define('Uni.store.Apps', {
         }
     ],
 
-    listeners : {
-        load: function(){
-            this.storeLoaded = true;
-        }
-    },
+    //listeners : {
+    //    load: function(){
+    //        this.storeLoaded = true;
+    //    }
+    //},
 
     checkApp: function(appName){
         var record = this.findRecord('name', appName);
