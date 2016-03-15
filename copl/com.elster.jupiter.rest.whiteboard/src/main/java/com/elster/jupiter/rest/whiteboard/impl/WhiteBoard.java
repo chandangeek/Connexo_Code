@@ -18,17 +18,8 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
-import com.google.common.base.Strings;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Application;
 
+import com.google.common.base.Strings;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -44,8 +35,16 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.EventAdmin;
-import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
+
+import javax.servlet.http.HttpServlet;
+import javax.ws.rs.core.Application;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Component (name = "com.elster.jupiter.rest.whiteboard.implementation" , immediate = true , service = {}  )
 public class WhiteBoard {
@@ -64,17 +63,6 @@ public class WhiteBoard {
 
     private final UrlRewriteFilter urlRewriteFilter = new UrlRewriteFilter();
 
-    private Authentication createAuthentication(String method) {
-    	switch(Strings.nullToEmpty(method)) {
-    		case HttpServletRequest.DIGEST_AUTH:
-    			return new DigestAuthentication(userService);
-    		// case fall through to document default 
-    		case HttpServletRequest.BASIC_AUTH:
-    		default:
-    			return new BasicAuthentication(userService);    			    			
-    	}
-    }
-    
 	UserService getUserService() {
 		return userService;
 	}
@@ -130,8 +118,8 @@ public class WhiteBoard {
     @Reference(name="YServiceLocator")
     public void setConfiguration(WhiteBoardConfigurationProvider provider) {
     	this.configuration = provider.getConfiguration();
-    	this.httpContext = new HttpContextImpl(createAuthentication(configuration.authenticationMethod()));
-    }
+		this.httpContext = new HttpContextImpl(new BasicAuthentication(userService));
+	}
     
 	void fire(RestCallExecutedEvent event) {
 		publisher.publish(event);
