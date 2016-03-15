@@ -17,7 +17,7 @@ Ext.define('Scs.view.Landing', {
             title: me.serviceCallId,
             items: [
                 {
-                    tools: [
+                   /* tools: [
                         {
                             xtype: 'button',
                             privileges: Scs.privileges.ServiceCall.admin,
@@ -29,7 +29,7 @@ Ext.define('Scs.view.Landing', {
                             }
                         }
                     ],
-                    flex: 1,
+                    flex: 1,*/
                     items: [
                         {
                             xtype: 'servicecalls-preview-form',
