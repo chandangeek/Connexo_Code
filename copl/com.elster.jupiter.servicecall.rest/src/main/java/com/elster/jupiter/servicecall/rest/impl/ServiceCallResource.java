@@ -10,6 +10,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.servicecall.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -30,14 +31,12 @@ public class ServiceCallResource {
     private final ServiceCallService serviceCallService;
     private final ExceptionFactory exceptionFactory;
     private final ServiceCallInfoFactory serviceCallInfoFactory;
-    private final PropertyUtils propertyUtils;
 
     @Inject
-    public ServiceCallResource(ServiceCallService serviceCallService, ExceptionFactory exceptionFactory, ServiceCallInfoFactory serviceCallInfoFactory, PropertyUtils propertyUtils) {
+    public ServiceCallResource(ServiceCallService serviceCallService, ExceptionFactory exceptionFactory, ServiceCallInfoFactory serviceCallInfoFactory) {
         this.serviceCallService = serviceCallService;
         this.exceptionFactory = exceptionFactory;
         this.serviceCallInfoFactory = serviceCallInfoFactory;
-        this.propertyUtils = propertyUtils;
     }
 
     @GET

@@ -8,6 +8,7 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -19,17 +20,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ServiceCallInfoFactory {
+public class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
 
     private final Thesaurus thesaurus;
     private final PropertyUtils propertyUtils;
 
     @Inject
-    public ServiceCallInfoFactory(Thesaurus thesaurus, PropertyUtils propertyUtils) {
+    public ServiceCallInfoFactoryImpl(Thesaurus thesaurus, PropertyUtils propertyUtils) {
         this.thesaurus = thesaurus;
         this.propertyUtils = propertyUtils;
     }
 
+    @Override
     public ServiceCallInfo detailed(ServiceCall serviceCall, Map<DefaultState, Long> childrenInformation) {
         ServiceCallInfo serviceCallInfo = new ServiceCallInfo();
         serviceCallInfo.id = serviceCall.getId();
@@ -53,6 +55,7 @@ public class ServiceCallInfoFactory {
         return serviceCallInfo;
     }
 
+    @Override
     public ServiceCallInfo summarized(ServiceCall serviceCall) {
         ServiceCallInfo serviceCallInfo = new ServiceCallInfo();
         serviceCallInfo.id = serviceCall.getId();

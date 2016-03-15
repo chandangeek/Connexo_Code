@@ -10,6 +10,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -99,7 +100,7 @@ public class ServiceCallApplication extends Application implements TranslationKe
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(PropertyUtils.class).to(PropertyUtils.class);
-            bind(ServiceCallInfoFactory.class).to(ServiceCallInfoFactory.class);
+            bind(ServiceCallInfoFactoryImpl.class).to(ServiceCallInfoFactory.class);
             bind(ServiceCallTypeInfoFactory.class).to(ServiceCallTypeInfoFactory.class);
             bind(ServiceCallLogInfoFactory.class).to(ServiceCallLogInfoFactory.class);
             bind(serviceCallService).to(ServiceCallService.class);
