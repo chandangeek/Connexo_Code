@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.cps.impl.metrology.TranslationKeys;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointContCustomPropertySet;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointContDomainExtension;
-import com.elster.jupiter.metering.cps.impl.metrology.UsagePointConvCustomPropertySet;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointConvDomainExtension;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointDecentProdCustomPropertySet;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointDecentProdDomExt;
@@ -195,7 +194,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
                 new UsagePointTechElCPS(propertySpecService, thesaurus),
                 new UsagePointTechnicalWGTCustomPropertySet(propertySpecService, thesaurus),
                 new UsagePointContCustomPropertySet(propertySpecService, thesaurus),
-                new UsagePointConvCustomPropertySet(propertySpecService, thesaurus),
+                //new UsagePointConvCustomPropertySet(propertySpecService, thesaurus),
                 new UsagePointDecentProdCustomPropertySet(propertySpecService, thesaurus),
                 new UsagePointMeterGnrCustomPropertySet(propertySpecService, thesaurus),
                 new UsagePointMeterTechInfAllCPS(propertySpecService, thesaurus),

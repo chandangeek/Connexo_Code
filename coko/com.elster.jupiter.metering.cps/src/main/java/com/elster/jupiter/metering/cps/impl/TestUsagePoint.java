@@ -13,10 +13,12 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.units.Quantity;
 
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -95,8 +97,12 @@ public class TestUsagePoint implements CustomPropertySet<UsagePoint, TestDomainE
                 .specForValuesOf(new QuantityValueFactory())
                 .named(TestDomainExtension.Fields.QUANTITY.javaName(), TranslationKeys.QUANTITY_NAME)
                 .fromThesaurus(this.getThesaurus())
-                //  .setDefaultValue(Quantity.create(new BigDecimal(12), 1, "m"))
+                .setDefaultValue(Quantity.create(new BigDecimal(0), 1, "m"))
+                .addValues(Quantity.create(new BigDecimal(0), 1, "m"),
+                        Quantity.create(BigDecimal.valueOf(2000), 3, "Wh"),
+                        Quantity.create(new BigDecimal(1), 3, "m"))
                 .finish();
+
         PropertySpec instant = propertySpecService
                 .specForValuesOf(new InstantFactory())
                 .named(TestDomainExtension.Fields.INSTANT.javaName(), TranslationKeys.INSTANT_NAME)
@@ -109,6 +115,12 @@ public class TestUsagePoint implements CustomPropertySet<UsagePoint, TestDomainE
                 instant,
                 quantity);
     }
+
+//    private List<Quantity> getPossibleValues() {
+//        return Arrays.asList(Quantity.create(new BigDecimal(0), 1, "m"),
+//                Quantity.create(BigDecimal.valueOf(2000), 3, "Wh"),
+//                Quantity.create(new BigDecimal(1), 3, "m"));
+//    }
 
     private static class QuantityPersistenceSupport implements PersistenceSupport<UsagePoint, TestDomainExtension> {
 
