@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component(name = "com.elster.jupiter.metering.imports.impl.usagepoint.translations", service = {TranslationKeyProvider.class, MessageSeedProvider.class}, immediate = true)
-public class Translations implements TranslationKeyProvider, MessageSeedProvider {
+public class TranslationKeys implements TranslationKeyProvider, MessageSeedProvider {
 
     @Override
     public String getComponentName() {
@@ -50,15 +50,15 @@ public class Translations implements TranslationKeyProvider, MessageSeedProvider
 
         DATA_IMPORTER_SUBSCRIBER(UsagePointFileImporterMessageHandler.SUBSCRIBER_NAME, "Handle data import"),
 
-        IMPORT_RESULT_NO_USAGEPOINTS_WERE_PROCESSED("ImportResultNoDevicesWereProcessed", "Failed to complete, no usagepoints have been processed."),
-        IMPORT_RESULT_FAIL("ImportResultFail", "Failed to complete. {0} devices processed successfully."),
-        IMPORT_RESULT_FAIL_WITH_ERRORS("ImportResultFailWithErrors", "Failed to complete. {0} devices processed successfully, {1} devices skipped due to errors."),
-        IMPORT_RESULT_FAIL_WITH_WARN_AND_ERRORS("ImportResultFailWithWarnAndErrors", "Failed to complete. {0} devices processed successfully of which {1} devices contain a note, {2} devices skipped due to errors."),
-        IMPORT_RESULT_FAIL_WITH_WARN("ImportResultFailWithWarn", "Failed to complete. {0} devices processed successfully of which {1} devices contain a note."),
-        IMPORT_RESULT_SUCCESS("ImportResultSuccess", "Finished successfully. {0} device(s) processed successfully."),
-        IMPORT_RESULT_SUCCESS_WITH_ERRORS("ImportResultSuccessWithErrors", "Finished successfully with (some) failures. {0} devices processed successfully, {1} devices skipped due to errors. "),
-        IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS("ImportResultSuccessWithWarnAndErrors", "Finished successfully with (some) failures and notes. {0} devices processed successfully of which {1} devices contain a note, {2} devices skipped due to errors."),
-        IMPORT_RESULT_SUCCESS_WITH_WARN("ImportResultSuccessWithWarn", "Finished successfully with (some) note. {0} devices processed successfully of which {1} devices contain a note."),
+        IMPORT_RESULT_NO_USAGEPOINTS_WERE_PROCESSED("ImportResultNoUPWereProcessed", "Failed to complete, no usage points have been processed."),
+        IMPORT_RESULT_FAIL("ImportResultFail", "Failed to complete. {0} usage point(s) processed successfully."),
+        IMPORT_RESULT_FAIL_WITH_ERRORS("ImportResultFailWithErrors", "Failed to complete. {0} usage point(s) processed successfully, {1} usage point(s) skipped due to errors."),
+        IMPORT_RESULT_FAIL_WITH_WARN_AND_ERRORS("ImportResultFailWithWarnAndErrors", "Failed to complete. {0} usage point(s) processed successfully of which {1} usage point(s) contain a note, {2} usage point(s) skipped due to errors."),
+        IMPORT_RESULT_FAIL_WITH_WARN("ImportResultFailWithWarn", "Failed to complete. {0} usage point(s) processed successfully of which {1} usage point(s) contain a note."),
+        IMPORT_RESULT_SUCCESS("ImportResultSuccess", "Finished successfully. {0} usage point(s) processed successfully."),
+        IMPORT_RESULT_SUCCESS_WITH_ERRORS("ImportResultSuccessWithErrors", "Finished successfully with (some) failures. {0} usage point(s) processed successfully, {1} usage point(s) skipped due to errors. "),
+        IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS("ImportResultSuccessWithWarnAndErrors", "Finished successfully with (some) failures and notes. {0} usage point(s) processed successfully of which {1} usage point(s) contain a note, {2} usage point(s) skipped due to errors."),
+        IMPORT_RESULT_SUCCESS_WITH_WARN("ImportResultSuccessWithWarn", "Finished successfully with (some) note. {0} usage point(s) processed successfully of which {1} usage point(s) contain a note."),
         IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE("ImportDefaultProcessorErrorPrefix", "Can''t process line {0}: {1}"),;
         private final String key;
         private final String defaultFormat;

@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public enum DataImporterProperty {
-    DELIMITER(Translations.Labels.DATA_IMPORTER_DELIMITER, Translations.Labels.DATA_IMPORTER_DELIMITER_DESCRIPTION) {
+    DELIMITER(TranslationKeys.Labels.DATA_IMPORTER_DELIMITER, TranslationKeys.Labels.DATA_IMPORTER_DELIMITER_DESCRIPTION) {
         @Override
         public PropertySpec getPropertySpec(MeteringDataImporterContext context) {
             return context.getPropertySpecService()
@@ -36,20 +36,20 @@ public enum DataImporterProperty {
                     .finish();
         }
     },
-    DATE_FORMAT(Translations.Labels.DATA_IMPORTER_DATE_FORMAT, Translations.Labels.DATA_IMPORTER_DATE_FORMAT_DESCRIPTION) {
+    DATE_FORMAT(TranslationKeys.Labels.DATA_IMPORTER_DATE_FORMAT, TranslationKeys.Labels.DATA_IMPORTER_DATE_FORMAT_DESCRIPTION) {
         @Override
         public PropertySpec getPropertySpec(MeteringDataImporterContext context) {
             return new DateFormatPropertySpec(this.getPropertyKey(), this.getNameTranslationKey(), context.getThesaurus());
         }
     },
-    TIME_ZONE(Translations.Labels.DATA_IMPORTER_TIMEZONE, Translations.Labels.DATA_IMPORTER_TIMEZONE_DESCRIPTION) {
+    TIME_ZONE(TranslationKeys.Labels.DATA_IMPORTER_TIMEZONE, TranslationKeys.Labels.DATA_IMPORTER_TIMEZONE_DESCRIPTION) {
         @Override
         public PropertySpec getPropertySpec(MeteringDataImporterContext context) {
             return new TimeZonePropertySpec(this.getPropertyKey(), this.getNameTranslationKey(), context.getThesaurus(), context
                     .getClock());
         }
     },
-    NUMBER_FORMAT(Translations.Labels.DATA_IMPORTER_NUMBER_FORMAT, Translations.Labels.DATA_IMPORTER_NUMBER_FORMAT_DESCRIPTION) {
+    NUMBER_FORMAT(TranslationKeys.Labels.DATA_IMPORTER_NUMBER_FORMAT, TranslationKeys.Labels.DATA_IMPORTER_NUMBER_FORMAT_DESCRIPTION) {
         @Override
         public PropertySpec getPropertySpec(MeteringDataImporterContext context) {
             PropertySpecBuilder builder =

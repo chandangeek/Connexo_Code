@@ -7,6 +7,13 @@ import java.util.Map;
 
 public abstract class FileImportRecordWithCustomProperties extends FileImportRecord {
 
+    public FileImportRecordWithCustomProperties() {
+    }
+
+    public FileImportRecordWithCustomProperties(long lineNumber) {
+        super(lineNumber);
+    }
+
     private Map<CustomPropertySet, CustomPropertySetRecord> customPropertySets;
 
     public Map<CustomPropertySet, CustomPropertySetRecord> getCustomPropertySets() {

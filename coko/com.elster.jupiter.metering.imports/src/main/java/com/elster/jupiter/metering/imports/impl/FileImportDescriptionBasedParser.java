@@ -85,15 +85,21 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
 
             Map<Class, FieldParser> parsers = descriptor.getParsers();
             for (Object spec : set.getPropertySpecs()) {
-                if (spec instanceof PropertySpec && csvRecord.isMapped(set.getId() + "." + ((PropertySpec) spec).getName())) {
-                    FieldParser parser = parsers.get(((PropertySpec) spec).getValueFactory().getValueType());
-                    if (parser != null) {
-                        values.setProperty(((PropertySpec) spec).getName(), parser.parse(csvRecord.get(set.getId() + "." + ((PropertySpec) spec)
-                                .getName())));
-                    } else {
-                        values.setProperty(((PropertySpec) spec).getName(), ((PropertySpec) spec).getValueFactory()
-                                .fromStringValue(csvRecord.get(set.getId() + "." + ((PropertySpec) spec).getName())));
+                try {
+                    if (spec instanceof PropertySpec && csvRecord.isMapped(set.getId() + "." + ((PropertySpec) spec).getName())) {
+                        FieldParser parser = parsers.get(((PropertySpec) spec).getValueFactory().getValueType());
+                        if (parser != null) {
+                            values.setProperty(((PropertySpec) spec).getName(), parser.parse(csvRecord.get(set.getId() + "." + ((PropertySpec) spec)
+                                    .getName())));
+                        } else {
+                            values.setProperty(((PropertySpec) spec).getName(), ((PropertySpec) spec).getValueFactory()
+                                    .fromStringValue(csvRecord.get(set.getId() + "." + ((PropertySpec) spec).getName())));
+                        }
                     }
+                } catch (ValueParserException ex) {
+                    throw new FileImportParserException(MessageSeeds.LINE_FORMAT_ERROR, csvRecord.getRecordNumber(), ((PropertySpec) spec)
+                            .getDisplayName(), ex
+                            .getExpected());
                 }
             }
             customPropertySetRecord.setCustomPropertySetValues(values);

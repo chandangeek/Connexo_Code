@@ -24,10 +24,14 @@ import com.elster.jupiter.metering.imports.impl.FileImportProcessor;
 import com.elster.jupiter.metering.imports.impl.MessageSeeds;
 import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
 import com.elster.jupiter.metering.imports.impl.exceptions.ProcessorException;
+import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.Range;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
@@ -43,28 +47,36 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
 
     @Override
     public void process(UsagePointImportRecord data, FileImportLogger logger) throws ProcessorException {
+        try {
+            if (context.getLicenseService().getLicenseForApplication("INS").isPresent()) {
 
-        if (context.getLicenseService().getLicenseForApplication("INS").isPresent()) {
-            validate(data, logger);
+                validate(data, logger);
+                validateQuanitities(data, logger);
 
-            UsagePoint usagePoint = getUsagePoint(data, logger);
+                UsagePoint usagePoint = getUsagePoint(data, logger);
 
-            if (usagePoint.getDetail(context.getClock().instant()).isPresent()) {
-                updateDetails(usagePoint, data, logger).create();
+                if (usagePoint.getDetail(context.getClock().instant()).isPresent()) {
+                    updateDetails(usagePoint, data, logger).create();
+                } else {
+                    createDetails(usagePoint, data, logger).create();
+                }
+
+                addCustomPropertySetValues(usagePoint, data, logger);
+
             } else {
-                createDetails(usagePoint, data, logger).create();
+                getUsagePointForMdc(data, logger);
             }
-
-            addCustomPropertySetValues(usagePoint, data, logger);
-
-        } else {
-            getUsagePointForMdc(data, logger);
+        } catch (ConstraintViolationException e) {
+            for (ConstraintViolation<?> violation : e.getConstraintViolations()) {
+                logger.warning(MessageSeeds.IMPORT_USAGEPOINT_CONSTRAINT_VOLATION, data.getLineNumber(), violation.getPropertyPath(), violation
+                        .getMessage());
+            }
+            throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_INVALIDDATA, data.getLineNumber());
         }
     }
 
     @Override
     public void complete(FileImportLogger logger) {
-        System.err.println("USAGE POINT CREATED");
     }
 
     private void validate(UsagePointImportRecord data, FileImportLogger logger) throws ProcessorException {
@@ -84,11 +96,23 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
                 throw new ProcessorException(MessageSeeds.UPDATE_NOT_ALLOWED, data.getLineNumber());
             }
         } else {
-            UsagePoint dummyUsagePoint = serviceCategory.newUsagePoint("dummyUsagePointForValidation" + data.hashCode(), context
-                    .getClock()
-                    .instant()).validate();
+            if (data.isAllowUpdate()) {
+                throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_MRID_INVALID, data.getLineNumber());
+            }
+            UsagePoint dummyUsagePoint = serviceCategory.newUsagePoint(mRID, data.getInstallationTime()
+                    .orElse(context.getClock().instant())).validate();
             createDetails(dummyUsagePoint, data, logger).validate();
             validateCustomPropertySetValues(dummyUsagePoint, data, logger);
+        }
+    }
+
+    private void validateQuanitities(UsagePointImportRecord data, FileImportLogger logger) throws ProcessorException {
+        for (Optional<Quantity> quantity : Arrays.asList(data.getEstimatedLoad(), data.getLoadLimit(), data.getNominalVoltage(), data
+                        .getPhysicalCapacity(),
+                data.getPressure(), data.getRatedCurrent(), data.getRatedPower())) {
+            if (quantity.isPresent() && (quantity.get().getMultiplier() > 24 || quantity.get().getMultiplier() < -24)) {
+                throw new ProcessorException(MessageSeeds.IMPORT_QUANITITY_OUT_OF_BOUNDS, data.getLineNumber());
+            }
         }
     }
 
@@ -218,7 +242,11 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         usagePointBuilder.withIsSdp(false);
         usagePointBuilder.withIsVirtual(true);
         usagePointBuilder.withName(data.getName().orElse(null));
-        return usagePointBuilder.create();
+        UsagePoint usagePoint = usagePointBuilder.create();
+        usagePoint.addDetail(usagePoint.getServiceCategory()
+                .newUsagePointDetail(usagePoint, context.getClock().instant()));
+        usagePoint.update();
+        return usagePoint;
     }
 
     private UsagePoint updateUsagePointForMdc(UsagePoint usagePoint, UsagePointImportRecord data, FileImportLogger logger) {
@@ -335,7 +363,9 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
                 context.getCustomPropertySetService()
                         .validateCustomPropertySetValues(usagePointCustomPropertySet.getCustomPropertySet(), values);
             } else {
-                throw new ProcessorException(MessageSeeds.IMPORT_VERSIONED_VALUES_NOT_FOUND, customPropertySetRecord.getLineNumber());
+                throw new ProcessorException(MessageSeeds.IMPORT_VERSIONED_VALUES_NOT_FOUND, customPropertySetRecord.getLineNumber(), customPropertySetRecord
+                        .getStartTime()
+                        .toString());
             }
         } else {
             context.getCustomPropertySetService()
@@ -364,7 +394,9 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
                                         .getVersionId()
                                         .get());
             } else {
-                throw new ProcessorException(MessageSeeds.IMPORT_VERSIONED_VALUES_NOT_FOUND, customPropertySetRecord.getLineNumber());
+                throw new ProcessorException(MessageSeeds.IMPORT_VERSIONED_VALUES_NOT_FOUND, customPropertySetRecord.getLineNumber(), customPropertySetRecord
+                        .getStartTime()
+                        .toString());
             }
         } else {
             context.getCustomPropertySetService()

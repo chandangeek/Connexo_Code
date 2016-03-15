@@ -45,5 +45,5 @@ public abstract class AbstractFileImporterFactory implements FileImporterFactory
 
     protected abstract MeteringDataImporterContext getContext();
 
-    public abstract void setDeviceDataImporterContext(MeteringDataImporterContext context);
+    public abstract void setMeteringDataImporterContext(MeteringDataImporterContext context);
 }

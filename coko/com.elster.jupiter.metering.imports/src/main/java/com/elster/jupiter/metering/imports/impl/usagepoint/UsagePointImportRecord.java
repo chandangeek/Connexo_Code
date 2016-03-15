@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public class UsagePointImportRecord extends FileImportRecordWithCustomProperties {
-
     //General
     private String mRID;
     private String serviceKind;
@@ -71,8 +70,14 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     private String nominalVoltageUnit;
 
 
-    private Boolean allowUpdate;
+    private boolean allowUpdate;
 
+    public UsagePointImportRecord() {
+    }
+
+    public UsagePointImportRecord(long lineNumber) {
+        super(lineNumber);
+    }
 
     public Optional<String> getmRID() {
         return Optional.ofNullable(mRID);
@@ -87,7 +92,7 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     }
 
     public void setServiceKind(String serviceKind) {
-        this.serviceKind = serviceKind.toUpperCase();
+        this.serviceKind = serviceKind != null ? serviceKind.toUpperCase() : null;
     }
 
     public Optional<Long> getServiceLocationID() {

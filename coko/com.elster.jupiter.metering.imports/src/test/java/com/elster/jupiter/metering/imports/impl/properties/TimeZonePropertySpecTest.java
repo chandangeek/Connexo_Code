@@ -1,7 +1,7 @@
 package com.elster.jupiter.metering.imports.impl.properties;
 
 import com.elster.jupiter.metering.imports.impl.SimpleNlsMessageFormat;
-import com.elster.jupiter.metering.imports.impl.Translations;
+import com.elster.jupiter.metering.imports.impl.TranslationKeys;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.InvalidValueException;
@@ -35,7 +35,7 @@ public class TimeZonePropertySpecTest {
                 .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
         when(thesaurus.getFormat(any(MessageSeed.class)))
                 .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
-        this.propertySpec = new TimeZonePropertySpec("name", Translations.Labels.DATA_IMPORTER_TIMEZONE, this.thesaurus, this.clock);
+        this.propertySpec = new TimeZonePropertySpec("name", TranslationKeys.Labels.DATA_IMPORTER_TIMEZONE, this.thesaurus, this.clock);
     }
 
     @Test

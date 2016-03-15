@@ -3,7 +3,7 @@ package com.elster.jupiter.metering.imports.impl.usagepoint;
 import com.elster.jupiter.metering.imports.impl.FileImportLoggerImpl;
 import com.elster.jupiter.metering.imports.impl.FileImportRecord;
 import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
-import com.elster.jupiter.metering.imports.impl.Translations;
+import com.elster.jupiter.metering.imports.impl.TranslationKeys;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -48,63 +48,63 @@ public class UsagePointsImportLogger extends FileImportLoggerImpl<FileImportReco
 
     protected void summarizeFailedImport() {
         if (linesWithError != 0 && linesWithWarnings == 0) {
-            // Some devices were processed with errors
+            // Some data were processed with errors
             fileImportOccurrence.markFailure(this.context.getThesaurus()
-                    .getFormat(Translations.Labels.IMPORT_RESULT_FAIL_WITH_ERRORS)
+                    .getFormat(TranslationKeys.Labels.IMPORT_RESULT_FAIL_WITH_ERRORS)
                     .format(linesProcessed, linesWithError));
         } else if (linesWithError != 0 && linesWithWarnings != 0) {
-            // Some devices were processed with errors and warnings
+            // Some data were processed with errors and warnings
             fileImportOccurrence.markFailure(this.context.getThesaurus()
-                    .getFormat(Translations.Labels.IMPORT_RESULT_FAIL_WITH_WARN_AND_ERRORS)
+                    .getFormat(TranslationKeys.Labels.IMPORT_RESULT_FAIL_WITH_WARN_AND_ERRORS)
                     .format(linesProcessed, linesWithWarnings, linesWithError));
         } else if (linesWithError == 0 && linesWithWarnings != 0) {
-            // Some devices were processed with warnings
+            // Some data were processed with warnings
             fileImportOccurrence.markFailure(this.context.getThesaurus()
-                    .getFormat(Translations.Labels.IMPORT_RESULT_FAIL_WITH_WARN)
+                    .getFormat(TranslationKeys.Labels.IMPORT_RESULT_FAIL_WITH_WARN)
                     .format(linesProcessed, linesWithWarnings));
         } else if (linesProcessed != 0 && linesWithError == 0 && linesWithWarnings == 0) {
-            // Some devices were processed
+            // Some data were processed
             fileImportOccurrence.markFailure(this.context.getThesaurus()
-                    .getFormat(Translations.Labels.IMPORT_RESULT_FAIL)
+                    .getFormat(TranslationKeys.Labels.IMPORT_RESULT_FAIL)
                     .format(linesProcessed));
         } else if (linesProcessed == 0 && linesWithError == 0 && linesWithWarnings == 0) {
-            // No devices were processed (Bad column headers)
+            // No data were processed (Bad column headers)
             fileImportOccurrence.markFailure(this.context.getThesaurus()
-                    .getFormat(Translations.Labels.IMPORT_RESULT_NO_USAGEPOINTS_WERE_PROCESSED)
+                    .getFormat(TranslationKeys.Labels.IMPORT_RESULT_NO_USAGEPOINTS_WERE_PROCESSED)
                     .format());
         }
     }
 
     protected void summarizeSuccessImport() {
         if (linesProcessed == 0 && linesWithError == 0) {
-            // No devices were processed (No devices in file)
+            // No data were processed (No data in file)
             fileImportOccurrence.markFailure(this.context.getThesaurus()
-                    .getFormat(Translations.Labels.IMPORT_RESULT_NO_USAGEPOINTS_WERE_PROCESSED)
+                    .getFormat(TranslationKeys.Labels.IMPORT_RESULT_NO_USAGEPOINTS_WERE_PROCESSED)
                     .format());
         } else if (linesProcessed != 0 && linesWithError == 0 && linesWithWarnings == 0) {
-            // All devices were processed without warnings/errors
+            // All data were processed without warnings/errors
             fileImportOccurrence.markSuccess(this.context.getThesaurus()
-                    .getFormat(Translations.Labels.IMPORT_RESULT_SUCCESS)
+                    .getFormat(TranslationKeys.Labels.IMPORT_RESULT_SUCCESS)
                     .format(linesProcessed));
         } else if (linesWithError != 0 && linesWithWarnings == 0) {
-            // All devices were processed but some of the devices failed
+            // All data were processed but some of the data failed
             fileImportOccurrence.markSuccessWithFailures(this.context.getThesaurus()
-                    .getFormat(Translations.Labels.IMPORT_RESULT_SUCCESS_WITH_ERRORS)
+                    .getFormat(TranslationKeys.Labels.IMPORT_RESULT_SUCCESS_WITH_ERRORS)
                     .format(linesProcessed, linesWithError));
         } else if (linesWithError != 0 && linesWithWarnings != 0) {
-            // All devices were processed but part of them were processed with warnings and failures
+            // All data were processed but part of them were processed with warnings and failures
             fileImportOccurrence.markSuccessWithFailures(this.context.getThesaurus()
-                    .getFormat(Translations.Labels.IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS)
+                    .getFormat(TranslationKeys.Labels.IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS)
                     .format(linesProcessed, linesWithWarnings, linesWithError));
         } else if (linesWithError == 0 && linesWithWarnings != 0) {
-            // All devices were processed but part of them were processed with warnings
+            // All data were processed but part of them were processed with warnings
             fileImportOccurrence.markSuccess(this.context.getThesaurus()
-                    .getFormat(Translations.Labels.IMPORT_RESULT_SUCCESS_WITH_WARN)
+                    .getFormat(TranslationKeys.Labels.IMPORT_RESULT_SUCCESS_WITH_WARN)
                     .format(linesProcessed, linesWithWarnings));
         } else {
             // Fallback case
             fileImportOccurrence.markFailure(this.context.getThesaurus()
-                    .getFormat(Translations.Labels.IMPORT_RESULT_NO_USAGEPOINTS_WERE_PROCESSED)
+                    .getFormat(TranslationKeys.Labels.IMPORT_RESULT_NO_USAGEPOINTS_WERE_PROCESSED)
                     .format());
         }
     }

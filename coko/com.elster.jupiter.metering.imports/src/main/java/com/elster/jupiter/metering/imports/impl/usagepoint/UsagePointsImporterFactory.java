@@ -24,7 +24,7 @@ import static com.elster.jupiter.metering.imports.impl.DataImporterProperty.DATE
 import static com.elster.jupiter.metering.imports.impl.DataImporterProperty.DELIMITER;
 import static com.elster.jupiter.metering.imports.impl.DataImporterProperty.NUMBER_FORMAT;
 import static com.elster.jupiter.metering.imports.impl.DataImporterProperty.TIME_ZONE;
-import static com.elster.jupiter.metering.imports.impl.Translations.Labels.USAGEPOINT_FILE_IMPORTER;
+import static com.elster.jupiter.metering.imports.impl.TranslationKeys.Labels.USAGEPOINT_FILE_IMPORTER;
 
 @Component(name = "com.elster.jupiter.metering.imports.impl.usagepoint.usagepointimport.UsagePointsFileImporterFactory",
         service = FileImporterFactory.class,
@@ -37,7 +37,6 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
 
     @Activate
     public void activate() {
-        System.err.println("STARTED!!!!!!!!!!!!");
     }
 
     public UsagePointsImporterFactory() {
@@ -45,7 +44,7 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
 
     @Inject
     public UsagePointsImporterFactory(MeteringDataImporterContext context) {
-        setDeviceDataImporterContext(context);
+        setMeteringDataImporterContext(context);
     }
 
     @Override
@@ -90,7 +89,7 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
 
     @Override
     @Reference
-    public void setDeviceDataImporterContext(MeteringDataImporterContext context) {
+    public void setMeteringDataImporterContext(MeteringDataImporterContext context) {
         this.context = context;
     }
 }
