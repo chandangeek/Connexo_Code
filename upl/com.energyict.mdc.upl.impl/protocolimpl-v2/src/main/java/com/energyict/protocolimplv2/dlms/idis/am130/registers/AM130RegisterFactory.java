@@ -171,8 +171,9 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                 if (composedObject instanceof ComposedRegister) {
                     ComposedRegister composedRegister = ((ComposedRegister) composedObject);
 
-                    Unit unit = null;
-                    if (composedRegister.getRegisterUnitAttribute() != null) {
+                    Unit unit = Unit.get(BaseUnit.UNITLESS);
+                    if (composedRegister.getRegisterUnitAttribute() != null &&
+                        composedCosemObject.getAttribute(composedRegister.getRegisterUnitAttribute()).getStructure().getDataType(1) != null) {
                         unit = new ScalerUnit(composedCosemObject.getAttribute(composedRegister.getRegisterUnitAttribute())).getEisUnit();
                     }
                     Date captureTime = null;
