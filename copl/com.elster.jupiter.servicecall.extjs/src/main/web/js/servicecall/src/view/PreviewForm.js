@@ -61,13 +61,13 @@ Ext.define('Scs.view.PreviewForm', {
                         renderer: function (value) {
                             if(value.type === 'com.energyict.mdc.device.Device') {
                                 if(Uni.util.Application.getAppName() === 'MultiSense') {
-                                    return '<a href="' + this.router.getRoute('devices/device').buildUrl({mRID: value.key}) + '">' + value.key + '</a>';
+                                    return '<a href="' + this.router.getRoute('devices/device').buildUrl({mRID: value.key}) + '">' + Ext.String.htmlEncode(value) + '</a>';
                                 } else {
                                     return value.key;
                                 }
                             } else if (value.type === 'com.elster.jupiter.metering.UsagePoint') {
                                 if(Uni.util.Application.getAppName() === 'MdmApp') {
-                                    return '<a href="' + this.router.getRoute('usagepoints/view').buildUrl({mRID: value.key}) + '">' + value.key + '</a>';
+                                    return '<a href="' + this.router.getRoute('usagepoints/view').buildUrl({mRID: value.key}) + '">' + Ext.String.htmlEncode(value) + '</a>';
                                 } else {
                                     return value.key;
                                 }
@@ -90,7 +90,7 @@ Ext.define('Scs.view.PreviewForm', {
                         hidden: !me.detailed,
                         renderer: function (value) {
                             if (value) {
-                                return value;
+                                return Ext.String.htmlEncode(value);
                             }
                             return "-"
                         }
@@ -106,7 +106,7 @@ Ext.define('Scs.view.PreviewForm', {
                         fieldLabel: Uni.I18n.translate('general.origin', 'SCS', 'Origin'),
                         name: 'origin',
                         renderer: function (value) {
-                            return value === "" ? "-" : value;
+                            return value === "" ? "-" : Ext.String.htmlEncode(value);
                         }
                     },
                     {
