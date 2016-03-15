@@ -21,6 +21,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.DecoratedStream;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -111,8 +112,7 @@ public class StateMachineSwitcher implements MessageHandler {
             Optional<EndDevice> device = this.dataModel.mapper(EndDevice.class).getOptional(deviceId);
             if (device.isPresent()) {
                 this.process(event, (ServerEndDevice) device.get());
-            }
-            else {
+            } else {
                 this.logger.fine(() -> "Cannot switch to new statemachine (id=" + event.getNewFiniteStateMachineId() + ") because device with id " + deviceId + " no longer exists");
             }
         }
@@ -124,8 +124,7 @@ public class StateMachineSwitcher implements MessageHandler {
             String stateNameBeforeSwitch = getStateName(device);
             try {
                 device.changeStateMachine(stateMachine.get(), Instant.ofEpochMilli(event.getNow()));
-            }
-            catch (AbstractEndDeviceImpl.StateNoLongerExistsException e) {
+            } catch (AbstractEndDeviceImpl.StateNoLongerExistsException e) {
                 this.logger.fine(() -> "Cannot switch to new statemachine (id=" + event.getNewFiniteStateMachineId() + ") for device with id " + device.getId() + " because state with name " + e.getStateName() + " has been removed since this was verified");
                 this.eventService.postEvent(
                         EventType.SWITCH_STATE_MACHINE_FAILED.topic(),
@@ -135,8 +134,7 @@ public class StateMachineSwitcher implements MessageHandler {
                                 event.getOldFiniteStateMachineId(),
                                 event.getNewFiniteStateMachineId()));
             }
-        }
-        else {
+        } else {
             this.logger.fine(() -> "Cannot switch to new statemachine (id=" + event.getNewFiniteStateMachineId() + ") for device with id " + device.getId() + " because statemachine no longer exists");
         }
     }
@@ -146,8 +144,7 @@ public class StateMachineSwitcher implements MessageHandler {
         Optional<State> stateBeforeSwitch = device.getState();
         if (stateBeforeSwitch.isPresent()) {
             stateName = stateBeforeSwitch.get().getName();
-        }
-        else {
+        } else {
             stateName = "Unknown";
         }
         return stateName;
@@ -180,7 +177,9 @@ public class StateMachineSwitcher implements MessageHandler {
 
     private Set<String> incompatibleStateNames(Instant effective, FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery) {
         SqlBuilder sqlBuilder = this.incompatibleStateNamesSqlBuilder(effective, oldStateMachine, newStateMachine, deviceAmrIdSubquery);
-        try (PreparedStatement statement = sqlBuilder.prepare(this.dataModel.getConnection(true))) {
+
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = sqlBuilder.prepare(connection)) {
             try (ResultSet resultSet = statement.executeQuery()) {
                 Set<String> incompatibleStateNames = new HashSet<>();
                 while (resultSet.next()) {
@@ -188,8 +187,7 @@ public class StateMachineSwitcher implements MessageHandler {
                 }
                 return incompatibleStateNames;
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }
@@ -235,15 +233,15 @@ public class StateMachineSwitcher implements MessageHandler {
     public void publishEvents(Instant effective, FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery) {
         DestinationSpec destinationSpec = this.messageService.getDestinationSpec(SwitchStateMachineEvent.DESTINATION).get();
         Condition condition =
-                     where("status.interval").isEffective()
-                .and(where("status.state.finiteStateMachine").isEqualTo(oldStateMachine))
-                .and(ListOperator.IN.contains(deviceAmrIdSubquery, "amrId"));
+                where("status.interval").isEffective()
+                        .and(where("status.state.finiteStateMachine").isEqualTo(oldStateMachine))
+                        .and(ListOperator.IN.contains(deviceAmrIdSubquery, "amrId"));
         DecoratedStream.decorate(
                 this.dataModel
-                    .query(EndDevice.class, EndDeviceLifeCycleStatus.class, State.class)
-                    .select(condition)
-                    .stream()
-                    .map(EndDevice::getId))
+                        .query(EndDevice.class, EndDeviceLifeCycleStatus.class, State.class)
+                        .select(condition)
+                        .stream()
+                        .map(EndDevice::getId))
                 .partitionPer(this.batchSize)
                 .map(deviceIds -> new SwitchStateMachineEvent(effective.toEpochMilli(), oldStateMachine.getId(), newStateMachine.getId(), deviceIds))
                 .forEach(event -> event.publish(destinationSpec, this.jsonService));
