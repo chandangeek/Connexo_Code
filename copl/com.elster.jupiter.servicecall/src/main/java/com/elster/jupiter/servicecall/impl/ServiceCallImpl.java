@@ -306,5 +306,16 @@ public class ServiceCallImpl implements ServiceCall {
                 .flatMap(customPropertySet -> getExtensionFor(customPropertySet, additionalPrimaryKeyValues));
     }
 
-
+    @Override
+    public void update(PersistentDomainExtension<ServiceCall> extension, Object... additionalPrimaryKeyValues) {
+        CustomPropertySet customPropertySet = getType().getCustomPropertySets()
+                .stream()
+                .map(registeredCustomPropertySet -> registeredCustomPropertySet.getCustomPropertySet())
+                .filter(customSet -> customSet.getPersistenceSupport()
+                        .persistenceClass()
+                        .isAssignableFrom(extension.getClass()))
+                .findAny()
+                .orElseThrow(IllegalArgumentException::new);
+        customPropertySetService.setValuesFor(customPropertySet, this, extension, additionalPrimaryKeyValues);
+    }
 }

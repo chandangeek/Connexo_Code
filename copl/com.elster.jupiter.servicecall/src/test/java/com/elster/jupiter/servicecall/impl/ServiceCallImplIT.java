@@ -259,6 +259,40 @@ public class ServiceCallImplIT {
     }
 
     @Test
+    public void updateAServiceCall() {
+        MyPersistentExtension extension = new MyPersistentExtension();
+        extension.setValue(BigDecimal.valueOf(65456));
+
+        ServiceCall serviceCall = null;
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCall = serviceCallType.newServiceCall()
+                    .externalReference("external")
+                    .origin("CST")
+                    .targetObject(importSchedule)
+                    .extendedWith(extension)
+                    .create();
+            context.commit();
+        }
+
+        serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
+
+        extension = serviceCall.getExtensionFor(customPropertySet).get();
+
+        extension.setValue(BigDecimal.valueOf(1999));
+
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCall.update(extension);
+            context.commit();
+        }
+
+        serviceCall = serviceCallService.getServiceCall(serviceCall.getId()).get();
+
+        extension = serviceCall.getExtensionFor(customPropertySet).get();
+
+        assertThat(extension.getValue()).isEqualTo(BigDecimal.valueOf(1999));
+    }
+
+    @Test
     public void createAServiceCallWithAChild() {
         MyPersistentExtension parentExtension = new MyPersistentExtension();
         parentExtension.setValue(BigDecimal.valueOf(65456));

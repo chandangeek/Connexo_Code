@@ -68,4 +68,6 @@ public interface ServiceCall extends HasId {
     <T extends PersistentDomainExtension<ServiceCall>> CustomPropertySetValues getValuesFor(CustomPropertySet<ServiceCall, T> customPropertySet, Object... additionalPrimaryKeyValues);
 
     <T extends PersistentDomainExtension<ServiceCall>> Optional<T> getExtension(Class<T> extensionClass, Object... additionalPrimaryKeyValues);
+
+    void update(PersistentDomainExtension<ServiceCall> extension, Object... additionalPrimaryKeyValues);
 }
