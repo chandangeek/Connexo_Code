@@ -9,6 +9,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
 import com.elster.jupiter.servicecall.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
