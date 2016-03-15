@@ -54,6 +54,7 @@ public class LocationMemberImpl implements LocationMember {
                             boolean defaultLocation,
                             String locale) {
 
+        this.location.set(location);
         this.countryCode = countryCode;
         this.countryName = countryName;
         this.administrativeArea = administrativeArea;
@@ -177,6 +178,25 @@ public class LocationMemberImpl implements LocationMember {
     @Override
     public Location getLocation() {
         return location.get();
+    }
+
+    void doSave() {
+        if (hasId()) {
+            dataModel.mapper(LocationMember.class).update(this);
+            return;
+        }
+        dataModel.mapper(LocationMember.class).persist(this);
+    }
+
+    private boolean hasId() {
+        return location==null?false:location.get().getId() != 0L;
+    }
+
+    @Override
+    public void remove() {
+        if (hasId()) {
+            dataModel.mapper(LocationMember.class).remove(this);
+        }
     }
 
 

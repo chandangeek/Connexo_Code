@@ -17,6 +17,8 @@ import java.util.Optional;
 @ProviderType
 public interface MeteringService {
     String COMPONENTNAME = "MTR";
+    String LOCATION_TEMPLATE = "com.elster.jupiter.location.template";
+    String LOCATION_TEMPLATE_MANDATORY_FIELDS = "com.elster.jupiter.location.template.mandatoryfields";
 
     ServiceLocationBuilder newServiceLocation();
 
@@ -148,5 +150,6 @@ public interface MeteringService {
     Optional<Location> findUsagePointLocation(String mRID);
     Optional<Location> findUsagePointLocation(long id);
     Query<LocationMember> getLocationMemberQuery();
+    void createLocationTemplate();
 
 }

@@ -263,4 +263,12 @@ public class InstallerImpl {
         }
     }
 
+    private void createLocationTemplate(){
+        meteringService.createLocationTemplate();
+    }
+
+    public void addDefaultData(){
+        createLocationTemplate();
+    }
+
 }

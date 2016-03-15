@@ -48,6 +48,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -88,6 +89,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     private volatile boolean createAllReadingTypes;
     private volatile String[] requiredReadingTypes;
+    private volatile LocationTemplate locationTemplate = new LocationTemplateImpl(dataModel);
 
     public MeteringServiceImpl() {
         this.createAllReadingTypes = true;
@@ -111,7 +113,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         setJsonService(jsonService);
         setFiniteStateMachineService(finiteStateMachineService);
         setCustomPropertySetService(customPropertySetService);
-        activate();
+        activate(null);
         if (!dataModel.isInstalled()) {
             install();
         }
@@ -159,7 +161,9 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         } catch (Exception e) {
             e.printStackTrace();
         }
-        new InstallerImpl(this, idsService, partyService, userService, eventService, thesaurus, messageService, createAllReadingTypes, requiredReadingTypes, clock).install();
+        InstallerImpl installer = new InstallerImpl(this, idsService, partyService, userService, eventService, thesaurus, messageService, createAllReadingTypes, requiredReadingTypes, clock);
+        installer.install();
+        installer.addDefaultData();
     }
 
     @Override
@@ -357,7 +361,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Activate
-    public final void activate() {
+    public final void activate(BundleContext context) {
+
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -376,6 +381,16 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 bind(MetrologyConfigurationService.class).to(MetrologyConfigurationServiceImpl.class);
             }
         });
+
+        if (!dataModel.isInstalled() && context != null && locationTemplate !=null) {
+            locationTemplate
+                    .parseTemplate(context.getProperty(LOCATION_TEMPLATE).trim(),
+                            context.getProperty(LOCATION_TEMPLATE_MANDATORY_FIELDS).trim());
+        }else if(dataModel.isInstalled() && getLocationTemplate().isPresent()){
+                locationTemplate = getLocationTemplate().get();
+                locationTemplate
+                        .parseTemplate(locationTemplate.getLocationTemplate(),locationTemplate.getMandatoryFields());
+        }
     }
 
     @Deactivate
@@ -657,7 +672,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
 
     @Override
-    public Optional<Location> findLocation(long id){
+    public Optional<Location> findLocation(long id) {
         return dataModel.mapper(Location.class).getOptional(id);
     }
 
@@ -687,6 +702,19 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     public Query<LocationMember> getLocationMemberQuery() {
         QueryExecutor<?> executor = dataModel.query(LocationMember.class);
         return queryService.wrap((QueryExecutor<LocationMember>) executor);
+    }
+
+    @Override
+    public void createLocationTemplate(){
+        LocationTemplateImpl.from(dataModel,locationTemplate.getLocationTemplate(),locationTemplate.getMandatoryFields() ).doSave();
+    }
+
+    public Optional<LocationTemplate> getLocationTemplate() {
+        List<LocationTemplate> template = new ArrayList<>(dataModel.mapper(LocationTemplate.class).find());
+        if (!template.isEmpty()) {
+            return Optional.of(template.get(0));
+        }
+        return Optional.empty();
     }
 
 }

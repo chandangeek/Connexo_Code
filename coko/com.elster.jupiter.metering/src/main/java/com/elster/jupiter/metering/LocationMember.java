@@ -18,5 +18,5 @@ public interface LocationMember {
     String getAddressDetail();
     String getZipCode();
     boolean isDefaultLocation();
-
+    void remove();
 }
