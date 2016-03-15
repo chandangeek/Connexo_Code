@@ -5,6 +5,8 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.whiteboard.ReferenceInfo;
+import com.elster.jupiter.rest.whiteboard.ReferenceResolver;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
@@ -24,11 +26,13 @@ public class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
 
     private final Thesaurus thesaurus;
     private final PropertyUtils propertyUtils;
+    private final ReferenceResolver referenceResolver;
 
     @Inject
-    public ServiceCallInfoFactoryImpl(Thesaurus thesaurus, PropertyUtils propertyUtils) {
+    public ServiceCallInfoFactoryImpl(Thesaurus thesaurus, PropertyUtils propertyUtils, ReferenceResolver referenceResolver) {
         this.thesaurus = thesaurus;
         this.propertyUtils = propertyUtils;
+        this.referenceResolver = referenceResolver;
     }
 
     @Override
@@ -47,7 +51,8 @@ public class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
         serviceCallInfo.origin = serviceCall.getOrigin().isPresent() ? serviceCall.getOrigin().get() : null;
         serviceCallInfo.externalReference = serviceCall.getExternalReference()
                 .isPresent() ? serviceCall.getExternalReference().get() : null;
-//        targetObject = serviceCall.getTargetObject().isPresent() ? serviceCall.getTargetObject().get() : null;
+        Optional<ReferenceInfo> referenceInfo = serviceCall.getTargetObject().isPresent() ? referenceResolver.resolve(serviceCall.getTargetObject().get()) : Optional.empty();
+        serviceCallInfo.targetObject = referenceInfo.isPresent() ? referenceInfo.get() : null;
         addCustomPropertySetInfos(serviceCall, serviceCallInfo);
         addParents(serviceCallInfo, serviceCall.getParent());
         addChildrenInfo(serviceCallInfo, childrenInformation);

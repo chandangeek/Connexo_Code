@@ -104,14 +104,4 @@ public class ServiceCallResource {
 
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
-
-    @PUT
-    @Path("/{id}/cancel")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.CHANGE_SERVICE_CALL_STATE)
-    public Response cancelServiceCall(@PathParam("id") long number) {
-        serviceCallService.getServiceCall(number).ifPresent(ServiceCall::cancel);
-        return Response.status(Response.Status.OK).build();
-    }
-
 }
