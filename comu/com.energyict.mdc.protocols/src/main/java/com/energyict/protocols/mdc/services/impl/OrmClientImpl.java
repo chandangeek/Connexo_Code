@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.sql.Blob;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -54,7 +55,9 @@ public class OrmClientImpl implements OrmClient {
         Object cacheObject = null;
         SqlBuilder builder = new SqlBuilder("select content from ces_devicecache where deviceid =");
         builder.addInt(deviceId);
-        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(true))) {
+
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement stmnt = builder.prepare(connection)) {
             InputStream in;
             try (ResultSet resultSet = stmnt.executeQuery()) {
                 if (resultSet.next()) {
@@ -63,15 +66,13 @@ public class OrmClientImpl implements OrmClient {
                         in = blob.getBinaryStream();
                         try (ObjectInputStream ois = new ObjectInputStream(in)) {
                             cacheObject = ois.readObject();
-                        }
-                        catch (ClassNotFoundException e) {
+                        } catch (ClassNotFoundException e) {
                             LOGGER.log(Level.SEVERE, e.getMessage(), e);
                         }
                     }
                 }
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
         return cacheObject;
@@ -87,8 +88,7 @@ public class OrmClientImpl implements OrmClient {
                     updateCacheContent(deviceId, cacheObject);
                 }
             });
-        }
-        catch (LocalSQLException e) {
+        } catch (LocalSQLException e) {
             throw e.getCause();
         }
     }
@@ -99,7 +99,9 @@ public class OrmClientImpl implements OrmClient {
     private void createOrUpdateDeviceCache(final int deviceId) {
         SqlBuilder builder = new SqlBuilder("select content from ces_devicecache where deviceid =");
         builder.addInt(deviceId);
-        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(true))) {
+
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement stmnt = builder.prepare(connection)) {
             try (ResultSet rs = stmnt.executeQuery()) {
                 if (!rs.next()) {
                     builder = new SqlBuilder("insert into ces_devicecache (deviceid, content, modTime) values (");
@@ -107,13 +109,12 @@ public class OrmClientImpl implements OrmClient {
                     builder.append(",empty_blob(),");
                     builder.addLong(this.clock.instant().toEpochMilli());
                     builder.append(")");
-                    try (PreparedStatement insertStmnt = builder.prepare(this.dataModel.getConnection(true))) {
+                    try (PreparedStatement insertStmnt = builder.prepare(connection)) {
                         insertStmnt.executeUpdate();
                     }
                 }
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new LocalSQLException(e);
         }
     }
@@ -125,7 +126,9 @@ public class OrmClientImpl implements OrmClient {
         SqlBuilder builder = new SqlBuilder("select content from ces_devicecache where deviceid =");
         builder.addInt(deviceId);
         builder.append("for update");
-        try (PreparedStatement stmnt = builder.prepare(this.dataModel.getConnection(true))) {
+
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement stmnt = builder.prepare(connection)) {
             ResultSet rs = stmnt.executeQuery();
             if (!rs.next()) {
                 throw new LocalSQLException(new SQLException("Record not found"));
@@ -135,16 +138,13 @@ public class OrmClientImpl implements OrmClient {
                 ObjectOutputStream out = new ObjectOutputStream(blob.setBinaryStream(0L));
                 out.writeObject(cacheObject);
                 out.close();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 throw new LocalSQLException(new SQLException("Underlying IOException", e));
-            }
-            finally {
+            } finally {
                 rs.close();
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new LocalSQLException(e);
         }
     }
@@ -154,7 +154,9 @@ public class OrmClientImpl implements OrmClient {
         int result;
         SqlBuilder sqlBuilder = new SqlBuilder("SELECT confprogchange FROM eisdlms WHERE rtuid =");
         sqlBuilder.addInt(deviceId);
-        try (PreparedStatement statement = sqlBuilder.prepare(this.dataModel.getConnection(true))) {
+
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = sqlBuilder.prepare(connection)) {
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (!resultSet.next()) {
                     throw new NotFoundException("ERROR: No device record found!");
@@ -173,12 +175,10 @@ public class OrmClientImpl implements OrmClient {
     public void setConfProgChange(final int deviceId, final int confProgChange) throws SQLException {
         try {
             this.createConfProgChange(deviceId, confProgChange);
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             if (isIntegrityConstraintViolation(e)) {
                 this.updateConfProgChange(deviceId, confProgChange);
-            }
-            else {
+            } else {
                 throw e;
             }
         }
@@ -190,7 +190,9 @@ public class OrmClientImpl implements OrmClient {
         sqlBuilder.append(",");
         sqlBuilder.addInt(confProgChange);
         sqlBuilder.append(")");
-        try (PreparedStatement statement = sqlBuilder.prepare(this.dataModel.getConnection(true))) {
+
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = sqlBuilder.prepare(connection)) {
             statement.executeUpdate();
         }
     }
@@ -200,7 +202,9 @@ public class OrmClientImpl implements OrmClient {
         sqlBuilder.addInt(confProgChange);
         sqlBuilder.append("where rtuid=");
         sqlBuilder.addInt(deviceId);
-        try (PreparedStatement statement = sqlBuilder.prepare(this.dataModel.getConnection(true))) {
+
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = sqlBuilder.prepare(connection)) {
             statement.executeUpdate();
         }
     }
@@ -210,7 +214,9 @@ public class OrmClientImpl implements OrmClient {
         List<UniversalObject> universalObjects = new ArrayList<>();
         SqlBuilder sqlBuilder = new SqlBuilder("select logicaldevice,longname,shortname,classid,version,associationlevel,objectdescription from eisdlmscache where rtuid =");
         sqlBuilder.addInt(deviceId);
-        try (PreparedStatement statement = sqlBuilder.prepare(this.dataModel.getConnection(true))) {
+
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = sqlBuilder.prepare(connection)) {
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     UniversalObject universalObject = new UniversalObject(UniversalObject.getSNObjectListEntrySize());
@@ -224,8 +230,7 @@ public class OrmClientImpl implements OrmClient {
         }
         if (universalObjects.isEmpty()) {
             return null;
-        }
-        else {
+        } else {
             return universalObjects.toArray(new UniversalObject[universalObjects.size()]);
         }
     }
@@ -235,12 +240,10 @@ public class OrmClientImpl implements OrmClient {
         for (UniversalObject universalObject : universalObjects) {
             try {
                 this.createUniversalObject(deviceId, universalObject);
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 if (isIntegrityConstraintViolation(e)) {
                     this.updateUniversalObject(deviceId, universalObject);
-                }
-                else {
+                } else {
                     throw e;
                 }
             }
@@ -271,7 +274,9 @@ public class OrmClientImpl implements OrmClient {
         sqlBuilder.append(",0,");
         sqlBuilder.addObject(objectDescription);
         sqlBuilder.append(")");
-        try (PreparedStatement statement = sqlBuilder.prepare(this.dataModel.getConnection(true))) {
+
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = sqlBuilder.prepare(connection)) {
             statement.executeUpdate();
         }
     }
@@ -301,7 +306,9 @@ public class OrmClientImpl implements OrmClient {
         sqlBuilder.addInt(deviceId);
         sqlBuilder.append("and longname=");
         sqlBuilder.addObject(longname);
-        try (PreparedStatement statement = sqlBuilder.prepare(this.dataModel.getConnection(true))) {
+
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = sqlBuilder.prepare(connection)) {
             statement.executeUpdate();
         }
     }
