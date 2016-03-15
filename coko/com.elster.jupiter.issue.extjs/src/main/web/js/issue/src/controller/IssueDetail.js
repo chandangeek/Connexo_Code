@@ -12,7 +12,6 @@ Ext.define('Isu.controller.IssueDetail', {
     showOverview: function (id) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            filter = me.getStore('Isu.store.Clipboard').get('latest-issues-filter'),
             queryString = Uni.util.QueryString.getQueryStringValues(false),
             issueType = queryString.issueType,
             store = me.getStore('Isu.store.Issues'),

@@ -132,6 +132,7 @@ Ext.define('Isu.controller.IssuesOverview', {
     showPreview: function (selectionModel, record) {
         var preview = this.getPreview();
         Ext.getStore('Isu.store.Clipboard').set('issue', record);
+        Ext.getStore('Isu.store.Clipboard').set('latest-issues-filter', Uni.util.QueryString.getQueryStringValues(false));
         Ext.suspendLayouts();
         preview.loadRecord(record);
         preview.down('issues-action-menu').record = record;
