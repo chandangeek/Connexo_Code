@@ -6,6 +6,10 @@ import java.util.Locale;
 
 public interface IThesaurus extends Thesaurus {
 
+    String getComponent();
+
     Locale getLocale();
+
+    void invalidate();
 
 }

@@ -1,7 +1,8 @@
 package com.elster.jupiter.nls;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.exception.MessageSeed;
+
+import aQute.bnd.annotation.ProviderType;
 
 import javax.validation.MessageInterpolator;
 import java.time.format.DateTimeFormatter;
@@ -30,22 +31,14 @@ public interface Thesaurus extends MessageInterpolator {
 
     String getString(Locale locale, String key, String defaultMessage);
 
-    //
-	// we could add (mainly for the maintenance app)
-	//
-//	NlsKey getTranslations(Locale local) ; TODO : meta information calls
-
-	String getComponent();
-
 	NlsMessageFormat getFormat(MessageSeed seed);
 
 	NlsMessageFormat getFormat(TranslationKey key);
-
-    void addTranslations(Iterable<? extends Translation> translations);
 
     Map<String, String> getTranslations();
 
     Thesaurus join(Thesaurus thesaurus);
 
     DateTimeFormatter forLocale(DateTimeFormatter dateTimeFormatter);
+
 }

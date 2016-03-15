@@ -2,11 +2,9 @@ package com.elster.jupiter.nls.impl;
 
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -15,8 +13,11 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.NestedTransactionException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
+
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -34,11 +35,17 @@ import javax.validation.metadata.ConstraintDescriptor;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.nls", service = {NlsService.class, InstallService.class}, property = {"name=" + NlsService.COMPONENTNAME, "osgi.command.scope=nls", "osgi.command.function=addTranslation"})
 public class NlsServiceImpl implements NlsService, InstallService {
@@ -56,6 +63,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
     private volatile boolean installed = false;
 
     private final Object translationLock = new Object();
+    private final Map<Pair<String, Layer>, IThesaurus> thesauri = new HashMap<>();
 
     @Activate
     public final void activate() {
@@ -88,7 +96,14 @@ public class NlsServiceImpl implements NlsService, InstallService {
 
     @Override
     public Thesaurus getThesaurus(String componentName, Layer layer) {
-        return dataModel.getInstance(ThesaurusImpl.class).init(componentName, layer);
+        ThesaurusImpl thesaurus = dataModel.getInstance(ThesaurusImpl.class).init(componentName, layer);
+        thesauri.put(Pair.of(componentName, layer), thesaurus);
+        return thesaurus;
+    }
+
+    @Override
+    public TranslationBuilder translate(NlsKey key) {
+        return new TranslationBuilderImpl(key);
     }
 
     @Reference
@@ -228,25 +243,30 @@ public class NlsServiceImpl implements NlsService, InstallService {
     public void addTranslation(String componentName, String layerName, String key, String defaultMessage) {
         try {
             Layer layer = Layer.valueOf(layerName);
-            Thesaurus thesaurus = getThesaurus(componentName, layer);
-            SimpleNlsKey nlsKey = SimpleNlsKey.key(componentName, layer, key).defaultMessage(defaultMessage);
-            Translation translation = SimpleTranslation.translation(nlsKey, Locale.ENGLISH, defaultMessage);
-            thesaurus.addTranslations(Collections.singletonList(translation));
+            dataModel.mapper(NlsKeyImpl.class).persist(newNlsKey(componentName, layer, key, defaultMessage));
+            invalidate(componentName, layer);
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
         }
     }
 
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Collections.singletonList("ORM");
-    }
-
     // Published as a gogo command
     @SuppressWarnings("unused")
     public void addTranslation(Object... args) {
         System.out.println("Usage : \n\n addTranslation componentName layerName key defaultMessage");
+    }
+
+    private NlsKeyImpl newNlsKey(String component, Layer layer, String key, String defaultFormat) {
+        NlsKeyImpl nlsKey = dataModel.getInstance(NlsKeyImpl.class).init(component, layer, key);
+        nlsKey.setDefaultMessage(defaultFormat);
+        nlsKey.add(Locale.ENGLISH, defaultFormat);
+        return nlsKey;
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Collections.singletonList("ORM");
     }
 
     @Override
@@ -257,6 +277,20 @@ public class NlsServiceImpl implements NlsService, InstallService {
                     interpolationContext(violation),
                     threadPrincipalService.getLocale());
         }
+    }
+
+    @Override
+    public void copy(NlsKey key, String targetComponent, Layer targetLayer, Function<String, String> keyMapper) {
+        NlsKeyImpl newKey = this.newNlsKey(targetComponent, targetLayer, keyMapper.apply(key.getKey()), key.getDefaultMessage());
+        Condition condition = where("nlsKey.componentName").isEqualTo(key.getComponent())
+                .and(where("nlsKey.layer").isEqualTo(key.getLayer()))
+                .and(where("nlsKey.key").isEqualTo(key.getKey()));
+        this.dataModel
+                .stream(NlsEntry.class).join(NlsKey.class)
+                .filter(condition)
+                .forEach(entry -> newKey.add(entry.getLocale(), entry.getTranslation()));
+        this.dataModel.mapper(NlsKey.class).persist(newKey);
+        this.invalidate(targetComponent, targetLayer);
     }
 
     private String interpolate(String messageTemplate) {
@@ -306,6 +340,11 @@ public class NlsServiceImpl implements NlsService, InstallService {
         return parameter.substring(1, parameter.length() - 1);
     }
 
+    private void invalidate(String component, Layer layer) {
+        Optional.ofNullable(thesauri.get(Pair.of(component, layer)))
+                .ifPresent(IThesaurus::invalidate);
+    }
+
     private MessageInterpolator.Context interpolationContext(final ConstraintViolation<?> violation) {
         return new MessageInterpolator.Context() {
 
@@ -324,6 +363,31 @@ public class NlsServiceImpl implements NlsService, InstallService {
                 return violation.getConstraintDescriptor();
             }
         };
+    }
+
+    private final class TranslationBuilderImpl implements TranslationBuilder {
+        private final NlsKey key;
+
+        private final Map<Locale, String> translations = new HashMap<>();
+
+        private TranslationBuilderImpl(NlsKey key) {
+            this.key = key;
+        }
+
+        @Override
+        public TranslationBuilder to(Locale locale, String translation) {
+            translations.put(locale, translation);
+            return this;
+        }
+        @Override
+        public void add() {
+            NlsKeyImpl nlsKey = dataModel.mapper(NlsKeyImpl.class).getOptional(key.getComponent(), key.getLayer(), key.getKey())
+                    .orElseGet(() -> newNlsKey(key.getComponent(), key.getLayer(), key.getKey(), key.getDefaultMessage()));
+            translations.forEach(nlsKey::add);
+            nlsKey.save();
+            invalidate(key.getComponent(), key.getLayer());
+        }
+
     }
 
 }

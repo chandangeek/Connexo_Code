@@ -3,9 +3,9 @@ package com.elster.jupiter.nls.impl;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
@@ -46,11 +46,6 @@ public class NlsModule extends AbstractModule {
         }
 
         @Override
-        public String getComponent() {
-            return "";
-        }
-
-        @Override
         public NlsMessageFormat getFormat(MessageSeed seed) {
             return new FakeNlsMessageFormat(seed);
         }
@@ -58,10 +53,6 @@ public class NlsModule extends AbstractModule {
         @Override
         public NlsMessageFormat getFormat(TranslationKey key) {
             return new FakeNlsMessageFormat(key);
-        }
-
-        @Override
-        public void addTranslations(Iterable<? extends Translation> translations) {
         }
 
         @Override
@@ -92,11 +83,11 @@ public class NlsModule extends AbstractModule {
         private static class FakeNlsMessageFormat implements NlsMessageFormat {
             private final String defaultFormat;
 
-            public FakeNlsMessageFormat(MessageSeed seed) {
+            FakeNlsMessageFormat(MessageSeed seed) {
                 this.defaultFormat = seed.getDefaultFormat();
             }
 
-            public FakeNlsMessageFormat(TranslationKey key) {
+            FakeNlsMessageFormat(TranslationKey key) {
                 this.defaultFormat = key.getDefaultFormat();
             }
 
@@ -111,4 +102,5 @@ public class NlsModule extends AbstractModule {
             }
         }
     }
+
 }
