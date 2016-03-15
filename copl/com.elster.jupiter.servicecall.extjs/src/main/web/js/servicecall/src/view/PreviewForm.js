@@ -63,7 +63,7 @@ Ext.define('Scs.view.PreviewForm', {
                                 if(Uni.util.Application.getAppName() === 'MultiSense') {
                                     return '<a href="' + this.router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(value.key)}) + '">' + Ext.String.htmlEncode(value.key) + '</a>';
                                 } else {
-                                    return value.key;
+                                    return Ext.String.htmlEncode(value.key);
                                 }
                             } else if (value.type === 'com.elster.jupiter.metering.UsagePoint') {
                                 if(Uni.util.Application.getAppName() === 'MdmApp') {
