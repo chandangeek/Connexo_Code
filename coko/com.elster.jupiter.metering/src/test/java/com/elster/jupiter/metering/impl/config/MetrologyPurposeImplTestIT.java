@@ -5,7 +5,9 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.orm.Table;
@@ -124,5 +126,31 @@ public class MetrologyPurposeImplTestIT {
                 .withName("normal name")
                 .withDescription(longDescription)
                 .create();
+    }
+
+    @Test
+    @Transactional
+    public void testCanDeleteMetrologyPurpose() {
+        MetrologyPurpose metrologyPurpose = inMemoryBootstrapModule.getMetrologyConfigurationService().createMetrologyPurpose()
+                .withName("name")
+                .withDescription("description")
+                .create();
+        metrologyPurpose.delete();
+
+        assertThat(inMemoryBootstrapModule.getMetrologyConfigurationService().findMetrologyPurpose(metrologyPurpose.getId()).isPresent()).isFalse();
+    }
+
+    @Test(expected = MetrologyPurposeDeletionFail.class)
+    @Transactional
+    public void testCanNotDeleteMetrologyPurposeInUse() {
+        MetrologyPurpose metrologyPurpose = inMemoryBootstrapModule.getMetrologyConfigurationService().createMetrologyPurpose()
+                .withName("name")
+                .withDescription("description")
+                .create();
+        MetrologyConfiguration metrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newMetrologyConfiguration("config",
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get()).create();
+        metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose);
+
+        metrologyPurpose.delete();
     }
 }
