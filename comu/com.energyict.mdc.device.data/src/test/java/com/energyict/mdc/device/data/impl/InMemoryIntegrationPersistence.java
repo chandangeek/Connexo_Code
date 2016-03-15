@@ -29,7 +29,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -302,10 +301,14 @@ public class InMemoryIntegrationPersistence {
     }
 
     private void initializePrivileges() {
-        ((PrivilegesProvider)deviceConfigurationService).getModuleResources().stream()
-                .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
-        ((PrivilegesProvider)deviceDataModelService).getModuleResources().stream()
-                .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
+        ((PrivilegesProvider) deviceConfigurationService).getModuleResources().stream()
+                .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames()
+                        .stream()
+                        .toArray(String[]::new)));
+        ((PrivilegesProvider) deviceDataModelService).getModuleResources().stream()
+                .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames()
+                        .stream()
+                        .toArray(String[]::new)));
     }
 
     private void initializeMocks(String testName) {
@@ -468,24 +471,23 @@ public class InMemoryIntegrationPersistence {
     }
 
     public int update(SqlBuilder sqlBuilder) throws SQLException {
-        try (PreparedStatement statement = sqlBuilder.getStatement(this.dataModel.getConnection(true))) {
+
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = sqlBuilder.getStatement(connection)) {
             return statement.executeUpdate();
         }
     }
 
     public String update(String sql) {
-        try {
-            Connection connection = this.dataModel.getConnection(true);
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                int numberOfRows = statement.executeUpdate();
-                return "Updated " + numberOfRows + " row(s).";
-            } catch (SQLException e) {
-                StringWriter stringWriter = new StringWriter();
-                e.printStackTrace(new PrintWriter(stringWriter));
-                return stringWriter.toString();
-            }
+
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            int numberOfRows = statement.executeUpdate();
+            return "Updated " + numberOfRows + " row(s).";
         } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
+            StringWriter stringWriter = new StringWriter();
+            e.printStackTrace(new PrintWriter(stringWriter));
+            return stringWriter.toString();
         }
     }
 
@@ -507,7 +509,7 @@ public class InMemoryIntegrationPersistence {
         }
     }
 
-    public User getMockedUser(){
+    public User getMockedUser() {
         return this.principal;
     }
 
@@ -531,7 +533,7 @@ public class InMemoryIntegrationPersistence {
         return batchService;
     }
 
-    public DeviceConfigConflictMappingHandler getDeviceConfigConflictMappingHandler(){
+    public DeviceConfigConflictMappingHandler getDeviceConfigConflictMappingHandler() {
         return injector.getInstance(DeviceConfigConflictMappingHandler.class);
     }
 

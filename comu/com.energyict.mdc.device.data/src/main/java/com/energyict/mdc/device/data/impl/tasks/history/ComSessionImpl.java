@@ -1,5 +1,13 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.HasLastComSession;
@@ -18,17 +26,10 @@ import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.LiteralSql;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -44,7 +45,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Provides an implementation for the {@link ComSession} interface.
- * <p/>
+ * <p>
  * User: sva
  * Date: 10/05/12
  * Time: 15:31
@@ -176,8 +177,8 @@ public class ComSessionImpl implements ComSession {
     public Finder<ComTaskExecutionJournalEntry> getCommunicationTaskJournalEntries(Set<ComServer.LogLevel> levels) {
         return DefaultFinder.of(
                 ComTaskExecutionJournalEntry.class,
-                         where("comTaskExecutionSession.comSession").isEqualTo(this)
-                    .and(where("logLevel").in(new ArrayList<>(levels))),
+                where("comTaskExecutionSession.comSession").isEqualTo(this)
+                        .and(where("logLevel").in(new ArrayList<>(levels))),
                 this.dataModel,
                 ComTaskExecutionSession.class).
                 defaultSortColumn("timestamp desc");
@@ -202,7 +203,9 @@ public class ComSessionImpl implements ComSession {
         sqlBuilder.append(") order by timestamp desc");
         sqlBuilder.asPageBuilder(start, start + pageSize - 1);
         List<CombinedLogEntry> logEntries = new ArrayList<>();
-        try (PreparedStatement statement = sqlBuilder.prepare(this.dataModel.getConnection(true))) {
+
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = sqlBuilder.prepare(connection)) {
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     int discriminator = resultSet.getInt(1);
@@ -222,8 +225,7 @@ public class ComSessionImpl implements ComSession {
                     }
                 }
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
         return logEntries;
@@ -373,8 +375,7 @@ public class ComSessionImpl implements ComSession {
             HasLastComSession connectionTaskAsHasLastComSession = (HasLastComSession) this.connectionTaskService.findConnectionTask(this.connectionTask.get().getId()).get();
             connectionTaskAsHasLastComSession.sessionCreated(this);
             this.comTaskExecutionSessions.forEach(this::notifyCreated);
-        }
-        else {
+        } else {
             this.dataModel.mapper(ComSession.class).update(this);
         }
     }
@@ -394,12 +395,12 @@ public class ComSessionImpl implements ComSession {
     }
 
     private void calculateStatus() {
-        this.status =  this.getSuccessIndicator().equals(SuccessIndicator.Success)
-                    && this.isZero(this.getNumberOfFailedTasks())
-                    && this.isZero(this.getNumberOfPlannedButNotExecutedTasks());
+        this.status = this.getSuccessIndicator().equals(SuccessIndicator.Success)
+                && this.isZero(this.getNumberOfFailedTasks())
+                && this.isZero(this.getNumberOfPlannedButNotExecutedTasks());
     }
 
-    private boolean isZero (int aCounter) {
+    private boolean isZero(int aCounter) {
         return aCounter == 0;
     }
 
@@ -423,10 +424,10 @@ public class ComSessionImpl implements ComSession {
 
         private ComSessionJournalEntryAsCombinedLogEntry(ResultSet resultSet) throws SQLException {
             this(
-                Instant.ofEpochMilli(resultSet.getLong(2)),
-                ComServer.LogLevel.values()[resultSet.getInt(3)],
-                resultSet.getString(4),
-                resultSet.getString(7));
+                    Instant.ofEpochMilli(resultSet.getLong(2)),
+                    ComServer.LogLevel.values()[resultSet.getInt(3)],
+                    resultSet.getString(4),
+                    resultSet.getString(7));
         }
 
         private ComSessionJournalEntryAsCombinedLogEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, String stacktrace) {
@@ -465,10 +466,10 @@ public class ComSessionImpl implements ComSession {
 
         private ComCommandJournalEntryAsCombinedLogEntry(ResultSet resultSet) throws SQLException {
             this(
-                Instant.ofEpochMilli(resultSet.getLong(2)),
-                ComServer.LogLevel.values()[resultSet.getInt(3)],
-                resultSet.getString(4),
-                CompletionCode.values()[resultSet.getInt(6)]);
+                    Instant.ofEpochMilli(resultSet.getLong(2)),
+                    ComServer.LogLevel.values()[resultSet.getInt(3)],
+                    resultSet.getString(4),
+                    CompletionCode.values()[resultSet.getInt(6)]);
         }
 
         private ComCommandJournalEntryAsCombinedLogEntry(Instant timestamp, ComServer.LogLevel logLevel, String commandDescription, CompletionCode completionCode) {
@@ -497,8 +498,7 @@ public class ComSessionImpl implements ComSession {
         public String getErrorDetail() {
             if (CompletionCode.Ok.equals(this.completionCode)) {
                 return "";
-            }
-            else {
+            } else {
                 return this.completionCode.name();    // Todo: needs translation
             }
         }
@@ -510,20 +510,20 @@ public class ComSessionImpl implements ComSession {
         private final String message;
         private final String errorDescription;
 
-        private ComTaskExecutionMessageJournalEntryAsCombinedLogEntry (ResultSet resultSet) throws SQLException {
+        private ComTaskExecutionMessageJournalEntryAsCombinedLogEntry(ResultSet resultSet) throws SQLException {
             this(
-                Instant.ofEpochMilli(resultSet.getLong(2)),
-                ComServer.LogLevel.values()[resultSet.getInt(3)],
-                resultSet.getString(5),
-                resultSet.getString(7));
-    }
+                    Instant.ofEpochMilli(resultSet.getLong(2)),
+                    ComServer.LogLevel.values()[resultSet.getInt(3)],
+                    resultSet.getString(5),
+                    resultSet.getString(7));
+        }
 
-    private ComTaskExecutionMessageJournalEntryAsCombinedLogEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, String errorDescription) {
-        this.timestamp = timestamp;
-        this.logLevel = logLevel;
-        this.message = message;
-        this.errorDescription = errorDescription;
-    }
+        private ComTaskExecutionMessageJournalEntryAsCombinedLogEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, String errorDescription) {
+            this.timestamp = timestamp;
+            this.logLevel = logLevel;
+            this.message = message;
+            this.errorDescription = errorDescription;
+        }
 
         @Override
         public Instant getTimestamp() {
