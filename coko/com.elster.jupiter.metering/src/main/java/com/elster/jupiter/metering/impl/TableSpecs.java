@@ -25,6 +25,7 @@ import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
@@ -36,6 +37,7 @@ import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsageImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
+import com.elster.jupiter.metering.impl.config.MetrologyContractImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeImpl;
 import com.elster.jupiter.metering.impl.config.PartiallySpecifiedReadingTypeAttributeValueImpl;
 import com.elster.jupiter.metering.impl.config.PartiallySpecifiedReadingTypeImpl;
@@ -1125,6 +1127,44 @@ public enum TableSpecs {
 
             table.primaryKey("MTR_METROLOGY_PURPOSE_PK").on(idColumn).add();
             table.unique("MTR_METROLOGY_PURPOSE_NAME_UQ").on(nameColumn).add();
+        }
+    },
+    MTR_METROLOGY_CONTRACT {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table table = dataModel.addTable(name(), MetrologyContract.class);
+            table.map(MetrologyContractImpl.class);
+
+            Column metrologyConfig = table
+                    .column(MetrologyContractImpl.Fields.METROLOGY_CONFIG.name())
+                    .number()
+                    .notNull()
+                    .add();
+            Column metrologyPurpose = table
+                    .column(MetrologyContractImpl.Fields.METROLOGY_PURPOSE.name())
+                    .number()
+                    .notNull()
+                    .add();
+            table.column(MetrologyContractImpl.Fields.MANDATORY.name())
+                    .bool()
+                    .notNull()
+                    .map(MetrologyContractImpl.Fields.MANDATORY.fieldName())
+                    .add();
+
+            table.primaryKey("MTR_METROLOGY_CONTRACT_PK").on(metrologyConfig, metrologyPurpose).add();
+            table.foreignKey("MTR_CONTRACT_TO_M_CONFIG")
+                    .references(MetrologyConfiguration.class)
+                    .on(metrologyConfig)
+                    .onDelete(CASCADE)
+                    .map(MetrologyContractImpl.Fields.METROLOGY_CONFIG.fieldName())
+                    .reverseMap(MetrologyConfigurationImpl.Fields.METROLOGY_CONTRACTS.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("MTR_CONTRACT_TO_M_PURPOSE")
+                    .references(MetrologyPurpose.class)
+                    .on(metrologyPurpose)
+                    .map(MetrologyContractImpl.Fields.METROLOGY_PURPOSE.fieldName())
+                    .add();
         }
     },
     ;

@@ -9,8 +9,10 @@ import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 
 import javax.inject.Inject;
+import javax.validation.constraints.Size;
 import java.util.Optional;
 
 public class MetrologyPurposeImpl implements MetrologyPurpose {
@@ -38,7 +40,9 @@ public class MetrologyPurposeImpl implements MetrologyPurpose {
 
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String description;
     private DefaultMetrologyPurpose defaultPurpose;
 

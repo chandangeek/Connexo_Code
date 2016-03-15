@@ -7,13 +7,13 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
-
-import java.util.Optional;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -21,6 +21,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.List;
+import java.util.Optional;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -96,5 +100,55 @@ public class MetrologyConfigurationCrudTest {
     public void testCreateMetrologyConfigurationWithNotUniqueName() {
         getMetrologyConfigurationService().newMetrologyConfiguration("dup1", getServiceCategory()).create();
         getMetrologyConfigurationService().newMetrologyConfiguration("dup1", getServiceCategory()).create();
+    }
+
+    @Test
+    @Transactional
+    public void testCanAddMetrologyContract() {
+        MetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newMetrologyConfiguration("config", getServiceCategory()).create();
+        MetrologyPurpose metrologyPurpose = getMetrologyConfigurationService()
+                .createMetrologyPurpose()
+                .fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
+        MetrologyContract metrologyContract = metrologyConfiguration.addMetrologyContract(metrologyPurpose);
+
+        assertThat(metrologyContract.isMandatory()).isFalse();
+        assertThat(metrologyContract.getMetrologyConfiguration()).isEqualTo(metrologyConfiguration);
+        assertThat(metrologyContract.getMetrologyPurpose()).isEqualTo(metrologyPurpose);
+        List<MetrologyContract> metrologyContracts = inMemoryBootstrapModule.getMeteringService().getDataModel().query(MetrologyContract.class)
+                .select(where(MetrologyContractImpl.Fields.METROLOGY_CONFIG.fieldName()).isEqualTo(metrologyConfiguration)
+                        .and(where(MetrologyContractImpl.Fields.METROLOGY_PURPOSE.fieldName()).isEqualTo(metrologyPurpose)));
+        assertThat(metrologyContracts).hasSize(1);
+        assertThat(metrologyContracts.get(0)).isEqualTo(metrologyContract);
+    }
+
+    @Test
+    @Transactional
+    public void testDoNotAddTheSameMetrologyContractTwice() {
+        MetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newMetrologyConfiguration("config", getServiceCategory()).create();
+        MetrologyPurpose metrologyPurpose = getMetrologyConfigurationService()
+                .createMetrologyPurpose()
+                .fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
+        metrologyConfiguration.addMetrologyContract(metrologyPurpose);
+        metrologyConfiguration.addMetrologyContract(metrologyPurpose);
+
+        assertThat(metrologyConfiguration.getContracts()).hasSize(1);
+    }
+
+    @Test
+    @Transactional
+    public void testCanRemoveMetrologyContract() {
+        MetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newMetrologyConfiguration("config", getServiceCategory()).create();
+        MetrologyPurpose metrologyPurpose = getMetrologyConfigurationService()
+                .createMetrologyPurpose()
+                .fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
+        MetrologyContract metrologyContract = metrologyConfiguration.addMetrologyContract(metrologyPurpose);
+        assertThat(metrologyConfiguration.getContracts()).hasSize(1);
+
+        metrologyConfiguration.removeMetrologyContract(metrologyContract);
+        assertThat(metrologyConfiguration.getContracts()).hasSize(0);
+        List<MetrologyContract> metrologyContracts = inMemoryBootstrapModule.getMeteringService().getDataModel().query(MetrologyContract.class)
+                .select(where(MetrologyContractImpl.Fields.METROLOGY_CONFIG.fieldName()).isEqualTo(metrologyConfiguration)
+                        .and(where(MetrologyContractImpl.Fields.METROLOGY_PURPOSE.fieldName()).isEqualTo(metrologyPurpose)));
+        assertThat(metrologyContracts).hasSize(0);
     }
 }

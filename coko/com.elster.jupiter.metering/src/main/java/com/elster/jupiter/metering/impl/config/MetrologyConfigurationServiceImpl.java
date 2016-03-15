@@ -31,8 +31,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -48,29 +46,17 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-15 (13:20)
  */
-@Component(
-        name = "com.elster.jupiter.metering.config.MetrologyConfigurationServiceImpl",
-        service = {MetrologyConfigurationService.class, InstallService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
-        property = {"name=" + MetrologyConfigurationService.COMPONENT_NAME},
-        immediate = false)
 public class MetrologyConfigurationServiceImpl implements MetrologyConfigurationService, InstallService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile ServerMeteringService meteringService;
     private volatile EventService eventService;
     private volatile UserService userService;
 
-    // For OSGi purposes
-    public MetrologyConfigurationServiceImpl() {
-        super();
-    }
-
     @Inject
     public MetrologyConfigurationServiceImpl(ServerMeteringService meteringService, EventService eventService, UserService userService) {
-        this();
-        setMeteringService(meteringService);
-        setEventService(eventService);
-        setUserService(userService);
-        install();
+        this.meteringService = meteringService;
+        this.eventService = eventService;
+        this.userService = userService;
     }
 
     @Override
@@ -123,21 +109,6 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
-    }
-
-    @Reference
-    public void setMeteringService(ServerMeteringService meteringService) {
-        this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setEventService(EventService eventService) {
-        this.eventService = eventService;
-    }
-
-    @Reference
-    public void setUserService(UserService userService) {
-        this.userService = userService;
     }
 
     DataModel getDataModel() {

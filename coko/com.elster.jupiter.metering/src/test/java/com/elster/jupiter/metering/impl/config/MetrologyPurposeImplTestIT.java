@@ -1,11 +1,14 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
+import com.elster.jupiter.orm.Table;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -13,7 +16,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -76,5 +82,47 @@ public class MetrologyPurposeImplTestIT {
                 .createMetrologyPurpose()
                 .fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
         assertThat(createdPurpose).isEqualTo(billingPurpose);
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    public void testCreateMetrologyPurposeWithoutName() {
+        inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createMetrologyPurpose()
+                .create();
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    public void testCreateMetrologyPurposeWithEmptyName() {
+        inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createMetrologyPurpose()
+                .withName("")
+                .create();
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    public void testCreateMetrologyPurposeWithTooLongName() {
+        String[] name = new String[Table.NAME_LENGTH + 1];
+        Arrays.fill(name, "a");
+        String longName = Stream.of(name).collect(Collectors.joining(""));
+        inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createMetrologyPurpose()
+                .withName(longName)
+                .create();
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "description", messageId = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    public void testCreateMetrologyPurposeWithTooLongDescription() {
+        String[] description = new String[Table.DESCRIPTION_LENGTH + 1];
+        Arrays.fill(description, "a");
+        String longDescription = Stream.of(description).collect(Collectors.joining(""));
+        inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createMetrologyPurpose()
+                .withName("normal name")
+                .withDescription(longDescription)
+                .create();
     }
 }

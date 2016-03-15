@@ -35,11 +35,19 @@ public interface MetrologyConfiguration extends HasId, HasName {
 
     List<MetrologyContract> getContracts();
 
+    MetrologyContract addMandatoryMetrologyContract(MetrologyPurpose metrologyPurpose);
+
+    MetrologyContract addMetrologyContract(MetrologyPurpose metrologyPurpose);
+
+    void removeMetrologyContract(MetrologyContract metrologyContract);
+
     List<ReadingTypeRequirement> getRequirements();
 
     FullySpecifiedReadingType addFullySpecifiedReadingTypeRequirement(String name, ReadingType readingType);
 
     PartiallySpecifiedReadingType addPartiallySpecifiedReadingTypeRequirement(String name, ReadingTypeTemplate readingTypeTemplate);
+
+    void removeReadingTypeRequirement(ReadingTypeRequirement readingTypeRequirement);
 
     List<ReadingTypeDeliverable> getDeliverables();
 
