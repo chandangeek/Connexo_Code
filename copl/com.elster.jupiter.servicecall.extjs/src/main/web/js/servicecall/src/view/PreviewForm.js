@@ -69,7 +69,7 @@ Ext.define('Scs.view.PreviewForm', {
                                 if(Uni.util.Application.getAppName() === 'MdmApp') {
                                     return '<a href="' + this.router.getRoute('usagepoints/view').buildUrl({mRID:  encodeURIComponent(value.key)}) + '">' + Ext.String.htmlEncode(value.key) + '</a>';
                                 } else {
-                                    return value.key;
+                                    return Ext.String.htmlEncode(value.key);
                                 }
                             } else {
                                 this.hide();
