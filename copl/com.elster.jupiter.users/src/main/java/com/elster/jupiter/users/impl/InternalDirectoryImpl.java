@@ -7,10 +7,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
-
-import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 public final class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
@@ -49,15 +46,11 @@ public final class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
             return found;
         }
 
-        if(checkPassword(found.get(), name, password)){
+        if (found.get().check(password)) {
             return found;
         }
 
         return Optional.empty();
-    }
-
-    private boolean checkPassword(User user, String name, String password) {
-        return new DigestHa1Util().createHa1(getDomain(), name, password).equals(user.getDigestHa1());
     }
 
     @Override

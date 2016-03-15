@@ -1,10 +1,14 @@
 package com.elster.jupiter.users;
 
+import com.elster.jupiter.util.HasName;
+
 import java.security.Principal;
 import java.time.Instant;
-import java.util.*;
-
-import com.elster.jupiter.util.HasName;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 public interface User extends Principal, HasName {
 
@@ -44,11 +48,12 @@ public interface User extends Principal, HasName {
 
     List<Group> getGroups();
 
-    /*
-     * Returns the Ha1 used in Digest Authentication for the given user,
-     * can be null if the user does not have interactive access
-     * 
+    /**
+     * Will throw an UnsupportedOperation
+     * @return null
+     * @deprecated will be removed in 10.2
      */
+    @Deprecated
     String getDigestHa1();
 
     void setPassword(String password);

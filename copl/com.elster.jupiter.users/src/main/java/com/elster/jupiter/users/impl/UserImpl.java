@@ -7,12 +7,22 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
+
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
-
+import java.security.SecureRandom;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,6 +36,7 @@ public final class UserImpl implements User {
     private String authenticationName;
     private String description;
     private String ha1;
+    private int salt;
     private long version;
     private boolean status;
     private Instant createTime;
@@ -51,15 +62,16 @@ public final class UserImpl implements User {
         return dataModel.getInstance(UserImpl.class).init(userDirectory, authenticationName, description, false);
     }*/
 
-    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, boolean allowPwdChange,boolean status) {
-        return from(dataModel, userDirectory, authenticationName, null, allowPwdChange,status);
+    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, boolean allowPwdChange, boolean status) {
+        return from(dataModel, userDirectory, authenticationName, null, allowPwdChange, status);
     }
 
-    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, String description, boolean allowPwdChange,boolean status) {
-        return dataModel.getInstance(UserImpl.class).init(userDirectory, authenticationName, description, allowPwdChange,status);
+    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, String description, boolean allowPwdChange, boolean status) {
+        return dataModel.getInstance(UserImpl.class)
+                .init(userDirectory, authenticationName, description, allowPwdChange, status);
     }
 
-    UserImpl init(UserDirectory userDirectory, String authenticationName, String description, boolean allowPwdChange,boolean status) {
+    UserImpl init(UserDirectory userDirectory, String authenticationName, String description, boolean allowPwdChange, boolean status) {
         validateAuthenticationName(authenticationName);
         this.status = status;
         this.userDirectory.set(userDirectory);
@@ -122,9 +134,9 @@ public final class UserImpl implements User {
         }
         UserInGroup membership = UserInGroup.from(dataModel, this, group);
         if (memberships != null) {
-        	memberships.add(membership);
+            memberships.add(membership);
         }
-        membership.persist();        
+        membership.persist();
         return true;
     }
 
@@ -139,7 +151,7 @@ public final class UserImpl implements User {
             if (group.equals(userInGroup.getGroup())) {
                 userInGroup.delete();
                 if (memberships != null) {
-                	memberships.remove(userInGroup);
+                    memberships.remove(userInGroup);
                 }
                 return true;
             }
@@ -148,12 +160,12 @@ public final class UserImpl implements User {
     }
 
     private List<UserInGroup> getMemberships() {
-    	if (memberships == null) {
-    		return dataModel.mapper(UserInGroup.class).find("user", this);
-    	}
-    	return memberships;
+        if (memberships == null) {
+            return dataModel.mapper(UserInGroup.class).find("user", this);
+        }
+        return memberships;
     }
-    
+
     @Override
     public List<Group> getGroups() {
         return userDirectory.get().getGroups(this);
@@ -164,12 +176,12 @@ public final class UserImpl implements User {
         ImmutableList.Builder<Group> builder = ImmutableList.builder();
         for (UserInGroup each : userInGroups) {
             builder.add(each.getGroup());
-           }
+        }
         return builder.build();
     }
 
     @Override
-    public long getUserDirectoryId(){
+    public long getUserDirectoryId() {
         return userDirectory.get().getId();
     }
 
@@ -233,27 +245,28 @@ public final class UserImpl implements User {
         return Objects.hash(id);
     }
 
-	@Override
-	public String getDigestHa1() {	
-		return ha1;
-	}
-	
-	@Override
-	public void setPassword(String password) {
-		password = Objects.requireNonNull(password);
-		if (password.length() < MINIMAL_PASSWORD_STRENGTH) {
-			throw new IllegalArgumentException("Password too weak");
-		}
-		ha1 = createHa1(password);
-	}
-	
-	private String createHa1(String password ) {
-        return new DigestHa1Util().createHa1(userDirectory.get().getDomain(), authenticationName, password);
-	}
+    @Override
+    public String getDigestHa1() {
+        throw new UnsupportedOperationException("Deprecated since 2.0");
+    }
 
-	@Override
-	public boolean check(String password) {
-        return !is(password).empty() && createHa1(password).equals(ha1);
+    @Override
+    public void setPassword(String password) {
+        password = Objects.requireNonNull(password);
+        if (password.length() < MINIMAL_PASSWORD_STRENGTH) {
+            throw new IllegalArgumentException("Password too weak");
+        }
+        salt = new SecureRandom().nextInt();
+        ha1 = createHa1(password, salt);
+    }
+
+    private String createHa1(String password, int salt) {
+        return new HashingUtil().createHash(password, salt);
+    }
+
+    @Override
+    public boolean check(String password) {
+        return !is(password).empty() && createHa1(password, salt).equals(ha1);
     }
 
     @Override
@@ -274,10 +287,10 @@ public final class UserImpl implements User {
         return getPrivileges(null);
     }
 
-    public Map<String, List<Privilege>> getApplicationPrivileges(){
+    public Map<String, List<Privilege>> getApplicationPrivileges() {
         Map<String, List<Privilege>> privileges = new HashMap<String, List<Privilege>>();
         List<Group> groups = getGroups();
-        for(Group group : groups){
+        for (Group group : groups) {
             Map<String, List<Privilege>> groupPrivileges = group.getPrivileges();
 
             privileges = Stream.of(groupPrivileges, privileges)
@@ -296,7 +309,7 @@ public final class UserImpl implements User {
     public Set<Privilege> getPrivileges(String applicationName) {
         Set<Privilege> privileges = new HashSet<>();
         List<Group> groups = getGroups();
-        for(Group group : groups){
+        for (Group group : groups) {
             privileges.addAll(group.getPrivileges(applicationName));
         }
 
@@ -309,12 +322,12 @@ public final class UserImpl implements User {
     }
 
     @Override
-    public boolean getStatus(){
+    public boolean getStatus() {
         return status;
     }
 
     @Override
-    public void setStatus(boolean status){
+    public void setStatus(boolean status) {
         this.status = status;
     }
 
