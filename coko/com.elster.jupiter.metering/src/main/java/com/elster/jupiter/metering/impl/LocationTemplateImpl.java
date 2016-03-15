@@ -17,7 +17,7 @@ public class LocationTemplateImpl implements LocationTemplate {
     private final DataModel dataModel;
     private final ImmutableList<String> ALLOWED_LOCATION_TEMPLATE_ELEMENTS =
             ImmutableList.of("#ccod", "#cnam", "#adma", "#loc", "#subloc",
-                    "#styp", "#snam", "#snum", "#etyp", "#enam", "#enum", "#addtl", "#zip");
+                    "#styp", "#snam", "#snum", "#etyp", "#enam", "#enum", "#addtl", "#zip", "locale");
 
     protected Map<String, String> templateMap() {
 
@@ -36,6 +36,7 @@ public class LocationTemplateImpl implements LocationTemplate {
                 put("#enum","establishmentNumber");
                 put("#addtl", "addressDetail");
                 put("#zip", "zipCode");
+                put("#locale", "locale");
 
             }
         });
