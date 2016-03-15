@@ -16,14 +16,14 @@ Ext.define('Mdc.controller.history.Setup', {
                     route: 'add',
                     controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
                     privileges: Mdc.privileges.UsagePoint.admin,
-                    disabled: Mdc.privileges.UsagePoint.checkApp('Admin'),
+                    disabled: Mdc.privileges.UsagePoint.checkApp('Insight'),
                     action: 'showAddUsagePoint'
                 },
                 usagepoint: {
                     title: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
                     privileges: Mdc.privileges.UsagePoint.view,
                     route: '{usagePointId}',
-                    disabled: Mdc.privileges.UsagePoint.checkApp('Admin'),
+                    disabled: Mdc.privileges.UsagePoint.checkApp('Insight'),
                     controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
                     action: 'showUsagePoint',
                     callback: function (route) {
@@ -40,7 +40,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: 'edit',
                             controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
                             privileges: Mdc.privileges.UsagePoint.admin,
-                            disabled: Mdc.privileges.UsagePoint.checkApp('Admin'),
+                            disabled: Mdc.privileges.UsagePoint.checkApp('Insight'),
                             action: 'showEditUsagePoint',
                             callback: function (route) {
                                 this.getApplication().on('editUsagePointLoaded', function (record) {
@@ -49,7 +49,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }, {single: true});
 
                                 return this;
-                            },
+                            }
                         },
                         startprocess: {
                             title: Uni.I18n.translate('usagePoint.startProcess', 'MDC', 'Start process'),

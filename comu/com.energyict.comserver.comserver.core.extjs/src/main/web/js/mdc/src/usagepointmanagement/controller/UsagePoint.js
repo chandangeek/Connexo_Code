@@ -47,15 +47,12 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
                 me.getApplication().fireEvent('usagePointLoaded', record);
                 var widget = Ext.widget('usage-point-management-setup', {router: router, mRID: record.get('mRID')});
                 widget.down('usagePointAttributesFormMain').loadRecord(record);
-                me.loadMeterActivations(id);
                 serviceCategories.load({
                     callback: function () {
                         me.getApplication().fireEvent('changecontentevent', widget);
+                        me.loadMeterActivations(id);
                     }
                 });
-            },
-            callback: function () {
-                pageMainContent.setLoading(false);
             }
         });
     },
@@ -79,9 +76,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
                                 cls: 'x-form-display-field',
                                 autoEl: {
                                     tag: 'a',
-                                    //href: '#/devices/' + item.get('meter').mRID,
                                     href: router.getRoute('devices/device').buildUrl({mRID: item.get('meter').mRID}),
-                                    //href: '/apps/insight/index.html',
                                     html: item.get('meter').mRID,
                                     itemId: 'up-device-link'
                                 }
@@ -102,9 +97,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
                                 cls: 'x-form-display-field',
                                 autoEl: {
                                     tag: 'a',
-                                    //href: '#/devices/' + item.get('meter').mRID,
                                     href: router.getRoute('devices/device').buildUrl({mRID: item.get('meter').mRID}),
-                                    //href: '/apps/insight/index.html',
                                     html: item.get('meter').mRID
                                 }
                             },
@@ -127,7 +120,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
-
+        me.usagePoint = null;
         pageMainContent.setLoading(true);
         var widget = Ext.widget('add-usage-point-setup', {router: router, edit: false});
         me.getApplication().fireEvent('changecontentevent', widget);
@@ -171,8 +164,6 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
             usagePointModel = me.usagePoint || Ext.create('Mdc.usagepointmanagement.model.UsagePoint');
         me.getAddUsagePointPanel().down('#add-edit-form').updateRecord(usagePointModel);
 
-
-        viewport.setLoading(true);
         me.getAddUsagePointPanel().down('#add-edit-form').getForm().clearInvalid();
         usagePointModel.save({
             success: function (record) {
@@ -193,9 +184,6 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
                         }
                     }
                 }
-            },
-            callback: function () {
-                viewport.setLoading(false);
             }
         })
     }

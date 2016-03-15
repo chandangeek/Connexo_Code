@@ -31,7 +31,7 @@ Ext.define('Mdc.privileges.UsagePoint', {
     },
 
     checkAdminWithInsight: function(){
-        var app = 'Admin';
+        var app = 'Insight';
         return (!Uni.store.Apps.checkApp(app) && Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.admin));
     },
 
