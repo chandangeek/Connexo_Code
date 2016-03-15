@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Clock;
+import java.time.Instant;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -29,9 +30,15 @@ public class UsagePointInfo {
         mRID = usagePoint.getMRID();
         serviceCategory = usagePoint.getServiceCategory().getKind();
         name = usagePoint.getName();
-        installationTime = usagePoint.getInstallationTime().getEpochSecond();
+        installationTime = usagePoint.getInstallationTime().toEpochMilli();
         version = usagePoint.getVersion();
         createTime = usagePoint.getCreateDate().toEpochMilli();
         modTime = usagePoint.getModificationDate().toEpochMilli();
+    }
+
+    public void writeTo(UsagePoint usagePoint) {
+        usagePoint.setName(this.name);
+        usagePoint.setInstallationTime(Instant.ofEpochMilli(this.installationTime));
+        usagePoint.update();
     }
 }

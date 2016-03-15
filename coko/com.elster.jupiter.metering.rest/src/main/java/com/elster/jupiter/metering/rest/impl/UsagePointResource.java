@@ -71,13 +71,27 @@ public class UsagePointResource {
         return securityContext.isUserInRole(Privileges.Constants.VIEW_ANY_USAGEPOINT);
     }
 
+//    @PUT
+//    @RolesAllowed({Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+//    @Path("/{id}")
+//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+//    public UsagePointInfos updateUsagePoint(@PathParam("id") long id, UsagePointInfo info, @Context SecurityContext securityContext) {
+//        info.id = id;
+//        throw new UnsupportedOperationException("not implemented yet");
+//    }
+
     @PUT
+    @Path("/{mRID}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public UsagePointInfos updateUsagePoint(@PathParam("id") long id, UsagePointInfo info, @Context SecurityContext securityContext) {
-        info.id = id;
-        throw new UnsupportedOperationException("not implemented yet");
+    @Transactional
+    public UsagePointInfo updateUsagePoint(@PathParam("mRID") String mRID, UsagePointInfo info) {
+        UsagePoint usagePoint = meteringService.findAndLockUsagePointByIdAndVersion(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> meteringService.findUsagePoint(mRID).map(UsagePoint::getVersion).orElse(Long.valueOf(0)))
+                        .supplier());
+        info.writeTo(usagePoint);
+        return usagePointInfoFactory.from(usagePoint);
     }
 
     @GET
@@ -100,9 +114,11 @@ public class UsagePointResource {
 
         new RestValidationBuilder()
                 .notEmpty(info.mRID, "mRID")
-                .notEmpty(info.installationTime, "installationTime")
                 .notEmpty(info.serviceCategory, "serviceCategory")
                 .validate();
+        if (info.installationTime == null) {
+            info.installationTime = Instant.now().toEpochMilli();
+        }
         UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
         return new UsagePointInfo(usagePoint, clock);
     }

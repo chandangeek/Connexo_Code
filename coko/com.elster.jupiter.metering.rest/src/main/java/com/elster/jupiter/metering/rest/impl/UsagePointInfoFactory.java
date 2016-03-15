@@ -52,9 +52,9 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     @Override
-    public Object from(UsagePoint usagePoint) {
+    public UsagePointTranslatedInfo from(UsagePoint usagePoint) {
         UsagePointTranslatedInfo info = new UsagePointTranslatedInfo(usagePoint, clock);
-        info.displayServiceCategory = usagePoint.getServiceCategory().getKind().getDisplayName(valueThesaurus);
+        info.displayServiceCategory = usagePoint.getServiceCategory().getKind().getDisplayName(thesaurus);
         return info;
     }
 
