@@ -61,13 +61,13 @@ Ext.define('Scs.view.PreviewForm', {
                         renderer: function (value) {
                             if(value.type === 'com.energyict.mdc.device.Device') {
                                 if(Uni.util.Application.getAppName() === 'MultiSense') {
-                                    return '<a href="' + this.router.getRoute('devices/device').buildUrl({mRID: Ext.urlEncode(value.key)}) + '">' + Ext.String.htmlEncode(value.key) + '</a>';
+                                    return '<a href="' + this.router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(value.key)}) + '">' + Ext.String.htmlEncode(value.key) + '</a>';
                                 } else {
                                     return value.key;
                                 }
                             } else if (value.type === 'com.elster.jupiter.metering.UsagePoint') {
                                 if(Uni.util.Application.getAppName() === 'MdmApp') {
-                                    return '<a href="' + this.router.getRoute('usagepoints/view').buildUrl({mRID:  Ext.urlEncode(value.key)}) + '">' + Ext.String.htmlEncode(value.key) + '</a>';
+                                    return '<a href="' + this.router.getRoute('usagepoints/view').buildUrl({mRID:  encodeURIComponent(value.key)}) + '">' + Ext.String.htmlEncode(value.key) + '</a>';
                                 } else {
                                     return value.key;
                                 }
