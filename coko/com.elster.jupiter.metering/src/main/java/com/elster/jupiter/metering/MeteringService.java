@@ -151,5 +151,6 @@ public interface MeteringService {
     Optional<Location> findUsagePointLocation(long id);
     Query<LocationMember> getLocationMemberQuery();
     void createLocationTemplate();
+    LocationTemplate getLocationTemplate();
 
 }

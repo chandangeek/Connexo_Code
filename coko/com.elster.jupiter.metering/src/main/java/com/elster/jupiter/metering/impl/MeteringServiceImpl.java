@@ -52,7 +52,6 @@ import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.swing.text.html.Option;
 import javax.validation.MessageInterpolator;
 import javax.validation.constraints.NotNull;
 import java.time.Clock;
@@ -386,8 +385,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             locationTemplate
                     .parseTemplate(context.getProperty(LOCATION_TEMPLATE).trim(),
                             context.getProperty(LOCATION_TEMPLATE_MANDATORY_FIELDS).trim());
-        }else if(dataModel.isInstalled() && getLocationTemplate().isPresent()){
-                locationTemplate = getLocationTemplate().get();
+        }else if(dataModel.isInstalled() && getLocationTemplateFromDB().isPresent()){
+                locationTemplate = getLocationTemplateFromDB().get();
                 locationTemplate
                         .parseTemplate(locationTemplate.getLocationTemplate(),locationTemplate.getMandatoryFields());
         }
@@ -709,7 +708,12 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         LocationTemplateImpl.from(dataModel,locationTemplate.getLocationTemplate(),locationTemplate.getMandatoryFields() ).doSave();
     }
 
-    public Optional<LocationTemplate> getLocationTemplate() {
+    @Override
+    public LocationTemplate getLocationTemplate(){
+        return locationTemplate;
+    }
+
+    public Optional<LocationTemplate> getLocationTemplateFromDB() {
         List<LocationTemplate> template = new ArrayList<>(dataModel.mapper(LocationTemplate.class).find());
         if (!template.isEmpty()) {
             return Optional.of(template.get(0));
