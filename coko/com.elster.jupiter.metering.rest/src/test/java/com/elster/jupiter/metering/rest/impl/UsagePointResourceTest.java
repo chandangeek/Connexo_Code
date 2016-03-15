@@ -54,7 +54,6 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
         when(usagePoint.getCreateDate()).thenReturn(Instant.EPOCH);
         when(usagePoint.getModificationDate()).thenReturn(Instant.EPOCH);
 
-
     }
 
     @Test
@@ -85,6 +84,12 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
         verify(usagePoint, times(1)).setName("upd");
         verify(usagePoint, times(1)).setInstallationTime(any(Instant.class));
         verify(usagePoint, times(1)).update();
+    }
+
+    @Test
+    public void testUsagePointRemoving() {
+        Response response = target("usagepoints/MRID").request().delete();
+        assertThat(response.getStatus()).isEqualTo(200);
     }
 
 }

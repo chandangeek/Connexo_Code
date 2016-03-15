@@ -70,14 +70,6 @@ public class UsagePointResource {
         return securityContext.isUserInRole(Privileges.Constants.VIEW_ANY_USAGEPOINT);
     }
 
-//    @PUT
-//    @RolesAllowed({Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-//    @Path("/{id}")
-//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-//    public UsagePointInfos updateUsagePoint(@PathParam("id") long id, UsagePointInfo info, @Context SecurityContext securityContext) {
-//        info.id = id;
-//        throw new UnsupportedOperationException("not implemented yet");
-//    }
 
     @PUT
     @Path("/{mRID}")
@@ -104,10 +96,24 @@ public class UsagePointResource {
         return result;
     }
 
+    @DELETE
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Path("/{mRID}")
+    @Transactional
+    public Response deleteUsagePoint(@PathParam("mRID") String mRID) {
+        Optional<UsagePoint> usagePoint = meteringService.findUsagePoint(mRID);
+        if (usagePoint.isPresent()) {
+            usagePoint.get().delete();
+            return Response.status(Response.Status.OK).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+    }
+
     @POST
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public Response createUsagePoint(UsagePointInfo info) {
         new RestValidationBuilder()
