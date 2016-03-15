@@ -121,7 +121,7 @@ public class UsagePointResource {
                 .notEmpty(info.serviceCategory, "serviceCategory")
                 .validate();
         if (info.installationTime == null) {
-            info.installationTime = Instant.now().toEpochMilli();
+            info.installationTime = clock.instant().toEpochMilli();
         }
         UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
         return Response.status(Response.Status.CREATED).entity(usagePointInfoFactory.from(usagePoint)).build();
