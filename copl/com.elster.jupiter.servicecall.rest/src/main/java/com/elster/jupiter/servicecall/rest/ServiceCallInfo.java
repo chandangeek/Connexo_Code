@@ -3,7 +3,8 @@ package com.elster.jupiter.servicecall.rest;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.whiteboard.ReferenceInfo;
-
+import com.elster.jupiter.servicecall.rest.impl.ServiceCallCustomPropertySetInfo;
+import com.elster.jupiter.servicecall.rest.impl.ServiceCallChildrenInfo;
 import java.util.List;
 
 public class ServiceCallInfo {
