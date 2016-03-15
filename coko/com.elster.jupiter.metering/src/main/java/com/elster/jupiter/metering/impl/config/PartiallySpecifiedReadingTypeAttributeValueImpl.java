@@ -63,7 +63,7 @@ public class PartiallySpecifiedReadingTypeAttributeValueImpl implements SelfObje
                 .stream()
                 .filter(attrName -> attrName.getName() == getName())
                 .findAny()
-                .orElseThrow(() -> new IllegalStateException("ReadingTypeTemplate missed " + getName()));
+                .orElseThrow(() -> new IllegalStateException("ReadingTypeTemplate has missed " + getName()));
         List<Integer> attributePossibleValues = templateAttribute.getPossibleValues();
         if (!isCodeInAttributePossibleValues(attributePossibleValues)
                 || !isCodeInSystemPossibleValues(templateAttribute, attributePossibleValues)) {

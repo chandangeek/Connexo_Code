@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -29,6 +30,8 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingTypeTemplate> readingTypeTemplate = ValueReference.absent();
     private List<PartiallySpecifiedReadingTypeAttributeValueImpl> overriddenAttributes = new ArrayList<>(ReadingTypeTemplateAttributeName.values().length);
+
+    private Collection<Function<ReadingType, Boolean>> attributeMatchers;
 
     @Inject
     public PartiallySpecifiedReadingTypeImpl(DataModel dataModel) {
@@ -49,12 +52,15 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
 
     @Override
     public boolean matches(ReadingType candidate) {
-        Map<ReadingTypeTemplateAttributeName, Function<ReadingType, Boolean>> attributeMatchers = getReadingTypeTemplate().getAttributes()
-                .stream()
-                .collect(Collectors.toMap(ReadingTypeTemplateAttribute::getName, this::getMatcherWithSystemPossibleValues));
-        this.overriddenAttributes.stream().forEach(attr -> attributeMatchers.put(attr.getName(),
-                rt -> ReadingTypeTemplateAttributeName.getReadingTypeAttributeCode(attr.getName().getDefinition(), rt) == attr.getCode()));
-        return attributeMatchers.values().stream().allMatch(matcher -> matcher.apply(candidate));
+        if (this.attributeMatchers == null) {
+            Map<ReadingTypeTemplateAttributeName, Function<ReadingType, Boolean>> attributeMatchersMap = getReadingTypeTemplate().getAttributes()
+                    .stream()
+                    .collect(Collectors.toMap(ReadingTypeTemplateAttribute::getName, this::getMatcherWithSystemPossibleValues));
+            this.overriddenAttributes.stream().forEach(attr -> attributeMatchersMap.put(attr.getName(),
+                    rt -> ReadingTypeTemplateAttributeName.getReadingTypeAttributeCode(attr.getName().getDefinition(), rt) == attr.getCode()));
+            this.attributeMatchers = attributeMatchersMap.values();
+        }
+        return this.attributeMatchers.stream().allMatch(matcher -> matcher.apply(candidate));
     }
 
     private Function<ReadingType, Boolean> getMatcherWithSystemPossibleValues(ReadingTypeTemplateAttribute attribute) {
@@ -83,6 +89,7 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
         this.overriddenAttributes.remove(value);
         this.overriddenAttributes.add(value);
         touch();
+        this.attributeMatchers = null;
         return this;
     }
 
@@ -94,6 +101,7 @@ public class PartiallySpecifiedReadingTypeImpl extends ReadingTypeRequirementImp
                 if (itr.next().getName() == name) {
                     itr.remove();
                     touch();
+                    this.attributeMatchers = null;
                     return this;
                 }
             }
