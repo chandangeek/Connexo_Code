@@ -59,6 +59,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -103,6 +104,7 @@ public class DeviceResource {
     private final DeviceInfoFactory deviceInfoFactory;
     private final DeviceAttributesInfoFactory deviceAttributesInfoFactory;
     private final DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory;
+    private final ServiceCallInfoFactory serviceCallInfoFactory;
     private final TransactionService transactionService;
     private final ServiceCallService serviceCallService;
 
@@ -137,7 +139,7 @@ public class DeviceResource {
             DeviceInfoFactory deviceInfoFactory,
             DeviceAttributesInfoFactory deviceAttributesInfoFactory,
             DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory,
-            TransactionService transactionService,
+            ServiceCallInfoFactory serviceCallInfoFactory, TransactionService transactionService,
             ServiceCallService serviceCallService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
@@ -168,6 +170,7 @@ public class DeviceResource {
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceAttributesInfoFactory = deviceAttributesInfoFactory;
         this.devicesForConfigChangeSearchFactory = devicesForConfigChangeSearchFactory;
+        this.serviceCallInfoFactory = serviceCallInfoFactory;
         this.transactionService = transactionService;
         this.serviceCallService = serviceCallService;
     }
@@ -625,6 +628,27 @@ public class DeviceResource {
     @Path("/{mRID}/transitions")
     public DeviceLifeCycleActionResource getDeviceLifeCycleActionsResource() {
         return deviceLifeCycleActionResourceProvider.get();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("{mRID}/servicecalls")
+    public PagedInfoList getServiceCallsFor(@PathParam("mRID") String mrid,  @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
+        Set<DefaultState> states = new HashSet<>();
+        states.add(DefaultState.CREATED);
+        states.add(DefaultState.SCHEDULED);
+        states.add(DefaultState.PENDING);
+        states.add(DefaultState.PAUSED);
+        states.add(DefaultState.ONGOING);
+        states.add(DefaultState.WAITING);
+
+        serviceCallService.findServiceCalls(device, states)
+                .stream()
+                .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
+
+        return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
 
     @PUT

@@ -49,6 +49,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
@@ -171,6 +172,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     CustomPropertySetService customPropertySetService;
     @Mock
     MdcReadingTypeUtilService mdcReadingTypeUtilService;
+    @Mock
+    ServiceCallService serviceCallService;
 
     @Before
     public void setup() {
@@ -232,6 +235,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setLoadProfileService(loadProfileService);
         application.setDeviceMessageService(deviceMessageService);
         application.setCustomPropertySetService(customPropertySetService);
+        application.setServiceCallService(serviceCallService);
         return application;
     }
 
