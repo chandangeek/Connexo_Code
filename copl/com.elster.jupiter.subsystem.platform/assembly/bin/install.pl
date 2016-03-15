@@ -52,7 +52,7 @@ my $TOMCAT_SHUTDOWN_PORT="8006";
 my $TOMCAT_AJP_PORT, my $TOMCAT_SSH_PORT, my $TOMCAT_DAEMON_PORT;
 
 my $CONNEXO_ADMIN_ACCOUNT="admin";
-my $CONNEXO_ADMIN_PASSWORD="admin";
+my $CONNEXO_ADMIN_PASSWORD;
 my $TOMCAT_ADMIN_PASSWORD="D3moAdmin";
 
 
@@ -138,6 +138,8 @@ sub read_config {
             if ( "$row" ne "") {
                 my @val=split('=',$row);
                 if ( "$val[0]" eq "JAVA_HOME" )         {$JAVA_HOME=$val[1];}
+                if ( "$val[0]" eq "HOST_NAME" )         {$HOST_NAME=$val[1];}
+                if ( "$val[0]" eq "ADMIN_PASSWORD" )    {$CONNEXO_ADMIN_PASSWORD=$val[1];}
                 if ( "$val[0]" eq "CONNEXO_HTTP_PORT" ) {$CONNEXO_HTTP_PORT=$val[1];}
                 if ( "$val[0]" eq "TOMCAT_HTTP_PORT" )  {$TOMCAT_HTTP_PORT=$val[1];}
                 if ( "$val[0]" eq "SERVICE_VERSION" )   {$SERVICE_VERSION=$val[1];}
@@ -174,6 +176,12 @@ sub read_config {
         print "Please enter the path to your JAVA_HOME (leave empty to use the system variable): ";
         chomp($JAVA_HOME=<STDIN>);
         check_java8();
+        print "Please enter the hostname (leave empty to use the system variable): ";
+        chomp($HOST_NAME=<STDIN>);
+        while ("$CONNEXO_ADMIN_PASSWORD" eq "") {
+            print "Please enter the admin password: ";
+            chomp($CONNEXO_ADMIN_PASSWORD=<STDIN>);
+        }
 						    
         print "Do you want to install Connexo: (yes/no)";
         chomp($INSTALL_CONNEXO=<STDIN>);
@@ -256,7 +264,13 @@ sub read_config {
         $TOMCAT_SSH_PORT=$TOMCAT_HTTP_PORT+7;
         $TOMCAT_DAEMON_PORT=$TOMCAT_HTTP_PORT+8;
     }
-    $HOST_NAME=hostname;
+    if ("$HOST_NAME" eq "") {
+        $HOST_NAME=hostname;
+    }
+    if ("$CONNEXO_ADMIN_PASSWORD" eq "") {
+        print "Please provide an admin password\n";
+        exit (0);
+    }
     $CONNEXO_URL="http://$HOST_NAME:$CONNEXO_HTTP_PORT";
 }
 
@@ -327,7 +341,7 @@ sub install_connexo {
 		print "\n\nInstalling Connexo database schema ...\n";
 		print "==========================================================================\n";
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
-			system("\"$SCRIPT_DIR/Connexo.exe\" --install");
+			system("\"$SCRIPT_DIR/Connexo.exe\" --install $CONNEXO_ADMIN_PASSWORD");
 			if ("$CONNEXO_SERVICE" eq "yes") {
 				system("\"$SCRIPT_DIR/ConnexoService.exe\" /install Connexo$SERVICE_VERSION");
 			}
@@ -761,7 +775,7 @@ sub start_tomcat {
 			replace_in_file("$CONNEXO_DIR/datasource.xml",'\${instance}',"$FACTS_DB_NAME");
 
 			chdir "$CONNEXO_DIR";
-			system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Facts content failed: $?";
+            system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Facts content failed: $?";
 			unlink("$CONNEXO_DIR/datasource.xml");
 		}
 
