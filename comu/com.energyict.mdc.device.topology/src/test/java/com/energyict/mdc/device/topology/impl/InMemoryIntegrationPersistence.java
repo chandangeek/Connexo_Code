@@ -25,7 +25,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -177,32 +176,32 @@ public class InMemoryIntegrationPersistence {
                 new MeteringModule(
 //                        ,"0.0.0.0.0.41.92.0.0.0.0.0.0.0.0.0.114.0"
                         "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0"
-                        ,"0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"
-                        ,"0.0.0.1.1.7.58.0.0.0.0.0.0.0.0.0.167.0"
-                        ,"0.0.0.1.1.7.58.0.0.0.0.0.0.0.0.0.42.0"
-                        ,"0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"
-                        ,"0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"
-                        ,"0.0.0.1.1.9.58.0.0.0.0.0.0.0.0.0.42.0"
-                        ,"0.0.0.12.0.3.109.0.0.0.0.0.0.0.0.0.109.0"
-                        ,"0.0.0.12.0.41.109.0.0.0.0.0.0.0.0.0.109.0"
-                        ,"0.0.0.12.0.41.118.0.0.0.0.0.0.0.0.0.109.0"
-                        ,"0.0.0.12.0.41.139.0.0.0.0.0.0.0.0.0.109.0"
-                        ,"0.0.0.12.0.7.46.0.0.0.0.0.0.0.0.0.23.0"
-                        ,"0.0.0.12.0.7.46.0.0.0.0.0.0.0.0.0.279.0"
-                        ,"0.0.0.12.0.7.46.0.0.0.0.0.0.0.0.0.6.0"
-                        ,"0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0"
-                        ,"0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.3.72.0"
-                        ,"0.0.0.9.1.1.12.0.0.0.0.2.0.0.0.0.72.0"
-                        ,"0.0.0.9.1.1.12.0.0.0.0.2.0.0.0.3.72.0"
-                        ,"0.0.0.9.19.1.12.0.0.0.0.1.0.0.0.0.72.0"
-                        ,"0.0.0.9.19.1.12.0.0.0.0.1.0.0.0.3.72.0"
-                        ,"0.0.0.9.19.1.12.0.0.0.0.2.0.0.0.0.72.0"
-                        ,"0.0.0.9.19.1.12.0.0.0.0.2.0.0.0.3.72.0"
-                        ,"0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.107.0"
-                        ,"0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.125.0"
-                        ,"0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.126.0"
-                        ,"0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.39.0"
-                        ,"0.2.0.6.0.9.58.0.0.0.0.0.0.0.0.0.125.0"
+                        , "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"
+                        , "0.0.0.1.1.7.58.0.0.0.0.0.0.0.0.0.167.0"
+                        , "0.0.0.1.1.7.58.0.0.0.0.0.0.0.0.0.42.0"
+                        , "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"
+                        , "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"
+                        , "0.0.0.1.1.9.58.0.0.0.0.0.0.0.0.0.42.0"
+                        , "0.0.0.12.0.3.109.0.0.0.0.0.0.0.0.0.109.0"
+                        , "0.0.0.12.0.41.109.0.0.0.0.0.0.0.0.0.109.0"
+                        , "0.0.0.12.0.41.118.0.0.0.0.0.0.0.0.0.109.0"
+                        , "0.0.0.12.0.41.139.0.0.0.0.0.0.0.0.0.109.0"
+                        , "0.0.0.12.0.7.46.0.0.0.0.0.0.0.0.0.23.0"
+                        , "0.0.0.12.0.7.46.0.0.0.0.0.0.0.0.0.279.0"
+                        , "0.0.0.12.0.7.46.0.0.0.0.0.0.0.0.0.6.0"
+                        , "0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0"
+                        , "0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.3.72.0"
+                        , "0.0.0.9.1.1.12.0.0.0.0.2.0.0.0.0.72.0"
+                        , "0.0.0.9.1.1.12.0.0.0.0.2.0.0.0.3.72.0"
+                        , "0.0.0.9.19.1.12.0.0.0.0.1.0.0.0.0.72.0"
+                        , "0.0.0.9.19.1.12.0.0.0.0.1.0.0.0.3.72.0"
+                        , "0.0.0.9.19.1.12.0.0.0.0.2.0.0.0.0.72.0"
+                        , "0.0.0.9.19.1.12.0.0.0.0.2.0.0.0.3.72.0"
+                        , "0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.107.0"
+                        , "0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.125.0"
+                        , "0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.126.0"
+                        , "0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.39.0"
+                        , "0.2.0.6.0.9.58.0.0.0.0.0.0.0.0.0.125.0"
                 ),
                 new MeteringGroupsModule(),
                 new SearchModule(),
@@ -365,24 +364,21 @@ public class InMemoryIntegrationPersistence {
     }
 
     public int update(SqlBuilder sqlBuilder) throws SQLException {
-        try (PreparedStatement statement = sqlBuilder.getStatement(this.dataModel.getConnection(true))) {
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = sqlBuilder.getStatement(connection)) {
             return statement.executeUpdate();
         }
     }
 
     public String update(String sql) {
-        try {
-            Connection connection = this.dataModel.getConnection(true);
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                int numberOfRows = statement.executeUpdate();
-                return "Updated " + numberOfRows + " row(s).";
-            } catch (SQLException e) {
-                StringWriter stringWriter = new StringWriter();
-                e.printStackTrace(new PrintWriter(stringWriter));
-                return stringWriter.toString();
-            }
+        try (Connection connection = this.dataModel.getConnection(true);
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            int numberOfRows = statement.executeUpdate();
+            return "Updated " + numberOfRows + " row(s).";
         } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
+            StringWriter stringWriter = new StringWriter();
+            e.printStackTrace(new PrintWriter(stringWriter));
+            return stringWriter.toString();
         }
     }
 
@@ -404,7 +400,7 @@ public class InMemoryIntegrationPersistence {
         }
     }
 
-    public User getMockedUser(){
+    public User getMockedUser() {
         return (User) this.principal;
     }
 
