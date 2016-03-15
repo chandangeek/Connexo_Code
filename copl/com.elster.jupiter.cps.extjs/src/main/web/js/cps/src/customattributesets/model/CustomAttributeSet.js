@@ -9,6 +9,7 @@ Ext.define('Cps.customattributesets.model.CustomAttributeSet', {
         {name: 'id', type: 'int', useNull: true},
         {name: 'name', type: 'string'},
         {name: 'domainName', type: 'string'},
+        {name: 'domainNameUntranslated', type: 'string'},
         {name: 'isRequired', type: 'boolean'},
         {name: 'isVersioned', type: 'boolean'},
         {name: 'viewPrivileges', type: 'auto'},
@@ -20,14 +21,22 @@ Ext.define('Cps.customattributesets.model.CustomAttributeSet', {
             name: 'viewPrivilegesString',
             persist: false,
             mapping: function (data) {
-                return Uni.util.LevelMap.getPrivilegesString(data.viewPrivileges);
+                if(data.domainNameUntranslated !== 'com.elster.jupiter.servicecall.ServiceCall') {
+                    return Uni.util.LevelMap.getPrivilegesString(data.viewPrivileges);
+                } else {
+                    return '';
+                }
             }
         },
         {
             name: 'editPrivilegesString',
             persist: false,
             mapping: function (data) {
-                return Uni.util.LevelMap.getPrivilegesString(data.editPrivileges);
+                if(data.domainNameUntranslated !== 'com.elster.jupiter.servicecall.ServiceCall') {
+                    return Uni.util.LevelMap.getPrivilegesString(data.editPrivileges);
+                } else {
+                    return ''
+                }
             }
         }
     ],

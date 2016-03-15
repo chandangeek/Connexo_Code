@@ -91,10 +91,20 @@ Ext.define('Cps.customattributesets.controller.AttributeSets', {
             attributesStore = attributesGrid.getStore();
 
         Ext.suspendLayouts();
+        me.setupMenuItems(record);
         attributesGridPanel.setTitle(Uni.I18n.translate('customattributesets.attributesof', 'CPS', 'Attributes of \'{0}\'', [Ext.String.htmlEncode(record.get('name'))]));
         attributesStore.removeAll();
         attributesStore.add(Cps.customattributesets.service.AttributeTransformer.transform(record.get('properties')));
         Ext.resumeLayouts();
+    },
+
+    setupMenuItems: function (record) {
+        var menuItems = Ext.ComponentQuery.query('custom-attribute-sets-action-menu #custom-attribute-sets-edit-levels');
+        if (!Ext.isEmpty(menuItems)) {
+            Ext.Array.each(menuItems, function (item) {
+                item.setVisible(record.get('domainNameUntranslated') !== 'com.elster.jupiter.servicecall.ServiceCall')
+            });
+        }
     },
 
     showCustomAttributeSets: function () {

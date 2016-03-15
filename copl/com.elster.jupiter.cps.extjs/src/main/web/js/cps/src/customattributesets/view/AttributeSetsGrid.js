@@ -58,6 +58,13 @@ Ext.define('Cps.customattributesets.view.AttributeSetsGrid', {
                 menu: {
                     xtype: 'custom-attribute-sets-action-menu',
                     itemId: 'custom-attribute-sets-action-menu-id'
+                },
+                renderer: function (value, metaData, record) {
+                    if(record.get('domainNameUntranslated') === 'com.elster.jupiter.servicecall.ServiceCall') {
+                        this.disable();
+                    } else {
+                        this.enable();
+                    }
                 }
             }
         ];
