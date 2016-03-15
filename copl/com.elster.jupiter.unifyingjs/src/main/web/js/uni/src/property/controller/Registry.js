@@ -43,7 +43,8 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone',
         'Uni.property.view.property.deviceconfigurations.DeviceConfigurations',
         'Uni.property.view.property.ObisCode',
-        'Uni.property.view.property.ObisCodeCombo'
+        'Uni.property.view.property.ObisCodeCombo',
+        'Uni.property.view.property.Quantity'
     ],
 
     /**
@@ -81,7 +82,8 @@ Ext.define('Uni.property.controller.Registry', {
         ADVANCEREADINGSSETTINGS: 'Uni.property.view.property.AdvanceReadingsSettings',
         ADVANCEREADINGSSETTINGSWITHOUTNONE: 'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone',
         IDWITHNAME: 'Uni.property.view.property.Reference',
-        DEVICECONFIGURATIONLIST: 'Uni.property.view.property.deviceconfigurations.DeviceConfigurations'
+        DEVICECONFIGURATIONLIST: 'Uni.property.view.property.deviceconfigurations.DeviceConfigurations',
+        QUANTITY: 'Uni.property.view.property.Quantity'
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)
@@ -89,7 +91,8 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.store.TimeUnits',
         'Uni.property.store.RelativePeriods',
         'Uni.property.store.PropertyReadingTypes',
-        'Uni.property.store.PropertyDeviceConfigurations'
+        'Uni.property.store.PropertyDeviceConfigurations',
+        'Uni.property.store.MeasurementUnits'
     ],
 
     /**
