@@ -1,8 +1,10 @@
 package com.elster.jupiter.metering.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingTypeTemplate;
 import com.elster.jupiter.metering.ReadingTypeTemplateAttributeName;
 
+@ProviderType
 public interface PartiallySpecifiedReadingType extends ReadingTypeRequirement {
     String TYPE_IDENTIFIER = "P";
 

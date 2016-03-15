@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.Commodity;
@@ -22,6 +23,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
+@ProviderType
 public enum ReadingTypeTemplateAttributeName {
     MACRO_PERIOD(new ReadingTypeAttribute<MacroPeriod>(MacroPeriod.class) {
         @Override
@@ -422,6 +424,7 @@ public enum ReadingTypeTemplateAttributeName {
         return definition.getCodeToValueConverter().apply(attributeValueCode);
     }
 
+    @ProviderType
     public static abstract class ReadingTypeAttribute<T> {
         private final Class<T> clazz;
 

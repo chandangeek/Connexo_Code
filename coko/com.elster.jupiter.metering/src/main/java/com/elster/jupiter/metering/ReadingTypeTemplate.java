@@ -1,10 +1,12 @@
 package com.elster.jupiter.metering;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
 import java.util.Set;
 
+@ProviderType
 public interface ReadingTypeTemplate extends HasId, HasName {
     /**
      * @return an ordered set of attributes for that template (18 elements).
