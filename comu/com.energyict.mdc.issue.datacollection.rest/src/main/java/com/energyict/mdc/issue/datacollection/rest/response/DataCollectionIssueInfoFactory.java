@@ -183,7 +183,7 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
 
     private void addCommunicationRelatedInfo(CommunicationFailedIssueInfo<?> info, Optional<ComSession> comSessionRef, Optional<ComTaskExecution> comTaskExecutionRef) {
         if (comSessionRef.isPresent() && comTaskExecutionRef.isPresent()) {
-            info.comTaskId = getComTask(comTaskExecutionRef.get());
+            info.comTaskId = getComTask(comSessionRef.get(),comTaskExecutionRef.get());
             info.comTaskSessionId = getComTaskExecutionSession(comSessionRef.get(), comTaskExecutionRef.get());
             info.communicationTask = getCommunicationTaskInfo(comTaskExecutionRef.get());
         }
@@ -222,16 +222,12 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
         communicationTaskInfo.latestStatus = comTaskExecution.getStatus() != null ?
                 new IdWithNameInfo(comTaskExecution.getStatus().name(), comTaskExecution.getStatusDisplayName()) : null;
         Optional<ComTaskExecutionSession> lastComTaskExecutionSessionRef = comTaskExecution.getLastSession();
-        // this.communicationTaskService.findLastSessionFor(comTaskExecution);
         if (lastComTaskExecutionSessionRef.isPresent()) {
             communicationTaskInfo.latestResult =  lastComTaskExecutionSessionRef.get().getHighestPriorityCompletionCode() != null ?
                     new IdWithNameInfo(lastComTaskExecutionSessionRef.get().getHighestPriorityCompletionCode().name(),
                     lastComTaskExecutionSessionRef.get().getHighestPriorityCompletionCodeDisplayName()) : null;
             communicationTaskInfo.journals = lastComTaskExecutionSessionRef.get().getComSession()
                     .getCommunicationTaskJournalEntries(EnumSet.allOf(ComServer.LogLevel.class)).stream()
-                    //.findComTaskExecutionJournalEntries(EnumSet.allOf(ComServer.LogLevel.class)).stream()
-                    //.getComTaskExecutionJournalEntries().stream()
-                   // .sorted((je1, je2) -> je2.getTimestamp().compareTo(je1.getTimestamp()))
                     .map(this::asComSessionTaskJournalInfo)
                     .collect(Collectors.toList());
         }
@@ -262,7 +258,6 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
         } else if (comTaskExecutionJournalEntry instanceof ComCommandJournalEntry) {
             info.details=((ComCommandJournalEntry)comTaskExecutionJournalEntry).getCommandDescription();
         }
-        //info.details=comTaskExecutionJournalEntry.getErrorDescription();
         return info;
     }
 
