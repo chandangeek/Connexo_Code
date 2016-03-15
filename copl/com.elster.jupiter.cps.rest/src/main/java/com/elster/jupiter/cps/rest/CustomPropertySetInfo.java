@@ -16,6 +16,7 @@ public class CustomPropertySetInfo<T> {
     public String customPropertySetId;
     public String name;
     public String domainName;
+    public String domainNameUntranslated;
     public boolean isRequired;
     public boolean isVersioned;
     public boolean isEditable;
