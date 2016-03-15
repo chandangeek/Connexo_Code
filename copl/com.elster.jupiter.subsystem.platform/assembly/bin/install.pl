@@ -348,7 +348,7 @@ sub install_connexo {
 		} else {
 			my $VM_OPTIONS="-Djava.util.logging.config.file=\"$CONNEXO_DIR/conf/logging.properties\"";
 			my $CLASSPATH = join(":", ".", glob("$CONNEXO_DIR/lib/*.jar"));
-			system("\"$JAVA_HOME/bin/java\" $VM_OPTIONS -cp \"$CLASSPATH\" com.elster.jupiter.launcher.ConnexoLauncher --install");
+			system("\"$JAVA_HOME/bin/java\" $VM_OPTIONS -cp \"$CLASSPATH\" com.elster.jupiter.launcher.ConnexoLauncher --install $CONNEXO_ADMIN_PASSWORD");
 			if ("$CONNEXO_SERVICE" eq "yes") {
 				copy("$CONNEXO_DIR/bin/connexo","/etc/init.d/Connexo$SERVICE_VERSION") or die "File cannot be copied: $!";
 				chmod 0755,"/etc/init.d/Connexo$SERVICE_VERSION";
@@ -539,7 +539,7 @@ sub add_to_file_if {
     my $found;
 	my ($filename,$text)=@_;
     open(FILE,"$filename") or die "Cannot open file ".$filename;
-    if (grep{/$text/} <FILE>){
+    if (grep{/^$text/} <FILE>){
         $found=0;
     } else {
         $found=1;
@@ -639,6 +639,12 @@ sub activate_sso {
         if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
             #install apache 2.2 or 2.4???
             my $PUBLIC_KEY="to be filled in";
+            if (-e "$CONNEXO_DIR/publicKey.txt") {
+                open(my $FH,"< $CONNEXO_DIR/publicKey.txt") or die "Could not open $CONNEXO_DIR/publicKey.txt: $!";
+                $PUBLIC_KEY=<$FH>;
+                chomp($PUBLIC_KEY);
+                close($FH);
+            }            
             #if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
             #    copy("$CONNEXO_DIR/bin/vcruntime140.dll","$APACHE_PATH/bin/vcruntime140.dll");
             #    system("$APACHE_PATH/bin/httpd.exe -k install -n \"Apache2.4\"");
@@ -690,9 +696,6 @@ sub activate_sso {
             add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.url=http://$HOST_NAME:$CONNEXO_HTTP_PORT");
             add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.externalurl=http://$HOST_NAME");
             add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.sso.public.key=$PUBLIC_KEY");
-
-            print "\nStart connexo in interactive mode, execute gogo-command getPublicKey and fill it in in $CATALINA_BASE/conf/connexo.properties ; then press ENTER to continue...";
-            <STDIN>;
 
             #if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
             #    system("sc config \"Apache2.4\"  start= delayed-auto");
