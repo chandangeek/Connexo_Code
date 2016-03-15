@@ -5,6 +5,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 
@@ -47,7 +48,7 @@ public class ComposedMeterInfo extends ComposedCosemObject {
         if (attribute instanceof OctetString) {
             return attribute.getOctetString().stringValue();
         } else {
-            throw new IOException("Expected OctetString but was " + attribute.getClass().getSimpleName());
+            throw new ProtocolException("Expected OctetString but was " + attribute.getClass().getSimpleName());
         }
     }
 

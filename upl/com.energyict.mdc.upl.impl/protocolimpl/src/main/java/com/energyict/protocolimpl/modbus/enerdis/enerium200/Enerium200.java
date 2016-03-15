@@ -6,6 +6,8 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.MeterInfo;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
@@ -30,7 +32,7 @@ import java.util.Properties;
  * 
  */
 
-public class Enerium200 extends Modbus {
+public class Enerium200 extends Modbus implements SerialNumberSupport {
 
 	private static final int DEBUG 	= 1;
 	private static final int NUMBER_OF_CHANNELS = 8;
@@ -117,7 +119,7 @@ public class Enerium200 extends Modbus {
 	}
 
     public String getProtocolVersion() {
-		return "$Date$";
+		return "$Date: 2015-11-26 15:25:15 +0200 (Thu, 26 Nov 2015)$";
 	}
 	
 	/*
@@ -135,19 +137,16 @@ public class Enerium200 extends Modbus {
     	Utils.writeRawByteValues(getRegFactory().writeFunctionReg.getReg(), Utils.SETCLOCK , rawDate, this);
     }
     
-    private String getSerialNumber() throws IOException {
-    	return getMeterInfo().getSerialNumber();
+    public String getSerialNumber()  {
+        try {
+            return getMeterInfo().getSerialNumber();
+        } catch (IOException e){
+            throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
+        }
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
     	return "Enerium 200 " + getMeterInfo().getVersion();
-    }
-    
-    protected void validateSerialNumber() throws IOException {
-       if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
-       String sn = getSerialNumber();
-       if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
-       throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
     }
     
     public int getNumberOfChannels() throws UnsupportedException, IOException {

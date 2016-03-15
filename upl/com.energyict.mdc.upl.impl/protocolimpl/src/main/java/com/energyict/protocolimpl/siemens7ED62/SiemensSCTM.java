@@ -12,6 +12,7 @@ import com.energyict.cbo.NestedIOException;
 
 import com.energyict.protocol.*;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.MdcManager;
 
 /**
@@ -642,7 +643,7 @@ public class SiemensSCTM {
         }
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -660,7 +661,7 @@ public class SiemensSCTM {
         }
         catch(InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
     

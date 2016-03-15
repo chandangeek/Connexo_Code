@@ -1,12 +1,14 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter;
 
-import com.energyict.mdc.exceptions.ComServerExecutionException;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import test.com.energyict.protocolimplv2.coronis.common.WaveFlowException;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.TimeDateRTC;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class ParameterFactory {
 
@@ -736,9 +738,9 @@ public class ParameterFactory {
         detectionPeriod.write();
     }
 
-    protected ComServerExecutionException createWaveFlowException(String description) {
+    protected ProtocolRuntimeException createWaveFlowException(String description) {
         WaveFlowException e = new WaveFlowException(description);
-        return MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+        return CommunicationException.unexpectedResponse(e);
     }
 
     public void enablePushFrames() {

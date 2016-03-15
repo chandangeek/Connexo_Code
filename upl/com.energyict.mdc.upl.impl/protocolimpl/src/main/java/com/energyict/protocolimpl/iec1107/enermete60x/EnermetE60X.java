@@ -6,9 +6,14 @@
 
 package com.energyict.protocolimpl.iec1107.enermete60x;
 
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.customerconfig.UcontoRegisterConfig;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.enermete70x.EnermetBase;
+
+import java.io.IOException;
+
 /**
  *
  * @author  Koen
@@ -20,7 +25,7 @@ KV|30032005|Handle StringOutOfBoundException in IEC1107 connection layer
 KV|01092005|Add manufacturer specific code
  * @endchanges
  */
-public class EnermetE60X extends EnermetBase {
+public class EnermetE60X extends EnermetBase implements SerialNumberSupport {
 
     RegisterConfig regs = new UcontoRegisterConfig();
     
@@ -32,8 +37,17 @@ public class EnermetE60X extends EnermetBase {
         return regs;
     }
 
+    @Override
+    public String getSerialNumber() {
+        try {
+            return getDataReadingCommandFactory().getSerialNumber();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
+        }
+    }
+
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:26:00 +0200 (Thu, 26 Nov 2015)$";
     }
     
 } // class EnermetE60X

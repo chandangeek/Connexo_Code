@@ -5,11 +5,11 @@ import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.modem.AtModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedAtModemProperties;
-import com.energyict.mdc.exceptions.ModemException;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.protocol.exceptions.ModemException;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;

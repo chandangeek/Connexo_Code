@@ -1,25 +1,19 @@
 package com.energyict.protocolimpl.instromet.v444.tables;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.base.CRCGenerator;
-import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.instromet.connection.Response;
 import com.energyict.protocolimpl.instromet.v444.CommandFactory;
 import com.energyict.protocolimpl.instromet.v444.Instromet444;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.logging.Logger;
 
 
 public class LoggedDataTable extends AbstractTable {
@@ -45,12 +39,12 @@ public class LoggedDataTable extends AbstractTable {
 		return intervalDatas;
 	}
 	
-	public void setNumberOfItemsLogged(int numberOfItemsLogged) throws IOException {
+	public void setNumberOfItemsLogged(int numberOfItemsLogged)  {
 		this.numberOfItemsLogged = numberOfItemsLogged;
 	}
 	
 	
-	protected void parse(byte[] data) throws IOException {
+	protected void parse(byte[] data) throws ProtocolException {
 		Calendar cal = null;
 		//System.out.println("pare logged data");
 		//System.out.println(ProtocolUtils.outputHexString(data));
@@ -102,7 +96,7 @@ public class LoggedDataTable extends AbstractTable {
 			byte b2 = data[offset + 2];
 			byte b1 = data[offset + 3];
 			offset = offset + 4;
-			int year = 2000 + (ProtocolUtils.byte2int(b2) >> 4);
+			int year = convertYear(b2);
 			int month = ProtocolUtils.byte2int(b2) & (byte)0x0F;
 			int day = ProtocolUtils.byte2int(b3) >> 3;
 			int hour = ((ProtocolUtils.byte2int(b3) & (byte)0x07) << 2)
@@ -153,6 +147,24 @@ public class LoggedDataTable extends AbstractTable {
 		}
 	}
 	
+	/**
+	 * Convert the 4 bits year information to a regular year
+	 * by padding with 2000/2016 <br/>
+	 * <b>Warning: <br/>padding is either with 2000 or with 2016, which should cover years in range 2014-2029
+	 * For other years, the padding will produce erroneous year!
+	 *
+	 * @param b2 the byte containing the year nibble
+	 * @return the converted year
+     */
+	protected int convertYear(byte b2) {
+		int yearLowNibble = ProtocolUtils.byte2int(b2) >> 4;
+		if (yearLowNibble >= 14) {	// Consider 14 and 15 as 2014 and 2015
+			return 2000 + yearLowNibble;
+		} else {                    // Else consider as 2016, 2017, ...
+			return 2016 + yearLowNibble;
+		}
+	}
+
 	protected void prepareBuild() throws IOException {
 		LoggingConfigurationTable config = 
 			getTableFactory().getLoggingConfigurationTable();

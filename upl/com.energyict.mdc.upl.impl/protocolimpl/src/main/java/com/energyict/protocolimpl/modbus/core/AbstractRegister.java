@@ -15,13 +15,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.modbus.core.functioncode.ReadDeviceIdentification;
-import com.energyict.protocolimpl.modbus.core.functioncode.ReadHoldingRegistersRequest;
-import com.energyict.protocolimpl.modbus.core.functioncode.ReadInputRegistersRequest;
-import com.energyict.protocolimpl.modbus.core.functioncode.ReadStatuses;
-import com.energyict.protocolimpl.modbus.core.functioncode.ReportSlaveId;
-import com.energyict.protocolimpl.modbus.core.functioncode.WriteMultipleRegisters;
-import com.energyict.protocolimpl.modbus.core.functioncode.WriteSingleRegister;
+import com.energyict.protocolimpl.modbus.core.functioncode.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -161,6 +155,24 @@ public class AbstractRegister {
             return getRegisterFactory().getFunctionCodeFactory().getWriteMultipleRegisters(register, getRange(), registerValues);
         } catch (IOException e) {
             throw new NestedIOException(e, "IOException while writing register [" + register + "] with range [" + getRange() + "]");
+        }
+    }
+
+    public WriteSingleCoil getWriteSingleCoil(int writeCoilValue) throws IOException {
+        final int coil = getReg() - (getRegisterFactory().isZeroBased() ? 1 : 0);
+        try {
+            return getRegisterFactory().getFunctionCodeFactory().getWriteSingleCoil(coil, writeCoilValue);
+        } catch (IOException e) {
+            throw new NestedIOException(e, "IOException while writing coil [" + coil + "]");
+        }
+    }
+
+    public WriteMultipleCoils getWriteMultipleCoils(byte[] coilValues) throws IOException {
+        final int coil = getReg() - (getRegisterFactory().isZeroBased() ? 1 : 0);
+        try {
+            return getRegisterFactory().getFunctionCodeFactory().getWriteMultipleCoils(coil, getRange(), coilValues);
+        } catch (IOException e) {
+            throw new NestedIOException(e, "IOException while writing Coil [" + coil + "] with range [" + getRange() + "]");
         }
     }
     

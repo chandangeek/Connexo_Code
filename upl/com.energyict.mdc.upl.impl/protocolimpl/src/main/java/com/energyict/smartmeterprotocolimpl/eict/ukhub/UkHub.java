@@ -6,28 +6,14 @@ import com.energyict.dialer.core.Link;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dialer.coreimpl.IPDialer;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.ConnectionMode;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.IF2HHUSignon;
+import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.Register;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.SmartMeterProtocol;
-import com.energyict.protocol.WakeUpProtocolSupport;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
@@ -49,7 +35,7 @@ import java.util.logging.Logger;
  * The UK hub has the same protocolBase as the WebRTUZ3. Additional functionality is added for SSE, more specifically Zigbee HAN functionality
  * and Prepayment
  */
-public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, WakeUpProtocolSupport {
+public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, WakeUpProtocolSupport, SerialNumberSupport {
 
     /**
      * The properties to use for this protocol
@@ -271,7 +257,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      * @return the version string
      */
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:26:01 +0200 (Thu, 26 Nov 2015)$";
     }
 
     /**

@@ -6,9 +6,10 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.ExceptionResponseException;
+import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
 import com.energyict.protocol.ProtocolException;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.IOException;
 
@@ -43,7 +44,7 @@ public class ComposedMeterInfo extends ComposedCosemObject {
             return attribute.getOctetString().stringValue();
         } else {
             IOException ioException = new IOException("Expected OctetString but was " + attribute.getClass().getSimpleName());
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(ioException);
+            throw CommunicationException.unexpectedResponse(ioException);
         }
     }
 
@@ -53,7 +54,7 @@ public class ComposedMeterInfo extends ComposedCosemObject {
             return attribute.getOctetString().stringValue();
         } else {
             IOException ioException = new IOException("Expected OctetString but was " + attribute.getClass().getSimpleName());
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(ioException);
+            throw CommunicationException.unexpectedResponse(ioException);
         }
     }
 
@@ -65,9 +66,9 @@ public class ComposedMeterInfo extends ComposedCosemObject {
         try {
             return super.getAttribute(dlmsAttribute);
         } catch (DataAccessResultException | ProtocolException | ExceptionResponseException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);   //Received error code from the meter, instead of the expected value
+            throw CommunicationException.unexpectedResponse(e);   //Received error code from the meter, instead of the expected value
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getDLMSConnection().getMaxTries());
+            throw ConnectionCommunicationException.numberOfRetriesReached(e, getDLMSConnection().getMaxTries());
         }
     }
 
@@ -77,7 +78,7 @@ public class ComposedMeterInfo extends ComposedCosemObject {
             return attribute.getOctetString().stringValue();
         } else {
             IOException ioException = new IOException("Expected OctetString but was " + attribute.getClass().getSimpleName());
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(ioException);
+            throw CommunicationException.unexpectedResponse(ioException);
         }
     }
 }

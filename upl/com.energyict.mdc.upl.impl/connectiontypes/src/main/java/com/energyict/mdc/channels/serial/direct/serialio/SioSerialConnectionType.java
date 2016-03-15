@@ -1,5 +1,8 @@
 package com.energyict.mdc.channels.serial.direct.serialio;
 
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecBuilder;
+import com.energyict.dynamicattributes.BigDecimalFactory;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.serial.AbstractSerialConnectionType;
 import com.energyict.mdc.channels.serial.BaudrateValue;
@@ -7,12 +10,9 @@ import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionException;
+import com.energyict.mdc.protocol.ServerLoggableComChannel;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
-
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecBuilder;
-import com.energyict.dynamicattributes.BigDecimalFactory;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
@@ -39,7 +39,8 @@ public class SioSerialConnectionType extends AbstractSerialConnectionType {
     @Override
     public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
         SerialPortConfiguration serialPortConfiguration = createSerialConfiguration(comPort, properties);
-        ComChannel comChannel = newSioSerialConnection(serialPortConfiguration);
+        ServerLoggableComChannel comChannel = newSioSerialConnection(serialPortConfiguration);
+        comChannel.setComPort(comPort);
         comChannel.addProperties(createTypeProperty(ComChannelType.SerialComChannel));
         return comChannel;
     }

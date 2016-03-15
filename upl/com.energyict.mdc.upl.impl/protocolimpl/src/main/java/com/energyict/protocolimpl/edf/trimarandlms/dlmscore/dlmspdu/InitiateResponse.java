@@ -10,8 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu;
 
-import java.io.IOException;
-
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.InitiateRespAPSE;
 
@@ -30,19 +29,19 @@ public class InitiateResponse extends InitiateRespAPSE {
         super(dLMSPDUFactory.getProtocolLink().getAPSEFactory());
     }
  
-    protected byte[] preparebuildPDU() throws IOException {
+    protected byte[] preparebuildPDU() throws ProtocolException {
         return null;
     }
     
     final int DLMSPDU_INITIATE_RESPONSE=8;
     
-    protected void parsePDU(byte[] data) throws IOException {
+    protected void parsePDU(byte[] data) throws ProtocolException {
         
         int offset=0;
         offset++; // skip length
         int tag = ProtocolUtils.getInt(data,offset++,1);
         if (tag != DLMSPDU_INITIATE_RESPONSE){
-            throw new IOException("InitiateResponse, parse, invalid tag 0x"+Integer.toHexString(tag)+" received");
+            throw new ProtocolException("InitiateResponse, parse, invalid tag 0x"+Integer.toHexString(tag)+" received");
         }
         
         initiateResponseData = ProtocolUtils.getSubArray(data,offset);

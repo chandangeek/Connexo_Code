@@ -4,37 +4,22 @@ import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.CapturedObjectsHelper;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.DemandRegister;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.HistoricalValue;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -43,7 +28,7 @@ import java.util.logging.Level;
  * Date: 14/11/11
  * Time: 17:07
  */
-public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
+public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, SerialNumberSupport {
 
     private static final ObisCode OBISCODE_ACTIVE_FIRMWARE = ObisCode.fromString("0.0.128.0.1.255");
     private static final ObisCode OBISCODE_SERIAL_NUMBER = ObisCode.fromString("0.0.96.1.0.255");
@@ -81,19 +66,6 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
     private ObisCode[] loadProfileObisCodes;
 
     private JanzStoredValues storedValues;
-
-    @Override
-    public void validateSerialNumber() throws IOException {
-        if ((serialNumber == null) || ("".compareTo(serialNumber) == 0)) {
-            return;
-        }
-        Data data = getCosemObjectFactory().getData(OBISCODE_SERIAL_NUMBER);
-        String meterSerialNumber = AXDRDecoder.decode(data.getRawValueAttr()).getVisibleString().getStr().trim();
-        if (meterSerialNumber.compareTo(serialNumber) == 0) {
-            return;
-        }
-        throw new IOException("SerialNumber mismatch! meter sn=" + meterSerialNumber + ", configured sn=" + serialNumber);
-    }
 
     @Override
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
@@ -177,7 +149,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
      */
     @Override
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:24:25 +0200 (Thu, 26 Nov 2015)$";
     }
 
     /**
@@ -439,6 +411,17 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
         result.add(DlmsProtocolProperties.RETRIES);
         result.add(DlmsProtocolProperties.SECURITY_LEVEL);
         return result;
+    }
+
+    @Override
+    public String getSerialNumber() {
+        Data data;
+        try {
+            data = getCosemObjectFactory().getData(OBISCODE_SERIAL_NUMBER);
+            return AXDRDecoder.decode(data.getRawValueAttr()).getVisibleString().getStr().trim();
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, retries+1);
+        }
     }
 
     /**

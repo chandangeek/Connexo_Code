@@ -10,11 +10,11 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
+import java.util.Date;
 
 
 /**
@@ -48,7 +48,7 @@ public class CurrentSeasonTOUDemandDataDXCommand extends AbstractCommand {
         if (getCommandFactory().getFirmwareVersionCommand().isDX())
             return new byte[]{(byte)0x61,0,0,0,0,0,0,0,0};
         else
-            throw new IOException("CurrentSeasonTOUDemandDataDXCommand, only for DX meters!");
+            throw new ProtocolException("CurrentSeasonTOUDemandDataDXCommand, only for DX meters!");
     }
     
     protected void parse(byte[] data) throws IOException {

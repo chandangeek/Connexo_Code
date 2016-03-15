@@ -10,6 +10,8 @@
 
 package com.energyict.protocolimpl.edmi.mk6.core;
 
+import com.energyict.protocol.ProtocolException;
+
 import java.io.IOException;
 import java.util.TimeZone;
 
@@ -26,7 +28,7 @@ public class RegisterTypeParser {
         this.timeZone=timeZone;
     }
 
-    public AbstractRegisterType parse2External(char type, byte[] data) throws IOException {
+    public AbstractRegisterType parse2External(char type, byte[] data) throws ProtocolException {
         return parse(type,data, true);
     }
     
@@ -34,7 +36,7 @@ public class RegisterTypeParser {
         return parse(type,data, false);
     }
     
-    private AbstractRegisterType parse(char type, byte[] data, boolean external) throws IOException {
+    private AbstractRegisterType parse(char type, byte[] data, boolean external) throws ProtocolException {
         
         switch(type) {
             

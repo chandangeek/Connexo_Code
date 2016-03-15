@@ -1,12 +1,11 @@
 package com.energyict.mdc.channels.ip.socket;
 
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.mdc.protocol.*;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
-
-import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -33,12 +32,13 @@ public class WavenisGatewayConnectionType extends OutboundTcpIpConnectionType {
                 this.setProperty(property.getName(), property.getValue());
             }
         }
-        ComChannel comChannel = this.newWavenisConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
+        ServerLoggableComChannel comChannel = this.newWavenisConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
         comChannel.addProperties(createTypeProperty(ComChannelType.WavenisGatewayComChannel));
+        comChannel.setComPort(comPort);
         return comChannel;
     }
 
-    private ComChannel newWavenisConnection(String host, int port, int timeOut) throws ConnectionException {
+    private ServerLoggableComChannel newWavenisConnection(String host, int port, int timeOut) throws ConnectionException {
         try {
             Socket socket = new Socket();
             socket.connect(new InetSocketAddress(host, port), timeOut);
@@ -47,5 +47,10 @@ public class WavenisGatewayConnectionType extends OutboundTcpIpConnectionType {
         } catch (IOException e) {
             throw new ConnectionException(e);
         }
+    }
+
+    @Override
+    public String getVersion() {
+        return "$Date: 2015-12-18 09:25:29 +0100 (Fri, 18 Dec 2015)$";
     }
 }

@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.edp.logbooks;
 
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
@@ -9,7 +10,6 @@ import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.edp.CX20009;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -73,7 +73,7 @@ public class LogbookReader implements DeviceLogBookSupport {
                         byte[] bufferData = profileGeneric.getBufferData(fromDate, getCalendar());
                         collectedLogBook.setCollectedMeterEvents(logBookParser.parseEvents(bufferData));
                     } catch (IOException e) {
-                        if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
+                        if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries()+1)) {
                             collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
                         }
                     }

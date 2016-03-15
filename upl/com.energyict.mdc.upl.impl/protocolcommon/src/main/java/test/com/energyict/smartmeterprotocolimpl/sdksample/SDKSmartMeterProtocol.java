@@ -153,7 +153,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
      * @return the version of the specific protocol implementation
      */
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2014-09-23 16:08:34 +0200 (Tue, 23 Sep 2014) $";
     }
 
     /**

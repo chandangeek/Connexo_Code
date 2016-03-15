@@ -33,6 +33,13 @@
                 <outputDirectory>lib/protocol</outputDirectory>
                 <dependencySets>
                     <dependencySet>
+                        <includes>
+                            <include>com.energyict:protocol-api</include>
+                        </includes>
+                        <useTransitiveDependencies>true</useTransitiveDependencies>
+                        <useTransitiveFiltering>true</useTransitiveFiltering>
+                    </dependencySet>
+                    <dependencySet>
                         <excludes>
                             <exclude>com.energyict:*</exclude>
                             <exclude>com.energyict.comserver:*</exclude>

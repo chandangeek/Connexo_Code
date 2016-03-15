@@ -1,10 +1,13 @@
 package com.energyict.protocolimplv2.eict.webrtuz3.messages.emeter;
 
 import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.eict.webrtuz3.messages.WebRTUZ3MessageExecutor;
@@ -51,20 +54,25 @@ public class WebRTUZ3EMeterMessaging extends AbstractDlmsMessaging implements De
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "executePendingMessages");
+        throw CodingException.unsupportedMethod(this.getClass(), "executePendingMessages");
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> offlineDeviceMessages) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "updateSentMessages");
+        throw CodingException.unsupportedMethod(this.getClass(), "updateSentMessages");
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(contactorActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());
         }
 
         return messageAttribute.toString();
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 }

@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cbo.NotFoundException;
 import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.LoadProfile;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -57,7 +57,7 @@ public class FirstLoadProfileOnDeviceTest {
         String toStringMessage = loadProfileIdentifier.toString();
 
         // Asserts
-        assertEquals("fist load profile on device having deviceIdentifier = id 1", toStringMessage);
+        assertEquals("first load profile on device having deviceIdentifier = id 1", toStringMessage);
     }
 
 

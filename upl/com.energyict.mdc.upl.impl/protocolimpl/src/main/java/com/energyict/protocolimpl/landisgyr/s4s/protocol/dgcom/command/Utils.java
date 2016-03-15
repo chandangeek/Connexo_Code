@@ -10,9 +10,13 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
@@ -25,7 +29,7 @@ public class Utils {
     }
     
     
-    static public Date getTimestampwwhhddYYDDMM(byte[] data, int offset, TimeZone timeZone) throws IOException {
+    static public Date getTimestampwwhhddYYDDMM(byte[] data, int offset, TimeZone timeZone) throws ProtocolException {
         Calendar cal = ProtocolUtils.getCleanCalendar(timeZone);
         try {
 	        cal.set(Calendar.MINUTE,ProtocolUtils.BCD2hex(data[offset++]));
@@ -42,7 +46,7 @@ public class Utils {
         	if (e.toString().indexOf("BCD error")>=0)
         		return null; //cal.getTime(); //ProtocolUtils.getCleanCalendar(timeZone).getTime();
         	else
-        		throw e;
+        		throw new ProtocolException(e);
         }
     }   
 }

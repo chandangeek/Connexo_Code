@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.messages.convertor;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.Code;
+import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.messages.*;
@@ -84,7 +85,7 @@ public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
         } catch (ParserConfigurationException e) {
-            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+            throw DataParseException.generalParseException(e);
         }
     }
 }

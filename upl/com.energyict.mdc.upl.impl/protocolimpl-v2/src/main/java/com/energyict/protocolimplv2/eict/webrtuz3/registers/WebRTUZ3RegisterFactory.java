@@ -2,17 +2,13 @@ package com.energyict.protocolimplv2.eict.webrtuz3.registers;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
@@ -21,18 +17,14 @@ import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.webrtuz3.WebRTUZ3;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -49,9 +41,9 @@ public class WebRTUZ3RegisterFactory implements DeviceRegisterSupport {
     public static final ObisCode ACTIVE_TARIFF_REGISTER = ObisCode.fromString("0.0.96.14.0.255");
     public static final ObisCode ACTIVITY_CALENDAR = ObisCode.fromString("0.0.13.0.0.255");
 
-    public static final ObisCode MBUS_CLIENT = ObisCode.fromString("0.0.24.1.0.255");
-    public static final ObisCode MBUS_CLIENT_STATUS = ObisCode.fromString("0.0.24.1.11.255");
-    public static final ObisCode MBUS_CLIENT_ALARM = ObisCode.fromString("0.0.24.1.12.255");
+    public static final ObisCode MBUS_CLIENT = ObisCode.fromString("0.x.24.1.0.255");
+    public static final ObisCode MBUS_CLIENT_STATUS = ObisCode.fromString("0.x.24.1.11.255");
+    public static final ObisCode MBUS_CLIENT_ALARM = ObisCode.fromString("0.x.24.1.12.255");
 
     private final WebRTUZ3 meterProtocol;
 
@@ -108,8 +100,8 @@ public class WebRTUZ3RegisterFactory implements DeviceRegisterSupport {
                     collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));
                 }
             } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, meterProtocol.getDlmsSession())) {
-                    if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, meterProtocol.getDlmsSessionProperties().getRetries() + 1)) {
+                    if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                         collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));
                     } else {
                         collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, e.getMessage()));
@@ -151,7 +143,7 @@ public class WebRTUZ3RegisterFactory implements DeviceRegisterSupport {
             try {
                 meterProtocol.getPhysicalAddressFromSerialNumber(register.getSerialNumber());
                 validRegisters.add(register);
-            } catch (ComServerExecutionException e) {
+            } catch (ProtocolRuntimeException e) {
                 meterProtocol.getLogger().severe("Register " + register + " is not supported because MbusDevice '" + register.getSerialNumber() + "' is not installed on the physical device.");
             }
         }

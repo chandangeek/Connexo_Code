@@ -6,21 +6,11 @@ import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.IPDialer;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DlmsSession;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.Register;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.SmartMeterProtocol;
-import com.energyict.protocol.WakeUpProtocolSupport;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes;
@@ -41,7 +31,7 @@ import java.util.logging.Logger;
 /**
  * The ZigbeeGas logical device has the same protocolBase as the WebRTUZ3. Additional functionality is added for SSE.
  */
-public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, WakeUpProtocolSupport {
+public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, WakeUpProtocolSupport, SerialNumberSupport {
 
     /**
      * The properties to use for this protocol
@@ -221,7 +211,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      * @return the version
      */
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:23:42 +0200 (Thu, 26 Nov 2015)$";
     }
 
     /**

@@ -19,12 +19,12 @@ public class MBusDevice extends AbstractDlmsSlaveProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "EnergyICT WebRTU Z3 DLMS MBus device V2";
+        return "EnergyICT WebRTU Z3 DLMS MBus slave V2";
     }
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2016-01-25 15:02:12 +0100 (Mon, 25 Jan 2016)$";
     }
 
     protected DeviceProtocolSecurityCapabilities getSecurityCapabilities() {

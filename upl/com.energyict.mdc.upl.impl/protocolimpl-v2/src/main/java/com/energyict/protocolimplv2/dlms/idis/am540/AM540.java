@@ -6,7 +6,6 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
@@ -14,7 +13,11 @@ import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DataEncryptionException;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
@@ -37,7 +40,7 @@ import java.util.List;
  * @author sva
  * @since 11/08/2015 - 14:04
  */
-public class AM540 extends AM130 {
+public class AM540 extends AM130 implements SerialNumberSupport{
 
     private AM540Cache am540Cache;
 
@@ -49,7 +52,7 @@ public class AM540 extends AM130 {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:26:44 +0200 (Thu, 26 Nov 2015)$";
     }
 
     /**
@@ -78,7 +81,7 @@ public class AM540 extends AM130 {
     public void setTime(Date timeToSet) {
         if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
             IOException cause = new IOException("When connected to the mirror logical device, writing of the clock is not allowed.");
-            throw MdcManager.getComServerExceptionFactory().notAllowedToExecuteCommand("date/time change", cause);
+            throw DeviceConfigurationException.notAllowedToExecuteCommand("date/time change", cause);
         } else {
             super.setTime(timeToSet);
         }
@@ -141,33 +144,36 @@ public class AM540 extends AM130 {
     protected void connectWithRetries(DlmsSession dlmsSession) {
         int tries = 0;
         while (true) {
-            ComServerExecutionException exception;
+            ProtocolRuntimeException exception;
             try {
+                dlmsSession.getDLMSConnection().setRetries(0);   //Temporarily disable retries in the connection layer, AARQ retries are handled here
                 if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
                     dlmsSession.getDlmsV2Connection().connectMAC();
                     dlmsSession.createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
                 }
                 return;
-            } catch (ComServerExecutionException e) {
+            } catch (ProtocolRuntimeException e) {
                 if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
                     throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
-                } else if (MdcManager.getComServerExceptionFactory().isConnectionCommunicationException(e)) {
+                } else if (e instanceof ConnectionCommunicationException) {
                     throw e;
-                } else if (MdcManager.getComServerExceptionFactory().isDataEncryptionException(e)) {
+                } else if (e instanceof DataEncryptionException) {
                     throw e;
                 }
                 exception = e;
+            } finally {
+                dlmsSession.getDLMSConnection().setRetries(getDlmsSessionProperties().getRetries());
             }
 
             //Release and retry the AARQ in case of ACSE exception
             if (++tries > getDlmsSessionProperties().getAARQRetries()) {
                 getLogger().severe("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries.");
-                throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(exception);
+                throw ConnectionCommunicationException.protocolConnectFailed(exception);
             } else {
                 getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
                     dlmsSession.getAso().releaseAssociation();
-                } catch (ComServerExecutionException e) {
+                } catch (ProtocolRuntimeException e) {
                     dlmsSession.getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
                     // Absorb exception: in 99% of the cases we expect an exception here ...
                 }
@@ -224,7 +230,7 @@ public class AM540 extends AM130 {
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
             IOException cause = new IOException("When connected to the mirror logical device, execution of device commands is not allowed.");
-            throw MdcManager.getComServerExceptionFactory().notAllowedToExecuteCommand("send of device messages", cause);
+            throw DeviceConfigurationException.notAllowedToExecuteCommand("send of device messages", cause);
         } else {
             return getIDISMessaging().executePendingMessages(pendingMessages);
         }

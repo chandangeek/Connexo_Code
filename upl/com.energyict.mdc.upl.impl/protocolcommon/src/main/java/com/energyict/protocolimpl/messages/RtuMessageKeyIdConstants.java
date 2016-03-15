@@ -90,4 +90,9 @@ public class RtuMessageKeyIdConstants {
     public static final String RESETALARMREGISTER = "Reset Alarm register";
     public static final String RESETERRORREGISTER = "Reset Error register";
     public static final String CHANGEDEFAULTRESETWINDOW = "Change default reset window";
+
+    public static final String CHANGE_MBUS_CLIENT_ATTRIBUTES = "Change MBus Client Attributes";
+    public static final String MBUS_CLIENT_REMOTE_COMMISSION = "MBus Client Remote Commission";
+
+
 }

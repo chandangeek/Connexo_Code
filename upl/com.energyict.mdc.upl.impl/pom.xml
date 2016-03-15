@@ -9,7 +9,7 @@
 
 	<artifactId>protocols</artifactId>
 	<packaging>pom</packaging>
-	<version>9.1.26-SNAPSHOT</version>
+	<version>9.1.30-SNAPSHOT</version>
 	<name>protocols</name>
 
 	<dependencies>
@@ -25,6 +25,7 @@
 	<properties>
 		<eiserver.version>${project.version}</eiserver.version>
 		<comserver.version>${project.version}</comserver.version>
+		<protocol-api.version>9.1.30-SNAPSHOT</protocol-api.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<proguard.maven.version>2.0.11</proguard.maven.version>
 		<!-- Supports Java 7 from version 4.7 -->
@@ -34,6 +35,12 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<!-- Protocol api -->
+			<dependency>
+				<groupId>com.energyict</groupId>
+				<artifactId>protocol-api</artifactId>
+				<version>${protocol-api.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>com.energyict</groupId>
 				<artifactId>mdw</artifactId>
@@ -122,11 +129,11 @@
 	</ciManagement>
 
 	<modules>
-		<module>protocolimpl</module>
-		<module>protocolcommon</module>
 		<module>dlms</module>
-		<module>protocolimpl-elster</module>
+		<module>protocolcommon</module>
+		<module>protocolimpl</module>
 		<module>protocolimpl-v2</module>
+		<module>protocolimpl-elster</module>
 		<module>connectiontypes</module>
 	</modules>
 

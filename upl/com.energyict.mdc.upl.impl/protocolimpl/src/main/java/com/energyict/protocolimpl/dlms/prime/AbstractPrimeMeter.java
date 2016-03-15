@@ -6,6 +6,7 @@ import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractDlmsSessionProtocol;
 import com.energyict.protocolimpl.dlms.common.ProfileCacheImpl;
 import com.energyict.protocolimpl.dlms.prime.events.PrimeEventLogs;
@@ -24,7 +25,7 @@ import java.util.logging.Level;
  * Date: 21/02/12
  * Time: 14:43
  */
-public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol {
+public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol implements SerialNumberSupport {
 
     private final PrimeProperties properties = new PrimeProperties();
     private PrimeProfile loadProfile;
@@ -36,7 +37,7 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol {
     private ProfileCacheImpl cache = new ProfileCacheImpl();
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:25:59 +0200 (Thu, 26 Nov 2015)$";
     }
 
     @Override

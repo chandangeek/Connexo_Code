@@ -9,39 +9,15 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSObis;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.HDLC2Connection;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.SecureConnection;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
@@ -51,13 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -68,7 +38,7 @@ import java.util.logging.Logger;
  * Time: 11:09:10
  * </p>
  */
-public class SimpleDLMSProtocol extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, CacheMechanism {
+public class SimpleDLMSProtocol extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, CacheMechanism, SerialNumberSupport {
 
     /**
      * The {@link com.energyict.dlms.aso.ConformanceBlock} used
@@ -171,6 +141,18 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     private static final int MAX_PDU_SIZE = 200;
     private static final int PROPOSED_QOS = -1;
     private static final int PROPOSED_DLMS_VERSION = 6;
+
+    @Override
+    public String getSerialNumber() {
+        try {
+            UniversalObject uo = getMeterConfig().getSerialNumberObject();
+            byte[] responsedata = getCosemObjectFactory().getGenericRead(uo.getBaseName(), uo.getValueAttributeOffset()).getResponseData();
+            return AXDRDecoder.decode(responsedata).getOctetString().stringValue();
+        }
+        catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, dlmsConnection.getMaxRetries() + 1);
+        }
+    }
 
     /**
      * <p>
@@ -605,7 +587,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return the version of the specific protocol implementation
      */
     public String getProtocolVersion() {
-        return "$Date$";  //To change body of implemented methods use File | Settings | File Templates.
+        return "$Date: 2015-11-26 15:24:28 +0200 (Thu, 26 Nov 2015)$";  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     /**

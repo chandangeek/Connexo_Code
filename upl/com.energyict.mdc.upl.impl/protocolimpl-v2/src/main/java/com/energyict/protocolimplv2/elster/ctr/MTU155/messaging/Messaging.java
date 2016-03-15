@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
@@ -10,6 +11,7 @@ import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.LoadProfile;
 import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155;
@@ -120,7 +122,7 @@ public class Messaging implements DeviceMessageSupport {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
             case DeviceMessageConstants.fromDateAttributeName:
@@ -141,6 +143,11 @@ public class Messaging implements DeviceMessageSupport {
             default:
                 return messageAttribute.toString();
         }
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 
     private AbstractMTU155Message[] getAllSupportedMTU155MessageExecutors() {

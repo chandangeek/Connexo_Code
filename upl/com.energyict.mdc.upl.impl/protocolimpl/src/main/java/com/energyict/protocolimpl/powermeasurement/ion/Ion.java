@@ -8,20 +8,12 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.SerialNumber;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
@@ -30,12 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,7 +45,7 @@ import java.util.logging.Logger;
  */
 
 public class Ion extends PluggableMeterProtocol implements RegisterProtocol, ProtocolLink,
-        HHUEnabler, SerialNumber {
+        HHUEnabler, SerialNumber, SerialNumberSupport {
 
     /**
      * Property keys
@@ -134,6 +121,17 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
      *
      * @see com.energyict.protocol.MeterProtocol# setProperties(java.util.Properties)
      */
+
+    @Override
+    public String getSerialNumber() {
+        Command c = toCmd(IonHandle.FAC_1_SERIAL_NUMBER_SR, IonMethod.READ_REGISTER_VALUE);
+        try {
+            applicationLayer.read(c);
+            return (String)c.getResponse().getValue();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getNrOfRetries() + 1);
+        }
+    }
 
     public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
 
@@ -319,13 +317,8 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
 
     void connect(int baudRate) throws IOException {
         try {
-
             doExtendedLogging();
-
             validateSecurityContext();
-
-            validateSerialNumber();
-
         } catch (NumberFormatException nex) {
             throw new IOException(nex.getMessage());
         }
@@ -435,30 +428,11 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         }
     }
 
-    private void validateSerialNumber() throws IOException {
-
-        if (Utils.isNull(pSerialNumber)) {
-            return;
-        }
-
-        Command c = toCmd(IonHandle.FAC_1_SERIAL_NUMBER_SR, IonMethod.READ_REGISTER_VALUE);
-        applicationLayer.read(c);
-
-        String sn = (String) ((IonObject) c.getResponse()).getValue();
-
-        if (pSerialNumber != null && !pSerialNumber.equals(sn)) {
-            String msg = "SerialNumber mismatch! meter sn=" + sn +
-                    ", configured sn=" + pSerialNumber;
-            throw new IOException(msg);
-        }
-
-    }
-
     /**
      * The protocol version date
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:24:28 +0200 (Thu, 26 Nov 2015)$";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

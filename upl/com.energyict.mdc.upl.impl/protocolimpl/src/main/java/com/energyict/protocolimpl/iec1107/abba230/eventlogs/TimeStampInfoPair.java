@@ -1,16 +1,17 @@
 package com.energyict.protocolimpl.iec1107.abba230.eventlogs;
 
-import java.io.IOException;
-import java.util.*;
-
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.util.Date;
+import java.util.TimeZone;
 
 public class TimeStampInfoPair {
 
     private Date date;
     private int infoIndex;
 	
-    public TimeStampInfoPair(byte[] data, int offset, TimeZone timeZone) throws IOException {
+    public TimeStampInfoPair(byte[] data, int offset, TimeZone timeZone) throws ProtocolException {
 		long shift = (long)ProtocolUtils.getInt(data,offset,4)&0xFFFFFFFFL; offset+=4;
 		if (shift > 0) {
 			date = ProtocolUtils.getCalendar(timeZone,shift).getTime();

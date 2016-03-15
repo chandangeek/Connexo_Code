@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>protocolimpl-elster</artifactId>
@@ -9,19 +10,23 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>protocols</artifactId>
-        <version>9.1.26-SNAPSHOT</version>
+        <version>9.1.30-SNAPSHOT</version>
     </parent>
 
     <dependencies>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>protocolcommon</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
+            <artifactId>mdw</artifactId>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdw</artifactId>
+            <artifactId>protocol-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>protocolcommon</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.elster</groupId>

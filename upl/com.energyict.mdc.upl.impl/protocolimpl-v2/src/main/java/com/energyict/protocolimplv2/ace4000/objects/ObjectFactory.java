@@ -10,6 +10,7 @@ import com.energyict.mdw.core.Code;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.exceptions.InboundFrameException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.ACE4000;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestState;
@@ -763,12 +764,12 @@ public class ObjectFactory {
             try {
                 document = builder.parse(new InputSource(new StringReader(xml)));
             } catch (IOException e) {
-                throw MdcManager.getComServerExceptionFactory().createUnExpectedInboundFrame(xml, e.getMessage());
+                throw InboundFrameException.unexpectedFrame(e, xml, e.getMessage());
             }
             Element topElement = document.getDocumentElement();
             parseElements(topElement);
         } catch (ParserConfigurationException | SAXException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedInboundFrame(xml, e.getMessage());
+            throw InboundFrameException.unexpectedFrame(xml, e.getMessage());
         }
     }
 

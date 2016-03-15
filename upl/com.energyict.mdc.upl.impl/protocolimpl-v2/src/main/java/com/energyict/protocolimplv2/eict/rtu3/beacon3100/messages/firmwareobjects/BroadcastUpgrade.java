@@ -18,6 +18,7 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
@@ -198,7 +199,7 @@ public class BroadcastUpgrade {
                 Thread.sleep(initialTimeBetweenBlocksInMilliSeconds);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             }
 
             //Do a verification round before sending the next X blocks, and also at the very end of the block transfer

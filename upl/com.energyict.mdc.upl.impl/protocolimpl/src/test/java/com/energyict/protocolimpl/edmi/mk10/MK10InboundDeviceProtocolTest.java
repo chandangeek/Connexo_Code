@@ -2,15 +2,12 @@ package com.energyict.protocolimpl.edmi.mk10;
 
 import com.energyict.cpo.Environment;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.exceptions.ComServerExceptionFactory;
-import com.energyict.mdc.exceptions.ComServerExceptionFactoryProvider;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -19,7 +16,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.math.BigDecimal;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -53,18 +49,6 @@ public class MK10InboundDeviceProtocolTest {
     protected byte[] inboundFrame;
 
     @Mock
-    public ComServerExceptionFactoryProvider comServerExceptionFactoryProvider;
-    @Mock
-    public ComServerExceptionFactory comServerExceptionFactory;
-
-    @Before
-    public void setUp() {
-        when(comServerExceptionFactoryProvider.getComServerExceptionFactory()).thenReturn(comServerExceptionFactory);
-        when(comServerExceptionFactory.createUnExpectedInboundFrame(any(String.class), any(String.class))).thenReturn(new ComServerExecutionException(""));
-        ComServerExceptionFactoryProvider.instance.set(comServerExceptionFactoryProvider);
-    }
-
-    @Mock
     protected ComChannel comChannel;
 
     @Test
@@ -82,7 +66,7 @@ public class MK10InboundDeviceProtocolTest {
         assertEquals("device with call home id " + SERIALNUMBER, deviceIdentifier.toString());
     }
 
-    @Test(expected = ComServerExecutionException.class)
+    @Test(expected = ProtocolRuntimeException.class)
     public void commissioningPacketHandlingTest() {
         inboundFrame = ProtocolTools.getBytesFromHexString(COMMISSIONING_PUSH_PACKET);
         mockComChannel();

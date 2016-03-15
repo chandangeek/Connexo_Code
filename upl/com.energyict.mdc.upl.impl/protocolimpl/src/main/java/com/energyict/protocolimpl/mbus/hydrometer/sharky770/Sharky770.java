@@ -76,7 +76,7 @@ public class Sharky770 extends MBus {
      * The protocol version date
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-06-26 10:11:31 +0200 (Fri, 26 Jun 2015) $";
     }    
     
     protected void initRegisterFactory() {

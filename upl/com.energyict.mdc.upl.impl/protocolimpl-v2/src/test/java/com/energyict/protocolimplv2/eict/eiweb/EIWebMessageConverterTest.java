@@ -9,6 +9,7 @@ import com.energyict.mdw.core.DataVaultProvider;
 import com.energyict.mdw.core.RandomProvider;
 import com.energyict.mdw.crypto.KeyStoreDataVaultProvider;
 import com.energyict.mdw.crypto.SecureRandomProvider;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdw.offlineimpl.OfflineDeviceMessageAttributeImpl;
@@ -343,6 +344,7 @@ public class EIWebMessageConverterTest {
         DeviceMessage deviceMessage = mock(DeviceMessage.class);
         when(deviceMessage.getId()).thenReturn(DEVICE_MESSAGE_ID);
 
+        OfflineDevice offlineDevice = mock(OfflineDevice.class);
         for (PropertySpec propertySpec : messageSpec.getPropertySpecs()) {
             TypedProperties propertyStorage = TypedProperties.empty();
             if (messageSpec == GeneralDeviceMessage.SEND_XML_MESSAGE) {
@@ -350,7 +352,7 @@ public class EIWebMessageConverterTest {
             } else {
                 propertyStorage.setProperty(propertySpec.getName(), "1");
             }
-            attributes.add(new OfflineDeviceMessageAttributeImpl(new DeviceMessageAttributeImpl(propertySpec, deviceMessage, propertyStorage), new EIWeb()));
+            attributes.add(new OfflineDeviceMessageAttributeImpl(offlineDevice, message, new DeviceMessageAttributeImpl(propertySpec, deviceMessage, propertyStorage), new EIWeb()));
         }
         when(message.getDeviceMessageAttributes()).thenReturn(attributes);
         when(message.getSpecification()).thenReturn(messageSpec);

@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
-import java.io.IOException;
-
 /** @author  fbo */
 
 public class CustDefRegConfig {
@@ -9,7 +7,7 @@ public class CustDefRegConfig {
     int[][] custRegSource = new int[2][2];
     
     /** Creates a new instance of CustDefRegConfig */
-    public CustDefRegConfig(byte[] data) throws IOException {
+    public CustDefRegConfig(byte[] data) {
         for (int i=0;i<custRegSource.length;i++) {
             int b = data[i*2] | data[i*2+1];
             int reg = 0;

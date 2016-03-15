@@ -137,6 +137,9 @@ public class SecureConnection implements DLMSConnection {
 
     public byte[] readResponseWithRetries(byte[] retryRequest, boolean isAlreadyEncrypted) throws IOException {
 
+        //framecounter out of sync (it was already incremented in sendRequest, so decrement it)
+        aso.getSecurityContext().decrementFrameCounter();
+
         /* dataTransport security is only applied after we made an established association */
         if (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
 
@@ -151,7 +154,7 @@ public class SecureConnection implements DLMSConnection {
 
                 if (!isAlreadyEncrypted) {     //Don't encrypt the request again if it's already encrypted
                     final byte tag = XdlmsApduTags.getEncryptedTag(securedRequest[0], this.aso.getSecurityContext().isGlobalCiphering());
-                    securedRequest = encrypt(securedRequest);
+                    securedRequest = encrypt(securedRequest, false);
                     securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
                 } else {
                     //No encryption, only increase the frame counter
@@ -163,6 +166,9 @@ public class SecureConnection implements DLMSConnection {
 
                 // send the encrypted request to the DLMSConnection
                 final byte[] securedResponse = getTransportConnection().readResponseWithRetries(securedRequest);
+
+                //response sent, increment the framecounter
+                aso.getSecurityContext().incFrameCounter();
 
                 // check if the response tag is know and decrypt the data if necessary
                 if (XdlmsApduTags.contains(securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG])) {
@@ -186,9 +192,13 @@ public class SecureConnection implements DLMSConnection {
         }
     }
 
+    private byte[] encrypt(byte[] securedRequest, boolean incrementFrameCounter) throws IOException{
+        return this.aso.getSecurityContext().dataTransportEncryption(securedRequest, incrementFrameCounter);
+    }
+
     //Subclasses can override encryption implementation
     protected byte[] encrypt(byte[] securedRequest) throws IOException {
-        return this.aso.getSecurityContext().dataTransportEncryption(securedRequest);
+        return this.aso.getSecurityContext().dataTransportEncryption(securedRequest, true);
     }
 
     protected byte[] decrypt(byte[] securedResponse) throws IOException, DLMSConnectionException {

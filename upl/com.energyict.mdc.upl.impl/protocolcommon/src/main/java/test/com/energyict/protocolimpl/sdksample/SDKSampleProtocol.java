@@ -373,7 +373,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2014-06-20 14:07:47 +0200 (Fri, 20 Jun 2014) $";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

@@ -7,6 +7,7 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
 import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
@@ -155,7 +156,7 @@ public class UkHubMessageExecutor extends MessageParser {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
 
         if (success) {
@@ -450,7 +451,7 @@ public class UkHubMessageExecutor extends MessageParser {
             } catch (InterruptedException e) {
                 log(Level.SEVERE, "Interrupted while sleeping : " + e.getMessage());
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             }
         }
 

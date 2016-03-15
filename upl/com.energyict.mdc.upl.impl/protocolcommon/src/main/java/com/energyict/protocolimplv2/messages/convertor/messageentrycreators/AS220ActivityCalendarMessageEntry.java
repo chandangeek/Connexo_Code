@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.messaging.Messaging;
@@ -67,7 +68,7 @@ public class AS220ActivityCalendarMessageEntry implements MessageEntryCreator {
         try {
             return ProtocolTools.compress(codeTableDescription);
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+            throw DataParseException.generalParseException(e);
         }
     }
 }

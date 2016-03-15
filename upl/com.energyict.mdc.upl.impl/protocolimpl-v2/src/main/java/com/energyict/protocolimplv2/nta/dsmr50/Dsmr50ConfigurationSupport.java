@@ -32,6 +32,7 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
 
     public static final String CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME = "CheckNumberOfBlocksDuringFirmwareResume";
     public static final String USE_EQUIPMENT_IDENTIFIER_AS_SERIAL = "UseEquipmentIdentifierAsSerialNumber";
+    public static final String PROPERTY_IGNORE_DST_STATUS_CODE = "IgnoreDstStatusCode";
     public static final boolean DEFAULT_CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME = true;
     public static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = true;
     private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
@@ -63,7 +64,8 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
                 this.serverLowerMacAddressPropertySpec(),
                 this.checkNumberOfBlocksDuringFirmwareResumePropertySpec(),
                 this.lastSeenDatePropertySpec(),
-                this.useEquipmentIdentifierAsSerialNumberPropertySpec()
+                this.useEquipmentIdentifierAsSerialNumberPropertySpec(),
+                this.ignoreDstStatusCode()
         );
     }
 
@@ -143,6 +145,10 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
 
     protected PropertySpec ntaSimulationToolPropertySpec() {
         return PropertySpecFactory.notNullableBooleanPropertySpec(NTA_SIMULATION_TOOL);
+    }
+
+    protected PropertySpec ignoreDstStatusCode() {
+        return PropertySpecFactory.notNullableBooleanPropertySpec(PROPERTY_IGNORE_DST_STATUS_CODE, false);
     }
 
     private PropertySpec useEquipmentIdentifierAsSerialNumberPropertySpec() {

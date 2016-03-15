@@ -8,6 +8,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.*;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimplv2.MdcManager;
 
@@ -217,7 +218,7 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
 
         try {
@@ -622,7 +623,7 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
     //
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

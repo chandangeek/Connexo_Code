@@ -1,12 +1,8 @@
 package com.energyict.protocolimpl.iec1107.ppm;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.TimeZone;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
@@ -15,6 +11,10 @@ import com.energyict.protocolimpl.iec1107.ppm.register.LoadProfileDefinition;
 import com.energyict.protocolimpl.iec1107.ppm.register.MainRegister;
 import com.energyict.protocolimpl.iec1107.ppm.register.MaximumDemand;
 import com.energyict.protocolimpl.iec1107.ppm.register.ScalingFactor;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /** @author Koen, fbo */
 
@@ -142,7 +142,7 @@ public class Register {
 	}
 
 	byte[] readRegister(boolean cached, int dataLength, int set)
-			throws FlagIEC1107ConnectionException, IOException {
+            throws IOException {
 		return getDataIdentityFactory().getDataIdentity(getDataID(), cached,
 				dataLength, set);
 	}
@@ -285,13 +285,13 @@ public class Register {
                     return hdpl.matchPeriod();
 
                 default :
-                    throw new IOException("Register, parse , unknown type "
+                    throw new ProtocolException("Register, parse , unknown type "
 							+ getType());
 			}
 		} catch (NumberFormatException e) {
-			throw new IOException("Register, parse error");
-		}
-	}
+			throw new ProtocolException("Register, parse error:" + e.getMessage());
+        }
+    }
 
     public MetaRegister getMetaRegister() {
         return metaRegister;

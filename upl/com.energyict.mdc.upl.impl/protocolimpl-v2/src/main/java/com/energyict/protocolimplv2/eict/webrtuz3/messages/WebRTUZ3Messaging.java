@@ -3,12 +3,14 @@ package com.energyict.protocolimplv2.eict.webrtuz3.messages;
 import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.Lookup;
 import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -114,7 +116,7 @@ public class WebRTUZ3Messaging extends AbstractDlmsMessaging implements DeviceMe
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(firmwareUpdateActivationDateAttributeName)
                 || propertySpec.getName().equals(activityCalendarActivationDateAttributeName)
                 || propertySpec.getName().equals(contactorActivationDateAttributeName)
@@ -144,5 +146,10 @@ public class WebRTUZ3Messaging extends AbstractDlmsMessaging implements DeviceMe
         }
 
         return messageAttribute.toString();
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 }

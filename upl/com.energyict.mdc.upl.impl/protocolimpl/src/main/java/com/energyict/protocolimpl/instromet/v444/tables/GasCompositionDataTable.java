@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.instromet.v444.tables;
 
-import java.io.IOException;
+import com.energyict.protocol.ProtocolException;
 
 public class GasCompositionDataTable extends AbstractTable {
 	
@@ -8,7 +8,7 @@ public class GasCompositionDataTable extends AbstractTable {
 		super(tableFactory);
 	}
 	
-	protected void parse(byte[] data) throws IOException {
+	protected void parse(byte[] data) throws ProtocolException {
 		
 	}
 

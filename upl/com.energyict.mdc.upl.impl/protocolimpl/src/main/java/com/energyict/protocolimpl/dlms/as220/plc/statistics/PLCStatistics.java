@@ -79,14 +79,14 @@ public class PLCStatistics extends Array {
 		final Unit countUnit = Unit.get(BaseUnit.COUNT);
 		final Unit ratioUnit = Unit.get(BaseUnit.RATIO);
 
-		ChannelInfo s0 = new ChannelInfo(1, "S0", ratioUnit);
-		ChannelInfo n0 = new ChannelInfo(2, "N0", ratioUnit);
-		ChannelInfo s1 = new ChannelInfo(3, "S1", countUnit);
-		ChannelInfo n1 = new ChannelInfo(4, "N1", countUnit);
-		ChannelInfo crcOk = new ChannelInfo(5, "CRC OK", countUnit);
-		ChannelInfo crcNOk = new ChannelInfo(6, "CRC NOT OK", countUnit);
-		ChannelInfo fTx = new ChannelInfo(7, "Frames TX", countUnit);
-		ChannelInfo fRep = new ChannelInfo(8, "Frames repeated", countUnit);
+		ChannelInfo s0 = new ChannelInfo(0, "S0", ratioUnit);
+		ChannelInfo n0 = new ChannelInfo(1, "N0", ratioUnit);
+		ChannelInfo s1 = new ChannelInfo(2, "S1", countUnit);
+		ChannelInfo n1 = new ChannelInfo(3, "N1", countUnit);
+		ChannelInfo crcOk = new ChannelInfo(4, "CRC OK", countUnit);
+		ChannelInfo crcNOk = new ChannelInfo(5, "CRC NOT OK", countUnit);
+		ChannelInfo fTx = new ChannelInfo(6, "Frames TX", countUnit);
+		ChannelInfo fRep = new ChannelInfo(7, "Frames repeated", countUnit);
 
 		List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 		channelInfos.add(s0);

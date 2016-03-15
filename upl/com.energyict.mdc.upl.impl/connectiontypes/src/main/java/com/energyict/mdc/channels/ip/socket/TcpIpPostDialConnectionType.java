@@ -1,15 +1,15 @@
 package com.energyict.mdc.channels.ip.socket;
 
-import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ConnectionException;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
-
 import com.energyict.cbo.InvalidValueException;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.mdc.channels.ComChannelType;
+import com.energyict.mdc.ports.ComPort;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.protocol.exceptions.ConnectionException;
+import com.energyict.mdc.protocol.ServerLoggableComChannel;
+import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
@@ -56,8 +56,9 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
             }
         }
         try {
-            ComChannel comChannel = this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
+            ServerLoggableComChannel comChannel = this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
             comChannel.addProperties(createTypeProperty(ComChannelType.SocketComChannel));
+            comChannel.setComPort(comPort);
             sendPostDialCommand(comChannel);
             return comChannel;
         } catch (InvalidValueException e) {
@@ -65,7 +66,7 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
         }
     }
 
-    protected void sendPostDialCommand(ComChannel comChannel) throws InvalidValueException {
+    protected void sendPostDialCommand(ServerLoggableComChannel comChannel) throws InvalidValueException {
         if (getPostDialCommandPropertyValue() != null) {
             for (int i = 0; i < getPostDialTriesPropertyValue(); i++) {
                 delayBeforeSend(getPostDialDelayPropertyValue());
@@ -80,7 +81,7 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
             Thread.sleep(milliSecondsToSleep);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
 

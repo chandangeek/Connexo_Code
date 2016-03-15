@@ -1,5 +1,6 @@
 package com.energyict.mdc.channels.serial.modem.serialio;
 
+import com.energyict.cbo.TimeDuration;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.ServerManager;
@@ -12,13 +13,17 @@ import com.energyict.mdc.channels.serial.modem.AbstractModemTests;
 import com.energyict.mdc.channels.serial.modem.CaseModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedCaseModemProperties;
 import com.energyict.mdc.channels.serial.modem.TypedPaknetModemProperties;
-import com.energyict.mdc.exceptions.ModemException;
+import com.energyict.protocol.exceptions.ModemException;
 import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
-
-import com.energyict.cbo.TimeDuration;
+import com.energyict.protocol.exceptions.ProtocolExceptionReference;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,24 +31,14 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for the {@link SioCaseModemConnectionType} component
- *
+ * 
  * @author sva
  * @since 30/04/13 - 14:43
  */
@@ -134,7 +129,7 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         try {
             caseModemConnectionType.connect(comPort, getProperProperties());
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-207")) {
+            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_SEND_INIT_STRING)) {
                 fail("Should have gotten exception indicating that the modem init string could not be sent, but was " + e.getMessage());
             }
             throw e;
@@ -172,7 +167,7 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         try {
             caseModemConnectionType.connect(comPort, getProperProperties());
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-207")) {
+            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_SEND_INIT_STRING)) {
                 fail("Should have gotten exception indicating that the modem init string could not be sent, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName, "Not_CorrectAnswer", "V0");
@@ -194,7 +189,7 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests{
         try {
             caseModemConnectionType.connect(comPort, getProperProperties());
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-216")) {
+            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_CALL_ABORTED)) {
                 fail("Should have gotten exception indicating that the modem received a ERROR signal, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);

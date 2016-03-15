@@ -26,7 +26,7 @@ public class RegisterTypeByte extends AbstractRegisterType {
     }
     
     public BigDecimal getBigDecimal() {
-        return new BigDecimal(""+getValue());
+        return new BigDecimal(0xFF & getValue());
     }
     
     public byte getValue() {

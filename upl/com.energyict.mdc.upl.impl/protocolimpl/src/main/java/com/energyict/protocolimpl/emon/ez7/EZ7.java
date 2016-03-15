@@ -7,30 +7,18 @@
 package com.energyict.protocolimpl.emon.ez7;
 
 
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.DialerMarker;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dialer.core.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
-import com.energyict.protocolimpl.base.AbstractProtocol;
-import com.energyict.protocolimpl.base.Encryptor;
-import com.energyict.protocolimpl.base.ProtocolChannel;
-import com.energyict.protocolimpl.base.ProtocolConnection;
-import com.energyict.protocolimpl.base.SecurityLevelException;
+import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7Connection;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7Profile;
 import com.energyict.protocolimpl.emon.ez7.core.ObisCodeMapper;
 import com.energyict.protocolimpl.emon.ez7.core.command.SetKey;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -43,7 +31,7 @@ import java.util.logging.Logger;
  *
  * @author  Koen
  */
-public class EZ7 extends AbstractProtocol {
+public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
     
     // properties
     //int halfDuplex;
@@ -58,11 +46,20 @@ public class EZ7 extends AbstractProtocol {
     public EZ7() {
     }
 
+    @Override
+    public String getSerialNumber() {
+        try {
+            return getEz7CommandFactory().getRGLInfo().getSerialNumber();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
+        }
+    }
+
     /**
      * The protocol version
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:26:46 +0200 (Thu, 26 Nov 2015)$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -89,14 +86,6 @@ public class EZ7 extends AbstractProtocol {
         // See page 1-32 of the protocoldescription...
         // Do not wait for a response since the meter hangsup the connection!
         getEz7Connection().sendCommand("SRD","0",false);
-    }
-    
-    protected void validateSerialNumber() throws IOException {
-        boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
-        String sn = getEz7CommandFactory().getRGLInfo().getSerialNumber();
-        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
-        throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
     }
     
     protected void validateDeviceId() throws IOException {

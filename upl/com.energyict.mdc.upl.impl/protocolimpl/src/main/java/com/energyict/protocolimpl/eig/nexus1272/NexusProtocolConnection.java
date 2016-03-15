@@ -1,13 +1,6 @@
 package com.energyict.protocolimpl.eig.nexus1272;
 
 
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
@@ -18,6 +11,12 @@ import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.eig.nexus1272.command.Command;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.logging.Logger;
 
 /**
  *
@@ -74,7 +73,7 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 		return null;   
 	}
 
-	public void delayAndFlush(int delay) throws IOException {
+	public void delayAndFlush(int delay) throws ConnectionException, NestedIOException {
 		super.delayAndFlush(delay);
 	}
 
@@ -88,7 +87,7 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 	public enum READ_RESPONSE_STATES {BUILD_BC, BUILD_DATA};
 	public enum WRITE_RESPONSE_STATES{BUILD_SA, BUILD_DATA};
 	
-	public ByteArrayOutputStream receiveWriteResponse(Command c) throws IOException {
+	public ByteArrayOutputStream receiveWriteResponse(Command c) throws ConnectionException, NestedIOException {
 		byte[] transId = new byte[2];
 		byte[] protocolId = new byte[2];
 		byte[] len = new byte [2];

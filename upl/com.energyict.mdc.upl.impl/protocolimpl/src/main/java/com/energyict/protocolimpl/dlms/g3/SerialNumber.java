@@ -1,8 +1,7 @@
 package com.energyict.protocolimpl.dlms.g3;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-
-import java.io.IOException;
 
 /**
  * Copyrights EnergyICT
@@ -46,12 +45,12 @@ public class SerialNumber {
         return sb.toString();
     }
 
-    public static final SerialNumber fromBytes(byte[] rawBytes) throws IOException {
+    public static final SerialNumber fromBytes(byte[] rawBytes) throws ProtocolException {
         if (rawBytes == null) {
-            throw new IOException("Unable to extract serial number from 'null' byte array!");
+            throw new ProtocolException("Unable to extract serial number from 'null' byte array!");
         }
         if (rawBytes.length != LENGTH) {
-            throw new IOException("Invalid logical device name [" + ProtocolTools.getHexStringFromBytes(rawBytes) + "]. " +
+            throw new ProtocolException("Invalid logical device name [" + ProtocolTools.getHexStringFromBytes(rawBytes) + "]. " +
                     "Expected length [" + LENGTH + "] but was [" + rawBytes.length + "]!");
         }
 

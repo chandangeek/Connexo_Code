@@ -1,12 +1,12 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.cbo.NotFoundException;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierType;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RegisterFactory;
 import com.energyict.mdw.core.RegisterFactoryProvider;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
 import com.energyict.util.Collections;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -46,7 +46,7 @@ public class RegisterIdentifierById implements RegisterIdentifier {
         if (this.register == null) {
             Register register = getRegisterFactory().find(id);
             if (register == null) {
-                throw new NotFoundException("Register with id " + this.id + " not found");
+                throw NotFoundException.notFound(Register.class, this.toString());
             }
             this.register = register;
         }

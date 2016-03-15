@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 
@@ -65,7 +66,7 @@ public class SelfReadConfigurationCommand extends AbstractCommand {
         return strBuff.toString();
     }
     
-    protected byte[] prepareBuild() throws IOException {
+    protected byte[] prepareBuild() throws ProtocolException {
         return new byte[]{(byte)0x88,0,0,0,0,0,0,0,0};
     }
     

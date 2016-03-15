@@ -9,23 +9,13 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.SerialNumber;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
@@ -35,14 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -64,7 +47,7 @@ import java.util.logging.Logger;
  */
 
 public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler,
-        SerialNumber, MeterExceptionInfo, RegisterProtocol {
+        SerialNumber, MeterExceptionInfo, RegisterProtocol, SerialNumberSupport {
 
     private int dbg = 0;
 
@@ -125,9 +108,28 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /* ___ Implement interface MeterProtocol ___ */
 
+    /**
+     * Returns the read out device serial number
+     *
+     * @return String serial number
+     */
+    @Override
+    public String getSerialNumber() {
+        try {
+
+            SerialNumberRegister serialNumber = getRegisterFactory().getSerialNumber();
+            if(serialNumber == null){
+                throw new ProtocolException("Serial number not available!");
+            }
+            return serialNumber.getSerialNumber();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getNrOfRetries() + 1);
+        }
+    }
+
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#
      *      setProperties(java.util.Properties)
      */
@@ -270,7 +272,6 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
             dataType = new DataType(timeZone);
             obisCodeMapper = new ObisCodeMapper(this, rFactory);
 
-            validateSerialNumber();
             doExtendedLogging();
 
         } catch (FlagIEC1107ConnectionException e) {
@@ -496,7 +497,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:24:26 +0200 (Thu, 26 Nov 2015)$";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -569,28 +570,6 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
     }
 
     /* ___ Private property checking ___ */
-
-    private void validateSerialNumber() throws IOException {
-        if ((pSerialNumber == null) || ("".equals(pSerialNumber))) {
-            return;
-        }
-        // at this point pSerialNumber can not be null any more
-
-        String sn = (String) rFactory.getSerialNumber().getSerialNumber();
-        if (sn != null) {
-
-            String snNoDash = sn.replaceAll("-+", "");
-
-            String pSerialNumberNoDash = pSerialNumber.replaceAll("-+", "");
-
-            if (pSerialNumberNoDash.equals(snNoDash)) {
-                return;
-            }
-        }
-
-        throw new IOException("SerialNumber mismatch! meter sn=" + sn
-                + ", configured sn=" + pSerialNumber);
-    }
 
     private void validateProperties() throws MissingPropertyException,
             InvalidPropertyException {

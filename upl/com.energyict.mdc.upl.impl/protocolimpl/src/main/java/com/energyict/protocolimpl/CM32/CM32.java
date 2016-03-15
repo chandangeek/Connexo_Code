@@ -7,12 +7,7 @@ import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dialer.coreimpl.ATDialer;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -50,12 +45,7 @@ public class CM32 extends AbstractProtocol {
         return 16;
     }
     
-    protected void validateSerialNumber() throws IOException {
-        boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || 
-            ("".compareTo(getInfoTypeSerialNumber())==0)) return;
-    }
-    
+
 	protected void doConnect() throws IOException {
 		getLogger().info("doConnect");
 		
@@ -131,13 +121,13 @@ public class CM32 extends AbstractProtocol {
 	}
 
     public String getProtocolVersion() {
-		return "$Date$";
+		return "$Date: 2015-11-26 15:25:58 +0200 (Thu, 26 Nov 2015)$";
 	}
 
 	public Date getTime() throws IOException {
 		getLogger().info("getTime");
 		CommandFactory commandFactory = getCommandFactory();
-		Response response = 
+		Response response =
 			commandFactory.getReadTimeCommand().invoke();
 		TimeTable timeTable = new TimeTable(this);
 		timeTable.parse(response.getData());

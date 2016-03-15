@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles;
 
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
@@ -14,7 +15,6 @@ import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGDLMSProfileIntervals;
@@ -90,7 +90,7 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
 
                     collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
                 } catch (IOException e) {
-                    if (IOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSession())) {
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSession().getProperties().getRetries() + 1)) {
                         Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
                         collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }
@@ -105,6 +105,10 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
     }
 
     public ProfileIntervalStatusBits getProfileIntervalStatusBits() {
-        return new DSMRProfileIntervalStatusBits();
+        return new DSMRProfileIntervalStatusBits(isIgnoreDstStatusCode());
+    }
+
+    protected boolean isIgnoreDstStatusCode() {
+        return false;   //Default false, subclasses can override
     }
 }

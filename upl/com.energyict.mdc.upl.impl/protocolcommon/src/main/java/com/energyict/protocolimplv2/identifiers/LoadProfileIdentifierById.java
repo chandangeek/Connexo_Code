@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.cbo.NotFoundException;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
 import com.energyict.util.Collections;
 import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifierType;
@@ -51,7 +51,7 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
     public LoadProfile getLoadProfile() {
         LoadProfile loadProfile = getLoadProfileFactory().find(this.loadProfileId);
         if (loadProfile == null) {
-            throw new NotFoundException("LoadProfile with id " + this.loadProfileId + " not found");
+            throw NotFoundException.notFound(LoadProfile.class, this.toString());
         } else {
             return loadProfile;
         }

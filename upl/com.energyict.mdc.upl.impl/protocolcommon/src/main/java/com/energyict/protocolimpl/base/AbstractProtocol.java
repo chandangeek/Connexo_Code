@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -53,7 +54,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      *
      * @throws IOException Exception thrown when the logon fails.
      */
-    abstract protected void doConnect() throws IOException;
+    abstract protected void doConnect() throws IOException, ParseException;
 
     /**
      * Abstract method to implement the logoff
@@ -403,13 +404,8 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
             doConnect();
         } catch (ProtocolConnectionException e) {
             throw new IOException(e.getMessage());
-        }
-
-        try {
-            validateSerialNumber();
-        } catch (ProtocolConnectionException e) {
-            disconnect();
-            throw new IOException(e.getMessage());
+        } catch (ParseException e) {
+            throw new ProtocolException(e);
         }
 
         try {
@@ -1115,23 +1111,6 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      */
     protected String getRegistersInfo(int extendedLogging) throws IOException {
         return ("");
-    }
-
-    /**
-     * Method must be overridden by the subclass to verify the property 'SerialNumber'
-     * against the serialnumber read from the meter. Code below as example to implement the method.
-     * This code has been taken from a real protocol implementation.
-     *
-     * @throws java.io.IOException thrown when the serial numbers do not match
-     */
-    protected void validateSerialNumber() throws IOException {
-        /*
-         boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
-        String sn = (String)get[protocol]Registry().getRegister("[name of register that contains serial nulber]");
-        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
-        throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
-        */
     }
 
     /**

@@ -4,6 +4,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdc.meterdata.*;
@@ -21,6 +22,7 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
@@ -36,7 +38,7 @@ import java.util.*;
  * Date: 9/10/13
  * Time: 12:02 PM
  */
-public class EIWeb implements DeviceProtocol {
+public class EIWeb implements DeviceProtocol, SerialNumberSupport {
 
     private static final String PHONE_NUMBER = "PhoneNumber";
     private OfflineDevice offlineDevice;
@@ -158,8 +160,13 @@ public class EIWeb implements DeviceProtocol {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         return messageAttribute.toString();
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 
     private LegacyMessageConverter getMessageConverter() {
@@ -226,7 +233,7 @@ public class EIWeb implements DeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:26:44 +0200 (Thu, 26 Nov 2015)$";
     }
 
     @Override

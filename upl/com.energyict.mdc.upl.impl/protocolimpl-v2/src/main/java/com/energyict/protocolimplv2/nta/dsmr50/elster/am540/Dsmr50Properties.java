@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
@@ -41,6 +42,10 @@ public class Dsmr50Properties extends DlmsProperties {
         return getProperties().getTypedProperty(CumulativeCaptureTimeChannel, false);
     }
 
+    public boolean isIgnoreDstStatusCode() {
+        return getProperties().getTypedProperty(Dsmr50ConfigurationSupport.PROPERTY_IGNORE_DST_STATUS_CODE, false);
+    }
+
     public long getAARQTimeout() {
         return getProperties().getTypedProperty(AARQ_TIMEOUT_PROPERTY, BigDecimal.ZERO).longValue();
     }
@@ -63,7 +68,7 @@ public class Dsmr50Properties extends DlmsProperties {
     private int getMirrorLogicalDeviceId() {
         final int logicalDeviceId = parseBigDecimalProperty(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID);
         if (logicalDeviceId == -1) {
-            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, "-1", "Should be a number greater than 0");
+            throw DeviceConfigurationException.invalidPropertyFormat(AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID, "-1", "Should be a number greater than 0");
         }
         return logicalDeviceId;
     }
@@ -71,7 +76,7 @@ public class Dsmr50Properties extends DlmsProperties {
     private int getGatewayLogicalDeviceId() {
         final int logicalDeviceId = parseBigDecimalProperty(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID);
         if (logicalDeviceId == -1) {
-            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, "-1", "Should be a number greater than 0");
+            throw DeviceConfigurationException.invalidPropertyFormat(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, "-1", "Should be a number greater than 0");
         }
         return logicalDeviceId;
     }

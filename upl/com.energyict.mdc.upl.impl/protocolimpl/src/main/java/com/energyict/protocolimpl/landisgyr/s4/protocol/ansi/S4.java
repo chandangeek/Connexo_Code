@@ -11,33 +11,19 @@
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.DialerMarker;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dialer.core.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
-import com.energyict.protocolimpl.ansi.c12.AbstractResponse;
-import com.energyict.protocolimpl.ansi.c12.C12Layer2;
-import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
-import com.energyict.protocolimpl.ansi.c12.PSEMServiceFactory;
-import com.energyict.protocolimpl.ansi.c12.ResponseIOException;
+import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.ansi.c12.*;
 import com.energyict.protocolimpl.ansi.c12.procedures.StandardProcedureFactory;
 import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileSet;
 import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.procedures.ManufacturerProcedureFactory;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables.ManufacturerTableFactory;
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
@@ -46,11 +32,7 @@ import com.energyict.protocolimpl.meteridentification.S4Fam;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 /**
  *
@@ -58,7 +40,7 @@ import java.util.logging.Logger;
  * @beginchanges
  * @endchanges
  */
-public class S4 extends AbstractProtocol implements C12ProtocolLink {
+public class S4 extends AbstractProtocol implements C12ProtocolLink, SerialNumberSupport {
     
     private C12Layer2 c12Layer2;
     private PSEMServiceFactory psemServiceFactory;
@@ -102,14 +84,6 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink {
         return serialNumber;
 */        
         throw new IOException("Not implemented!");
-    }
-    
-    protected void validateSerialNumber() throws IOException {
-         boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
-        String sn = getStandardTableFactory().getManufacturerIdentificationTable().getManufacturerSerialNumber();
-        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
-        throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
     }
     
     public AbstractManufacturer getManufacturer() {
@@ -221,8 +195,17 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink {
         return 0;
     }
 
+    @Override
+    public String getSerialNumber() {
+        try {
+            return getStandardTableFactory().getManufacturerIdentificationTable().getManufacturerSerialNumber();
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
+        }
+    }
+
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:23:42 +0200 (Thu, 26 Nov 2015)$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {

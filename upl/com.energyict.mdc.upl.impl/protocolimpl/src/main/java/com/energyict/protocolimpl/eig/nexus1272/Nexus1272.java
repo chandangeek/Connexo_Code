@@ -4,42 +4,26 @@ import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.interval.TimeSeriesGenerator;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
-import com.energyict.protocolimpl.eig.nexus1272.command.AbstractCommand;
-import com.energyict.protocolimpl.eig.nexus1272.command.AuthenticationCommand;
-import com.energyict.protocolimpl.eig.nexus1272.command.Command;
-import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
-import com.energyict.protocolimpl.eig.nexus1272.command.ReadCommand;
-import com.energyict.protocolimpl.eig.nexus1272.command.SetTimeCommand;
+import com.energyict.protocolimpl.eig.nexus1272.command.*;
 import com.energyict.protocolimpl.eig.nexus1272.parse.LinePoint;
 import com.energyict.protocolimpl.eig.nexus1272.parse.NexusDataParser;
 import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySetting;
 import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySettingFactory;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 
-public class Nexus1272 extends AbstractProtocol  {
+public class Nexus1272 extends AbstractProtocol implements SerialNumberSupport {
 
 	private NexusProtocolConnection connection;
 	private OutputStream outputStream;
@@ -161,12 +145,25 @@ public class Nexus1272 extends AbstractProtocol  {
 		return fwVersion;
 	}
 
-	/**
+    @Override
+    public String getSerialNumber() {
+        try {
+            Command command = NexusCommandFactory.getFactory().getSerialNumberCommand();
+            outputStream.write(command.build());
+            byte[] data = connection.receiveWriteResponse(command).toByteArray();
+            NexusDataParser ndp = new NexusDataParser(data);
+            return ndp.parseSN();
+        }catch (IOException e){
+            throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
+        }
+    }
+
+    /**
 	 * Returns the protocol version date
 	 */
     @Override
 	public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:25:13 +0200 (Thu, 26 Nov 2015)$";
 	}
 
 	@Override
@@ -407,22 +404,6 @@ public class Nexus1272 extends AbstractProtocol  {
 		}
 		return lpMap;
 	}
-
-	@Override
-	protected void validateSerialNumber() throws IOException {
-		if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
-		Command command = NexusCommandFactory.getFactory().getSerialNumberCommand();
-		outputStream.write(command.build());
-		byte[] data = connection.receiveWriteResponse(command).toByteArray();
-
-		NexusDataParser ndp = new NexusDataParser(data);
-
-		String sn = ndp.parseSN();
-		if (sn.compareTo(getInfoTypeSerialNumber()) != 0)
-			throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
-	}
-
-
 
 	private boolean authenticate(int level) throws IOException {
 

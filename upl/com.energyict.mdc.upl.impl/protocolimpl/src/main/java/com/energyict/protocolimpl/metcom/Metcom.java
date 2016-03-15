@@ -19,6 +19,7 @@ import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec1107.Software7E1InputStream;
 import com.energyict.protocolimpl.iec1107.Software7E1OutputStream;
@@ -420,7 +421,7 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             } catch (SiemensSCTMException e) {
                 throw new NestedIOException(e);
             }

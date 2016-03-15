@@ -20,7 +20,7 @@ public class ModbusMessageConverter extends AbstractMessageConverter {
      * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
      * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
      */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
+    protected static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
 
     static {
         registry.put(ModbusConfigurationDeviceMessage.WriteSingleRegisters, new WriteModbusRegisterMessage());

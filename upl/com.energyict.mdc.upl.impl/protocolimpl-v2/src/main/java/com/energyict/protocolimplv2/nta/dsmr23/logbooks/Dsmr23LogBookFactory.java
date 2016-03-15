@@ -3,28 +3,18 @@ package com.energyict.protocolimplv2.nta.dsmr23.logbooks;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.LogBookReader;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.protocol.NotInObjectListException;
-import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.DisconnectControlLog;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.EventsLog;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.FraudDetectionLog;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.MbusControlLog;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.MbusLog;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.PowerFailureLog;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -88,7 +78,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
                     } catch (NotInObjectListException e) {
                         collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
                     } catch (IOException e) {
-                        if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
+                        if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
                             collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
                         }
                     }

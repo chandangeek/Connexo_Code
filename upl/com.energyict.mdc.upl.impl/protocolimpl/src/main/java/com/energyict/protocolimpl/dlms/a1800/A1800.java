@@ -2,12 +2,14 @@ package com.energyict.protocolimpl.dlms.a1800;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractDlmsSessionProtocol;
 import com.energyict.protocolimpl.dlms.common.ProfileCacheImpl;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +25,7 @@ import java.util.logging.Logger;
  * Created by heuckeg on 13.06.2014.
  */
 @SuppressWarnings("unused")
-public class A1800 extends AbstractDlmsSessionProtocol {
+public class A1800 extends AbstractDlmsSessionProtocol implements SerialNumberSupport{
 
     public static final ObisCode CLOCK_OBIS_CODE = ObisCode.fromString("0.0.1.0.0.255");
 
@@ -41,7 +43,21 @@ public class A1800 extends AbstractDlmsSessionProtocol {
      * The protocol version
      */
     public String getProtocolVersion() {
-        return "$Date: 2014-06-27 13:00:00$";
+        return "$Date: 2015-11-26 15:23:39 +0200 (Thu, 26 Nov 2015)$";
+    }
+
+    /**
+     * Returns the serial number
+     *
+     * @return String serial number
+     */
+    @Override
+    public String getSerialNumber() {
+        try {
+            return readSerialNumber();
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, properties.getRetries() + 1);
+        }
     }
 
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
@@ -62,7 +78,7 @@ public class A1800 extends AbstractDlmsSessionProtocol {
                 Thread.sleep(3000);
             } catch (InterruptedException interrupt) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(interrupt);
+                throw ConnectionCommunicationException.communicationInterruptedException(interrupt);
             }
         }
 

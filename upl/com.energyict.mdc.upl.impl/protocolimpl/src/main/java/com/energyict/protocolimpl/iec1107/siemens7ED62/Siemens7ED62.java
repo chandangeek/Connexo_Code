@@ -14,12 +14,9 @@ KV|06092005|VDEW changed to do channel mapping!
 
 package com.energyict.protocolimpl.iec1107.siemens7ED62;
 
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
+import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 
 import java.io.IOException;
@@ -32,7 +29,7 @@ import java.util.Properties;
  *
  * @author  Koen
  */
-public class Siemens7ED62 extends AbstractIEC1107Protocol {
+public class Siemens7ED62 extends AbstractIEC1107Protocol implements SerialNumberSupport {
     
     
     Siemens7ED62Registry siemens7ED62Registry=null;
@@ -48,8 +45,17 @@ public class Siemens7ED62 extends AbstractIEC1107Protocol {
         siemens7ED62Profile = new Siemens7ED62Profile(this,this,siemens7ED62Registry);
     }
 
+    @Override
+    public String getSerialNumber() {
+        try {
+            return (String)getSiemens7ED62Registry().getRegister("MeterSerialNumber");
+        } catch (IOException e) {
+            throw ProtocolIOExceptionHandler.handle(e, getNrOfRetries() + 1);
+        }
+    }
+
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-26 15:24:27 +0200 (Thu, 26 Nov 2015)$";
     }
 
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
@@ -110,14 +116,6 @@ public class Siemens7ED62 extends AbstractIEC1107Protocol {
     
     public int getNumberOfChannels() throws UnsupportedException, IOException {
         return getChannelMap().getNrOfChannels();
-    }
-    
-    protected void validateSerialNumber() throws IOException {
-        boolean check = true;
-        if ((getInfoTypeSerialNumber() == null) || ("".compareTo(getInfoTypeSerialNumber())==0)) return;
-        String sn = (String)getSiemens7ED62Registry().getRegister("MeterSerialNumber");
-        if (sn.compareTo(getInfoTypeSerialNumber()) == 0) return;
-        throw new IOException("SerialNumber mismatch! meter sn="+sn+", configured sn="+getInfoTypeSerialNumber());
     }
     
     /**

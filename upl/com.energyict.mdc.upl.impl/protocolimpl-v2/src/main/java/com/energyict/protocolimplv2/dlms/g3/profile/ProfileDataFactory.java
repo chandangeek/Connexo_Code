@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms.g3.profile;
 
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
@@ -13,7 +14,6 @@ import com.energyict.protocolimpl.dlms.g3.profile.G3Profile;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.g3.cache.G3Cache;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -59,7 +59,7 @@ public class ProfileDataFactory {
                     collectedLoadProfileConfiguration.setChannelInfos(g3Profile.getChannelInfos());
                     collectedLoadProfileConfiguration.setProfileInterval(g3Profile.getProfileInterval());
                 } catch (IOException e) {
-                    if (IOExceptionHandler.isUnexpectedResponse(e, dlmsSession)) {
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, dlmsSession.getProperties().getRetries() + 1)) {
                         dlmsSession.getLogger().warning(e.toString());
                         collectedLoadProfileConfiguration.setSupportedByMeter(false);
                     }
@@ -79,7 +79,7 @@ public class ProfileDataFactory {
                     ProfileData profileData = getG3Profile(loadProfileReader).getProfileData(loadProfileReader.getStartReadingTime(), loadProfileReader.getEndReadingTime());
                     collectedLoadProfile.setCollectedIntervalData(profileData.getIntervalDatas(), profileData.getChannelInfos());
                 } catch (IOException e) {
-                    if (IOExceptionHandler.isUnexpectedResponse(e, dlmsSession)) {
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, dlmsSession.getProperties().getRetries() + 1)) {
                         Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createProblem(loadProfileReader, "loadProfileXIssue", loadProfileReader.getProfileObisCode().toString(), e.getMessage());
                         collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }

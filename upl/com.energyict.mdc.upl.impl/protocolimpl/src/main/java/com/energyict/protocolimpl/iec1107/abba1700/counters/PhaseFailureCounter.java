@@ -1,9 +1,8 @@
 package com.energyict.protocolimpl.iec1107.abba1700.counters;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-
-import java.io.IOException;
 
 /**
  * The phaseFailureCounter keeps track of how many times a phaseFailure has occurred plus the latest three eventTimes and phase indication
@@ -31,7 +30,7 @@ public class PhaseFailureCounter extends AbstractCounter{
      * @throws java.io.IOException when the conversion of certain types did not succeed
      */
     @Override
-    public void parse(final byte[] data) throws IOException {
+    public void parse(final byte[] data) throws ProtocolException {
         setCounter(ProtocolUtils.getIntLE(data, 0, CounterLength));
         long shift = (long) ProtocolUtils.getIntLE(data, CounterLength, DateTimeLength) & DateTimeMask;
         setMostRecentEventTime(ProtocolUtils.getCalendar(getTimeZone(), shift).getTime());

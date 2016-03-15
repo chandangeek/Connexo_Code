@@ -4,7 +4,9 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
@@ -517,7 +519,7 @@ public class ABBA1140RegisterFactory {
             else throw new IOException("ABBA1140, setRegister, register not writeable");
             
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("ABBA1140, setRegister, "+e.getMessage());
+            throw new ProtocolConnectionException("ABBA1140, setRegister exception: "+e.getMessage(), e.getReason());
         }
     }
     
@@ -525,10 +527,10 @@ public class ABBA1140RegisterFactory {
         try {
             ABBA1140Register register = findRegister(name);
             if (register.isWriteable()) register.writeRegister(object);
-            else throw new IOException("ABBA1140, setRegister, register not writeable");
+            else throw new ProtocolException("ABBA1140, setRegister, register not writeable");
             
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("ABBA1140, setRegister, "+e.getMessage());
+            throw new ProtocolConnectionException("ABBA1140, setRegister exception:  "+e.getMessage(), e.getReason());
         }
     }
     
@@ -601,7 +603,7 @@ public class ABBA1140RegisterFactory {
                     }
                 } else throw new IOException("Elster A1140, getRegister, invalid billing point "+billingPoint+"!");
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("ABBA1140, getRegister, "+e.getMessage());
+            throw new ProtocolConnectionException("ABBA1140, getRegister, "+e.getMessage(), e.getReason());
         }
     }
     
@@ -614,7 +616,7 @@ public class ABBA1140RegisterFactory {
             ABBA1140Register register = findRegister(name);
             return (register.readRegister(register.isCached(),dataLength,0));
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("ABBA1140, getRegisterRawData, "+e.getMessage());
+            throw new ProtocolConnectionException("ABBA1140, getRegisterRawData, "+e.getMessage(), e.getReason());
         }
     }
     
@@ -623,7 +625,7 @@ public class ABBA1140RegisterFactory {
             ABBA1140Register register = findRegister(name);
             return (register.readRegisterStream(register.isCached(),nrOfBlocks));
         } catch(FlagIEC1107ConnectionException e) {
-            throw new IOException("ABBA1140, getRegisterRawDataStream, "+e.getMessage());
+            throw new ProtocolConnectionException("ABBA1140, getRegisterRawDataStream, "+e.getMessage(), e.getReason());
         }
     }
     
@@ -631,8 +633,7 @@ public class ABBA1140RegisterFactory {
     private ABBA1140Register findRegister(String name) throws IOException {
         ABBA1140Register register = (ABBA1140Register)registers.get(name);
         if (register == null) {
-            String msg = "ABBA1140RegisterFactory, findRegister, " + name + " does not exist!";
-            throw new IOException(msg);
+            throw new ProtocolConnectionException("ABBA1140RegisterFactory, findRegister, " + name + " does not exist!");
         } else return register;
     }
     

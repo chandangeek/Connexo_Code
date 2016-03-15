@@ -1,19 +1,17 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Password;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
-import com.energyict.mdc.exceptions.ComServerExceptionFactoryProvider;
-import com.energyict.mdc.exceptions.DefaultComServerExceptionFactoryProvider;
 import com.energyict.mdc.ports.InboundComPort;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.tasks.InboundConnectionTask;
 import com.energyict.mdw.core.Device;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
 import org.junit.*;
 
 import java.util.Arrays;
@@ -59,8 +57,6 @@ public class EIWebCryptographerTest {
      */
     @Test(expected = CommunicationException.class)
     public void testBuildMD5SeedWithoutConnectionTypeProperties () {
-        ComServerExceptionFactoryProvider.instance.set(new DefaultComServerExceptionFactoryProvider());
-
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         InboundDAO inboundDAO = mock(InboundDAO.class);
         InboundComPort comPort = mock(InboundComPort.class);

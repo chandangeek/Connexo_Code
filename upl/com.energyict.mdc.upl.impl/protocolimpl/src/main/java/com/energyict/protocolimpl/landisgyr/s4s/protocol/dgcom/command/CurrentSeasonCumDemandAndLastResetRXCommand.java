@@ -10,11 +10,12 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
+import java.util.Date;
 
 
 /**
@@ -83,7 +84,7 @@ public class CurrentSeasonCumDemandAndLastResetRXCommand extends AbstractCommand
         if (getCommandFactory().getFirmwareVersionCommand().isRX())
             return new byte[]{(byte)0xAA,0,0,0,0,0,0,0,0};
         else
-            throw new IOException("CurrentSeasonCumDemandAndLastResetCommand, only for RX meters!");
+            throw new ProtocolException("CurrentSeasonCumDemandAndLastResetCommand, only for RX meters!");
     }
     
     protected void parse(byte[] data) throws IOException {

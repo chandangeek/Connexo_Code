@@ -4,7 +4,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.general.AbstractDiscover;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsRequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
@@ -45,7 +45,7 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
             }
             setCallHomeID(pdr);
         } catch (CTRException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw ConnectionCommunicationException.unExpectedProtocolError(e);
         }
 
         return DiscoverResultType.IDENTIFIER;
@@ -104,6 +104,6 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
 }

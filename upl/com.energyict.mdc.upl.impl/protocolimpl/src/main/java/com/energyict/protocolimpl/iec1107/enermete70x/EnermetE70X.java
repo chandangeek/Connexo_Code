@@ -43,7 +43,7 @@ public class EnermetE70X extends EnermetBase {
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-05-13 16:50:47 +0200 (Wed, 13 May 2015) $";
     }
 
     protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {

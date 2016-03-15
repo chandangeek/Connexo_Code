@@ -1,8 +1,7 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
-import java.io.IOException;
-
 import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 /** @author  Koen */
@@ -13,12 +12,12 @@ public class TariffSources {
     int[] regSource = null;
     
     /** Creates a new instance of TariffSources */
-    public TariffSources(byte[] data) throws IOException {
+    public TariffSources(byte[] data) throws ProtocolException {
         regSource = new int[NUMBER_TARIF_REGISTERS];
         parse(data);
     }
     
-    private void parse(byte[] data) throws IOException {
+    private void parse(byte[] data) throws ProtocolException {
         for (int i=0;i<NUMBER_TARIF_REGISTERS;i++) {
             regSource[i] = ProtocolUtils.getIntLE(data,i,1);
         }

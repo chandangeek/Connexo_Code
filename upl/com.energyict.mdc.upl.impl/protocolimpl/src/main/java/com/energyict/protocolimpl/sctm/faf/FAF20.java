@@ -38,7 +38,7 @@ public class FAF20 extends Metcom3FAF implements RegisterProtocol {
      * The protocol version
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     public List getOptionalKeys() {

@@ -1,12 +1,12 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.cbo.NotFoundException;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierType;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.Device;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
 import com.energyict.util.Collections;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -52,7 +52,7 @@ public class PrimeRegisterForChannelIdentifier implements RegisterIdentifier {
         if (this.channelIndex <= device.getChannels().size()) {
             Register primeRegister = device.getChannel(this.channelIndex).getPrimeRegister();
             if (primeRegister == null) {
-                throw new NotFoundException("Prime register of channel " + this.channelIndex + " of device " + this.deviceIdentifier + " not found");
+                throw NotFoundException.notFound(Register.class, this.toString());
             }
             else {
                 return primeRegister;
@@ -60,7 +60,7 @@ public class PrimeRegisterForChannelIdentifier implements RegisterIdentifier {
         }
         else {
             // Not enough channels
-            throw new NotFoundException("Prime register of channel " + this.channelIndex + " of device " + this.deviceIdentifier + " not found because the channel does not exist");
+            throw NotFoundException.notFound(Register.class, this.toString());
         }
     }
 

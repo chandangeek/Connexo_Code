@@ -6,10 +6,10 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import java.util.*;
-import java.io.*;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
 
-import com.energyict.protocol.*;
+import java.util.*;
 
 /**
  * @author  Koen
@@ -28,7 +28,7 @@ public class HistoricalEventSet {
     /**
      * Creates a new instance of HistoricalEventSet
      */
-    public HistoricalEventSet(byte[] data, TimeZone timeZone) throws IOException {
+    public HistoricalEventSet(byte[] data, TimeZone timeZone) throws ProtocolException {
         this.timeZone=timeZone;
         parse(data);
     }
@@ -48,7 +48,7 @@ public class HistoricalEventSet {
         return strBuff.toString();
     }
     
-    private void parse(byte[] data) throws IOException {
+    private void parse(byte[] data) throws ProtocolException {
         long shift;
         Date date;
         

@@ -7,11 +7,7 @@ import com.elster.dlms.cosem.applicationlayer.CosemDataAccessException;
 import com.elster.dlms.cosem.classes.class03.ScalerUnit;
 import com.elster.dlms.cosem.classes.common.CosemClassIds;
 import com.elster.dlms.cosem.classes.info.CosemAttributeValidators;
-import com.elster.dlms.cosem.simpleobjectmodel.CommonDefs;
-import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
-import com.elster.dlms.cosem.simpleobjectmodel.SimpleClockObject;
-import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
-import com.elster.dlms.cosem.simpleobjectmodel.SimpleProfileObject;
+import com.elster.dlms.cosem.simpleobjectmodel.*;
 import com.elster.dlms.types.basic.CosemAttributeDescriptor;
 import com.elster.dlms.types.basic.DlmsDateTime;
 import com.elster.dlms.types.basic.ObisCode;
@@ -27,40 +23,25 @@ import com.elster.protocolimpl.dlms.profile.ILogProcessor;
 import com.elster.protocolimpl.dlms.registers.DlmsRegisterReader;
 import com.elster.protocolimpl.dlms.registers.DlmsSimpleRegisterDefinition;
 import com.elster.protocolimpl.dlms.registers.RegisterMap;
+import com.elster.protocolimpl.dlms.util.ElsterProtocolIOExceptionHandler;
 import com.elster.protocolimpl.dlms.util.ProtocolLink;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -79,7 +60,7 @@ import java.util.logging.Logger;
  * @since 5-mai-2010
  */
 @SuppressWarnings("unused")
-public class Dlms extends PluggableMeterProtocol implements ProtocolLink, RegisterProtocol, MessageProtocol, EventProtocol, HasSimpleObjectManager {
+public class Dlms extends PluggableMeterProtocol implements ProtocolLink, RegisterProtocol, MessageProtocol, EventProtocol, HasSimpleObjectManager, SerialNumberSupport {
 
     protected static String CLIENTID = "ClientID";
     protected static String SERVERADDRESS = "ServerAddress";
@@ -179,7 +160,7 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     }
 
     public String getProtocolVersion() {
-        return "$Date: 2011-06-10 16:05:38 +0200 (vr, 10 jun 2011) $";
+        return "$Date: 2015-11-26 15:25:57 +0200 (Thu, 26 Nov 2015)$";
     }
 
 
@@ -272,8 +253,6 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
             meterType = (String) dataResult1.getData().getValue();
         }
         getLogger().info("-- Type of device: " + meterType.trim());
-
-        validateSerialNumber();
     }
 
     public void disconnect() throws IOException {
@@ -344,32 +323,6 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
             else
             {
                 return "?";
-            }
-        }
-    }
-
-    /**
-     * Validate the serialNumber of the device.
-     *
-     * @throws IOException if the serialNumber doesn't match the one from the Rtu
-     */
-    protected void validateSerialNumber() throws IOException {
-        getLogger().info(
-                "-- verifying serial number...");
-
-        if ((this.serialNumber != null) && (this.serialNumber.length() > 0)) {
-
-            SimpleCosemObjectManager scom = getObjectManager();
-            String meterSerialNumber = scom.getSerialNumber();
-
-            String meterSN_dev = adjustSN(meterSerialNumber);
-            String meterSN_rtu = adjustSN(serialNumber);
-
-            if (!meterSN_rtu.equals(meterSN_dev))
-            {
-                throw new IOException("Wrong serialnumber, EIServer settings: "
-                        + this.serialNumber + " - Meter settings: "
-                        + meterSerialNumber);
             }
         }
     }
@@ -816,5 +769,15 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     public int getSoftwareVersion()
     {
         return 0;
+    }
+
+    @Override
+    public String getSerialNumber() {
+        SimpleCosemObjectManager scom = getObjectManager();
+        try {
+            return scom.getSerialNumber();
+        } catch (IOException e) {
+            throw ElsterProtocolIOExceptionHandler.handle(e, getNrOfRetries() + 1);
+        }
     }
 }
