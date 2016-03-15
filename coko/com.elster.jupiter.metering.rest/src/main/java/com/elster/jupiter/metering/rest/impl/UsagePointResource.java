@@ -20,7 +20,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @Path("/usagepoints")
@@ -110,8 +109,7 @@ public class UsagePointResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Transactional
-    public UsagePointInfo createUsagePoint(UsagePointInfo info) {
-
+    public Response createUsagePoint(UsagePointInfo info) {
         new RestValidationBuilder()
                 .notEmpty(info.mRID, "mRID")
                 .notEmpty(info.serviceCategory, "serviceCategory")
@@ -120,7 +118,7 @@ public class UsagePointResource {
             info.installationTime = Instant.now().toEpochMilli();
         }
         UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
-        return new UsagePointInfo(usagePoint, clock);
+        return Response.status(Response.Status.CREATED).entity(usagePointInfoFactory.from(usagePoint)).build();
     }
 
     @GET
