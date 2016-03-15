@@ -1,11 +1,13 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.ImmutableList;
+
 import javax.inject.Inject;
 import java.util.*;
-
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class LocationTemplateImpl implements LocationTemplate {
@@ -33,7 +35,7 @@ public class LocationTemplateImpl implements LocationTemplate {
                 put("#snum", "streetNumber");
                 put("#etyp", "establishmentType");
                 put("#enam", "establishmentName");
-                put("#enum","establishmentNumber");
+                put("#enum", "establishmentNumber");
                 put("#addtl", "addressDetail");
                 put("#zip", "zipCode");
                 put("#locale", "locale");
@@ -45,17 +47,17 @@ public class LocationTemplateImpl implements LocationTemplate {
     private Map<String, String> templateMap = templateMap();
 
     @Override
-    public void parseTemplate(String templateRaw, String mandatoryFields) {
-        int i = 0;
-        if (templateRaw != null && mandatoryFields != null) {
+    public void parseTemplate(String locationTemplate, String mandatoryFields) {
+        if (locationTemplate != null && mandatoryFields != null) {
             rankings = new HashMap<>();
-            locationTemplate = templateRaw;
-            String[] templateElements = templateRaw.split(",");
-            if (Arrays.asList(templateElements).containsAll(ALLOWED_LOCATION_TEMPLATE_ELEMENTS)) {
-                for (String templateElement : templateElements) {
-                    rankings.put(templateMap.get(templateElement), i++);
-                }
-                this.mandatoryFields = mandatoryFields;
+            String[] templateElements = locationTemplate.trim().split(",");
+            if (Arrays.asList(templateElements).containsAll(ALLOWED_LOCATION_TEMPLATE_ELEMENTS)
+                    && Arrays.asList(templateElements).contains(Arrays.asList(mandatoryFields.trim().split(",")))) {
+                AtomicInteger index = new AtomicInteger();
+                Arrays.asList(templateElements).stream().forEach(t ->
+                        rankings.put(templateMap.get(t), index.incrementAndGet()));
+                this.locationTemplate = locationTemplate.trim();
+                this.mandatoryFields = mandatoryFields.trim();
             } else {
                 throw new IllegalArgumentException("Bad Template");
             }
@@ -105,8 +107,11 @@ public class LocationTemplateImpl implements LocationTemplate {
     }
 
     @Override
-    public String[] getTemplateElements() {
-        return locationTemplate.split(",");
+    public List<String> getTemplateElementsNames() {
+        List<String> list = new ArrayList<>();
+        Arrays.asList(locationTemplate.split(",")).stream().forEach(t ->
+                list.add(templateMap.get(t)));
+        return list;
     }
 
     @Override
@@ -120,7 +125,15 @@ public class LocationTemplateImpl implements LocationTemplate {
     }
 
     @Override
-    public String getMandatoryFields(){
+    public String getMandatoryFields() {
         return mandatoryFields;
+    }
+
+    @Override
+    public List<String> getMandatoryFieldsNames() {
+        List<String> list = new ArrayList<>();
+        Arrays.asList(mandatoryFields.split(",")).stream().forEach(t ->
+                list.add(templateMap.get(t)));
+        return list;
     }
 }

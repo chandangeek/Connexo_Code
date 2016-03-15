@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering;
 
+import java.util.List;
 import java.util.Map;
 
 public interface LocationTemplate {
@@ -10,7 +11,8 @@ public interface LocationTemplate {
     String getLocationTemplate();
     Map<String, Integer> getRankings();
     String getMandatoryFields();
-    String[] getTemplateElements();
+    List<String> getTemplateElementsNames();
+    List<String> getMandatoryFieldsNames();
 
 
 }
