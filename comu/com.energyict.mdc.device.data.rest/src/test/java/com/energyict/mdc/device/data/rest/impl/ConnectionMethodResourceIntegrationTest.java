@@ -82,8 +82,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 
-import org.junit.*;
-import org.junit.rules.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.mockito.MockitoAnnotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -92,8 +95,8 @@ import static org.mockito.Mockito.when;
 
 /**
  * Alright, this is a JerseyTest coupled with the real-deal back end service (or at least most of them), running in in-memory h2
- * Setup is crappy, but it couldn't find a way to avoid it.
- * We really needed end2end testing for connection method properties, as bugs keep piling up.
+ * Setup is crappy, but I couldn't find a way to avoid it.
+ * We really needed end2end testing for connection method properties, as bugs kept piling up.
  */
 public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
 
@@ -114,7 +117,6 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static PartialScheduledConnectionTaskImpl as1440WithProperties;
     private static OutboundComPortPool whirlpool;
 
-    Instant comSessionStart = Instant.now();
     private static DeviceType deviceType;
     private static DeviceConfiguration deviceConfiguration;
 
