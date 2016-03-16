@@ -11,7 +11,6 @@ import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.protocol.exceptions.ConnectionException;
-import com.energyict.mdc.protocol.ServerLoggableComChannel;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -39,8 +38,7 @@ public class SioSerialConnectionType extends AbstractSerialConnectionType {
     @Override
     public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
         SerialPortConfiguration serialPortConfiguration = createSerialConfiguration(comPort, properties);
-        ServerLoggableComChannel comChannel = newSioSerialConnection(serialPortConfiguration);
-        comChannel.setComPort(comPort);
+        ComChannel comChannel = newSioSerialConnection(serialPortConfiguration);
         comChannel.addProperties(createTypeProperty(ComChannelType.SerialComChannel));
         return comChannel;
     }

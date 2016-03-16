@@ -8,7 +8,6 @@ import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
@@ -520,9 +519,6 @@ public class TCPIPConnection implements DlmsV2Connection {
     @Override
     public void prepareComChannelForReceiveOfNextPacket() {
         comChannel.startWriting();
-        if (comChannel instanceof ServerComChannel) {
-            ((ServerComChannel) comChannel).sessionCountersStartWriting();
-        }
     }
 
     private enum State {
