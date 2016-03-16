@@ -9,7 +9,7 @@ Ext.define('Bpm.controller.history.BpmManagement', {
 
     routeConfig: {
         administration: {
-            title: Uni.I18n.translate('general.administration', 'USR', 'Administration'),
+            title: Uni.I18n.translate('general.administration', 'BPM', 'Administration'),
             route: 'administration',
             disabled: true,
             items: {
