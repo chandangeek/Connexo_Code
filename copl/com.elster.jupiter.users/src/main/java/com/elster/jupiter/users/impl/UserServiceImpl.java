@@ -3,8 +3,17 @@ package com.elster.jupiter.users.impl;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.nls.*;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DoesNotExistException;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -27,6 +36,7 @@ import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -39,7 +49,14 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -63,6 +80,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private volatile ThreadPrincipalService threadPrincipalService;
     private List<User> loggedInUsers = new ArrayList<>();
     private volatile DataVaultService dataVaultService;
+    private volatile BundleContext bundleContext;
 
 
     private static final String TRUSTSTORE_PATH = "com.elster.jupiter.users.truststore";
@@ -110,6 +128,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     public void activate(BundleContext context) {
         if (context != null) {
             setTrustStore(context);
+            bundleContext = context;
         }
         dataModel.register(new AbstractModule() {
             @Override
@@ -288,6 +307,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Deactivate
     public void deactivate() {
+        bundleContext = null;
     }
 
     @Override
@@ -501,7 +521,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                 doInstallPrivileges(this);
             }
             installPrivileges();
-            installer.addDefaults();
+            installer.addDefaults(bundleContext != null ? bundleContext.getProperty("admin.password") : null);
         }
     }
 
