@@ -119,7 +119,7 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
                                 value: mRID
                             }
                         ],
-                        additionalReasons: [Uni.I18n.translate('dbp.startProcess.empty.list.item', 'DBP', 'No processes are available for the current device state.')],
+                        additionalReasons: [Uni.I18n.translate('startProcess.empty.list.item', 'MDC', 'No processes are available for the current device state.')],
                         successLink: router.getRoute('devices/device/processes').buildUrl({mRID: mRID}),
                         cancelLink: router.getRoute('devices/device').buildUrl({mRID: mRID})
                     }
