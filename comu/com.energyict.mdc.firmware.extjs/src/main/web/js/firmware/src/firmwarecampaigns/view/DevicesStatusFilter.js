@@ -23,7 +23,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesStatusFilter', {
                     value: 'configurationError'
                 },
                 {
-                    display: Uni.I18n.translate('firmwareManagementDeviceStatus.ongoing', 'FWC', 'On going'),
+                    display: Uni.I18n.translate('firmwareManagementDeviceStatus.ongoing', 'FWC', 'Ongoing'),
                     value: 'ongoing'
                 },
                 {
