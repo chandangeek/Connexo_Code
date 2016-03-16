@@ -5,7 +5,97 @@ Ext.define('Isu.controller.IssuesOverview', {
         'Isu.util.IsuComboTooltip'
     ],
 
-    showOverview: function (issueType, widgetXtype, callback) {
+    models: [
+        'Isu.model.IssuesFilter',
+        'Isu.model.IssueAssignee',
+        'Isu.model.IssueReason',
+        'Isu.model.Device',
+        'Uni.component.sort.model.Sort'
+    ],
+
+    stores: [
+        'Isu.store.Issues',
+        'Isu.store.IssueActions',
+        'Isu.store.IssueStatuses',
+        'Isu.store.IssueAssignees',
+        'Isu.store.IssueReasons',
+        'Isu.store.Devices',
+        'Isu.store.IssueGrouping',
+        'Isu.store.Groups',
+        'Isu.store.Clipboard'
+    ],
+
+    views: [
+        'Isu.view.issues.Overview'
+    ],
+
+    refs: [
+        {
+            ref: 'preview',
+            selector: 'issues-overview #issues-preview'
+        },
+        {
+            ref: 'filterToolbar',
+            selector: 'issues-overview isu-view-issues-issuefilter'
+        },
+        {
+            ref: 'groupingToolbar',
+            selector: 'issues-overview #issues-grouping-toolbar'
+        },
+        {
+            ref: 'groupGrid',
+            selector: 'issues-overview #issues-group-grid'
+        },
+        {
+            ref: 'groupEmptyPanel',
+            selector: 'issues-overview #no-issues-group-panel'
+        },
+        {
+            ref: 'previewContainer',
+            selector: 'issues-overview #issues-preview-container'
+        },
+        {
+            ref: 'groupingTitle',
+            selector: 'issues-overview issues-grouping-title'
+        },
+        {
+            ref: 'noGroupSelectedPanel',
+            selector: 'issues-overview no-issues-group-selected-panel'
+        },
+        {
+            ref: 'issuesGrid',
+            selector: 'issues-overview #issues-grid'
+        }
+    ],
+
+    init: function () {
+        var me = this;
+        this.control({
+            'issues-overview #issues-overview-action-menu': {
+                click: this.chooseAction
+            },
+            'issues-overview #issues-grid uni-actioncolumn': {
+                menuclick: this.chooseAction
+            },
+            'issues-overview #issues-grid': {
+                select: this.showPreview
+            },
+            'issues-overview issues-grouping-toolbar #issues-grouping-toolbar-combo': {
+                change: this.setGroupingType
+            },
+            'issues-overview issues-group-grid': {
+                select: this.setGroupingValue
+            },
+            'issues-overview isu-view-issues-issuefilter': {
+                change: this.setGrouping
+            },
+            'issues-overview #issues-preview #filter-display-button': {
+                click: this.setFilterItem
+            }
+        });
+    },
+
+    showOverview: function () {
         var me = this,
             queryString = Uni.util.QueryString.getQueryStringValues(false);
 
@@ -27,11 +117,8 @@ Ext.define('Isu.controller.IssuesOverview', {
             queryString.sort = ['dueDate', 'modTime'];
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
         } else {
-            me.getStore('Isu.store.Clipboard').set(issueType + '-latest-issues-filter', queryString);
-            me.getStore('Isu.store.IssueStatuses').getProxy().setExtraParam('issueType', issueType);
-            me.getStore('Isu.store.IssueReasons').getProxy().setExtraParam('issueType', issueType);
-
-            me.getApplication().fireEvent('changecontentevent', Ext.widget(widgetXtype, {
+            me.getStore('Isu.store.Clipboard').set('latest-issues-filter', queryString);
+            me.getApplication().fireEvent('changecontentevent', Ext.widget('issues-overview', {
                 router: me.getController('Uni.controller.history.Router'),
                 groupingType: queryString.groupingType
             }));
@@ -39,32 +126,18 @@ Ext.define('Isu.controller.IssuesOverview', {
             if (me.getGroupGrid()) {
                 me.setGrouping(true);
             }
-            callback ? callback() : null;
         }
     },
 
     showPreview: function (selectionModel, record) {
         var preview = this.getPreview();
-
-        preview.setLoading(true);
-
         Ext.getStore('Isu.store.Clipboard').set('issue', record);
-        this.getModel(record.$className).load(record.getId(), {
-            success: function (record) {
-                if (!preview.isDestroyed) {
-                    Ext.suspendLayouts();
-                    preview.loadRecord(record);
-                    preview.down('issues-action-menu').record = record;
-                    preview.setTitle(record.get('title'));
-                    Ext.resumeLayouts(true);
-                }
-            },
-            callback: function () {
-                if (!preview.isDestroyed) {
-                    preview.setLoading(false);
-                }
-            }
-        });
+        Ext.getStore('Isu.store.Clipboard').set('latest-issues-filter', Uni.util.QueryString.getQueryStringValues(false));
+        Ext.suspendLayouts();
+        preview.loadRecord(record);
+        preview.down('issues-action-menu').record = record;
+        preview.setTitle(record.get('title'));
+        Ext.resumeLayouts(true);
     },
 
     chooseAction: function (menu, menuItem) {
@@ -110,6 +183,9 @@ Ext.define('Isu.controller.IssuesOverview', {
                 break;
             case 'device':
                 filterToolbar.down('[dataIndex=meter]').setFilterValue(button.filterValue.serialNumber);
+                break;
+            case 'issueType':
+                filterToolbar.down('[dataIndex=issueType]').setFilterValue(button.filterValue.uid);
                 break;
             default:
                 filterToolbar.down('[dataIndex=' + button.filterBy + ']').setFilterValue([button.filterValue.id]);
@@ -168,10 +244,6 @@ Ext.define('Isu.controller.IssuesOverview', {
                     {
                         property: 'field',
                         value: groupingType || queryString.groupingType
-                    },
-                    {
-                        property: 'issueType',
-                        value: me.getStore('Isu.store.IssueStatuses').getProxy().extraParams.issueType
                     }
                 ]
             };
@@ -206,7 +278,7 @@ Ext.define('Isu.controller.IssuesOverview', {
                     Ext.suspendLayouts();
                     if (queryString.groupingValue && groupingRecord) {
                         groupGrid.getSelectionModel().select(groupingRecord);
-                        groupingTitle.setTitle(Uni.I18n.translate('general.issuesFor', 'ISU', 'Issues for {0}: {1}', [queryString.groupingType, groupingRecord.get('reason')]));
+                        groupingTitle.setTitle(Uni.I18n.translate('general.issuesFor', 'ISU', 'Issues for {0}: {1}', [queryString.groupingType, groupingRecord.get('description')]));
                         groupingTitle.show();
                     } else {
                         groupingTitle.hide();
@@ -223,6 +295,7 @@ Ext.define('Isu.controller.IssuesOverview', {
         if (queryString.groupingType !== 'none') {
             groupGrid.updateGroupingType(queryString.groupingType);
             groupGrid.show();
+            groupGrid.down('pagingtoolbarbottom').params = me.getGroupProxyParams();
             if (doLoad) {
                 groupStore.load({
                     params: me.getGroupProxyParams(),
