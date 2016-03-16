@@ -11,7 +11,7 @@ Ext.define('Idc.view.TimelineList', {
         {
             xtype: 'no-items-found-panel',
             itemId: 'no-issue-timeline',
-            title: Uni.I18n.translate('general.noTimeline','ISU','No timeline entries'),
+            title: Uni.I18n.translate('general.noTimeline','IDC','No timeline entries'),
             reasons: [
                 'No activity yet on this issue'
             ],
@@ -20,7 +20,7 @@ Ext.define('Idc.view.TimelineList', {
         {
             xtype: 'dataview',
             itemId: 'issue-timeline-view',
-            title: Uni.I18n.translate('issue.userImages','ISU','User Images'),
+            title: Uni.I18n.translate('issue.userImages','IDC','User Images'),
             itemSelector: 'div.thumb-wrap',
             tpl: new Ext.XTemplate(
                 '<tpl for=".">',
