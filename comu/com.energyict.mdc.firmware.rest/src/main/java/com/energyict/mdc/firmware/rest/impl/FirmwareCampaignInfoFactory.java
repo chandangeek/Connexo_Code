@@ -61,6 +61,10 @@ public class FirmwareCampaignInfoFactory {
         info.firmwareType = new FirmwareTypeInfo(campaign.getFirmwareType(), thesaurus);
         info.startedOn = campaign.getStartedOn();
         info.finishedOn = campaign.getFinishedOn();
+        if (campaign.getComWindow() != null) {
+            info.timeBoundaryStart = campaign.getComWindow().getStart().getMillis() / 1000;
+            info.timeBoundaryEnd = campaign.getComWindow().getEnd().getMillis() / 1000;
+        }
         Optional<DeviceMessageSpec> firmwareMessageSpec = campaign.getFirmwareMessageSpec();
         if (firmwareMessageSpec.isPresent()) {
             TypedProperties typedProperties = TypedProperties.empty();
