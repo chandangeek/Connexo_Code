@@ -5,7 +5,7 @@ Ext.define('Mtr.privileges.ReadingTypes', {
     singleton: true,
 
     view: ['privilege.view.readingType'],
-    admin: ['privilege.administrate.readingType'],
+    admin: ['privilege.administer.readingType'],
     all: function () {
         return Ext.Array.merge(
             Mtr.privileges.ReadingTypes.view,
