@@ -15,41 +15,50 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
+
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationTest {
 
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-    
+
     private static final boolean printSql = false;
 
+    @Mock
+    private BundleContext bundleContext;
+
     @BeforeClass
-    public static void setUp() throws SQLException {
+    public static void setUp() {
         injector = Guice.createInjector(
-        			inMemoryBootstrapModule,  
+                    new MockModule(),
+        			inMemoryBootstrapModule,
         			new OrmModule(),
-        			new UtilModule(), 
-        			new ThreadSecurityModule(), 
-        			new PubSubModule(), 
+        			new UtilModule(),
+        			new ThreadSecurityModule(),
+        			new PubSubModule(),
         			new TransactionModule(printSql),
                     new NlsModule()
                 );
@@ -60,7 +69,7 @@ public class ValidationTest {
     }
 
     @AfterClass
-    public static void tearDown() throws SQLException {
+    public static void tearDown() {
     	inMemoryBootstrapModule.deactivate();
     }
 
@@ -92,7 +101,7 @@ public class ValidationTest {
     		}
     	}
     }
-    
+
     private List<Translation> getTranslations() {
     	List<Translation> result = new ArrayList<>();
     	SimpleNlsKey nlsKey = SimpleNlsKey.key("DUM", Layer.DOMAIN, "empty");
@@ -101,12 +110,19 @@ public class ValidationTest {
     	result.add(SimpleTranslation.translation(nlsKey,Locale.FRANCE,"svp ne laissez pas {DUM.empty}, valeur minimal: {min}"));
     	return result;
     }
-    
+
     public class Bean {
-    	@NotNull(message="{DUM.empty}")    	
+    	@NotNull(message="{DUM.empty}")
     	private String name;
     	@Size(message="{DUM.min.size}", min=10 )
     	private String description = "N/A";
+    }
+
+    private static class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+        }
     }
 
 }
