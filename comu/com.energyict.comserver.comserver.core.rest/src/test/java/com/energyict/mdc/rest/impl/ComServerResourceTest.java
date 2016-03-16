@@ -151,6 +151,7 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         onlineComServerInfo.storeTaskThreadPriority= 8;
         onlineComServerInfo.numberOfStoreTaskThreads= 9;
         onlineComServerInfo.version = OK_VERSION;
+        onlineComServerInfo.statusUri = "/new/statusUri";
 
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
 
@@ -167,6 +168,12 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         assertThat(uriCaptor.getValue()).isEqualTo("/new/uri");
 
         assertThat(serverSideComServer.usesDefaultEventRegistrationUri()).isEqualTo(false);
+
+        ArgumentCaptor<String> statusUriCaptor = ArgumentCaptor.forClass(String.class);
+        verify(serverSideComServer).setStatusUri(statusUriCaptor.capture());
+        assertThat(statusUriCaptor.getValue()).isEqualTo("/new/statusUri");
+
+        assertThat(serverSideComServer.usesDefaultStatusUri()).isEqualTo(false);
 
         ArgumentCaptor<TimeDuration> timeDurationCaptor = ArgumentCaptor.forClass(TimeDuration.class);
         verify(serverSideComServer).setSchedulingInterPollDelay(timeDurationCaptor.capture());
