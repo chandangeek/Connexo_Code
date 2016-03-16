@@ -4,7 +4,9 @@ Ext.define('MdmApp.Application', {
     requires:[
         'Imt.privileges.UsagePoint',
         'Imt.privileges.ServiceCategory',
-        'Imt.privileges.MetrologyConfig'
+        'Imt.privileges.MetrologyConfig',
+        'Bpm.privileges.BpmManagement',
+        'Dbp.privileges.DeviceProcesses'
     ],
 
     controllers: [
