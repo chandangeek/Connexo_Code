@@ -184,7 +184,7 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
 
     private void dumpPublicKey() {
         if (!is(installDir).emptyOrOnlyWhiteSpace()) {
-            Path conf = FileSystems.getDefault().getPath(installDir, "conf").resolve("publicKey.txt");
+            Path conf = FileSystems.getDefault().getPath(installDir).resolve("publicKey.txt");
             dumpToFile(conf);
         }
     }
