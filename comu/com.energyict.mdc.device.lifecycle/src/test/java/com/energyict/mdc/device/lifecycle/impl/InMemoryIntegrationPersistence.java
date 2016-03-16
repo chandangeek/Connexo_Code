@@ -5,7 +5,6 @@ import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
-import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
@@ -120,6 +119,7 @@ public class InMemoryIntegrationPersistence {
     private LicenseService licenseService;
     private Injector injector;
     private IssueService issueService;
+    private DeviceLifeCycleChangeEventHandler deviceLifeCycleChangeEventHandler;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -193,7 +193,8 @@ public class InMemoryIntegrationPersistence {
             this.injector.getInstance(UserService.class);
             this.injector.getInstance(ThreadPrincipalService.class);
             this.injector.getInstance(CustomPropertySetService.class);
-            StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler(this.injector.getInstance(EventService.class));
+            StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler(this.injector
+                    .getInstance(EventService.class));
             ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(stateTransitionTriggerEventTopicHandler);
             com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler meteringTopicHandler =
                     new com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler(Clock.systemDefaultZone(),
@@ -202,17 +203,24 @@ public class InMemoryIntegrationPersistence {
             ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(meteringTopicHandler);
             StateTransitionChangeEventTopicHandler stateTransitionChangeEventTopicHandler =
                     new StateTransitionChangeEventTopicHandler(
-                        this.injector.getInstance(FiniteStateMachineService.class),
-                        this.injector.getInstance(MeteringService.class),
-                        this.clock);
+                            this.injector.getInstance(FiniteStateMachineService.class),
+                            this.injector.getInstance(MeteringService.class),
+                            this.clock);
             ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(stateTransitionChangeEventTopicHandler);
-            DeviceLifeCycleChangeEventHandler deviceLifeCycleChangeEventHandler = new DeviceLifeCycleChangeEventHandler(
-                    this.injector.getInstance(DeviceConfigurationService.class),
-                    this.injector.getInstance(DeviceDataModelService.class),
-                    this.injector.getInstance(MeteringService.class));
+            DeviceLifeCycleChangeEventHandler deviceLifeCycleChangeEventHandler = getDeviceLifeCycleChangeEventHandler();
             ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(deviceLifeCycleChangeEventHandler);
             ctx.commit();
         }
+    }
+
+    public DeviceLifeCycleChangeEventHandler getDeviceLifeCycleChangeEventHandler() {
+        if (deviceLifeCycleChangeEventHandler == null) {
+            deviceLifeCycleChangeEventHandler = new DeviceLifeCycleChangeEventHandler(
+                    this.injector.getInstance(DeviceConfigurationService.class),
+                    this.injector.getInstance(DeviceDataModelService.class),
+                    this.injector.getInstance(MeteringService.class));
+        }
+        return deviceLifeCycleChangeEventHandler;
     }
 
     private void initializeMocks(String testName) {
@@ -247,11 +255,11 @@ public class InMemoryIntegrationPersistence {
         return propertySpecService;
     }
 
-    public OrmService getOrmService(){
+    public OrmService getOrmService() {
         return this.injector.getInstance(OrmService.class);
     }
 
-    public DeviceConfigurationService getDeviceConfigurationService(){
+    public DeviceConfigurationService getDeviceConfigurationService() {
         return this.injector.getInstance(DeviceConfigurationService.class);
     }
 
@@ -285,6 +293,10 @@ public class InMemoryIntegrationPersistence {
 
     public IssueService getIssueService() {
         return issueService;
+    }
+
+    public Injector getInjector() {
+        return injector;
     }
 
     private class MockModule extends AbstractModule {

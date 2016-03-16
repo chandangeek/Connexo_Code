@@ -1,30 +1,36 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.impl.AppServiceConsoleService;
 import com.elster.jupiter.appserver.impl.MessageHandlerLauncherService;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.impl.SwitchStateMachineEventHandlerFactory;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.cron.impl.DefaultCronExpressionParser;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.device.data.impl.events.DeviceLifeCycleChangeEventHandler;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+
 import com.google.common.collect.ImmutableMap;
 
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -49,11 +55,20 @@ public class ChangeDeviceLifeCycleWithSuccess extends PersistenceIntegrationTest
      */
     @Test
     public void changeDeviceLifeCycleWithSuccess() throws InterruptedException {
-        CountDownLatch latch;
+        CountDownLatch latch = new CountDownLatch(2);
         try (TransactionContext context = inMemoryPersistence.getTransactionService().getContext()) {
-            latch = this.setupAppServerInfrastructure();
+            latch = this.setupAppServerInfrastructure(latch);
             context.commit();
         }
+
+        ((EventServiceImpl) inMemoryPersistence.getInjector()
+                .getInstance(EventService.class)).removeTopicHandler(inMemoryPersistence.getDeviceLifeCycleChangeEventHandler());
+        DeviceLifeCycleChangeEventHandler deviceLifeCycleChangeEventHandler = new LatchDrivenLifeCycleChangeHandler(
+                inMemoryPersistence.getInjector().getInstance(DeviceConfigurationService.class),
+                inMemoryPersistence.getInjector().getInstance(DeviceDataModelService.class),
+                inMemoryPersistence.getInjector().getInstance(MeteringService.class), latch);
+        ((EventServiceImpl) inMemoryPersistence.getInjector()
+                .getInstance(EventService.class)).addTopicHandler(deviceLifeCycleChangeEventHandler);
 
         DeviceConfigurationService deviceConfigurationService = inMemoryPersistence.getDeviceConfigurationService();
         Instant deviceCreationTime = Instant.ofEpochSecond(1423096800L);    // May 2nd 2015 00:40::00 UTC
@@ -61,7 +76,8 @@ public class ChangeDeviceLifeCycleWithSuccess extends PersistenceIntegrationTest
         DeviceLifeCycle clone;
         Device device;
         try (TransactionContext context = inMemoryPersistence.getTransactionService().getContext()) {
-            clone = inMemoryPersistence.getDeviceLifeCycleConfigurationService().cloneDeviceLifeCycle(deviceType.getDeviceLifeCycle(), "Cloned");
+            clone = inMemoryPersistence.getDeviceLifeCycleConfigurationService()
+                    .cloneDeviceLifeCycle(deviceType.getDeviceLifeCycle(), "Cloned");
             device = this.createSimpleDevice("changeDeviceLifeCycleWithSuccess");
             context.commit();
         }
@@ -85,7 +101,7 @@ public class ChangeDeviceLifeCycleWithSuccess extends PersistenceIntegrationTest
         assertThat(reloaded.getState().getId()).isEqualTo(clonedInStock.get().getId());
     }
 
-    private CountDownLatch setupAppServerInfrastructure() {
+    private CountDownLatch setupAppServerInfrastructure(CountDownLatch latch) {
         String destinationSpecName = "SwitchStateMachineDest";
         String subscriberName = "SwitchStateMachineEventSubsc";
         SubscriberSpec subscriberSpec =
@@ -93,16 +109,17 @@ public class ChangeDeviceLifeCycleWithSuccess extends PersistenceIntegrationTest
                         .getService(MessageService.class)
                         .getSubscriberSpec(destinationSpecName, subscriberName)
                         .get();
-        when(inMemoryPersistence.getBundleContext().getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(APP_SERVER_NAME);
+        when(inMemoryPersistence.getBundleContext()
+                .getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(APP_SERVER_NAME);
         AppService appService = inMemoryPersistence.getAppService();
         MessageHandlerLauncherService launcherService = inMemoryPersistence.getService(MessageHandlerLauncherService.class);
         launcherService.activate();
-        CountDownLatch latch = new CountDownLatch(1);
         launcherService
                 .addResource(
                         new LatchDrivenSwitchStateMachineEventHandlerFactory(latch),
                         ImmutableMap.of("destination", destinationSpecName, "subscriber", subscriberName));
-        AppServer appServer = appService.createAppServer(APP_SERVER_NAME, new DefaultCronExpressionParser().parse("0 0 * * * ? *").get());
+        AppServer appServer = appService.createAppServer(APP_SERVER_NAME, new DefaultCronExpressionParser().parse("0 0 * * * ? *")
+                .get());
         appServer.createSubscriberExecutionSpec(subscriberSpec, 1);
         appServer.activate();
         AppServiceConsoleService consoleService = inMemoryPersistence.getService(AppServiceConsoleService.class);
@@ -149,6 +166,21 @@ public class ChangeDeviceLifeCycleWithSuccess extends PersistenceIntegrationTest
         @Override
         public void onMessageDelete(Message message) {
             this.actualHandler.onMessageDelete(message);
+        }
+    }
+
+    private class LatchDrivenLifeCycleChangeHandler extends DeviceLifeCycleChangeEventHandler {
+        private final CountDownLatch latch;
+
+        public LatchDrivenLifeCycleChangeHandler(DeviceConfigurationService deviceConfigurationService, DeviceDataModelService deviceDataModelService, MeteringService meteringService, CountDownLatch latch) {
+            super(deviceConfigurationService, deviceDataModelService, meteringService);
+            this.latch = latch;
+        }
+
+        @Override
+        public void handle(LocalEvent localEvent) {
+            super.handle(localEvent);
+            this.latch.countDown();
         }
     }
 
