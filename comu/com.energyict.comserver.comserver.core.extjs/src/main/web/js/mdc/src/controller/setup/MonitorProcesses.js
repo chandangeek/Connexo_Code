@@ -102,7 +102,7 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
                     properties: {
                         activeProcessesParams: {
                             type: 'device',
-                            devicestateid: device.data.state.id,
+                            deviceStates: device.data.state.id,
                             privileges: Ext.encode(me.getPrivileges())
                         },
                         startProcessParams: [

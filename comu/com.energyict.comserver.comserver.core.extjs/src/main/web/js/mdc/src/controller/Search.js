@@ -91,6 +91,12 @@ Ext.define('Mdc.controller.Search', {
                     scope: me.service
                 }
             },
+            'uni-view-search-overview button[action=count]': {
+                click: {
+                    fn: me.service.count,
+                    scope: me.service
+                }
+            },
             'uni-view-search-overview button[action=clearFilters]': {
                 click: {
                     fn: me.service.clearFilters,
