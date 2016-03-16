@@ -3,8 +3,11 @@ Ext.define('Idc.view.Detail', {
     alias: 'widget.data-collection-issue-detail',
     requires: [
         'Isu.view.issues.DetailTop',
-        'Idc.view.DetailForm',
+        'Idc.view.DetailsContainer',
+        'Idc.view.LogGrid',
         'Isu.view.issues.CommentsList',
+        'Idc.view.TimelineList',
+        'Bpm.monitorissueprocesses.view.ProcessList',
         'Uni.view.toolbar.PreviousNextNavigation'
     ],
     router: null,
@@ -26,7 +29,7 @@ Ext.define('Idc.view.Detail', {
                         xtype: 'previous-next-navigation-toolbar',
                         margin: '10 0 0 0',
                         itemId: 'data-collection-issue-detail-previous-next-navigation-toolbar',
-                        store: 'Idc.store.Issues',
+                        store: 'Isu.store.Issues',
                         router: me.router,
                         routerIdArgument: 'issueId',
                         itemsName: me.issuesListLink
@@ -39,16 +42,65 @@ Ext.define('Idc.view.Detail', {
                 router: me.router
             },
             {
-                xtype: 'data-collection-issue-detail-form',
-                itemId: 'data-collection-issue-detail-form',
+                xtype: 'container',
+                itemId: 'data-collection-issue-detail-container',
                 router: me.router
             },
             {
-                xtype: 'issue-comments',
-                itemId: 'data-collection-issue-comments'
+                xtype: 'panel',
+                ui: 'medium',
+                title: Uni.I18n.translate('issue.workspace.datacollection.context', 'IDC', 'Contextual information'),
+                items: [
+                    {
+                        xtype: 'tabpanel',
+                        itemId: 'tab-issue-context',
+                        activeTab: 0,
+                        items: [
+                            {
+                                ui: 'medium',
+                                title: Uni.I18n.translate('issue.workspace.datacollection.timeline', 'IDC', 'Timeline'),
+                                itemId: 'tab-panel-issue-timeline',
+                                items: [
+                                    {
+                                        xtype: 'issue-timeline',
+                                        itemId: 'data-collection-issue-timeline',
+
+                                    }
+                                ],
+
+                            },
+
+                            {
+                                ui: 'medium',
+                                title: Uni.I18n.translate('issue.workspace.datacollection.comments', 'IDC', 'Comments'),
+                                itemId: 'tab-panel-issue-coments',
+                                items: [
+                                    {
+                                        xtype: 'issue-comments',
+                                        itemId: 'data-collection-issue-comments'
+                                    }
+                                ]
+                            },
+                            {
+                                ui: 'medium',
+                                title: Uni.I18n.translate('issue.workspace.datacollection.processes', 'IDC', 'Processes'),
+                                itemId: 'tab-panel-issue-processes',
+                                privileges: Isu.privileges.Issue.canViewProcesses(),
+                                items: [
+                                    {
+                                        xtype: 'issue-process-list',
+                                        itemId: 'data-collection-issue-process'
+                                    }
+                                ]
+                            },
+                        ]
+                    }
+                ]
             }
+
         ];
 
         me.callParent(arguments);
+
     }
 });
