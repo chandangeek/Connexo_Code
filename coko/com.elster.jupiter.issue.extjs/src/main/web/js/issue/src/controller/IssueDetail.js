@@ -2,13 +2,14 @@ Ext.define('Isu.controller.IssueDetail', {
     extend: 'Ext.app.Controller',
     requires: [
         'Isu.privileges.Issue',
-        'Idc.store.TimelineEntries',
+        'Isu.store.TimelineEntries',
         'Bpm.monitorissueprocesses.store.IssueProcesses'
     ],
 
     stores: [
         'Isu.store.IssueActions',
         'Isu.store.Issues',
+        'Isu.store.TimelineEntries',
         'Bpm.monitorissueprocesses.store.IssueProcesses'
     ],
 
@@ -122,7 +123,7 @@ Ext.define('Isu.controller.IssueDetail', {
 
             timelineView = this.widget ? this.widget.down('#issue-timeline-view') : this.getPage().down('#issue-timeline-view'),
             processView = this.widget ? this.widget.down('#issue-process-view') :this.getPage().down('#issue-process-view'),
-            timelineStore = me.getStore('Idc.store.TimelineEntries'),
+            timelineStore = me.getStore('Isu.store.TimelineEntries'),
             procesStore = me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
             router = me.getController('Uni.controller.history.Router'),
             data=[];
