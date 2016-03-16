@@ -8,6 +8,8 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.List;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import org.junit.After;
 import org.junit.Before;
@@ -80,9 +82,11 @@ public class LifeCycleServiceTest {
     			new PartyModule(),
                 new FiniteStateMachineModule(),
     			new MeteringModule(),
-    			new DataLifeCycleModule()
+				new DataLifeCycleModule(),
+				new CustomPropertySetsModule()
 		);
 		try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+			injector.getInstance(CustomPropertySetService.class);
 			injector.getInstance(FiniteStateMachineService.class);
 			lifeCycleService = injector.getInstance(LifeCycleService.class);
 			ctx.commit();
