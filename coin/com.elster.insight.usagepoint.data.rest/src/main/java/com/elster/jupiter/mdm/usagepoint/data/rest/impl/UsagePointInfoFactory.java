@@ -123,15 +123,15 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     public UsagePointBuilder newUsagePointBuilder(UsagePointInfo usagePointInfo) {
         return meteringService.getServiceCategory(ServiceKind.valueOf(usagePointInfo.serviceCategory))
                 .orElseThrow(IllegalArgumentException::new)
-                .newUsagePoint(usagePointInfo.mRID)
+                .newUsagePoint(
+                        usagePointInfo.mRID,
+                        usagePointInfo.installationTime != null ? Instant.ofEpochMilli(usagePointInfo.installationTime) : clock.instant())
                 .withName(usagePointInfo.name)
                 .withIsSdp(usagePointInfo.isSdp)
                 .withIsVirtual(usagePointInfo.isVirtual)
                 .withReadRoute(usagePointInfo.readRoute)
                 .withServicePriority(usagePointInfo.servicePriority)
                 .withServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark)
-                .withServiceLocationString(usagePointInfo.location)
-                .withInstallationTime(usagePointInfo.installationTime != null ? Instant.ofEpochMilli(usagePointInfo.installationTime) : clock
-                        .instant());
+                .withServiceLocationString(usagePointInfo.location);
     }
 }
