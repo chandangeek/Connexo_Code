@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -136,7 +137,8 @@ public class MeterActivationValidationIT {
                 new MeteringGroupsModule(),
                 new SearchModule(),
                 new TaskModule(),
-                new DataVaultModule()
+                new DataVaultModule(),
+                new CustomPropertySetsModule()
         );
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(VoidTransaction.of(() -> {
