@@ -34,7 +34,7 @@ Ext.define('Dbp.controller.Main', {
 
         if (Bpm.privileges.BpmManagement.canView()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
-                text: Uni.I18n.translate('general.workspace', 'BPM', 'Workspace'),
+                text: Uni.I18n.translate('general.workspace', 'DBP', 'Workspace'),
                 glyph: 'workspace',
                 portal: 'workspace',
                 index: 30
@@ -43,27 +43,27 @@ Ext.define('Dbp.controller.Main', {
 
         if (Bpm.privileges.BpmManagement.canView()) {
             dataCollection = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.taskManagement', 'BPM', 'Task management'),
+                title: Uni.I18n.translate('general.taskManagement', 'DBP', 'Task management'),
                 portal: 'workspace',
                 route: 'taskmanagement',
                 items: [
                     {
-                        text: Uni.I18n.translate('general.taskmanagement.tasks', 'BPM', 'Tasks'),
+                        text: Uni.I18n.translate('general.taskmanagement.tasks', 'DBP', 'Tasks'),
                         itemId: 'tasks',
                         href: router.getRoute('workspace/tasks').buildUrl({}, {param: 'noFilter'})
                     },
                     {
-                        text: Uni.I18n.translate('general.taskmanagement.myopentasks', 'BPM', 'My open tasks'),
+                        text: Uni.I18n.translate('general.taskmanagement.myopentasks', 'DBP', 'My open tasks'),
                         itemId: 'my-open-tasks',
                         href: router.getRoute('workspace/tasks').buildUrl({}, {param: 'myopentasks'})
                     },
                     {
-                        text: Uni.I18n.translate('general.taskmanagement.unassignedtask', 'BPM', 'Unassigned tasks'),
+                        text: Uni.I18n.translate('general.taskmanagement.unassignedtask', 'DBP', 'Unassigned tasks'),
                         itemId: 'unassigned-tasks',
                         href: router.getRoute('workspace/tasks').buildUrl({}, {param: 'unassign'})
                     },
                     {
-                        text: Uni.I18n.translate('general.taskmanagement.overduetasks', 'BPM', 'Overdue tasks'),
+                        text: Uni.I18n.translate('general.taskmanagement.overduetasks', 'DBP', 'Overdue tasks'),
                         itemId: 'overdue-tasks',
                         href: router.getRoute('workspace/tasks').buildUrl({}, {param: 'dueDate'})
                     }

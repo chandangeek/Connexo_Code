@@ -57,12 +57,12 @@ Ext.define('Dbp.controller.History', {
             action: 'showStartProcess'
         },
         workspace: {
-            title: Uni.I18n.translate('general.workspace','BPM','Workspace'),
+            title: Uni.I18n.translate('general.workspace','DBP','Workspace'),
             route: 'workspace',
             disabled: true,
             items: {
                 tasks: {
-                    title: Uni.I18n.translate('bpm.task.title', 'BPM', 'Tasks'),
+                    title: Uni.I18n.translate('bpm.task.title', 'DBP', 'Tasks'),
                     route: 'tasks',
                     controller: 'Bpm.controller.Task',
                     action: 'showTasks',
@@ -77,7 +77,7 @@ Ext.define('Dbp.controller.History', {
                     },
                     items: {
                         editTask: {
-                            title: Uni.I18n.translate('bpm.task.editTask', 'BPM', 'Edit task'),
+                            title: Uni.I18n.translate('bpm.task.editTask', 'DBP', 'Edit task'),
                             route: '{taskId}/editTask',
                             controller: 'Bpm.controller.OpenTask',
                             privileges: Bpm.privileges.BpmManagement.assign,
@@ -91,7 +91,7 @@ Ext.define('Dbp.controller.History', {
                             },
                             callback: function (route) {
                                 this.getApplication().on('editTask', function (record) {
-                                    route.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.editTaskTitle', 'BPM', "Edit '{0}'"), record.get('name')));
+                                    route.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.editTaskTitle', 'DBP', "Edit '{0}'"), record.get('name')));
                                     return true;
                                 }, {single: true});
 
@@ -99,7 +99,7 @@ Ext.define('Dbp.controller.History', {
                             }
                         },
                         performTask: {
-                            title: Uni.I18n.translate('bpm.task.performTask', 'BPM', 'Perform task'),
+                            title: Uni.I18n.translate('bpm.task.performTask', 'DBP', 'Perform task'),
                             route: '{taskId}/performTask',
                             controller: 'Bpm.controller.OpenTask',
                             privileges: Bpm.privileges.BpmManagement.execute,
@@ -113,7 +113,7 @@ Ext.define('Dbp.controller.History', {
                             },
                             callback: function (route) {
                                 this.getApplication().on('performTask', function (record) {
-                                    route.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.performTaskTitle', 'BPM', "Perform '{0}'"), record.get('name')));
+                                    route.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.performTaskTitle', 'DBP', "Perform '{0}'"), record.get('name')));
                                     return true;
                                 }, {single: true});
 
@@ -121,7 +121,7 @@ Ext.define('Dbp.controller.History', {
                             }
                         },
                         bulkaction: {
-                            title: Uni.I18n.translate('bpm.task.bulkAction', 'BPM', 'Bulk action'),
+                            title: Uni.I18n.translate('bpm.task.bulkAction', 'DBP', 'Bulk action'),
                             route: 'bulkaction',
                             controller: 'Bpm.controller.TaskBulk',
                             privileges: Bpm.privileges.BpmManagement.assignOrExecute,
