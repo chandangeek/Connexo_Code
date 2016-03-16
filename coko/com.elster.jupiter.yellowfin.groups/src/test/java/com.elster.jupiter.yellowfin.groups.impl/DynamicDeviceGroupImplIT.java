@@ -1,6 +1,7 @@
 package com.elster.jupiter.yellowfin.groups.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -105,7 +106,8 @@ public class DynamicDeviceGroupImplIT {
                     new TransactionModule(),
                     new NlsModule(),
                     new TaskModule(),
-                    new DataVaultModule()
+                    new DataVaultModule(),
+                    new CustomPropertySetsModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
