@@ -3,7 +3,6 @@ package com.energyict.mdc.app.impl;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.app.MdcAppService;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -110,6 +109,8 @@ public class MdcAppInstaller implements InstallService {
                 com.energyict.mdc.device.data.security.Privileges.Constants.REMOVE_DEVICE,
                 com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE,
                 com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE,
+                com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS,
+
 
                 //Estimation
                 com.elster.jupiter.estimation.security.Privileges.Constants.RUN_ESTIMATION_TASK,
