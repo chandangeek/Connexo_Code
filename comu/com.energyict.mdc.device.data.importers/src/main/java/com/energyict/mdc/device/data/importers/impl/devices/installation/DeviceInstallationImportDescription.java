@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl.devices.installation;
 
+import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportDescription;
 import com.energyict.mdc.device.data.importers.impl.fields.CommonField;
 import com.energyict.mdc.device.data.importers.impl.fields.FileImportField;
@@ -11,13 +12,18 @@ import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFo
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class DeviceInstallationImportDescription implements FileImportDescription<DeviceInstallationImportRecord> {
 
     private DateParser dateParser;
+    private volatile DeviceDataImporterContext context;
 
-    public DeviceInstallationImportDescription(String dateFormat, String timeZone) {
+    public DeviceInstallationImportDescription(String dateFormat, String timeZone, DeviceDataImporterContext context) {
         this.dateParser = new DateParser(dateFormat, timeZone);
+        this.context = context;
     }
 
     @Override
@@ -37,6 +43,7 @@ public class DeviceInstallationImportDescription implements FileImportDescriptio
                 .withSetter(record::setTransitionDate)
                 .markMandatory()
                 .build());
+        fields.addAll(setLocationElement(fields,record));
         fields.add(CommonField.withParser(stringParser)
                 .withSetter(record::setMasterDeviceMrid)
                 .build());
@@ -55,6 +62,21 @@ public class DeviceInstallationImportDescription implements FileImportDescriptio
         fields.add(CommonField.withParser(bigDecimalParser)
                 .withSetter(record::setMultiplier)
                 .build());
+        return fields;
+    }
+
+    private List<FileImportField<?>> setLocationElement(List<FileImportField<?>> fields, DeviceInstallationImportRecord record){
+        LiteralStringParser stringParser = new LiteralStringParser();
+        List<String> template = context.getMeteringService().getLocationTemplate().getRankings().entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+        template.stream()
+                .forEach(s-> {
+                    fields.add(CommonField.withParser(stringParser)
+                            .withSetter(record::addLocation)
+                            .build());
+                });
         return fields;
     }
 }

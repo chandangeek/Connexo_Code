@@ -60,7 +60,7 @@ public class DeviceInstallationImporterFactory extends AbstractDeviceDataFileImp
         String timeZone = (String) properties.get(TIME_ZONE.getPropertyKey());
 
         FileImportParser<DeviceInstallationImportRecord> parser = new FileImportDescriptionBasedParser(
-                new DeviceInstallationImportDescription(dateFormat, timeZone));
+                new DeviceInstallationImportDescription(dateFormat, timeZone, context));
         FileImportProcessor<DeviceInstallationImportRecord> processor = new DeviceInstallationImportProcessor(getContext());
         FileImportLogger<FileImportRecord> logger = new DevicePerLineFileImportLogger(getContext());
         return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(logger).withDelimiter(delimiter.charAt(0)).build();

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl.devices;
 
+import com.elster.jupiter.metering.LocationBuilder;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
@@ -59,11 +60,50 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
     }
 
     protected void beforeTransition(Device device, T data) throws ProcessorException {
-        // do nothing
+        LocationBuilder builder = context.getMeteringService().newLocationBuilder();
+        Map<String, Integer> ranking = context.getMeteringService().getLocationTemplate().getRankings();
+        Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(data.getLocation().get(ranking.get("locale")));
+        if(memberBuilder.isPresent()){
+            setLocationAttributes(memberBuilder.get(), data, ranking);
+            builder.create();
+        }else{
+            setLocationAttributes(builder.member(), data, ranking).add();
+            builder.create();
+        }
     }
 
     protected void afterTransition(Device device, T data, FileImportLogger logger) throws ProcessorException {
+        LocationBuilder builder = context.getMeteringService().newLocationBuilder();
+        Map<String, Integer> ranking = context.getMeteringService().getLocationTemplate().getRankings();
+        Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(data.getLocation().get(ranking.get("locale")));
+        if(memberBuilder.isPresent()){
+            setLocationAttributes(memberBuilder.get(), data, ranking);
+            builder.create();
+        }else{
+            setLocationAttributes(builder.member(), data, ranking).add();
+            builder.create();
+        }
         device.save();
+    }
+
+    private LocationBuilder.LocationMemberBuilder setLocationAttributes(LocationBuilder.LocationMemberBuilder builder, T data, Map<String, Integer> ranking) {
+        builder/*.setLocationId(1L)*/
+                .setCountryCode(data.getLocation().get(ranking.get("countryCode")))
+                .setCountryName(data.getLocation().get(ranking.get("countryName")))
+                .setAdministrativeArea(data.getLocation().get(ranking.get("administrativeArea")))
+                .setLocality(data.getLocation().get(ranking.get("locality")))
+                .setSubLocality(data.getLocation().get(ranking.get("subLocality")))
+                .setStreetType(data.getLocation().get(ranking.get("streetType")))
+                .setStreetName(data.getLocation().get(ranking.get("streetName")))
+                .setStreetNumber(data.getLocation().get(ranking.get("streetNumber")))
+                .setEstablishmentType(data.getLocation().get(ranking.get("establishmentType")))
+                .setEstablishmentName(data.getLocation().get(ranking.get("establishmentName")))
+                .setEstablishmentNumber(data.getLocation().get(ranking.get("establishmentNumber")))
+                .setAddressDetail(data.getLocation().get(ranking.get("addressDetail")))
+                .setZipCode(data.getLocation().get(ranking.get("zipCode")))
+                .isDaultLocation(true)
+                .setLocale(data.getLocation().get(ranking.get("locale")));
+        return builder;
     }
 
     private void performDeviceTransition(T data, Device device, FileImportLogger logger) {
