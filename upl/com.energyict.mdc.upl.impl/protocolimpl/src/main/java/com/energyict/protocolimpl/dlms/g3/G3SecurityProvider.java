@@ -30,6 +30,10 @@ public class G3SecurityProvider extends Dsmr40SecurityProvider {
         this.g3Properties = new G3Properties(properties);
     }
 
+    protected void initializeRespondingFrameCounterHandler() {
+        setRespondingFrameCounterHandling(new G3RespondingFrameCounterHandler());   //Validating that the received FC is higher than the previously received FC.
+    }
+
     /**
      * @return the initial frameCounter
      */

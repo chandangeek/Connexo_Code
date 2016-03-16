@@ -4,8 +4,8 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocolimpl.dlms.g3.G3RespondingFrameCounterHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RespondingFrameCounterHandler;
 
 import java.util.Random;
 
@@ -21,7 +21,7 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
 
     public Beacon3100SecurityProvider(TypedProperties properties, int authenticationDeviceAccessLevel) {
         super(properties, authenticationDeviceAccessLevel);
-        setRespondingFrameCounterHandling(new DSMR40RespondingFrameCounterHandler());
+        setRespondingFrameCounterHandling(new G3RespondingFrameCounterHandler());
     }
 
     /**
