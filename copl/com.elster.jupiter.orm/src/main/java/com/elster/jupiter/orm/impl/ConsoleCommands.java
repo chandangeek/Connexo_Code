@@ -1,8 +1,10 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.callback.InstallService;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -21,11 +23,15 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Collection;
 
-@Component(name = "com.elster.jupiter.orm.console", service = ConsoleCommands.class, property = {"osgi.command.scope=orm", "osgi.command.function=ddl", "osgi.command.function=executeQuery"}, immediate = true)
+@Component(name = "com.elster.jupiter.orm.console", service = ConsoleCommands.class,
+        property = {"osgi.command.scope=orm", "osgi.command.function=ddl",
+                "osgi.command.function=executeQuery",
+                "osgi.command.function=listDataModels"}, immediate = true)
 public class ConsoleCommands {
 
     private volatile BundleContext context;
     private volatile DataSource dataSource;
+    private volatile OrmService ormService;
 
     @Activate
     public void activate(BundleContext context) {
@@ -40,6 +46,19 @@ public class ConsoleCommands {
     @Reference
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
+    }
+
+    public void listDataModels() {
+        this.ormService.getDataModels()
+                .stream()
+                .map(dataModel -> dataModel.getName() + ": " + dataModel.getDescription())
+                .sorted()
+                .forEach(System.out::println);
     }
 
     public void ddl(String... componentName) {
@@ -90,7 +109,7 @@ public class ConsoleCommands {
 
     public void executeQuery(String query) {
         try (Connection connection = dataSource.getConnection()) {
-            try(PreparedStatement statement = connection.prepareStatement(query)) {
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
                 ResultSet resultSet = statement.executeQuery();
                 new ResultSetPrinter(System.out).print(resultSet);
             }
@@ -113,21 +132,20 @@ public class ConsoleCommands {
             this.out = out;
         }
 
-        public void print (ResultSet resultSet) {
+        public void print(ResultSet resultSet) {
             try {
                 this.print(resultSet, resultSet.getMetaData());
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 e.printStackTrace(System.err);
             }
         }
 
-        private void print (ResultSet resultSet, ResultSetMetaData metaData) throws SQLException {
+        private void print(ResultSet resultSet, ResultSetMetaData metaData) throws SQLException {
             this.printHeader(metaData);
             this.printRows(resultSet, metaData);
         }
 
-        private void printHeader (ResultSetMetaData metaData) throws SQLException {
+        private void printHeader(ResultSetMetaData metaData) throws SQLException {
             int numberOfColumns = metaData.getColumnCount();
             for (int i = 0; i < numberOfColumns; i++) {
                 out.print(metaData.getColumnLabel(i + 1));
@@ -138,7 +156,7 @@ public class ConsoleCommands {
             out.println();
         }
 
-        private void printRows (ResultSet resultSet, ResultSetMetaData metaData) throws SQLException {
+        private void printRows(ResultSet resultSet, ResultSetMetaData metaData) throws SQLException {
             int numberOfRows = 0;
             while (resultSet.next()) {
                 this.printRow(resultSet, metaData);
@@ -148,7 +166,7 @@ public class ConsoleCommands {
             out.println("numberOfRows = " + numberOfRows);
         }
 
-        private void printRow (ResultSet resultSet, ResultSetMetaData metaData) throws SQLException {
+        private void printRow(ResultSet resultSet, ResultSetMetaData metaData) throws SQLException {
             int numberOfColumns = metaData.getColumnCount();
             for (int i = 0; i < numberOfColumns; i++) {
                 out.print(resultSet.getObject(i + 1));
