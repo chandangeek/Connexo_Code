@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.groups.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -105,7 +106,8 @@ public class QueryEndDeviceGroupImplIT {
                     new PubSubModule(),
                     new TransactionModule(),
                     new NlsModule(),
-                    new DataVaultModule()
+                    new DataVaultModule(),
+                    new CustomPropertySetsModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
