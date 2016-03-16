@@ -10,8 +10,8 @@ Ext.define('Cps.customattributesets.view.AttributesTopFilter', {
             minWidth: 200,
             dataIndex: 'domainExtension',
             emptyText: Uni.I18n.translate('customattributesets.topfilter.customattributetypeempty', 'CPS', 'Custom attribute set type'),
-            displayField: 'localizedValue',
-            valueField: 'value',
+            displayField: 'displayValue',
+            valueField: 'id',
             store: 'Cps.customattributesets.store.AttributeTypes'
         }
     ]
