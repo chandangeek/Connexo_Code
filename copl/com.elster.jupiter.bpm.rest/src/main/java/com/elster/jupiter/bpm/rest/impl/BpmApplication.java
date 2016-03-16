@@ -1,30 +1,29 @@
 package com.elster.jupiter.bpm.rest.impl;
 
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.bpm.rest.PropertyUtils;
+import com.elster.jupiter.bpm.rest.TranslationKeys;
 import com.elster.jupiter.license.License;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.*;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Component(
         name = "com.elster.jupiter.bpm.rest",
-        service = {Application.class},
+        service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         immediate = true,
         property = {"alias=/bpm", "app=BPM", "name=" + BpmApplication.COMPONENT_NAME})
-public class BpmApplication extends Application {
+public class BpmApplication extends Application implements MessageSeedProvider, TranslationKeyProvider {
 
     public static final String APP_KEY = "BPM";
     public static final String COMPONENT_NAME = "BPM";
@@ -39,6 +38,14 @@ public class BpmApplication extends Application {
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(BpmResource.class);
+    }
+
+    @Override
+    public Set<Object> getSingletons() {
+        Set<Object> hashSet = new HashSet<>();
+        hashSet.addAll(super.getSingletons());
+        hashSet.add(new HK2Binder());
+        return Collections.unmodifiableSet(hashSet);
     }
 
     @Reference
@@ -68,11 +75,25 @@ public class BpmApplication extends Application {
     }
 
     @Override
-    public Set<Object> getSingletons() {
-        Set<Object> hashSet = new HashSet<>();
-        hashSet.addAll(super.getSingletons());
-        hashSet.add(new HK2Binder());
-        return Collections.unmodifiableSet(hashSet);
+    public String getComponentName() {
+        return BpmApplication.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.addAll(Arrays.asList(TranslationKeys.values()));
+        return keys;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     class HK2Binder extends AbstractBinder {
@@ -85,6 +106,7 @@ public class BpmApplication extends Application {
             bind(transactionService).to(TransactionService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+            bind(PropertyUtils.class).to(PropertyUtils.class);
         }
     }
 }
