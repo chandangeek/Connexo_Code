@@ -17,13 +17,21 @@ Ext.define('Bpm.monitorprocesses.store.HistoryProcessesFilterProcesses', {
 
     fields: [
         {name: 'name', type: 'string'},
-        {name: 'id', type: 'string'},
+        {name: 'processId', type: 'string'},
         {name: 'deploymentId', type: 'string'},
+        {name: 'version', type: 'string'},
         {
-            name: 'process',
+            name: 'displayName',
             type: 'string',
             convert: function (value, record) {
-                return record.get('id').replace(' (' +record.get('deploymentId')+') ', '');
+                return record.get('name') + ' (' + record.get('version') + ')';
+            }
+        },
+        {
+            name: 'fullName',
+            type: 'string',
+            convert: function (value, record) {
+                return Ext.String.format('{0} ({1}) ({2})', record.get('processId'), record.get('version'), record.get('deploymentId'));
             }
         }
     ]
