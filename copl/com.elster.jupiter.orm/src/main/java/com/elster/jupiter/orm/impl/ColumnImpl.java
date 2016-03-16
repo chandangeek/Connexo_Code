@@ -15,9 +15,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class ColumnImpl implements Column {
+    private static final Logger LOGGER = Logger.getLogger(ColumnImpl.class.getName());
+
     // persistent fields
 
     private String name;
@@ -166,12 +169,16 @@ public class ColumnImpl implements Column {
 
     }
 
+    private void logAndThrowIllegalTableMappingException(String message) {
+        LOGGER.severe(message);
+        throw new IllegalTableMappingException(message);
+    }
     private ColumnImpl init(TableImpl<?> table, String name) {
         if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
-            throw new IllegalTableMappingException("Table " + getName() + " : column name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT + " actual length is " + name.length() + ".");
+            this.logAndThrowIllegalTableMappingException("Table " + getName() + " : column name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT + " actual length is " + name.length() + ".");
         }
         if (ReservedWord.isReserved(name)) {
-            throw new IllegalTableMappingException("Table " + getName() + " : column name '" + name + "' is a reserved word and cannot be used as the name of a column.");
+            this.logAndThrowIllegalTableMappingException("Table " + getName() + " : column name '" + name + "' is a reserved word and cannot be used as the name of a column.");
         }
         this.table.set(table);
         this.name = name;
@@ -184,17 +191,18 @@ public class ColumnImpl implements Column {
 
     private void validate() {
         if (!table.isPresent()) {
+            LOGGER.severe("table must be present");
             throw new IllegalArgumentException("table must be present");
         }
         Objects.requireNonNull(name);
         if (!isVirtual()) {
             if (dbType == null) {
-                throw new IllegalTableMappingException("Table " + getTable().getName() + " : column " + getName() + " was not assigned a DB type.");
+                this.logAndThrowIllegalTableMappingException("Table " + getTable().getName() + " : column " + getName() + " was not assigned a DB type.");
             }
             Objects.requireNonNull(conversion);
         }
         if (skipOnUpdate && updateValue != null) {
-            throw new IllegalTableMappingException("Table " + getTable().getName() + " : field " + getName() + " : updateValue must be null if skipOnUpdate");
+            this.logAndThrowIllegalTableMappingException("Table " + getTable().getName() + " : field " + getName() + " : updateValue must be null if skipOnUpdate");
         }
     }
 
