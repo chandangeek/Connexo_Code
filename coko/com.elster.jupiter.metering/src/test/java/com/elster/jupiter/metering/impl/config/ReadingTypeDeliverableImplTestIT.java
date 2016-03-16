@@ -176,4 +176,26 @@ public class ReadingTypeDeliverableImplTestIT {
         assertThat(deliverables).hasSize(1);
         assertThat(deliverables.get(0)).isEqualTo(deliverable);
     }
+
+    @Test
+    @Transactional
+    public void testReadingTypeDeliverableReturnedByMetrologyConfiguration() {
+        ReadingTypeDeliverable deliverable = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createReadingTypeDeliverable("deliverable", metrologyContract, readingType, formula);
+
+        List<ReadingTypeDeliverable> deliverables = metrologyConfiguration.getDeliverables();
+        assertThat(deliverables).hasSize(1);
+        assertThat(deliverables.get(0)).isEqualTo(deliverable);
+    }
+
+    @Test
+    @Transactional
+    public void testReadingTypeDeliverableReturnedByMetrologyContract() {
+        ReadingTypeDeliverable deliverable = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createReadingTypeDeliverable("deliverable", metrologyContract, readingType, formula);
+
+        List<ReadingTypeDeliverable> deliverables = metrologyContract.getDeliverables();
+        assertThat(deliverables).hasSize(1);
+        assertThat(deliverables.get(0)).isEqualTo(deliverable);
+    }
 }

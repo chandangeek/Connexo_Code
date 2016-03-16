@@ -2,24 +2,23 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class MetrologyContractImpl implements MetrologyContract {
     public enum Fields {
         METROLOGY_CONFIG("metrologyConfiguration"),
         METROLOGY_PURPOSE("metrologyPurpose"),
-        MANDATORY("mandatory"),
-        DELIVERABLES("deliverables"),;
+        MANDATORY("mandatory"),;
 
         private String javaFieldName;
 
@@ -32,16 +31,18 @@ public class MetrologyContractImpl implements MetrologyContract {
         }
     }
 
+    private final MetrologyConfigurationService metrologyConfigurationService;
+
     private long id;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private final Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private final Reference<MetrologyPurpose> metrologyPurpose = ValueReference.absent();
-    private List<ReadingTypeDeliverable> deliverables = new ArrayList<>();
     private boolean mandatory;
 
     @Inject
-    public MetrologyContractImpl() {
+    public MetrologyContractImpl(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     public MetrologyContractImpl init(MetrologyConfiguration meterConfiguration, MetrologyPurpose metrologyPurpose) {
@@ -58,7 +59,7 @@ public class MetrologyContractImpl implements MetrologyContract {
 
     @Override
     public List<ReadingTypeDeliverable> getDeliverables() {
-        return Collections.unmodifiableList(this.deliverables);
+        return this.metrologyConfigurationService.findReadingTypeDeliverable(new ReadingTypeDeliverableFilter().withMetrologyContracts(this));
     }
 
     @Override

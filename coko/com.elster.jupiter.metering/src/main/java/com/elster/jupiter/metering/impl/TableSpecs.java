@@ -1217,7 +1217,6 @@ public enum TableSpecs {
                     .on(metrologyContractColumn)
                     .onDelete(CASCADE)
                     .map(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName())
-                    .reverseMap(MetrologyContractImpl.Fields.DELIVERABLES.fieldName())
                     .add();
             table.foreignKey("MTR_DELIVERABLE_TO_RT")
                     .references(ReadingType.class)
