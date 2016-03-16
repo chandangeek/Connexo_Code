@@ -1,12 +1,16 @@
 Ext.define('Isu.controller.IssueDetail', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Isu.privileges.Issue'
+        'Isu.privileges.Issue',
+        'Isu.store.TimelineEntries',
+        'Bpm.monitorissueprocesses.store.IssueProcesses'
     ],
 
     stores: [
         'Isu.store.IssueActions',
-        'Isu.store.Issues'
+        'Isu.store.Issues',
+        'Isu.store.TimelineEntries',
+        'Bpm.monitorissueprocesses.store.IssueProcesses'
     ],
 
     showOverview: function (id) {
@@ -15,9 +19,14 @@ Ext.define('Isu.controller.IssueDetail', {
             queryString = Uni.util.QueryString.getQueryStringValues(false),
             issueType = queryString.issueType,
             store = me.getStore('Isu.store.Issues'),
+            processStore = me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
             widgetXtype,
             issueModel,
             widget;
+
+        processStore.getProxy().setUrl(id);
+        processStore.load(function (records) {
+        });
 
         if (store.getCount()) {
             var issueActualType = store.getById(parseInt(id)).get('issueType').uid;
@@ -74,6 +83,57 @@ Ext.define('Isu.controller.IssueDetail', {
         }
     },
 
+    loadTimeline: function(commentsStore){
+        var me = this,
+
+            timelineView = this.widget ? this.widget.down('#issue-timeline-view') : this.getPage().down('#issue-timeline-view'),
+            processView = this.widget ? this.widget.down('#issue-process-view') :this.getPage().down('#issue-process-view'),
+            timelineStore = me.getStore('Isu.store.TimelineEntries'),
+            procesStore = me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
+            router = me.getController('Uni.controller.history.Router'),
+            data=[];
+
+        timelineStore.data.clear();
+
+        commentsStore.each(function(rec)
+            {
+                data.push({
+                    user: rec.data.author.name,
+                    actionText: Uni.I18n.translate('issue.workspace.datacollection.added.comment','ISU','added a comment'),
+                    creationDate: rec.data.creationDate,
+                    contentText: rec.data.splittedComments,
+                });
+            }
+        );
+        if(Isu.privileges.Issue.canViewProcesses()) {
+            procesStore.each(function (rec) {
+                    data.push({
+                        user: rec.data.startedBy,
+                        actionText: Uni.I18n.translate('issue.workspace.datacollection.processStarted', 'ISU', 'started a process'),
+                        creationDate: rec.data.startDate,
+                        contentText: rec.data.name,
+                        forProcess: true,
+                        processId: rec.data.processId,
+                        status: ' (' + rec.data.statusDisplay + ')',
+                    });
+                }
+            );
+        }
+        Ext.Array.each(data, function (item) {
+            timelineStore.add(item);
+        })
+
+        timelineStore.sort('creationDate', 'DESC');
+        timelineView.bindStore(timelineStore);
+        timelineView.previousSibling('#no-issue-timeline').setVisible(timelineStore.data.items.length <= 0);
+
+        if(!Isu.privileges.Issue.canViewProcesses()) return;
+
+        procesStore.sort('startDate', 'DESC');
+        processView.bindStore(procesStore);
+        processView.previousSibling('#no-issue-processes').setVisible(procesStore.data.items.length <= 0);
+    },
+
     makeLinkToList: function (router) {
         var link = '<a href="{0}">' + Uni.I18n.translate('workspace.issues.title', 'ISU', 'Issues').toLowerCase() + '</a>',
             filter = this.getStore('Isu.store.Clipboard').get('latest-issues-filter'),
@@ -83,11 +143,14 @@ Ext.define('Isu.controller.IssueDetail', {
     },
 
     loadComments: function (record) {
-        var commentsView = this.widget ? this.widget.down('#issue-comments-view') : this.getPage().down('#issue-comments-view'),
+        var
+            me = this,
+            commentsView = this.widget ? this.widget.down('#issue-comments-view') : this.getPage().down('#issue-comments-view'),
             commentsStore = record.comments(),
             router = this.getController('Uni.controller.history.Router');
 
         commentsStore.getProxy().url = '/api/isu/issues/' + record.getId() + '/comments';
+        commentsStore.sort('creationDate', 'DESC');
         commentsView.bindStore(commentsStore);
         commentsView.setLoading(true);
         commentsStore.load(function (records) {
@@ -97,6 +160,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 commentsView.show();
                 commentsView.previousSibling('#no-issue-comments').setVisible(!records.length && !router.queryParams.addComment);
                 commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && Isu.privileges.Issue.canComment());
+                me.loadTimeline(commentsStore);
                 Ext.resumeLayouts(true);
                 commentsView.setLoading(false);
             }
@@ -145,6 +209,7 @@ Ext.define('Isu.controller.IssueDetail', {
             commentsStore.load(function (records) {
                 this.add(records);
                 commentsView.setLoading(false);
+                me.loadTimeline(commentsStore);
             })
         }});
 

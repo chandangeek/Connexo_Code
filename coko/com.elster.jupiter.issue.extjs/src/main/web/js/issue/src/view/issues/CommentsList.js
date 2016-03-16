@@ -6,7 +6,7 @@ Ext.define('Isu.view.issues.CommentsList', {
         'Isu.privileges.Issue'
     ],
     alias: 'widget.issue-comments',
-    title: Uni.I18n.translate('genral.comments','ISU','Comments'),
+    //title: Uni.I18n.translate('genral.comments','ISU','Comments'),
     ui: 'medium',
     buttonAlign: 'left',
     items: [
