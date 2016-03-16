@@ -67,11 +67,9 @@ public class DeviceInstallationImportDescription implements FileImportDescriptio
 
     private List<FileImportField<?>> setLocationElement(List<FileImportField<?>> fields, DeviceInstallationImportRecord record){
         LiteralStringParser stringParser = new LiteralStringParser();
-        List<String> template = context.getMeteringService().getLocationTemplate().getRankings().entrySet().stream()
+        context.getMeteringService().getLocationTemplate().getRankings().entrySet().stream()
                 .sorted(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-        template.stream()
                 .forEach(s-> {
                     fields.add(CommonField.withParser(stringParser)
                             .withSetter(record::addLocation)

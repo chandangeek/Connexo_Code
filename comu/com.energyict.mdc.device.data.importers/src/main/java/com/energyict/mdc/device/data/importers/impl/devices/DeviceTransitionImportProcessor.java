@@ -73,22 +73,11 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
     }
 
     protected void afterTransition(Device device, T data, FileImportLogger logger) throws ProcessorException {
-        LocationBuilder builder = context.getMeteringService().newLocationBuilder();
-        Map<String, Integer> ranking = context.getMeteringService().getLocationTemplate().getRankings();
-        Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(data.getLocation().get(ranking.get("locale")));
-        if(memberBuilder.isPresent()){
-            setLocationAttributes(memberBuilder.get(), data, ranking);
-            builder.create();
-        }else{
-            setLocationAttributes(builder.member(), data, ranking).add();
-            builder.create();
-        }
         device.save();
     }
 
     private LocationBuilder.LocationMemberBuilder setLocationAttributes(LocationBuilder.LocationMemberBuilder builder, T data, Map<String, Integer> ranking) {
-        builder/*.setLocationId(1L)*/
-                .setCountryCode(data.getLocation().get(ranking.get("countryCode")))
+        builder.setCountryCode(data.getLocation().get(ranking.get("countryCode")))
                 .setCountryName(data.getLocation().get(ranking.get("countryName")))
                 .setAdministrativeArea(data.getLocation().get(ranking.get("administrativeArea")))
                 .setLocality(data.getLocation().get(ranking.get("locality")))
