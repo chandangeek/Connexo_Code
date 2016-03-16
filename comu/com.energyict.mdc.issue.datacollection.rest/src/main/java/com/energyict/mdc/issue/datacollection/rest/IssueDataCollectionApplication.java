@@ -1,11 +1,13 @@
 package com.energyict.mdc.issue.datacollection.rest;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.*;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.rest.i18n.DataCollectionIssueTranslationKeys;
 import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
@@ -50,6 +52,11 @@ public class IssueDataCollectionApplication extends Application implements Messa
     private volatile MessageService messageService;
     private volatile AppService appService;
     private volatile JsonService jsonService;
+    private volatile CommunicationTaskService communicationTaskService;
+    private volatile BpmService bpmService;
+
+    public IssueDataCollectionApplication() {
+    }
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -60,6 +67,11 @@ public class IssueDataCollectionApplication extends Application implements Messa
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
     }
 
     @Reference
@@ -91,7 +103,14 @@ public class IssueDataCollectionApplication extends Application implements Messa
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.REST);
+        Thesaurus domainThesaurus = nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN);
+        Thesaurus restThesaurus = nlsService.getThesaurus(ISSUE_DATACOLLECTION_REST_COMPONENT, Layer.REST);
+        this.thesaurus = domainThesaurus.join(restThesaurus);
+    }
+
+    @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
     }
 
     @Reference
@@ -154,6 +173,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
             bind(issueActionService).to(IssueActionService.class);
             bind(issueDataCollectionService).to(IssueDataCollectionService.class);
             bind(userService).to(UserService.class);
+            bind(bpmService).to(BpmService.class);
             bind(transactionService).to(TransactionService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(meteringService).to(MeteringService.class);
@@ -169,6 +189,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
             bind(PropertyUtils.class).to(PropertyUtils.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(communicationTaskService).to(CommunicationTaskService.class);
         }
     }
 }

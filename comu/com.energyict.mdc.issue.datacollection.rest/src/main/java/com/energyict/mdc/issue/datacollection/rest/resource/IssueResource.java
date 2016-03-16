@@ -2,19 +2,17 @@ package com.energyict.mdc.issue.datacollection.rest.resource;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.bpm.BpmProcessDefinition;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
+import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -33,21 +31,18 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.RescheduleConnectionTaskQueueMessage;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
+import com.energyict.mdc.issue.datacollection.rest.IssueProcessInfos;
+import com.energyict.mdc.issue.datacollection.rest.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.rest.i18n.DataCollectionIssueTranslationKeys;
 import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
-import com.energyict.mdc.issue.datacollection.rest.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -58,7 +53,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 
 @Path("/issues")
@@ -72,11 +67,12 @@ public class IssueResource extends BaseResource {
     private final DataCollectionIssueInfoFactory issuesInfoFactory;
     private final IssueResourceHelper issueResourceHelper;
     private final ExceptionFactory exceptionFactory;
+    private final BpmService bpmService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
 
 
     @Inject
-    public IssueResource(IssueService issueService, MessageService messageService, AppService appService, JsonService jsonService, IssueDataCollectionService issueDataCollectionService, DataCollectionIssueInfoFactory dataCollectionIssuesInfoFactory, IssueResourceHelper issueResourceHelper, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory) {
+    public IssueResource(IssueService issueService, MessageService messageService, AppService appService, JsonService jsonService, IssueDataCollectionService issueDataCollectionService, DataCollectionIssueInfoFactory dataCollectionIssuesInfoFactory, IssueResourceHelper issueResourceHelper, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, BpmService bpmService) {
         this.issueService = issueService;
         this.messageService = messageService;
         this.issueDataCollectionService = issueDataCollectionService;
@@ -86,6 +82,7 @@ public class IssueResource extends BaseResource {
         this.appService = appService;
         this.jsonService = jsonService;
         this.conflictFactory = conflictFactory;
+        this.bpmService = bpmService;
     }
 
     @GET @Transactional
@@ -96,6 +93,43 @@ public class IssueResource extends BaseResource {
         Optional<? extends IssueDataCollection> issue = getIssueDataCollectionService().findIssue(id);
         return issue.map(i -> entity(issuesInfoFactory.asInfo(i, DeviceInfo.class)).build())
                     .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    @GET @Transactional
+    @Path("/{" + ID + "}/processes")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
+    public IssueProcessInfos getTimeine(@PathParam(ID) long id, @BeanParam StandardParametersBean params, @HeaderParam("Authorization") String auth) {
+        String jsonContent;
+        IssueProcessInfos issueProcessInfos = new IssueProcessInfos();
+        JSONArray arr = null;
+        if(params.get("variableid") != null && params.get("variablevalue") != null ) {
+            try {
+                String rest = "/rest/tasks/allprocesses?";
+                rest += "variableid=" + params.get("variableid").get(0);
+                rest += "&variablevalue=" + params.get("variablevalue").get(0);
+                jsonContent = bpmService.getBpmServer().doGet(rest, auth);
+                if (!"".equals(jsonContent)) {
+                    JSONObject obj = new JSONObject(jsonContent);
+                    arr = obj.getJSONArray("processInstances");
+                }
+            } catch (JSONException e) {
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(getThesaurus().getString("error.flow.unavailable", "Cannot connect to Flow; HTTP error {0}."))
+                    .build());
+            } catch (RuntimeException e) {
+            throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(String.format(getThesaurus().getString("error.flow.invalid.response", "Invalid response received, please check your Flow version."), e.getMessage()))
+                    .build());
+            }
+            List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
+            issueProcessInfos = new IssueProcessInfos(arr);
+            issueProcessInfos.processes = issueProcessInfos.processes.stream()
+                    .filter(s -> !s.status.equals("1") || activeProcesses.stream().anyMatch(a -> s.name.equals(a.getProcessName()) && s.version.equals(a.getVersion())))
+                    .collect(Collectors.toList());
+        }
+        return issueProcessInfos;
+
     }
 
     @PUT @Transactional
@@ -157,6 +191,20 @@ public class IssueResource extends BaseResource {
             issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult, true);
         }
         return issueProvider;
+    }
+
+    private List<? extends IssueDataCollection> getIssuesForBulk(JsonQueryFilter filter) {
+        return issueService.findIssues(issueResourceHelper.buildFilterFromQueryParameters(filter), EndDevice.class, User.class, IssueReason.class, IssueStatus.class, IssueType.class).stream()
+                .map(issue -> {
+                    if (issue.getStatus().isHistorical()) {
+                        return issueDataCollectionService.findHistoricalIssue(issue.getId());
+                    } else {
+                        return issueDataCollectionService.findOpenIssue(issue.getId());
+                    }
+                })
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 
     private Response queueConnectionBulkAction(List<? extends IssueDataCollection> issues, ActionInfo response) throws Exception {
@@ -229,20 +277,6 @@ public class IssueResource extends BaseResource {
                 filter(DestinationSpec::isActive).
                 filter(spec -> !spec.getSubscribers().isEmpty()).
                 anyMatch(spec -> destinationName.equals(spec.getName()));
-    }
-
-    private List<? extends IssueDataCollection> getIssuesForBulk(JsonQueryFilter filter) {
-        return issueService.findIssues(issueResourceHelper.buildFilterFromQueryParameters(filter), EndDevice.class, User.class, IssueReason.class, IssueStatus.class, IssueType.class).stream()
-                .map(issue -> {
-                    if (issue.getStatus().isHistorical()) {
-                        return issueDataCollectionService.findHistoricalIssue(issue.getId());
-                    } else {
-                        return issueDataCollectionService.findOpenIssue(issue.getId());
-                    }
-                })
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
     }
 
     private List<? extends IssueDataCollection> getUserSelectedIssues(BulkIssueRequest request, ActionInfo bulkResult, boolean isBulkRetry) {

@@ -1,9 +1,11 @@
 package com.energyict.mdc.issue.issue.datacollection.rest;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.rest.IssueDataCollectionApplication;
@@ -56,6 +58,10 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
     AppService appService;
     @Mock
     JsonService jsonService;
+    @Mock
+    CommunicationTaskService communicationTaskService;
+    @Mock
+    BpmService bpmService;
 
     @Override
     protected Application getApplication() {
@@ -63,6 +69,7 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         application.setTransactionService(transactionService);
         application.setRestQueryService(restQueryService);
         application.setUserService(userService);
+        application.setBpmService(bpmService);
         when(issueService.getIssueActionService()).thenReturn(issueActionService);
         application.setIssueService(issueService);
         application.setIssueDataCollectionService(issueDataCollectionService);
@@ -73,6 +80,7 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         application.setMessageService(messageService);
         application.setAppService(appService);
         application.setJsonService(jsonService);
+        application.setCommunicationTaskService(communicationTaskService);
         return application;
     }
 
