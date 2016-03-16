@@ -10,6 +10,11 @@ Ext.define('Usr.view.group.GroupActionMenu', {
             text: Uni.I18n.translate('general.edit', 'USR', 'Edit'),
             itemId: 'editGroup',
             action: 'edit'
+        },
+        {
+            text: Uni.I18n.translate('general.remove', 'USR', 'Remove'),
+            itemId: 'removeGroup',
+            action: 'remove'
         }
     ]
 });
