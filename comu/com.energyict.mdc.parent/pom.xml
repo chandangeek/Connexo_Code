@@ -166,6 +166,7 @@
                 <module>../com.energyict.mdc.api.rest</module>
                 <module>../com.energyict.mdc.app</module>
                 <module>../com.energyict.mdc.app.help</module>
+                <module>../com.energyict.mdc.bpm</module>
                 <module>../com.energyict.mdc.bpm.extjs</module>
                 <module>../com.energyict.mdc.common</module>
                 <module>../com.energyict.mdc.dashboard</module>
@@ -212,6 +213,7 @@
                 <module>../com.energyict.mdc.protocols</module>
                 <module>../com.energyict.mdc.scheduling</module>
                 <module>../com.energyict.mdc.scheduling.rest</module>
+                <module>../com.energyict.mdc.servicecall.examples</module>
                 <module>../com.energyict.mdc.tasks</module>
                 <module>../com.energyict.mdc.tasks.rest</module>
                 <!-- Can we please keep this list organized alphabetically -->
