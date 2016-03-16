@@ -3,8 +3,12 @@ package com.elster.jupiter.cps.rest.impl;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.Privileges;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -24,9 +28,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Path("/custompropertysets")
@@ -35,15 +37,18 @@ public class CustomPropertySetResource {
     private final TransactionService transactionService;
     private final CustomPropertySetService customPropertySetService;
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
+    private final Thesaurus thesaurus;
 
     @Inject
     public CustomPropertySetResource(TransactionService transactionService,
                                      CustomPropertySetService customPropertySetService,
-                                     CustomPropertySetInfoFactory customPropertySetInfoFactory) {
+                                     CustomPropertySetInfoFactory customPropertySetInfoFactory,
+                                     Thesaurus thesaurus) {
         super();
         this.transactionService = transactionService;
         this.customPropertySetService = customPropertySetService;
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -52,17 +57,12 @@ public class CustomPropertySetResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_PRIVILEGES, Privileges.Constants.VIEW_PRIVILEGES})
     public PagedInfoList getCustomAttributeSets(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         String domainExtension = filter.getString("domainExtension");
-        List<RegisteredCustomPropertySet> customPropertySets;
-        if (domainExtension != null) {
-            customPropertySets = customPropertySetService.findActiveCustomPropertySets()
-                    .stream()
-                    .filter(f -> f.getCustomPropertySet().getDomainClass().getName().equals(domainExtension))
-                    .collect(Collectors.toList());
-        } else {
-            customPropertySets = customPropertySetService.findActiveCustomPropertySets();
-        }
-        return PagedInfoList.fromCompleteList("customAttributeSets",
-                customPropertySetInfoFactory.from(customPropertySets), queryParameters);
+        List<CustomPropertySetInfo> infos = customPropertySetService.findActiveCustomPropertySets()
+                .stream()
+                .filter(rcps -> domainExtension == null || rcps.getCustomPropertySet().getDomainClass().getName().equals(domainExtension))
+                .map(customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("customAttributeSets", infos, queryParameters);
     }
 
     @GET
@@ -71,12 +71,13 @@ public class CustomPropertySetResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_PRIVILEGES, Privileges.Constants.VIEW_PRIVILEGES})
     public PagedInfoList getDomains(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
-        Set<String> domainExtensions = new HashSet<>(customPropertySetService.findActiveCustomPropertySets()
+        List<IdWithDisplayValueInfo> domainExtensions = customPropertySetService.findActiveCustomPropertySets()
                 .stream()
                 .map(m -> m.getCustomPropertySet().getDomainClass().getName())
-                .collect(Collectors.toList()));
-        return PagedInfoList.fromCompleteList("domainExtensions",
-                customPropertySetInfoFactory.from(domainExtensions), queryParameters);
+                .distinct()
+                .map(domainExtension -> new IdWithDisplayValueInfo<>(domainExtension, thesaurus.getStringBeyondComponent(domainExtension, domainExtension)))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("domainExtensions", domainExtensions, queryParameters);
     }
 
     @PUT

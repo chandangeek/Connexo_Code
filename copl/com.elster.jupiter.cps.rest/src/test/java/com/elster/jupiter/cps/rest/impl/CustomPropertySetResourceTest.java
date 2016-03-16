@@ -4,6 +4,8 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ViewPrivilege;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -15,7 +17,9 @@ import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +48,7 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
         assertThat(jsonCustomAttributeSets.get("id")).isEqualTo(100500);
         assertThat(jsonCustomAttributeSets.get("name")).isEqualTo("domainExtensionName");
         assertThat(jsonCustomAttributeSets.get("domainName")).isEqualTo("com.elster.jupiter.properties.BigDecimalFactory");
-        assertThat(jsonCustomAttributeSets.get("isActive")).isEqualTo(true);
+        assertThat(jsonCustomAttributeSets.get("isActive")).isNull(); // it is regular CPS
         assertThat(jsonCustomAttributeSets.get("isRequired")).isEqualTo(true);
         assertThat(jsonCustomAttributeSets.get("isVersioned")).isEqualTo(false);
         List jsonViewPrivileges = (List) jsonCustomAttributeSets.get("viewPrivileges");
@@ -55,10 +59,11 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
         assertThat(jsonDefaultViewPrivileges.get(0)).isEqualTo("LEVEL_3");
         List jsonDefaultEditPrivileges = (List) jsonCustomAttributeSets.get("defaultEditPrivileges");
         assertThat(jsonDefaultEditPrivileges.get(0)).isEqualTo("LEVEL_4");
-        Map jsonCustomAttributes = (Map) ((List) jsonCustomAttributeSets.get("attributes")).get(0);
-        assertThat(jsonCustomAttributes.get("name")).isEqualTo("customAttribute");
-        assertThat(jsonCustomAttributes.get("type")).isEqualTo("com.elster.jupiter.properties.BigDecimalFactory");
-        assertThat(jsonCustomAttributes.get("typeSimpleName")).isEqualTo("com.elster.jupiter.properties.BigDecimalFactory");
+        Map jsonCustomAttributes = (Map) ((List) jsonCustomAttributeSets.get("properties")).get(0);
+        assertThat(jsonCustomAttributes.get("key")).isEqualTo("customAttribute");
+        Map propertyTypeInfo = (Map) jsonCustomAttributes.get("propertyTypeInfo");
+        assertThat(propertyTypeInfo.get("type")).isEqualTo("java.math.BigDecimal");
+        assertThat(propertyTypeInfo.get("typeSimpleName")).isEqualTo("BigDecimal");
         assertThat(jsonCustomAttributes.get("required")).isEqualTo(true);
     }
 
@@ -67,7 +72,7 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
         Map<String, Object> map = target("/custompropertysets/domains").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(1);
         Map jsonDomains = (Map) ((List) map.get("domainExtensions")).get(0);
-        assertThat(jsonDomains.get("value")).isEqualTo("com.elster.jupiter.properties.BigDecimalFactory");
+        assertThat(jsonDomains.get("id")).isEqualTo("com.elster.jupiter.properties.BigDecimalFactory");
     }
 
     @Test
@@ -84,7 +89,7 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
         PropertySpecPossibleValues propertySpecPossibleValues = mock(PropertySpecPossibleValues.class);
         when(propertySpec.getName()).thenReturn("customAttribute");
         when(propertySpec.getValueFactory()).thenReturn(valueFactory);
-        when(propertySpec.getValueFactory().getValueType()).thenReturn(BigDecimalFactory.class);
+        when(propertySpec.getValueFactory().getValueType()).thenReturn(BigDecimal.class);
         when(propertySpec.getPossibleValues()).thenReturn(propertySpecPossibleValues);
         when(propertySpec.getPossibleValues().getDefault()).thenReturn("");
         when(propertySpec.getPossibleValues().getAllValues()).thenReturn(Arrays.asList("", ""));

@@ -5,11 +5,14 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
+import java.time.Clock;
 
 public class CustomPropertySetApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
     @Mock
     CustomPropertySetService customPropertySetService;
+    @Mock
+    Clock clock;
 
     @Override
     protected Application getApplication() {
@@ -17,6 +20,7 @@ public class CustomPropertySetApplicationJerseyTest extends FelixRestApplication
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setCustomPropertySetService(customPropertySetService);
+        application.setClock(clock);
         return application;
     }
 }

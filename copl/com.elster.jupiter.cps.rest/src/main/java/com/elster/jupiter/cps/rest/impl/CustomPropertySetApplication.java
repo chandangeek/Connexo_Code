@@ -1,6 +1,7 @@
 package com.elster.jupiter.cps.rest.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -16,6 +17,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.validation.MessageInterpolator;
 import javax.ws.rs.core.Application;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -33,6 +35,7 @@ public class CustomPropertySetApplication extends Application implements Message
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile Clock clock;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -64,6 +67,11 @@ public class CustomPropertySetApplication extends Application implements Message
         this.customPropertySetService = customPropertySetService;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     @Override
     public String getComponentName() {
         return COMPONENT_NAME;
@@ -91,6 +99,7 @@ public class CustomPropertySetApplication extends Application implements Message
             bind(thesaurus).to(MessageInterpolator.class);
             bind(transactionService).to(TransactionService.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
+            bind(clock).to(Clock.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
         }
     }
