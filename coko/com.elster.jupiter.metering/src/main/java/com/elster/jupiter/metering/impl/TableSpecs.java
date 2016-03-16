@@ -644,10 +644,11 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<MultiplierType> table = dataModel.addTable(name(), MultiplierType.class);
             table.map(MultiplierTypeImpl.class);
-
-            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
-
-            table.primaryKey("MTR_PK_MULTIPLIERTYPE").on(nameColumn).add();
+            Column id = table.addAutoIdColumn();
+            Column name = table.column("NAME").varChar().notNull().map("name").add();
+            Column nameIsKey = table.column("NAMEISKEY").bool().notNull().map("nameIsKey").add();
+            table.primaryKey("MTR_PK_MULTIPLIERTYPE").on(id).add();
+            table.unique("MTR_UK_MULTTYPE_NAME").on(name,  nameIsKey).add();
         }
     },
     MTR_MULTIPLIERVALUE {

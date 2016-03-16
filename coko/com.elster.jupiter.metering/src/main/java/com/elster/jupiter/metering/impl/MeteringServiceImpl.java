@@ -44,6 +44,7 @@ import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -64,10 +65,10 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Subquery;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
+
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -104,6 +105,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private volatile UserService userService;
     private volatile EventService eventService;
     private volatile DataModel dataModel;
+    private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile MessageService messageService;
     private volatile JsonService jsonService;
@@ -163,7 +165,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public List<ReadingType> findReadingTypes(List<String> mRids) {
-       return dataModel.mapper(ReadingType.class).select(Where.where("mRID").in(mRids));
+       return dataModel.mapper(ReadingType.class).select(where("mRID").in(mRids));
     }
 
     @Override
@@ -442,6 +444,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Reference
     public final void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN);
     }
 
@@ -660,18 +663,33 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public MultiplierType createMultiplierType(String name) {
-        MultiplierTypeImpl multiplierType = MultiplierTypeImpl.from(dataModel, name);
+        MultiplierTypeImpl multiplierType = dataModel.getInstance(MultiplierTypeImpl.class).initWithCustomName(name);
         multiplierType.save();
         return multiplierType;
     }
 
     @Override
+    public MultiplierType createMultiplierType(NlsKey name) {
+        String localKey = "MultiplierType.custom." + name.getKey();
+        nlsService.copy(name, COMPONENTNAME, Layer.DOMAIN, key -> localKey);
+        MultiplierTypeImpl multiplierType = this.dataModel.getInstance(MultiplierTypeImpl.class).initWithNlsNameKey(localKey);
+        multiplierType.save();
+        return multiplierType;
+    }
+
+    @Override
+    public MultiplierType getMultiplierType(MultiplierType.StandardType standardType) {
+        return this.dataModel.mapper(MultiplierType.class).getOptional(standardType.translationKey(), true).get();
+    }
+
+    @Override
     public Optional<MultiplierType> getMultiplierType(String name) {
-        return dataModel.mapper(MultiplierType.class).getOptional(name);
+        return this.dataModel.mapper(MultiplierType.class).getOptional(name, false);
     }
 
     @Override
     public List<MultiplierType> getMultiplierTypes() {
         return dataModel.mapper(MultiplierType.class).find();
     }
+
 }
