@@ -25,7 +25,9 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
             return record.convertObjectField(value);
         }},
         {name: 'startedOn', type: 'date', dateFormat: 'time', persist: false},
-        {name: 'finishedOn', type: 'date', dateFormat: 'time', persist: false}
+        {name: 'finishedOn', type: 'date', dateFormat: 'time', persist: false},
+        {name: 'timeBoundaryStart',type: 'int',useNull: true},
+        {name: 'timeBoundaryEnd',type: 'int',useNull: true}
     ],
     associations: [
         {

@@ -6,18 +6,24 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
     ],
 
     views: [
-        'Fwc.firmwarecampaigns.view.Overview'
+        'Fwc.firmwarecampaigns.view.Overview',
+        'Fwc.firmwarecampaigns.view.Add'
     ],
 
     stores: [
-        'Fwc.firmwarecampaigns.store.FirmwareCampaigns'
+        'Fwc.firmwarecampaigns.store.FirmwareCampaigns',
+        'Fwc.store.DeviceTypes',
+        'Fwc.firmwarecampaigns.store.FirmwareTypes',
+        'Fwc.store.Firmwares',
+        'Fwc.store.DeviceGroups'
     ],
 
     refs: [
         {
             ref: 'preview',
             selector: 'firmware-campaigns-detail-form'
-        }
+        },
+        { ref: 'campaignEdit', selector: '#firmware-campaigns-edit' }
     ],
 
     init: function () {
@@ -26,7 +32,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
                 select: this.showPreview
             },
             '#firmware-campaigns-action-menu': {
-                click: this.chooseAction
+                click: this.onActionMenuClicked
             }
         });
     },
@@ -54,9 +60,12 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
         preview.down('#firmware-campaigns-detail-action-menu-button').setVisible(record.get('status').id === 'ONGOING');
     },
 
-    chooseAction: function (menu, item) {
+    onActionMenuClicked: function (menu, item) {
         switch (item.action) {
             case 'cancelCampaign': this.onCancelCampaign(menu.record);
+                break;
+            case 'editCampaign':
+                location.href = '#/workspace/firmwarecampaigns/' + encodeURIComponent(menu.record.get('id')) + '/edit';
                 break;
         }
     },
@@ -98,5 +107,50 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
                 record.reject();
             }
         });
+    },
+
+    editCampaign: function(campaignIdAsString) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            widget = Ext.widget('firmware-campaigns-add', {
+                itemId: 'firmware-campaigns-edit',
+                returnLink: router.getRoute('workspace/firmwarecampaigns').buildUrl()
+            }),
+            dependencies = ['Fwc.store.DeviceTypes', 'Fwc.store.DeviceGroups'],
+            dependenciesCounter = dependencies.length,
+            onDependenciesLoaded = function () {
+                dependenciesCounter--;
+                if (!dependenciesCounter) {
+                    me.loadModelToEditForm(campaignIdAsString, widget);
+                }
+            };
+
+        me.getApplication().fireEvent('changecontentevent', widget);
+        widget.down('#btn-add-firmware-campaign').setText(Uni.I18n.translate('general.save', 'FWC', 'Save'));
+        widget.setLoading(true);
+        Ext.Array.each(dependencies, function (store) {
+            me.getStore(store).load(onDependenciesLoaded);
+        });
+    },
+
+    loadModelToEditForm: function(campaignIdAsString, widget) {
+        var me = this,
+            editView = me.getCampaignEdit(),
+            model = me.getModel('Fwc.firmwarecampaigns.model.FirmwareCampaign'),
+            editForm = editView.down('firmware-campaigns-add-form');
+
+        widget.setLoading(true);
+        model.load(campaignIdAsString, {
+            success: function (campaignRecord) {
+                //me.comTaskBeingEdited = comTaskRecord;
+                editView.down('firmware-campaigns-add-form').setTitle(
+                    Uni.I18n.translate('firmware.campaigns.editFirmwareCampaign', 'FWC', 'Edit firmware campaign')
+                );
+                me.getApplication().fireEvent('loadFirmwareCampaign', campaignRecord);
+                editForm.loadRecordForEdit(campaignRecord);
+                widget.setLoading(false);
+            }
+        });
     }
+
 });

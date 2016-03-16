@@ -32,10 +32,15 @@ Ext.define('Fwc.firmwarecampaigns.view.DynamicRadioGroup', {
             me.add({
                 boxLabel: option.localizedValue,
                 name: me.name,
+                disabled: config.disabled,
+                itemId: me.name + '-option-' + option.id,
                 inputValue: option.id,
-                afterSubTpl: config.showDescription ?'<span style="color: grey;padding: 0 0 0 19px; font-style: italic">'
-                + msg
-                + '</span>' : ''
+                afterSubTpl: config.showDescription
+                    ? ( config.disabled
+                        ? '<span style="color: lightgrey;padding: 0 0 0 19px; font-style: italic">' + msg + '</span>'
+                        : '<span style="color: grey;padding: 0 0 0 19px; font-style: italic">' + msg + '</span>'
+                      )
+                    : ''
             });
         });
         if (config.conditionCheck) {
