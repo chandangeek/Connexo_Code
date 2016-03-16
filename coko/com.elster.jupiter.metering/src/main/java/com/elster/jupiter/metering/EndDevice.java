@@ -31,6 +31,7 @@ public interface EndDevice extends IdentifiedObject {
     long getVersion();
     void delete();
     Optional<Location> getLocation();
+    void setLocation(Location location);
     long getLocationId();
     Optional<GeoCoordinates> getGeoCoordinates();
     long getGeoCoordinatesId();

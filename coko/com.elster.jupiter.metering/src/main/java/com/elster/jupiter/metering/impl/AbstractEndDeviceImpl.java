@@ -159,6 +159,11 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     }
 
     @Override
+    public void setLocation(Location location){
+        this.location.set(location);
+    }
+
+    @Override
     public Optional<Location> getLocation() {
         return location.getOptional();
     }
