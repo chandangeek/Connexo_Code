@@ -16,6 +16,7 @@ import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
+import com.google.common.collect.Lists;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -344,9 +345,9 @@ public class ServiceCallsCommands {
     }
 
 
-    public void hierarchy(String name, String version, long topLevel, long... levels) {
+    public void hierarchy(String name, String version, long... levels) {
         threadPrincipalService.set(() -> "Console");
-        new HierarchyCreator(name, version, topLevel, levels).create();
+        new HierarchyCreator(name, version, levels).create();
     }
 
     class HierarchyCreator {
@@ -356,14 +357,14 @@ public class ServiceCallsCommands {
         private long[] levels;
         private String name;
         private String version;
-        private long topLevel;
 
-        public HierarchyCreator(String name, String version, long topLevel, long[] levels) {
+        public HierarchyCreator(String name, String version, long... levels) {
             this.levels = levels;
             this.name = name;
             this.version = version;
-            this.topLevel = topLevel;
-            total = LongStream.of(levels).reduce(topLevel, (a, b) -> a * b);
+            total = Lists.reverse(LongStream.of(levels).boxed().collect(toList()))
+                    .stream()
+                    .reduce(0L, (a, b) -> (a + 1) * b);
         }
 
         public void create() {
@@ -372,17 +373,21 @@ public class ServiceCallsCommands {
 
             System.out.println(String.format("Creating a total of %.0f service calls", total));
 
-            LongStream.range(0, topLevel).forEach(i -> {
-                try (TransactionContext context = transactionService.getContext()) {
+            if (levels.length > 0) {
+                LongStream.range(0, levels[0]).forEach(i -> {
+                    try (TransactionContext context = transactionService.getContext()) {
                     ServiceCall serviceCall = serviceCallType.newServiceCall().create();
-                    created++;
-                    if (levels.length >= 1) {
-                        createChildren(serviceCall, levels);
-                        context.commit();
+                        created++;
+                        if (levels.length >= 1) {
+                            long[] subLevels = new long[levels.length - 1];
+                            System.arraycopy(levels, 1, subLevels, 0, levels.length - 1);
+                            createChildren(serviceCall, subLevels);
+                            context.commit();
+                        }
                     }
-                }
-                printUpdate();
-            });
+                    printUpdate();
+                });
+            }
             System.out.println("\nDone");
         }
 
