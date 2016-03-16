@@ -18,7 +18,8 @@ public class MetrologyContractImpl implements MetrologyContract {
     public enum Fields {
         METROLOGY_CONFIG("metrologyConfiguration"),
         METROLOGY_PURPOSE("metrologyPurpose"),
-        MANDATORY("mandatory"),;
+        MANDATORY("mandatory"),
+        DELIVERABLES("deliverables"),;
 
         private String javaFieldName;
 

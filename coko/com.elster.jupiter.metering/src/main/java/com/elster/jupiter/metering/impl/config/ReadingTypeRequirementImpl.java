@@ -7,11 +7,13 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.google.common.collect.ImmutableMap;
 
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +47,7 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
 
     private long version;

@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
@@ -13,7 +14,10 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
 import com.elster.jupiter.metering.impl.DefaultTranslationKey;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.security.Privileges;
@@ -199,5 +203,42 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     @Override
     public List<MetrologyPurpose> getMetrologyPurposes() {
         return getDataModel().mapper(MetrologyPurpose.class).find();
+    }
+
+    @Override
+    public ReadingTypeDeliverable createReadingTypeDeliverable(MetrologyContract contract, ReadingType readingType, Formula formula) {
+        ReadingTypeDeliverableImpl deliverable = getDataModel().getInstance(ReadingTypeDeliverableImpl.class)
+                .init(contract, readingType, formula);
+        deliverable.save();
+        return deliverable;
+    }
+
+    @Override
+    public Optional<ReadingTypeDeliverable> findReadingTypeDeliverable(long id) {
+        return getDataModel().mapper(ReadingTypeDeliverable.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<ReadingTypeDeliverable> findAndLockReadingTypeDeliverableByIdAndVersion(long id, long version) {
+        return getDataModel().mapper(ReadingTypeDeliverable.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public List<ReadingTypeDeliverable> findReadingTypeDeliverable(ReadingTypeDeliverableFilter filter) {
+        if (filter == null) {
+            throw new IllegalArgumentException("Filter can not be null.");
+        }
+        Condition condition = Condition.TRUE;
+        if (filter.getReadingTypes() != null) {
+            condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.READING_TYPE.fieldName()).in(filter.getReadingTypes()));
+        }
+        if (filter.getMetrologyContracts() != null) {
+            condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName()).in(filter.getMetrologyContracts()));
+        }
+        if (filter.getMetrologyConfigurations() != null) {
+            condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName()
+                    + ". " + MetrologyContractImpl.Fields.METROLOGY_CONFIG.fieldName()).in(filter.getMetrologyConfigurations()));
+        }
+        return getDataModel().query(ReadingTypeDeliverable.class, MetrologyContract.class).select(condition);
     }
 }
