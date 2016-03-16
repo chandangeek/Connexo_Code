@@ -144,7 +144,7 @@ public class BpmServerImpl implements BpmServer {
             httpConnection.setRequestProperty("Accept", "application/json");
 
             int responseCode = httpConnection.getResponseCode();
-            if (responseCode != 200) {
+            if (responseCode != 200 && responseCode != 204) {
                 throw new RuntimeException(Integer.toString(responseCode));
             }
             BufferedReader br = new BufferedReader(new InputStreamReader(

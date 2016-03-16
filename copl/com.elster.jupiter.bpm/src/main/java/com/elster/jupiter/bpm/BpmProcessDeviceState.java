@@ -1,7 +1,10 @@
 package com.elster.jupiter.bpm;
 
 
+import aQute.bnd.annotation.ProviderType;
 
+@ProviderType
+@Deprecated
 public interface BpmProcessDeviceState {
 
     long getProcessId();
