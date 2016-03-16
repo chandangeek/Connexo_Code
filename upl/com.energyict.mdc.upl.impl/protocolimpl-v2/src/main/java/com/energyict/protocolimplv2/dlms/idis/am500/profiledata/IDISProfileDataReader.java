@@ -98,24 +98,24 @@ public class IDISProfileDataReader {
                         }
                         previousTimeStamp = timeStamp;
 
-                        if(hasStatusInformation()){
+                        if (hasStatusInformation()) {
                             status = structure.getInteger(1);
                             offset = 2;
                         }
 
                         final List<IntervalValue> values = new ArrayList<>();
-                        
+
                         for (int channel = 0; channel < channelInfos.size(); channel++) {
                             value = new IntervalValue(structure.getBigDecimalValue(channel + offset), status, getEiServerStatus(status));
                             values.add(value);
                         }
-                        
+
                         intervalDatas.add(new IntervalData(timeStamp, 0, 0, 0, values));
                     }
 
                     collectedLoadProfile.setCollectedIntervalData(intervalDatas, channelInfos);
                 } catch (IOException e) {
-                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries()+1)) {
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
                         Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createProblem(loadProfileReader, "loadProfileXBlockingIssue", getCorrectedLoadProfileObisCode(loadProfileReader), e.getMessage());
                         collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }
@@ -180,12 +180,13 @@ public class IDISProfileDataReader {
                 List<ChannelInfo> channelInfos;
                 int interval;
                 try {
-                    ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(getCorrectedLoadProfileObisCode(lpr));
-                    channelInfos = getChannelInfo(profileGeneric.getCaptureObjects(), lpc.getMeterSerialNumber());
+                    ObisCode correctedLoadProfileObisCode = getCorrectedLoadProfileObisCode(lpr);
+                    ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(correctedLoadProfileObisCode);
+                    channelInfos = getChannelInfo(profileGeneric.getCaptureObjects(), lpc.getMeterSerialNumber(), correctedLoadProfileObisCode);
                     getChannelInfosMap().put(lpr, channelInfos);    //Remember these, they are re-used in method #getLoadProfileData();
                     interval = profileGeneric.getCapturePeriod();
                 } catch (IOException e) {   //Object not found in IOL, should never happen
-                    throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries()+1);
+                    throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries() + 1);
                 }
                 lpc.setChannelInfos(channelInfos);
                 lpc.setSupportedByMeter(true);
@@ -206,10 +207,10 @@ public class IDISProfileDataReader {
         return channelInfosMap;
     }
 
-    protected List<ChannelInfo> getChannelInfo(List<CapturedObject> capturedObjects, String serialNumber) {
+    protected List<ChannelInfo> getChannelInfo(List<CapturedObject> capturedObjects, String serialNumber, ObisCode correctedLoadProfileObisCode) throws ProtocolException {
         List<ObisCode> channelObisCodes = new ArrayList<>();
         for (CapturedObject capturedObject : capturedObjects) {
-            if (isChannel(capturedObject)) {
+            if (isChannel(capturedObject, correctedLoadProfileObisCode)) {
                 channelObisCodes.add(capturedObject.getLogicalName().getObisCode());
             }
         }
@@ -230,7 +231,7 @@ public class IDISProfileDataReader {
         return channelInfos;
     }
 
-    public Map<ObisCode, Unit> readUnits(List<ObisCode> channelObisCodes) {
+    public Map<ObisCode, Unit> readUnits(List<ObisCode> channelObisCodes) throws ProtocolException {
         Map<ObisCode, Unit> result = new HashMap<>();
 
         Map<ObisCode, DLMSAttribute> channelAttributes = new HashMap<>();
@@ -245,7 +246,7 @@ public class IDISProfileDataReader {
                 } else if (uo.getDLMSClassId() == DLMSClassId.DEMAND_REGISTER) {
                     unitAttribute = new DLMSAttribute(channelObisCode, DemandRegisterAttributes.UNIT.getAttributeNumber(), uo.getClassID());
                 } else {
-                    //TODO: avoid nullpointer?
+                    throw new ProtocolException("Unexpected captured_object in load profile: " + uo.getDescription());
                 }
                 channelAttributes.put(channelObisCode, unitAttribute);
             }
@@ -259,7 +260,7 @@ public class IDISProfileDataReader {
                 try {
                     result.put(channelObisCode, new ScalerUnit(composedCosemObject.getAttribute(dlmsAttribute)).getEisUnit());
                 } catch (IOException e) {
-                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries()+1)) {
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
                         result.put(channelObisCode, Unit.get(BaseUnit.UNITLESS));
                     }
                 } catch (ApplicationException e) {
@@ -281,15 +282,23 @@ public class IDISProfileDataReader {
         return OBISCODE_NR_OF_POWER_FAILURES.equals(obisCode);
     }
 
-    private boolean isChannel(CapturedObject capturedObject) {
+    /**
+     * Check if the captured_object can be considered as an EIServer channel.
+     * Registers, extended registers and demand registers are used as channels.
+     * Captured_objects with the obiscode of the clock (0.0.1.0.0.255), or the status register (0.x.96.10.x.255) are not considered as channels.
+     * <p/>
+     * In case of an unknown dlms class, or an unknown obiscode, a proper exception is thrown.
+     */
+    private boolean isChannel(CapturedObject capturedObject, ObisCode correctedLoadProfileObisCode) throws ProtocolException {
         int classId = capturedObject.getClassId();
         ObisCode obisCode = capturedObject.getLogicalName().getObisCode();
         if (classId == DLMSClassId.REGISTER.getClassId() || classId == DLMSClassId.EXTENDED_REGISTER.getClassId() || classId == DLMSClassId.DEMAND_REGISTER.getClassId()) {
             return true;
-        } else if (!isClock(obisCode) && !isProfileStatus(obisCode)) {
-            return true;
         }
-        return false;
+        if (isClock(obisCode) || isProfileStatus(obisCode)) {
+            return false;
+        }
+        throw new ProtocolException("Unexpected captured_object in load profile '" + correctedLoadProfileObisCode + "': " + capturedObject.toString());
     }
 
     private boolean isProfileStatus(ObisCode obisCode) {
