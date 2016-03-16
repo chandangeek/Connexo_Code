@@ -1,6 +1,7 @@
 package com.energyict.mdc.issue.datacollection.rest;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.*;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -52,6 +53,10 @@ public class IssueDataCollectionApplication extends Application implements Messa
     private volatile AppService appService;
     private volatile JsonService jsonService;
     private volatile CommunicationTaskService communicationTaskService;
+    private volatile BpmService bpmService;
+
+    public IssueDataCollectionApplication() {
+    }
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -62,6 +67,11 @@ public class IssueDataCollectionApplication extends Application implements Messa
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
     }
 
     @Reference
@@ -163,6 +173,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
             bind(issueActionService).to(IssueActionService.class);
             bind(issueDataCollectionService).to(IssueDataCollectionService.class);
             bind(userService).to(UserService.class);
+            bind(bpmService).to(BpmService.class);
             bind(transactionService).to(TransactionService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(meteringService).to(MeteringService.class);

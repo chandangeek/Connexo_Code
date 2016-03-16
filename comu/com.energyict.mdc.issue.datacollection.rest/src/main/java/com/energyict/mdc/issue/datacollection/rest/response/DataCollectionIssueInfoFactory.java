@@ -1,7 +1,6 @@
 package com.energyict.mdc.issue.datacollection.rest.response;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +21,6 @@ import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComCommandJournalEntry;
@@ -48,15 +46,13 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
 
     private DeviceService deviceService;
     private Thesaurus thesaurus;
-    private CommunicationTaskService communicationTaskService;
 
     public DataCollectionIssueInfoFactory() {}
 
     @Inject
-    public DataCollectionIssueInfoFactory(DeviceService deviceService, Thesaurus thesaurus, CommunicationTaskService communicationTaskService) {
+    public DataCollectionIssueInfoFactory(DeviceService deviceService, Thesaurus thesaurus) {
         this.deviceService = deviceService;
         this.thesaurus = thesaurus;
-        this.communicationTaskService = communicationTaskService;
     }
 
     @Reference
@@ -69,11 +65,6 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
         Thesaurus domainThesaurus = nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN);
         Thesaurus restThesaurus = nlsService.getThesaurus(IssueDataCollectionApplication.ISSUE_DATACOLLECTION_REST_COMPONENT, Layer.REST);
         this.thesaurus = domainThesaurus.join(restThesaurus);
-    }
-
-    @Reference
-    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
-        this.communicationTaskService = communicationTaskService;
     }
 
     public DataCollectionIssueInfo<?> asInfo(IssueDataCollection issue, Class<? extends DeviceInfo> deviceInfoClass) {
