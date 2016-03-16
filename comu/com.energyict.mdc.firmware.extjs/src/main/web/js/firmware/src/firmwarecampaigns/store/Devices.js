@@ -1,5 +1,5 @@
 Ext.define('Fwc.firmwarecampaigns.store.Devices', {
-    extend: 'Ext.data.Store',
+    extend: 'Uni.data.store.Filterable',
     model: 'Fwc.firmwarecampaigns.model.Device',
     autoLoad: false,
 
