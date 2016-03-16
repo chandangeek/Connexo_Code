@@ -343,7 +343,7 @@ Ext.define('Isu.controller.IssueDetail', {
                     validationBlocksWidget = Ext.widget('no-items-found-panel', {
                         title: Uni.I18n.translate('issues.validationBlocks.empty.title', 'ISU', 'No validation blocks are available'),
                         reasons: [
-                            Uni.I18n.translate('issues.validationBlocks.empty.reason1', 'IDV', 'No open validation issues.')
+                            Uni.I18n.translate('issues.validationBlocks.empty.reason1', 'ISU', 'No open validation issues.')
                         ]
                     });
                 }
