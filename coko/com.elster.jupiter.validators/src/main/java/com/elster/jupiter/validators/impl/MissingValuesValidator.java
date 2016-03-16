@@ -94,7 +94,9 @@ class MissingValuesValidator extends AbstractValidator {
 
     @Override
     public Map<Instant, ValidationResult> finish() {
-        return instants.stream().collect(Collectors.toMap(Function.identity(), instant -> ValidationResult.SUSPECT));
+        return instants.stream()
+                .collect(Collectors.toMap(Function.identity(),
+                        instant -> ValidationResult.SUSPECT));
     }
 
     @Override
