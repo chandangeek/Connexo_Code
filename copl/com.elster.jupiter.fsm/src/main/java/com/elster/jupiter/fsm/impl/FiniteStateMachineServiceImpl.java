@@ -33,7 +33,9 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -284,8 +286,9 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     }
 
     @Override
-    public CustomStateTransitionEventType newCustomStateTransitionEventType(String symbol) {
-        CustomStateTransitionEventTypeImpl eventType = this.dataModel.getInstance(CustomStateTransitionEventTypeImpl.class).initialize(symbol);
+    public CustomStateTransitionEventType newCustomStateTransitionEventType(String symbol, String context) {
+        CustomStateTransitionEventTypeImpl eventType = this.dataModel.getInstance(CustomStateTransitionEventTypeImpl.class)
+                .initialize(symbol, context);
         eventType.save();
         return eventType;
     }
@@ -330,8 +333,10 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     }
 
     @Override
-    public List<StateTransitionEventType> getStateTransitionEventTypes() {
-        return this.dataModel.query(StateTransitionEventType.class).select(Condition.TRUE);
+    public List<StateTransitionEventType> getStateTransitionEventTypes(String context) {
+        return this.dataModel
+                .query(StateTransitionEventType.class)
+                .select(Where.where(StateTransitionEventTypeImpl.Fields.CONTEXT.fieldName()).isEqualTo(context));
     }
 
     @Override

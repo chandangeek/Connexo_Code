@@ -31,6 +31,7 @@ public class StandardStateTransitionEventTypeImpl extends StateTransitionEventTy
     }
 
     StandardStateTransitionEventTypeImpl initialize(com.elster.jupiter.events.EventType eventType) {
+        super.initialize(eventType != null ? eventType.getScope() : null);
         this.eventType.set(eventType);
         return this;
     }

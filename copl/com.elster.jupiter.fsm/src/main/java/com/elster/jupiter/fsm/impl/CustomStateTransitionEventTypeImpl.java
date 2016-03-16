@@ -34,7 +34,8 @@ public class CustomStateTransitionEventTypeImpl extends StateTransitionEventType
         super(dataModel, thesaurus, stateMachineService);
     }
 
-    public CustomStateTransitionEventTypeImpl initialize(String symbol) {
+    public CustomStateTransitionEventTypeImpl initialize(String symbol, String context) {
+        super.initialize(context);
         this.symbol = symbol;
         return this;
     }

@@ -1,7 +1,8 @@
 package com.elster.jupiter.fsm;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.events.EventType;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
@@ -68,9 +69,10 @@ public interface FiniteStateMachineService {
      * Creates a new {@link CustomStateTransitionEventType} with the specified symbol.
      *
      * @param symbol The symbolic representation of the event
+     * @param context Name in which this custom event type can be used, e.g. devicelifecycle, servicecalllifecycle.
      * @return The CustomStateTransitionEventType
      */
-    CustomStateTransitionEventType newCustomStateTransitionEventType(String symbol);
+    CustomStateTransitionEventType newCustomStateTransitionEventType(String symbol, String context);
 
     /**
      * Creates a new {@link StandardStateTransitionEventType} with the specified symbol.
@@ -111,8 +113,9 @@ public interface FiniteStateMachineService {
      * Gets all the {@link StateTransitionEventType} that have been defined in the system.
      *
      * @return The List of StateTransitionEventType
+     * @param context    The context/component for which event types are to be retrieved. For standard event types, this would be the scope
      */
-    List<StateTransitionEventType> getStateTransitionEventTypes();
+    List<StateTransitionEventType> getStateTransitionEventTypes(String context);
 
     /**
      * Starts the building process for a new {@link FiniteStateMachine}

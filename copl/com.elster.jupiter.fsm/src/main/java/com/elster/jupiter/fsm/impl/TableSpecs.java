@@ -9,6 +9,7 @@ import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
@@ -52,6 +53,7 @@ public enum TableSpecs {
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column symbol = table.column("SYMBOL").varChar().map(StateTransitionEventTypeImpl.Fields.SYMBOL.fieldName()).add();
             Column eventType = table.column("EVENTTYPE").varChar(NAME_LENGTH).add();
+            table.column("CONTEXT").varChar().map(StateTransitionEventTypeImpl.Fields.CONTEXT.fieldName()).add();
             table.unique("UK_FSM_EVENTTYPE_SYMBOL").on(symbol).add();
             table.unique("UK_FSM_EVENTTYPE").on(eventType).add();
             table.primaryKey("PK_FSM_EVENTTYPE").on(id).add();
@@ -82,6 +84,7 @@ public enum TableSpecs {
                     .map(StateImpl.Fields.FINITE_STATE_MACHINE.fieldName())
                     .reverseMap(FiniteStateMachineImpl.Fields.STATES.fieldName())
                     .composition()
+                    .onDelete(DeleteRule.CASCADE)
                     .add();
             table.primaryKey("PK_FSM_STATE").on(id).add();
         }
