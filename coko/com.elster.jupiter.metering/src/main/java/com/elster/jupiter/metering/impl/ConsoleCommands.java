@@ -30,6 +30,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
@@ -51,7 +52,9 @@ import java.util.stream.Collectors;
         "osgi.command.function=explain",
         "osgi.command.function=addEvents",
         "osgi.command.function=addFormula",
-        "osgi.command.function=formulas"
+        "osgi.command.function=formulas",
+        "osgi.command.function=deleteFormula",
+        "osgi.command.function=updateFormula"
 }, immediate = true)
 public class ConsoleCommands {
 
@@ -229,6 +232,32 @@ public class ConsoleCommands {
             }
         } finally {
             threadPrincipalService.clear();
+        }
+    }
+
+    public void deleteFormula(long id) {
+        try (TransactionContext context = transactionService.getContext()) {
+            Optional<Formula> formula =  metrologyConfigurationService.findFormula(id);
+            if (!formula.isPresent()) {
+                System.out.println("No formula found with id " + id);
+            } else {
+                formula.get().delete();
+                context.commit();
+            }
+        }
+    }
+
+    public void updateFormula(long id, String formulaString) {
+        try (TransactionContext context = transactionService.getContext()) {
+            Optional<Formula> formula =  metrologyConfigurationService.findFormula(id);
+            if (!formula.isPresent()) {
+                System.out.println("No formula found with id " + id);
+            } else {
+                ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus()).parse(formulaString);
+                Formula formulaObject = formula.get();
+                formulaObject.updateExpression(node);
+                context.commit();
+            }
         }
     }
 

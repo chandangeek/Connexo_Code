@@ -122,4 +122,9 @@ public abstract class AbstractNode implements ExpressionNode {
         Save.UPDATE.save(dataModel, this);
     }
 
+    @Override
+    public void delete(DataModel dataModel) {
+        dataModel.remove(this);
+    }
+
 }

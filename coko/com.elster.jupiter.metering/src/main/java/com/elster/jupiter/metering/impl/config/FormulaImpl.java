@@ -42,6 +42,13 @@ public class FormulaImpl implements ServerFormula {
     }
 
     @Override
+    public void updateExpression(ExpressionNode nodeValue) {
+        this.expressionNode.get().delete(dataModel);
+        this.expressionNode.set(nodeValue);
+        save();
+    }
+
+    @Override
     public String getDescription() {
         return "";
     }
@@ -79,6 +86,14 @@ public class FormulaImpl implements ServerFormula {
     }
 
     void doSave() {
+        if (id == 0) {
+            this.expressionNode.get().save(dataModel);
+            Save.CREATE.save(dataModel, this);
+        } else {
+            Save.UPDATE.save(dataModel, this);
+        }
+
+
         this.expressionNode.get().save(dataModel);
         Save.action(this.id).save(dataModel, this);
     }
