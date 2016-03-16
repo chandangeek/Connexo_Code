@@ -51,7 +51,7 @@ Ext.define('Isu.view.issues.Preview', {
                         itemId: 'issue-preview-reason',
                         fieldLabel: Uni.I18n.translate('general.title.reason', 'ISU', 'Reason'),
                         name: 'reason',
-                        renderer: function (value, field) {
+                        renderer: function (value) {
                             if (value && me.getRecord()) {
                                 me.down('#issue-preview-reason').setVisible(me.getRecord().get('issueType').uid != 'datavalidation');
                                 return Ext.String.htmlEncode(value.name);
@@ -91,6 +91,19 @@ Ext.define('Isu.view.issues.Preview', {
                             }
 
                             return result;
+                        }
+                    },
+                    {
+                        itemId: 'issue-preview-device-no-filter',
+                        fieldLabel: Uni.I18n.translate('general.title.device', 'ISU', 'Device'),
+                        name: 'deviceMRID',
+                        hidden: true,
+                        renderer: function (value, field) {
+                            if (value && me.getRecord()) {
+                                me.down('#issue-preview-device').setVisible(me.getRecord().get('reason').id != 'reason.unknown.inbound.device');
+                                field.setVisible(me.getRecord().get('reason').id == 'reason.unknown.inbound.device');
+                                return value ? Ext.String.htmlEncode(value) : '';
+                            }
                         }
                     }
                 ]

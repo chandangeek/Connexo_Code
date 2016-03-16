@@ -1,24 +1,32 @@
 Ext.define('Isu.controller.IssueDetail', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Isu.privileges.Issue'
+        'Isu.privileges.Issue',
+        'Isu.store.TimelineEntries',
+        'Bpm.monitorissueprocesses.store.IssueProcesses'
     ],
 
     stores: [
         'Isu.store.IssueActions',
-        'Isu.store.Issues'
+        'Isu.store.Issues',
+        'Isu.store.TimelineEntries',
+        'Bpm.monitorissueprocesses.store.IssueProcesses'
     ],
 
     showOverview: function (id) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            filter = me.getStore('Isu.store.Clipboard').get('latest-issues-filter'),
             queryString = Uni.util.QueryString.getQueryStringValues(false),
             issueType = queryString.issueType,
             store = me.getStore('Isu.store.Issues'),
+            processStore = me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
             widgetXtype,
             issueModel,
             widget;
+
+        processStore.getProxy().setUrl(id);
+        processStore.load(function (records) {
+        });
 
         if (store.getCount()) {
             var issueActualType = store.getById(parseInt(id)).get('issueType').uid;
@@ -56,7 +64,11 @@ Ext.define('Isu.controller.IssueDetail', {
                     me.getApplication().fireEvent('issueLoad', record);
                     Ext.suspendLayouts();
                     widget.down('#issue-detail-top-title').setTitle(record.get('title'));
-                    widget.down('#issue-detail-form').loadRecord(record);
+                    if (issueType == 'datacollection') {
+                        me.loadDataCollectionIssueDetails(widget, record);
+                    } else {
+                        widget.down('#issue-detail-form').loadRecord(record);
+                    }
                     Ext.resumeLayouts(true);
                     widget.down('issues-action-menu').record = record;
                     me.loadComments(record);
@@ -67,46 +79,59 @@ Ext.define('Isu.controller.IssueDetail', {
             }
         });
         if (issueType == 'datavalidation') {
-            me.getApplication().on('issueLoad', function (rec) {
-                var panel = widget.down('#no-estimated-data-panel');
-                if (rec.raw.notEstimatedData && panel) {
-                    var data = [],
-                        store, validationBlocksWidget;
-
-                    rec.raw.notEstimatedData.map(function (item) {
-                        item.notEstimatedBlocks.map(function (block) {
-                            data.push(Ext.apply({}, {
-                                mRID: item.readingType.mRID,
-                                channelId: item.channelId,
-                                registerId: item.registerId,
-                                readingType: item.readingType
-                            }, block))
-                        });
-                    });
-
-                    if (data.length) {
-                        store = Ext.create('Idv.store.NonEstimatedDataStore', {data: data});
-                        validationBlocksWidget = Ext.widget('no-estimated-data-grid', {
-                            store: store,
-                            router: router,
-                            issue: rec
-                        });
-                    } else {
-                        validationBlocksWidget = Ext.widget('no-items-found-panel', {
-                            title: Uni.I18n.translate('issues.validationBlocks.empty.title', 'ISU', 'No validation blocks are available'),
-                            reasons: [
-                                Uni.I18n.translate('issues.validationBlocks.empty.reason1', 'ISU', 'No open validation issues.')
-                            ]
-                        });
-                    }
-
-                    panel.removeAll();
-                    panel.add(validationBlocksWidget);
-                }
-            }, me, {
-                single: true
-            });
+            me.addValidationBlocksWidget(widget);
         }
+    },
+
+    loadTimeline: function(commentsStore){
+        var me = this,
+
+            timelineView = this.widget ? this.widget.down('#issue-timeline-view') : this.getPage().down('#issue-timeline-view'),
+            processView = this.widget ? this.widget.down('#issue-process-view') :this.getPage().down('#issue-process-view'),
+            timelineStore = me.getStore('Isu.store.TimelineEntries'),
+            procesStore = me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
+            router = me.getController('Uni.controller.history.Router'),
+            data=[];
+
+        timelineStore.data.clear();
+
+        commentsStore.each(function(rec)
+            {
+                data.push({
+                    user: rec.data.author.name,
+                    actionText: Uni.I18n.translate('issue.workspace.datacollection.added.comment','ISU','added a comment'),
+                    creationDate: rec.data.creationDate,
+                    contentText: rec.data.splittedComments,
+                });
+            }
+        );
+        if(Isu.privileges.Issue.canViewProcesses()) {
+            procesStore.each(function (rec) {
+                    data.push({
+                        user: rec.data.startedBy,
+                        actionText: Uni.I18n.translate('issue.workspace.datacollection.processStarted', 'ISU', 'started a process'),
+                        creationDate: rec.data.startDate,
+                        contentText: rec.data.name,
+                        forProcess: true,
+                        processId: rec.data.processId,
+                        status: ' (' + rec.data.statusDisplay + ')',
+                    });
+                }
+            );
+        }
+        Ext.Array.each(data, function (item) {
+            timelineStore.add(item);
+        })
+
+        timelineStore.sort('creationDate', 'DESC');
+        timelineView.bindStore(timelineStore);
+        timelineView.previousSibling('#no-issue-timeline').setVisible(timelineStore.data.items.length <= 0);
+
+        if(!Isu.privileges.Issue.canViewProcesses()) return;
+
+        procesStore.sort('startDate', 'DESC');
+        processView.bindStore(procesStore);
+        processView.previousSibling('#no-issue-processes').setVisible(procesStore.data.items.length <= 0);
     },
 
     makeLinkToList: function (router) {
@@ -118,11 +143,14 @@ Ext.define('Isu.controller.IssueDetail', {
     },
 
     loadComments: function (record) {
-        var commentsView = this.widget ? this.widget.down('#issue-comments-view') : this.getPage().down('#issue-comments-view'),
+        var
+            me = this,
+            commentsView = this.widget ? this.widget.down('#issue-comments-view') : this.getPage().down('#issue-comments-view'),
             commentsStore = record.comments(),
             router = this.getController('Uni.controller.history.Router');
 
         commentsStore.getProxy().url = '/api/isu/issues/' + record.getId() + '/comments';
+        commentsStore.sort('creationDate', 'DESC');
         commentsView.bindStore(commentsStore);
         commentsView.setLoading(true);
         commentsStore.load(function (records) {
@@ -132,6 +160,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 commentsView.show();
                 commentsView.previousSibling('#no-issue-comments').setVisible(!records.length && !router.queryParams.addComment);
                 commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && Isu.privileges.Issue.canComment());
+                me.loadTimeline(commentsStore);
                 Ext.resumeLayouts(true);
                 commentsView.setLoading(false);
             }
@@ -180,6 +209,7 @@ Ext.define('Isu.controller.IssueDetail', {
             commentsStore.load(function (records) {
                 this.add(records);
                 commentsView.setLoading(false);
+                me.loadTimeline(commentsStore);
             })
         }});
 
@@ -220,6 +250,109 @@ Ext.define('Isu.controller.IssueDetail', {
                     }
                 }
             }
+        });
+    },
+
+    loadDataCollectionIssueDetails: function (widget, issue) {
+        var me = this,
+            container = widget.down('#data-collection-issue-detail-container'),
+            router = me.getController('Uni.controller.history.Router'),
+            store = null,
+            journals,
+            form;
+
+        switch (issue.get('reason').id) {
+            case 'reason.connection.failed':
+                journals = issue.get('connectionTask_journals');
+                if (journals && !_.isEmpty(journals)) {
+                    store = Ext.create('Idc.store.ConnectionLogs', {data: journals});
+                }
+                form = Ext.widget('connection-issue-details-form', {
+                    itemId: 'connection-issue-details-form',
+                    store: store,
+                    router: router
+                });
+                break;
+            case 'reason.connection.setup.failed':
+                journals = issue.get('connectionTask_journals');
+                if (journals && !_.isEmpty(journals)) {
+                    store = Ext.create('Idc.store.ConnectionLogs', {data: issue.get('connectionTask_journals')});
+                }
+                form = Ext.widget('connection-issue-details-form', {
+                    itemId: 'connection-setup-issue-details-form',
+                    store: store,
+                    router: router
+                });
+                break;
+            case 'reason.failed.to.communicate':
+                journals = issue.get('communicationTask_journals');
+                if (journals && !_.isEmpty(journals)) {
+                    store = Ext.create('Idc.store.CommunicationLogs', {data: issue.get('communicationTask_journals')});
+                }
+                form = Ext.widget('communication-issue-details-form', {
+                    itemId: 'communication-issue-details-form',
+                    store: store,
+                    router: router
+                });
+                break;
+            case 'reason.unknown.inbound.device':
+                form = Ext.widget('inbound-issue-details-form', {
+                    itemId: 'inbound-issue-details-form'
+                });
+                break;
+            case 'reason.unknown.outbound.device':
+                form = Ext.widget('outbound-issue-details-form', {
+                    itemId: 'outbound-issue-details-form',
+                    router: router
+                });
+                break;
+        }
+        form.loadRecord(issue);
+        container.add(form);
+    },
+
+    addValidationBlocksWidget: function (widget) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        me.getApplication().on('issueLoad', function (rec) {
+            var panel = widget.down('#no-estimated-data-panel');
+            if (rec.raw.notEstimatedData && panel) {
+                var data = [],
+                    store, validationBlocksWidget;
+
+                rec.raw.notEstimatedData.map(function (item) {
+                    item.notEstimatedBlocks.map(function (block) {
+                        data.push(Ext.apply({}, {
+                            mRID: item.readingType.mRID,
+                            channelId: item.channelId,
+                            registerId: item.registerId,
+                            readingType: item.readingType
+                        }, block))
+                    });
+                });
+
+                if (data.length) {
+                    store = Ext.create('Idv.store.NonEstimatedDataStore', {data: data});
+                    validationBlocksWidget = Ext.widget('no-estimated-data-grid', {
+                        store: store,
+                        router: router,
+                        issue: rec
+                    });
+                } else {
+                    validationBlocksWidget = Ext.widget('no-items-found-panel', {
+                        title: Uni.I18n.translate('issues.validationBlocks.empty.title', 'IDV', 'No validation blocks are available'),
+                        reasons: [
+                            Uni.I18n.translate('issues.validationBlocks.empty.reason1', 'IDV', 'No open validation issues.')
+                        ]
+                    });
+                }
+
+                panel.removeAll();
+                panel.add(validationBlocksWidget);
+            }
+        }, me, {
+            single: true
         });
     }
 });
