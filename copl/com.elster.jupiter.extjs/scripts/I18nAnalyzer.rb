@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 branch=ARGV[1]
+just_checking=ARGV[2]
 
 require 'fileutils'
 require 'socket'
@@ -199,25 +200,29 @@ translations.each do |component, keys|
 	
 	translationsBlob += componentBlob + "\n\n"
 	print componentBlob
-	File.open(folder + "/src/main/resources/" + propertiesFile, 'w') { |file| file.write(componentBlob) }
+	if just_checking != '' then
+        File.open(folder + "/src/main/resources/" + propertiesFile, 'w') { |file| file.write(componentBlob) }
+    end
 end
 
-system("tail -n +3 src/main/resources/i18n.properties > src/main/resources/i18n.properties.bak")
-system("tail -n +3 src/main/resources/i18n.properties.tmp > src/main/resources/i18n.properties.tmp.bak")
-difference=`diff src/main/resources/i18n.properties.bak src/main/resources/i18n.properties.tmp.bak`
-FileUtils.rm('src/main/resources/i18n.properties.bak')
-FileUtils.rm('src/main/resources/i18n.properties.tmp.bak')
-if difference.to_s != '' then
-    FileUtils.mv('src/main/resources/i18n.properties.tmp','src/main/resources/i18n.properties')
-    if Socket.gethostname == "neitvs002.eict.local" && branch == "master" then
-        print "\ni18n.properties changed, push to git\n"
-        remote=ARGV[0]
-        value=`git remote add origin #{remote}`
-        value=`git commit -m "New version of i18n.properties (bamboo build)" src/main/resources/i18n.properties`
-        value=`git push origin master`
+if "#{just_checking}" != '' then
+    system("tail -n +3 src/main/resources/i18n.properties > src/main/resources/i18n.properties.bak")
+    system("tail -n +3 src/main/resources/i18n.properties.tmp > src/main/resources/i18n.properties.tmp.bak")
+    difference=`diff src/main/resources/i18n.properties.bak src/main/resources/i18n.properties.tmp.bak`
+    FileUtils.rm('src/main/resources/i18n.properties.bak')
+    FileUtils.rm('src/main/resources/i18n.properties.tmp.bak')
+    if difference.to_s != '' then
+        FileUtils.mv('src/main/resources/i18n.properties.tmp','src/main/resources/i18n.properties')
+        if Socket.gethostname == "neitvs002.eict.local" && branch == "master" then
+            print "\ni18n.properties changed, push to git\n"
+            remote=ARGV[0]
+            value=`git remote add origin #{remote}`
+            value=`git commit -m "New version of i18n.properties (bamboo build)" src/main/resources/i18n.properties`
+            value=`git push origin master`
+        else
+            print "\ni18n.properties changed\n"
+        end
     else
-        print "\ni18n.properties changed\n"
+        FileUtils.rm('src/main/resources/i18n.properties.tmp')
     end
-else
-    FileUtils.rm('src/main/resources/i18n.properties.tmp')
 end
