@@ -61,6 +61,27 @@ public class LocationImpl implements Location {
     }
 
     @Override
+    public LocationMember setMember(String countryCode,
+                             String countryName,
+                             String administrativeArea,
+                             String locality,
+                             String subLocality,
+                             String streetType,
+                             String streetName,
+                             String streetNumber,
+                             String establishmentType,
+                             String establishmentName,
+                             String establishmentNumber,
+                             String addressDetail,
+                             String zipCode,
+                             boolean defaultLocation,
+                             String locale) {
+        return add(LocationMemberImpl.from(dataModel,this,countryCode, countryName, administrativeArea, locality, subLocality,
+                streetType, streetName, streetNumber, establishmentType, establishmentName, establishmentNumber, addressDetail, zipCode,
+                defaultLocation, locale));
+    }
+
+    @Override
     public void remove() {
         if (hasId()) {
             members.clear();

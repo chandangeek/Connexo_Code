@@ -188,11 +188,9 @@ public class LocationBuilderImpl implements LocationBuilder {
 
         @Override
         public LocationMember createMember(Location location) {
-            LocationMemberImpl locationMember=LocationMemberImpl.from(dataModel,location,countryCode, countryName,
+            return location.setMember(countryCode, countryName,
                     administrativeArea,locality,subLocality,streetType,streetName,streetNumber,establishmentType,
                     establishmentName,establishmentNumber,addressDetail,zipCode,defaultLocation,locale);
-            locationMember.doSave();
-            return locationMember;
         }
     }
 }
