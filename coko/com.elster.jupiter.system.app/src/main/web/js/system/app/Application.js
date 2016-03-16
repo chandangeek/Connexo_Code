@@ -10,7 +10,9 @@ Ext.define('SystemApp.Application', {
         'Tme.privileges.Period',
         'Fim.privileges.DataImport',
         'Cps.privileges.CustomAttributeSets',
-        'Mtr.privileges.ReadingTypes'
+        'Mtr.privileges.ReadingTypes',
+        'Sct.privileges.ServiceCallType',
+        'Bpm.privileges.BpmManagement'
     ],
 
     controllers: [
@@ -20,6 +22,7 @@ Ext.define('SystemApp.Application', {
     launch: function () {
         // Removes the loading indicator.
         Ext.fly('appLoadingWrapper').destroy();
+
         this.callParent(arguments);
     }
 });

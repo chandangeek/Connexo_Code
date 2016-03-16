@@ -1,11 +1,15 @@
 package com.elster.jupiter.system.app.impl;
 
 import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.appserver.extjs.AppServerUIInstaller;
+import com.elster.jupiter.appserver.rest.impl.AppServerApplication;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.data.lifecycle.LifeCycleService;
 import com.elster.jupiter.fileimport.FileImportService;
-import com.elster.jupiter.http.whiteboard.*;
+import com.elster.jupiter.http.whiteboard.App;
+import com.elster.jupiter.http.whiteboard.BundleResolver;
+import com.elster.jupiter.http.whiteboard.DefaultStartPage;
+import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -13,6 +17,7 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.system.SubsystemService;
 import com.elster.jupiter.system.app.SysAppService;
 import com.elster.jupiter.time.TimeService;
@@ -80,14 +85,14 @@ public class SysAppServiceImpl implements SysAppService, InstallService, Transla
                 AppService.COMPONENT_NAME,
                 LicenseService.COMPONENTNAME,
                 TimeService.COMPONENT_NAME,
-                "BPM",
-                AppServerUIInstaller.COMPONENT_NAME,
+                BpmService.COMPONENTNAME,
+                AppServerApplication.COMPONENT_NAME,
                 LifeCycleService.COMPONENTNAME,
-                "YFN",
                 FileImportService.COMPONENT_NAME,
                 CustomPropertySetService.COMPONENT_NAME,
                 MeteringService.COMPONENTNAME,
-                SubsystemService.COMPONENTNAME);
+                SubsystemService.COMPONENTNAME,
+                ServiceCallService.COMPONENT_NAME);
     }
 
     @Reference
