@@ -4,7 +4,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
@@ -15,10 +15,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.config.ComServer;
-
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;

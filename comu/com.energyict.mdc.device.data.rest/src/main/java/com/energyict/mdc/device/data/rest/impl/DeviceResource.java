@@ -13,7 +13,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
