@@ -5,7 +5,7 @@ import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.Password;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TimeOfDay;
-import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
