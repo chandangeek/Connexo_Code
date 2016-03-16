@@ -21,7 +21,7 @@ Ext.define('Idc.view.LogGrid', {
             }
         },
         {
-            text: Uni.I18n.translate('general.logLevel', 'MDC', 'Log level'),
+            text: Uni.I18n.translate('general.logLevel', 'IDC', 'Log level'),
             dataIndex: 'logLevel',
             flex: 1,
             renderer: function (value) {
