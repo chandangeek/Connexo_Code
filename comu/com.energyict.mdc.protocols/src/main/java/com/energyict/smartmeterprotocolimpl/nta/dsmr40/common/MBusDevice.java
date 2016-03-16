@@ -26,6 +26,7 @@ import java.util.Properties;
  * Time: 16:04
  * Author: khe
  */
+@Deprecated //Never released, technical class
 public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice {
 
     @Override

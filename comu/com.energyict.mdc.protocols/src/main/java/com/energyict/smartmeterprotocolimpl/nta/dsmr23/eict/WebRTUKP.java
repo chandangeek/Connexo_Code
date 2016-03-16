@@ -28,6 +28,7 @@ import java.time.Clock;
  * Date: 15-jul-2011
  * Time: 11:58:33
  */
+@Deprecated //Please use V2 protcool (com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP)
 public class WebRTUKP extends AbstractSmartNtaProtocol implements HHUEnabler {
 
     @Override

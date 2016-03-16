@@ -24,6 +24,7 @@ import java.util.List;
  * Date: 15-jul-2011
  * Time: 12:00:53
  */
+@Deprecated //Please use V2 protcool (com.energyict.protocolimplv2.nta.dsmr23.eict.MbusDevice)
 public class MbusDevice extends AbstractNtaMbusDevice {
 
     @Override
