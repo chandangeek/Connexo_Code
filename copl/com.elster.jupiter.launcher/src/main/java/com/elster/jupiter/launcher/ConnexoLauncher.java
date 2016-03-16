@@ -63,6 +63,7 @@ public class ConnexoLauncher {
         if (install) {
             interactive = false;
             configMap.put("admin.password", args[args.length - 1]);
+            configMap.put("install.dir", installDir.getAbsolutePath());
         }
         if (!interactive) {
             configMap.put("gosh.args", "--nointeractive");
