@@ -33,23 +33,17 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import com.google.inject.util.Modules;
+import org.osgi.service.component.annotations.*;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
@@ -178,16 +172,21 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     private <D, T extends PersistentDomainExtension<D>> Module getCustomPropertySetModule(final DataModel dataModel, final CustomPropertySet<D, T> customPropertySet) {
-        return new AbstractModule() {
+
+        Module bindings = new AbstractModule() {
             @Override
             public void configure() {
-                customPropertySet.getPersistenceSupport().module().ifPresent(customModule -> customModule.configure(this.binder()));
                 bind(DataModel.class).toInstance(dataModel);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(CustomPropertySetService.class).toInstance(CustomPropertySetServiceImpl.this);
             }
         };
+        Optional<Module> cpsModule = customPropertySet.getPersistenceSupport().module();
+        if (cpsModule.isPresent()) {
+            bindings = Modules.override(bindings).with(cpsModule.get());
+        }
+        return bindings;
     }
 
     private void registerAllCustomPropertySets() {
@@ -455,11 +454,25 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     @Override
-    public <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
+    public <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businessObject, T persistentDomainExtension, Object... additionalPrimaryKeyValues) {
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        persistentDomainExtension.copyTo(values);
+        setValuesFor(customPropertySet, businessObject, values, additionalPrimaryKeyValues);
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businessObject, T persistentDomainExtension, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        persistentDomainExtension.copyTo(values);
+        setValuesFor(customPropertySet, businessObject, values, effectiveTimestamp, additionalPrimaryKeyValues);
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businessObject, CustomPropertySetValues values, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
         activeCustomPropertySet.validateCurrentUserIsAllowedToEdit();
-        activeCustomPropertySet.setVersionedValuesEntityFor(businesObject, values, effectiveTimestamp, additionalPrimaryKeyValues);
+        activeCustomPropertySet.setVersionedValuesEntityFor(businessObject, values, effectiveTimestamp, additionalPrimaryKeyValues);
     }
 
     @Override
@@ -490,6 +503,12 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         if (!activeCustomPropertySet.getCustomPropertySet().isVersioned()) {
             throw new UnsupportedOperationException("Custom property set " + customPropertySet.getId() + " is NOT versioned, you need to call CustomPropertySetService#getUniqueValuesFor(CustomPropertySet, Class<Domain>)");
         }
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> void validateCustomPropertySetValues(CustomPropertySet<D, T> customPropertySet, CustomPropertySetValues values) {
+        ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+        activeCustomPropertySet.validateValuesEntity(values);
     }
 
     @Override
