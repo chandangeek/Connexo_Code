@@ -18,6 +18,7 @@ import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsExecutingAndCann
 import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.IncompatiblePartialConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
+import com.energyict.mdc.device.data.impl.ConnectionTaskSuccessIndicatorTranslationKeys;
 import com.energyict.mdc.device.data.impl.CreateEventType;
 import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
@@ -567,6 +568,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         } else {
             return ConnectionTask.SuccessIndicator.NOT_APPLICABLE;
         }
+    }
+
+    @Override
+    public String getSuccessIndicatorDisplayName() {
+        return ConnectionTaskSuccessIndicatorTranslationKeys.translationFor(getSuccessIndicator(), thesaurus);
     }
 
     @Override

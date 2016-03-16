@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.CompletionCodeTranslationKeys;
 import com.energyict.mdc.device.data.impl.tasks.HasLastComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -207,6 +208,11 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
     @Override
     public CompletionCode getHighestPriorityCompletionCode() {
         return highestPriorityCompletionCode;
+    }
+
+    @Override
+    public String getHighestPriorityCompletionCodeDisplayName() {
+        return CompletionCodeTranslationKeys.translationFor(highestPriorityCompletionCode, getThesaurus());
     }
 
     @Override

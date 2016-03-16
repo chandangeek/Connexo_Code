@@ -23,6 +23,7 @@ import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.PersistentIdObject;
 import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
+import com.energyict.mdc.device.data.impl.TaskStatusTranslationKeys;
 import com.energyict.mdc.device.data.impl.UpdateEventType;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ComTasksMustBeEnabledByDeviceConfiguration;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ConnectionTaskIsRequiredWhenNotUsingDefault;
@@ -191,6 +192,11 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     @Override
     public TaskStatus getStatus() {
         return ServerComTaskStatus.getApplicableStatusFor(this, this.now());
+    }
+
+    @Override
+    public String getStatusDisplayName() {
+        return TaskStatusTranslationKeys.translationFor( getStatus(), getThesaurus());
     }
 
     @Override
