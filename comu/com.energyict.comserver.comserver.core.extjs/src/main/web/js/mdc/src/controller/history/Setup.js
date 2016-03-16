@@ -1206,7 +1206,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     title: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                     route: 'customattributes/{customAttributeSetId}/versions/add',
                                     controller: 'Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnDevice',
-                                    privileges: Mdc.privileges.Device.administrateDeviceData,
+                                    privileges: Mdc.privileges.Device.hasFullAdministrateTimeSlicedCps(),
                                     action: 'addCustomAttributeVersion',
                                     callback: function (route) {
                                         this.getApplication().on('loadCustomAttributeSetOnDeviceAdd', function (record) {
