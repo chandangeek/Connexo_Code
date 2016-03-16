@@ -1,6 +1,9 @@
 Ext.define('Fwc.firmwarecampaigns.view.ActionMenu', {
     extend: 'Ext.menu.Menu',
     alias: 'widget.firmware-campaigns-action-menu',
+    requires:[
+        'Fwc.privileges.FirmwareCampaign'
+    ],
     plain: true,
     border: false,
     shadow: false,

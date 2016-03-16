@@ -10,7 +10,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
     ],
     alias: 'widget.firmware-campaigns-add-form',
     returnLink: null,
-    ignoreChanges: false,
+    skipLoadingIndication: false,
 
     defaults: {
         labelWidth: 260,
@@ -156,15 +156,16 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             counter = 2,
             onFieldsUpdate = function () {
                 counter--;
-                if (!counter) {
+                if (!counter && !me.skipLoadingIndication) {
                     me.setLoading(false);
                 }
             };
 
-        if (me.ignoreChanges) return;
         if (combo.findRecordByValue(newValue)) {
             me.down('#property-form').loadRecord(Ext.create('Fwc.firmwarecampaigns.model.FirmwareManagementOption'));
-            me.setLoading();
+            if (!me.skipLoadingIndication) {
+                me.setLoading();
+            }
             Ext.ModelManager.getModel('Fwc.firmwarecampaigns.model.FirmwareManagementOption').getProxy().setUrl(newValue);
             me.updateFirmwareType(newValue, onFieldsUpdate);
             me.updateManagementOptions(newValue, onFieldsUpdate, combo.isDisabled());
@@ -210,15 +211,18 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         var me = this,
             firmwareManagementOption = Ext.ModelManager.getModel('Fwc.firmwarecampaigns.model.FirmwareManagementOption');
 
-        if (me.ignoreChanges) return;
         if (newValue && newValue.managementOption) {
-            me.setLoading();
+            if (!me.skipLoadingIndication) {
+                me.setLoading();
+            }
             firmwareManagementOption.load(newValue.managementOption, {
                 success: function (record) {
                     me.down('#property-form').loadRecord(record);
                 },
                 callback: function () {
-                    me.setLoading(false);
+                    if (!me.skipLoadingIndication) {
+                        me.setLoading(false);
+                    }
                 }
             });
         }
@@ -229,7 +233,6 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             firmwareManagementOption = Ext.ModelManager.getModel('Fwc.firmwarecampaigns.model.FirmwareManagementOption'),
             option = me.down('#firmware-management-option').getValue();
 
-        if (me.ignoreChanges) return;
         firmwareManagementOption.getProxy().setExtraParam('firmwareType', newValue.firmwareType);
         me.onManagementOptionChange(null, option);
     },
@@ -255,57 +258,56 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
     loadRecordForEdit: function(campaignRecord) {
         var me = this,
+            taskRunner = new Ext.util.TaskRunner(),
             deviceTypeCombo = me.down('#firmware-campaign-device-type'),
+            firmwareTypeRadioGroup = me.down('#firmware-type'),
             deviceGroupComboContainer = me.down('#firmware-campaign-device-group-field-container'),
             managementOptionRadioGroup = me.down('#firmware-management-option'),
-            firmwareManagementOptions,
             deviceTypeId = campaignRecord.get('deviceType').id,
-            counter = 2,
-            onAllAsyncCallsDone = function() {
-                counter--;
-                if (!counter) {
-                    debugger;
-                    managementOptionRadioGroup.setValue({
-                        managementOption : campaignRecord.get('managementOption').id
-                    });
-                    managementOptionRadioGroup.setDisabled(true);
-                    me.ignoreChanges = false;
-                }
-            };
-
-
-        me.ignoreChanges = true;
-
-        deviceTypeCombo.setDisabled(true);
-        deviceTypeCombo.setValue(deviceTypeId);
-
-        Ext.getStore('Fwc.firmwarecampaigns.store.FirmwareTypes').load({
-            params: {
-                deviceType: deviceTypeId
+            hideDeviceGroupComboAndSetDeviceType = function() {
+                deviceGroupComboContainer.hide();
+                deviceTypeCombo.setValue(deviceTypeId);
+                deviceTypeCombo.setDisabled(true);
+                firmwareTypeRadioGroup.setDisabled(true);
+                setOptionsTask.start();
             },
-            callback: function (records) {
-                me.down('#firmware-type').showOptions(records, {
-                    isRecord: true,
-                    conditionCheck: 'meter',
-                    showOnlyLabelForSingleItem: true
+            setOptions = function() {
+                managementOptionRadioGroup.setValue({
+                    managementOption : campaignRecord.get('managementOption').id
                 });
-                onAllAsyncCallsDone();
-            }
-        });
+                managementOptionRadioGroup.setDisabled(true);
+                setPropertiesTask.start();
+            },
+            setProperties = function() {
+                me.down('#property-form').setPropertiesAndDisable(campaignRecord.propertiesStore.getRange());
+                me.setLoading(false);
+                me.skipLoadingIndication = false;
+            },
+            setDeviceTypeTask = taskRunner.newTask({
+                run: hideDeviceGroupComboAndSetDeviceType,
+                scope: me,
+                fireOnStart: false,
+                interval: 250,
+                repeat: 1
+            }),
+            setOptionsTask = taskRunner.newTask({
+                run: setOptions,
+                scope: me,
+                fireOnStart: false,
+                interval: 250,
+                repeat: 1
+            }),
+            setPropertiesTask = taskRunner.newTask({
+                run: setProperties,
+                scope: me,
+                fireOnStart: false,
+                interval: 250,
+                repeat: 1
+            });
 
-        firmwareManagementOptions = Ext.ModelManager.getModel('Fwc.model.FirmwareManagementOptions');
-        firmwareManagementOptions.getProxy().setUrl(deviceTypeId);
-        firmwareManagementOptions.getProxy().extraParams = {};
-        firmwareManagementOptions.load(1, {
-            success: function (record) {
-                me.down('#firmware-management-option').showOptions(record.get('allowedOptions'), {
-                    showDescription: true,
-                    disabled: true
-                });
-                onAllAsyncCallsDone();
-            }
-        });
-
-        deviceGroupComboContainer.hide();
+        me.setLoading(true);
+        me.skipLoadingIndication = true;
+        me.loadRecord(campaignRecord);
+        setDeviceTypeTask.start();
     }
 });

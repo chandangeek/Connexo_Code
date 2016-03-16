@@ -49,12 +49,11 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
                 returnLink: router.getRoute('workspace/firmwarecampaigns').buildUrl()
             }),
             firmwareCampaign = Ext.create('Fwc.firmwarecampaigns.model.FirmwareCampaign'),
-            dependences = ['Fwc.store.DeviceTypes',
-                'Fwc.store.DeviceGroups'],
-            dependencesCounter = dependences.length,
-            dependencesOnLoad = function () {
-                dependencesCounter--;
-                if (!dependencesCounter) {
+            dependencies = ['Fwc.store.DeviceTypes', 'Fwc.store.DeviceGroups'],
+            dependenciesCounter = dependencies.length,
+            onDependenciesLoaded = function () {
+                dependenciesCounter--;
+                if (!dependenciesCounter) {
                     firmwareCampaign.set('name', 'FW-CP-' + new Date().getTime());
                     widget.down('firmware-campaigns-add-form').loadRecord(firmwareCampaign);
                     widget.setLoading(false);
@@ -63,8 +62,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
 
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading();
-        Ext.Array.each(dependences, function (store) {
-            me.getStore(store).load(dependencesOnLoad);
+        Ext.Array.each(dependencies, function (store) {
+            me.getStore(store).load(onDependenciesLoaded);
         });
     },
 

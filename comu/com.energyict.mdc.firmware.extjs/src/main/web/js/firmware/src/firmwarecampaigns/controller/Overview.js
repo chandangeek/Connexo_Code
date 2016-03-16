@@ -116,12 +116,13 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
                 itemId: 'firmware-campaigns-edit',
                 returnLink: router.getRoute('workspace/firmwarecampaigns').buildUrl()
             }),
-            dependencies = ['Fwc.store.DeviceTypes', 'Fwc.store.DeviceGroups'],
+            dependencies = ['Fwc.store.DeviceTypes'],
             dependenciesCounter = dependencies.length,
             onDependenciesLoaded = function () {
                 dependenciesCounter--;
                 if (!dependenciesCounter) {
                     me.loadModelToEditForm(campaignIdAsString, widget);
+                    widget.setLoading(false);
                 }
             };
 
@@ -139,16 +140,13 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
             model = me.getModel('Fwc.firmwarecampaigns.model.FirmwareCampaign'),
             editForm = editView.down('firmware-campaigns-add-form');
 
-        widget.setLoading(true);
         model.load(campaignIdAsString, {
             success: function (campaignRecord) {
-                //me.comTaskBeingEdited = comTaskRecord;
                 editView.down('firmware-campaigns-add-form').setTitle(
                     Uni.I18n.translate('firmware.campaigns.editFirmwareCampaign', 'FWC', 'Edit firmware campaign')
                 );
                 me.getApplication().fireEvent('loadFirmwareCampaign', campaignRecord);
                 editForm.loadRecordForEdit(campaignRecord);
-                widget.setLoading(false);
             }
         });
     }
