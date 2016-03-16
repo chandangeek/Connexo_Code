@@ -6,7 +6,10 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.events.datastorage.UpdateDeviceIpAddressEvent;
+import com.energyict.mdc.engine.impl.events.datastorage.UpdateDeviceMessageEvent;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageAcknowledgement;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -17,7 +20,9 @@ import java.util.Optional;
  * @author sva
  * @since 3/07/13 - 16:17
  */
-public class UpdateDeviceMessage extends DeviceCommandImpl {
+public class UpdateDeviceMessage extends DeviceCommandImpl<UpdateDeviceMessageEvent> {
+
+    public final static String DESCRIPTION_TITLE = "Update device message";
 
     private MessageIdentifier messageIdentifier;
     private DeviceMessageStatus deviceMessageStatus;
@@ -68,9 +73,17 @@ public class UpdateDeviceMessage extends DeviceCommandImpl {
         return messageIdentifier;
     }
 
+    protected Optional<UpdateDeviceMessageEvent> newEvent(Issue issue) {
+        UpdateDeviceMessageEvent event  =  new UpdateDeviceMessageEvent(new ComServerEventServiceProvider(), this.messageIdentifier, this.deviceMessageStatus, protocolInfo);
+        if (issue != null){
+            event.setIssue(issue);
+        }
+        return Optional.of(event);
+    }
+
     @Override
     public String getDescriptionTitle() {
-        return "Update device message";
+        return DESCRIPTION_TITLE;
     }
 
 }

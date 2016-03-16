@@ -1,13 +1,15 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
+import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link Request} interface
@@ -28,10 +30,36 @@ public class DeviceRequest extends IdBusinessObjectRequest {
         this.validateDeviceIds();
     }
 
+    public DeviceRequest(IdentificationService identificationService, String... deviceMRIDs) {
+        super(null);
+        if (deviceMRIDs == null)
+            throw new IllegalArgumentException("deviceMRID cannot be null");
+        this.identificationService = identificationService;
+        this.validateDeviceMRIDs(Arrays.asList(deviceMRIDs));
+    }
+
+    @Override
+    public Set<Long> getBusinessObjectIds () {
+        Set<Long> ids = super.getBusinessObjectIds();
+        if (super.getBusinessObjectIds()== null){
+            ids = this.devices.stream().map(Device::getId).distinct().collect(Collectors.toSet());
+        }
+        return ids;
+    }
+
     private void validateDeviceIds() {
-        this.devices = this.getBusinessObjectIds()
+         this.devices = this.getBusinessObjectIds()
+                    .stream()
+                    .map(identificationService::createDeviceIdentifierByDatabaseId)
+                    .map(DeviceIdentifier::findDevice)
+                    .map(Device.class::cast)
+                .collect(Collectors.toList());
+    }
+
+    private void validateDeviceMRIDs(List<String> deviceMRIDs){
+        this.devices = deviceMRIDs
                 .stream()
-                .map(identificationService::createDeviceIdentifierByDatabaseId)
+                .map(identificationService::createDeviceIdentifierByMRID)
                 .map(DeviceIdentifier::findDevice)
                 .map(Device.class::cast)
                 .collect(Collectors.toList());

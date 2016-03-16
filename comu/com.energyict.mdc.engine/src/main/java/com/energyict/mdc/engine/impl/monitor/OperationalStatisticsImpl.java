@@ -5,6 +5,7 @@ import com.energyict.mdc.engine.impl.MessageSeeds;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.engine.monitor.OperationalStatistics;
 import org.joda.time.DateTimeConstants;
 
 import javax.management.openmbean.CompositeType;
@@ -24,7 +25,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-03 (14:30)
  */
-public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport implements OperationalStatistics {
+public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport implements ServerOperationalStatistics {
 
     public static final String START_TIMESTAMP_ITEM_NAME = "startTimeStamp";
     private static final String START_TIMESTAMP_ITEM_DESCRIPTION = "start timestamp";
@@ -38,7 +39,7 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
     private final Clock clock;
     private final Thesaurus thesaurus;
     private final Date startTimestamp;
-    private final TimeDuration changesInterPollDelay;
+    private TimeDuration changesInterPollDelay;
     private Date lastCheckForChangesTimestamp;
 
     public OperationalStatisticsImpl(Clock clock, Thesaurus thesaurus, TimeDuration changesInterPollDelay) {
@@ -69,6 +70,10 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
         return this.changesInterPollDelay;
     }
 
+    protected void setChangesInterpollDelay(TimeDuration changesInterpollDelay){
+        this.changesInterPollDelay = changesInterpollDelay;
+    }
+
     @Override
     public Optional<Date> getLastCheckForChangesTimestamp() {
         return Optional.ofNullable(this.lastCheckForChangesTimestamp);
@@ -91,6 +96,10 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
         catch (OpenDataException e) {
             throw CodingException.compositeTypeCreation(this.getClass(), e, MessageSeeds.COMPOSITE_TYPE_CREATION);
         }
+    }
+
+    protected Clock getClock(){
+        return clock;
     }
 
     private String[] itemNames () {
@@ -123,6 +132,10 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
         List<OpenType> itemTypes = new ArrayList<>();
         this.addItemTypes(itemTypes);
         return itemTypes.toArray(new OpenType[itemTypes.size()]);
+    }
+
+    protected Thesaurus getThesaurus(){
+        return thesaurus;
     }
 
     protected void addItemTypes (List<OpenType> itemTypes) {

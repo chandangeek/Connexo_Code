@@ -14,6 +14,8 @@ import com.energyict.mdc.engine.impl.core.ScheduledJob;
  */
 public class RescheduleFailedExecution extends RescheduleExecutionDeviceCommand {
 
+    private final static String DESCRIPTION_TITLE =  "Reschedule after failure";
+
     private final Throwable failure;
     private final RescheduleBehavior.RescheduleReason rescheduleReason;
 
@@ -30,7 +32,7 @@ public class RescheduleFailedExecution extends RescheduleExecutionDeviceCommand 
 
     @Override
     public String getDescriptionTitle() {
-        return "Reschedule after failure";
+        return DESCRIPTION_TITLE;
     }
 
 }

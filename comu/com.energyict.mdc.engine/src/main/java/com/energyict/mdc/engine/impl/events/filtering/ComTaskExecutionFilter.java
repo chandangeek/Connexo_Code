@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.events.filtering;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.events.ComTaskExecutionEvent;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 import java.util.List;
 
@@ -35,7 +35,7 @@ public class ComTaskExecutionFilter implements EventFilterCriterion {
     public boolean matches (ComServerEvent event) {
         if (event instanceof ComTaskExecutionEvent) {
             ComTaskExecutionEvent comTaskExecutionEvent = (ComTaskExecutionEvent) event;
-            return !this.comTaskExecutions.contains(comTaskExecutionEvent.getComTaskExecution());
+            return !this.comTaskExecutions.stream().anyMatch(comTaskExecution -> comTaskExecution.getId() == comTaskExecutionEvent.getComTaskExecution().getId());
         }
         else {
             return false;

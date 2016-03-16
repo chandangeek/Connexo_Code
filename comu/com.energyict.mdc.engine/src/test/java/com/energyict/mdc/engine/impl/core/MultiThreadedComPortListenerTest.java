@@ -15,6 +15,7 @@ import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactor
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
 import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
@@ -59,7 +60,8 @@ public class MultiThreadedComPortListenerTest {
     private static final int NUMBER_OF_SIMULTANEOUS_CONNECTIONS = 3;
 
     private static final TimeDuration INTER_POLL_DELAY = new TimeDuration(5, TimeDuration.TimeUnit.MINUTES);
-
+    @Mock
+    private ManagementBeanFactory managementBeanFactory;
     @Mock
     private DeviceCommandExecutor deviceCommandExecutor;
     @Mock
@@ -118,6 +120,7 @@ public class MultiThreadedComPortListenerTest {
                         this.hexService,
                         this.eventPublisher,
                         this.clock));
+        when(this.comPortListenerServiceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
 
         when(this.socketService.newInboundTCPSocket(anyInt())).thenReturn(mock(ServerSocket.class));
         when(this.socketService.newSocketComChannel(any(Socket.class))).thenReturn(new SystemOutComChannel());
@@ -142,6 +145,7 @@ public class MultiThreadedComPortListenerTest {
                             this.hexService,
                             this.eventPublisher,
                             this.clock));
+            when(serviceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
             multiThreadedComPortListener =
                     new MultiThreadedComPortListener(
                             this.mockComPort("testStart"),
@@ -182,6 +186,7 @@ public class MultiThreadedComPortListenerTest {
                             this.hexService,
                             this.eventPublisher,
                             this.clock));
+            when(serviceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
             comPortListener =
                     new MultiThreadedComPortListener(
                             this.mockComPort("testShutDown"),
@@ -235,6 +240,7 @@ public class MultiThreadedComPortListenerTest {
             when(serviceProvider.clock()).thenReturn(this.clock);
             when(serviceProvider.inboundComPortConnectorFactory()).thenReturn(inboundComPortConnectorFactory);
             when(serviceProvider.userService()).thenReturn(this.userService);
+            when(serviceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
             multiThreadedComPortListener = spy(new MultiThreadedComPortListener(
                     inboundComPort,
                     this.deviceCommandExecutor,
@@ -289,6 +295,7 @@ public class MultiThreadedComPortListenerTest {
             when(serviceProvider.clock()).thenReturn(this.clock);
             when(serviceProvider.inboundComPortConnectorFactory()).thenReturn(inboundComPortConnectorFactory);
             when(serviceProvider.userService()).thenReturn(this.userService);
+            when(serviceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
             multiThreadedComPortListener = spy(new MultiThreadedComPortListener(
                     inboundComPort,
                     this.deviceCommandExecutor,

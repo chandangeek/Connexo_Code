@@ -4,8 +4,9 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommandImpl;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import org.json.JSONException;
+import org.json.JSONWriter;
 
 /**
  * Extends {@link CollectedData} to add behavior that is private
@@ -26,7 +27,7 @@ public interface ServerCollectedData extends CollectedData {
      * @param serviceProvider The ServiceProvider
      */
 
-    public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider);
+    DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider);
 
     /**
      * Injects the {@link ConnectionTask} that was used to communicate
@@ -37,7 +38,7 @@ public interface ServerCollectedData extends CollectedData {
      *
      * @param connectionTask The ConnectionTask
      */
-    public void postProcess (ConnectionTask connectionTask);
+    void postProcess (ConnectionTask connectionTask);
 
     /**
      * Injects the currently executing {@link ComTaskExecution}
@@ -45,6 +46,15 @@ public interface ServerCollectedData extends CollectedData {
      *
      * @param comTaskExecution the currently executing ComTaskExecution
      */
-    public void injectComTaskExecution(ComTaskExecution comTaskExecution);
+    void injectComTaskExecution(ComTaskExecution comTaskExecution);
+
+    /**
+     * JSON marschalling of the object
+     * @param writer for writing the marschalling
+     * @throws JSONException if marschalling failed
+     */
+    default void toString(JSONWriter writer) throws JSONException{
+        // by default nothing is written on the writer
+    };
 
 }

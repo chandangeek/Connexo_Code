@@ -21,23 +21,26 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+
 import com.google.common.collect.Range;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Optional;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the execution of the CollectedRegisterListDeviceCommand.
@@ -97,6 +100,7 @@ public class CollectedRegisterListDeviceCommandTest {
         when(this.device.getId()).thenReturn(DEVICE_ID);
         when(this.meteringService.getReadingType(Matchers.<String>any())).thenReturn(Optional.empty());
         when(serviceProvider.mdcReadingTypeUtilService()).thenReturn(new MdcReadingTypeUtilServiceImpl(this.meteringService));
+        when(serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
     }
 
     @Test

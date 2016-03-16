@@ -1,5 +1,6 @@
-package com.energyict.mdc.engine.impl.monitor;
+package com.energyict.mdc.engine.monitor;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TimeDuration;
 
 import java.util.Date;
@@ -12,6 +13,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-03 (10:50)
  */
+@ProviderType
 public interface ScheduledComPortOperationalStatistics extends OperationalStatistics {
 
     /**
@@ -20,20 +22,13 @@ public interface ScheduledComPortOperationalStatistics extends OperationalStatis
      *
      * @return The TimeDuration between polls to find communication tasks
      */
-    public TimeDuration getSchedulingInterPollDelay ();
+     TimeDuration getSchedulingInterPollDelay ();
 
     /**
      * Gets the timestamp on which the ScheduledComPort last checked for work.
      *
      * @return The timestamp on which the ScheduledComPort last checked for work
      */
-    public Optional<Date> getLastCheckForWorkTimestamp ();
-
-    /**
-     * Sets the timestamp on which the ScheduledComPort last checked for work.
-     *
-     * @param lastCheckForWorkTimestamp The timestamp
-     */
-    public void setLastCheckForWorkTimestamp(Date lastCheckForWorkTimestamp);
+     Optional<Date> getLastCheckForWorkTimestamp ();
 
 }

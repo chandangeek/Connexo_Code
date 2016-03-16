@@ -11,6 +11,8 @@ import com.energyict.mdc.engine.impl.core.logging.InboundComPortLogger;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
+import com.energyict.mdc.engine.monitor.InboundComPortMonitor;
+import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
 import com.energyict.mdc.io.CommunicationException;
 
 import java.time.Clock;
@@ -32,6 +34,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
 
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
     private final InboundCommunicationHandler.ServiceProvider serviceProvider;
+    private InboundComPortMonitor operationalMonitor;
     private InboundComPort comPort;
     private ComServerDAO comServerDAO;
     private ThreadFactory threadFactory;
@@ -59,7 +62,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
         super();
         this.loggerHolder = new LoggerHolder(comPort);
         this.doSetComPort(comPort);
-        this.threadName = "ComPort listener for " + comPort.getName();
+        this.threadName = "Inbound ComPort listener for " + comPort.getName();
         this.comServerDAO = comServerDAO;
         this.threadFactory = threadFactory;
         this.deviceCommandExecutor = deviceCommandExecutor;
@@ -133,6 +136,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
     }
 
     protected void doStart () {
+        this.registerAsMBean();
         this.status = ServerProcessStatus.STARTING;
         this.continueRunning = new AtomicBoolean(true);
         this.self = this.threadFactory.newThread(this);
@@ -154,6 +158,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
 
     protected void doShutdown () {
         this.status = ServerProcessStatus.SHUTTINGDOWN;
+        this.unregisterAsMBean();
         this.continueRunning.set(false);
         this.self.interrupt();
     }
@@ -189,6 +194,17 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
         }
     }
 
+    protected InboundComPortMonitor getOperationalMonitor() {
+        return this.operationalMonitor;
+    }
+
+    private void registerAsMBean() {
+         this.operationalMonitor = (InboundComPortMonitor) this.serviceProvider.managementBeanFactory().findOrCreateFor(this);
+     }
+
+     private void unregisterAsMBean() {
+         this.serviceProvider.managementBeanFactory().removeIfExistsFor(this);
+     }
 
     protected DeviceCommandExecutor getDeviceCommandExecutor() {
         return this.deviceCommandExecutor;
