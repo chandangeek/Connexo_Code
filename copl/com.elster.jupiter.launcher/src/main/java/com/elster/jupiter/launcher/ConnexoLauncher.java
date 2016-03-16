@@ -108,7 +108,7 @@ public class ConnexoLauncher {
             framework.init();
 
             BundleContext bundleContext = framework.getBundleContext();
-            ArrayList<Bundle> installed = new ArrayList<Bundle>();
+            ArrayList<Bundle> installed = new ArrayList<>();
             for (URL url : findBundles(rootDir)) {
                 logger.info("Installing bundle [" + url + "]");
                 System.out.print(".");
