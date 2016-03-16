@@ -82,7 +82,7 @@ public class ExecutionTimerImplTest {
 
     @Test
     public void runnableCompletes() {
-        ExecutionTimerImpl timer = this.getTestInstance(TIMER_NAME, 10L);
+        ExecutionTimerImpl timer = this.getTestInstance(TIMER_NAME, 100L);
 
         // Business method
         timer.time(new WaitingRunnable(2L));
@@ -110,7 +110,7 @@ public class ExecutionTimerImplTest {
 
     @Test
     public void callableCompletes() throws Exception {
-        ExecutionTimerImpl timer = this.getTestInstance(TIMER_NAME, 10L);
+        ExecutionTimerImpl timer = this.getTestInstance(TIMER_NAME, 100L);
 
         // Business method
         timer.time(new WaitingCallable(2L, "whatever"));
@@ -138,7 +138,7 @@ public class ExecutionTimerImplTest {
 
     @Test
     public void callableResultWithoutTimeout() throws Exception {
-        ExecutionTimerImpl timer = this.getTestInstance(TIMER_NAME, 20L);
+        ExecutionTimerImpl timer = this.getTestInstance(TIMER_NAME, 100L);
         String expectedResult = "whatever";
 
         // Business method

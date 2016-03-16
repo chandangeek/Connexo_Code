@@ -31,6 +31,7 @@ public class ExecutionTimerServiceImpl implements ExecutionTimerService {
     // For testing purposes
     @Inject
     public ExecutionTimerServiceImpl(BundleContext bundleContext) {
+        this();
         this.activate(bundleContext);
     }
 
