@@ -160,17 +160,15 @@ Ext.define('Uni.form.field.DateTime', {
         }
     },
 
-    fireBlurEvent: function () {
+    fireBlurEvent: function (field, event) {
         var me = this,
             dateField = me.down('#date-time-field-date'),
             hoursField = me.down('#date-time-field-hours'),
             minutesField = me.down('#date-time-field-minutes');
 
-        Ext.defer(function () {
-            if (!dateField.hasFocus && !hoursField.hasFocus && !minutesField.hasFocus) {
-                me.fireEvent('blur', me, me.getValue());
-            }
-        }, 100);
+        if (!dateField.getEl().contains(event.target) && !hoursField.getEl().contains(event.target) && !minutesField.getEl().contains(event.target)) {
+            me.fireEvent('blur', me, me.getValue());
+        }
 
     },
 
@@ -195,7 +193,7 @@ Ext.define('Uni.form.field.DateTime', {
         } else if (value > field.maxValue) {
             field.setValue(field.maxValue);
         }
-        this.fireBlurEvent();
+        this.fireBlurEvent.apply(this, arguments);
     },
 
     setValue: function (value) {
@@ -272,4 +270,3 @@ Ext.define('Uni.form.field.DateTime', {
         this.fireEvent('change', this, this.getValue());
     }
 });
-

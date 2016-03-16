@@ -236,8 +236,19 @@ Ext.define('Uni.property.form.Property', {
 
         Ext.each(errors, function (error) {
             if (!!me.getPropertyField(error.id)) {
+                console.log(me.getPropertyField(error.id));
                 me.getPropertyField(error.id).markInvalid(error.msg);
             }
         });
+    },
+
+    makeEditable: function(record){
+        this.isEdit =true;
+        this.loadRecord(record);
+    },
+
+    makeNotEditable: function(record){
+        this.isEdit =false;
+        this.loadRecord(record);
     }
 });

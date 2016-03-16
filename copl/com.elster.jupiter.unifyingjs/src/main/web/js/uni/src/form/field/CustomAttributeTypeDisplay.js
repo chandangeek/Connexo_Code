@@ -14,7 +14,7 @@ Ext.define('Uni.form.field.CustomAttributeTypeDisplay', {
 
     handler: function (value) {
         var widget = Ext.widget('custom-attribute-type-details', {possibleValues: value.possibleValues});
-        widget.setTitle('<span style="margin: 10px 0 0 10px"></span>');
+        widget.setTitle('<span></span>');
         widget.show();
     },
 

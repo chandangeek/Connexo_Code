@@ -62,7 +62,7 @@ Ext.define('Uni.form.field.ReadingTypeCombo', {
         if (this.valueModels[0]) {
             var selectedReadingType = this.valueModels[0].getData(),
                 widget = Ext.widget('readingTypeDetails');
-            widget.setTitle('<span style="margin: 10px 0 0 10px">' + this.getReadingTypeName(selectedReadingType) + '</span>');
+            widget.setTitle('<span>' + this.getReadingTypeName(selectedReadingType) + '</span>');
             var tpl = new Ext.XTemplate(
                 '<table style="width: 100%; margin: 30px 10px">',
                     '<tr>',

@@ -81,7 +81,8 @@ Ext.define('Uni.property.controller.Registry', {
         ADVANCEREADINGSSETTINGS: 'Uni.property.view.property.AdvanceReadingsSettings',
         ADVANCEREADINGSSETTINGSWITHOUTNONE: 'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone',
         IDWITHNAME: 'Uni.property.view.property.Reference',
-        DEVICECONFIGURATIONLIST: 'Uni.property.view.property.deviceconfigurations.DeviceConfigurations'
+        DEVICECONFIGURATIONLIST: 'Uni.property.view.property.deviceconfigurations.DeviceConfigurations',
+        SELECTIONGRID: 'Uni.property.view.property.SelectionGrid'
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)

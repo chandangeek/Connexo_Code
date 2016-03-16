@@ -158,6 +158,8 @@ Ext.define('Uni.property.view.property.Base', {
         if (property) {
             if (property.get('value') == 0 || property.get('value')) {
                 value = property.get('value');
+            } else if (property.getPropertyValue() && (property.getPropertyValue().get('value')|| property.getPropertyValue().get('value') == 0 )) {
+                value = property.getPropertyValue().get('value');
             } else {
                 value = undefined;
             }

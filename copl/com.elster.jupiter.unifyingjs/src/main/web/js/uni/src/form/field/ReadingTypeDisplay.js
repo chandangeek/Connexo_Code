@@ -16,7 +16,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
 
     handler: function (value, name) {
         var widget = Ext.widget('readingTypeDetails');
-        widget.setTitle('<span style="margin: 10px 0 0 10px">' + Ext.String.htmlEncode(name) + '</span>');
+        widget.setTitle('<span>' + Ext.String.htmlEncode(name) + '</span>');
         var tpl = new Ext.XTemplate(
             '<table style="width: 100%; margin: 30px 10px">',
             '<tr>',
