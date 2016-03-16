@@ -25,10 +25,10 @@ public class LocationBuilderImpl implements LocationBuilder {
     @Override
     public Location create() {
         LocationImpl location = LocationImpl.from(dataModel, name);
+        location.doSave();
         for (LocationMemberBuilder member : members) {
             member.createMember(location);
         }
-        location.doSave();
         return location;
     }
 

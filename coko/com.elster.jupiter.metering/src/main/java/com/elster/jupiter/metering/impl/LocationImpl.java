@@ -1,19 +1,14 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
-import com.google.common.collect.ImmutableList;
-
 import javax.inject.Inject;
 import java.util.*;
 
 public class LocationImpl implements Location {
 
     private long id;
-    private String name;
     private final DataModel dataModel;
     private List<LocationMember> members = new ArrayList<>();
 
@@ -23,13 +18,12 @@ public class LocationImpl implements Location {
         this.dataModel = dataModel;
     }
 
-    LocationImpl init(String name) {
-        this.name=name;
+    LocationImpl init() {
         return this;
     }
 
     static LocationImpl from(DataModel dataModel, String name) {
-        return dataModel.getInstance(LocationImpl.class).init(name);
+        return dataModel.getInstance(LocationImpl.class).init();
     }
 
     @Override
@@ -76,7 +70,7 @@ public class LocationImpl implements Location {
                              String zipCode,
                              boolean defaultLocation,
                              String locale) {
-        LocationMemberImpl temp = LocationMemberImpl.from(dataModel, this, countryCode, countryName, administrativeArea, locality, subLocality,
+        LocationMemberImpl temp = LocationMemberImpl.from(dataModel, this.getId(), countryCode, countryName, administrativeArea, locality, subLocality,
                 streetType, streetName, streetNumber, establishmentType, establishmentName, establishmentNumber, addressDetail, zipCode,
                 defaultLocation, locale);
         temp.doSave();
@@ -89,12 +83,6 @@ public class LocationImpl implements Location {
             members.clear();
             dataModel.mapper(Location.class).remove(this);
         }
-    }
-
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     LocationMemberImpl add(LocationMemberImpl member) {

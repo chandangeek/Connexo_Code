@@ -155,18 +155,17 @@ public enum TableSpecs {
             table.map(LocationImpl.class);
             //table.setJournalTableName("MTR_LOCATIONJRNL");
             Column idColumn = table.addAutoIdColumn();
-            Column nameColumn = table.column("NAME").varChar(Table.NAME_LENGTH).map("name").add();
             table.primaryKey("MTR_PK_LOCATION").on(idColumn).add();
-            table.unique("MTR_U_NAME").on(nameColumn).add();
         }
     },
+
     MTR_LOCATIONMEMBER {
         @Override
         void addTo(DataModel dataModel) {
             Table<LocationMember> table = dataModel.addTable(name(), LocationMember.class);
             table.map(LocationMemberImpl.class);
             //table.setJournalTableName("MTR_LOCATIONMEMBERJRNL");
-            Column locationIdColumn = table.column("LOCATION").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column locationIdColumn = table.column("LOCATIONID").notNull().number().map("locationId").add();
             Column localeColumn = table.column("LOCALE").varChar(Table.NAME_LENGTH).notNull().map("locale").add();
             Column countryCodeColumn = table.column("COUNTRYCODE").varChar(Table.NAME_LENGTH).map("countryCode").add();
             Column countryNameColumn = table.column("COUNTRYNAME").varChar(Table.NAME_LENGTH).map("countryName").add();
@@ -181,18 +180,17 @@ public enum TableSpecs {
             Column establishmentNumber =table.column("ESTABLISHMENTNUMBER").varChar(Table.NAME_LENGTH).map("establishmentNumber").add();
             Column addressDetailColumn = table.column("ADDRESSDETAIL").varChar(Table.NAME_LENGTH).map("addressDetail").add();
             Column zipcodeColumn = table.column("ZIPCODE").varChar(Table.NAME_LENGTH).map("zipCode").add();
-            table.column("DEFAULT").bool().map("defaultLocation").add();
-
+            table.column("DEFAULTLOCATION").bool().map("defaultLocation").add();
             table.primaryKey("MTR_PK_LOCATION_MEMBER").on(locationIdColumn, localeColumn).add();
-            table.foreignKey("MTR_FK_LOCATION_MEMBER").on(locationIdColumn).references(MTR_LOCATION.name()).composition().reverseMap("members").reverseMapOrder("locale").map("location").add();
-           /* table.unique("MTR_U_LOCATIONMEMBER_ALL").on(countryCodeColumn,countryNameColumn,administrativeAreaColumn,
-                    localityColumn,subLocalityColumn,streetType,streetNameColumn,streetNumberColumn,establishmentTypeColumn,
-                    establishmentNameColumn,establishmentNumber,zipcodeColumn).add(); */
+            table.foreignKey("MTR_FK_LOCATION_MEMBER").on(locationIdColumn)
+                    .references(MTR_LOCATION.name())
+                    .onDelete(RESTRICT)
+                    .map("locationId")
+                    .add();
             table.unique("MTR_U_LOCATIONMEMBER_ZIPCODE").on(zipcodeColumn).add();
             //table.index("MTR_IDX_STREETNAME").on(streetNameColumn).add();
         }
     },
-
 
     MTR_GEOCOORDINATES {
         @Override
@@ -261,7 +259,7 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("MTR_FK_USAGEPOINTLOCATION")
                     .on(locationIdColumn)
-                    .references(Location.class)
+                    .references(UsagePoint.class)
                     .onDelete(RESTRICT)
                     .map("upLocation")
                     .add();

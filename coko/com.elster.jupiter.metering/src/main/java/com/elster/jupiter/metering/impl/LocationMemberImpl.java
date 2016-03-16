@@ -11,8 +11,7 @@ import java.time.Instant;
 
 
 public class LocationMemberImpl implements LocationMember {
-    private Reference<Location> location = ValueReference.absent();
-
+    private long locationId;
     private String countryCode;
     private String countryName;
     private String administrativeArea;
@@ -37,7 +36,7 @@ public class LocationMemberImpl implements LocationMember {
         this.dataModel = dataModel;
     }
 
-    LocationMemberImpl init(Location location,
+    LocationMemberImpl init(long locationId,
                             String countryCode,
                             String countryName,
                             String administrativeArea,
@@ -54,7 +53,7 @@ public class LocationMemberImpl implements LocationMember {
                             boolean defaultLocation,
                             String locale) {
 
-        this.location.set(location);
+        this.locationId = locationId;
         this.countryCode = countryCode;
         this.countryName = countryName;
         this.administrativeArea = administrativeArea;
@@ -74,7 +73,7 @@ public class LocationMemberImpl implements LocationMember {
     }
 
     static LocationMemberImpl from(DataModel dataModel,
-                                   Location location,
+                                   long locationId,
                                    String countryCode,
                                    String countryName,
                                    String administrativeArea,
@@ -90,7 +89,7 @@ public class LocationMemberImpl implements LocationMember {
                                    String zipCode,
                                    boolean defaultLocation,
                                    String locale) {
-        return dataModel.getInstance(LocationMemberImpl.class).init(location,countryCode, countryName, administrativeArea, locality, subLocality,
+        return dataModel.getInstance(LocationMemberImpl.class).init(locationId,countryCode, countryName, administrativeArea, locality, subLocality,
                 streetType, streetName, streetNumber, establishmentType, establishmentName, establishmentNumber, addressDetail, zipCode,
                 defaultLocation, locale);
     }
@@ -175,21 +174,14 @@ public class LocationMemberImpl implements LocationMember {
         return dataModel;
     }
 
-    @Override
-    public Location getLocation() {
-        return location.get();
-    }
+
 
     void doSave() {
-        if (hasId()) {
-            dataModel.mapper(LocationMember.class).update(this);
-            return;
-        }
         dataModel.mapper(LocationMember.class).persist(this);
     }
 
     private boolean hasId() {
-        return location==null?false:location.get().getId() != 0L;
+        return locationId!= 0L;
     }
 
     @Override
