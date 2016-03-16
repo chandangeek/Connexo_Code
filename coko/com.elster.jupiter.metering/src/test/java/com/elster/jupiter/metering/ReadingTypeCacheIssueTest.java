@@ -10,6 +10,8 @@ import java.time.ZonedDateTime;
 import java.time.Instant;
 
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -113,9 +115,11 @@ public class ReadingTypeCacheIssueTest {
                 new TransactionModule(),
                 new BpmModule(),
                 new FiniteStateMachineModule(),
-                new NlsModule()
+                new NlsModule(),
+                new CustomPropertySetsModule()
         );
         injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringService.class);
             return null;

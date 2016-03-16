@@ -194,7 +194,13 @@ public class InstallerImpl {
         ServiceCategoryImpl serviceCategory = null;
         for (ServiceKind kind : ServiceKind.values()) {
             try {
-                serviceCategory = meteringService.createServiceCategory(kind);
+                switch (kind){
+                    case ELECTRICITY:
+                    case GAS:
+                    case WATER:
+                    case HEAT: serviceCategory = meteringService.createServiceCategory(kind, true); break;
+                    default: serviceCategory = meteringService.createServiceCategory(kind, false); break;
+                }
                 list.add(serviceCategory);
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Error creating serviceCategory \'" + kind.name() + "\' : " + e.getMessage(), e);

@@ -1,13 +1,17 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
@@ -48,10 +52,13 @@ public class MeteringModule extends AbstractModule {
         requireBinding(QueryService.class);
         requireBinding(UserService.class);
         requireBinding(FiniteStateMachineService.class);
+        requireBinding(CustomPropertySetService.class);
 
         bindConstant().annotatedWith(Names.named("requiredReadingTypes")).to(readingTypes);
         bindConstant().annotatedWith(Names.named("createReadingTypes")).to(createReadingTypes);
+        bind(MetrologyConfigurationService.class).to(MetrologyConfigurationServiceImpl.class).in(Scopes.SINGLETON);
         bind(MeteringService.class).to(MeteringServiceImpl.class).in(Scopes.SINGLETON);
         bind(ServerMeteringService.class).to(MeteringServiceImpl.class).in(Scopes.SINGLETON);
     }
+
 }

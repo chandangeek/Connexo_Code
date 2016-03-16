@@ -2,6 +2,8 @@ package com.elster.jupiter.metering;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -86,10 +88,12 @@ public class MultispeakSnippetsTest {
                 new PubSubModule(),
                 new BpmModule(),
                 new TransactionModule(false),
-                new NlsModule());
+                new NlsModule(),
+                new CustomPropertySetsModule());
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
             @Override
             public Void perform() {
+                injector.getInstance(CustomPropertySetService.class);
                 injector.getInstance(MeteringService.class);
                 return null;
             }

@@ -3,20 +3,21 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cbo.PhaseCode;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.AmiBillingReadyKind;
+import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
@@ -29,19 +30,15 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
+
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -52,6 +49,13 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -112,7 +116,8 @@ public class UsagePointDetailImplIT {
                         new TransactionModule(false),
                         new BpmModule(),
                         new FiniteStateMachineModule(),
-                        new NlsModule()
+                        new NlsModule(),
+                        new CustomPropertySetsModule()
                 );
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -121,6 +126,7 @@ public class UsagePointDetailImplIT {
             throw new RuntimeException(e);
         }
         injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringService.class);
             return null;
@@ -140,7 +146,7 @@ public class UsagePointDetailImplIT {
             ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
             DataModel dataModel = meteringService.getDataModel();
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-            UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID").create();
+            UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID", Instant.EPOCH).create();
             assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
 
             //add details valid from 1 january 2014
@@ -162,7 +168,7 @@ public class UsagePointDetailImplIT {
             checkElectricityDetailContent(foundElecDetail);
 
             //update the detail rated power and check
-            foundElecDetail.setRatedPower(RATED_POWER2);
+            ((ElectricityDetailImpl) foundElecDetail).setRatedPower(RATED_POWER2);
             foundElecDetail.update();
 
             context.commit();
@@ -177,7 +183,6 @@ public class UsagePointDetailImplIT {
             assertThat(optional.isPresent()).isTrue();
             foundElecDetail = (ElectricityDetail) optional.get();
             assertThat(foundElecDetail.getInterval().equals(Interval.of(FEBRUARY_2014, null))).isTrue();
-            foundElecDetail.getAmiBillingReady();
 
             //no details to be found valid on 1 january 2013
             optional =  usagePoint.getDetail(JANUARY_2013);
@@ -200,7 +205,7 @@ public class UsagePointDetailImplIT {
             ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
             DataModel dataModel = meteringService.getDataModel();
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.GAS).get();
-            UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID").create();
+            UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID", Instant.EPOCH).create();
             assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
 
             //add details valid from 1 january 2014
@@ -222,7 +227,6 @@ public class UsagePointDetailImplIT {
             checkGasDetailContent(foundGasDetail);
 
             //update "check billing" and check
-            foundGasDetail.setCheckBilling(false);
             foundGasDetail.update();
 
             context.commit();
@@ -230,14 +234,12 @@ public class UsagePointDetailImplIT {
             optional =  usagePoint.getDetail(JANUARY_2014);
             assertThat(optional.isPresent()).isTrue();
             GasDetail updatedGasDetail = (GasDetail) optional.get();
-            assertThat(updatedGasDetail.isCheckBilling() == false).isTrue();
 
             //get details valid from 1 february 2014 (finds same details as from 1 february 2014)
             optional =  usagePoint.getDetail(FEBRUARY_2014);
             assertThat(optional.isPresent()).isTrue();
             foundGasDetail = (GasDetail) optional.get();
             assertThat(foundGasDetail.getInterval().equals(Interval.of(FEBRUARY_2014, null))).isTrue();
-            foundGasDetail.getAmiBillingReady();
 
             //no details to be found valid on 1 january 2013
             optional =  usagePoint.getDetail(JANUARY_2013);
@@ -254,24 +256,22 @@ public class UsagePointDetailImplIT {
 
 
     protected ElectricityDetail newElectricityDetail(UsagePoint usagePoint, Instant date) {
-        ElectricityDetail elecDetail = (ElectricityDetail) usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, date);
+        ElectricityDetailImpl elecDetail = (ElectricityDetailImpl) usagePoint.getServiceCategory()
+                .newUsagePointDetail(usagePoint, date);
         fillElectricityDetail(elecDetail);
         return elecDetail;
     }
 
     protected GasDetail newGasDetail(UsagePoint usagePoint, Instant instant) {
-        GasDetail gasDetail = (GasDetail) usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, instant);
+        GasDetailImpl gasDetail = (GasDetailImpl) usagePoint.getServiceCategory()
+                .newUsagePointDetail(usagePoint, instant);
         fillGasDetail(gasDetail);
         return gasDetail;
     }
 
-    protected void fillElectricityDetail(ElectricityDetail elecDetail) {
+    protected void fillElectricityDetail(ElectricityDetailImpl elecDetail) {
         //general properties
-        elecDetail.setAmiBillingReady(AmiBillingReadyKind.AMIDISABLED);
-        elecDetail.setCheckBilling(true);
-        elecDetail.setConnectionState(UsagePointConnectedKind.CONNECTED);
-        elecDetail.setMinimalUsageExpected(true);
-        elecDetail.setServiceDeliveryRemark("remark");
+        elecDetail.setCollar(YesNoAnswer.YES);
 
         //electriciy specific properties
         elecDetail.setGrounded(true);
@@ -283,24 +283,28 @@ public class UsagePointDetailImplIT {
 
     }
 
-    protected void fillGasDetail(GasDetail gasDetail) {
+    protected void fillGasDetail(GasDetailImpl gasDetail) {
         //general properties
-        gasDetail.setAmiBillingReady(AmiBillingReadyKind.AMIDISABLED);
-        gasDetail.setCheckBilling(true);
-        gasDetail.setConnectionState(UsagePointConnectedKind.CONNECTED);
-        gasDetail.setMinimalUsageExpected(true);
-        gasDetail.setServiceDeliveryRemark("remark");
+        gasDetail.setCollar(YesNoAnswer.YES);
 
-        //gas specific properties: none defined yet
+        //gas specific properties
+        gasDetail.setClamped(YesNoAnswer.YES);
+        gasDetail.setCapped(YesNoAnswer.YES);
+        gasDetail.setValve(YesNoAnswer.YES);
+        gasDetail.setBypass(YesNoAnswer.YES);
+        gasDetail.setBypassStatus(BypassStatus.OPEN);
+        gasDetail.setGrounded(true);
+        gasDetail.setInterruptible(true);
+        gasDetail.setLimiter(true);
+        gasDetail.setLoadLimit(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)));
+        gasDetail.setLoadLimiterType("LoadLimit");
+        gasDetail.setPhysicalCapacity(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)));
+        gasDetail.setPressure(Unit.PASCAL.amount(BigDecimal.valueOf(34.5)));
     }
 
     protected void checkElectricityDetailContent(ElectricityDetail elecDetail) {
         //general properties
-        assertThat(elecDetail.getAmiBillingReady().equals(AmiBillingReadyKind.AMIDISABLED)).isTrue();
-        assertThat(elecDetail.isCheckBilling() == true).isTrue();
-        assertThat(elecDetail.getConnectionState().equals(UsagePointConnectedKind.CONNECTED)).isTrue();
-        assertThat(elecDetail.isMinimalUsageExpected() == true).isTrue();
-        assertThat(elecDetail.getServiceDeliveryRemark().equals("remark")).isTrue();
+        assertThat(elecDetail.isCollarInstalled()).isEqualTo(YesNoAnswer.YES);
 
         //electriciy specific properties
         assertThat(elecDetail.isGrounded() == true).isTrue();
@@ -313,13 +317,20 @@ public class UsagePointDetailImplIT {
 
     protected void checkGasDetailContent(GasDetail gasDetail) {
         //general properties
-        assertThat(gasDetail.getAmiBillingReady().equals(AmiBillingReadyKind.AMIDISABLED)).isTrue();
-        assertThat(gasDetail.isCheckBilling() == true).isTrue();
-        assertThat(gasDetail.getConnectionState().equals(UsagePointConnectedKind.CONNECTED)).isTrue();
-        assertThat(gasDetail.isMinimalUsageExpected() == true).isTrue();
-        assertThat(gasDetail.getServiceDeliveryRemark().equals("remark")).isTrue();
+        assertThat(gasDetail.isBypassInstalled()).isEqualTo(YesNoAnswer.YES);
 
-        //gas specific properties: none defined yet
+        //gas specific properties
+        assertThat(gasDetail.isCapped()).isEqualTo(YesNoAnswer.YES);
+        assertThat(gasDetail.isClamped()).isEqualTo(YesNoAnswer.YES);
+        assertThat(gasDetail.isBypassInstalled()).isEqualTo(YesNoAnswer.YES);
+        assertThat(gasDetail.getBypassStatus().equals(BypassStatus.OPEN)).isTrue();
+        assertThat(gasDetail.isGrounded()).isTrue();
+        assertThat(gasDetail.isInterruptible()).isTrue();
+        assertThat(gasDetail.isLimiter()).isTrue();
+        assertThat(gasDetail.getLoadLimit().equals(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))).isTrue();
+        assertThat(gasDetail.getLoadLimiterType().equals("LoadLimit")).isTrue();
+        assertThat(gasDetail.getPhysicalCapacity().equals(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))).isTrue();
+        assertThat(gasDetail.getPressure().equals(Unit.PASCAL.amount(BigDecimal.valueOf(34.5)))).isTrue();
     }
 
 }

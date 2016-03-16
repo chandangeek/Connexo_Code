@@ -13,6 +13,8 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -29,9 +31,17 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.sql.SQLException;
+import java.util.Currency;
+import java.util.List;
+
 import org.assertj.core.api.Condition;
 import org.junit.After;
 import org.junit.Before;
@@ -39,12 +49,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import java.sql.SQLException;
-import java.util.Currency;
-import java.util.List;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 
@@ -88,7 +92,6 @@ public class ReadingTypeMridFilterTest {
                     new IdsModule(),
                     new MeteringModule(
                             defaultReadingType, // default
-
                             "11.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", // daily
                             "0.8.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", // maximum
                             "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", // 15min interval
@@ -117,13 +120,15 @@ public class ReadingTypeMridFilterTest {
                     new TransactionModule(),
                     new BpmModule(),
                     new FiniteStateMachineModule(),
-                    new NlsModule()
+                    new NlsModule(),
+                    new CustomPropertySetsModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(FiniteStateMachineService.class);
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(MeteringService.class);
             return null;
         });

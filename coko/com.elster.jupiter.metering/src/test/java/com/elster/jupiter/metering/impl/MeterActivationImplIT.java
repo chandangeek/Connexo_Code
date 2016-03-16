@@ -4,6 +4,8 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -35,16 +37,11 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -54,6 +51,13 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -102,12 +106,14 @@ public class MeterActivationImplIT {
                     new TransactionModule(),
                     new BpmModule(),
                     new FiniteStateMachineModule(),
-                    new NlsModule()
+                    new NlsModule(),
+                    new CustomPropertySetsModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringService.class);
             return null;
@@ -145,7 +151,7 @@ public class MeterActivationImplIT {
             Meter meter = amrSystem.newMeter("1").create();
             meterId = meter.getId();
             UsagePoint up = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
-                    .orElseThrow(IllegalArgumentException::new).newUsagePoint("abcd")
+                    .orElseThrow(IllegalArgumentException::new).newUsagePoint("abcd", Instant.EPOCH)
                     .create();
             usagePointId = up.getId();
 

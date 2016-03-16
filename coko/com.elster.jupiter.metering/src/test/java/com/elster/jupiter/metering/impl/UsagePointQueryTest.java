@@ -6,6 +6,8 @@ import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.cbo.StreetDetail;
 import com.elster.jupiter.cbo.TownDetail;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -15,8 +17,6 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.AmiBillingReadyKind;
-import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -41,15 +41,10 @@ import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.units.Unit;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -58,6 +53,13 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.time.Instant;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -110,10 +112,12 @@ public class UsagePointQueryTest {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new DataVaultModule(),
-                    new NlsModule()
+                    new NlsModule(),
+                    new CustomPropertySetsModule()
                 );
         injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(EventService.class);
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringService.class);
             return null;
@@ -151,24 +155,21 @@ public class UsagePointQueryTest {
                 .setMainAddress(new StreetAddress(new StreetDetail("Stasegemsesteenweg","112"), new TownDetail("8500",  "Kortrijk", "BE")))
                 .setName("EnergyICT")
                 .create();
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID")
-                .setServiceLocation(location).create();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID", Instant.EPOCH).withServiceLocation(location).create();
         usagePoint.setServiceLocation(location);
-        ElectricityDetail detail = (ElectricityDetail) serviceCategory.newUsagePointDetail(usagePoint, Instant.now());
-        detail.setAmiBillingReady(AmiBillingReadyKind.AMICAPABLE);
+        ElectricityDetailImpl detail = (ElectricityDetailImpl) serviceCategory.newUsagePointDetail(usagePoint, Instant.now());
         detail.setRatedPower(Unit.WATT_HOUR.amount(BigDecimal.valueOf(1000),3));
         usagePoint.addDetail(detail);
 //        usagePoint.save();
         Query<UsagePoint> query = meteringService.getUsagePointQuery();
-        Condition condition = where("detail.amiBillingReady").isEqualTo(AmiBillingReadyKind.AMICAPABLE);
-        condition = condition.and(where("serviceLocation.mainAddress.townDetail.country").isEqualTo("BE"));
+        Condition condition = where("serviceLocation.mainAddress.townDetail.country").isEqualTo("BE");
         condition = condition.and(where("detail.ratedPower.value").between(BigDecimal.valueOf(999)).and(BigDecimal.valueOf(1001)));
         assertThat(query.select(condition)).hasSize(1);
         assertThat(query.select(condition).get(0).getServiceCategory().getKind()).isEqualTo(ServiceKind.ELECTRICITY);
         query.setEager();
         assertThat(query.select(condition)).hasSize(1);
         for (int i = 0 ; i < 10 ; i++) {
-        	usagePoint = serviceCategory.newUsagePoint("mrID" + i).create();
+        	usagePoint = serviceCategory.newUsagePoint("mrID" + i, Instant.EPOCH).create();
         }
         assertThat(query.select(Condition.TRUE)).hasSize(11);
         assertThat(query.select(Condition.TRUE,1,5)).hasSize(5);

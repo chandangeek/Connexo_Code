@@ -2,6 +2,8 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -29,10 +31,19 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -41,13 +52,6 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.time.Instant;
-import java.time.ZonedDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -114,13 +118,15 @@ public class UsagePointConfigurationIT {
                     new TransactionModule(),
                     new BpmModule(),
                     new FiniteStateMachineModule(),
-                    new NlsModule()
+                    new NlsModule(),
+                    new CustomPropertySetsModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             meteringService = injector.getInstance(MeteringService.class);
             return null;
@@ -210,8 +216,7 @@ public class UsagePointConfigurationIT {
     private void createAndActivateUsagePoint() {
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCategory electricity = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-            usagePoint = electricity.newUsagePoint("mrId")
-                    .create();
+            usagePoint = electricity.newUsagePoint("mrId", Instant.EPOCH).create();
             meterActivation = usagePoint.activate(ACTIVE_DATE.toInstant());
             context.commit();
         }

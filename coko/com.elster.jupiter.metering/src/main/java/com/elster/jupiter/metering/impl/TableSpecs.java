@@ -1,7 +1,8 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
@@ -19,8 +20,14 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
+import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsageImpl;
+import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
+import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.config.UsagePointMetrologyConfigurationImpl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -33,7 +40,6 @@ import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUMPLUSONE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
@@ -55,6 +61,7 @@ public enum TableSpecs {
             Column idColumn = table.column("ID").number().notNull().conversion(NUMBER2ENUMPLUSONE).map("kind").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
+            table.column("ACTIVE").type("char(1)").conversion(CHAR2BOOLEAN).map("active").notNull().add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_SERVICECATEGORY").on(idColumn).add();
         }
@@ -164,15 +171,18 @@ public enum TableSpecs {
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
             Column serviceKindColumn = table.column("SERVICEKIND").number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
             Column serviceLocationIdColumn = table.column("SERVICELOCATIONID").number().conversion(NUMBER2LONGNULLZERO).add();
+            table.column("SERVICELOCATIONSTRING").varChar(SHORT_DESCRIPTION_LENGTH).map("location").add();
             table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
             table.column("ISSDP").bool().map("isSdp").add();
             table.column("ISVIRTUAL").bool().map("isVirtual").add();
             table.column("OUTAGEREGION").varChar(NAME_LENGTH).map("outageRegion").add();
-            table.column("READCYCLE").varChar(NAME_LENGTH).map("readCycle").add();
             table.column("READROUTE").varChar(NAME_LENGTH).map("readRoute").add();
             table.column("SERVICEPRIORITY").varChar(NAME_LENGTH).map("servicePriority").add();
+            table.column("SERVICEDELIVERYREMARK").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceDeliveryRemark").add();
+            table.column("INSTALLATIONTIME").number().notNull().conversion(ColumnConversion.NUMBER2INSTANT).map("installationTime").add();
+
             table.addAuditColumns();
             table.primaryKey("MTR_PK_USAGEPOINT").on(idColumn).add();
             table.unique("MTR_U_USAGEPOINT").on(mRIDColumn).add();
@@ -272,7 +282,7 @@ public enum TableSpecs {
                     add();
             table.foreignKey("FK_MTR_STATUS_STATE").
                     on(state).
-                    references(FiniteStateMachineService.COMPONENT_NAME, "FSM_STATE").
+                    references(State.class).
                     onDelete(RESTRICT).
                     map("state").
                     add();
@@ -523,7 +533,6 @@ public enum TableSpecs {
                     .add();
         }
     },
-
     MTR_USAGEPOINTDETAIL {
         void addTo(DataModel dataModel) {
             Table<UsagePointDetail> table = dataModel.addTable(name(), UsagePointDetail.class);
@@ -534,18 +543,24 @@ public enum TableSpecs {
 
             table.addDiscriminatorColumn("SERVICECATEGORY", "varchar2(1)");
 
-            table.column("AMIBILLINGREADY").number().notNull().conversion(NUMBER2ENUM).map("amiBillingReady").add();
-            table.column("CHECKBILLING").bool().map("checkBilling").add();
-            table.column("CONNECTIONSTATE").number().notNull().conversion(NUMBER2ENUM).map("connectionState").add();
-            table.column("MINIMALUSAGEEXPECTED").bool().map("minimalUsageExpected").add();
-            table.column("SERVICEDELIVERYREMARK").varChar(NAME_LENGTH).map("serviceDeliveryRemark").add();
-
             table.column("GROUNDED").type("char(1)").conversion(CHAR2BOOLEAN).map("grounded").add();
             table.addQuantityColumns("NOMINALVOLTAGE", false, "nominalServiceVoltage");
             table.column("PHASECODE").type("varchar2(7)").conversion(CHAR2ENUM).map("phaseCode").add();
+            table.addQuantityColumns("PHYSICALCAPACITY", false, "physicalCapacity");
             table.addQuantityColumns("RATEDCURRENT", false, "ratedCurrent");
             table.addQuantityColumns("RATEDPOWER", false, "ratedPower");
             table.addQuantityColumns("ESTIMATEDLOAD", false, "estimatedLoad");
+            table.column("LIMITER").type("char(1)").conversion(CHAR2BOOLEAN).map("limiter").add();
+            table.column("LOADLIMITERTYPE").varChar(NAME_LENGTH).map("loadLimiterType").add();
+            table.addQuantityColumns("LOADLIMIT", false, "loadLimit");
+            table.addQuantityColumns("PRESSURE", false, "pressure");
+            table.column("INTERRUPTIBLE").type("char(1)").conversion(CHAR2BOOLEAN).map("interruptible").add();
+            table.column("COLLAR").type("varchar2(7)").conversion(CHAR2ENUM).map("collar").add();
+            table.column("BYPASS").type("varchar2(7)").conversion(CHAR2ENUM).map("bypass").add();
+            table.column("BYPASSSTATUS").type("varchar2(7)").conversion(CHAR2ENUM).map("bypassStatus").add();
+            table.column("VALVE").type("varchar2(7)").conversion(CHAR2ENUM).map("valve").add();
+            table.column("CAPPED").type("varchar2(7)").conversion(CHAR2ENUM).map("capped").add();
+            table.column("CLAMPED").type("varchar2(7)").conversion(CHAR2ENUM).map("clamped").add();
 
             table.addAuditColumns();
             table.primaryKey("MTR_PK_USAGEPOINTDETAIL").on(usagePointIdColumn, intervalColumns.get(0)).add();
@@ -556,6 +571,67 @@ public enum TableSpecs {
                     .map("usagePoint")
                     .reverseMap("detail")
                     .composition()
+                    .add();
+        }
+    },
+    MTR_METROLOGYCONFIG {
+        void addTo(DataModel dataModel) {
+            Table<MetrologyConfiguration> table = dataModel.addTable(name(), MetrologyConfiguration.class);
+            table.map(MetrologyConfigurationImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column name = table.column(MetrologyConfigurationImpl.Fields.NAME.name()).varChar().notNull().map(MetrologyConfigurationImpl.Fields.NAME.fieldName()).add();
+            table.column(MetrologyConfigurationImpl.Fields.ACTIVE.name()).bool().map(MetrologyConfigurationImpl.Fields.ACTIVE.fieldName()).notNull().add();
+            table.addAuditColumns();
+            table.unique("MTR_UK_METROLOGYCONFIGURATION").on(name).add();
+            table.primaryKey("MTR_PK_METROLOGYCONFIGURATION").on(id).add();
+        }
+    },
+    MTR_M_CONFIG_CPS_USAGES {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<MetrologyConfigurationCustomPropertySetUsage> table = dataModel.addTable(name(), MetrologyConfigurationCustomPropertySetUsage.class);
+            table.map(MetrologyConfigurationCustomPropertySetUsageImpl.class);
+            Column metrologyConfig = table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.METROLOGY_CONFIG.name()).number().notNull().add();
+            Column customPropertySet = table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.CUSTOM_PROPERTY_SET.name()).number().notNull().add();
+            table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.POSITION.name()).number().notNull().conversion(NUMBER2INT).map(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.POSITION.fieldName()).add();
+            table.primaryKey("PK_M_CONFIG_CPS_USAGE").on(metrologyConfig, customPropertySet).add();
+            table.foreignKey("FK_MCPS_USAGE_TO_CONFIG")
+                    .references(MTR_METROLOGYCONFIG.name())
+                    .on(metrologyConfig)
+                    .onDelete(CASCADE)
+                    .map(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.METROLOGY_CONFIG.fieldName())
+                    .reverseMap(MetrologyConfigurationImpl.Fields.CUSTOM_PROPERTY_SETS.fieldName())
+                    .reverseMapOrder(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.POSITION.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("FK_MCAS_USAGE_TO_CPS")
+                    .references(RegisteredCustomPropertySet.class)
+                    .on(customPropertySet)
+                    .onDelete(CASCADE)
+                    .map(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.CUSTOM_PROPERTY_SET.fieldName())
+                    .add();
+        }
+    },
+    MTR_USAGEPOINTMTRCONFIG {
+        void addTo(DataModel dataModel) {
+            Table<UsagePointMetrologyConfiguration> table = dataModel.addTable(name(), UsagePointMetrologyConfiguration.class);
+            table.map(UsagePointMetrologyConfigurationImpl.class);
+            Column usagePoint = table.column("USAGEPOINT").type("number").notNull().add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            Column metrologyConfiguration = table.column("METROLOGYCONFIG").number().notNull().add();
+            table.primaryKey("MTR_PK_UPMTRCONFIG").on(usagePoint, intervalColumns.get(0)).add();
+            table.foreignKey("MTR_FK_UPMTRCONFIG_UP")
+                    .on(usagePoint)
+                    .references(UsagePoint.class)
+                    .onDelete(CASCADE)
+                    .map("usagePoint")
+                    .reverseMap("metrologyConfiguration")
+                    .composition()
+                    .add();
+            table.foreignKey("MTR_FK_UPMTRCONFIG_MC")
+                    .on(metrologyConfiguration)
+                    .references(MetrologyConfiguration.class)
+                    .map("metrologyConfiguration")
                     .add();
         }
     },
@@ -722,6 +798,32 @@ public enum TableSpecs {
         }
     },
 
+    MTR_SERVICECATEGORY_CPS_USAGE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ServiceCategoryCustomPropertySetUsage> table = dataModel.addTable(name(), ServiceCategoryCustomPropertySetUsage.class);
+            table.map(ServiceCategoryCustomPropertySetUsage.class);
+            Column serviceCategory = table.column("SERVICECATEGORY").number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
+            Column customPropertySet = table.column("CUSTOMPROPERTYSET").number().notNull().add();
+            table.primaryKey("PK_MTR_CPSSERVICECATUSAGE").on(serviceCategory, customPropertySet).add();
+            table.column(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.name()).number().notNull().conversion(NUMBER2INT).map(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.fieldName()).add();
+            table.foreignKey("FK_MTR_CPSSERVICECATEGORY")
+                    .references(MTR_SERVICECATEGORY.name())
+                    .on(serviceCategory)
+                    .onDelete(CASCADE)
+                    .map(ServiceCategoryCustomPropertySetUsage.Fields.SERVICECATEGORY.fieldName())
+                    .reverseMap(ServiceCategoryImpl.Fields.CUSTOMPROPERTYSETUSAGE.fieldName())
+                    .reverseMapOrder(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("FK_MTR_CPSSERVICECATEGORY_CPS")
+                    .references(RegisteredCustomPropertySet.class)
+                    .on(customPropertySet)
+                    .onDelete(CASCADE)
+                    .map(ServiceCategoryCustomPropertySetUsage.Fields.CUSTOMPROPERTYSET.fieldName())
+                    .add();
+        }
+    }
     ;
 
     abstract void addTo(DataModel dataModel);

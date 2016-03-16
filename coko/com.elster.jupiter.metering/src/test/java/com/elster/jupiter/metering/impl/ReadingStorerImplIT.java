@@ -2,6 +2,8 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -121,12 +123,15 @@ public class ReadingStorerImplIT {
                     new TransactionModule(),
                     new BpmModule(),
                     new FiniteStateMachineModule(),
-                    new NlsModule());
+                    new NlsModule(),
+                    new CustomPropertySetsModule()
+            );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
+            injector.getInstance(CustomPropertySetService.class);
             meteringService = injector.getInstance(MeteringService.class);
             return null;
         });

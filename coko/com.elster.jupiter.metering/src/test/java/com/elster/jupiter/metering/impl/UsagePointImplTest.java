@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.MarketRoleKind;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.events.EventService;
@@ -42,7 +43,10 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -92,6 +96,8 @@ public class UsagePointImplTest {
     @Mock
     private Provider<UsagePointAccountabilityImpl> accountabilityProvider;
     @Mock
+    private CustomPropertySetService customPropertySetService;
+    @Mock
     private Thesaurus thesaurus;
     @Mock
     private DataMapper<MeterActivation> meterActivationMapper;
@@ -136,7 +142,7 @@ public class UsagePointImplTest {
         when(representation4.getDelegate()).thenReturn(user4);
         when(dataModel.mapper(MeterActivation.class)).thenReturn(meterActivationMapper);
 
-        usagePoint = new UsagePointImpl(dataModel, eventService, meterActivationProvider, accountabilityProvider).init(MR_ID, serviceCategory);
+        usagePoint = new UsagePointImpl(clock, dataModel, eventService, thesaurus, meterActivationProvider, accountabilityProvider, customPropertySetService).init(MR_ID, serviceCategory);
     }
 
     @After
@@ -151,20 +157,6 @@ public class UsagePointImplTest {
     @Test
     public void testGetServiceCategory() {
         assertThat(usagePoint.getServiceCategory()).isEqualTo(serviceCategory);
-    }
-
-    @Test
-    public void testGetAliasName() {
-        usagePoint.setAliasName(ALIAS_NAME);
-
-        assertThat(usagePoint.getAliasName()).isEqualTo(ALIAS_NAME);
-    }
-
-    @Test
-    public void testGetDescription() {
-        usagePoint.setDescription(DESCRIPTION);
-
-        assertThat(usagePoint.getDescription()).isEqualTo(DESCRIPTION);
     }
 
     @Test
@@ -194,14 +186,6 @@ public class UsagePointImplTest {
         usagePoint.setOutageRegion(outageRegion);
 
         assertThat(usagePoint.getOutageRegion()).isEqualTo(outageRegion);
-    }
-
-    @Test
-    public void testGetReadCycle() {
-        String readCycle = "readCycle";
-        usagePoint.setReadCycle(readCycle);
-
-        assertThat(usagePoint.getReadCycle()).isEqualTo(readCycle);
     }
 
     @Test

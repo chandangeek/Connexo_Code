@@ -1,14 +1,18 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.PhaseCode;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.ElectricityDetail;
-import com.elster.jupiter.metering.ElectricityDetailBuilder;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
-import java.time.Clock;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
+
 import javax.inject.Inject;
+import javax.validation.constraints.Size;
+import java.time.Clock;
 
 public class ElectricityDetailImpl extends UsagePointDetailImpl implements ElectricityDetail {
 
@@ -16,11 +20,13 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
     private Quantity nominalServiceVoltage;
     private PhaseCode phaseCode;
     private Quantity ratedCurrent;
-
-    // last two fields currently only on E
-    // we may want to generalize them later
     private Quantity ratedPower;
     private Quantity estimatedLoad;
+    private boolean limiter;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    private String loadLimiterType;
+    private Quantity loadLimit;
+    private boolean interruptible;
 
     @Inject
     ElectricityDetailImpl(Clock clock, DataModel dataModel) {
@@ -37,39 +43,49 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
         return this;
     }
 
-    ElectricityDetailImpl init(UsagePoint usagePoint, ElectricityDetailBuilder builder, Interval interval) {
-        super.init(usagePoint, builder, interval);
-        this.grounded = builder.isGrounded();
-        this.nominalServiceVoltage = builder.getNominalServiceVoltage();
-        this.phaseCode = builder.getPhaseCode();
-        this.ratedCurrent = builder.getRatedCurrent();
-        this.ratedPower = builder.getRatedPower();
-        this.estimatedLoad = builder.getEstimatedLoad();
-        return this;
-    }
-
+    @Override
     public boolean isGrounded() {
         return grounded;
     }
-
+    @Override
     public Quantity getNominalServiceVoltage() {
         return nominalServiceVoltage;
     }
-
+    @Override
     public PhaseCode getPhaseCode() {
         return phaseCode;
     }
-
+    @Override
     public Quantity getRatedCurrent() {
         return ratedCurrent;
     }
-
+    @Override
     public Quantity getRatedPower() {
         return ratedPower;
     }
-
+    @Override
     public Quantity getEstimatedLoad() {
         return estimatedLoad;
+    }
+
+    @Override
+    public boolean isLimiter() {
+        return limiter;
+    }
+
+    @Override
+    public String getLoadLimiterType() {
+        return loadLimiterType;
+    }
+
+    @Override
+    public Quantity getLoadLimit() {
+        return loadLimit;
+    }
+
+    @Override
+    public boolean isInterruptible() {
+        return interruptible;
     }
 
     public void setGrounded(boolean grounded) {
@@ -94,5 +110,21 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
 
     public void setEstimatedLoad(Quantity estimatedLoad) {
         this.estimatedLoad = estimatedLoad;
+    }
+
+    public void setLimiter(boolean limiter) {
+        this.limiter = limiter;
+    }
+
+    public void setLoadLimiterType(String loadLimiterType) {
+        this.loadLimiterType = loadLimiterType;
+    }
+
+    public void setLoadLimit(Quantity loadLimit) {
+        this.loadLimit = loadLimit;
+    }
+
+    public void setInterruptible(boolean interruptible) {
+        this.interruptible = interruptible;
     }
 }

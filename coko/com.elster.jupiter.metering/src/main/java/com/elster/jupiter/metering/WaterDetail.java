@@ -1,5 +1,8 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.util.YesNoAnswer;
+import com.elster.jupiter.util.units.Quantity;
+
 /**
  * Created with IntelliJ IDEA.
  * User: igh
@@ -8,4 +11,25 @@ package com.elster.jupiter.metering;
  * To change this template use File | Settings | File Templates.
  */
 public interface WaterDetail extends UsagePointDetail {
+    boolean isGrounded();
+
+    boolean isLimiter();
+
+    String getLoadLimiterType();
+
+    Quantity getLoadLimit();
+
+    Quantity getPhysicalCapacity();
+
+    Quantity getPressure();
+
+    YesNoAnswer isBypassInstalled();
+
+    BypassStatus getBypassStatus();
+
+    YesNoAnswer isValveInstalled();
+
+    YesNoAnswer isCapped();
+
+    YesNoAnswer isClamped();
 }
