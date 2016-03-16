@@ -133,7 +133,7 @@ Ext.define('Isu.controller.IssueDetail', {
             {
                 data.push({
                     user: rec.data.author.name,
-                    actionText: Uni.I18n.translate('issue.workspace.datacollection.added.comment','IDC','added a comment'),
+                    actionText: Uni.I18n.translate('issue.workspace.datacollection.added.comment','ISU','added a comment'),
                     creationDate: rec.data.creationDate,
                     contentText: rec.data.splittedComments,
                 });
@@ -143,7 +143,7 @@ Ext.define('Isu.controller.IssueDetail', {
             procesStore.each(function (rec) {
                     data.push({
                         user: rec.data.startedBy,
-                        actionText: Uni.I18n.translate('issue.workspace.datacollection.processStarted', 'IDC', 'started a process'),
+                        actionText: Uni.I18n.translate('issue.workspace.datacollection.processStarted', 'ISU', 'started a process'),
                         creationDate: rec.data.startDate,
                         contentText: rec.data.name,
                         forProcess: true,
