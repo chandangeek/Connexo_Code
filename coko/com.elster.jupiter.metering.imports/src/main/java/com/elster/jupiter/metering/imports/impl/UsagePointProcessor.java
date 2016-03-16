@@ -1,18 +1,13 @@
 package com.elster.jupiter.metering.imports.impl;
 
-import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
-import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.units.Quantity;
 
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
@@ -80,7 +75,7 @@ public class UsagePointProcessor {
                 return false;
             }
         } else {
-            usagePoint = serviceCategory.get().newUsagePoint(usagePointFileInfo.getmRID()).create();
+            usagePoint = serviceCategory.get().newUsagePoint(usagePointFileInfo.getmRID(), this.clock.instant()).create();
             isUpdatable = true;
         }
         if (isUpdatable) {
@@ -108,36 +103,13 @@ public class UsagePointProcessor {
             if (!usagePointFileInfo.getOutageregion().isEmpty()) {
                 usagePoint.setOutageRegion(usagePointFileInfo.getOutageregion());
             }
-            if (!usagePointFileInfo.getReadcycle().isEmpty()) {
-                usagePoint.setReadCycle(usagePointFileInfo.getReadcycle());
-            }
             if (!usagePointFileInfo.getReadroute().isEmpty()) {
                 usagePoint.setReadRoute(usagePointFileInfo.getReadroute());
             }
             if (!usagePointFileInfo.getReadcycle().isEmpty()) {
                 usagePoint.setServicePriority(usagePointFileInfo.getReadcycle());
             }
-            UsagePointDetail usagePointDetail = usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, clock.instant());
-            if (usagePointDetail instanceof ElectricityDetail) {
-                ElectricityDetail eDetail = (ElectricityDetail) usagePointDetail;
-                eDetail.setGrounded(usagePointFileInfo.getGrounded().equalsIgnoreCase("true"));
-                if (!usagePointFileInfo.getPhaseCode().isEmpty()) {
-                    eDetail.setPhaseCode(PhaseCode.valueOf(usagePointFileInfo.getPhaseCode()));
-                }
-                if (!usagePointFileInfo.getRatedPowerValue().isEmpty()) {
-                    eDetail.setRatedPower(Quantity.create(new BigDecimal(usagePointFileInfo.getRatedPowerValue()), usagePointFileInfo.getRatedPowerMultiplier(), usagePointFileInfo.getRatedPowerUnit()));
-                }
-                if (!usagePointFileInfo.getRatedCurrentValue().isEmpty()) {
-                    eDetail.setRatedCurrent(Quantity.create(new BigDecimal(usagePointFileInfo.getRatedCurrentValue()), usagePointFileInfo.getRatedCurrentMultiplier(), usagePointFileInfo.getRatedCurrentUnit()));
-                }
-                if (!usagePointFileInfo.getEstimatedLoadValue().isEmpty()) {
-                    eDetail.setEstimatedLoad(Quantity.create(new BigDecimal(usagePointFileInfo.getEstimatedLoadValue()), usagePointFileInfo.getEstimatedLoadMultiplier(), usagePointFileInfo.getEstimatedLoadUnit()));
-                }
-                if (!usagePointFileInfo.getNominalVoltageValue().isEmpty()) {
-                    eDetail.setNominalServiceVoltage(Quantity.create(new BigDecimal(usagePointFileInfo.getNominalVoltageValue()), usagePointFileInfo.getNominalVoltageMultiplier(), usagePointFileInfo.getNominalVoltageUnit()));
-                }
-                usagePoint.addDetail(usagePointDetail);
-            }
+
             usagePoint.update();
         }
         return true;
