@@ -237,7 +237,7 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
         }
         if (filter.getMetrologyConfigurations() != null) {
             condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONTRACT.fieldName()
-                    + ". " + MetrologyContractImpl.Fields.METROLOGY_CONFIG.fieldName()).in(filter.getMetrologyConfigurations()));
+                    + "." + MetrologyContractImpl.Fields.METROLOGY_CONFIG.fieldName()).in(filter.getMetrologyConfigurations()));
         }
         return getDataModel().query(ReadingTypeDeliverable.class, MetrologyContract.class).select(condition);
     }

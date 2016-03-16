@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
@@ -11,6 +12,8 @@ import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -20,8 +23,12 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ReadingTypeDeliverableImplTestIT {
 
@@ -48,6 +55,7 @@ public class ReadingTypeDeliverableImplTestIT {
             FormulaBuilder formulaBuilder = inMemoryBootstrapModule.getMetrologyConfigurationService().newFormulaBuilder(Formula.Mode.AUTO);
             formula = formulaBuilder.init(formulaBuilder.constant(10)).build();
             readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "zero reading type");
+            context.commit();
         }
     }
 
@@ -78,5 +86,94 @@ public class ReadingTypeDeliverableImplTestIT {
         String longName = Stream.of(name).collect(Collectors.joining(""));
         inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .createReadingTypeDeliverable(longName, metrologyContract, readingType, formula);
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "metrologyContract", messageId = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    public void testCreateReadingTypeDeliverableWithoutMetrologyContract() {
+        inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createReadingTypeDeliverable("deliverable", null, readingType, formula);
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "readingType", messageId = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    public void testCreateReadingTypeDeliverableWithoutReadingType() {
+        inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createReadingTypeDeliverable("deliverable", metrologyContract, null, formula);
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "formula", messageId = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    public void testCreateReadingTypeDeliverableWithoutFormula() {
+        inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createReadingTypeDeliverable("deliverable", metrologyContract, readingType, null);
+    }
+
+    @Test
+    @Transactional
+    public void testCanCreateReadingTypeDeliverable() {
+        String name = "deliverable";
+        ReadingTypeDeliverable deliverable = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createReadingTypeDeliverable(name, metrologyContract, readingType, formula);
+
+        assertThat(deliverable.getId()).isGreaterThan(0);
+        assertThat(deliverable.getName()).isEqualTo(name);
+        assertThat(deliverable.getMetrologyContract()).isEqualTo(metrologyContract);
+        assertThat(deliverable.getReadingType()).isEqualTo(readingType);
+        assertThat(deliverable.getFormula()).isEqualTo(formula);
+    }
+
+    @Test
+    @Transactional
+    public void testCanFindReadingTypeDeliverableById() {
+        ReadingTypeDeliverable deliverable = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createReadingTypeDeliverable("deliverable", metrologyContract, readingType, formula);
+
+        Optional<ReadingTypeDeliverable> readingTypeDeliverable = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .findReadingTypeDeliverable(deliverable.getId());
+        assertThat(readingTypeDeliverable).isPresent();
+        assertThat(readingTypeDeliverable.get()).isEqualTo(deliverable);
+    }
+
+    @Test
+    @Transactional
+    public void testCanFindReadingTypeDeliverableByFilterReadingType() {
+        ReadingTypeDeliverable deliverable = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createReadingTypeDeliverable("deliverable", metrologyContract, readingType, formula);
+
+        ReadingTypeDeliverableFilter filter = new ReadingTypeDeliverableFilter()
+                .withReadingTypes(readingType);
+        List<ReadingTypeDeliverable> deliverables = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .findReadingTypeDeliverable(filter);
+        assertThat(deliverables).hasSize(1);
+        assertThat(deliverables.get(0)).isEqualTo(deliverable);
+    }
+
+    @Test
+    @Transactional
+    public void testCanFindReadingTypeDeliverableByFilterMetrologyContract() {
+        ReadingTypeDeliverable deliverable = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createReadingTypeDeliverable("deliverable", metrologyContract, readingType, formula);
+
+        ReadingTypeDeliverableFilter filter = new ReadingTypeDeliverableFilter()
+                .withMetrologyContracts(metrologyContract);
+        List<ReadingTypeDeliverable> deliverables = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .findReadingTypeDeliverable(filter);
+        assertThat(deliverables).hasSize(1);
+        assertThat(deliverables.get(0)).isEqualTo(deliverable);
+    }
+
+    @Test
+    @Transactional
+    public void testCanFindReadingTypeDeliverableByFilterMetrologyConfiuration() {
+        ReadingTypeDeliverable deliverable = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createReadingTypeDeliverable("deliverable", metrologyContract, readingType, formula);
+
+        ReadingTypeDeliverableFilter filter = new ReadingTypeDeliverableFilter()
+                .withMetrologyConfigurations(metrologyContract.getMetrologyConfiguration());
+        List<ReadingTypeDeliverable> deliverables = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .findReadingTypeDeliverable(filter);
+        assertThat(deliverables).hasSize(1);
+        assertThat(deliverables.get(0)).isEqualTo(deliverable);
     }
 }
