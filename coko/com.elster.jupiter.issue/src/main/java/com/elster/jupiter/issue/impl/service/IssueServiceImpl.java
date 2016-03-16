@@ -1,5 +1,7 @@
 package com.elster.jupiter.issue.impl.service;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
@@ -14,6 +16,8 @@ import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
+import com.elster.jupiter.issue.share.IssueFilter;
+import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.Entity;
@@ -30,7 +34,8 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.share.service.IssueGroupFilter;
+import com.elster.jupiter.issue.impl.IssueFilterImpl;
+import com.elster.jupiter.issue.impl.IssueGroupFilterImpl;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
@@ -50,6 +55,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
@@ -413,7 +419,7 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
 
     @Override
     public List<IssueGroup> getIssueGroupList(IssueGroupFilter filter) {
-        return IssuesGroupOperation.from(filter, this.dataModel, thesaurus).execute();
+        return IssuesGroupOperation.from(filter, this.dataModel/*, this.meteringGroupsService*/, thesaurus).execute();
     }
 
     @Override
@@ -491,5 +497,89 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     @Override
     public List<IssueCreationValidator> getIssueCreationValidators() {
         return issueCreationValidators;
+    }
+
+    @Override
+    public Finder<? extends Issue> findIssues(IssueFilter filter, Class<?>... eagers) {
+        Condition condition = buildConditionFromFilter(filter);
+        List<Class<?>> eagerClasses = determineMainApiClass(filter);
+        if (eagers == null) {
+            eagerClasses.addAll(Arrays.asList(IssueStatus.class, EndDevice.class, User.class, IssueReason.class, IssueType.class));
+        } else {
+            eagerClasses.addAll(Arrays.asList(eagers));
+        }
+        return DefaultFinder.of((Class<Issue>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
+    }
+
+    @Override
+    public Optional<? extends Issue> findAndLockIssueByIdAndVersion(long id, long version) {
+        Optional<? extends Issue> issue = findOpenIssue(id);
+        if (issue.isPresent()) {
+            return dataModel.mapper(OpenIssue.class).lockObjectIfVersion(version, id);
+        }
+        return dataModel.mapper(HistoricalIssue.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public IssueFilter newIssueFilter() {
+        return new IssueFilterImpl();
+    }
+
+    @Override
+    public IssueGroupFilter newIssueGroupFilter() {
+        return new IssueGroupFilterImpl();
+    }
+
+    private List<Class<?>> determineMainApiClass(IssueFilter filter) {
+        List<Class<?>> eagerClasses = new ArrayList<>();
+        List<IssueStatus> statuses = filter.getStatuses();
+        if (!statuses.isEmpty() && statuses.stream().allMatch(status -> !status.isHistorical())) {
+            eagerClasses.add(OpenIssue.class);
+        } else if (!statuses.isEmpty() && statuses.stream().allMatch(IssueStatus::isHistorical)) {
+            eagerClasses.add(HistoricalIssue.class);
+        } else {
+            eagerClasses.add(Issue.class);
+        }
+        return eagerClasses;
+    }
+
+    private Condition buildConditionFromFilter(IssueFilter filter) {
+        Condition condition = Condition.TRUE;
+        //filter by assignee
+        if (!filter.getAssignees().isEmpty()) {
+            condition = condition.and(where("user").in(filter.getAssignees()));
+            if (filter.isUnassignedSelected()) {
+                condition = condition.or(where("user").isNull());
+            }
+        }
+        if (filter.getAssignees().isEmpty() && filter.isUnassignedSelected()) {
+            condition = condition.and(where("user").isNull());
+        }
+        //filter by reason
+        if (!filter.getIssueReasons().isEmpty()) {
+            condition = condition.and(where("reason").in(filter.getIssueReasons()));
+        }
+        //filter by device
+        if (!filter.getDevices().isEmpty()) {
+            condition = condition.and(where("device").in(filter.getDevices()));
+        }
+        //filter by statuses
+        if (!filter.getStatuses().isEmpty()) {
+            condition = condition.and(where("status").in(filter.getStatuses()));
+        }
+        //filter by issue types
+        if (!filter.getIssueTypes().isEmpty()) {
+            condition = condition.and(where("reason.issueType").in(filter.getIssueTypes()));
+        }
+        //filter by due dates
+        if (!filter.getDueDates().isEmpty()) {
+            Condition dueDateCondition = Condition.FALSE;
+            for(int i=0; i<filter.getDueDates().size(); i++) {
+                dueDateCondition = dueDateCondition.or(where("dueDate").isGreaterThanOrEqual(filter.getDueDates().get(i).getStartTimeAsInstant())
+                        .and(where("dueDate").isLessThan(filter.getDueDates().get(i).getEndTimeAsInstant())));
+            }
+            condition = condition.and(dueDateCondition);
+        }
+        return condition;
     }
 }

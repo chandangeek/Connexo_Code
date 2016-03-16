@@ -1,6 +1,8 @@
 package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
@@ -151,11 +153,13 @@ public abstract class BaseTest {
                 new UserModule(),
                 new FiniteStateMachineModule(),
                 new IssueModule(),
-                new BasicPropertiesModule()
+                new BasicPropertiesModule(),
+                new CustomPropertySetsModule()
         );
 
         TransactionService transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             issueService = injector.getInstance(IssueService.class);
             injector.getInstance(DummyIssueProvider.class);
@@ -320,6 +324,12 @@ public abstract class BaseTest {
         @Override
         public Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue) {
             return Optional.of(issue);
+        }
+
+        @Override
+        public Optional<? extends Issue> findIssue(long id) {
+            Issue spyIssue = mock(Issue.class);
+            return Optional.of(spyIssue);
         }
     }
 

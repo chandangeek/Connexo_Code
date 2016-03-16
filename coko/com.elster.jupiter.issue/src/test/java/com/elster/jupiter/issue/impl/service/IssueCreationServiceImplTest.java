@@ -33,8 +33,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -405,6 +406,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         IssueCreationServiceImpl impl = IssueCreationServiceImpl.class.cast(getIssueCreationService());
         IssueEvent event = getMockIssueEvent();
         when(event.findExistingIssue()).thenReturn(Optional.empty());
+        when(event.getEndDevice()).thenReturn(Optional.empty());
         impl.dispatchCreationEvent(Collections.singletonList(event));
 
         impl.processIssueCreationEvent(rule.getId(), event);

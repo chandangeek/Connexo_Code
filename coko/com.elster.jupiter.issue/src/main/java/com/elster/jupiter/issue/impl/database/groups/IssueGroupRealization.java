@@ -16,6 +16,39 @@ public enum IssueGroupRealization {
         IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus) {
             return new GroupByReasonImpl(dataModel, thesaurus);
         }
+    },
+    STATUS {
+        @Override
+        public String getKey() {
+            return "status";
+        }
+
+        @Override
+        IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus) {
+            return new GroupByStatusImpl(dataModel, thesaurus);
+        }
+    },
+    ASSIGNEE {
+        @Override
+        public String getKey() {
+            return "assignee";
+        }
+
+        @Override
+        IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus) {
+            return new GroupByAssigneeImpl(dataModel, thesaurus);
+        }
+    },
+    TYPE {
+        @Override
+        public String getKey() {
+            return "issueType";
+        }
+
+        @Override
+        IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus) {
+            return new GroupByIssueTypeImpl(dataModel, thesaurus);
+        }
     };
 
     abstract String getKey();

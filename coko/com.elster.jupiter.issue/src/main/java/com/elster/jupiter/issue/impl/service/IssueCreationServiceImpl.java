@@ -24,6 +24,7 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.io.KieResources;
@@ -48,7 +49,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @SuppressWarnings("deprecation")
 public class IssueCreationServiceImpl implements IssueCreationService {
     public static final Logger LOG = Logger.getLogger(IssueCreationServiceImpl.class.getName());
-    
+
     public static final String ISSUE_CREATION_SERVICE = "issueCreationService";
     public static final String LOGGER = "LOGGER";
 
@@ -66,10 +67,10 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     //for test purpose only
     public IssueCreationServiceImpl() {
     }
-    
+
     @Inject
     public IssueCreationServiceImpl(
-            DataModel dataModel, 
+            DataModel dataModel,
             IssueService issueService,
             QueryService queryService,
             UserService userService,
@@ -86,7 +87,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         this.resourceFactoryService = resourceFactoryService;
         this.thesaurus = thesaurus;
     }
-    
+
     @Override
     public CreationRuleBuilder newCreationRule() {
         return new CreationRuleBuilderImpl(dataModel, dataModel.getInstance(CreationRuleImpl.class));
@@ -96,7 +97,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     public Optional<CreationRule> findCreationRuleById(long id) {
         return find(CreationRule.class, id);
     }
-    
+
     @Override
     public Optional<CreationRule> findAndLockCreationRuleByIdAndVersion(long id, long version) {
         return dataModel.mapper(CreationRule.class).lockObjectIfVersion(version, id);
@@ -138,7 +139,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
              */
             //ksession.addEventListener(new DebugAgendaEventListener());
             //ksession.addEventListener(new DebugRuleRuntimeEventListener());
-            
+
             try {
                 ksession.setGlobal(ISSUE_CREATION_SERVICE, this);
                 ksession.setGlobal(LOGGER, LOG);
@@ -157,10 +158,11 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     @Override
     public void processIssueCreationEvent(long ruleId, IssueEvent event) {
         // Sometimes we need to restrict issue creation due to global reasons (common for all type of issues)
-        if (restrictIssueCreation(event)){
-            LOG.info("Issue creation for device " + event.getEndDevice().getMRID() + " was restricted");
-            return;
-        }
+        if (event.getEndDevice().isPresent() && restrictIssueCreation(event)) {
+                LOG.info("Issue creation for device " + event.getEndDevice().get().getMRID() + " was restricted");
+                return;
+            }
+
         findCreationRuleById(ruleId).ifPresent(firedRule -> {
             CreationRuleTemplate template = firedRule.getTemplate();
             Optional<? extends OpenIssue> existingIssue = event.findExistingIssue();
@@ -179,7 +181,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         baseIssue.setDueDate(Instant.ofEpochMilli(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
         baseIssue.setOverdue(false);
         baseIssue.setRule(firedRule);
-        baseIssue.setDevice(event.getEndDevice());
+        event.getEndDevice().ifPresent(baseIssue::setDevice);
         baseIssue.save();
         baseIssue.addComment(firedRule.getComment(), userService.findUser("batch executor").orElse(null));
         OpenIssue newIssue = template.createIssue(baseIssue, event);
