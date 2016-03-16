@@ -206,9 +206,9 @@ public class MetrologyConfigurationServiceImpl implements MetrologyConfiguration
     }
 
     @Override
-    public ReadingTypeDeliverable createReadingTypeDeliverable(MetrologyContract contract, ReadingType readingType, Formula formula) {
+    public ReadingTypeDeliverable createReadingTypeDeliverable(String name, MetrologyContract contract, ReadingType readingType, Formula formula) {
         ReadingTypeDeliverableImpl deliverable = getDataModel().getInstance(ReadingTypeDeliverableImpl.class)
-                .init(contract, readingType, formula);
+                .init(name, contract, readingType, formula);
         deliverable.save();
         return deliverable;
     }

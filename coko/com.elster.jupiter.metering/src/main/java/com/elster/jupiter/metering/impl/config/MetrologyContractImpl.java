@@ -32,6 +32,7 @@ public class MetrologyContractImpl implements MetrologyContract {
         }
     }
 
+    private long id;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private final Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")

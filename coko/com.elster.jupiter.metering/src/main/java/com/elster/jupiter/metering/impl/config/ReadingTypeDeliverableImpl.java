@@ -63,7 +63,8 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable {
         this.eventService = eventService;
     }
 
-    public ReadingTypeDeliverableImpl init(MetrologyContract metrologyContract, ReadingType readingType, Formula formula) {
+    public ReadingTypeDeliverableImpl init(String name, MetrologyContract metrologyContract, ReadingType readingType, Formula formula) {
+        this.name = name;
         this.metrologyContract.set(metrologyContract);
         this.readingType.set(readingType);
         this.formula.set(formula);

@@ -878,24 +878,27 @@ public enum TableSpecs {
             table.column("CONSTANTVALUE").number().map("constantValue").add();
 
             // ReadingTypeDeliverableNode readingTypeDeliverable value
-            Column readingTypeDeliverableColumn = table.column("READINGTYPE_DELIVERABLE").number().add();
+            //todo add foreign key
+            Column readingTypeDeliverableIdColumn = table.column("READINGTYPE_DELIVERABLE").number().conversion(NUMBER2LONG).map("readingTypeDeliverable").add();
+
             // ReadingTypeRequirementNode readingTypeRequirement value
-            Column readingTypeRequirementColumn = table.column("READINGTYPE_REQUIREMENT").number().add();
+            //todo add foreign key
+            Column readingTypeRequirementIdColumn = table.column("READINGTYPE_REQUIREMENT").number().conversion(NUMBER2LONG).map("readingTypeRequirement").add();
 
             table.primaryKey("MTR_PK_FORMULA_NODE").on(idColumn).add();
 
             table.foreignKey("MTR_VALIDCHILD").references(MTR_FORMULA_NODE.name()).on(parentColumn).onDelete(CASCADE)
                     .map("parent").reverseMap("children").reverseMapOrder("argumentIndex").add();
-            table.foreignKey("MTR_FORMULA_TO_DELIVERABLE")
-                    .references(ReadingTypeDeliverable.class)
-                    .on(readingTypeDeliverableColumn)
-                    .map("readingTypeDeliverable")
-                    .add();
-            table.foreignKey("MTR_FORMULA_TO_RT_REQ")
-                    .references(ReadingTypeRequirement.class)
-                    .on(readingTypeRequirementColumn)
-                    .map("readingTypeRequirement")
-                    .add();
+//            table.foreignKey("MTR_FORMULA_TO_DELIVERABLE")
+//                    .references(MTR_RT_DELIVERABLE.name())
+//                    .on(readingTypeDeliverableIdColumn)
+//                    .map("readingTypeDeliverable")
+//                    .add();
+//            table.foreignKey("MTR_FORMULA_TO_RT_REQ")
+//                    .references(MTR_RT_REQUIREMENT.name())
+//                    .on(readingTypeRequirementIdColumn)
+//                    .map("readingTypeRequirement")
+//                    .add();
         }
     },
     MTR_FORMULA {
@@ -1144,6 +1147,7 @@ public enum TableSpecs {
             Table table = dataModel.addTable(name(), MetrologyContract.class);
             table.map(MetrologyContractImpl.class);
 
+            Column idColumn = table.addAutoIdColumn();
             Column metrologyConfigColumn = table
                     .column(MetrologyContractImpl.Fields.METROLOGY_CONFIG.name())
                     .number()
@@ -1160,7 +1164,8 @@ public enum TableSpecs {
                     .map(MetrologyContractImpl.Fields.MANDATORY.fieldName())
                     .add();
 
-            table.primaryKey("MTR_METROLOGY_CONTRACT_PK").on(metrologyConfigColumn, metrologyPurposeColumn).add();
+            table.primaryKey("MTR_METROLOGY_CONTRACT_PK").on(idColumn).add();
+            table.unique("MTR_METROLOGY_CONTRACT_UQ").on(metrologyConfigColumn, metrologyPurposeColumn).add();
             table.foreignKey("MTR_CONTRACT_TO_M_CONFIG")
                     .references(MetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
@@ -1196,6 +1201,7 @@ public enum TableSpecs {
             Column readingTypeColumn = table
                     .column(ReadingTypeDeliverableImpl.Fields.READING_TYPE.name())
                     .varChar(NAME_LENGTH)
+                    .notNull()
                     .add();
             Column formulaColumn = table
                     .column(ReadingTypeDeliverableImpl.Fields.FORMULA.name())

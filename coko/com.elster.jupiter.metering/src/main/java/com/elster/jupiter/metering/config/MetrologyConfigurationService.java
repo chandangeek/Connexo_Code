@@ -52,7 +52,7 @@ public interface MetrologyConfigurationService {
 
     List<MetrologyPurpose> getMetrologyPurposes();
 
-    ReadingTypeDeliverable createReadingTypeDeliverable(MetrologyContract contract, ReadingType readingType, Formula formula);
+    ReadingTypeDeliverable createReadingTypeDeliverable(String name, MetrologyContract contract, ReadingType readingType, Formula formula);
 
     Optional<ReadingTypeDeliverable> findReadingTypeDeliverable(long id);
 
