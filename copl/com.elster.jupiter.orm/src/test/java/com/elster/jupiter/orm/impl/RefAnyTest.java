@@ -10,19 +10,24 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.osgi.framework.BundleContext;
 
 import java.security.Principal;
 import java.sql.SQLException;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -37,6 +42,7 @@ public class RefAnyTest {
     @Before
     public void setUp() {
 		injector = Guice.createInjector(
+                    new MockModule(),
 					inMemoryBootstrapModule,
         			new UtilModule(),
         			new ThreadSecurityModule(principal),
@@ -61,6 +67,13 @@ public class RefAnyTest {
     	assertThat(tableHolder.isPresent()).isTrue();
     	RefAny refAny = injector.getInstance(OrmService.class).getDataModels().get(0).asRefAny(tableHolder.get());
     	assertThat(refAny.isPresent()).isTrue();
+    }
+
+    private static class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+        }
     }
 
 }
