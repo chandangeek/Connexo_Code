@@ -57,7 +57,7 @@ Ext.define('Apr.view.taskoverview.TaskPreview', {
                                     layout: 'vbox',
                                     defaults: {
                                         xtype: 'displayfield',
-                                        labelWidth: 200
+                                        labelWidth: 250
                                     },
                                     items: [
                                         {

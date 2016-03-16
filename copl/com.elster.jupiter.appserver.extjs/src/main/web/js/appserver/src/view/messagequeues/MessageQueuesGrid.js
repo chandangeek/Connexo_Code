@@ -24,7 +24,7 @@ Ext.define('Apr.view.messagequeues.MessageQueuesGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.retires', 'APR', 'Retries'),
+                header: Uni.I18n.translate('general.retries', 'APR', 'Retries'),
                 dataIndex: 'numberOfRetries',
                 flex: 1,
                 editor: {
