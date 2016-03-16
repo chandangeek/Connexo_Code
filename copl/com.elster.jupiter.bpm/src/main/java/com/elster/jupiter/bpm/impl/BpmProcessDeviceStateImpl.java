@@ -10,27 +10,28 @@ import java.time.Instant;
 
 public class BpmProcessDeviceStateImpl implements BpmProcessDeviceState {
 
+    private final DataModel dataModel;
     private long processId;
     private long deviceStateId;
     private long deviceLifeCycleId;
     private String name;
     private String deviceState;
-    private final DataModel dataModel;
     private BpmProcessDefinition bpmProcessDefinition;
 
     @SuppressWarnings("unused")
     private Instant createTime;
 
     @Inject
-    public BpmProcessDeviceStateImpl(DataModel dataModel){
+    public BpmProcessDeviceStateImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-    static BpmProcessDeviceStateImpl from(DataModel dataModel, BpmProcessDefinition processDefinition, long deviceStateId, long deviceLifeCycleId, String name, String deviceState){
-        return dataModel.getInstance(BpmProcessDeviceStateImpl.class).init(processDefinition, deviceStateId, deviceLifeCycleId, name, deviceState);
+    static BpmProcessDeviceStateImpl from(DataModel dataModel, BpmProcessDefinition processDefinition, long deviceStateId, long deviceLifeCycleId, String name, String deviceState) {
+        return dataModel.getInstance(BpmProcessDeviceStateImpl.class)
+                .init(processDefinition, deviceStateId, deviceLifeCycleId, name, deviceState);
     }
 
-    private BpmProcessDeviceStateImpl init(BpmProcessDefinition processDefinition, long deviceStateId, long deviceLifeCycleId, String name, String deviceState){
+    private BpmProcessDeviceStateImpl init(BpmProcessDefinition processDefinition, long deviceStateId, long deviceLifeCycleId, String name, String deviceState) {
         this.bpmProcessDefinition = processDefinition;
         this.processId = processDefinition.getId();
         this.setDeviceStateId(deviceStateId);

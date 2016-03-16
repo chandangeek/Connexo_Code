@@ -1,35 +1,53 @@
 package com.elster.jupiter.bpm;
 
 
+import com.elster.jupiter.properties.HasDynamicPropertiesWithValues;
+
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-public interface BpmProcessDefinition {
+@ProviderType
+public interface BpmProcessDefinition extends HasDynamicPropertiesWithValues {
 
-    public void revokePrivileges(List<BpmProcessPrivilege> processPrivileges);
+    void revokePrivileges(List<BpmProcessPrivilege> processPrivileges);
 
+    @Deprecated
     void revokeProcessDeviceStates(List<BpmProcessDeviceState> processDeviceStates);
 
+    @Deprecated
     void grantProcessDeviceStates(List<BpmProcessDeviceState> processDeviceStates);
 
     void grantPrivileges(List<BpmProcessPrivilege> targetPrivileges);
 
-    public long getId();
+    long getId();
 
-    public String getProcessName();
+    String getProcessName();
 
     public String getAssociation();
 
-    public String getVersion();
+    void setAssociation(String association);
 
-    public String getStatus();
+    Optional<ProcessAssociationProvider> getAssociationProvider();
+
+    String getVersion();
+
+    String getStatus();
+
+    void setStatus(String status);
 
     void save();
-
-    public void setStatus(String status);
 
     void delete();
 
     List<BpmProcessPrivilege> getPrivileges();
 
+    void setPrivileges(List<BpmProcessPrivilege> targetPrivileges);
+
+    @Deprecated
     List<BpmProcessDeviceState> getProcessDeviceStates();
+
+    void setProperties(Map<String, Object> propertyMap);
 }
