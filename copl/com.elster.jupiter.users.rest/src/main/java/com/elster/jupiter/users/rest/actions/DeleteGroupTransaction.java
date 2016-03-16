@@ -6,6 +6,8 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
 
+import java.util.Optional;
+
 public class DeleteGroupTransaction extends VoidTransaction {
     private final GroupInfo info;
     private final UserService userService;
@@ -19,18 +21,13 @@ public class DeleteGroupTransaction extends VoidTransaction {
 
     @Override
     protected void doPerform() {
-        Group group = findAndLockGroupByIdAndVersion(info);
-        doDelete(group);
+        Optional<Group> group = userService.findAndLockGroupByIdAndVersion(info.id, info.version);
+        if (group.isPresent()) {
+            doDelete(group.get());
+        }
     }
 
     private void doDelete(Group group) {
         group.delete();
-    }
-
-    private Group findAndLockGroupByIdAndVersion(GroupInfo info) {
-        return userService.findAndLockGroupByIdAndVersion(info.id, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                        .withActualVersion(() -> userService.getGroup(info.id).map(Group::getVersion).orElse(null))
-                        .supplier());
     }
 }
