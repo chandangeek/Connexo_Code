@@ -2,10 +2,13 @@ Ext.define('Idv.controller.Detail', {
     extend: 'Isu.controller.IssueDetail',
 
     stores: [
-        'Idv.store.Issues',
         'Isu.store.IssueActions',
         'Isu.store.Clipboard',
         'Idv.store.NonEstimatedDataStore'
+    ],
+
+    models: [
+        'Idv.model.Issue'
     ],
 
     views: [
@@ -21,7 +24,7 @@ Ext.define('Idv.controller.Detail', {
         },
         {
             ref: 'detailForm',
-            selector: 'data-validation-issue-detail #data-validation-issue-detail-form'
+            selector: 'data-validation-issue-detail data-validation-issue-detail-form'
         },
         {
             ref: 'commentsPanel',
@@ -71,48 +74,6 @@ Ext.define('Idv.controller.Detail', {
                     }
                 }
             }
-        });
-    },
-
-    showOverview: function (id) {
-        var me = this,
-            router = this.getController('Uni.controller.history.Router');
-
-        me.callParent([id, 'Idv.model.Issue', 'Idv.store.Issues', 'data-validation-issue-detail', 'workspace/datavalidationissues', 'datavalidation']);
-        me.getApplication().on('issueLoad', function(record) {
-            if (record.raw.notEstimatedData) {
-                var data = [],
-                    panel = me.getPage().getCenterContainer().down('#no-estimated-data-panel'),
-                    store, widget;
-
-                record.raw.notEstimatedData.map(function(item) {
-                    item.notEstimatedBlocks.map(function(block) {
-                        data.push(Ext.apply({}, {
-                            mRID: item.readingType.mRID,
-                            channelId: item.channelId,
-                            registerId: item.registerId,
-                            readingType: item.readingType
-                        }, block))
-                    });
-                });
-
-                if (data.length) {
-                    store = Ext.create('Idv.store.NonEstimatedDataStore', {data: data});
-                    widget = Ext.widget('no-estimated-data-grid', {store: store, router: router, issue: record});
-                } else {
-                    widget = Ext.widget('no-items-found-panel', {
-                        title: Uni.I18n.translate('issues.validationBlocks.empty.title', 'IDV', 'No validation blocks are available'),
-                        reasons: [
-                            Uni.I18n.translate('issues.validationBlocks.empty.reason1', 'IDV', 'No open validation issues.')
-                        ]
-                    });
-                }
-
-                panel.removeAll();
-                panel.add(widget);
-            }
-        }, me, {
-            single: true
         });
     }
 });
