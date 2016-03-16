@@ -6,10 +6,8 @@ import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.AmiBillingReadyKind;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleTranslationKey;
@@ -54,7 +52,8 @@ public class MeteringApplication extends Application implements TranslationKeyPr
                 UsagePointResource.class,
                 DeviceResource.class,
                 ReadingTypeResource.class,
-                ReadingTypeFieldResource.class,
+                MeteringFieldResource.class,
+                ServiceCategoryResource.class,
                 EndDeviceEventTypeResource.class);
     }
 
@@ -148,6 +147,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
             bind(thesaurus).to(MessageInterpolator.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
+            bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
         }
     }
 }

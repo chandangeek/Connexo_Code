@@ -8,7 +8,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
-import com.elster.jupiter.metering.rest.UsagePointInfo;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -16,6 +15,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Range;
@@ -64,7 +64,8 @@ public class UsagePointResource {
     }
 
     @GET
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getUsagePoints(@Context SecurityContext securityContext,
                                           @BeanParam JsonQueryParameters queryParameters,
@@ -82,21 +83,21 @@ public class UsagePointResource {
     }
 
     private boolean maySeeAny(SecurityContext securityContext) {
-        return securityContext.isUserInRole(Privileges.Constants.BROWSE_ANY);
+        return securityContext.isUserInRole(Privileges.Constants.VIEW_ANY_USAGEPOINT);
     }
 
     @PUT
-    @RolesAllowed({Privileges.Constants.ADMIN_OWN, Privileges.Constants.ADMIN_ANY})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public UsagePointInfos updateUsagePoint(@PathParam("id") long id, UsagePointInfo info, @Context SecurityContext securityContext) {
         info.id = id;
-        transactionService.execute(new UpdateUsagePointTransaction(info, securityContext.getUserPrincipal(), meteringService, clock, conflictFactory));
-        return getUsagePoint(info.id, securityContext);
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @GET
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public UsagePointInfos getUsagePoint(@PathParam("id") long id, @Context SecurityContext securityContext) {
@@ -107,17 +108,16 @@ public class UsagePointResource {
     }
 
     @POST
-    @RolesAllowed({Privileges.Constants.ADMIN_ANY})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public UsagePointInfos createUsagePoint(UsagePointInfo info) {
         UsagePointInfos result = new UsagePointInfos();
-        result.add(transactionService.execute(new CreateUsagePointTransaction(info, meteringService, clock)), clock);
-        return result;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @GET
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Path("/{id}/meteractivations")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public MeterActivationInfos getMeterActivations(@PathParam("id") long id, @Context SecurityContext securityContext) {
@@ -126,7 +126,7 @@ public class UsagePointResource {
     }
 
     @GET
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Path("/{id}/meteractivations/{activationId}/channels")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public ChannelInfos getChannels(@PathParam("id") long id, @PathParam("activationId") long activationId, @Context SecurityContext securityContext) {
@@ -145,7 +145,7 @@ public class UsagePointResource {
     }
 
     @GET
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Path("/{id}/meteractivations/{activationId}/channels/{channelId}/intervalreadings")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public ReadingInfos getIntervalReadings(@PathParam("id") long id, @PathParam("activationId") long activationId, @PathParam("channelId") long channelId, @QueryParam("from") long from, @QueryParam("to") long to, @Context SecurityContext securityContext) {
@@ -169,7 +169,7 @@ public class UsagePointResource {
     }
 
     @GET
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Path("/{id}/readingtypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public ReadingTypeInfos getReadingTypes(@PathParam("id") long id, @Context SecurityContext securityContext) {
@@ -179,14 +179,14 @@ public class UsagePointResource {
 
     @GET
     @Path("/readingtypes")
-    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTRATE_READINGTYPE})
+    @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public ReadingTypeInfos getReadingTypes(@Context UriInfo uriInfo) {
         return new ReadingTypeInfos(meteringService.getAvailableReadingTypes());
     }
 
     @GET
-    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Path("/{id}/readingtypes/{mrid}/readings")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public ReadingInfos getReadingTypeReadings(@PathParam("id") long id, @PathParam("mrid") String mRID, @QueryParam("from") long from, @QueryParam("to") long to, @Context SecurityContext securityContext) {
@@ -232,7 +232,8 @@ public class UsagePointResource {
     private UsagePoint fetchUsagePoint(String mRid, SecurityContext securityContext) {
         Optional<UsagePoint> found = meteringService.findUsagePoint(mRid);
         UsagePoint usagePoint = found.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal()).hasPrivilege("MTR",Privileges.Constants.BROWSE_ANY)) {
+        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal())
+                .hasPrivilege("MTR", Privileges.Constants.VIEW_ANY_USAGEPOINT)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
         return usagePoint;

@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import com.elster.jupiter.metering.rest.UsagePointInfo;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import java.util.Arrays;
