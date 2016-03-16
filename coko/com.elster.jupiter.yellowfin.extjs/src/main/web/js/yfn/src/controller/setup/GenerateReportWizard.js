@@ -941,7 +941,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
             case 'LINKFILTER': return Uni.I18n.translate('generatereport.filterTypeLINKFILTER', 'YFN', 'Link to Filter');
             case 'CONTAINS': return Uni.I18n.translate('generatereport.filterTypeCONTAINS', 'YFN', 'Contains');
             case 'NOTCONTAINS': return Uni.I18n.translate('generatereport.filterTypeNOTCONTAINS', 'YFN', 'Does not contain');
-                return filterType;
+            default: return filterType;
         }
     },
     getDefaultDateValue:function(defaultDateValue){
