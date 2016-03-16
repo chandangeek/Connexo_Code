@@ -141,32 +141,6 @@ public class IssueDataValidationApplicationJerseyTest extends FelixRestApplicati
         return user;
     }
 
-    protected User getDefaultUser() {
-        return mockUser(1, "Admin");
-    }
-
-    protected IssueAction mockIssueAction(String name) {
-        IssueAction action = mock(IssueAction.class);
-        when(action.getDisplayName()).thenReturn(name);
-        when(action.getPropertySpecs()).thenReturn(Collections.emptyList());
-        return action;
-    }
-
-    protected IssueActionType mockIssueActionType(long id, String name, IssueType issueType) {
-        IssueActionType type = mock(IssueActionType.class);
-        IssueAction action = mockIssueAction(name);
-        when(type.getId()).thenReturn(id);
-        when(type.createIssueAction()).thenReturn(Optional.of(action));
-        when(type.getIssueType()).thenReturn(issueType);
-        when(issueActionService.findActionType(id)).thenReturn(Optional.of(type));
-        return type;
-    }
-
-    protected IssueActionType getDefaultIssueActionType() {
-        IssueType issueType = getDefaultIssueType();
-        return mockIssueActionType(1, "send", issueType);
-    }
-
     protected OpenIssueDataValidation getDefaultIssue() {
         return mockIssue(1L, getDefaultReason(), getDefaultStatus(), getDefaultAssignee(), getDefaultDevice());
     }
@@ -183,15 +157,5 @@ public class IssueDataValidationApplicationJerseyTest extends FelixRestApplicati
         when(issue.getModTime()).thenReturn(Instant.EPOCH);
         when(issue.getVersion()).thenReturn(1L);
         return issue;
-    }
-
-    protected IssueComment mockComment(long id, String text, User user) {
-        IssueComment comment = mock(IssueComment.class);
-        when(comment.getId()).thenReturn(id);
-        when(comment.getComment()).thenReturn(text);
-        when(comment.getCreateTime()).thenReturn(Instant.EPOCH);
-        when(comment.getVersion()).thenReturn(1L);
-        when(comment.getUser()).thenReturn(user);
-        return comment;
     }
 }
