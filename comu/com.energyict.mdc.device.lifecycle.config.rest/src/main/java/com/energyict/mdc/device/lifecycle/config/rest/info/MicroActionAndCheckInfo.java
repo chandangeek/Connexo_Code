@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.rest.info;
 
-import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 public class MicroActionAndCheckInfo {
 
