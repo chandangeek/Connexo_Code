@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.elster.jupiter.util.streams.Currying.perform;
+
 class TransientDestinationSpec implements DestinationSpec {
 
     private final QueueTableSpec queueTableSpec;
@@ -172,6 +174,13 @@ class TransientDestinationSpec implements DestinationSpec {
     }
 
     @Override
+    public void purgeCorrelationId(String correlationId) {
+       subscribers
+               .stream()
+               .forEach(perform(TransientSubscriberSpec::removeMessagesWithCorrelationId).with(correlationId));
+    }
+
+    @Override
     public long errorCount() {
         return 0;
     }
@@ -184,6 +193,7 @@ class TransientDestinationSpec implements DestinationSpec {
     private class TransientMessageBuilder implements MessageBuilder {
 
         private final byte[] data;
+        private String correlationId;
 
         public TransientMessageBuilder(String text) {
             data = text.getBytes();
@@ -197,7 +207,9 @@ class TransientDestinationSpec implements DestinationSpec {
         @Override
         public void send() {
             for (TransientSubscriberSpec subscriber : subscribers) {
-                subscriber.addMessage(new TransientMessage(data));
+                TransientMessage message = new TransientMessage(data);
+                message.setCorrelationId(correlationId);
+                subscriber.addMessage(message);
             }
 
         }
@@ -209,6 +221,7 @@ class TransientDestinationSpec implements DestinationSpec {
 
         @Override
         public MessageBuilder withCorrelationId(String correlationId) {
+            this.correlationId = correlationId;
             return this;
         }
     }

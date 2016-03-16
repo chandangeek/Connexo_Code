@@ -7,6 +7,7 @@ import java.util.Arrays;
 class TransientMessage implements Message {
 
     private final byte[] data;
+    private String correlationId;
 
     public TransientMessage(byte[] data) {
         this.data = Arrays.copyOf(data, data.length);
@@ -15,5 +16,13 @@ class TransientMessage implements Message {
     @Override
     public byte[] getPayload() {
         return Arrays.copyOf(data, data.length);
+    }
+
+    String getCorrelationId() {
+        return correlationId;
+    }
+
+    void setCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
     }
 }
