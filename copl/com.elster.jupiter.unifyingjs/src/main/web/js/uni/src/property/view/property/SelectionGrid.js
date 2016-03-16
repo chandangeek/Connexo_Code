@@ -138,7 +138,13 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
 
     getValue: function () {
         var me = this,
-            result = me.recordsToIds(me.down('grid').getSelectionModel().getSelection());
+            grid = me.down('grid'),
+            result = [];
+
+        if (grid) {
+            result = me.recordsToIds(grid.getSelectionModel().getSelection());
+        }
+
         return result.length ? result : null;
     },
 
