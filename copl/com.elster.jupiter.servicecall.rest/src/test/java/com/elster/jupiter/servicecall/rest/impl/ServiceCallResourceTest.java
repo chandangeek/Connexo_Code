@@ -1,6 +1,5 @@
 package com.elster.jupiter.servicecall.rest.impl;
 
-import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.servicecall.DefaultState;
@@ -20,8 +19,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.Test;
-
-import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -93,8 +90,11 @@ public class ServiceCallResourceTest extends ServiceCallApplicationTest {
         when(serviceCallService.getServiceCall(1)).thenReturn(Optional.of(serviceCall));
         when(serviceCallService.getServiceCallFinder(any(ServiceCallFilter.class))).thenReturn(finder);
         when(serviceCall.findChildren(any(ServiceCallFilter.class))).thenReturn(childrenFinder);
+        when(serviceCall.getTargetObject()).thenReturn(Optional.empty());
         when(child.findChildren(any(ServiceCallFilter.class))).thenReturn(childrenOfChildFinder);
+        when(child.getTargetObject()).thenReturn(Optional.empty());
         when(serviceCallService.getServiceCall(2)).thenReturn(Optional.of(child));
+        when(referenceResolver.resolve(any())).thenReturn(Optional.empty());
     }
 
     private ServiceCall mockServiceCall(long id) {
