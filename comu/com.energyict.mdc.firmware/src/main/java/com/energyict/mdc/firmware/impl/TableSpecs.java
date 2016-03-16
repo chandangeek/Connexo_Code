@@ -102,6 +102,8 @@ public enum TableSpecs {
             table.column("FIRMWARE_TYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(FirmwareCampaignImpl.Fields.FIRMWARE_TYPE.fieldName()).notNull().add();
             table.column("STARTED_ON").number().map(FirmwareCampaignImpl.Fields.STARTED_ON.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("FINISHED_ON").number().map(FirmwareCampaignImpl.Fields.FINISHED_ON.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
+            table.column("COMWINDOWSTART").number().conversion(ColumnConversion.NUMBER2INT).map(FirmwareCampaignImpl.Fields.COMWINDOW_START.fieldName()).add();
+            table.column("COMWINDOWEND").number().conversion(ColumnConversion.NUMBER2INT).map(FirmwareCampaignImpl.Fields.COMWINDOW_END.fieldName()).add();
 
             table.addAuditColumns();
 

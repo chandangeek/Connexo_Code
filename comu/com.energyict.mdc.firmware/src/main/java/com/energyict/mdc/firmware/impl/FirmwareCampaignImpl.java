@@ -1,5 +1,6 @@
 package com.energyict.mdc.firmware.impl;
 
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -54,6 +55,8 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         DEVICES ("devices"),
         PROPERTIES ("properties"),
         DEVICES_STATUS ("devicesStatus"),
+        COMWINDOW_START ("comWindow.start.millis"),
+        COMWINDOW_END ("comWindow.end.millis"),
         ;
 
         private String name;
@@ -83,6 +86,8 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     private FirmwareType firmwareType;
     private Instant startedOn;
     private Instant finishedOn;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    private ComWindow comWindow;
     @Valid
     private List<DeviceInFirmwareCampaign> devices = new ArrayList<>();
     private List<FirmwareCampaignProperty> properties = new ArrayList<>();
@@ -324,5 +329,15 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
 
     public Instant getModTime() {
         return modTime;
+    }
+
+    @Override
+    public ComWindow getComWindow() {
+        return comWindow;
+    }
+
+    @Override
+    public void setComWindow(ComWindow window) {
+        this.comWindow = window;
     }
 }
