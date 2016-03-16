@@ -198,8 +198,8 @@ public class NlsServiceIT {
 
     @Test
     public void getStringAfterCopy() {
-        String key = "copyInvalidatesThesaurus";
-        String expectedTranslation = "Translation for: copyInvalidatesThesaurus";
+        String key = "getStringAfterCopy";
+        String expectedTranslation = "Translation for: getStringAfterCopy";
         NlsService nlsService = injector.getInstance(NlsService.class);
         injector.getInstance(TransactionService.class).execute(new VoidTransaction() {
             @Override
@@ -212,7 +212,7 @@ public class NlsServiceIT {
                         .add();
             }
         });
-        IThesaurus thesaurus = (IThesaurus) nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
+        Thesaurus thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
         thesaurus.getString(key, "no translation yet");
         NlsKey nlsKey = mock(NlsKey.class);
         when(nlsKey.getComponent()).thenReturn(COMPONENT_NAME);

@@ -260,7 +260,6 @@ public class NlsServiceImpl implements NlsService, InstallService {
     private NlsKeyImpl newNlsKey(String component, Layer layer, String key, String defaultFormat) {
         NlsKeyImpl nlsKey = dataModel.getInstance(NlsKeyImpl.class).init(component, layer, key);
         nlsKey.setDefaultMessage(defaultFormat);
-        nlsKey.add(Locale.ENGLISH, defaultFormat);
         return nlsKey;
     }
 
