@@ -3,13 +3,17 @@ Ext.define('Dbp.controller.Main', {
 
     requires: [
         'Uni.controller.Navigation',
-        'Uni.store.PortalItems'
+        'Uni.store.PortalItems',
+        'Dbp.processes.controller.Processes'
     ],
 
     controllers: [
         'Dbp.controller.History',
-        'Dbp.startprocess.controller.StartProcess',
-        'Dbp.monitorprocesses.controller.MonitorProcesses'
+        'Dbp.processes.controller.Processes'
+    ],
+
+    stores: [
+        'Dbp.processes.store.Processes'
     ],
 
     refs: [
