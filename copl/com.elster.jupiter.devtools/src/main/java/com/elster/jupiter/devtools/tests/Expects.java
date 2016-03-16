@@ -81,6 +81,14 @@ public enum Expects {
             } finally {
                 finisher.run();
                 executorService.shutdownNow();
+                try {
+                    executorService.awaitTermination(5, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                if (!executorService.isTerminated()) {
+                    fail("Failed to properly cancel timeout thread.");
+                }
             }
             return false;
         }
