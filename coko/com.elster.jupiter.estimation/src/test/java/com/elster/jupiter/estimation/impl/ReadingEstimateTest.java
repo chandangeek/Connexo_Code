@@ -10,6 +10,8 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.EstimationBlock;
@@ -200,13 +202,15 @@ public class ReadingEstimateTest {
                     new SearchModule(),
                     new TaskModule(),
                     new EstimationModule(),
-                    new DataVaultModule()
+                    new DataVaultModule(),
+                    new CustomPropertySetsModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute((Transaction<Void>) () -> {
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringService.class);
             estimationService = (EstimationServiceImpl) injector.getInstance(EstimationService.class);
