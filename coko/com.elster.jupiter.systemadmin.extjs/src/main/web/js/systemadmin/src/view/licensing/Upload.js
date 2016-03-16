@@ -10,7 +10,7 @@ Ext.define('Sam.view.licensing.Upload', {
         {
             xtype: 'form',
             ui: 'large',
-            title: Uni.I18n.translate('licensing.uploadTitle', 'SAM', 'Upload licenses'),
+            title: Uni.I18n.translate('licensing.uploadLicenses', 'SAM', 'Upload licenses'),
             autoEl: {
                 tag: 'form',
                 enctype: 'multipart/form-data'

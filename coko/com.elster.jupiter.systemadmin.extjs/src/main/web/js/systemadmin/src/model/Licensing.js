@@ -14,18 +14,8 @@ Ext.define('Sam.model.Licensing', {
             type: 'text'
         },
         {
-            convert: function(v, rec) {
-                if (v === 'BPM'){
-                    return Uni.I18n.translate('BPM', 'SAM', 'Flow');
-                }else if (v === 'YFN'){
-                    return Uni.I18n.translate('YFN', 'SAM', 'Facts');
-                }else if (v === 'MDC'){
-                    return Uni.I18n.translate('MDC', 'SAM', 'MultiSense');
-                }
-                return v;
-            },
             name: 'applicationname',
-            type: 'text'
+            type: 'auto'
         },
         {
             name: 'status',
