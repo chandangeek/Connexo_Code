@@ -1,23 +1,13 @@
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.rest.util.*;
 import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -103,9 +93,24 @@ public class FirmwareCampaignResource {
     @Path("/{id}/devices")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN})
-    public Response getDevicesForFirmwareCampaign(@PathParam("id") long firmwareCampaignId, @BeanParam JsonQueryParameters queryParameters){
-        FirmwareCampaign firmwareCampaign = resourceHelper.findFirmwareCampaignOrThrowException(firmwareCampaignId);
-        List<DeviceInFirmwareCampaign> devices = firmwareService.getDevicesForFirmwareCampaign(firmwareCampaign).from(queryParameters).find();
+    public Response getDevicesForFirmwareCampaign(@PathParam("id") long firmwareCampaignId, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters){
+        DevicesInFirmwareCampaignFilter filter = buildFilterFromJsonQuery(jsonQueryFilter).withFirmwareCampaignId(firmwareCampaignId);
+        List<DeviceInFirmwareCampaign> devices = firmwareService.getDevicesForFirmwareCampaign(filter).from(queryParameters).find();
         return Response.ok(PagedInfoList.fromPagedList("devices", deviceInCampaignInfoFactory.from(devices), queryParameters)).build();
     }
+
+    private DevicesInFirmwareCampaignFilter buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter){
+        DevicesInFirmwareCampaignFilter filter = new DevicesInFirmwareCampaignFilter();
+        if (jsonQueryFilter.hasProperty(FilterOption.status.name())) {
+            filter.withStatus(jsonQueryFilter.getStringList(FilterOption.status.name()));
+        }
+        return filter;
+    }
+
+    enum FilterOption {
+        campaign,
+        status
+    }
+
+
 }
