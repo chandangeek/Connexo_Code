@@ -48,6 +48,7 @@
                 <module>../com.elster.jupiter.issue.rest</module>
                 <module>../com.elster.jupiter.kpi</module>
                 <module>../com.elster.jupiter.metering</module>
+                <module>../com.elster.jupiter.metering.bpm</module>
                 <module>../com.elster.jupiter.metering.cim</module>
                 <module>../com.elster.jupiter.metering.groups</module>
                 <module>../com.elster.jupiter.metering.imports</module>
