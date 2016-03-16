@@ -45,6 +45,6 @@ public enum DefaultCustomStateTransitionEventType {
     }
 
     private CustomStateTransitionEventType createNewStateTransitionEventType(FiniteStateMachineService service, String symbol) {
-        return service.newCustomStateTransitionEventType(symbol);
+        return service.newCustomStateTransitionEventType(symbol, DeviceLifeCycleConfigurationService.COMPONENT_NAME);
     }
 }

@@ -27,13 +27,8 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 import com.energyict.mdc.device.lifecycle.config.TransitionType;
+
 import com.google.common.base.Strings;
-import org.assertj.core.api.Condition;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
 
 import java.sql.SQLException;
 import java.util.EnumSet;
@@ -41,6 +36,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.assertj.core.api.Condition;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -1235,7 +1237,7 @@ public class DeviceLifeCycleIT {
 
     private FiniteStateMachine createFiniteStateMachineWithCustomTransitions() {
         FiniteStateMachineService finiteStateMachineService = inMemoryPersistence.getService(FiniteStateMachineService.class);
-        CustomStateTransitionEventType eventType = finiteStateMachineService.newCustomStateTransitionEventType(CUSTOM_EVENT_SYMBOL);
+        CustomStateTransitionEventType eventType = finiteStateMachineService.newCustomStateTransitionEventType(CUSTOM_EVENT_SYMBOL, "it");
         FiniteStateMachineBuilder stateMachineBuilder = finiteStateMachineService.newFiniteStateMachine("For Testing Purposes Only");
         State b = stateMachineBuilder.newCustomState("B").complete();
         State a = stateMachineBuilder.newCustomState("A").on(eventType).transitionTo(b).complete();

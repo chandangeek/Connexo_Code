@@ -1,17 +1,5 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.Privileges;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessInUseException;
-import com.energyict.mdc.device.lifecycle.config.UnknownTransitionBusinessProcessException;
-
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
@@ -42,6 +30,18 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.Privileges;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessInUseException;
+import com.energyict.mdc.device.lifecycle.config.UnknownTransitionBusinessProcessException;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -413,9 +413,13 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     public boolean isValidCreationEvent(IssueEvent issueEvent){
         EnumSet<DefaultState> restrictedStates = EnumSet.of(DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED);
-        return !issueEvent.getEndDevice().getState()
-                .map(DefaultState::from)
-                .filter(defaultState -> defaultState.isPresent() && restrictedStates.contains(defaultState.get()))
-                .isPresent();
+        if (issueEvent.getEndDevice().isPresent()) {
+            return !issueEvent.getEndDevice().get().getState()
+                    .map(DefaultState::from)
+                    .filter(defaultState -> defaultState.isPresent() && restrictedStates.contains(defaultState.get()))
+                    .isPresent();
+        }
+
+        return true;
     }
 }
