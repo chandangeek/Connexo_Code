@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private volatile Thesaurus thesaurus;
     private volatile UserPreferencesService userPreferencesService;
     private volatile ThreadPrincipalService threadPrincipalService;
-    private List<User> loggedInUsers = new ArrayList<>();
+    private List<User> loggedInUsers = new CopyOnWriteArrayList<>();
     private volatile DataVaultService dataVaultService;
     private volatile BundleContext bundleContext;
 
