@@ -166,7 +166,7 @@ public enum TableSpecs {
             Table<LocationMember> table = dataModel.addTable(name(), LocationMember.class);
             table.map(LocationMemberImpl.class);
             //table.setJournalTableName("MTR_LOCATIONMEMBERJRNL");
-            Column locationIdColumn = table.column("LOCATIONID").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column locationIdColumn = table.column("LOCATION").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             Column localeColumn = table.column("LOCALE").varChar(Table.NAME_LENGTH).notNull().map("locale").add();
             Column countryCodeColumn = table.column("COUNTRYCODE").varChar(Table.NAME_LENGTH).map("countryCode").add();
             Column countryNameColumn = table.column("COUNTRYNAME").varChar(Table.NAME_LENGTH).map("countryName").add();
@@ -185,9 +185,9 @@ public enum TableSpecs {
 
             table.primaryKey("MTR_PK_LOCATION_MEMBER").on(locationIdColumn, localeColumn).add();
             table.foreignKey("MTR_FK_LOCATION_MEMBER").on(locationIdColumn).references(MTR_LOCATION.name()).composition().reverseMap("members").reverseMapOrder("locale").map("location").add();
-            table.unique("MTR_U_LOCATIONMEMBER_ALL").on(countryCodeColumn,countryNameColumn,administrativeAreaColumn,
+           /* table.unique("MTR_U_LOCATIONMEMBER_ALL").on(countryCodeColumn,countryNameColumn,administrativeAreaColumn,
                     localityColumn,subLocalityColumn,streetType,streetNameColumn,streetNumberColumn,establishmentTypeColumn,
-                    establishmentNameColumn,establishmentNumber,zipcodeColumn).add();
+                    establishmentNameColumn,establishmentNumber,zipcodeColumn).add(); */
             table.unique("MTR_U_LOCATIONMEMBER_ZIPCODE").on(zipcodeColumn).add();
             //table.index("MTR_IDX_STREETNAME").on(streetNameColumn).add();
         }

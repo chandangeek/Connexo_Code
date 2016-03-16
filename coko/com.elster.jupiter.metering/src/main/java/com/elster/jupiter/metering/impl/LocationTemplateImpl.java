@@ -53,7 +53,7 @@ public class LocationTemplateImpl implements LocationTemplate {
             String[] templateElements = locationTemplate.trim().split(",");
             if (Arrays.asList(templateElements).containsAll(ALLOWED_LOCATION_TEMPLATE_ELEMENTS)
                     && Arrays.asList(templateElements).containsAll(Arrays.asList(mandatoryFields.trim().split(",")))) {
-                AtomicInteger index = new AtomicInteger();
+                AtomicInteger index = new AtomicInteger(-1);
                 Arrays.asList(templateElements).stream().forEach(t ->
                         rankings.put(templateMap.get(t), index.incrementAndGet()));
                 this.locationTemplate = locationTemplate.trim();
