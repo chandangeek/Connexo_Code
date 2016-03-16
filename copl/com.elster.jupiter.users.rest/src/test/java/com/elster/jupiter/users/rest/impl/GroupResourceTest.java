@@ -90,6 +90,6 @@ public class GroupResourceTest extends UsersRestApplicationJerseyTest {
         Entity<GroupInfo> json = Entity.json(info);
 
         Response response = target("/groups/1").request().build(HttpMethod.DELETE, json).invoke();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 }
