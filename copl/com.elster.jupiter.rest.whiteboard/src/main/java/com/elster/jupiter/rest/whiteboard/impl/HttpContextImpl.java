@@ -1,5 +1,7 @@
 package com.elster.jupiter.rest.whiteboard.impl;
 
+import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
+
 import org.osgi.service.http.HttpContext;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,11 +10,11 @@ import java.io.IOException;
 import java.net.URL;
 
 public class HttpContextImpl implements HttpContext {
-	
-	private final Authentication authorization;
 
-    public HttpContextImpl(Authentication authorization) {
-		this.authorization = authorization;
+    private final HttpAuthenticationService authorization;
+
+    public HttpContextImpl(HttpAuthenticationService authorization) {
+        this.authorization = authorization;
 	}
 
     @Override
