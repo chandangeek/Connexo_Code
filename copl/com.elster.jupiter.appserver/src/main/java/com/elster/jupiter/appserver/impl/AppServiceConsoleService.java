@@ -17,6 +17,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.streams.Functions;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -358,11 +359,13 @@ public class AppServiceConsoleService {
         System.out.println("Tasks : ");
         System.out.println("==========");
         messageHandlerLauncherService.futureReport().entrySet().stream()
+                .sorted((e1, e2) -> e1.getKey().getDestination().compareTo(e2.getKey().getDestination()))
                 .map(entry -> "\t" + entry.getKey().getDestination() + ' ' + entry.getKey().getSubscriber() + ' ' + String.valueOf(entry.getValue()))
                 .forEach(System.out::println);
         System.out.println("Threads : ");
         System.out.println("==========");
         messageHandlerLauncherService.threadReport().entrySet().stream()
+                .sorted((e1, e2) -> e1.getKey().getDestination().compareTo(e2.getKey().getDestination()))
                 .map(entry -> "\t" + entry.getKey().getDestination() + ' ' + entry.getKey().getSubscriber() + ' ' + String.valueOf(entry.getValue()))
                 .forEach(System.out::println);
     }
