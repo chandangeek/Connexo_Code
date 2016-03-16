@@ -174,7 +174,10 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
                     // check if the response tag is know and decrypt the data if necessary
                     byte cipheredTag = securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG];
 
-                    if (XdlmsApduTags.contains(cipheredTag)) {
+                    if (cipheredTag == DLMSCOSEMGlobals.COSEM_EXCEPTION_RESPONSE) {
+                        //Return any errors as-is
+                        return securedResponse;
+                    } else if (XdlmsApduTags.contains(cipheredTag)) {
                         //Service specific ciphering
                         // FIXME: Strip the 3 leading bytes before decryption -> due to old HDLC code
                         // Strip the 3 leading bytes before decrypting

@@ -51,16 +51,20 @@ public class SecureConnection implements DLMSConnection {
         return getTransportConnection().getInvokeIdAndPriorityHandler();
     }
 
+    public void setInvokeIdAndPriorityHandler(InvokeIdAndPriorityHandler iiapHandler) {
+        getTransportConnection().setInvokeIdAndPriorityHandler(iiapHandler);
+    }
+
     public byte[] sendRawBytes(byte[] data) throws IOException, DLMSConnectionException {
         return getTransportConnection().sendRawBytes(data);
     }
 
-    public void setTimeout(long timeout) {
-        getTransportConnection().setTimeout(timeout);
-    }
-
     public long getTimeout() {
         return getTransportConnection().getTimeout();
+    }
+
+    public void setTimeout(long timeout) {
+        getTransportConnection().setTimeout(timeout);
     }
 
     public void setRetries(int retries) {
@@ -106,7 +110,10 @@ public class SecureConnection implements DLMSConnection {
                 final byte[] securedResponse = getTransportConnection().sendRequest(securedRequest);
 
                 // check if the response tag is know and decrypt the data if necessary
-                if (XdlmsApduTags.contains(securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG])) {
+                if (securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG] == DLMSCOSEMGlobals.COSEM_EXCEPTION_RESPONSE) {
+                    //Return any errors as-is
+                    return securedResponse;
+                } else if (XdlmsApduTags.contains(securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG])) {
                     // FIXME: Strip the 3 leading bytes before decryption -> due to old HDLC code
                     // Strip the 3 leading bytes before encrypting
                     final byte[] decryptedResponse;
@@ -171,7 +178,10 @@ public class SecureConnection implements DLMSConnection {
                 aso.getSecurityContext().incFrameCounter();
 
                 // check if the response tag is know and decrypt the data if necessary
-                if (XdlmsApduTags.contains(securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG])) {
+                if (securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG] == DLMSCOSEMGlobals.COSEM_EXCEPTION_RESPONSE) {
+                    //Return any errors as-is
+                    return securedResponse;
+                } else if (XdlmsApduTags.contains(securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG])) {
                     // FIXME: Strip the 3 leading bytes before decryption -> due to old HDLC code
                     // Strip the 3 leading bytes before encrypting
                     final byte[] decryptedResponse;
@@ -239,10 +249,6 @@ public class SecureConnection implements DLMSConnection {
 
     public void setHHUSignOn(final HHUSignOn hhuSignOn, final String meterId, int hhuSignonBaudRateCode) {
         getTransportConnection().setHHUSignOn(hhuSignOn, meterId, hhuSignonBaudRateCode);
-    }
-
-    public void setInvokeIdAndPriorityHandler(InvokeIdAndPriorityHandler iiapHandler) {
-        getTransportConnection().setInvokeIdAndPriorityHandler(iiapHandler);
     }
 
     public void setIskraWrapper(final int type) {
