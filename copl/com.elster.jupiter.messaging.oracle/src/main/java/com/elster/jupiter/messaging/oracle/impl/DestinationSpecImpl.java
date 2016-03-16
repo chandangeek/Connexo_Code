@@ -16,6 +16,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.conditions.Condition;
+
 import com.google.common.collect.ImmutableList;
 import oracle.AQ.AQQueueTable;
 import oracle.jdbc.OracleConnection;
@@ -249,6 +250,22 @@ class DestinationSpecImpl implements DestinationSpec {
     @Override
     public void purgeErrors() {
         doPurgeErrors();
+    }
+
+    @Override
+    public void purgeCorrelationId(String correlationId) {
+        String sql = "DECLARE po dbms_aqadm.aq$_purge_options_t; BEGIN po.block := TRUE; DBMS_AQADM.PURGE_QUEUE_TABLE(queue_table => ?, purge_condition => 'upper(qtview.queue) = upper(''' || ? || ''') and qtview.corr_id = ''' || ? || ''' ', purge_options => po); END;";
+        try (Connection connection = dataModel.getConnection(false)) {
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                int parameterIndex = 0;
+                statement.setString(++parameterIndex, getQueueTableSpec().getName());
+                statement.setString(++parameterIndex, name);
+                statement.setString(++parameterIndex, correlationId);
+                statement.execute();
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
     }
 
     @Override
