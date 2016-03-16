@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-//@Component(name = "c.e.j.mtr.cps.impl.UsagePointGeneralCustomPropertySet", service = CustomPropertySet.class, immediate = true)
 public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointGeneralDomainExtension> {
 
     public PropertySpecService propertySpecService;

@@ -94,7 +94,7 @@ public enum TranslationKeys implements TranslationKey {
     CPS_METER_GENERAL_MANUFACTURER_DESCRIPTION("usage.point.cps.meter.general.manufacturer.descr", "The manufacturer of the device, eg. Elster"),
     CPS_METER_GENERAL_MODEL("usage.point.cps.meter.general.model", "Model"),
     CPS_METER_GENERAL_MODEL_DESCRIPTION("usage.point.cps.meter.general.model.descr", "Depends on manufacturer, eg. AS300\n"),
-    CPS_METER_GENERAL_CLAZZ("usage.point.cps.meter.general.class", "Clazz"),
+    CPS_METER_GENERAL_CLAZZ("usage.point.cps.meter.general.class", "Class"),
     CPS_METER_GENERAL_CLAZZ_DESCRIPTION("usage.point.cps.meter.general.class.descr", "accuracy of meter, eg. class 1\t\n"),
 
     CPS_METER_TECH_INFORMATION_GTW_SIMPLE_NAME("usage.point.cps.meter.tech.information.gtw.name", "Meter technical information(Gas, Water, Thermal)"),

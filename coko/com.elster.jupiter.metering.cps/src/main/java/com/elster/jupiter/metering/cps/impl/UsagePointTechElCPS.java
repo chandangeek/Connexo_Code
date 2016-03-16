@@ -11,10 +11,12 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.units.Quantity;
 
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -22,7 +24,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-//@Component(name = "c.e.j.metering.cps.impl.UsagePointTechElCPS", service = CustomPropertySet.class, immediate = true)
 public class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsagePointTechElDomExt> {
 
     public static final String TABLE_NAME = "RVK_CPS_TECH_EL";
@@ -108,6 +109,7 @@ public class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsageP
                 .named(UsagePointTechElDomExt.FieldNames.CABLE_LOCATION.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_CABLE_LOCATION)
                 .describedAs(TranslationKeys.CPS_TECHNICAL_PROPERTIES_CABLE_LOCATION_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
+                .addValues(Quantity.create(new BigDecimal(0), 1, "m"))
                 .finish();
 
         return Arrays.asList(

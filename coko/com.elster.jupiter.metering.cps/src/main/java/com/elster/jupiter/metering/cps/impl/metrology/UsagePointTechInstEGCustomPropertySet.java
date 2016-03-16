@@ -11,10 +11,12 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.units.Quantity;
 
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -94,6 +96,7 @@ public class UsagePointTechInstEGCustomPropertySet implements CustomPropertySet<
                 .named(UsagePointTechInstEGDomExt.Fields.LOSS_FACTOR.javaName(), TranslationKeys.CPS_TECHNICAL_INSTALLATION_LOSS_FACTOR)
                 .describedAs(TranslationKeys.CPS_TECHNICAL_INSTALLATION_LOSS_FACTOR_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
+                .addValues(Quantity.create(new BigDecimal(0), 1, "%"))
                 .finish();
 
         return Arrays.asList(lossFactorSpec);

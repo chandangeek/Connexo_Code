@@ -13,10 +13,12 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.units.Quantity;
 
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -95,6 +97,7 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
                 .fromThesaurus(this.getThesaurus())
                 .markEditable()
                 .markRequired()
+                .addValues(Quantity.create(new BigDecimal(0), 1, "W"))
                 .finish();
         PropertySpec convertorPowerSpec = propertySpecService
                 .specForValuesOf(new QuantityValueFactory())
@@ -102,6 +105,7 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
                 .fromThesaurus(this.getThesaurus())
                 .markEditable()
                 .markRequired()
+                .addValues(Quantity.create(new BigDecimal(0), 1, "W"))
                 .finish();
         PropertySpec typeOfDecentralizedProductionSpec = propertySpecService
                 .stringSpec()

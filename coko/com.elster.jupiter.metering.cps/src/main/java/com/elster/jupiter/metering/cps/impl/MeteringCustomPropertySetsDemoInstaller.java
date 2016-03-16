@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.cps.impl.metrology.TranslationKeys;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointContCustomPropertySet;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointContDomainExtension;
-import com.elster.jupiter.metering.cps.impl.metrology.UsagePointConvDomainExtension;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointDecentProdCustomPropertySet;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointDecentProdDomExt;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointMeterGnrCustomPropertySet;
@@ -106,33 +105,23 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
                 .ifPresent(this::addAllSets);
         customPropertySetService.findActiveCustomPropertySet(UsagePointMeterTechInfAllDomExt.class.getName())
                 .ifPresent(this::addAllSets);
-        electricity = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-        customPropertySetService.findActiveCustomPropertySet(TestDomainExtension.class.getName())
-                .ifPresent(this::addElectricitySets);
 
         electricity = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-
         customPropertySetService.findActiveCustomPropertySet(UsagePointContrElectrDomExt.class.getName())
                 .ifPresent(this::addElectricitySets);
         customPropertySetService.findActiveCustomPropertySet(UsagePointTechElDomExt.class.getName())
                 .ifPresent(this::addElectricitySets);
         customPropertySetService.findActiveCustomPropertySet(UsagePointTechElDomExt.class.getName())
                 .ifPresent(this::addElectricitySets);
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointLicenseDomainExtension.class.getName())
-//                .ifPresent(this::addElectricitySets);
         customPropertySetService.findActiveCustomPropertySet(UsagePointSettlementDomExt.class.getName())
                 .ifPresent(this::addElectricitySets);
         customPropertySetService.findActiveCustomPropertySet(UsagePointTechInstElectrDE.class
                 .getName()).ifPresent(this::addElectricitySets);
         customPropertySetService.findActiveCustomPropertySet(UsagePointDecentProdDomExt.class.getName())
                 .ifPresent(this::addElectricitySets);
-        customPropertySetService.findActiveCustomPropertySet(UsagePointOneDomainExtension.class.getName())
-                .ifPresent(this::addElectricitySets);
-//
+
         gas = meteringService.getServiceCategory(ServiceKind.GAS).get();
         customPropertySetService.findActiveCustomPropertySet(UsagePointSettlementDomExt.class.getName())
-                .ifPresent(this::addGasSets);
-        customPropertySetService.findActiveCustomPropertySet(UsagePointConvDomainExtension.class.getName())
                 .ifPresent(this::addGasSets);
         customPropertySetService.findActiveCustomPropertySet(UsagePointTechnicalWGTDomExt.class.getName())
                 .ifPresent(this::addGasSets);
@@ -187,14 +176,11 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
 
     private List<CustomPropertySet> getMeteringCustomPropertySets() {
         return Arrays.asList(
-                new TestUsagePoint(propertySpecService, thesaurus),
-                new UsagePointOneCustomPropertySet(propertySpecService, thesaurus),
                 new UsagePointContrElectrCPS(propertySpecService, thesaurus),
                 new UsagePointGeneralCustomPropertySet(propertySpecService, thesaurus),
                 new UsagePointTechElCPS(propertySpecService, thesaurus),
                 new UsagePointTechnicalWGTCustomPropertySet(propertySpecService, thesaurus),
                 new UsagePointContCustomPropertySet(propertySpecService, thesaurus),
-                //new UsagePointConvCustomPropertySet(propertySpecService, thesaurus),
                 new UsagePointDecentProdCustomPropertySet(propertySpecService, thesaurus),
                 new UsagePointMeterGnrCustomPropertySet(propertySpecService, thesaurus),
                 new UsagePointMeterTechInfAllCPS(propertySpecService, thesaurus),
@@ -203,8 +189,8 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
                 new UsagePointSettlementCustomPropertySet(propertySpecService, thesaurus),
                 new UsagePointTechInstAllCustomPropertySet(propertySpecService, thesaurus),
                 new UsagePointTechInstEGCustomPropertySet(propertySpecService, thesaurus),
-                new UsagePointTechInstElectrCPS(propertySpecService, thesaurus)
-        );
+                new UsagePointTechInstElectrCPS(propertySpecService, thesaurus));
+
     }
 
     @Override

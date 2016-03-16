@@ -11,10 +11,12 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.units.Quantity;
 
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -29,9 +31,9 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_TECH";
-    public static final String FK_CPS_DEVICE_LICENSE = "FK_CPS_MTR_USAGEPOINT_TECH";
-    public static final String COMPONENT_NAME = "MTR_INST";
+    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_T_INS";
+    public static final String FK_CPS_DEVICE_LICENSE = "FK_CPS_MTR_USAGEPOINT_T_INS";
+    public static final String COMPONENT_NAME = "MTR_T_INS";
 
     public UsagePointTechInstElectrCPS() {
         super();
@@ -96,6 +98,7 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
                 .describedAs(TranslationKeys.CPS_TECHNICAL_INSTALLATION_DISTANCE_FROM_THE_SUBSTATION_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
+                .addValues(Quantity.create(new BigDecimal(0), 1, "m"))
                 .finish();
         PropertySpec feederSpec = propertySpecService
                 .stringSpec()
@@ -107,6 +110,7 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
                 .named(UsagePointTechInstElectrDE.Fields.UTILIZATION_CATEGORY.javaName(), TranslationKeys.CPS_TECHNICAL_INSTALLATION_UTILIZATION_CATEGORY)
                 .describedAs(TranslationKeys.CPS_TECHNICAL_INSTALLATION_UTILIZATION_CATEGORY_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
+                .addValues(Quantity.create(new BigDecimal(0), 1, "m"))
                 .finish();
 
         return Arrays.asList(
@@ -166,8 +170,8 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
                     .varChar(255)
                     .map(UsagePointTechInstElectrDE.Fields.FEEDER.javaName())
                     .add();
-            table.addQuantityColumns(UsagePointTechInstElectrDE.Fields.UTILIZATION_CATEGORY.databaseName(), false, UsagePointTechInstElectrDE.Fields.UTILIZATION_CATEGORY
-                    .javaName());
+//            table.addQuantityColumns(UsagePointTechInstElectrDE.Fields.UTILIZATION_CATEGORY.databaseName(), false, UsagePointTechInstElectrDE.Fields.UTILIZATION_CATEGORY
+//                    .javaName());
         }
     }
 }

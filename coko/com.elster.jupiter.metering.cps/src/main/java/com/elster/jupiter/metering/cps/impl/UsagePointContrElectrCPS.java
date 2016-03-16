@@ -11,9 +11,11 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.units.Quantity;
 
 import com.google.inject.Module;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -21,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-//@Component(name = "c.e.j.mtr.cps.impl.UsagePointContrElectrCPS", service = CustomPropertySet.class, immediate = true)
 public class UsagePointContrElectrCPS implements CustomPropertySet<UsagePoint, UsagePointContrElectrDomExt> {
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
@@ -85,6 +86,7 @@ public class UsagePointContrElectrCPS implements CustomPropertySet<UsagePoint, U
                 .specForValuesOf(new QuantityValueFactory())
                 .named(UsagePointContrElectrDomExt.Fields.CONTRACTED_POWER.javaName(), TranslationKeys.CPS_CUSTOM_CONTRACTUAL_CONTRACTED_POWER)
                 .fromThesaurus(this.getThesaurus())
+                .addValues(Quantity.create(new BigDecimal(0), 1, "W"))
                 .finish();
         return Arrays.asList(contractedPowerSpec);
     }

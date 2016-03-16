@@ -57,7 +57,6 @@ public class UsagePointTechInstElectrDE implements PersistentDomainExtension<Usa
     private Quantity substationDistance;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String feeder;
-
     private Quantity utilizationCategory;
 
     public UsagePointTechInstElectrDE() {

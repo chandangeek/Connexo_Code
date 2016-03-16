@@ -81,10 +81,9 @@ public class UsagePointMeterTechInfGTWDomExt implements PersistentDomainExtensio
     private String connectionType;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String conversionMetrology;
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
-    private Quantity capacityMin;
-    private Quantity capacityNom;
-    private Quantity capacityMax;
+    //    private Quantity capacityMin;
+//    private Quantity capacityNom;
+//    private Quantity capacityMax;
     private Quantity pressureMax;
 
     public UsagePointMeterTechInfGTWDomExt() {
@@ -107,29 +106,29 @@ public class UsagePointMeterTechInfGTWDomExt implements PersistentDomainExtensio
         return conversionMetrology;
     }
 
-    public Quantity getCapacityMin() {
-        return capacityMin;
-    }
-
-    public void setCapacityMin(Quantity capacityMin) {
-        this.capacityMin = capacityMin;
-    }
-
-    public Quantity getCapacityNom() {
-        return capacityNom;
-    }
-
-    public void setCapacityNom(Quantity capacityNom) {
-        this.capacityNom = capacityNom;
-    }
-
-    public Quantity getCapacityMax() {
-        return capacityMax;
-    }
-
-    public void setCapacityMax(Quantity capacityMax) {
-        this.capacityMax = capacityMax;
-    }
+//    public Quantity getCapacityMin() {
+//        return capacityMin;
+//    }
+////
+////    public void setCapacityMin(Quantity capacityMin) {
+////        this.capacityMin = capacityMin;
+////    }
+////
+//    public Quantity getCapacityNom() {
+//        return capacityNom;
+//    }
+//
+//    public void setCapacityNom(Quantity capacityNom) {
+//        this.capacityNom = capacityNom;
+//    }
+//
+//    public Quantity getCapacityMax() {
+//        return capacityMax;
+//    }
+//
+//    public void setCapacityMax(Quantity capacityMax) {
+//        this.capacityMax = capacityMax;
+//    }
 
     public Quantity getPressureMax() {
         return pressureMax;
@@ -157,9 +156,9 @@ public class UsagePointMeterTechInfGTWDomExt implements PersistentDomainExtensio
         this.setRecessedLength((String) propertyValues.getProperty(Fields.RECESSED_LENGTH.javaName()));
         this.setConnectionType((String) propertyValues.getProperty(Fields.CONNECTION_TYPE.javaName()));
         this.setConversionMetrology((String) propertyValues.getProperty(Fields.CONVERSION_METROLOGY.javaName()));
-        this.setCapacityMin((Quantity) propertyValues.getProperty(Fields.CAPACITY_MIN.javaName()));
-        this.setCapacityNom((Quantity) propertyValues.getProperty(Fields.CAPACITY_NOM.javaName()));
-        this.setCapacityMax((Quantity) propertyValues.getProperty(Fields.CAPACITY_MAX.javaName()));
+//        this.setCapacityMin((Quantity) propertyValues.getProperty(Fields.CAPACITY_MIN.javaName()));
+//        this.setCapacityNom((Quantity) propertyValues.getProperty(Fields.CAPACITY_NOM.javaName()));
+//        this.setCapacityMax((Quantity) propertyValues.getProperty(Fields.CAPACITY_MAX.javaName()));
         this.setPressureMax((Quantity) propertyValues.getProperty(Fields.PRESSURE_MAX.javaName()));
     }
 
@@ -168,9 +167,9 @@ public class UsagePointMeterTechInfGTWDomExt implements PersistentDomainExtensio
         propertySetValues.setProperty(Fields.RECESSED_LENGTH.javaName(), this.getRecessedLength());
         propertySetValues.setProperty(Fields.CONNECTION_TYPE.javaName(), this.getConnectionType());
         propertySetValues.setProperty(Fields.CONVERSION_METROLOGY.javaName(), this.getConversionMetrology());
-        propertySetValues.setProperty(Fields.CAPACITY_MIN.javaName(), this.getCapacityMin());
-        propertySetValues.setProperty(Fields.CAPACITY_NOM.javaName(), this.getCapacityNom());
-        propertySetValues.setProperty(Fields.CAPACITY_MAX.javaName(), this.getCapacityMax());
+//        propertySetValues.setProperty(Fields.CAPACITY_MIN.javaName(), this.getCapacityMin());
+//        propertySetValues.setProperty(Fields.CAPACITY_NOM.javaName(), this.getCapacityNom());
+//        propertySetValues.setProperty(Fields.CAPACITY_MAX.javaName(), this.getCapacityMax());
         propertySetValues.setProperty(Fields.PRESSURE_MAX.javaName(), this.getPressureMax());
     }
 
