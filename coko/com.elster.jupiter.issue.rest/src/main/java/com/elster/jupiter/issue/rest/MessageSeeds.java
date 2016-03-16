@@ -1,6 +1,5 @@
 package com.elster.jupiter.issue.rest;
 
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
@@ -10,6 +9,7 @@ public enum MessageSeeds implements MessageSeed {
     ISSUE_DOES_NOT_EXIST (0001, "IssueDoesNotExist", "Issue doesn't exist", Level.SEVERE),
     ISSUE_ALREADY_CLOSED(0002, "IssueAlreadyClosed", "Issue already closed", Level.SEVERE),
     ISSUE_ACTION_CLASS_LOAD_FAIL(0003, "IssueActionClassLoadFail", "Unable to load Action class \"{0}\" for \"{1}\" action type", Level.SEVERE),
+    INVALID_VALUE(0004, "InvalidValue", "Invalid value", Level.SEVERE),
     ;
 
     private final int number;

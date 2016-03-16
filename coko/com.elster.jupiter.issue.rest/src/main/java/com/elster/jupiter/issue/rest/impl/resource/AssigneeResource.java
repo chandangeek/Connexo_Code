@@ -55,9 +55,7 @@ public class AssigneeResource extends BaseResource {
             return PagedInfoListCustomized.fromPagedList("data", assigneeFilterListInfo.getData(), queryParameters, 0);
         }
         String searchText = params.getFirst(LIKE);
-
         String dbSearchText = (searchText != null && !searchText.isEmpty()) ? ("*" + searchText + "*") : "*";
-
         Condition conditionUser = where("authenticationName").likeIgnoreCase(dbSearchText);
         Query<User> queryUser = getUserService().getUserQuery();
 
@@ -65,10 +63,10 @@ public class AssigneeResource extends BaseResource {
         if(params.getStart() == 0 && (searchText == null || searchText.isEmpty())) {
             validateMandatory(params, START, LIMIT);
             assigneeFilterListInfo = AssigneeFilterListInfo.defaults((User) securityContext.getUserPrincipal(), getThesaurus(), false);
-            List<User> listUsers = queryUser.select(conditionUser, params.getFrom(), params.getTo(), Order.ascending("authname"));
+            List<User> listUsers = queryUser.select(conditionUser, params.getFrom(), params.getTo(), Order.ascending("authenticationName"));
             assigneeFilterListInfo.addData(listUsers);
         } else {
-            List<User> listUsers = queryUser.select(conditionUser, Order.ascending("authname"));
+            List<User> listUsers = queryUser.select(conditionUser, Order.ascending("authenticationName"));
             assigneeFilterListInfo = new AssigneeFilterListInfo(listUsers);
         }
         return PagedInfoListCustomized.fromPagedList("data", assigneeFilterListInfo.getData(), queryParameters, params.getStart() == 0 ? 1 : 0);

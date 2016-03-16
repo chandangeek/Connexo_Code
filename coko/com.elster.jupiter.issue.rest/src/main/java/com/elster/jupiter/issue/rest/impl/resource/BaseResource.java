@@ -23,7 +23,6 @@ public abstract class BaseResource {
     private IssueActionService issueActionService;
     private UserService userService;
     private MeteringService meteringService;
-
     private Thesaurus thesaurus;
 
     public BaseResource() {
