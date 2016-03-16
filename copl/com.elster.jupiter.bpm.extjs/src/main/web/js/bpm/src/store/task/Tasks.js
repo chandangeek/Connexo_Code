@@ -1,7 +1,7 @@
 Ext.define('Bpm.store.task.Tasks', {
     extend: 'Uni.data.store.Filterable',
     model: 'Bpm.model.task.Task',
-    autoLoad: false,
+    //autoLoad: false,
 
     proxy: {
         type: 'rest',

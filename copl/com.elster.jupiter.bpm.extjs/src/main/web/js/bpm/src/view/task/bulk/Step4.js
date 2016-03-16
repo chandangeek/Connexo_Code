@@ -18,7 +18,7 @@ Ext.define('Bpm.view.task.bulk.Step4', {
                 text = '<h3>'
                 + Uni.I18n.translate('bpm.task.bulk.confirmation.taskexecuteTitle', 'BPM', 'Execute selected tasks now?')
                 + '</h3><br>'
-                + Uni.I18n.translate('bpm.task.bulk.confirmation.taskexecuteDescription', 'BPM', 'The selected tasks will be excuted.');
+                + Uni.I18n.translate('bpm.task.bulk.confirmation.taskexecuteDescription', 'BPM', 'The selected tasks will be completed.');
                 break;
         }
 

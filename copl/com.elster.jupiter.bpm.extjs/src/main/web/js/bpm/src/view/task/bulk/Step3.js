@@ -2,7 +2,8 @@ Ext.define('Bpm.view.task.bulk.Step3', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.tasks-bulk-step3',
     requires: [
-        'Bpm.view.task.ManageTaskForm'
+        'Bpm.view.task.bulk.ManageTaskForm',
+        'Bpm.view.task.bulk.CompleteTaskForm'
     ],
     html: '',
     margin: '0 0 0 0',
@@ -11,6 +12,7 @@ Ext.define('Bpm.view.task.bulk.Step3', {
             xtype: 'uni-form-error-message',
             itemId: 'step3-error-message',
             width: 400,
+            margin: '0 0 5 0',
             hidden: true
         },
         {
@@ -18,7 +20,14 @@ Ext.define('Bpm.view.task.bulk.Step3', {
             itemId: 'bpm-tasks-bulk-attributes-form',
             isMultiEdit: true,
             width: '100%'
+        },
+        {
+            xtype: 'task-complete-form',
+            itemId: 'bpm-tasks-bulk-complete-form',
+            isMultiEdit: true,
+            width: '100%'
         }
+
     ],
 
     setControls: function(taskActions) {
@@ -27,17 +36,29 @@ Ext.define('Bpm.view.task.bulk.Step3', {
             me.down('fieldcontainer[name=' + item + ']').setVisible(true);
         });
     },
-    resetControls: function()
-    {   var me = this;
-        me.down('fieldcontainer[name=assign]').setVisible(false);
-        me.down('fieldcontainer[name=setDueDate]').setVisible(false);
-        me.down('fieldcontainer[name=setPriority]').setVisible(false);
+    setForms: function(operation) {
+        if(operation === 'taskmanagement')
+        {
+            this.down('#bpm-tasks-bulk-attributes-form').setVisible(true);
+            this.down('#bpm-tasks-bulk-complete-form').setVisible(false);
+        }
+        else
+        {
+            this.down('#bpm-tasks-bulk-attributes-form').setVisible(false);
+            this.down('#bpm-tasks-bulk-complete-form').setVisible(true);
+        }
     },
-    getForm: function() {
-        return this.down('#bpm-tasks-bulk-attributes-form');
-    },
-    setProperties: function(properties) {
-        this.getForm().loadRecordAsNotRequired(properties);
-    }
+    getManagementActions: function() {
+        var me = this;
+        var arrActions = [];
 
+        if(!me.down('fieldcontainer[name=assign]').disabled)
+            arrActions.push('assign');
+        if(!me.down('fieldcontainer[name=setDueDate]').disabled)
+            arrActions.push('setDueDate');
+        if(!me.down('fieldcontainer[name=setPriority]').disabled)
+            arrActions.push('setPriority');
+
+        return arrActions;
+    }
 });

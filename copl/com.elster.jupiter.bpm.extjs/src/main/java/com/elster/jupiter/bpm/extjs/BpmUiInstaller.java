@@ -33,7 +33,6 @@ public class BpmUiInstaller implements TranslationKeyProvider {
     public BpmUiInstaller() {
     }
 
-
     @Activate
     public void activate(BundleContext context) {
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
