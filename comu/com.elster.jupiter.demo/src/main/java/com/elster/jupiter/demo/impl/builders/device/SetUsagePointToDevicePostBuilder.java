@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.UsagePoint;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -37,7 +38,7 @@ public class SetUsagePointToDevicePostBuilder implements Consumer<Device> {
 
     @Override
     public void accept(Device device) {
-        Log.write(this.usagePointBuilder.withMRID(newMRID()).withName(device.getName()));
+        Log.write(this.usagePointBuilder.withMRID(newMRID()).withName(device.getName()).withInstallationTime(clock.instant()));
         setUsagePoint(device, this.usagePointBuilder.get());
     }
 
