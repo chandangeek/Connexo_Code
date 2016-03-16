@@ -70,6 +70,7 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                     properties: {
                         activeProcessesParams: {
                             type: 'usagePoint',
+                            metrologyConfigurations: record.raw.metrologyConfiguration.id,
                             privileges: Ext.encode(me.getPrivileges())
                         },
                         startProcessParams: [
