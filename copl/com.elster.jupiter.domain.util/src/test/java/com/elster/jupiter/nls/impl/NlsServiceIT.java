@@ -107,7 +107,7 @@ public class NlsServiceIT {
         injector.getInstance(TransactionService.class).execute(new VoidTransaction() {
             @Override
             public void doPerform() {
-                final SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.DOMAIN, "voltage.max").defaultMessage("Maximum voltage.");
+                final SimpleNlsKey nlsKey = SimpleNlsKey.key(COMPONENT_NAME, Layer.DOMAIN, "voltage.max").defaultMessage("Maximum voltage");
                 nlsService
                         .translate(nlsKey)
                         .to(Locale.GERMAN, "Höchstspannungs")
@@ -118,7 +118,10 @@ public class NlsServiceIT {
 
         Thesaurus thesaurus2 = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
         assertThat(thesaurus2.getString("voltage.max", "WRONG")).isEqualTo("tension maximale");
-
+        injector.getInstance(ThreadPrincipalService.class).set(null, null, null, Locale.GERMAN);
+        assertThat(thesaurus2.getString("voltage.max", "WRONG")).isEqualTo("Höchstspannungs");
+        injector.getInstance(ThreadPrincipalService.class).set(null, null, null, Locale.ENGLISH);
+        assertThat(thesaurus2.getString("voltage.max", "WRONG")).isEqualTo("Maximum voltage");
     }
 
     @Test

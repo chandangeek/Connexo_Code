@@ -243,7 +243,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
     public void addTranslation(String componentName, String layerName, String key, String defaultMessage) {
         try {
             Layer layer = Layer.valueOf(layerName);
-            dataModel.mapper(NlsKeyImpl.class).persist(newNlsKey(componentName, layer, key, defaultMessage));
+            dataModel.mapper(NlsKeyImpl.class).persist(newNlsKey(componentName, layer, key, defaultMessage, false));
             invalidate(componentName, layer);
         } catch (RuntimeException e) {
             e.printStackTrace();
@@ -257,9 +257,12 @@ public class NlsServiceImpl implements NlsService, InstallService {
         System.out.println("Usage : \n\n addTranslation componentName layerName key defaultMessage");
     }
 
-    private NlsKeyImpl newNlsKey(String component, Layer layer, String key, String defaultFormat) {
+    private NlsKeyImpl newNlsKey(String component, Layer layer, String key, String defaultFormat, boolean addDefaultMessageToDefaultLanguage) {
         NlsKeyImpl nlsKey = dataModel.getInstance(NlsKeyImpl.class).init(component, layer, key);
         nlsKey.setDefaultMessage(defaultFormat);
+        if (addDefaultMessageToDefaultLanguage) {
+            nlsKey.add(Locale.ENGLISH, defaultFormat);
+        }
         return nlsKey;
     }
 
@@ -280,7 +283,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
 
     @Override
     public void copy(NlsKey key, String targetComponent, Layer targetLayer, Function<String, String> keyMapper) {
-        NlsKeyImpl newKey = this.newNlsKey(targetComponent, targetLayer, keyMapper.apply(key.getKey()), key.getDefaultMessage());
+        NlsKeyImpl newKey = this.newNlsKey(targetComponent, targetLayer, keyMapper.apply(key.getKey()), key.getDefaultMessage(), false);
         Condition condition = where("nlsKey.componentName").isEqualTo(key.getComponent())
                 .and(where("nlsKey.layer").isEqualTo(key.getLayer()))
                 .and(where("nlsKey.key").isEqualTo(key.getKey()));
@@ -381,7 +384,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
         @Override
         public void add() {
             NlsKeyImpl nlsKey = dataModel.mapper(NlsKeyImpl.class).getOptional(key.getComponent(), key.getLayer(), key.getKey())
-                    .orElseGet(() -> newNlsKey(key.getComponent(), key.getLayer(), key.getKey(), key.getDefaultMessage()));
+                    .orElseGet(() -> newNlsKey(key.getComponent(), key.getLayer(), key.getKey(), key.getDefaultMessage(), true));
             translations.forEach(nlsKey::add);
             nlsKey.save();
             invalidate(key.getComponent(), key.getLayer());
