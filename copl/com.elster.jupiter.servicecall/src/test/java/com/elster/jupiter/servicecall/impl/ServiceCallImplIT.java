@@ -15,6 +15,11 @@ import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.FileImporterFactory;
+import com.elster.jupiter.fileimport.ImportSchedule;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
+import com.elster.jupiter.fileimport.impl.FileImportServiceImpl;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -26,9 +31,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.PartyService;
-import com.elster.jupiter.parties.Person;
-import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -36,6 +38,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.impl.example.DisconnectHandler;
@@ -46,6 +49,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.time.Never;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -59,10 +63,12 @@ import org.osgi.service.log.LogService;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.math.BigDecimal;
+import java.nio.file.Paths;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -80,10 +86,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceCallImplIT {
 
+    private static final String IMPORTER_NAME = "someImporter";
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private final Instant now = ZonedDateTime.of(2016, 1, 8, 10, 0, 0, 0, ZoneId.of("UTC")).toInstant();
     private Injector injector;
@@ -109,13 +117,16 @@ public class ServiceCallImplIT {
     private MessageInterpolator messageInterpolator;
     @Mock
     private ServiceCallHandler serviceCallHandler;
+    @Mock
+    private FileImporterFactory fileImporterFactory;
 
     private Clock clock;
     private CustomPropertySetService customPropertySetService;
     private ServiceCallType serviceCallType;
+    private ServiceCallType serviceCallTypeTwo;
     private MyCustomPropertySet customPropertySet;
-    private Person person;
-    private PartyService partyService;
+    private FileImportService fileImportService;
+    private ImportSchedule importSchedule;
 
     private class MockModule extends AbstractModule {
 
@@ -131,6 +142,10 @@ public class ServiceCallImplIT {
 
     @Before
     public void setUp() {
+        when(fileImporterFactory.getName()).thenReturn(IMPORTER_NAME);
+        when(fileImporterFactory.getApplicationName()).thenReturn("appName");
+        when(fileImporterFactory.getDestinationName()).thenReturn("dest");
+
         clock = new ProgrammableClock(ZoneId.of("UTC"), now);
         try {
             injector = Guice.createInjector(
@@ -151,7 +166,7 @@ public class ServiceCallImplIT {
                     new TimeModule(),
                     new BasicPropertiesModule(),
                     new ServiceCallModule(),
-                    new PartyModule()
+                    new FileImportModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -167,7 +182,10 @@ public class ServiceCallImplIT {
                 messageService = injector.getInstance(MessageService.class);
                 serviceCallService = injector.getInstance(IServiceCallService.class);
                 propertySpecService = injector.getInstance(PropertySpecService.class);
-                partyService = injector.getInstance(PartyService.class);
+                fileImportService = injector.getInstance(FileImportService.class);
+
+                ((FileImportServiceImpl) fileImportService).addFileImporter(fileImporterFactory);
+
                 new DisconnectHandler(serviceCallService);
 
 
@@ -185,7 +203,21 @@ public class ServiceCallImplIT {
                         .handler("DisconnectHandler1")
                         .create();
 
-                person = partyService.newPerson("Test", "test")
+                serviceCallTypeTwo = serviceCallService.createServiceCallType("second", "v2")
+                        .handler("someHandler")
+                        .handler("DisconnectHandler1")
+                        .create();
+
+                importSchedule = fileImportService.newBuilder()
+                        .setImportDirectory(Paths.get("./i"))
+                        .setFailureDirectory(Paths.get("./f"))
+                        .setProcessingDirectory(Paths.get("./p"))
+                        .setSuccessDirectory(Paths.get("./s"))
+                        .setScheduleExpression(Never.NEVER)
+                        .setImporterName(IMPORTER_NAME)
+                        .setName("name")
+                        .setPathMatcher("*.*")
+                        .setDestination("dest")
                         .create();
                 return null;
             }
@@ -207,7 +239,7 @@ public class ServiceCallImplIT {
             serviceCall = serviceCallType.newServiceCall()
                     .externalReference("external")
                     .origin("CST")
-                    .targetObject(person)
+                    .targetObject(importSchedule)
                     .extendedWith(extension)
                     .create();
             context.commit();
@@ -218,7 +250,7 @@ public class ServiceCallImplIT {
         assertThat(serviceCall.getState()).isEqualTo(DefaultState.CREATED);
         assertThat(serviceCall.getExternalReference()).contains("external");
         assertThat(serviceCall.getOrigin()).contains("CST");
-        assertThat((Optional<Object>) serviceCall.getTargetObject()).contains(person);
+        assertThat((Optional<Object>) serviceCall.getTargetObject()).contains(importSchedule);
 
         extension = serviceCall.getExtensionFor(customPropertySet).get();
 
@@ -245,7 +277,7 @@ public class ServiceCallImplIT {
             serviceCall = parentServiceCall.newChildCall(serviceCallType)
                     .externalReference("externalChild")
                     .origin("CSTchild")
-                    .targetObject(person)
+                    .targetObject(importSchedule)
                     .extendedWith(extension)
                     .create();
             context.commit();
@@ -257,7 +289,7 @@ public class ServiceCallImplIT {
         assertThat(serviceCall.getState()).isEqualTo(DefaultState.CREATED);
         assertThat(serviceCall.getExternalReference()).contains("externalChild");
         assertThat(serviceCall.getOrigin()).contains("CSTchild");
-        assertThat((Optional<Object>) serviceCall.getTargetObject()).contains(person);
+        assertThat((Optional<Object>) serviceCall.getTargetObject()).contains(importSchedule);
         assertThat(serviceCall.getParent()).contains(parentServiceCall);
         assertThat(childrenStatus.size()).isEqualTo(1);
         assertThat(childrenStatus.get(DefaultState.CREATED)).isEqualTo(1);
@@ -294,6 +326,109 @@ public class ServiceCallImplIT {
 
         assertThat(extension.getServiceCall()).isEqualTo(serviceCall);
         assertThat(extension.getValue()).isEqualTo(BigDecimal.valueOf(65456));
+    }
+
+    @Test
+    public void testServiceCallFinderSorting() {
+        ServiceCall serviceCallOne = null;
+        ServiceCall serviceCallTwo = null;
+        ServiceCall serviceCallThree = null;
+
+        MyPersistentExtension extension = new MyPersistentExtension();
+        extension.setValue(BigDecimal.valueOf(65456));
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCallOne = serviceCallType.newServiceCall()
+                    .externalReference("external")
+                    .origin("CST")
+                    .extendedWith(extension)
+                    .create();
+            serviceCallTwo = serviceCallOne.newChildCall(serviceCallType)
+                    .externalReference("external")
+                    .origin("CST")
+                    .extendedWith(extension)
+                    .create();
+            serviceCallThree = serviceCallType.newServiceCall()
+                    .externalReference("external")
+                    .origin("CST")
+                    .extendedWith(extension)
+                    .create();
+
+            context.commit();
+        }
+
+        List<ServiceCall> result = serviceCallService.getServiceCallFinder(new ServiceCallFilterImpl()).find();
+        assertThat(result).hasSize(3);
+        assertThat(result.get(0)).isEqualTo(serviceCallOne);
+        assertThat(result.get(1)).isEqualTo(serviceCallThree);
+        assertThat(result.get(2)).isEqualTo(serviceCallTwo);
+    }
+
+    @Test
+    public void testServiceCallFinderFiltering() {
+        ServiceCall serviceCallOne = null;
+        ServiceCall serviceCallTwo = null;
+        ServiceCall serviceCallThree = null;
+
+        MyPersistentExtension extension = new MyPersistentExtension();
+        extension.setValue(BigDecimal.valueOf(65456));
+
+        try (TransactionContext context = transactionService.getContext()) {
+            serviceCallOne = serviceCallTypeTwo.newServiceCall()
+                    .externalReference("external")
+                    .origin("CST")
+                    .create();
+            serviceCallTwo = serviceCallOne.newChildCall(serviceCallType)
+                    .externalReference("external")
+                    .origin("CST")
+                    .extendedWith(extension)
+                    .create();
+            serviceCallThree = serviceCallTypeTwo.newServiceCall()
+                    .externalReference("SAP")
+                    .origin("CST")
+                    .create();
+
+            context.commit();
+        }
+
+        ServiceCallFilter filter = new ServiceCallFilterImpl();
+        filter.setParent(serviceCallOne);
+
+        List<ServiceCall> result = serviceCallService.getServiceCallFinder(filter)
+                .find();
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0)).isEqualTo(serviceCallTwo);
+
+        filter = new ServiceCallFilterImpl();
+        filter.setParent(serviceCallThree);
+
+        result = serviceCallService.getServiceCallFinder(filter)
+                .find();
+        assertThat(result).hasSize(0);
+
+        filter = new ServiceCallFilterImpl();
+        filter.setReference("extern*");
+
+        result = serviceCallService.getServiceCallFinder(filter)
+                .find();
+        assertThat(result).hasSize(2);
+        assertThat(result).contains(serviceCallOne, serviceCallTwo);
+
+        List<String> type = new ArrayList<>();
+        type.add("second");
+
+        filter = new ServiceCallFilterImpl();
+        filter.setTypes(type);
+
+        result = serviceCallService.getServiceCallFinder(filter)
+                .find();
+        assertThat(result).hasSize(2);
+        assertThat(result).contains(serviceCallOne, serviceCallThree);
+
+
+
+        result = serviceCallOne.findChildren(new ServiceCallFilterImpl()).find();
+        assertThat(result).hasSize(1);
+        assertThat(result).contains(serviceCallTwo);
     }
 
     static class MyPersistentExtension implements PersistentDomainExtension<ServiceCall> {
