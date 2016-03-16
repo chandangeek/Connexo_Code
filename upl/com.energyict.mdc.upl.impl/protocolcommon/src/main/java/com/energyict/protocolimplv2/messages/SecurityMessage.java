@@ -157,6 +157,10 @@ public enum SecurityMessage implements DeviceMessageSpec {
     AGREE_NEW_AUTHENTICATION_KEY(35),
     CHANGE_SECURITY_SUITE(36,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.securitySuiteAttributeName, BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.valueOf(2))
+    ),
+    EXPORT_CERTIFICATE(37,
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.certificateEntityAttributeName, CertificateEntity.getPossibleValues()),
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.certificateTypeAttributeName, CertificateType.getPossibleValues())
     );
 
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;
@@ -212,6 +216,86 @@ public enum SecurityMessage implements DeviceMessageSpec {
     @Override
     public int getMessageId() {
         return id;
+    }
+
+    public enum CertificateEntity {
+        Server(0),
+        Client(1),
+        CertificationAuthority(2),
+        Other(3),
+        Invalid(-1);
+
+        int id;
+
+        CertificateEntity(int id) {
+            this.id = id;
+        }
+
+        public static String[] getPossibleValues() {
+            return new String[]{Server.name(), CertificationAuthority.name()};
+        }
+
+        public static CertificateEntity fromName(String name) {
+            for (CertificateEntity certificateEntity : values()) {
+                if (certificateEntity.name().equals(name)) {
+                    return certificateEntity;
+                }
+            }
+            return Invalid;
+        }
+
+        public static CertificateEntity fromId(int id) {
+            for (CertificateEntity certificateEntity : values()) {
+                if (certificateEntity.getId() == id) {
+                    return certificateEntity;
+                }
+            }
+            return Invalid;
+        }
+
+        public int getId() {
+            return id;
+        }
+    }
+
+    public enum CertificateType {
+        DigitalSignature(0),
+        KeyAgreement(1),
+        TLS(2),
+        Other(3),
+        Invalid(-1);
+
+        int id;
+
+        CertificateType(int id) {
+            this.id = id;
+        }
+
+        public static String[] getPossibleValues() {
+            return new String[]{DigitalSignature.name(), KeyAgreement.name(), TLS.name(), Other.name()};
+        }
+
+        public static CertificateType fromName(String name) {
+            for (CertificateType certificateType : values()) {
+                if (certificateType.name().equals(name)) {
+                    return certificateType;
+                }
+            }
+            return Invalid;
+        }
+
+        public static CertificateType fromId(int id) {
+            for (CertificateType certificateType : values()) {
+                if (certificateType.getId() == id) {
+                    return certificateType;
+                }
+            }
+            return Invalid;
+        }
+
+        public int getId() {
+            return id;
+        }
     }
 
     public enum SealActions {
