@@ -2,7 +2,8 @@ Ext.define('Mdc.view.setup.comserver.ComServerPreview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.comServerPreview',
     requires: [
-        'Mdc.store.ComServers'
+        'Mdc.store.ComServers',
+        'Mdc.view.setup.comserver.ActionMenu'
     ],
     itemId: 'comserverpreview',
     layout: 'fit',
