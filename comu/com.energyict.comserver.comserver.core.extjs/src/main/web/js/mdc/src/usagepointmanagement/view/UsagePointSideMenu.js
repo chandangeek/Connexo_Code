@@ -8,9 +8,20 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointSideMenu', {
         var me = this;
         me.menuItems = [
             {
-                text: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
-                itemId: 'usage-point-overview-link',
-                href: me.router.getRoute('usagepoints/usagepoint').buildUrl({mRID: me.mRID})
+                xtype: 'menu',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
+                        itemId: 'usage-point-overview-link',
+                        href: me.router.getRoute('usagepoints/usagepoint').buildUrl({mRID: me.mRID})
+                    },
+                    {
+                        text: Uni.I18n.translate('devicemenu.processes', 'MDC', 'Processes'),
+                        privileges: Mdc.privileges.Device.deviceProcesses,
+                        itemId: 'usage-point-processes-link',
+                        href: me.router.getRoute('usagepoints/usagepoint/processes').buildUrl({mRID: me.mRID})
+                    }
+                ]
             }
         ];
         me.callParent(arguments);

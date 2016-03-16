@@ -5,7 +5,8 @@ Ext.define('Mdc.usagepointmanagement.view.Setup', {
     requires: [
         'Mdc.usagepointmanagement.view.MetrologyConfiguration',
         'Mdc.usagepointmanagement.view.UsagePointSideMenu',
-        'Mdc.usagepointmanagement.view.UsagePointAttributesFormMain'
+        'Mdc.usagepointmanagement.view.UsagePointAttributesFormMain',
+        'Mdc.usagepointmanagement.view.UsagePointActionMenu'
     ],
     router: null,
     content: [
@@ -24,6 +25,31 @@ Ext.define('Mdc.usagepointmanagement.view.Setup', {
         var me = this,
             panel = me.content[0];
         panel.title = me.router.getRoute().getTitle();
+
+        panel.tools = [
+            {
+                xtype: 'toolbar',
+                margin: '0 20 0 0',
+                items: [
+                    '->',
+                    {
+                        xtype: 'button',
+                        itemId: 'usage-point-landing-actions-btn',
+                        hidden: true,
+                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                        style: {
+                            'background-color': '#71adc7'
+                        },
+                        iconCls: 'x-uni-action-iconD',
+                        menu: {
+                            xtype: 'usage-point-action-menu',
+                            itemId: 'usagePointActionMenu',
+                            router: me.router
+                        }
+                    }
+                ]
+            }
+        ];
         me.side = [
             {
                 xtype: 'panel',
