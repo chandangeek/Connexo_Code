@@ -1,23 +1,24 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.http.whiteboard.App;
-import com.elster.jupiter.http.whiteboard.SecurityToken;
+import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 
 import javax.inject.Inject;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Path("/apps")
@@ -29,20 +30,26 @@ public class AppResource {
     private UserService userService;
     @Inject
     private JsonService jsonService;
+    @Inject
+    private HttpAuthenticationService authenticationService;
 
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public List<AppInfo> getApps(@Context SecurityContext securityContext) {
         // TODO: sessions will not be used, so we need to explicitly set the security context principal on authentication
         User user = (User) securityContext.getUserPrincipal();
 
-        return whiteBoard.getApps().stream().filter(app -> app.isAllowed(user)).map(this::appInfo).collect(Collectors.toList());
+        return whiteBoard.getApps()
+                .stream()
+                .filter(app -> app.isAllowed(user))
+                .map(this::appInfo)
+                .collect(Collectors.toList());
     }
 
     @GET
     @Path("/status/{app}/")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public LicenseInfo getAppLicenseStatus(@PathParam("app") String app) {
         License license = getAppLicense(app);
         if (license != null) {
@@ -56,7 +63,7 @@ public class AppResource {
                 return new LicenseInfo(License.Status.EXPIRED.name());
             }
         }
-        return  new LicenseInfo("NO_LICENSE");
+        return new LicenseInfo("NO_LICENSE");
     }
 
     @POST
@@ -70,13 +77,8 @@ public class AppResource {
     public void logout(@Context SecurityContext securityContext, @Context HttpServletRequest request, @Context HttpServletResponse response) {
         User user = (User) securityContext.getUserPrincipal();
         userService.removeLoggedUser(user);
+        authenticationService.logout(request, response);
 
-        // Invalidate token & server side session
-        Optional<Cookie> tokenCookie = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
-        if(tokenCookie.isPresent()){
-            SecurityToken.getInstance().removeCookie(request,response);
-            SecurityToken.getInstance().invalidateSession(request);
-        }
     }
 
     private AppInfo appInfo(App app) {

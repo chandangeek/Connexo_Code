@@ -3,11 +3,9 @@ package com.elster.jupiter.http.whiteboard.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.http.whiteboard.*;
-import static com.elster.jupiter.orm.Table.*;
 
 public enum TableSpecs {
-    HTW_KEYSTORE(KeyStore.class) {
+    HTW_KEYSTORE(KeyStoreImpl.class) {
 
         @Override
         void describeTable(Table table) {
