@@ -30,6 +30,7 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
 
                         {
                             xtype: 'checkbox',
+                            itemId: 'task-bulk-assignee-check',
                             name: 'cbAssignee',
                             inputValue: 'assign',
                             listeners: {
@@ -45,7 +46,6 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
                             xtype: 'fieldcontainer',
                             name: 'assign',
                             disabled: true,
-                            //hidden: true,
                             margin: '0 10 0 0',
                             width: 800,
                             layout: 'hbox',
@@ -53,6 +53,7 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
 
                                 {
                                     xtype: 'combobox',
+                                    itemId: 'cbo-bulk-task-assignee',
                                     fieldLabel: Uni.I18n.translate('general.assignee', 'BPM', 'Assignee'),
                                     required: true,
                                     queryMode: 'local',
@@ -63,7 +64,7 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
                                     name: 'assigneeCombo',
                                     emptyText: Uni.I18n.translate('bpm.task.startTypingForUsers', 'BPM', 'Start typing for users'),
                                     displayField: 'name'
-                                }//,
+                                }
 
                             ]
                         },
@@ -86,6 +87,7 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
                     items: [
                         {
                             xtype: 'checkbox',
+                            itemId: 'task-bulk-due-date-check',
                             margin: '10 0 0 0',
                             name: 'cbDuedate',
                             inputValue: 'dueDate',
@@ -103,7 +105,6 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
                             fieldLabel: Uni.I18n.translate('bpm.task.bulk.dueDate', 'BPM', 'Due date'),
                             name: 'setDueDate',
                             disabled: true,
-                            //hidden: true,
                             margin: '10 0 10 0',
                             layout: 'hbox',
                             items: [
@@ -142,7 +143,7 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
                     items: [
                         {
                             xtype: 'checkbox',
-                            //margin: '10 0 0 0',
+                            itemId: 'task-bulk-priority-check',
                             name: 'cbPriority',
                             inputValue: 'priority',
                             listeners: {
@@ -160,7 +161,6 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
                             fieldLabel: Uni.I18n.translate('bpm.task.priority', 'BPM', 'Priority'),
                             name: 'setPriority',
                             disabled: true,
-                            //hidden: true,
                             margin: '0 0 10 0',
                             layout: 'hbox',
 
@@ -233,8 +233,5 @@ Ext.define('Bpm.view.task.bulk.ManageTaskForm', {
             }
         });
 
-        //me.down('fieldcontainer[name=assign]').setVisible(false);
-        //me.down('fieldcontainer[name=setPriority]').setVisible(false);
-        //me.down('fieldcontainer[name=setDueDate]').setVisible(false);
     }
 });
