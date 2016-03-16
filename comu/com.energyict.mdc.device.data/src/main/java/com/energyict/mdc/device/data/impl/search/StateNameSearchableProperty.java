@@ -45,52 +45,11 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
      * of a {@link Device}.
      */
     public static final String VIRTUAL_FIELD_NAME = "device.state.name";
-
-    private DeviceSearchDomain domain;
-    private SearchableProperty parent;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
+    private DeviceSearchDomain domain;
+    private SearchableProperty parent;
     private DeviceState[] states = new DeviceState[0];
-
-    static final class DeviceState implements HasId, HasName {
-        private long id;
-        private String name;
-
-        DeviceState(long id, String name) {
-            this.id = id;
-            this.name = name;
-        }
-
-        @Override
-        public long getId() {
-            return id;
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            DeviceState that = (DeviceState) o;
-
-            return id == that.id;
-
-        }
-
-        @Override
-        public int hashCode() {
-            return (int) (id ^ (id >>> 32));
-        }
-    }
 
     @Inject
     public StateNameSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
@@ -142,7 +101,7 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
 
     @Override
     protected String toDisplayAfterValidation(Object value) {
-        return ((DeviceState)value).getName();
+        return ((DeviceState) value).getName();
     }
 
     @Override
@@ -173,24 +132,16 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
     private void refreshWithConstrictions(SearchablePropertyConstriction constriction) {
         if (constriction.getConstrainingProperty().hasName(DeviceTypeSearchableProperty.PROPERTY_NAME)) {
             this.refreshWithConstrictionValues(constriction.getConstrainingValues());
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Unknown or unexpected constriction, was expecting the constraining property to be the device type");
         }
     }
 
     private void refreshWithConstrictionValues(List<Object> deviceTypes) {
         this.validateAllParentsAreDeviceTypes(deviceTypes);
-        DisplayStrategy displayStrategy;
-        if (deviceTypes.size() > 1) {
-            displayStrategy = DisplayStrategy.WITH_LIFE_CYCLE;
-        }
-        else {
-            displayStrategy = DisplayStrategy.NAME_ONLY;
-        }
         this.states = deviceTypes.stream()
                 .map(DeviceType.class::cast)
-                .flatMap(deviceType1 -> this.getDeviceStatesFor(deviceType1, displayStrategy))
+                .flatMap(deviceType -> this.getDeviceStatesFor(deviceType))
                 .sorted((state1, state2) -> state1.getName().compareToIgnoreCase(state2.getName()))
                 .toArray(DeviceState[]::new);
     }
@@ -205,21 +156,30 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
         }
     }
 
-    private Stream<DeviceState> getDeviceStatesFor(DeviceType deviceType, DisplayStrategy displayStrategy) {
+    private Stream<DeviceState> getDeviceStatesFor(DeviceType deviceType) {
         return deviceType
                 .getDeviceLifeCycle()
                 .getFiniteStateMachine()
                 .getStates()
                 .stream()
-                .map(s -> displayStrategy.toDisplay(s, deviceType, this.thesaurus));
+                .map(s -> new DeviceState(s.getId(), getStateName(s, thesaurus) + " (" + deviceType.getDeviceLifeCycle().getName() + ")"));
+    }
+
+    protected String getStateName(State state, Thesaurus thesaurus) {
+        Optional<DefaultState> defaultState = DefaultState.from(state);
+        if (defaultState.isPresent()) {
+            return thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getKey());
+        } else {
+            return state.getName();
+        }
     }
 
     @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
         builder
-            .addEndDevice()
-            .addEndDeviceStatus()
-            .addFiniteState();
+                .addEndDevice()
+                .addEndDeviceStatus()
+                .addFiniteState();
     }
 
     @Override
@@ -237,6 +197,46 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
         sqlBuilder.add(this.toSqlFragment("fs.id", condition, now));
         sqlBuilder.closeBracket();
         return sqlBuilder;
+    }
+
+    static final class DeviceState implements HasId, HasName {
+        private long id;
+        private String name;
+
+        DeviceState(long id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        @Override
+        public long getId() {
+            return id;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            DeviceState that = (DeviceState) o;
+
+            return id == that.id;
+
+        }
+
+        @Override
+        public int hashCode() {
+            return (int) (id ^ (id >>> 32));
+        }
     }
 
     private class DeviceStateValueFactory extends SearchHelperValueFactory<DeviceState> {
@@ -257,32 +257,4 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
             return String.valueOf(object.getId());
         }
     }
-
-    private enum DisplayStrategy {
-        NAME_ONLY {
-            @Override
-            public DeviceState toDisplay(State state, DeviceType deviceType, Thesaurus thesaurus) {
-                return new DeviceState(state.getId(), getStateName(state, thesaurus)) ;
-            }
-        },
-
-        WITH_LIFE_CYCLE {
-            @Override
-            public DeviceState toDisplay(State state, DeviceType deviceType, Thesaurus thesaurus) {
-                return new DeviceState(state.getId(), getStateName(state, thesaurus) + " (" + deviceType.getDeviceLifeCycle().getName() + ")");
-            }
-        };
-
-        protected String getStateName(State state, Thesaurus thesaurus) {
-            Optional<DefaultState> defaultState = DefaultState.from(state);
-            if (defaultState.isPresent()) {
-                return thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getKey());
-            } else {
-                return state.getName();
-            }
-        }
-
-        public abstract DeviceState toDisplay(State state, DeviceType deviceType, Thesaurus thesaurus);
-    }
-
 }

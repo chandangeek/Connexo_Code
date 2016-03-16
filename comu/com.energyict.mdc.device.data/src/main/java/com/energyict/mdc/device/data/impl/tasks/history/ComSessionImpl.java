@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.ComSessionSuccessIndicatorTranslationKeys;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.HasLastComSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -20,6 +21,7 @@ import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -85,6 +87,7 @@ public class ComSessionImpl implements ComSession {
 
     private long id;
     private final DataModel dataModel;
+    private Thesaurus thesaurus;
     private final ConnectionTaskService connectionTaskService;
     private Reference<ConnectionTask> connectionTask = ValueReference.absent();
     private Reference<ComPort> comPort = ValueReference.absent();
@@ -111,10 +114,11 @@ public class ComSessionImpl implements ComSession {
     private List<ComTaskExecutionSession> comTaskExecutionSessions = new ArrayList<>();
 
     @Inject
-    ComSessionImpl(DataModel dataModel, ConnectionTaskService connectionTaskService) {
+    ComSessionImpl(DataModel dataModel, ConnectionTaskService connectionTaskService, Thesaurus thesaurus) {
         super();
         this.dataModel = dataModel;
         this.connectionTaskService = connectionTaskService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -288,6 +292,11 @@ public class ComSessionImpl implements ComSession {
     @Override
     public ComSession.SuccessIndicator getSuccessIndicator() {
         return successIndicator;
+    }
+
+    @Override
+    public String getSuccessIndicatorDisplayName() {
+        return ComSessionSuccessIndicatorTranslationKeys.translationFor(this.successIndicator, this.thesaurus);
     }
 
     @Override

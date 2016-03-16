@@ -317,6 +317,7 @@ public class DeviceConfigurationSearchablePropertyTest {
     @Test
     public void toDisplayAfterRefreshWithOneDeviceType() {
         DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getName()).thenReturn("deviceType");
         String expectedDisplayValue = "toDisplayAfterRefreshWithOneDeviceType";
         DeviceConfigurationSearchableProperty property = this.getTestInstance();
         DeviceConfiguration config1 = mock(DeviceConfiguration.class);
@@ -332,7 +333,7 @@ public class DeviceConfigurationSearchablePropertyTest {
         String displayString = property.toDisplay(config1);
 
         // Asserts
-        assertThat(displayString).isEqualTo(expectedDisplayValue);
+        assertThat(displayString).isEqualTo(expectedDisplayValue + " (deviceType)");
     }
 
     @Test
