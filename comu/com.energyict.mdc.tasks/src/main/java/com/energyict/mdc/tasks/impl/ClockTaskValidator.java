@@ -72,6 +72,20 @@ public class ClockTaskValidator implements ConstraintValidator<ValidClockTask, C
                     fail(context, MessageSeeds.Keys.CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
                     valid=false;
                 }
+                if (value.getMinimumClockDifference().isPresent() && value.getMaximumClockDifference().isPresent()) {
+                    switch (value.getMinimumClockDifference().get().compareTo(value.getMaximumClockDifference().get())) {
+                        case 0:   // both can not be the same
+                            fail(context, MessageSeeds.Keys.MIN_EQUALS_MAX, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
+                            fail(context, MessageSeeds.Keys.MIN_EQUALS_MAX, ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName());
+                            valid=false;
+                            break;
+                        case 1:   // max. should be greater then min.
+                            fail(context, MessageSeeds.Keys.MIN_MUST_BE_BELOW_MAX, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
+                            fail(context, MessageSeeds.Keys.MIN_MUST_BE_BELOW_MAX, ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName());
+                            valid=false;
+                            break;
+                    }
+                }
                 break;
         }
 

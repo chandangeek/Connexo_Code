@@ -1,5 +1,7 @@
 package com.energyict.mdc.tasks;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -90,10 +92,13 @@ public class PersistenceTest {
                 new PluggableModule(),
                 new ProtocolApiModule(),
                 new TransactionModule(false),
-                new TasksModule());
+                new TasksModule(),
+                new CustomPropertySetsModule()
+        );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
             injector.getInstance(NlsService.class); // fake call to make sure component is initialized
             injector.getInstance(EventService.class); // fake call to make sure component is initialized
+            injector.getInstance(CustomPropertySetService.class); // fake call to make sure component is initialized
             injector.getInstance(FiniteStateMachineService.class); // fake call to make sure component is initialized
             injector.getInstance(MasterDataService.class); // fake call to make sure component is initialized
             injector.getInstance(TaskService.class); // fake call to make sure component is initialized
