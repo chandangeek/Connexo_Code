@@ -1,7 +1,8 @@
 Ext.define('Uni.property.view.property.SelectionGrid', {
     extend: 'Uni.property.view.property.Base',
     requires: [
-        'Uni.view.grid.SelectionGrid'
+        'Uni.view.grid.SelectionGrid',
+        'Uni.util.FormErrorMessage'
     ],
 
     ignoreFields: ['id', 'lifeCycleId'],
@@ -15,7 +16,13 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
     getEditCmp: function () {
         var me = this;
 
-        return {
+        return  !me.getProperty().getPossibleValues() ?
+        {
+            xtype: 'uni-form-error-message',
+            text: Uni.I18n.translate('Uni.property.selectionGrid.error', 'UNI', 'No possible options is available'),
+            hidden: me.getProperty().getPossibleValues()
+        } :
+        {
             margin: '-7 0 0 0',
             xtype: 'fieldcontainer',
             itemId: 'selection-grid-fieldcontainer',
@@ -26,6 +33,7 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
                 align: 'stretch'
             },
             flex: 1,
+            hidden: !me.getProperty().getPossibleValues(),
             items: [
                 {
                     xtype: 'selection-grid',
@@ -62,28 +70,32 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
     getGridStore: function(){
         var me = this,
             store = null,
+            values = me.getProperty().getPossibleValues(),
             first, fields = [];
 
-        if (me.getProperty().getPossibleValues().length == 0)
-            return  store;
+        if (values ) {
+            if (values.length == 0) {
+                return  store;
+            } else {
+                first = values[0];
+                for (var dataIndex in first) {
+                    if (Ext.Array.contains(me.ignoreFields, dataIndex))
+                        continue;
 
-        first = me.getProperty().getPossibleValues()[0];
-        for (var dataIndex in first) {
-            if (Ext.Array.contains(me.ignoreFields, dataIndex))
-                continue;
+                    var idx = Ext.String.format('{0}.{1}', me.getProperty().get('key'), dataIndex);
+                    var obj = me.availableFields.filter(function ( index ) {
+                        return index.id === idx;
+                    })[0];
 
-            var idx = Ext.String.format('{0}.{1}', me.getProperty().get('key'), dataIndex);
-            var obj = me.availableFields.filter(function ( index ) {
-                return index.id === idx;
-            })[0];
+                    if (obj == undefined)
+                        continue;
 
-            if (obj == undefined)
-                continue;
-
-            fields.push({
-                name: dataIndex,
-                type: 'string'
-            });
+                    fields.push({
+                        name: dataIndex,
+                        type: 'string'
+                    });
+                }
+            }
         }
 
         return Ext.create('Ext.data.Store',{fields: fields});
@@ -92,33 +104,36 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
     getGridColumns: function() {
         var me = this,
             store = null,
+            values = me.getProperty().getPossibleValues(),
             first, columns = [];
 
-        if (me.getProperty().getPossibleValues().length == 0)
-            return store;
+        if (values ) {
+            if (values.length == 0) {
+                return store;
+            } else {
+                first = me.getProperty().getPossibleValues()[0];
+                for (var dataIndex in first) {
+                    if (Ext.Array.contains(me.ignoreFields, dataIndex))
+                        continue;
 
-        first = me.getProperty().getPossibleValues()[0];
-        for (var dataIndex in first) {
-            if (Ext.Array.contains(me.ignoreFields, dataIndex))
-                continue;
+                    var idx = Ext.String.format('{0}.{1}', me.getProperty().get('key'), dataIndex);
+                    var obj = me.availableFields.filter(function ( index ) {
+                        return index.id === idx;
+                    })[0];
 
-            var idx = Ext.String.format('{0}.{1}', me.getProperty().get('key'), dataIndex);
-            var obj = me.availableFields.filter(function ( index ) {
-                return index.id === idx;
-            })[0];
+                    if (obj == undefined)
+                        continue;
 
-            if (obj == undefined)
-                continue;
-
-            columns.push({
-                header: obj.value,
-                dataIndex: dataIndex,
-                flex: 1
-            });
+                    columns.push({
+                        header: obj.value,
+                        dataIndex: dataIndex,
+                        flex: 1
+                    });
+                }
+            }
         }
 
         return columns;
-
     },
 
     getValue: function () {
@@ -129,26 +144,32 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
 
     setValue: function (values) {
         var me = this,
-            grid = me.down('#selection-grid'),
-            store = grid.getStore();
+            grid = me.down('#selection-grid');
 
-        Ext.suspendLayouts();
-        store.loadData(me.getProperty().getPossibleValues(), true);
+        if (grid) {
+            var store = grid.getStore(),
+                possibleValues = me.getProperty().getPossibleValues();
 
-        if (Ext.isArray(values)) {
-            grid.getSelectionModel().suspendChanges();
-            Ext.Array.forEach(values, function(value) {
-                grid.getSelectionModel().select(store.findExact('id', value), true);
-            });
-            grid.getSelectionModel().resumeChanges();
-            grid.fireEvent('selectionchange');
+            Ext.suspendLayouts();
+            if (possibleValues) {
+                store.loadData(possibleValues, true);
+            }
+
+            if (Ext.isArray(values)) {
+                grid.getSelectionModel().suspendChanges();
+                Ext.Array.forEach(values, function(value) {
+                    grid.getSelectionModel().select(store.findExact('id', value), true);
+                });
+                grid.getSelectionModel().resumeChanges();
+                grid.fireEvent('selectionchange');
+            }
+            if (store.getCount()) {
+                grid.show();
+            } else {
+                grid.hide();
+            }
+            Ext.resumeLayouts(true);
         }
-        if (store.getCount()) {
-            grid.show();
-        } else {
-            grid.hide();
-        }
-        Ext.resumeLayouts(true);
     },
 
     recordsToIds: function (data) {
