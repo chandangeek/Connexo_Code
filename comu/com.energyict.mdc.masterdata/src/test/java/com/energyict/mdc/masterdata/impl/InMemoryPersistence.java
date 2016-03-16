@@ -1,5 +1,7 @@
 package com.energyict.mdc.masterdata.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
@@ -87,13 +89,16 @@ public class InMemoryPersistence {
                 new FiniteStateMachineModule(),
                 readingTypes.length==0?MeteringModule.withAllReadingTypes_AVOID_AVOID():new MeteringModule(readingTypes[0], Arrays.copyOfRange(readingTypes, 1, readingTypes.length)),
                 new MdcReadingTypeUtilServiceModule(),
-                new MasterDataModule());
+                new MasterDataModule(),
+                new CustomPropertySetsModule()
+        );
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.ormService = injector.getInstance(OrmService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
             injector.getInstance(UserService.class);
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             this.mdcReadingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
