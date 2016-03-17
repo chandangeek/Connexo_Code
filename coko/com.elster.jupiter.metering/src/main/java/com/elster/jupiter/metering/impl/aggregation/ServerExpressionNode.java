@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
-import com.elster.jupiter.metering.impl.config.ExpressionNode;
+import com.elster.jupiter.metering.config.ExpressionNode;
 
 /**
  * Like {@link ExpressionNode} but models behavior

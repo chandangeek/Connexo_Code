@@ -1,5 +1,8 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.Function;
+import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
@@ -64,14 +67,14 @@ public class ExpressionNodeParser {
     }
 
     private void handleConstantNode(String value) {
-        nodes.add(new ConstantNode(new BigDecimal(value)));
+        nodes.add(new ConstantNodeImpl(new BigDecimal(value)));
     }
 
     private void handleOperationNode(String operator) {
         if (nodes.size() < 2) {
             throw new IllegalArgumentException("Operator '" + operator + "' requires at least 2 arguments");
         }
-        OperationNode operationNode = new OperationNode(getOperator(operator), nodes.get(nodes.size() - 2), nodes.get(nodes.size() - 1), thesaurus);
+        OperationNodeImpl operationNode = new OperationNodeImpl(getOperator(operator), nodes.get(nodes.size() - 2), nodes.get(nodes.size() - 1), thesaurus);
         nodes.remove(nodes.size() - 2);
         nodes.remove(nodes.size() - 1);
         nodes.add(operationNode);
@@ -82,7 +85,7 @@ public class ExpressionNodeParser {
             throw new IllegalArgumentException("Operator '" + function + "' requires at least 1 argument");
         }
         int numberOfArguments = getNumberOfArguments();
-        FunctionCallNode functionCallNode = new FunctionCallNode(
+        FunctionCallNodeImpl functionCallNode = new FunctionCallNodeImpl(
                 nodes.subList(nodes.size() - numberOfArguments, nodes.size()),
                 getFunction(function), thesaurus);
         for (int i = 0; i < numberOfArguments; i++) {

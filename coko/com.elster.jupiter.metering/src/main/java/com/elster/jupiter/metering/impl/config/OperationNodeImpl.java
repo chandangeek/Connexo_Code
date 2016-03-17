@@ -1,6 +1,9 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.OperationNode;
+import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.units.Dimension;
@@ -11,29 +14,30 @@ import java.util.Optional;
 /**
  * Created by igh on 4/02/2016.
  */
-public class OperationNode extends AbstractNode {
-
-    static final String TYPE_IDENTIFIER = "OPR";
+public class OperationNodeImpl extends AbstractNode implements OperationNode {
 
     private Operator operator;
     private Thesaurus thesaurus;
 
-    public OperationNode() {}
+    public OperationNodeImpl() {}
 
-    public OperationNode(Operator operator, ExpressionNode operand1, ExpressionNode operand2, Thesaurus thesaurus) {
+    public OperationNodeImpl(Operator operator, ExpressionNode operand1, ExpressionNode operand2, Thesaurus thesaurus) {
         super(Arrays.asList(operand1, operand2));
         this.operator = operator;
         this.thesaurus = thesaurus;
     }
 
+    @Override
     public Operator getOperator() {
         return operator;
     }
 
+    @Override
     public ExpressionNode getLeftOperand() {
         return this.getChildren().get(0);
     }
 
+    @Override
     public ExpressionNode getRightOperand() {
         return this.getChildren().get(1);
     }

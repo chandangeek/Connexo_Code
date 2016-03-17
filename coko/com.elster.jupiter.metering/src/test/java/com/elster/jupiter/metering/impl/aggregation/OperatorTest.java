@@ -18,22 +18,22 @@ public class OperatorTest {
 
     @Test
     public void plus() {
-        assertThat(Operator.from(com.elster.jupiter.metering.impl.config.Operator.PLUS)).isEqualTo(Operator.PLUS);
+        assertThat(Operator.from(com.elster.jupiter.metering.config.Operator.PLUS)).isEqualTo(Operator.PLUS);
     }
 
     @Test
     public void minus() {
-        assertThat(Operator.from(com.elster.jupiter.metering.impl.config.Operator.MINUS)).isEqualTo(Operator.MINUS);
+        assertThat(Operator.from(com.elster.jupiter.metering.config.Operator.MINUS)).isEqualTo(Operator.MINUS);
     }
 
     @Test
     public void multiply() {
-        assertThat(Operator.from(com.elster.jupiter.metering.impl.config.Operator.MULTIPLY)).isEqualTo(Operator.MULTIPLY);
+        assertThat(Operator.from(com.elster.jupiter.metering.config.Operator.MULTIPLY)).isEqualTo(Operator.MULTIPLY);
     }
 
     @Test
     public void divide() {
-        assertThat(Operator.from(com.elster.jupiter.metering.impl.config.Operator.DIVIDE)).isEqualTo(Operator.DIVIDE);
+        assertThat(Operator.from(com.elster.jupiter.metering.config.Operator.DIVIDE)).isEqualTo(Operator.DIVIDE);
     }
 
 }

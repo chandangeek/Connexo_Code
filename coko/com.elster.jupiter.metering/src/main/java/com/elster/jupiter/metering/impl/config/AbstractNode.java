@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -20,11 +21,11 @@ public abstract class AbstractNode implements ExpressionNode {
     // ORM inheritance map
     public static final Map<String, Class<? extends ExpressionNode>> IMPLEMENTERS =
             ImmutableMap.<String, Class<? extends ExpressionNode>>of(
-                    ConstantNode.TYPE_IDENTIFIER, ConstantNode.class,
-                    FunctionCallNode.TYPE_IDENTIFIER, FunctionCallNode.class,
-                    OperationNode.TYPE_IDENTIFIER, OperationNode.class,
-                    ReadingTypeDeliverableNode.TYPE_IDENTIFIER, ReadingTypeDeliverableNode.class,
-                    ReadingTypeRequirementNode.TYPE_IDENTIFIER, ReadingTypeRequirementNode.class
+                    com.elster.jupiter.metering.config.ConstantNode.TYPE_IDENTIFIER, ConstantNodeImpl.class,
+                    com.elster.jupiter.metering.config.FunctionCallNode.TYPE_IDENTIFIER, FunctionCallNodeImpl.class,
+                    com.elster.jupiter.metering.config.OperationNode.TYPE_IDENTIFIER, OperationNodeImpl.class,
+                    com.elster.jupiter.metering.config.ReadingTypeDeliverableNode.TYPE_IDENTIFIER, ReadingTypeDeliverableNodeImpl.class,
+                    com.elster.jupiter.metering.config.ReadingTypeRequirementNode.TYPE_IDENTIFIER, ReadingTypeRequirementNodeImpl.class
             );
 
     private long id;
@@ -49,22 +50,21 @@ public abstract class AbstractNode implements ExpressionNode {
         this.parent.set(parentNode);
     }
 
+    @Override
     public ExpressionNode getParent() {
         return parent.orNull();
     }
 
+    @Override
     public List<ExpressionNode> getChildren() {
         return children;
     }
-
-    /*public List<ExpressionNode> getChildren(DataModel dataModel) {
-        return dataModel.mapper(ExpressionNode.class).find("PARENTID", this.id);
-    }*/
 
     public void setParent(AbstractNode parent) {
         this.parent.set(parent);
     }
 
+    @Override
     public long getId() {
         return id;
     }

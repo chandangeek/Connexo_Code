@@ -1,9 +1,15 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
+import com.elster.jupiter.metering.config.Function;
+import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.NodeBuilder;
+import com.elster.jupiter.metering.config.ExpressionNodeBuilder;
+import com.elster.jupiter.metering.config.OperationNode;
+import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.nls.Thesaurus;
@@ -13,9 +19,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import static org.mockito.Mockito.when;
 
-import com.elster.jupiter.util.units.Dimension;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -65,7 +69,7 @@ public class FormulaCrudTest {
 
             FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
-            NodeBuilder nodeBuilder = builder.constant(10);
+            ExpressionNodeBuilder nodeBuilder = builder.constant(10);
             Formula formula = builder.init(nodeBuilder).build();
             context.commit();
             long formulaId = formula.getId();
@@ -77,7 +81,7 @@ public class FormulaCrudTest {
             ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
             ConstantNode node = (ConstantNode) nodeBuilder.create();
             assertThat(myNode.equals(node));
-            assertThat(myNode).isInstanceOf(ConstantNode.class);
+            assertThat(myNode).isInstanceOf(ConstantNodeImpl.class);
             ConstantNode constantNode = (ConstantNode) myNode;
             assertThat(constantNode.getValue().equals(BigDecimal.TEN));
         }
@@ -93,7 +97,7 @@ public class FormulaCrudTest {
 
             FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
-            NodeBuilder nodeBuilder = builder.maximum(
+            ExpressionNodeBuilder nodeBuilder = builder.maximum(
                     builder.constant(10),
                     builder.constant(0));
             Formula formula = builder.init(nodeBuilder).build();
@@ -106,17 +110,17 @@ public class FormulaCrudTest {
             assertThat(myFormula.getId() == formulaId);
             assertThat(myFormula.getMode().equals(myMode));
             ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
-            FunctionCallNode node = (FunctionCallNode) nodeBuilder.create();
+            FunctionCallNodeImpl node = (FunctionCallNodeImpl) nodeBuilder.create();
             assertThat(myNode.equals(node));
-            assertThat(myNode).isInstanceOf(FunctionCallNode.class);
+            assertThat(myNode).isInstanceOf(FunctionCallNodeImpl.class);
             FunctionCallNode functionCallNode = (FunctionCallNode) myNode;
             assertThat(functionCallNode.getFunction().equals(myFunction));
             List<ExpressionNode> children = functionCallNode.getChildren();
             assertThat(children).hasSize(2);
             ExpressionNode child1 = children.get(0);
             ExpressionNode child2 = children.get(1);
-            assertThat(child1).isInstanceOf(ConstantNode.class);
-            assertThat(child2).isInstanceOf(ConstantNode.class);
+            assertThat(child1).isInstanceOf(ConstantNodeImpl.class);
+            assertThat(child2).isInstanceOf(ConstantNodeImpl.class);
             ConstantNode constant1 = (ConstantNode) child1;
             assertThat(constant1.getValue().equals(BigDecimal.TEN));
             ConstantNode constant2 = (ConstantNode) child2;
@@ -136,7 +140,7 @@ public class FormulaCrudTest {
 
             FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
-            NodeBuilder nodeBuilder = builder.maximum(
+            ExpressionNodeBuilder nodeBuilder = builder.maximum(
                     builder.constant(10),
                     builder.plus(
                             builder.constant(10),
@@ -153,21 +157,21 @@ public class FormulaCrudTest {
             assertThat(myFormula.getMode().equals(myMode));
             ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
 
-            FunctionCallNode node = (FunctionCallNode) nodeBuilder.create();
+            FunctionCallNodeImpl node = (FunctionCallNodeImpl) nodeBuilder.create();
 
             assertThat(myNode.equals(node));
-            assertThat(myNode).isInstanceOf(FunctionCallNode.class);
+            assertThat(myNode).isInstanceOf(FunctionCallNodeImpl.class);
             FunctionCallNode functionCallNode = (FunctionCallNode) myNode;
             assertThat(functionCallNode.getFunction().equals(myFunction));
             List<ExpressionNode> children = functionCallNode.getChildren();
             assertThat(children).hasSize(2);
             ExpressionNode child1 = children.get(0);
             ExpressionNode child2 = children.get(1);
-            assertThat(child1).isInstanceOf(ConstantNode.class);
-            assertThat(child2).isInstanceOf(OperationNode.class);
+            assertThat(child1).isInstanceOf(ConstantNodeImpl.class);
+            assertThat(child2).isInstanceOf(OperationNodeImpl.class);
             ConstantNode constant = (ConstantNode) child1;
             assertThat(constant.getValue().equals(BigDecimal.TEN));
-            OperationNode operation = (OperationNode) child2;
+            OperationNodeImpl operation = (OperationNodeImpl) child2;
             assertThat(operation.getOperator().equals(Operator.PLUS));
         }
     }
@@ -191,7 +195,7 @@ public class FormulaCrudTest {
             assertThat(myFormula.getMode().equals(myMode));
             ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
             assertThat(myNode.equals(node));
-            assertThat(myNode).isInstanceOf(ConstantNode.class);
+            assertThat(myNode).isInstanceOf(ConstantNodeImpl.class);
             ConstantNode constantNode = (ConstantNode) myNode;
             assertThat(constantNode.getValue().equals(BigDecimal.TEN));
         }
@@ -218,15 +222,15 @@ public class FormulaCrudTest {
             assertThat(myFormula.getMode().equals(myMode));
             ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
             assertThat(myNode.equals(node));
-            assertThat(myNode).isInstanceOf(FunctionCallNode.class);
-            FunctionCallNode functionCallNode = (FunctionCallNode) myNode;
+            assertThat(myNode).isInstanceOf(FunctionCallNodeImpl.class);
+            FunctionCallNodeImpl functionCallNode = (FunctionCallNodeImpl) myNode;
             assertThat(functionCallNode.getFunction().equals(myFunction));
             List<ExpressionNode> children = functionCallNode.getChildren();
             assertThat(children).hasSize(2);
             ExpressionNode child1 = children.get(0);
             ExpressionNode child2 = children.get(1);
-            assertThat(child1).isInstanceOf(ConstantNode.class);
-            assertThat(child2).isInstanceOf(ConstantNode.class);
+            assertThat(child1).isInstanceOf(ConstantNodeImpl.class);
+            assertThat(child2).isInstanceOf(ConstantNodeImpl.class);
             ConstantNode constant1 = (ConstantNode) child1;
             assertThat(constant1.getValue().equals(BigDecimal.TEN));
             ConstantNode constant2 = (ConstantNode) child2;
@@ -258,15 +262,15 @@ public class FormulaCrudTest {
 
 
             assertThat(myNode.equals(node));
-            assertThat(myNode).isInstanceOf(FunctionCallNode.class);
+            assertThat(myNode).isInstanceOf(FunctionCallNodeImpl.class);
             FunctionCallNode functionCallNode = (FunctionCallNode) myNode;
             assertThat(functionCallNode.getFunction().equals(myFunction));
             List<ExpressionNode> children = functionCallNode.getChildren();
             assertThat(children).hasSize(2);
             ExpressionNode child1 = children.get(0);
             ExpressionNode child2 = children.get(1);
-            assertThat(child1).isInstanceOf(ConstantNode.class);
-            assertThat(child2).isInstanceOf(OperationNode.class);
+            assertThat(child1).isInstanceOf(ConstantNodeImpl.class);
+            assertThat(child2).isInstanceOf(OperationNodeImpl.class);
             ConstantNode constant = (ConstantNode) child1;
             assertThat(constant.getValue().equals(BigDecimal.TEN));
             OperationNode operation = (OperationNode) child2;
@@ -331,7 +335,7 @@ public class FormulaCrudTest {
 
             FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
-            NodeBuilder nodeBuilder = builder.constant(10);
+            ExpressionNodeBuilder nodeBuilder = builder.constant(10);
             Formula formula = builder.init(nodeBuilder).build();
             long formulaId = formula.getId();
             Optional<Formula> loadedFormula = service.findFormula(formulaId);
@@ -352,14 +356,14 @@ public class FormulaCrudTest {
 
             FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
-            NodeBuilder nodeBuilder = builder.constant(10);
+            ExpressionNodeBuilder nodeBuilder = builder.constant(10);
             Formula formula = builder.init(nodeBuilder).build();
             long formulaId = formula.getId();
             Optional<Formula> loadedFormula = service.findFormula(formulaId);
             assertThat(loadedFormula).isPresent();
             Formula myFormula = loadedFormula.get();
 
-            ExpressionNode newExpression = (ExpressionNode) builder.constant(99).create();
+            ExpressionNode newExpression = builder.constant(99).create();
             myFormula.updateExpression(newExpression);
             context.commit();
 
@@ -370,7 +374,7 @@ public class FormulaCrudTest {
             assertThat(myFormula.getMode().equals(Formula.Mode.EXPERT));
             ExpressionNode myNode = ((ServerFormula) myFormula).expressionNode();
             assertThat(myNode.equals(newExpression));
-            assertThat(myNode).isInstanceOf(ConstantNode.class);
+            assertThat(myNode).isInstanceOf(ConstantNodeImpl.class);
             ConstantNode constantNode = (ConstantNode) myNode;
             assertThat(constantNode.getValue().equals(new BigDecimal(99)));
 

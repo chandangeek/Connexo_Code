@@ -1,22 +1,20 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.NodeBuilder;
+import com.elster.jupiter.metering.config.ExpressionNodeBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.units.Dimension;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import javax.validation.constraints.AssertTrue;
 
 import static org.mockito.Mockito.when;
 import static org.junit.Assert.*;
@@ -65,7 +63,7 @@ public class FormulaValidationTest {
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
-        NodeBuilder nodeBuilder = builder.minus(
+        ExpressionNodeBuilder nodeBuilder = builder.minus(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
         ExpressionNode node = (ExpressionNode) nodeBuilder.create();
@@ -85,7 +83,7 @@ public class FormulaValidationTest {
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
-        NodeBuilder nodeBuilder = builder.plus(
+        ExpressionNodeBuilder nodeBuilder = builder.plus(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
         ExpressionNode node = (ExpressionNode) nodeBuilder.create();
@@ -105,7 +103,7 @@ public class FormulaValidationTest {
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
-        NodeBuilder nodeBuilder = builder.minus(
+        ExpressionNodeBuilder nodeBuilder = builder.minus(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
         ExpressionNode node = (ExpressionNode) nodeBuilder.create();
@@ -126,7 +124,7 @@ public class FormulaValidationTest {
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
-        NodeBuilder nodeBuilder = builder.plus(
+        ExpressionNodeBuilder nodeBuilder = builder.plus(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
         ExpressionNode node = (ExpressionNode) nodeBuilder.create();
@@ -147,7 +145,7 @@ public class FormulaValidationTest {
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
-        NodeBuilder nodeBuilder = builder.multiply(
+        ExpressionNodeBuilder nodeBuilder = builder.multiply(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
         ExpressionNode node = (ExpressionNode) nodeBuilder.create();
@@ -168,7 +166,7 @@ public class FormulaValidationTest {
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
-        NodeBuilder nodeBuilder = builder.multiply(
+        ExpressionNodeBuilder nodeBuilder = builder.multiply(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
         ExpressionNode node = (ExpressionNode) nodeBuilder.create();
@@ -189,7 +187,7 @@ public class FormulaValidationTest {
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
-        NodeBuilder nodeBuilder = builder.divide(
+        ExpressionNodeBuilder nodeBuilder = builder.divide(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
         ExpressionNode node = (ExpressionNode) nodeBuilder.create();
@@ -210,7 +208,7 @@ public class FormulaValidationTest {
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
-        NodeBuilder nodeBuilder = builder.divide(
+        ExpressionNodeBuilder nodeBuilder = builder.divide(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
         ExpressionNode node = (ExpressionNode) nodeBuilder.create();
@@ -231,7 +229,7 @@ public class FormulaValidationTest {
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
-        NodeBuilder nodeBuilder = builder.plus(
+        ExpressionNodeBuilder nodeBuilder = builder.plus(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2));
         ExpressionNode node = (ExpressionNode) nodeBuilder.create();
@@ -253,7 +251,7 @@ public class FormulaValidationTest {
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
-        NodeBuilder nodeBuilder = builder.maximum(
+        ExpressionNodeBuilder nodeBuilder = builder.maximum(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2),
                 builder.requirement(readingTypeRequirement3));
@@ -276,7 +274,7 @@ public class FormulaValidationTest {
 
         FormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
 
-        NodeBuilder nodeBuilder = builder.maximum(
+        ExpressionNodeBuilder nodeBuilder = builder.maximum(
                 builder.requirement(readingTypeRequirement1),
                 builder.requirement(readingTypeRequirement2),
                 builder.requirement(readingTypeRequirement3));

@@ -29,9 +29,9 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
-import com.elster.jupiter.metering.config.FormulaPart;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -39,7 +39,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.OperationNode;
+import com.elster.jupiter.metering.impl.config.OperationNodeImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -280,7 +280,7 @@ public class DataAggregationServiceImplCalculateIT {
         ServerFormula formula = mock(ServerFormula.class);
         when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
         FormulaBuilder formulaBuilder = newFormulaBuilder();
-        FormulaPart operationNode =
+        ExpressionNode operationNode =
                 formulaBuilder.plus(
                     formulaBuilder.requirement(production),
                     formulaBuilder.requirement(consumption)).create();
@@ -376,7 +376,7 @@ public class DataAggregationServiceImplCalculateIT {
         ReadingType netConsumptionReadingType = this.mockMonthlyNetConsumptionReadingType();
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
         FormulaBuilder formulaBuilder = newFormulaBuilder();
-        FormulaPart operationNode =
+        ExpressionNode operationNode =
                 formulaBuilder.plus(
                     formulaBuilder.requirement(production),
                     formulaBuilder.requirement(consumption)).create();
@@ -480,8 +480,8 @@ public class DataAggregationServiceImplCalculateIT {
         ReadingType netConsumptionReadingType = this.mockMonthlyNetConsumptionReadingType();
         when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
         FormulaBuilder formulaBuilder = newFormulaBuilder();
-        OperationNode operationNode =
-                (OperationNode) formulaBuilder.plus(
+        OperationNodeImpl operationNode =
+                (OperationNodeImpl) formulaBuilder.plus(
                         formulaBuilder.requirement(production),
                         formulaBuilder.multiply(
                                 formulaBuilder.requirement(consumption),

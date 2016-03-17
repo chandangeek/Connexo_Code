@@ -4,7 +4,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
-import com.elster.jupiter.metering.impl.config.ExpressionNode;
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.util.Optional;

@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.util.units.Dimension;
 
 import java.math.BigDecimal;
@@ -7,21 +8,20 @@ import java.math.BigDecimal;
 /**
  * Created by igh on 4/02/2016.
  */
-public class ConstantNode extends AbstractNode {
-
-    static final String TYPE_IDENTIFIER = "CST";
+public class ConstantNodeImpl extends AbstractNode implements ConstantNode {
 
     private BigDecimal constantValue;
 
-    public ConstantNode() {
+    public ConstantNodeImpl() {
         super();
     }
 
-    public ConstantNode(BigDecimal value) {
+    public ConstantNodeImpl(BigDecimal value) {
         this();
         this.constantValue = value;
     }
 
+    @Override
     public BigDecimal getValue() {
         return constantValue;
     }
@@ -35,6 +35,7 @@ public class ConstantNode extends AbstractNode {
         return "constant(" + constantValue.toString() + ")";
     }
 
+    @Override
     public Dimension getDimension() {
        return Dimension.DIMENSIONLESS;
     }

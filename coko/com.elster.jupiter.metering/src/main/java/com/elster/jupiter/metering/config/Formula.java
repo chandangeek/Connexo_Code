@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.config;
 
-import com.elster.jupiter.metering.impl.config.ExpressionNode;
 import com.elster.jupiter.util.HasId;
 
 import aQute.bnd.annotation.ProviderType;

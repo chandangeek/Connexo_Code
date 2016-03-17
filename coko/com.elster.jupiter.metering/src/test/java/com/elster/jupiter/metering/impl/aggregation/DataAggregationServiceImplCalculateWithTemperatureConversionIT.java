@@ -24,9 +24,9 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
-import com.elster.jupiter.metering.config.FormulaPart;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -260,7 +260,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         when(avgTemperature.getName()).thenReturn("averageT");
         when(avgTemperature.getReadingType()).thenReturn(C_daily);
         FormulaBuilder formulaBuilder = newFormulaBuilder();
-        FormulaPart node = formulaBuilder.plus(
+        ExpressionNode node = formulaBuilder.plus(
                 formulaBuilder.requirement(temperature),
                 formulaBuilder.constant(BigDecimal.TEN)).create();
         ServerFormula formula = mock(ServerFormula.class);
@@ -343,7 +343,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         when(avgTemperature.getName()).thenReturn("averageT");
         when(avgTemperature.getReadingType()).thenReturn(F_daily);
         FormulaBuilder formulaBuilder = newFormulaBuilder();
-        FormulaPart node = formulaBuilder.plus(
+        ExpressionNode node = formulaBuilder.plus(
                 formulaBuilder.requirement(temperature),
                 formulaBuilder.constant(BigDecimal.TEN)).create();
         ServerFormula formula = mock(ServerFormula.class);
@@ -433,7 +433,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         when(avgTemperature.getName()).thenReturn("averageT");
         when(avgTemperature.getReadingType()).thenReturn(K_daily);
         FormulaBuilder formulaBuilder = newFormulaBuilder();
-        FormulaPart node =
+        ExpressionNode node =
                 formulaBuilder.divide(
                     formulaBuilder.plus(
                         formulaBuilder.requirement(minTemperature),
