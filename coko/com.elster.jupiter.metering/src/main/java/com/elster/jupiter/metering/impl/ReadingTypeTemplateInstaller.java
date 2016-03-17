@@ -25,8 +25,6 @@ public class ReadingTypeTemplateInstaller {
         installElectricityTemplates();
         installGasTemplates();
         installWaterTemplates();
-        System.out.println("------------------------------------------------------------------------------------------");
-        System.out.println("");
     }
 
     private void installElectricityTemplates() {
@@ -313,7 +311,6 @@ public class ReadingTypeTemplateInstaller {
 
         void done() {
             this.updater.done();
-            System.out.println(this.template);
         }
     }
 }

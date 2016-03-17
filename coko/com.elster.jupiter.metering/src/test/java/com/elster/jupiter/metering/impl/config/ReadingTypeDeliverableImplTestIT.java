@@ -111,6 +111,41 @@ public class ReadingTypeDeliverableImplTestIT {
 
     @Test
     @Transactional
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+    public void testCreateReadingTypeDeliverableWithTheSameName() {
+        inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createReadingTypeDeliverable("name", metrologyContract, readingType, formula);
+        inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createReadingTypeDeliverable("name", metrologyContract, readingType, formula);
+    }
+
+    @Test
+    @Transactional
+    public void testCreateReadingTypeDeliverableWithTheSameNameOnDifferentMetrologyContract() {
+        inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createReadingTypeDeliverable("name", metrologyContract, readingType, formula);
+        MetrologyContract newMetrologyContract = metrologyConfiguration.addMetrologyContract(
+                inMemoryBootstrapModule.getMetrologyConfigurationService().createMetrologyPurpose()
+                        .fromDefaultMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION));
+        inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createReadingTypeDeliverable("name", newMetrologyContract, readingType, formula);
+        // assert no exception about non-unique name
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+    public void testsetNonUniqueReadingTypeDeliverableName() {
+        inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createReadingTypeDeliverable("name", metrologyContract, readingType, formula);
+        ReadingTypeDeliverable deliverable = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createReadingTypeDeliverable("name 2", metrologyContract, readingType, formula);
+        deliverable.setName("name");
+        deliverable.update();
+    }
+
+    @Test
+    @Transactional
     public void testCanCreateReadingTypeDeliverable() {
         String name = "deliverable";
         ReadingTypeDeliverable deliverable = inMemoryBootstrapModule.getMetrologyConfigurationService()

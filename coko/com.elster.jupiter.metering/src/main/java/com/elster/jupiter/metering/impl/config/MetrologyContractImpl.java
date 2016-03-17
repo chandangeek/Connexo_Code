@@ -56,7 +56,7 @@ public class MetrologyContractImpl implements MetrologyContract {
 
     @Override
     public MetrologyConfiguration getMetrologyConfiguration() {
-        return this.metrologyConfiguration.get();
+        return this.metrologyConfiguration.orNull();
     }
 
     @Override
@@ -66,7 +66,7 @@ public class MetrologyContractImpl implements MetrologyContract {
 
     @Override
     public MetrologyPurpose getMetrologyPurpose() {
-        return this.metrologyPurpose.get();
+        return this.metrologyPurpose.orNull();
     }
 
     @Override

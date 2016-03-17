@@ -7,8 +7,10 @@ import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -18,8 +20,10 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.List;
 
-public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable {
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUniqueName {
     public enum Fields {
         ID("id"),
         NAME("name"),
@@ -40,6 +44,7 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable {
 
     private final DataModel dataModel;
     private final EventService eventService;
+    private final MetrologyConfigurationService metrologyConfigurationService;
 
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
@@ -58,9 +63,10 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable {
     private String userName;
 
     @Inject
-    public ReadingTypeDeliverableImpl(DataModel dataModel, EventService eventService) {
+    public ReadingTypeDeliverableImpl(DataModel dataModel, EventService eventService, MetrologyConfigurationService metrologyConfigurationService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     public ReadingTypeDeliverableImpl init(String name, MetrologyContract metrologyContract, ReadingType readingType, Formula formula) {
@@ -83,17 +89,17 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable {
 
     @Override
     public MetrologyContract getMetrologyContract() {
-        return this.metrologyContract.get();
+        return this.metrologyContract.orNull();
     }
 
     @Override
     public Formula getFormula() {
-        return this.formula.get();
+        return this.formula.orNull();
     }
 
     @Override
     public ReadingType getReadingType() {
-        return this.readingType.get();
+        return this.readingType.orNull();
     }
 
     @Override
@@ -126,6 +132,13 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable {
     public void delete() {
         dataModel.remove(this);
         this.eventService.postEvent(EventType.READING_TYPE_DELIVERABLE_DELETED.topic(), this);
+    }
+
+    @Override
+    public boolean validateName() {
+        ReadingTypeDeliverableFilter filter = new ReadingTypeDeliverableFilter().withMetrologyContracts(getMetrologyContract());
+        List<ReadingTypeDeliverable> deliverables = this.metrologyConfigurationService.findReadingTypeDeliverable(filter);
+        return deliverables.isEmpty() || deliverables.get(0).getId() == getId();
     }
 
     @Override
