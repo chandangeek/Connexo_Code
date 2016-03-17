@@ -671,8 +671,20 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Override
     public MultiplierType createMultiplierType(NlsKey name) {
         String localKey = "MultiplierType.custom." + name.getKey();
-        nlsService.copy(name, COMPONENTNAME, Layer.DOMAIN, key -> localKey);
+        this.copyKeyIfMissing(name, localKey);
         MultiplierTypeImpl multiplierType = this.dataModel.getInstance(MultiplierTypeImpl.class).initWithNlsNameKey(localKey);
+        multiplierType.save();
+        return multiplierType;
+    }
+
+    private void copyKeyIfMissing(NlsKey name, String localKey) {
+        if (this.thesaurus.getTranslations().get(localKey) == null) {
+            this.nlsService.copy(name, COMPONENTNAME, Layer.DOMAIN, key -> localKey);
+        }
+    }
+
+    MultiplierType createMultiplierType(MultiplierType.StandardType standardType) {
+        MultiplierTypeImpl multiplierType = this.dataModel.getInstance(MultiplierTypeImpl.class).initWithNlsNameKey(standardType.translationKey());
         multiplierType.save();
         return multiplierType;
     }

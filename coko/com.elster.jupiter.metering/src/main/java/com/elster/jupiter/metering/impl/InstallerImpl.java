@@ -15,8 +15,8 @@ import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
@@ -27,7 +27,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.YearMonth;
@@ -38,6 +37,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class InstallerImpl {
 
@@ -76,6 +77,7 @@ public class InstallerImpl {
         createVaults();
         createRecordSpecs();
         createServiceCategories();
+        createMultiplierTypes();
         createReadingTypes();
         createPartyRoles();
         createAmrSystems();
@@ -209,6 +211,13 @@ public class InstallerImpl {
         return list;
     }
 
+    private List<MultiplierType> createMultiplierTypes() {
+        return Stream
+                .of(MultiplierType.StandardType.values())
+                .map(meteringService::createMultiplierType)
+                .collect(Collectors.toList());
+    }
+
     private void createReadingTypes() {
         try {
             if(createAllReadingTypes){
@@ -230,21 +239,6 @@ public class InstallerImpl {
                 LOGGER.log(Level.SEVERE, "Error creating PartyRole : \'" + role.name() + "\': " + e.getMessage(), e);
             }
         }
-    }
-
-
-    private List<String> getPrivileges() {
-        Field[] fields = Privileges.class.getFields();
-        List<String> result = new ArrayList<>(fields.length);
-        for (Field each : fields) {
-            try {
-                result.add((String) each.get(null));
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return result;
-
     }
 
     private void createQueues() {

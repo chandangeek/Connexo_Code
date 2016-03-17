@@ -40,8 +40,6 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_ARGUMENTS_FOR_FUNCTION_CALL(5005, Constants.INVALID_ARGUMENTS_FOR_FUNCTION_CALL, "Only dimensions that are compatible for automatic unit conversion can be used as children of a function.")
     ;
 
-
-
     private final int number;
     private final String key;
     private final String defaultFormat;
@@ -99,7 +97,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION = "fail.manage.cps.on.active.metrology.configuration";
         public static final String OBJECT_MUST_HAVE_UNIQUE_NAME = "name.must.be.unique";
         public static final String REQUIRED = "isRequired";
-        public static final String LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED = "lastChecked.after.currentLastChecked";
         public static final String CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER = "custom.property.set.is.not.editable.by.user";
         public static final String NO_LINKED_CUSTOM_PROPERTY_SET_ON_USAGE_POINT = "no.linked.custom.property.set.on.usage.point";
         public static final String CUSTOM_PROPERTY_SET_HAS_DIFFERENT_DOMAIN = "custom.property.set.has.different.domain";
@@ -110,9 +107,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_ARGUMENTS_FOR_SUM_OR_SUBSTRACTION = "expression.node.invalid.arguments.sum.or.substraction";
         public static final String INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED = "expression.node.invalid.arguments.one.child.required";
         public static final String INVALID_ARGUMENTS_FOR_FUNCTION_CALL = "Only dimensions that are compatible for automatic unit conversion can be used as children of a function";
-
-
-
     }
 
 }

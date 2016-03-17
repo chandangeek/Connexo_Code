@@ -1,16 +1,18 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
-import java.util.Objects;
 
-import static com.elster.jupiter.orm.Table.NAME_LENGTH;
-
+@UniqueTranslation(groups = {Save.Create.class, Save.Update.class})
 final class MultiplierTypeImpl implements MultiplierType {
 
     private final DataModel dataModel;
@@ -18,7 +20,8 @@ final class MultiplierTypeImpl implements MultiplierType {
 
     @SuppressWarnings("unused")
     private long id;
-    @Size(max = NAME_LENGTH)
+    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
     private boolean nameIsKey;
 
@@ -58,8 +61,17 @@ final class MultiplierTypeImpl implements MultiplierType {
         }
     }
 
+    String name() {
+        return name;
+    }
+
+    boolean nameIsKey() {
+        return nameIsKey;
+    }
+
     void save() {
-        dataModel.mapper(MultiplierType.class).persist(this);
+        Save.CREATE.validate(this.dataModel, this);
+        this.dataModel.mapper(MultiplierType.class).persist(this);
     }
 
     @Override
@@ -71,12 +83,12 @@ final class MultiplierTypeImpl implements MultiplierType {
             return false;
         }
         MultiplierTypeImpl that = (MultiplierTypeImpl) o;
-        return Objects.equals(name, that.name);
+        return this.id == that.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name);
+        return Long.hashCode(this.id);
     }
 
 }

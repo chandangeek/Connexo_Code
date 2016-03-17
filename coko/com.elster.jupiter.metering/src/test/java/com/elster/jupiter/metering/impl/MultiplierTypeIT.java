@@ -4,6 +4,8 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -11,6 +13,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.nls.Layer;
@@ -29,6 +32,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 
+import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -61,6 +65,8 @@ public class MultiplierTypeIT {
 
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     @Mock
     private BundleContext bundleContext;
@@ -139,7 +145,7 @@ public class MultiplierTypeIT {
     }
 
     @Test
-    public void findCTMultiplierTypes() {
+    public void findCTMultiplierType() {
         // Business method
         MultiplierType ct = this.meteringService.getMultiplierType(MultiplierType.StandardType.CT);
 
@@ -148,7 +154,7 @@ public class MultiplierTypeIT {
     }
 
     @Test
-    public void findVTMultiplierTypes() {
+    public void findVTMultiplierType() {
         // Business method
         MultiplierType vt = this.meteringService.getMultiplierType(MultiplierType.StandardType.VT);
 
@@ -157,7 +163,7 @@ public class MultiplierTypeIT {
     }
 
     @Test
-    public void findPulseMultiplierTypes() {
+    public void findPulseMultiplierType() {
         // Business method
         MultiplierType pulse = this.meteringService.getMultiplierType(MultiplierType.StandardType.Pulse);
 
@@ -166,7 +172,7 @@ public class MultiplierTypeIT {
     }
 
     @Test
-    public void findTransformerMultiplierTypes() {
+    public void findTransformerMultiplierType() {
         // Business method
         MultiplierType transformer = this.meteringService.getMultiplierType(MultiplierType.StandardType.Transformer);
 
@@ -186,6 +192,59 @@ public class MultiplierTypeIT {
 
         // Asserts
         assertThat(meteringService.getMultiplierType(MULTIPLIER_TYPE_NAME)).contains(multiplierType);
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    public void createMultiplierTypeWithNullName() {
+        // Business method
+        try (TransactionContext context = transactionService.getContext()) {
+            meteringService.createMultiplierType((String) null);
+            context.commit();
+        }
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    public void createMultiplierTypeWithEmptyName() {
+        // Business method
+        try (TransactionContext context = transactionService.getContext()) {
+            meteringService.createMultiplierType("");
+            context.commit();
+        }
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    public void createMultiplierTypeWithLongName() {
+        // Business method
+        try (TransactionContext context = transactionService.getContext()) {
+            meteringService.createMultiplierType(Strings.repeat("name", 200));
+            context.commit();
+        }
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+    public void createMultiplierTypeWithDuplicateFixedName() {
+        try (TransactionContext context = transactionService.getContext()) {
+            meteringService.createMultiplierType(MULTIPLIER_TYPE_NAME);
+            context.commit();
+        }
+
+        // Business method
+        try (TransactionContext context = transactionService.getContext()) {
+            meteringService.createMultiplierType(MULTIPLIER_TYPE_NAME);
+            context.commit();
+        }
+
+        // Asserts: see expected constraint violation rule
     }
 
     @Test
@@ -222,6 +281,37 @@ public class MultiplierTypeIT {
         assertThat(multiplierType.getName()).isEqualTo(expectedGermanName);
         when(this.threadPrincipalService.getLocale()).thenReturn(Locale.FRENCH);
         assertThat(multiplierType.getName()).isEqualTo(expectedFrenchName);
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+    public void createDuplicateMultiplierTypeWithNlsSupport() {
+        String sourceNlsComponent = "SRC";
+        String expectedEnglishName = "Test multiplier type";
+        String expectedFrenchName = "Type de multiplication de teste";
+        String expectedGermanName = "Test Multiplikator Typ";
+        NlsService nlsService = injector.getInstance(NlsService.class);
+        NlsKey nlsKey = injector.getInstance(TransactionService.class).execute(() -> {
+            NlsKey nlsKey1 = SimpleNlsKey.key(sourceNlsComponent, Layer.DOMAIN, "test.multiplier.type").defaultMessage(expectedEnglishName);
+            nlsService
+                    .translate(nlsKey1)
+                    .to(Locale.GERMAN, expectedGermanName)
+                    .to(Locale.FRENCH, expectedFrenchName)
+                    .add();
+            return nlsKey1;
+        });
+        try (TransactionContext context = transactionService.getContext()) {
+            meteringService.createMultiplierType(nlsKey);
+            context.commit();
+        }
+
+        // Business method
+        try (TransactionContext context = transactionService.getContext()) {
+            meteringService.createMultiplierType(nlsKey);
+            context.commit();
+        }
+
+        // Asserts: see expected constraint violation rule
     }
 
 }
