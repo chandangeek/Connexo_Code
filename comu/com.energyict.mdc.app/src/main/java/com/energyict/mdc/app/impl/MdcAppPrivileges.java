@@ -1,8 +1,6 @@
 package com.energyict.mdc.app.impl;
 
 
-import com.elster.jupiter.metering.security.Privileges;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -10,6 +8,9 @@ class MdcAppPrivileges {
 
     static List<String> getApplicationPrivileges() {
         return Arrays.asList(
+
+                //monitor
+                com.energyict.mdc.engine.monitor.app.security.MdcMonitorAppPrivileges.MONITOR_COMMUNICATION_SERVER,
 
                 //validation
                 com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
@@ -159,9 +160,10 @@ class MdcAppPrivileges {
                 com.elster.jupiter.cps.Privileges.Constants.EDIT_CUSTOM_PROPERTIES_1,
                 com.elster.jupiter.cps.Privileges.Constants.EDIT_CUSTOM_PROPERTIES_2,
                 com.elster.jupiter.cps.Privileges.Constants.EDIT_CUSTOM_PROPERTIES_3,
-                com.elster.jupiter.cps.Privileges.Constants.EDIT_CUSTOM_PROPERTIES_4);
+                com.elster.jupiter.cps.Privileges.Constants.EDIT_CUSTOM_PROPERTIES_4,
 
-
-
+                //com.elster.jupiter.servicecall
+                com.elster.jupiter.servicecall.security.Privileges.Constants.VIEW_SERVICE_CALLS,
+                com.elster.jupiter.servicecall.security.Privileges.Constants.CHANGE_SERVICE_CALL_STATE);
     }
 }

@@ -31,7 +31,7 @@ public class MdcAppInstaller implements InstallService {
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(UserService.COMPONENTNAME, "APS", "ISU", "DTC", "DDC", "MDC", "SCH", "VAL", "YFN", "BPM", "DES", "FIM", "FWC", "CPS");
+        return Arrays.asList(UserService.COMPONENTNAME, "APS", "ISU", "DTC", "DDC", "MDC", "SCH", "VAL", "YFN", "BPM", "DES", "FIM", "FWC", "CPS", "CSM");
     }
 
     @Reference
@@ -157,6 +157,9 @@ public class MdcAppInstaller implements InstallService {
 
                 //Shared communication schedule
                 com.energyict.mdc.scheduling.security.Privileges.Constants.VIEW_SHARED_COMMUNICATION_SCHEDULE,
+
+                //Service calls
+                com.elster.jupiter.servicecall.security.Privileges.Constants.CHANGE_SERVICE_CALL_STATE
         };
     }
 }
