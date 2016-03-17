@@ -44,7 +44,8 @@ Ext.define('Scs.view.SetupOverview', {
                             itemId: 'grid-tab',
                             items: [
                                 {
-                                    xtype: 'service-call-filter'
+                                    xtype: 'service-call-filter',
+                                    itemId: 'serviceCallFilter'
                                 },
                                 {
                                     xtype: 'service-call-preview-container',
