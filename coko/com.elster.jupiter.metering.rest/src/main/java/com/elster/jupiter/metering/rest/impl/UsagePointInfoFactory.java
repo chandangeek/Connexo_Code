@@ -46,6 +46,11 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(MeteringApplication.COMPONENT_NAME, Layer.REST);
         this.valueThesaurus = nlsService.getThesaurus(MeteringApplication.COMPONENT_NAME, Layer.DOMAIN);

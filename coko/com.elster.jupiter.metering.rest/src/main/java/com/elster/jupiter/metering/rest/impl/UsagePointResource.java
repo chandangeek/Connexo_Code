@@ -100,14 +100,15 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Path("/{mRID}")
     @Transactional
-    public Response deleteUsagePoint(@PathParam("mRID") String mRID) {
-        Optional<UsagePoint> usagePoint = meteringService.findUsagePoint(mRID);
-        if (usagePoint.isPresent()) {
-            usagePoint.get().delete();
-            return Response.status(Response.Status.OK).build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
+    public Response deleteUsagePoint(@PathParam("mRID") String mRID, UsagePointInfo info) {
+        UsagePoint usagePoint = meteringService.findAndLockUsagePointByIdAndVersion(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> meteringService.findUsagePoint(mRID).map(UsagePoint::getVersion).orElse(Long.valueOf(0)))
+                        .supplier());
+        if (usagePoint != null) {
+            usagePoint.delete();
         }
+        return Response.status(Response.Status.OK).entity(info).build();
     }
 
     @POST
