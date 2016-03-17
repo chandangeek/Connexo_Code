@@ -118,7 +118,9 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
      * @param period The requested period in time
      */
     private void prepare(MeterActivation meterActivation, ReadingTypeDeliverable deliverable, Range<Instant> period, VirtualFactory virtualFactory) {
-        ServerExpressionNode preparedExpression = this.copyAndVirtualizeReferences(deliverable, meterActivation, virtualFactory);
+        ServerExpressionNode virtualizedExpression = this.copyAndVirtualizeReferences(deliverable, meterActivation, virtualFactory);
+        VirtualReadingType readingType = this.inferReadingType(deliverable, virtualizedExpression);
+        ServerExpressionNode withMultipliers = virtualizedExpression.accept(new ApplyCurrentAndOrVoltageTransformer(this.meteringService, meterActivation));
         this.deliverablesPerMeterActivation
                 .get(meterActivation)
                 .add(new ReadingTypeDeliverableForMeterActivation(
@@ -126,8 +128,8 @@ public class DataAggregationServiceImpl implements DataAggregationService, Readi
                         meterActivation,
                         period,
                         virtualFactory.meterActivationSequenceNumber(),
-                        preparedExpression,
-                        this.inferReadingType(deliverable, preparedExpression)));
+                        withMultipliers,
+                        readingType));
     }
 
     /**

@@ -1,8 +1,8 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.FormulaPart;
 import com.elster.jupiter.metering.config.FormulaBuilder;
+import com.elster.jupiter.metering.config.FormulaPart;
 import com.elster.jupiter.metering.config.NodeBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -55,6 +55,10 @@ public class FormulaBuilderImpl implements FormulaBuilder {
 
     public NodeBuilder requirement(ReadingTypeRequirement value) {
         return () -> new ReadingTypeRequirementNode(value);
+    }
+
+    public NodeBuilder requirement(ReadingTypeRequirementNode existingNode) {
+        return () -> existingNode;
     }
 
     public NodeBuilder constant(BigDecimal value) {
