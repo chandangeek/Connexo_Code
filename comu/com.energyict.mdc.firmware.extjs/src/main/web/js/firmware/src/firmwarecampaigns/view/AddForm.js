@@ -293,6 +293,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
     loadRecordForEdit: function(campaignRecord) {
         var me = this,
+            taskRunner = new Ext.util.TaskRunner(),
             deviceTypeCombo = me.down('#firmware-campaign-device-type'),
             firmwareTypeRadioGroup = me.down('#firmware-type'),
             deviceGroupComboContainer = me.down('#firmware-campaign-device-group-field-container'),
@@ -302,9 +303,12 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 deviceGroupComboContainer.hide();
                 deviceTypeCombo.setDisabled(true);
                 deviceTypeCombo.setValue(deviceTypeId);
-                firmwareTypeRadioGroup.setDisabled(true);
             },
             setOptions = function() {
+                firmwareTypeRadioGroup.setValue({
+                    firmwareType : campaignRecord.get('firmwareType').id
+                });
+                firmwareTypeRadioGroup.setDisabled(true);
                 managementOptionRadioGroup.setValue({
                     managementOption : campaignRecord.get('managementOption').id
                 });
@@ -314,12 +318,21 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 me.down('#property-form').setPropertiesAndDisable(campaignRecord.propertiesStore.getRange());
                 me.setLoading(false);
                 me.skipLoadingIndication = false;
-            };
+            },
+            setPropertiesTask = taskRunner.newTask({
+                run: setProperties,
+                scope: me,
+                fireOnStart: false,
+                interval: 20,
+                repeat: 1
+            });
 
         me.campaignRecordBeingEdited = campaignRecord;
         me.skipLoadingIndication = true;
         me.on('fwc-deviceTypeChanged', setOptions);
-        me.on('fwc-propertiesInitialized', setProperties);
+        me.on('fwc-propertiesInitialized', function() {
+            setPropertiesTask.start();
+        });
         me.loadRecord(campaignRecord);
         hideDeviceGroupComboAndSetDeviceType();
     }
