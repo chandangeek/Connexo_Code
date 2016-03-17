@@ -158,7 +158,7 @@ Ext.define('Bpm.controller.TaskBulk', {
                 record.beginEdit();
                 record.set('hasMandatory', true);
                 record.data.tasksForm = this.data;
-                record.mandatoryValidated = false;
+                if(loadBpmForm) record.mandatoryValidated = false;
                 record.endEdit();
                 if(loadBpmForm) me.loadJbpmForm(record);
 
@@ -168,6 +168,7 @@ Ext.define('Bpm.controller.TaskBulk', {
                         propertyForm.getForm().markInvalid('');
                         propertyForm.getForm().markInvalid(json.errors);
                     }
+                    me.getWizard().setLoading(false);
                 }
             },
         });
@@ -197,6 +198,7 @@ Ext.define('Bpm.controller.TaskBulk', {
             preview = wizard.down('bpm-task-group-preview'),
             propertyForm = wizard.down('property-form');
 
+        wizard.setLoading();
         if(record.get('name') != 'null')
             preview.setTitle(record.get('name'));
         else
@@ -206,8 +208,11 @@ Ext.define('Bpm.controller.TaskBulk', {
 
         if(record.mandatoryValidated == false)
         {
+            me.getWizard().setLoading();
             me.validateMandatoryFieldsInForm(propertyForm, record);
         }
+
+
     },
 
     loadJbpmForm: function (taskRecord) {
@@ -221,6 +226,7 @@ Ext.define('Bpm.controller.TaskBulk', {
         if (taskRecord && taskRecord.tasksForm && taskRecord.tasksForm.properties() && taskRecord.tasksForm.properties().count()) {
             propertyForm.loadRecord(taskRecord.tasksForm);
             propertyForm.show();
+            me.getWizard().setLoading(false);
         } else {
             propertyForm.loadRecord(taskRecord.tasksForm);
             propertyForm.add(
@@ -232,6 +238,7 @@ Ext.define('Bpm.controller.TaskBulk', {
                         color: '#999'
                     }
                 });
+            me.getWizard().setLoading(false);
 
         }
         taskExecutionContent.setLoading(false);
@@ -316,7 +323,9 @@ Ext.define('Bpm.controller.TaskBulk', {
             qParams,
             tasksGroupsStore = me.getStore('Bpm.store.task.TaskGroups');
 
+
         if (tasksGroupsStore.data.items.length != 0) return;
+        me.getWizard().setLoading();
 
         if (selectionGrid.isAllSelected()) {
             taskGroupItems = me.alltasksBulk;
@@ -339,9 +348,11 @@ Ext.define('Bpm.controller.TaskBulk', {
             success: function (response) {
                 tasksGroupsStore.loadRawData(Ext.decode(response.responseText), true);
                 me.getGroupGrid().getSelectionModel().select(0);
+                me.getWizard().setLoading(false);
             },
             failure: function (response) {
                 console.log(response);
+                me.getWizard().setLoading(false);
             }
         });
     },
