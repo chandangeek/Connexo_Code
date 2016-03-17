@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Created by igh on 11/02/2016.
@@ -43,9 +44,12 @@ public class FormulaImpl implements ServerFormula {
 
     @Override
     public void updateExpression(ExpressionNode nodeValue) {
-        this.expressionNode.get().delete(dataModel);
+        ExpressionNode oldNode = this.expressionNode.get();
+        this.expressionNode = ValueReference.absent();
         this.expressionNode.set(nodeValue);
-        save();
+        this.expressionNode.get().save(dataModel);
+        Save.UPDATE.save(dataModel, this);
+        oldNode.delete(dataModel);
     }
 
     @Override
@@ -92,10 +96,6 @@ public class FormulaImpl implements ServerFormula {
         } else {
             Save.UPDATE.save(dataModel, this);
         }
-
-
-        this.expressionNode.get().save(dataModel);
-        Save.action(this.id).save(dataModel, this);
     }
 
     public String toString() {
