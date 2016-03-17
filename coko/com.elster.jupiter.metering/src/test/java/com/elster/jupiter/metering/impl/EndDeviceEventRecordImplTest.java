@@ -18,7 +18,6 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.pubsub.impl.PublisherImpl;
-import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.ImmutableList;
 import org.assertj.core.api.Assertions;
 import org.junit.AfterClass;
@@ -124,10 +123,6 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
 
     private ServerMeteringService getMeteringService() {
         return inMemoryBootstrapModule.getMeteringService();
-    }
-
-    private TransactionService getTransactionService() {
-        return inMemoryBootstrapModule.getTransactionService();
     }
 
     @Override
