@@ -1,6 +1,7 @@
 package com.elster.jupiter.util.time.impl;
 
 import com.elster.jupiter.util.time.ExecutionStatistics;
+import com.elster.jupiter.util.time.StopWatch;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -233,10 +234,9 @@ public class ExecutionTimerImplTest {
 
         @Override
         public void run() {
-            try {
-                Thread.sleep(this.delayMillis);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+            StopWatch stopWatch = new StopWatch();
+            while (stopWatch.getElapsed() < this.delayMillis * 1_000_000L) {
+                // Pretend to do something
             }
         }
     }
@@ -252,7 +252,10 @@ public class ExecutionTimerImplTest {
 
         @Override
         public String call() throws Exception {
-            Thread.sleep(this.delayMillis);
+            StopWatch stopWatch = new StopWatch();
+            while (stopWatch.getElapsed() < this.delayMillis * 1_000_000L) {
+                // Pretend to do something
+            }
             return this.answer;
         }
     }
