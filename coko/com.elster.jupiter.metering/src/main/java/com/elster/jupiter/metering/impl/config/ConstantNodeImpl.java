@@ -10,6 +10,8 @@ import java.math.BigDecimal;
  */
 public class ConstantNodeImpl extends AbstractNode implements ConstantNode {
 
+    static final String TYPE_IDENTIFIER = "CST";
+
     private BigDecimal constantValue;
 
     public ConstantNodeImpl() {

@@ -12,6 +12,7 @@ import com.elster.jupiter.util.units.Dimension;
  */
 public class ReadingTypeDeliverableNodeImpl extends AbstractNode implements ReadingTypeDeliverableNode {
 
+    static final String TYPE_IDENTIFIER = "DEL";
 
     //todo add foreign key and replace id by reference
     private Reference<ReadingTypeDeliverable> readingTypeDeliverable = ValueReference.absent();

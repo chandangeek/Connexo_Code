@@ -14,6 +14,7 @@ import java.util.Optional;
  */
 public class ReadingTypeRequirementNodeImpl extends AbstractNode implements ReadingTypeRequirementNode {
 
+    static final String TYPE_IDENTIFIER = "REQ";
 
     //todo add foreign key and replace id by reference
     private Reference<ReadingTypeRequirement> readingTypeRequirement = ValueReference.absent();

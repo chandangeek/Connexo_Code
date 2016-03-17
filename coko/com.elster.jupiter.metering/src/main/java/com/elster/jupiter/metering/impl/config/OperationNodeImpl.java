@@ -16,6 +16,8 @@ import java.util.Optional;
  */
 public class OperationNodeImpl extends AbstractNode implements OperationNode {
 
+    static final String TYPE_IDENTIFIER = "OPR";
+
     private Operator operator;
     private Thesaurus thesaurus;
 

@@ -5,8 +5,5 @@ package com.elster.jupiter.metering.config;
  */
 public interface ReadingTypeRequirementNode extends ExpressionNode {
 
-
-    String TYPE_IDENTIFIER = "REQ";
-
     ReadingTypeRequirement getReadingTypeRequirement();
 }

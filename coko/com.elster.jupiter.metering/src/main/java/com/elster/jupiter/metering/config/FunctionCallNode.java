@@ -5,7 +5,7 @@ package com.elster.jupiter.metering.config;
  */
 public interface FunctionCallNode extends ExpressionNode {
 
-    String TYPE_IDENTIFIER = "FCT";
+
 
     Function getFunction();
 }
